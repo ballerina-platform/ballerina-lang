@@ -1,27 +1,27 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-
-endpoint<http:Service> helloWorldEP {
+endpoint http:ServiceEndpoint helloWorldEP {
     port:9095,
-    ssl : {
-            keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            keyStorePassword:"ballerina",
-            certPassword:"ballerina"
-     }
-}
+    secureSocket: {
+        keyStore: {
+            filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+};
 
 @Description {value:"Ballerina server connector can be used to connect to a https client. If client needs to verify server authenticity when establishing the connection, server needs to provide keyStoreFile, keyStorePassword and certificate password as given here."}
-@http:serviceConfig {
-    endpoints:[helloWorldEP],
-    basePath:"/hello"
+@http:ServiceConfig {
+      endpoints:[helloWorldEP],
+      basePath:"/hello"
 }
-service<http:Service> helloWorld {
-    @http:resourceConfig {
+service<http:Service> helloWorld bind helloWorldEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
 
-    resource sayHello (http:ServerConnector conn, http:Request req) {
+    sayHello (endpoint conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Successful");
         _ = conn -> respond(res);

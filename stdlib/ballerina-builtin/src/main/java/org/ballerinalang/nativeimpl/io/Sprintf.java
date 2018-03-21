@@ -34,7 +34,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "sprintf",
         args = {@Argument(name = "format", type = TypeKind.STRING),
                 @Argument(name = "args", type = TypeKind.ARRAY)},

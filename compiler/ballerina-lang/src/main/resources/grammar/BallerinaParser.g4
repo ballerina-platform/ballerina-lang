@@ -39,7 +39,7 @@ definition
     :   serviceDefinition
     |   functionDefinition
     |   structDefinition
-    |   objectDefinition
+    |   typeDefinition
     |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
@@ -101,8 +101,8 @@ privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
 
-objectDefinition
-    :   TYPE_TYPE Identifier OBJECT LEFT_BRACE objectBody RIGHT_BRACE
+typeDefinition
+    :   (PUBLIC)? TYPE_TYPE Identifier typeName
     ;
 
 objectBody
@@ -131,7 +131,7 @@ objectFunctions
 
 // TODO merge with fieldDefinition later
 objectFieldDefinition
-    :   typeName Identifier (COLON simpleLiteral)? (COMMA | SEMICOLON)
+    :   typeName Identifier (COLON expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -226,17 +226,17 @@ endpointInitlization
 
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
+    |   annotatedTypeName                                                   # annotatedTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
     |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
-    |   annotatedTypeName                                                   # annotatedTypeNameLabel
+    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
     ;
 
 annotatedTypeName
-    :   simpleTypeName
-    |   annotationAttachment* simpleTypeName
+    :   annotationAttachment+ simpleTypeName
     ;
 
 // Temporary production rule name
@@ -347,7 +347,7 @@ recordKeyValue
 
 recordKey
     :   Identifier
-    |   simpleLiteral
+    |   expression
     ;
 
 arrayLiteral
@@ -355,11 +355,12 @@ arrayLiteral
     ;
 
 typeInitExpr
-    :   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
+    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
     ;
 
 tupleDestructuringStatement
@@ -500,6 +501,7 @@ workerReply
 variableReference
     :   nameReference                                                           # simpleVariableReference
     |   functionInvocation                                                      # functionInvocationReference
+    |   awaitExpression                                                         # awaitExpressionReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
@@ -622,7 +624,11 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   AWAIT expression                                                    # awaitExpression    
+    |   awaitExpression                                                     # awaitExprExpression
+    ;
+
+awaitExpression
+    :   AWAIT expression                                                    # awaitExpr
     ;
 
 //reusable productions

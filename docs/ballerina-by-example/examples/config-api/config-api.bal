@@ -1,5 +1,5 @@
-import ballerina.config;
-import ballerina.io;
+import ballerina/config;
+import ballerina/io;
 
 function main(string[] args) {
     // Ballerina config API provides a mechanism for developers to look-up values from config files, CLI parameters,

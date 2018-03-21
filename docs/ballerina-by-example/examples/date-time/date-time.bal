@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.time;
+import ballerina/io;
+import ballerina/time;
 
 function main (string[] args) {
     // Time struct can be created by currentTime, createTime or parse functions.
@@ -48,10 +48,10 @@ function main (string[] args) {
     string weekday = time.weekday();
     io:println("Weekday: " + weekday);
     // Get date components of time using a single function.
-    year, month, day = time.getDate();
+    (year, month, day) = time.getDate();
     io:println("Date: " + year + ":" + month + ":" + day);
     // Get time components using a single function.
-    hour, minute, second, milliSecond = time.getTime();
+    (hour, minute, second, milliSecond) = time.getTime();
     io:println("Time:" + hour + ":" + minute + ":" + second + ":" + milliSecond);
     // Add a given duration to the time. Here we are adding
     // one year, one month, and one second to the current time.

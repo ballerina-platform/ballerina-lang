@@ -1,6 +1,6 @@
-import ballerina.task;
-import ballerina.math;
-import ballerina.log;
+import ballerina/task;
+import ballerina/math;
+import ballerina/log;
 
 int app1Count;
 string app1Tid;

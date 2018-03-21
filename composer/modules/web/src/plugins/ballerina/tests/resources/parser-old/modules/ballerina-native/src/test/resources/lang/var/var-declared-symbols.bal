@@ -1,4 +1,4 @@
-import ballerina.lang.errors;
+import ballerina/lang.errors;
 
 function testVarDeclarationWithAllDeclaredSymbols () (int, errors:TypeConversionError) {
     int a;

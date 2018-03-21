@@ -1,5 +1,5 @@
-import ballerina.lang.strings;
-import ballerina.lang.system;
+import ballerina/lang.strings;
+import ballerina/lang.system;
 
 struct Person {
     string name;

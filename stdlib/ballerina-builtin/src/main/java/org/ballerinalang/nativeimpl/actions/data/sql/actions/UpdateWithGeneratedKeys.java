@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.data.sql",
+        orgName = "ballerina", packageName = "data.sql",
         functionName = "updateWithGeneratedKeys",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
         args = {@Argument(name = "sqlQuery", type = TypeKind.STRING),

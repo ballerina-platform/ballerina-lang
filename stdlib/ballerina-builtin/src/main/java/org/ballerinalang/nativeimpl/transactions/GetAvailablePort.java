@@ -34,7 +34,7 @@ import java.net.ServerSocket;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.transactions.coordinator",
+        orgName = "ballerina", packageName = "transactions.coordinator",
         functionName = "getAvailablePort",
         returnType = {@ReturnType(type = TypeKind.INT)}
 )

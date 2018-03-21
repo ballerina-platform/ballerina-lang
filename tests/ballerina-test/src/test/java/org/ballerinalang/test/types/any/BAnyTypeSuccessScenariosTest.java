@@ -151,7 +151,8 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any type as a struct parameter with boolean value")
     public void testAnyArrayWithMapArray() {
-        BValue[] returns = BRunUtil.invoke(result, "anyArrayWithMapArray");
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(result, "anyArrayWithMapArray", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BRefValueArray.class);
     }

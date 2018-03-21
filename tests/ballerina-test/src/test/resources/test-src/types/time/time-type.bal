@@ -1,4 +1,4 @@
-import ballerina.time;
+import ballerina/time;
 
 function testCurrentTime () returns (int, string, int){
     time:Time timeStruct = time:currentTime();

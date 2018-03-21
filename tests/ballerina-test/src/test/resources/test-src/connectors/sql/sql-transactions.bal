@@ -1,10 +1,10 @@
-import ballerina.data.sql;
+import ballerina/data.sql;
 
 struct ResultCount {
     int COUNTVAL;
 }
 
-function testLocalTransacton () (int returnVal, int count) {
+function testLocalTransacton () returns (int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -15,7 +15,8 @@ function testLocalTransacton () (int returnVal, int count) {
         options: {maximumPoolSize:1}
     };
 
-    returnVal = 0;
+    int returnVal = 0;
+    int count;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
@@ -32,10 +33,10 @@ function testLocalTransacton () (int returnVal, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count);
 }
 
-function testTransactonRollback () (int returnVal, int count) {
+function testTransactonRollback () returns (int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -46,7 +47,8 @@ function testTransactonRollback () (int returnVal, int count) {
         options: {maximumPoolSize:1}
     };
 
-    returnVal = 0;
+    int returnVal = 0;
+    int count;
     try {
         transaction {
             _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,
@@ -67,10 +69,10 @@ function testTransactonRollback () (int returnVal, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count);
 }
 
-function testTransactonAbort () (int returnVal, int count) {
+function testTransactonAbort () returns (int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -81,7 +83,8 @@ function testTransactonAbort () (int returnVal, int count) {
         options: {maximumPoolSize:1}
     };
 
-    returnVal = -1;
+    int returnVal = -1;
+    int count;
     transaction {
         int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')", null);
@@ -104,10 +107,10 @@ function testTransactonAbort () (int returnVal, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count);
 }
 
-function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
+function testTransactonErrorThrow () returns (int, int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -118,8 +121,8 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
         options: {maximumPoolSize:1}
     };
 
-	returnVal = 0;
-    catchValue = 0;
+	int returnVal = 0;
+    int catchValue = 0;
     try {
         transaction {
             int insertCount = testDB -> update("Insert into Customers (firstName,lastName,
@@ -143,10 +146,10 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, catchValue, count) ;
 }
 
-function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
+function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -157,8 +160,9 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         options: {maximumPoolSize:1}
     };
 
-	returnVal = 0;
-    catchValue = 0;
+	int returnVal = 0;
+    int catchValue = 0;
+    int count;
     transaction {
         int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,
                  creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')", null);
@@ -182,10 +186,10 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, catchValue, count);
 }
 
-function testTransactonCommitted () (int returnVal, int count) {
+function testTransactonCommitted () returns (int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -196,7 +200,8 @@ function testTransactonCommitted () (int returnVal, int count) {
         options: {maximumPoolSize:1}
     };
 
-	returnVal = 1;
+	int returnVal = 1;
+    int count;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
@@ -213,10 +218,10 @@ function testTransactonCommitted () (int returnVal, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count);
 }
 
-function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
+function testTwoTransactons () returns (int, int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -227,8 +232,9 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
         options: {maximumPoolSize:1}
     };
 
-    returnVal1 = 1;
-    returnVal2 = 1;
+    int returnVal1 = 1;
+    int returnVal2 = 1;
+    int count;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
@@ -254,10 +260,10 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return returnVal1, returnVal2, count;
+    return (returnVal1, returnVal2, count);
 }
 
-function testTransactonWithoutHandlers () (int count) {
+function testTransactonWithoutHandlers () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -277,15 +283,16 @@ function testTransactonWithoutHandlers () (int count) {
     //check whether update action is performed
     table dt = testDB -> select("Select COUNT(*) as countval from Customers where
                                       registrationID = 350", null, typeof ResultCount);
+    int count;
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return count;
 }
 
-function testLocalTransactionFailed () (string, int) {
+function testLocalTransactionFailed () returns (string, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -319,10 +326,10 @@ function testLocalTransactionFailed () (string, int) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return a, count;
+    return (a, count);
 }
 
-function testLocalTransactonSuccessWithFailed () (string, int) {
+function testLocalTransactonSuccessWithFailed () returns (string, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -363,10 +370,10 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return a, count;
+    return (a, count);
 }
 
-function testLocalTransactonFailedWithNextupdate () (int i) {
+function testLocalTransactonFailedWithNextupdate () returns (int) {
 	endpoint sql:Client testDB1 {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -387,7 +394,7 @@ function testLocalTransactonFailedWithNextupdate () (int i) {
         options: {maximumPoolSize:1}
     };
 
-    i = 0;
+    int i = 0;
     try {
         transaction {
             _ = testDB1 -> update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
@@ -408,10 +415,10 @@ function testLocalTransactonFailedWithNextupdate () (int i) {
         i = rs.COUNTVAL;
     }
     testDB2 -> close();
-    return;
+    return i;
 }
 
-function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
+function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -422,7 +429,8 @@ function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
         options: {maximumPoolSize:1}
     };
 	
-    returnVal = 0;
+    int returnVal = 0;
+    int count;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')", null);
@@ -441,10 +449,10 @@ function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
+function testNestedThreeLevelTransactonSuccess () returns (int, int) {
 	endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -455,7 +463,8 @@ function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
         options: {maximumPoolSize:1}
     };
 	
-    returnVal = 0;
+    int returnVal = 0;
+    int count;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')", null);
@@ -478,10 +487,10 @@ function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
+function testNestedThreeLevelTransactonFailed () returns (int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -492,7 +501,8 @@ function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
         options: {maximumPoolSize:1}
     };
 
-    returnVal = 0;
+    int returnVal = 0;
+    int count;
     try {
         transaction {
             _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -519,10 +529,10 @@ function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal, int count, string a) {
+function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, int, string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -533,7 +543,9 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal,
         options: {maximumPoolSize:1}
     };
 
-    returnVal = 0;
+    int returnVal = 0;
+    int count;
+    string a;
     int index = 0;
     a = "start";
     try {
@@ -576,11 +588,11 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal,
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return (returnVal, count, a);
 }
 
 
-function testCloseConnectionPool () (int count) {
+function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -593,10 +605,11 @@ function testCloseConnectionPool () (int count) {
 	
     table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                              typeof ResultCount);
+    int count;
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return count;
 }

@@ -1,4 +1,4 @@
-import ballerina.data.sql;
+import ballerina/data.sql;
 
 sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
                   driverClassName:"org.hsqldb.jdbc.JDBCDriver", maximumPoolSize:1,
@@ -25,7 +25,7 @@ map propertiesMap3 = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR
 sql:ConnectionProperties properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                           datasourceProperties:propertiesMap3};
 
-function testConnectionPoolProperties1 () (string firstName) {
+function testConnectionPoolProperties1 () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "",
@@ -37,27 +37,30 @@ function testConnectionPoolProperties1 () (string firstName) {
     };
 
 
+    string firstName;
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testConnectionPoolProperties2 () (string firstName) {
+function testConnectionPoolProperties2 () returns (string) {
     endpoint sql:Client testDB {
         username: "SA",
         options: properties
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testConnectionPoolProperties3 () (string firstName) {
+function testConnectionPoolProperties3 () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -66,50 +69,52 @@ function testConnectionPoolProperties3 () (string firstName) {
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
 
-function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
+function testConnectorWithDefaultPropertiesForListedDB () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
-        options: null
+        options: {}
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testConnectorWithWorkers () (string firstName) {
+function testConnectorWithWorkers () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
-        options: null
+        options: {}
     };
 
     worker w1 {
         int x = 0;
         json y;
-        error e;
 
 	    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 	    var j, _ = <json>dt;
-	    firstName = j.toString();
+	    string firstName = j.toString();
         testDB -> close();
-	    return;
+	    return firstName;
     }    
     worker w2 {
         int x = 10;
@@ -117,20 +122,21 @@ function testConnectorWithWorkers () (string firstName) {
 }
 
 
-function testConnectorWithDirectUrl () (string firstName) {
+function testConnectorWithDirectUrl () returns (string) {
     endpoint sql:Client testDB {
         username: "SA",
         options: Properties2
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testConnectorWithDataSourceClass () (string firstName) {
+function testConnectorWithDataSourceClass () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.GENERIC,
         username: "SA",
@@ -138,13 +144,14 @@ function testConnectorWithDataSourceClass () (string firstName) {
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testConnectorWithDataSourceClassAndProps () (string firstName) {
+function testConnectorWithDataSourceClassAndProps () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -155,13 +162,14 @@ function testConnectorWithDataSourceClassAndProps () (string firstName) {
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
+function testConnectorWithDataSourceClassWithoutURL () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -172,13 +180,14 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testConnectorWithDataSourceClassURLPriority () (string firstName) {
+function testConnectorWithDataSourceClassURLPriority () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -189,8 +198,9 @@ function testConnectorWithDataSourceClassURLPriority () (string firstName) {
     };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
     testDB -> close();
-    return;
+    return firstName;
 }

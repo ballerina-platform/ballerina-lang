@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "xml.toJSON",
         args = {@Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
                           structPackage = "ballerina.lang.xmls")},

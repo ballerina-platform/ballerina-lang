@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(packageName = "ballerina.builtin",
+@BallerinaFunction(orgName = "ballerina", packageName = "builtin",
                    functionName = "table.delete",
                    args = {
                            @Argument(name = "dt",

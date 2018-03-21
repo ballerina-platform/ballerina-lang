@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code RemoveAllHeaders} is the ballerina native function to remove all headers of a Push Promise.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "removeAllHeaders",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "PushPromise",
                 structPackage = "ballerina.net.http"),
