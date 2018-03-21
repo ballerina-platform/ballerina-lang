@@ -87,16 +87,30 @@ service<http:Service> frontendHttpService bind frontendEP {
             }
         }
 
-        json responsePayload =? res.getJsonPayload();
+        var responsePayload = res.getJsonPayload();
+
+        json responseJsonPayload = {};
+        match responsePayload {
+            json resultantJsonPayload => {
+                responseJsonPayload = resultantJsonPayload;
+            }
+            any | null => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"expected response message not received"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+                return;
+            }
+        }
         // Check whether correct response received
-        if (!(responsePayload.toString().contains("main"))) {
+        if (!(responseJsonPayload.toString().contains("main"))) {
             http:Response errorResponse = {};
             json errMsg = {"error":"expected response message not received"};
             errorResponse.setJsonPayload(errMsg);
             _ = client -> respond(errorResponse);
             return;
         }
-        io:println("Response : " + responsePayload.toString());
+        io:println("Response : " + responseJsonPayload.toString());
 
         // Fetch required promised responses
         foreach promise in promises {
@@ -112,17 +126,31 @@ service<http:Service> frontendHttpService bind frontendEP {
                 }
             }
 
-            json payload =? promisedResponse.getJsonPayload();
+            json promisedJsonPayload = {};
+            var promisedPayload = promisedResponse.getJsonPayload();
+            match promisedPayload {
+                json resultantJsonPayload => {
+                    promisedJsonPayload = resultantJsonPayload;
+                }
+                any | null => {
+                    http:Response errorResponse = {};
+                    json errMsg = {"error":"expected promised response not received"};
+                    errorResponse.setJsonPayload(errMsg);
+                    _ = client -> respond(errorResponse);
+                    return;
+                }
+            }
+
             // check whether expected
             string expectedVal = promise.path.subString(1, 10);
-            if (!(payload.toString().contains(expectedVal))) {
+            if (!(promisedJsonPayload.toString().contains(expectedVal))) {
                 http:Response errorResponse = {};
                 json errMsg = {"error":"expected promised response not received"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
                 return;
             }
-            io:println("Promised resource : " + payload.toString());
+            io:println("Promised resource : " + promisedJsonPayload.toString());
         }
 
         // By this time everything has went well, hence send a success response
