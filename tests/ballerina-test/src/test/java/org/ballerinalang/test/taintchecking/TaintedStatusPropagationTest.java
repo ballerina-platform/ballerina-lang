@@ -40,9 +40,8 @@ public class TaintedStatusPropagationTest {
     public void testReturnNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/returns-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 2);
+        Assert.assertTrue(result.getDiagnostics().length == 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
     }
 
     @Test
@@ -365,7 +364,7 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 20);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testWithoutUserDataNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/without-user-data-negative.bal");
