@@ -3,11 +3,8 @@ import ballerina.task;
 int count;
 
 function scheduleAppointment (string cronExpression) returns (string|error) {
-    function () returns (error|null) onTriggerFunction;
-    function (error e)|null onErrorFunction;
-
-    onTriggerFunction = onTrigger;
-    onErrorFunction = cleanupError;
+    function () returns (error|null) onTriggerFunction = onTrigger;
+    function (error e)|null onErrorFunction = cleanupError;
     return task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression);
 }
 

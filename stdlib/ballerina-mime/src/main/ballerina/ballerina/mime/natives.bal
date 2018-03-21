@@ -67,7 +67,7 @@ public native function <Entity entity> setJson (json jsonContent);
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return json data"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getJson () returns json | null | EntityError;
+public native function <Entity entity> getJson () returns json | EntityError;
 
 @Description {value:"Set the entity body with the given xml content"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -78,7 +78,7 @@ public native function <Entity entity> setXml (xml xmlContent);
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return xml data"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getXml () returns xml | null | EntityError;
+public native function <Entity entity> getXml () returns xml | EntityError;
 
 @Description {value:"Set the entity body with the given text content"}
 @Param {value:"textContent: Text content that needs to be set to entity"}
@@ -117,7 +117,7 @@ public native function <Entity entity> getByteChannel () returns io:ByteChannel 
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return an array of entities which represent its body parts"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getBodyParts () returns Entity[] | null| EntityError;
+public native function <Entity entity> getBodyParts () returns Entity[] | EntityError;
 
 @Description {value:"Set body parts to entity"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -285,7 +285,7 @@ public native function <Entity entity> getHeaders (string headerName) returns st
 @Description {value:"Get all the headers as a map. Please note that manipulating the returned map has no effect to the original copy of headers"}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a copy of all headers as a map."}
-public native function <Entity entity> getCopyOfAllHeaders () returns map | null;
+public native function <Entity entity> getCopyOfAllHeaders () returns map;
 
 @Description {value:"Add the given header value against the given header"}
 @Param {value:"entity: Represent a MIME entity"}

@@ -120,12 +120,12 @@ public class HeaderTest {
     }
 
     //Enable this test case when this issue [https://github.com/ballerina-lang/ballerina/issues/5335] is fixed.
-    @Test(description = "Test getting a value out of a non existence header", enabled = false)
+   /* @Test(description = "Test getting a value out of a non existence header" , enabled = false)
     public void testNonExistenceHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "");
-    }
+    }*/
 
     @Test(description = "Test getting all headers")
     public void testGetCopyOfAllHeaders() {

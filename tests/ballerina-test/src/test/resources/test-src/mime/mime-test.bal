@@ -35,7 +35,7 @@ function testMimeBase64DecodeString (string content, string charset) returns (st
     return decoder.decodeString(content, charset);
 }
 
-function testSetAndGetJson (json jsonContent) returns json | null | mime:EntityError {
+function testSetAndGetJson (json jsonContent) returns json | mime:EntityError {
     mime:Entity entity = {};
     entity.setJson(jsonContent);
     return entity.getJson();
@@ -44,29 +44,26 @@ function testSetAndGetJson (json jsonContent) returns json | null | mime:EntityE
 function testGetJsonMultipleTimes (json jsonContent) returns (json) {
     mime:Entity entity = {};
     entity.setJson(jsonContent);
-    json | mime:EntityError | null returnContent1 = entity.getJson();
-    json | mime:EntityError | null returnContent2 = entity.getJson();
-    json | mime:EntityError | null returnContent3 = entity.getJson();
+    json | mime:EntityError returnContent1 = entity.getJson();
+    json | mime:EntityError returnContent2 = entity.getJson();
+    json | mime:EntityError returnContent3 = entity.getJson();
 
     json content1 = {};
     json content2 = {};
     json content3 = {};
 
     match returnContent1 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent1");
         json j => { content1 = j;}
 
      }
 
     match returnContent2 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent2");
         json j => { content2 = j;}
     }
 
     match returnContent3 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent3");
         json j => { content3 = j;}
     }
@@ -75,7 +72,7 @@ function testGetJsonMultipleTimes (json jsonContent) returns (json) {
     return returnContent;
 }
 
-function testSetAndGetXml (xml xmlContent) returns xml | null | mime:EntityError {
+function testSetAndGetXml (xml xmlContent) returns xml | mime:EntityError {
     mime:Entity entity = {};
     entity.setXml(xmlContent);
     return entity.getXml();
@@ -84,28 +81,25 @@ function testSetAndGetXml (xml xmlContent) returns xml | null | mime:EntityError
 function testGetXmlMultipleTimes (xml xmlContent) returns (xml) {
     mime:Entity entity = {};
     entity.setXml(xmlContent);
-    xml | mime:EntityError | null returnContent1 = entity.getXml();
-    xml | mime:EntityError | null returnContent2 = entity.getXml();
-    xml | mime:EntityError | null returnContent3 = entity.getXml();
+    xml | mime:EntityError returnContent1 = entity.getXml();
+    xml | mime:EntityError returnContent2 = entity.getXml();
+    xml | mime:EntityError returnContent3 = entity.getXml();
 
     xml content1;
     xml content2;
     xml content3;
 
     match returnContent1 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent1");
         xml j => { content1 = j;}
     }
 
     match returnContent2 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent2");
         xml j => { content2 = j;}
     }
 
     match returnContent3 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent3");
         xml j => { content3 = j;}
     }

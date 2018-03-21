@@ -6,31 +6,31 @@ function testAddHeader (string headerName, string headerValue, string headerName
     return entity.getHeader(headerNameToBeUsedForRetrieval);
 }
 
-function testAddingMultipleHeaders () returns string | null, string | null, string | null {
+function testAddingMultipleHeaders () returns (string | null, string | null, string | null) {
     mime:Entity entity = {};
     entity.addHeader("header1", "value1");
     entity.addHeader("header2", "value2");
     entity.addHeader("header3", "value3");
-    return entity.getHeader("header1"), entity.getHeader("header2"), entity.getHeader("header3");
+    return (entity.getHeader("header1"), entity.getHeader("header2"), entity.getHeader("header3"));
 }
 
-function testAddingMultipleValuesToSameHeader () returns string[] | null, string | null {
+function testAddingMultipleValuesToSameHeader () returns (string[] | null, string | null) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
     entity.addHeader("hEader2", "value3");
     entity.addHeader("headeR2", "value4");
-    return entity.getHeaders("header1"), entity.getHeader("header2");
+    return (entity.getHeaders("header1"), entity.getHeader("header2"));
 }
 
-function testSetHeader () returns string[] | null, string | null {
+function testSetHeader () returns (string[] | null, string | null) {
     mime:Entity entity = {};
     entity.setHeader("HeADEr2", "totally different value");
-    return entity.getHeaders("header1"), entity.getHeader("header2");
+    return (entity.getHeaders("header1"), entity.getHeader("header2"));
 }
 
-function testSetHeaderAfterAddHeader () returns string[] | null, string | null {
+function testSetHeaderAfterAddHeader () returns (string[] | null, string | null) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -38,11 +38,11 @@ function testSetHeaderAfterAddHeader () returns string[] | null, string | null {
     entity.addHeader("hEader2", "value3");
     entity.addHeader("headeR2", "value4");
     entity.setHeader("HeADEr2", "totally different value");
-    return entity.getHeaders("header1"), entity.getHeader("header2");
+    return (entity.getHeaders("header1"), entity.getHeader("header2"));
 }
 
 
-function testAddHeaderAfterSetHeader () returns string[] | null, string | null {
+function testAddHeaderAfterSetHeader () returns (string[] | null, string | null) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -50,10 +50,10 @@ function testAddHeaderAfterSetHeader () returns string[] | null, string | null {
     entity.addHeader("hEader2", "value3");
     entity.setHeader("HeADEr2", "totally different value");
     entity.addHeader("headeR2", "value4");
-    return entity.getHeaders("header2"), entity.getHeader("header2");
+    return (entity.getHeaders("header2"), entity.getHeader("header2"));
 }
 
-function testRemoveHeader () returns string[] | null, string | null {
+function testRemoveHeader () returns (string[] | null, string | null) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -63,7 +63,7 @@ function testRemoveHeader () returns string[] | null, string | null {
     entity.setHeader("HeADEr2", "totally different value");
     entity.removeHeader("HEADER1");
     entity.removeHeader("NONE_EXISTENCE_HEADER");
-    return entity.getHeaders("header1"), entity.getHeader("header2");
+    return (entity.getHeaders("header1"), entity.getHeader("header2"));
 }
 
 function testNonExistenceHeader () returns string | null {
@@ -72,7 +72,7 @@ function testNonExistenceHeader () returns string | null {
     return entity.getHeader("header");
 }
 
-function testGetCopyOfAllHeaders () returns map | null {
+function testGetCopyOfAllHeaders () returns (map | null) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -84,7 +84,7 @@ function testGetCopyOfAllHeaders () returns map | null {
     return entity.getCopyOfAllHeaders();
 }
 
-function testManipulatingReturnHeaders () returns map | null {
+function testManipulatingReturnHeaders () returns (map) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
