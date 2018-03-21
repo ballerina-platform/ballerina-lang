@@ -67,9 +67,9 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                 }
             }
         } catch (Throwable e) {
-            context.setReturnValues(null, MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
-        context.setReturnValues(partsArray, null);
+        context.setReturnValues(partsArray);
     }
 }

@@ -11,23 +11,23 @@ struct Employee {
     string address;
 }
 
-function varDefInTransform() (string, int, string){
+function varDefInTransform() returns (string, int, string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = <Employee, Foo_1()> p;
-    return e.name, e.age, e.address;
+    return (e.name, e.age, e.address);
 }
 
-function varDefInTransformWithInput() (string, int, string){
+function varDefInTransformWithInput() returns (string, int, string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = <Employee, Foo_2()> p;
-    return e.name, e.age, e.address;
+    return (e.name, e.age, e.address);
 }
 
-function getNameWithPrefix(string prefix, string name) (string) {
+function getNameWithPrefix(string prefix, string name) returns (string) {
     return prefix + name;
 }
 
-function getPrefixedName(string name) (string) {
+function getPrefixedName(string name) returns (string) {
     return "Ms." + name;
 }
 

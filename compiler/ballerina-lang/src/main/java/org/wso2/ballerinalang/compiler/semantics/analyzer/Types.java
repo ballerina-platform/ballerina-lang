@@ -61,7 +61,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -1191,18 +1193,49 @@ public class Types {
     }
 
     private boolean isAssignableToUnionType(BType source, BUnionType target) {
+        Set<BType> sourceTypes = new HashSet<>();
+
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            // Check whether source is a subset of target
-            return target.memberTypes.containsAll(sourceUnionType.memberTypes);
+            sourceTypes = sourceUnionType.memberTypes;
+        } else {
+            sourceTypes.add(source);
         }
 
-        for (BType memberType : target.memberTypes) {
-            boolean assignable = isAssignable(source, memberType);
-            if (assignable) {
-                return true;
+        boolean notAssignable = sourceTypes
+                .stream()
+                .map(s -> target.memberTypes
+                        .stream()
+                        .anyMatch(t -> isAssignable(s, t)))
+                .anyMatch(assignable -> !assignable);
+
+        return !notAssignable;
+    }
+
+    /**
+     * Check whether a given type has a default value.
+     * i.e: A variable of the given type can be initialized without a rhs expression.
+     * eg: foo x;
+     * 
+     * @param type Type to check the existence if a default value
+     * @return Flag indicating whether the given type has a default value
+     */
+    public boolean defaultValueExists(BType type) {
+        if (type.isNullable()) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE) {
+            return false;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (defaultValueExists(memberType)) {
+                    return true;
+                }
             }
         }
-        return false;
+        return true;
     }
 }

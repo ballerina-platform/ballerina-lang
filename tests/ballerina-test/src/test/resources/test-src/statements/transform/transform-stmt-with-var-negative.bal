@@ -11,13 +11,13 @@ struct Employee {
     string address;
 }
 
-function varInTransform() (string, int, string){
+function varInTransform() returns (string, int, string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     Employee e = <Employee, Foo()> p;
-    return e.name, e.age, e.address;
+    return (e.name, e.age, e.address);
 }
 
-function getPrefixedName(string a) (string) {
+function getPrefixedName(string a) returns (string) {
     return "";
 }
 

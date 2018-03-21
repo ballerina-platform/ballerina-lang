@@ -85,7 +85,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test nested array inline initializing")
     public void testNestedArrayInit() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedArrayInit", args);
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testNestedArrayInit", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
@@ -114,7 +114,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test array of maps inline initializing")
     public void testArrayOfMapsInit() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayOfMapsInit", args);
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayOfMapsInit", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
@@ -144,7 +144,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test array of maps inline initializing")
     public void testAnyAsArray() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyAsArray", args);
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testAnyAsArray", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
