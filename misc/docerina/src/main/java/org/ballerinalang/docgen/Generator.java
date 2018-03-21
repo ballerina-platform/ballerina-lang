@@ -39,7 +39,6 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -419,12 +418,11 @@ public class Generator {
         String subName =
                 param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            ExpressionNode bLangRecordLiteral = annotation.getExpression();
-            if (((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().size() != 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
-            BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().get(0)
-                    .getValue();
+            BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
             String attribVal = bLangLiteral.toString();
             if ((annotation.getAnnotationName().getValue().equals("Param")) &&
                     attribVal.startsWith(subName + ":")) {
@@ -443,14 +441,13 @@ public class Generator {
     private static String returnParamAnnotation(BLangNode node, int returnTypeIndex) {
         int currentReturnAnnotationIndex = 0;
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            ExpressionNode bLangRecordLiteral = annotation.getExpression();
-            if (((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().size() != 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Return")) {
                 if (currentReturnAnnotationIndex == returnTypeIndex) {
-                    BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs()
-                            .get(0).getValue();
+                    BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
                     return bLangLiteral.toString();
                 }
                 currentReturnAnnotationIndex++;
@@ -477,12 +474,11 @@ public class Generator {
         }
 
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            ExpressionNode bLangRecordLiteral = annotation.getExpression();
-            if (((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().size() != 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
-            BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().get(0)
-                    .getValue();
+            BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
             String attribVal = bLangLiteral.toString();
             if (annotation.getAnnotationName().getValue().equals("Field") && attribVal.startsWith(subName + ":")) {
                 return attribVal.split(subName + ":")[1].trim();
@@ -491,13 +487,12 @@ public class Generator {
         // if the annotation values cannot be found still, return the first matching
         // annotation's value
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            ExpressionNode bLangRecordLiteral = annotation.getExpression();
-            if (((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().size() != 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Field")) {
-                BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().get(0)
-                        .getValue();
+                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
                 return bLangLiteral.toString();
             }
         }
@@ -515,9 +510,8 @@ public class Generator {
 
         for (AnnotationAttachmentNode annotation : annotationAttachments) {
             if ("Field".equals(annotation.getAnnotationName().getValue())) {
-                ExpressionNode bLangRecordLiteral = annotation.getExpression();
-                BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().get(0)
-                        .getValue();
+                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
                 String value = bLangLiteral.toString();
                 if (value.startsWith(annotAttribute.getName().getValue())) {
                     String[] valueParts = value.split(":");
@@ -538,13 +532,12 @@ public class Generator {
             return null;
         }
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            ExpressionNode bLangRecordLiteral = annotation.getExpression();
-            if (((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().size() != 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Description")) {
-                BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().get(0)
-                        .getValue();
+                BLangExpression bLangLiteral =  bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
                 return bLangLiteral.toString();
             }
         }
