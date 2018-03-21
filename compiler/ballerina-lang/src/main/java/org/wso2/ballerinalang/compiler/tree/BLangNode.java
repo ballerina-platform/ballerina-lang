@@ -34,6 +34,8 @@ public abstract class BLangNode implements Node {
      */
     public BType type;
 
+    public boolean desugered;
+
     /**
      * The position of this node in the source file.
      */
