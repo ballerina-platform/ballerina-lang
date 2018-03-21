@@ -31,6 +31,7 @@ public class TypeDescriptor {
     public static final String SIG_TABLE = "D";
     public static final String SIG_STREAM = "H";
     public static final String SIG_STREAMLET = "M";
+    public static final String SIG_MAP = "N";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_SERVICE = "X";
     public static final String SIG_STRUCT = "T";
@@ -38,7 +39,7 @@ public class TypeDescriptor {
     public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";
-    public static final String SIG_TYPE = "Y";
+    public static final String SIG_TYPEDESC = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
 

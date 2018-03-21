@@ -18,7 +18,7 @@ public function <DummyEndpoint ep> stop () {
     exFlow = exFlow + "stop:DummyEndpoint;";
 }
 
-public function <DummyEndpoint ep> register (type ser) {
+public function <DummyEndpoint ep> register (typedesc ser) {
     exFlow = exFlow + "register:DummyEndpoint;";
 }
 
@@ -59,7 +59,8 @@ struct DummyServiceType {
 }
 
 function <DummyServiceType s> getEndpoint() returns (DummyEndpoint){
-    return null;
+    DummyEndpoint ep = {};
+    return ep;
 }
 
 service<DummyServiceType> foo bind ep {

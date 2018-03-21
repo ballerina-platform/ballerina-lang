@@ -128,18 +128,17 @@ public class ClientSocketTest {
         server.destroy();
     }
 
-    @Test(description = "Open client socket connection to the remote server that started in 9999")
+    @Test(description = "Open client socket connection to the remote server")
     public void testOpenClientSocket() {
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
-    @Test(dependsOnMethods = "testOpenClientSocket",
-          description = "Test content read/write")
+    @Test(dependsOnMethods = "testOpenClientSocket", description = "Test content read/write")
     public void testWriteReadContent() {
         String content = "Hello World\n";
         byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BBlob(contentBytes), new BInteger(contentBytes.length) };
+        BValue[] args = { new BBlob(contentBytes)};
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");

@@ -81,7 +81,7 @@ public class SymbolTable {
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
     public final BType blobType = new BType(TypeTags.BLOB, null);
-    public final BType typeType = new BType(TypeTags.TYPE, null);
+    public final BType typeDesc = new BType(TypeTags.TYPEDESC, null);
     public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
     public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
@@ -136,7 +136,7 @@ public class SymbolTable {
         initializeType(stringType, TypeKind.STRING.typeName());
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
         initializeType(blobType, TypeKind.BLOB.typeName());
-        initializeType(typeType, TypeKind.TYPE.typeName());
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
@@ -244,7 +244,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
         defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
-        defineBinaryOperator(OperatorKind.EQUAL, typeType, typeType, booleanType, InstructionCodes.TEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, typeDesc, typeDesc, booleanType, InstructionCodes.TEQ);
         defineBinaryOperator(OperatorKind.EQUAL, jsonType, nullType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, jsonType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, xmlType, nullType, booleanType, InstructionCodes.REQ);
@@ -270,7 +270,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, typeType, typeType, booleanType, InstructionCodes.TNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, typeDesc, typeDesc, booleanType, InstructionCodes.TNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, jsonType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, jsonType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, xmlType, nullType, booleanType, InstructionCodes.RNE);
@@ -337,7 +337,7 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.UNTAINT, floatType, floatType, InstructionCodes.NOP);
         defineUnaryOperator(OperatorKind.UNTAINT, booleanType, booleanType, InstructionCodes.NOP);
         defineUnaryOperator(OperatorKind.UNTAINT, stringType, stringType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, typeType, typeType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, typeDesc, typeDesc, InstructionCodes.NOP);
         defineUnaryOperator(OperatorKind.UNTAINT, jsonType, jsonType, InstructionCodes.NOP);
         defineUnaryOperator(OperatorKind.UNTAINT, xmlType, xmlType, InstructionCodes.NOP);
         defineUnaryOperator(OperatorKind.UNTAINT, tableType, tableType, InstructionCodes.NOP);
@@ -363,8 +363,7 @@ public class SymbolTable {
         defineCastOperator(booleanType, jsonType, true, InstructionCodes.B2JSON);
         defineCastOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
         defineCastOperator(blobType, anyType, true, InstructionCodes.L2ANY);
-        defineCastOperator(typeType, anyType, true, InstructionCodes.NOP);
-        defineCastOperator(nullType, stringType, true, InstructionCodes.NULL2S);
+        defineCastOperator(typeDesc, anyType, true, InstructionCodes.NOP);
 
         // Define explicit cast operators
         defineExplicitCastOperator(anyType, intType, false, InstructionCodes.ANY2I);
@@ -372,7 +371,7 @@ public class SymbolTable {
         defineExplicitCastOperator(anyType, stringType, false, InstructionCodes.ANY2S);
         defineExplicitCastOperator(anyType, booleanType, false, InstructionCodes.ANY2B);
         defineExplicitCastOperator(anyType, blobType, false, InstructionCodes.ANY2L);
-        defineExplicitCastOperator(anyType, typeType, false, InstructionCodes.ANY2TYPE);
+        defineExplicitCastOperator(anyType, typeDesc, false, InstructionCodes.ANY2TYPE);
         defineExplicitCastOperator(anyType, jsonType, false, InstructionCodes.ANY2JSON);
         defineExplicitCastOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);
         defineExplicitCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);

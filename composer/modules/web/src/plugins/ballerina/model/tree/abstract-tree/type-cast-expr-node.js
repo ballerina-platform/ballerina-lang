@@ -48,6 +48,7 @@ class AbstractTypeCastExprNode extends ExpressionNode {
     }
 
 
+
     setTypeNode(newValue, silent, title) {
         const oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractTypeCastExprNode extends ExpressionNode {
     getTypeNode() {
         return this.typeNode;
     }
+
 
 
 }

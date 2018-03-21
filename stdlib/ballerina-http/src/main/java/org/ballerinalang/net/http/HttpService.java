@@ -51,7 +51,7 @@ public class HttpService {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    private static final String BASE_PATH_FIELD = "basePath";
+    protected static final String BASE_PATH_FIELD = "basePath";
     private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
     private static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
@@ -70,7 +70,7 @@ public class HttpService {
         return balService;
     }
 
-    private HttpService(Service service) {
+    protected HttpService(Service service) {
         this.balService = service;
     }
 
@@ -163,21 +163,19 @@ public class HttpService {
 
     public static HttpService buildHttpService(Service service) {
         HttpService httpService = new HttpService(service);
-        Annotation serviceConfigAnnotation = getServiceConfigAnnotation(service);
+        Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
 
         if (serviceConfigAnnotation == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
             httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
-            return httpService;
+        } else {
+            Struct serviceConfig = serviceConfigAnnotation.getValue();
+            httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
+            httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
+            httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
+            httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
         }
-
-        Struct serviceConfig = serviceConfigAnnotation.getValue();
-
-        httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
-        httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
-        httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
-        httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
 
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBallerinaService().getResources()) {
@@ -196,9 +194,12 @@ public class HttpService {
         return httpService;
     }
 
-    private static Annotation getServiceConfigAnnotation(Service service) {
-        List<Annotation> annotationList = service.getAnnotationList(HTTP_PACKAGE_PATH,
-                                                                    HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+    private static Annotation getHttpServiceConfigAnnotation(Service service) {
+        return getServiceConfigAnnotation(service, HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+    }
+
+    protected static Annotation getServiceConfigAnnotation(Service service, String packagePath, String annotationName) {
+        List<Annotation> annotationList = service.getAnnotationList(packagePath, annotationName);
 
         if (annotationList == null || annotationList.isEmpty()) {
             return null;

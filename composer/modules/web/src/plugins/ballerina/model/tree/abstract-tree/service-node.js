@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractServiceNode extends Node {
 
 
+    setInitFunction(newValue, silent, title) {
+        const oldValue = this.initFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
+
+
     setEndpointNodes(newValue, silent, title) {
         const oldValue = this.endpointNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -138,58 +165,6 @@ class AbstractServiceNode extends Node {
 
     filterEndpointNodes(predicateFunction) {
         return _.filter(this.endpointNodes, predicateFunction);
-    }
-
-
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
-
-    setEndpointType(newValue, silent, title) {
-        const oldValue = this.endpointType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.endpointType = newValue;
-
-        this.endpointType.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'endpointType',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getEndpointType() {
-        return this.endpointType;
     }
 
 
@@ -312,6 +287,152 @@ class AbstractServiceNode extends Node {
     }
 
 
+    setServiceTypeStruct(newValue, silent, title) {
+        const oldValue = this.serviceTypeStruct;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.serviceTypeStruct = newValue;
+
+        this.serviceTypeStruct.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'serviceTypeStruct',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getServiceTypeStruct() {
+        return this.serviceTypeStruct;
+    }
+
+
+
+    setBoundEndpoints(newValue, silent, title) {
+        const oldValue = this.boundEndpoints;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.boundEndpoints = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'boundEndpoints',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getBoundEndpoints() {
+        return this.boundEndpoints;
+    }
+
+
+    addBoundEndpoints(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.boundEndpoints.push(node);
+            index = this.boundEndpoints.length;
+        } else {
+            this.boundEndpoints.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeBoundEndpoints(node, silent) {
+        const index = this.getIndexOfBoundEndpoints(node);
+        this.removeBoundEndpointsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeBoundEndpointsByIndex(index, silent) {
+        this.boundEndpoints.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceBoundEndpoints(oldChild, newChild, silent) {
+        const index = this.getIndexOfBoundEndpoints(oldChild);
+        this.boundEndpoints[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceBoundEndpointsByIndex(index, newChild, silent) {
+        this.boundEndpoints[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfBoundEndpoints(child) {
+        return _.findIndex(this.boundEndpoints, ['id', child.id]);
+    }
+
+    filterBoundEndpoints(predicateFunction) {
+        return _.filter(this.boundEndpoints, predicateFunction);
+    }
+
+
     setName(newValue, silent, title) {
         const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -336,6 +457,7 @@ class AbstractServiceNode extends Node {
     getName() {
         return this.name;
     }
+
 
 
     setResources(newValue, silent, title) {
@@ -479,6 +601,7 @@ class AbstractServiceNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {

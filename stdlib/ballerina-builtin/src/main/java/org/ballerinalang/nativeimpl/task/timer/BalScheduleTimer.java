@@ -65,9 +65,9 @@ public class BalScheduleTimer extends BlockingNativeCallableUnit {
 
         try {
             Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            ctx.setReturnValues(new BString(timer.getId()), null);
+            ctx.setReturnValues(new BString(timer.getId()));
         } catch (SchedulingException e) {
-            ctx.setReturnValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));
+            ctx.setReturnValues(BLangVMErrors.createError(ctx, 0, e.getMessage()));
         }
     }
 }

@@ -49,6 +49,8 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
+    public boolean safeAssignment = false;
+    public boolean isField;
 
     public BVarSymbol symbol;
 
@@ -135,14 +137,17 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
+    public boolean isSafeAssignment() {
+        return safeAssignment;
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.VARIABLE;
     }
 
     @Override
     public String toString() {
-        return "BLangVariable: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") +
-                (this.name != null ? this.name : "") + "[" + this.typeNode + "]" +
-                (this.expr != null ? " = " + this.expr : "");
+        return String.valueOf(type) + " " + name.value + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

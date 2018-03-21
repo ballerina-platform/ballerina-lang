@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -57,12 +58,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -132,6 +135,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
     }
 
@@ -357,7 +361,7 @@ public class CPU {
                     cpIndex = operands[0];
                     j = operands[1];
                     TypeRefCPEntry typeEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                    sf.refRegs[j] = new BTypeValue(typeEntry.getType());
+                    sf.refRegs[j] = new BTypeDescValue(typeEntry.getType());
                     break;
                 case InstructionCodes.TYPEOF:
                     i = operands[0];
@@ -366,10 +370,9 @@ public class CPU {
                         handleNullRefError(ctx);
                         break;
                     }
-                    sf.refRegs[j] = new BTypeValue(sf.refRegs[i].getType());
+                    sf.refRegs[j] = new BTypeDescValue(sf.refRegs[i].getType());
                     break;
                 case InstructionCodes.HALT:
-                    BLangScheduler.workerDone(ctx);
                     ctx = handleHalt(ctx);
                     if (ctx == null) {
                         return;
@@ -401,7 +404,7 @@ public class CPU {
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
-                            callIns.retRegs, false);
+                            callIns.retRegs, false, callIns.async);
                     if (ctx == null) {
                         return;
                     }
@@ -409,14 +412,14 @@ public class CPU {
                 case InstructionCodes.VCALL:
                     InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                     ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
-                            vcallIns.argRegs, vcallIns.retRegs);
+                            vcallIns.argRegs, vcallIns.retRegs, vcallIns.async);
                     if (ctx == null) {
                         return;
                     }
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
-                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs, acallIns.async);
                     if (ctx == null) {
                         return;
                     }
@@ -424,7 +427,7 @@ public class CPU {
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                            tcallIns.retRegs, false);
+                            tcallIns.retRegs, false, tcallIns.async);
                     if (ctx == null) {
                         return;
                     }
@@ -623,7 +626,10 @@ public class CPU {
                     break;
                 case InstructionCodes.NEWMAP:
                     i = operands[0];
-                    sf.refRegs[i] = new BMap<String, BRefType>();
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    BMapType mapType = (BMapType) typeRefCPEntry.getType();
+                    sf.refRegs[i] = new BMap<String, BRefType>(mapType);
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
@@ -717,6 +723,7 @@ public class CPU {
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.XMLSTORE:
                 case InstructionCodes.XMLLOAD:
+                case InstructionCodes.NEWXMLSEQ:
                     execXMLOpcodes(ctx, sf, opcode, operands);
                     break;
                 case InstructionCodes.ITR_NEW:
@@ -1459,7 +1466,19 @@ public class CPU {
                     break;
                 }
 
-                bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                BMapType mapType = (BMapType) bMap.getType();
+                if (sf.refRegs[k] == null) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
+                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else {
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                    mapType.getConstrainedType(), sf.refRegs[k].getType())));
+                    handleError(ctx);
+                    break;
+                }
                 break;
             case InstructionCodes.JSONSTORE:
                 i = operands[0];
@@ -1801,6 +1820,7 @@ public class CPU {
             case InstructionCodes.NEWXMLTEXT:
             case InstructionCodes.NEWXMLPI:
             case InstructionCodes.XMLSTORE:
+            case InstructionCodes.NEWXMLSEQ:
                 execXMLCreationOpcodes(ctx, sf, opcode, operands);
                 break;
             default:
@@ -1942,7 +1962,7 @@ public class CPU {
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeMap);
                 break;
             case InstructionCodes.ANY2TYPE:
-                handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeType);
+                handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeDesc);
                 break;
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeTable);
@@ -2370,6 +2390,10 @@ public class CPU {
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
                 xmlVal.addChildren(child);
                 break;
+            case InstructionCodes.NEWXMLSEQ:
+                i = operands[0];
+                sf.refRegs[i] = new BXMLSequence();
+                break;
         }
     }
 
@@ -2578,46 +2602,7 @@ public class CPU {
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
-        BStruct bStruct = new BStruct(structInfo.getType());
-
-        // Populate default values
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
-            DefaultValueAttributeInfo defaultValueInfo =
-                    (DefaultValueAttributeInfo) fieldInfo.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
-            switch (fieldInfo.getFieldType().getTag()) {
-                case TypeTags.INT_TAG:
-                    longRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
-                    }
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    doubleRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setFloatField(doubleRegIndex, defaultValueInfo.getDefaultValue().getFloatValue());
-                    }
-                    break;
-                case TypeTags.STRING_TAG:
-                    stringRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setStringField(stringRegIndex, defaultValueInfo.getDefaultValue().getStringValue());
-                    }
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    booleanRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setBooleanField(booleanRegIndex,
-                                defaultValueInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
-                    }
-                    break;
-            }
-        }
-
-        sf.refRegs[i] = bStruct;
+        sf.refRegs[i] = new BStruct(structInfo.getType());
     }
 
     private static void createNewStreamlet(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -2790,7 +2775,7 @@ public class CPU {
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
-                                                                int[] retRegs) {
+                                                                int[] retRegs, boolean async) {
         BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
         if (structVal == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2801,11 +2786,11 @@ public class CPU {
         StructInfo structInfo = structVal.getType().structInfo;
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
-        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false);
+        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, async);
     }
 
     private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
-                                                       int[] retRegs) {
+                                                       int[] retRegs, boolean async) {
         BConnector connector = (BConnector) ctx.workerLocal.refRegs[argRegs[0]];
         if (connector == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2817,7 +2802,7 @@ public class CPU {
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
-        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false);
+        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, async);
     }
 
     @SuppressWarnings("rawtypes")
@@ -2954,6 +2939,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleReturn(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
@@ -2981,6 +2967,29 @@ public class CPU {
         // Array casting
         if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
             return checkArrayCast(sourceType, targetType);
+        }
+
+        // Check MAP casting
+        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(sourceType, targetType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkMapCast(BType sourceType, BType targetType) {
+
+        BMapType sourceMapType = (BMapType) sourceType;
+        BMapType targetMapType = (BMapType) targetType;
+
+        if (sourceMapType.equals(targetMapType)) {
+            return true;
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
+                && targetMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) sourceMapType.getConstrainedType(),
+                    (BStructType) targetMapType.getConstrainedType());
         }
 
         return false;
@@ -3253,7 +3262,7 @@ public class CPU {
         try {
             jsonNode = jsonValue.value();
         } catch (BallerinaException e) {
-            sf.stringRegs[j] = "";
+            sf.stringRegs[j] = BLangConstants.STRING_EMPTY_VALUE;
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
             ctx.setError(BLangVMErrors.createError(ctx, errorMsg));

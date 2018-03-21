@@ -22,6 +22,7 @@ RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
 STREAMLET   : 'streamlet' { inSiddhi = true; } ;
 STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
@@ -81,6 +82,7 @@ TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
 TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
+TYPE_DESC       : 'typedesc' ;
 TYPE_TYPE       : 'type' ;
 TYPE_FUTURE     : 'future' ;
 
@@ -122,6 +124,7 @@ AWAIT       : 'await' ;
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
@@ -172,6 +175,10 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
+
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
 
 // Post Arithmetic operators.
 

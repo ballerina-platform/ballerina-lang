@@ -10,19 +10,20 @@ endpoint http:ServiceEndpoint echoHttpEP {
 
 endpoint http:ServiceEndpoint echoEP {
     port:9095,
-    ssl:{
-        keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        keyStorePassword:"ballerina",
-        certPassword:"ballerina"
+    secureSocket: {
+        keyStore: {
+            filePath:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password:"ballerina"
+        }
     }
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/echo"
 }
 
 service<http:Service> echo bind echoEP {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
@@ -33,11 +34,11 @@ service<http:Service> echo bind echoEP {
     }
 }
 
-@http:serviceConfig  {
+@http:ServiceConfig  {
     basePath:"/echoOne"
 }
 service<http:Service> echoOne bind echoEP, echoHttpEP {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/abc"
     }
@@ -48,12 +49,12 @@ service<http:Service> echoOne bind echoEP, echoHttpEP {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/echoDummy"
 }
 service<http:Service> echoDummy bind echoDummyEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }

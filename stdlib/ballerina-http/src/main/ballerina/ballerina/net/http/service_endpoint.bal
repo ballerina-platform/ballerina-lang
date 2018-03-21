@@ -34,11 +34,11 @@ public struct ServiceEndpointConfiguration {
     string host;
     int port;
     KeepAlive keepAlive;
-    TransferEncoding transferEncoding;
+    TransferEncoding|null transferEncoding;
     Chunking chunking;
-    SslConfiguration ssl;
+    ServiceSecureSocket|null secureSocket;
     string httpVersion;
-    RequestLimits requestLimits;
+    RequestLimits|null requestLimits;
     Filter[] filters;
 }
 
@@ -48,33 +48,25 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
     config.keepAlive = KeepAlive.AUTO;
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
+    config.httpVersion = "1.1";
 }
 
-@Field {value:"keyStoreFile: File path to keystore file"}
-@Field {value:"keyStorePassword: The keystore password"}
-@Field {value:"trustStoreFile: File path to truststore file"}
-@Field {value:"trustStorePassword: The truststore password"}
+@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
+@Field {value: "trustStore: TrustStore related options"}
+@Field {value: "keyStore: KeyStore related options"}
+@Field {value: "protocols: SSL/TLS protocol related options"}
+@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
+@Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
+@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
-@Field {value:"certPassword: The certificate password"}
-@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
-@Field {value:"ciphers: List of ciphers to be used"}
-@Field {value:"sslProtocol: The SSL protocol version"}
-@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
-@Field {value:"cacheSize: Maximum size of the cache"}
-@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
-public struct SslConfiguration {
-    string keyStoreFile;
-    string keyStorePassword;
-    string trustStoreFile;
-    string trustStorePassword;
-    string sslVerifyClient;
-    string certPassword;
-    string sslEnabledProtocols;
+public struct ServiceSecureSocket {
+    TrustStore|null trustStore;
+    KeyStore|null keyStore;
+    Protocols|null protocols;
+    ValidateCert|null validateCert;
     string ciphers;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    int cacheSize;
-    int cacheValidityPeriod;
+    string sslVerifyClient;
+    boolean sessionCreation = true;
 }
 
 public enum KeepAlive {
@@ -85,7 +77,7 @@ public enum KeepAlive {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <ServiceEndpoint ep> init (ServiceEndpointConfiguration config) {
+public function <ServiceEndpoint ep> init(ServiceEndpointConfiguration config) {
     ep.config = config;
     var err = ep.initEndpoint();
     if (err != null) {
@@ -99,22 +91,22 @@ public function <ServiceEndpoint ep> init (ServiceEndpointConfiguration config) 
     }
 }
 
-public native function<ServiceEndpoint ep> initEndpoint () returns (error);
+public native function<ServiceEndpoint ep> initEndpoint() returns (error);
 
 @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
 @Param { value:"ep: The endpoint to which the service should be registered to" }
 @Param { value:"serviceType: The type of the service to be registered" }
-public native function <ServiceEndpoint ep> register (type serviceType);
+public native function <ServiceEndpoint ep> register(typedesc serviceType);
 
 @Description { value:"Starts the registered service"}
-public native function <ServiceEndpoint ep> start ();
+public native function <ServiceEndpoint ep> start();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <ServiceEndpoint ep> getClient () returns (Connection);
+public native function <ServiceEndpoint ep> getClient() returns Connection;
 
 @Description { value:"Stops the registered service"}
-public native function <ServiceEndpoint ep> stop ();
+public native function <ServiceEndpoint ep> stop();
 
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
@@ -135,7 +127,7 @@ public function <WebSocketEndpoint ep> WebSocketService() {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <WebSocketEndpoint ep> init (ServiceEndpointConfiguration config) {
+public function <WebSocketEndpoint ep> init(ServiceEndpointConfiguration config) {
     ep.httpEndpoint.init(config);
 }
 
@@ -143,13 +135,13 @@ public function <WebSocketEndpoint ep> init (ServiceEndpointConfiguration config
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> register (type serviceType) {
+public function <WebSocketEndpoint ep> register(typedesc serviceType) {
     ep.httpEndpoint.register(serviceType);
 }
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> start () {
+public function <WebSocketEndpoint ep> start() {
     ep.httpEndpoint.start();
 }
 
@@ -157,12 +149,12 @@ public function <WebSocketEndpoint ep> start () {
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
 //TODO make this native
-public function <WebSocketEndpoint ep> getClient () returns (WebSocketConnector) {
+public function <WebSocketEndpoint ep> getClient() returns WebSocketConnector {
     return ep.wsClient.getClient();
 }
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> stop () {
+public function <WebSocketEndpoint ep> stop() {
     ep.httpEndpoint.stop();
 }

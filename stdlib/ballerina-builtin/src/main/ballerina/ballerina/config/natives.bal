@@ -19,7 +19,7 @@ package ballerina.config;
 @Description {value:"Retrieves the specified configuration value as a string"}
 @Param { value:"configKey: The configuration to be retrieved" }
 @Return { value:"Configuration value mapped by the configKey" }
-public native function getAsString(string configKey)(string);
+public native function getAsString(string configKey) returns (string|null);
 
 @Description {value:"Checks whether the given key is in the configuration registry"}
 @Param {value:"configKey: The configuration key to be looked-up"}

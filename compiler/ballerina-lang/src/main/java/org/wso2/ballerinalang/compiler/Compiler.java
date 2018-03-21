@@ -105,11 +105,11 @@ public class Compiler {
         }
 
         pkgNode = codeAnalyze(pkgNode);
-        if (this.stopCompilation(CompilerPhase.TAINT_ANALYZE)) {
-            return;
-        }
-
-        pkgNode = taintAnalyze(pkgNode);
+//        if (this.stopCompilation(CompilerPhase.TAINT_ANALYZE)) {
+////            return;
+////        }
+////
+////        pkgNode = taintAnalyze(pkgNode);
         if (this.stopCompilation(CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }

@@ -58,7 +58,7 @@ struct CachedJWTAuthContext {
 
 @Description {value:"Creates a JWT Authenticator instance"}
 @Return {value:"JWTAuthenticator instance"}
-public function createAuthenticator () (JWTAuthenticator) {
+public function createAuthenticator () returns (JWTAuthenticator) {
     JWTAuthenticator authenticator = {};
     authenticator.jwtValidatorConfig = getAuthenticatorConfig();
     authenticator.authCache = utils:createCache(JWT_AUTH_CACHE);
@@ -69,7 +69,7 @@ public function createAuthenticator () (JWTAuthenticator) {
 @Param {value:"jwtToken: Jwt token extracted from the authentication header"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 @Return {value:"error: If error occured in authentication"}
-public function <JWTAuthenticator authenticator> authenticate (string jwtToken) (boolean, error) {
+public function <JWTAuthenticator authenticator> authenticate (string jwtToken) returns (boolean, error) {
     boolean isAuthenticated = false;
     boolean isCacheHit = false;
     JWTAuthContext authContext;
@@ -91,7 +91,7 @@ public function <JWTAuthenticator authenticator> authenticate (string jwtToken) 
     }
 }
 
-function getAuthenticatorConfig () (jwt:JWTValidatorConfig) {
+function getAuthenticatorConfig () returns (jwt:JWTValidatorConfig) {
     jwt:JWTValidatorConfig jwtValidatorConfig = {};
     jwtValidatorConfig.issuer = config:getAsString(AUTHENTICATOR_JWT + "." + ISSUER);
     jwtValidatorConfig.audience = config:getAsString(AUTHENTICATOR_JWT + "." + AUDIENCE);
@@ -99,7 +99,7 @@ function getAuthenticatorConfig () (jwt:JWTValidatorConfig) {
     return jwtValidatorConfig;
 }
 
-function <JWTAuthenticator authenticator> authenticateFromCache (string jwtToken) (boolean isCacheHit,
+function <JWTAuthenticator authenticator> authenticateFromCache (string jwtToken) returns (boolean isCacheHit,
                                                                                    boolean isAuthenticated,
                                                                                    JWTAuthContext authContext) {
     var cachedAuthContext, _ = (CachedJWTAuthContext)authenticator.authCache.get(jwtToken);
@@ -123,7 +123,7 @@ function <JWTAuthenticator authenticator> addToAuthenticationCache (string jwtTo
     log:printDebug("Add authenticated user :" + authContext.userName + " to the cache");
 }
 
-function setAuthContext (jwt:Payload jwtPayload) (JWTAuthContext) {
+function setAuthContext (jwt:Payload jwtPayload) returns (JWTAuthContext) {
     JWTAuthContext authContext = {};
     authContext.userName = jwtPayload.sub;
     if (jwtPayload.customClaims[SCOPES] != null) {

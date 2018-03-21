@@ -167,6 +167,7 @@ class AbstractResourceNode extends Node {
     }
 
 
+
     setWorkers(newValue, silent, title) {
         const oldValue = this.workers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -405,6 +406,152 @@ class AbstractResourceNode extends Node {
     }
 
 
+    setDefaultableParameters(newValue, silent, title) {
+        const oldValue = this.defaultableParameters;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.defaultableParameters = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'defaultableParameters',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getDefaultableParameters() {
+        return this.defaultableParameters;
+    }
+
+
+    addDefaultableParameters(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.defaultableParameters.push(node);
+            index = this.defaultableParameters.length;
+        } else {
+            this.defaultableParameters.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDefaultableParameters(node, silent) {
+        const index = this.getIndexOfDefaultableParameters(node);
+        this.removeDefaultableParametersByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDefaultableParametersByIndex(index, silent) {
+        this.defaultableParameters.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDefaultableParameters(oldChild, newChild, silent) {
+        const index = this.getIndexOfDefaultableParameters(oldChild);
+        this.defaultableParameters[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDefaultableParametersByIndex(index, newChild, silent) {
+        this.defaultableParameters[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfDefaultableParameters(child) {
+        return _.findIndex(this.defaultableParameters, ['id', child.id]);
+    }
+
+    filterDefaultableParameters(predicateFunction) {
+        return _.filter(this.defaultableParameters, predicateFunction);
+    }
+
+
+    setRestParameters(newValue, silent, title) {
+        const oldValue = this.restParameters;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.restParameters = newValue;
+
+        this.restParameters.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'restParameters',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getRestParameters() {
+        return this.restParameters;
+    }
+
+
+
     setName(newValue, silent, title) {
         const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -429,6 +576,7 @@ class AbstractResourceNode extends Node {
     getName() {
         return this.name;
     }
+
 
 
     setParameters(newValue, silent, title) {
@@ -572,6 +720,7 @@ class AbstractResourceNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {

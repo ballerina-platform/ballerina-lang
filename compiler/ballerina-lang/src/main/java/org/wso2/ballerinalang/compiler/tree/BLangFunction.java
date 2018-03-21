@@ -20,6 +20,11 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -28,12 +33,26 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public BLangVariable receiver;
 
+    //TODO remove this and use ATTACHED flag instead
+    public boolean attachedFunction;
+
+    public boolean objectInitFunction;
+
+    public boolean interfaceFunction;
+
+    public Map<BVarSymbol, BLangStatement> initFunctionStmts = new HashMap<>();
+
     public VariableNode getReceiver() {
         return receiver;
     }
 
     public void setReceiver(VariableNode receiver) {
         this.receiver = (BLangVariable) receiver;
+    }
+
+    @Override
+    public boolean isInterfaceFunction() {
+        return interfaceFunction;
     }
 
     @Override

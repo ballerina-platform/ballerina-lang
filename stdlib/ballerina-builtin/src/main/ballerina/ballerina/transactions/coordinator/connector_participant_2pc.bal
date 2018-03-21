@@ -18,7 +18,7 @@ package ballerina.transactions.coordinator;
 
 import ballerina.net.http;
 
-struct Participant2pcClientConfig {
+public struct Participant2pcClientConfig {
     string participantURL;
     int endpointTimeout;
     struct {
@@ -27,29 +27,29 @@ struct Participant2pcClientConfig {
     } retryConfig;
 }
 
-struct Participant2pcClientEP {
+public struct Participant2pcClientEP {
     http:ClientEndpoint httpClient;
     Participant2pcClientConfig conf;
 }
 
-function <Participant2pcClientEP ep> init(Participant2pcClientConfig conf){
+public function <Participant2pcClientEP ep> init(Participant2pcClientConfig conf){
     endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.participantURL}],
                                             endpointTimeout:conf.endpointTimeout,
-                                            retryConfig:{count:conf.retryConfig.count,
+                                            retry:{count:conf.retryConfig.count,
                                                             interval:conf.retryConfig.interval}};
     ep.httpClient = httpEP;
     ep.conf = conf;
 }
 
-function <Participant2pcClientEP ep> getClient() returns (Participant2pcClient) {
+public function <Participant2pcClientEP ep> getClient() returns (Participant2pcClient) {
     return {clientEP: ep};
 }
 
-struct Participant2pcClient {
+public struct Participant2pcClient {
     Participant2pcClientEP clientEP;
 }
 
-function<Participant2pcClient client> prepare (string transactionId) returns (string status, error err) {
+public function<Participant2pcClient client> prepare (string transactionId) returns (string status, error err) {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     http:Request req = {};
     PrepareRequest prepareReq = {transactionId:transactionId};
@@ -83,7 +83,7 @@ function<Participant2pcClient client> prepare (string transactionId) returns (st
     return;
 }
 
-function<Participant2pcClient client> notify (string transactionId, string message) returns (string status,
+public function<Participant2pcClient client> notify (string transactionId, string message) returns (string status,
                                                                                              error participantErr,
                                                                                              error communicationErr) {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
