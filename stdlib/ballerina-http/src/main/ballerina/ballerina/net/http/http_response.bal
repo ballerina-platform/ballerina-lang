@@ -3,7 +3,6 @@ package ballerina.net.http;
 import ballerina.file;
 import ballerina.io;
 import ballerina.mime;
-import src.test.resources.test-
 
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
@@ -126,7 +125,7 @@ public function <Response response> getJsonPayload () returns json | null | mime
     match response.getEntity() {
         mime:Entity entity => return entity.getJson();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 
@@ -137,7 +136,7 @@ public function <Response response> getXmlPayload () returns xml | null| mime:En
     match response.getEntity() {
         mime:Entity entity => return entity.getXml();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 
@@ -148,7 +147,7 @@ public function <Response response> getStringPayload () returns string | null | 
     match response.getEntity() {
         mime:Entity entity => return entity.getText();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 
@@ -176,11 +175,11 @@ public function <Response response> getByteChannel () returns io:ByteChannel | m
 @Description {value:"Get multiparts from response"}
 @Param {value:"response: The response message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <Response response> getMultiparts () returns mime:Entity[] | mime:EntityError {
-    match request.getEntity() {
-        mime:Entity[] entity => return entity.getBodyParts();
+public function <Response response> getMultiparts () returns mime:Entity[] | null | mime:EntityError {
+    match response.getEntity() {
+        mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 

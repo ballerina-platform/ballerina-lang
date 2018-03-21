@@ -83,7 +83,7 @@ function extractHttpOperation (string httpVerb) returns HttpOperation {
 // Populate boolean index array by looking at the configured Http status codes to get better performance
 // at runtime.
 function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
-    result = [];
+    boolean[] result = [];
     foreach i in errorCode {
         result[i] = true;
     }
