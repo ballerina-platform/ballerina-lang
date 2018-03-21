@@ -404,11 +404,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Return if this assignment is not a safe assignment
-        if (varNode.expr != null) {
-            varNode.expr = rewriteExpr(varNode.expr);
-        } else {
-            varNode.expr = getInitExpr(varNode.type);
-        }
+        varNode.expr = rewriteExpr(varNode.expr);
         result = varNode;
 
     }
@@ -447,6 +443,12 @@ public class Desugar extends BLangNodeVisitor {
 
         varDefNode.var = rewrite(varDefNode.var, env);
         BLangVariable varNode = varDefNode.var;
+
+        // Generate default init expression, if rhs expr is null
+        if (varNode.expr == null) {
+            varNode.expr = getInitExpr(varNode.type);
+        }
+
         if (!varNode.safeAssignment) {
             result = varDefNode;
             return;
@@ -826,6 +828,11 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = rewriteExpr(expr);
+    }
+
+    @Override
+    public void visit(BLangTableLiteral tableLiteral) {
+        result = tableLiteral;
     }
 
     @Override

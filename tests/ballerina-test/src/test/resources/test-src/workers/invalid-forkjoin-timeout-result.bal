@@ -1,4 +1,4 @@
-function invalidTimeoutResultType() (int) {
+function invalidTimeoutResultType() returns int {
     int x = 10;
     fork {
 	   worker w1 {
