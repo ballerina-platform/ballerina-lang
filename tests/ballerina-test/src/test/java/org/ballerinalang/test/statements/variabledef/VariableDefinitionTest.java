@@ -188,6 +188,5 @@ public class VariableDefinitionTest {
                 .compile("test-src/statements/variabledef/variable-def-array-constants-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0, "mismatched input '['. expecting Identifier", 1, 10);
-
     }
 }
