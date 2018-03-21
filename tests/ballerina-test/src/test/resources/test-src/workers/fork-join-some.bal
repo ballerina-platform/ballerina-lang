@@ -1,5 +1,5 @@
 
-function testForkJoinAny() returns (string[]) {
+function testForkJoinAny() returns string[] {
 
         string[] results = [];
         int i = 0;
