@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 @BallerinaFunction(
         packageName = "ballerina.net.http.mock",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
                 structPackage = "ballerina.net.http.mock"),
         isPublic = true
 )

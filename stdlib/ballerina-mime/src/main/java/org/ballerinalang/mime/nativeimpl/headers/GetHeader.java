@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
@@ -52,14 +53,13 @@ public class GetHeader extends BlockingNativeCallableUnit {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-            context.setReturnValues();
-            return;
+            throw new BallerinaException("Http Header does not exist!");
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != null && httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
             context.setReturnValues(new BString(httpHeaders.get(headerName)));
         } else {
-            context.setReturnValues();
+            throw new BallerinaException("Http Header does not exist!");
         }
     }
 }

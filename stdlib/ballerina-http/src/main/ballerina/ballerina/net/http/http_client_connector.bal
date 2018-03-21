@@ -94,7 +94,7 @@ public native function <HttpClient client> forward(string path, Request req) ret
 @Param { value:"req: An HTTP outbound request message" }
 @Return { value:"The Handle for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public native function <HttpClient client> submit(string httpVerb, string path, Request req) returns (HttpHandle, HttpConnectorError);
+public native function <HttpClient client> submit(string httpVerb, string path, Request req) returns HttpHandle | HttpConnectorError;
 
 @Description { value:"Retrieves response for a previously submitted request."}
 @Param { value:"handle: The Handle which relates to previous async invocation" }
@@ -111,7 +111,7 @@ public native function <HttpClient client> hasPromise(HttpHandle handle) returns
 @Param { value:"handle: The Handle which relates to previous async invocation" }
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public native function <HttpClient client> getNextPromise(HttpHandle handle) returns (PushPromise, HttpConnectorError);
+public native function <HttpClient client> getNextPromise(HttpHandle handle) returns PushPromise | HttpConnectorError;
 
 @Description { value:"Retrieves the promised server push response."}
 @Param { value:"promise: The related Push Promise message" }
