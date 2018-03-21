@@ -2,7 +2,7 @@ import ballerina.net.http.authadaptor;
 import ballerina.net.http;
 import ballerina.mime;
 
-function testCanHandleHttpBasicAuthWithoutHeader () (boolean) {
+function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
     authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -13,7 +13,7 @@ function testCanHandleHttpBasicAuthWithoutHeader () (boolean) {
     return handler.canHandle(inRequest);
 }
 
-function testCanHandleHttpBasicAuth () (boolean) {
+function testCanHandleHttpBasicAuth () returns (boolean) {
     authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -24,7 +24,7 @@ function testCanHandleHttpBasicAuth () (boolean) {
     return handler.canHandle(inRequest);
 }
 
-function testHandleHttpBasicAuthFailure () (boolean) {
+function testHandleHttpBasicAuthFailure () returns (boolean) {
     authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -35,7 +35,7 @@ function testHandleHttpBasicAuthFailure () (boolean) {
     return handler.handle(inRequest);
 }
 
-function testHandleHttpBasicAuth () (boolean) {
+function testHandleHttpBasicAuth () returns (boolean) {
     authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -46,7 +46,7 @@ function testHandleHttpBasicAuth () (boolean) {
     return handler.handle(inRequest);
 }
 
-function testExtractInvalidBasicAuthHeaderValue () (string, error) {
+function testExtractInvalidBasicAuthHeaderValue () returns (string, error) {
     // create dummy request
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -57,7 +57,7 @@ function testExtractInvalidBasicAuthHeaderValue () (string, error) {
     return authadaptor:extractBasicAuthHeaderValue(inRequest);
 }
 
-function testExtractBasicAuthHeaderValue () (string, error) {
+function testExtractBasicAuthHeaderValue () returns (string, error) {
     // create dummy request
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};
