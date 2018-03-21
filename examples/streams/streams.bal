@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/io;
+import ballerina/runtime;
 
 struct StatusCount {
     string status;

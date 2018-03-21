@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"This is the base connector we are going to decorate"}
 connector StockQuoteConnector (int i) {

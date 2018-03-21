@@ -1,6 +1,6 @@
-import ballerina.io;
-import ballerina.net.http;
-import ballerina.mime;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/mime;
 
 endpoint http:ServiceEndpoint helloWorldEP {
     port:9095,

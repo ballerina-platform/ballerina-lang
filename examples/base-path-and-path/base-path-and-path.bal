@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
 endpoint http:ServiceEndpoint echoEP {

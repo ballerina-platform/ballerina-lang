@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 xmlns "http://ballerina.com/aa" as ns0;
 
