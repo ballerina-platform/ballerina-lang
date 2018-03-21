@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
 import ballerina.runtime;
 
 struct StatusCount {
@@ -45,7 +44,7 @@ streamlet windowStreamlet () {
 }
 
 
-function testWindowQuery () (StatusCount []) {
+function testWindowQuery () returns (StatusCount []) {
 
     windowStreamlet pStreamlet = {};
 
@@ -65,7 +64,6 @@ function testWindowQuery () (StatusCount []) {
 }
 
 function printStatusCount (StatusCount s) {
-    io:println("printStatusCount function invoked for status:" + s.status +" and count :"+s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 

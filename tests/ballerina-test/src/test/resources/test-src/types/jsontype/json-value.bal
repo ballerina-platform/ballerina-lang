@@ -1,39 +1,39 @@
-function testStringAsJsonVal () (json) {
+function testStringAsJsonVal () returns (json) {
     json j = "Supun";
     return j;
 }
 
-function testIntAsJsonVal () (json) {
+function testIntAsJsonVal () returns (json) {
     json j = 5;
     return j;
 }
 
-function testFloatAsJsonVal () (json) {
+function testFloatAsJsonVal () returns (json) {
     json j = 7.65;
     return j;
 }
 
-function testBooleanAsJsonVal () (json) {
+function testBooleanAsJsonVal () returns (json) {
     json j = true;
     return j;
 }
 
-function testNullAsJsonVal () (json) {
+function testNullAsJsonVal () returns (json) {
     json j = null;
     return j;
 }
 
-function testJsonWithNull () (json, any) {
+function testJsonWithNull () returns (json, any) {
     json j = {"name":null};
-    return j, j.name;
+    return (j, j.name);
 }
 
-function testNestedJsonInit () (json) {
+function testNestedJsonInit () returns (json) {
     json j = {name:"aaa", age:25, parent:{name:"bbb", age:50}, address:{city:"Colombo", "country":"SriLanka"}, array:[1, 5, 7]};
     return j;
 }
 
-function testJsonArrayInit () (json) {
+function testJsonArrayInit () returns (json) {
     json j1 = {name:"supun"};
     json j2 = {name:"thilina"};
     json j3 = {name:"setunga"};
@@ -41,153 +41,153 @@ function testJsonArrayInit () (json) {
     return j;
 }
 
-function testGetString () (string, string) {
+function testGetString () returns (string, string) {
     json j1 = "Supun";
     json j2 = {name:"Setunga"};
     string j1String;
     string j2String;
     j1String, _ = (string)j1;
     j2String, _ = (string)j2.name;
-    return j1String, j2String;
+    return (j1String, j2String);
 }
 
-function testGetInt () (int, int) {
+function testGetInt () returns (int, int) {
     json j1 = 25;
     json j2 = {age:43};
     int j1Int;
     int j2Int;
     j1Int, _ = (int)j1;
     j2Int, _ = (int)j2.age;
-    return j1Int, j2Int;
+    return (j1Int, j2Int);
 }
 
-function testGetFloat () (float) {
+function testGetFloat () returns (float) {
     json j = {score:9.73};
     float jFloat;
     jFloat, _ = (float)j.score;
     return jFloat;
 }
 
-function testGetBoolean () (boolean) {
+function testGetBoolean () returns (boolean) {
     json j = {pass:true};
     boolean jBoolean;
     jBoolean, _ = (boolean)j.pass;
     return jBoolean;
 }
 
-function testGetJson () (json) {
+function testGetJson () returns (json) {
     json j = {address:{city:"Colombo", "country":"SriLanka"}};
     return j.address;
 }
 
-function testGetNonExistingElement () (any) {
+function testGetNonExistingElement () returns (any) {
     json j2 = {age:43};
     return j2.name;
 }
 
-function testAddString () (json) {
+function testAddString () returns (json) {
     json j = {fname:"Supun"};
     j.lname = "Setunga";
     return j;
 }
 
-function testAddInt () (json) {
+function testAddInt () returns (json) {
     json j = {fname:"Supun"};
     j.age = 25;
     return j;
 }
 
-function testAddFloat () (json) {
+function testAddFloat () returns (json) {
     json j = {fname:"Supun"};
     j.score = 4.37;
     return j;
 }
 
-function testAddBoolean () (json) {
+function testAddBoolean ()returns (json) {
     json j = {fname:"Supun"};
     j.status = true;
     return j;
 }
 
-function testAddJson () (json) {
+function testAddJson ()returns (json) {
     json j = {fname:"Supun"};
     j.address = {country:"SriLanka"};
     return j;
 }
 
-function testUpdateString () (json) {
+function testUpdateString ()returns (json) {
     json j = {fname:"Supun", lname:"Thilina"};
     j.lname = "Setunga";
     return j;
 }
 
-function testUpdateInt () (json) {
+function testUpdateInt ()returns (json) {
     json j = {fname:"Supun", age:30};
     j.age = 25;
     return j;
 }
 
-function testUpdateFloat () (json) {
+function testUpdateFloat () returns(json) {
     json j = {fname:"Supun", score:7.65};
     j.score = 4.37;
     return j;
 }
 
-function testUpdateBoolean () (json) {
+function testUpdateBoolean () returns(json) {
     json j = {fname:"Supun", status:false};
     j.status = true;
     return j;
 }
 
-function testUpdateJson () (json) {
+function testUpdateJson () returns(json) {
     json j = {fname:"Supun", address:{country:"USA"}};
     j.address = {country:"SriLanka"};
     return j;
 }
 
-function testUpdateStringInArray () (json) {
+function testUpdateStringInArray () returns(json) {
     json j = ["a", "b", "c"];
     j[1] = "d";
     return j;
 }
 
-function testUpdateIntInArray () (json) {
+function testUpdateIntInArray () returns (json) {
     json j = ["a", "b", "c"];
     j[1] = 64;
     return j;
 }
 
-function testUpdateFloatInArray () (json) {
+function testUpdateFloatInArray () returns (json) {
     json j = ["a", "b", "c"];
     j[1] = 4.72;
     return j;
 }
 
-function testUpdateBooleanInArray () (json) {
+function testUpdateBooleanInArray () returns (json) {
     json j = ["a", "b", "c"];
     j[1] = true;
     return j;
 }
 
-function testUpdateNullInArray () (json) {
+function testUpdateNullInArray () returns (json) {
     json j = ["a", "b", "c"];
     j[1] = null;
     return j;
 }
 
-function testUpdateJsonInArray () (json) {
+function testUpdateJsonInArray () returns (json) {
     json j = ["a", "b", "c"];
     j[1] = {country:"SriLanka"};
     return j;
 }
 
-function testUpdateJsonArrayInArray () (json) {
+function testUpdateJsonArrayInArray () returns (json) {
     json j = ["a", "b", "c"];
     j[1] = [1, 2, 3];
     return j;
 }
 
-function testGetNestedJsonElement () (string, string, string, string) {
+function testGetNestedJsonElement () returns (string, string, string, string) {
     json j = {name:"aaa", age:25, parent:{name:"bbb", age:50}, address:{city:"Colombo", "country":"SriLanka"}, array:[1, 5, 7]};
 
     string addressKey = "address";
@@ -200,10 +200,10 @@ function testGetNestedJsonElement () (string, string, string, string) {
     cityString2, _ = (string)j["address"]["city"];
     cityString3, _ = (string)j.address["city"];
     cityString4, _ = (string)j[addressKey][cityKey];
-    return cityString1, cityString2, cityString3, cityString4;
+    return (cityString1, cityString2, cityString3, cityString4);
 }
 
-function testJsonExprAsIndex () (string) {
+function testJsonExprAsIndex () returns (string) {
     json j = {name:"aaa", address:{city:"Colombo", "area":"city"}};
 
     string addressKey = "address";
@@ -218,127 +218,127 @@ function testJsonExprAsIndex () (string) {
     return value;
 }
 
-function testSetArrayOutofBoundElement () (json) {
+function testSetArrayOutofBoundElement () returns (json) {
     json j = [1, 2, 3];
     j[7] = 8;
     return j;
 }
 
-function testSetToNonArrayWithIndex () (json, json, json) {
+function testSetToNonArrayWithIndex () returns (json, json, json) {
     json j1 = {name:"supun"};
     json j2 = "foo";
     json j3 = true;
     j1[7] = 8;
     j2[7] = 8;
     j3[7] = 8;
-    return j1, j2, j3;
+    return (j1, j2, j3);
 }
 
-function testGetFromNonArrayWithIndex () (json, json, json) {
+function testGetFromNonArrayWithIndex () returns (json, json, json) {
     json j1 = {name:"supun"};
     json j2 = "foo";
     json j3 = true;
-    return j1[7], j2[7], j3[7];
+    return (j1[7], j2[7], j3[7]);
 }
 
-function testSetToNonObjectWithKey () (json, json, json) {
+function testSetToNonObjectWithKey () returns (json, json, json) {
     json j1 = [1, 2, 3];
     json j2 = "foo";
     json j3 = true;
-    
+
     j1["name"] = "Supun";
     j2["name"] = "Supun";
     j3["name"] = "Supun";
-    return j1, j2, j3;
+    return (j1, j2, j3);
 }
 
-function testGetFromNonObjectWithKey () (json, json, json) {
+function testGetFromNonObjectWithKey () returns (json, json, json) {
     json j1 = [1, 2, 3];
     json j2 = "foo";
     json j3 = true;
-    return j1.name, j2.name, j3.name;
+    return (j1.name, j2.name, j3.name);
 }
 
-function testGetStringInArray () (string) {
+function testGetStringInArray () returns (string) {
     json j = ["a", "b", "c"];
     string value;
     value, _ = (string)j[1];
     return value;
 }
 
-function testGetArrayOutofBoundElement () (string) {
+function testGetArrayOutofBoundElement () returns (string) {
     json j = [1, 2, 3];
     string value;
     value, _ = (string)j[5];
     return value;
 }
 
-function testGetElementFromPrimitive () (json) {
+function testGetElementFromPrimitive () returns (json) {
     json j = {name:"Supun"};
     return j.name.fname;
 }
 
-function testUpdateNestedElement () (json) {
+function testUpdateNestedElement () returns (json) {
     json j = {details:{fname:"Supun", lname:"Thilina"}};
     j.details.lname = "Setunga";
     return j;
 }
 
-function testEmptyStringToJson () (json) {
+function testEmptyStringToJson () returns (json) {
     string s = "";
     return (json)s;
 }
 
-function testJsonStringToJson () (json) {
+function testJsonStringToJson () returns (json) {
     string s = "{\"name\", \"supun\"}";
     return (json)s;
 }
 
-function testStringWithEscapedCharsToJson () (json) {
+function testStringWithEscapedCharsToJson () returns (json) {
     string s = "{\\\"name\\\", \"supun\"}";
     return (json)s;
 }
 
-function testJsonLength () (int, int) {
+function testJsonLength () returns (int, int) {
     json[] j1 = [[1, 2, 3, 4], [3, 4, 5, 6], [7, 8, 9, 10]];
 
     json j2 = [[1, 2, 3, 4], [3, 4, 5, 6], [7, 8, 9, 10]];
 
-    return lengthof j1, lengthof j2;
+    return (lengthof j1, lengthof j2);
 }
 
-function testJsonArrayToJsonCasting () (json) {
+function testJsonArrayToJsonCasting () returns (json) {
     json[][] j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     json j2 = (json)j1;
     return j2;
 }
 
-function testJsonToJsonArrayCasting () (json[], json[][], error) {
+function testJsonToJsonArrayCasting () returns (json[], json[][], error) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     var j2, e = (json[])j1;
     var j3, e = (json[][])j1;
 
-    return j2, j3, e;
+    return (j2, j3, e);
 }
 
-function testJsonToJsonArrayInvalidCasting () (json[][][], error) {
+function testJsonToJsonArrayInvalidCasting () returns (json[][][], error) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     var j2, e = (json[][][])j1;
 
-    return j2, e;
+    return (j2, e);
 }
 
-function testGetFromNull () (string) {
+function testGetFromNull () returns (string) {
     json j2 = {age:43, name:null};
     string value;
     value, _ = (string)j2.name.fname;
     return value;
 }
 
-function testAddToNull () (json) {
+function testAddToNull () returns (json) {
     json j = {name:"Supun", address:null};
     j.address.country = "SriLanka";
     return j;

@@ -213,7 +213,7 @@ public class ForeachArrayTests {
 
     @Test
     public void testArrayInsertString() {
-        String[] values = new String[]{"d0", null, null, "d3", null, null, "d6"};
+        String[] values = new String[]{"d0", "", "", "d3", "", "", "d6"};
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
             sb.append(i).append(":").append(values[i]).append(" ");
@@ -264,10 +264,10 @@ public class ForeachArrayTests {
     }
 
     @Test
-    public void testThrow2() {
-        BValue[] returns = BRunUtil.invoke(program, "testThrow2");
+    public void testEmptyString() {
+        BValue[] returns = BRunUtil.invoke(program, "testEmptyString");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:D0 1:D1 found null");
+        Assert.assertEquals(returns[0].stringValue(), "0:D0 1:D1 2: 3:D3 ");
     }
 
     @Test
