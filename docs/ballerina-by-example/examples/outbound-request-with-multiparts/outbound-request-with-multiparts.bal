@@ -2,21 +2,21 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-endpoint<http:Service> multipartEP {
+endpoint http:ClientEndpoint clientEP {
+    targets:[{uri:"http://localhost:9090"}]
+};
+
+endpoint http:ServiceEndpoint mockEP {
     port:9092
-}
+};
 
-endpoint<http:Client> clientEP {
-    serviceUri: "http://localhost:9090"
-}
-
-@http:serviceConfig { endpoints:[multipartEP] }
-service<http:Service> multiparts {
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/multiparts"}
+service<http:Service> test bind mockEP {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource encodeMultiparts (http:ServerConnector conn, http:Request req) {
+    encodeMultiparts (endpoint conn, http:Request req) {
 
         //Create a json body part.
         mime:Entity jsonBodyPart = {};
