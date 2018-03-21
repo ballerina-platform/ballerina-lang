@@ -227,13 +227,15 @@ public class AnnotationTest {
 
     // Negative tests
 
-    @Test(description = "Test child annotation from a wrong package", enabled = false)
+    @Test(description = "Test child annotation from a wrong package")
     public void testInvalidChildAnnotation() {
         CompileResult resNegative = BCompileUtil.compile(this, "test-src",
                 "lang/annotations/invalid-child-annotation.bal");
-        Assert.assertEquals(resNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'lang.annotations.doc:Args', " +
-                "found 'Args'", 3, 24);
+        Assert.assertEquals(resNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resNegative, 0, "undefined field 'val' in struct 'Arguments'",
+                1, 7);
+        BAssertUtil.validateError(resNegative, 1, "invalid literal for type 'other'",
+                1, 12);
     }
 
     @Test(description = "Test array value for a non-array type attribute", enabled = false)
