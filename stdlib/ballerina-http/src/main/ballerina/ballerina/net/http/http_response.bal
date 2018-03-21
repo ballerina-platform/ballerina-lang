@@ -177,7 +177,7 @@ public function <Response response> getByteChannel () returns (io:ByteChannel | 
 @Description {value:"Get multiparts from response"}
 @Param {value:"response: The response message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <Response response> getMultiparts () returns mime:Entity[] | null | mime:EntityError {
+public function <Response response> getMultiparts () returns mime:Entity[] | mime:EntityError {
     var mimeEntity = response.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
