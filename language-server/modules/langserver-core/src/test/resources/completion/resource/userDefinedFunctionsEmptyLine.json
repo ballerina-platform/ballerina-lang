@@ -1,42 +1,33 @@
 {
   "position": {
-    "line": 3,
-    "character": 7
+    "line": 4,
+    "character": 8
   },
   "source": "resource/source/userDefinedFunctionsEmptyLine.bal",
   "items": [
     {
-      "label": "function4()",
-      "kind": 6,
-      "detail": "Function",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "function4()",
-      "data": null
-    }, {
-      "label": "function3(int param1, int param2)(int a, int b)",
-      "kind": 6,
-      "detail": "Function",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "function3(${1:param1}, ${2:param2})",
-      "data": null
-    }, {
-      "label": "function2()(int a, int b)",
-      "kind": 6,
-      "detail": "Function",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "function2()",
-      "data": null
-    }, {
-      "label": "function1(int a, string b)",
-      "kind": 6,
-      "detail": "Function",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "function1(${1:a}, ${2:b})",
-      "data": null
+      "label":"function4()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"function4()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function2()(int)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"function2()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function1(int a, string b)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"function1(${1:a}, ${2:b})",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

@@ -146,10 +146,10 @@ public struct Retry {
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
 @Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
 public struct SecureSocket {
-    TrustStore trustStore;
-    KeyStore keyStore;
-    Protocols protocols;
-    ValidateCert validateCert;
+    TrustStore|null trustStore;
+    KeyStore|null keyStore;
+    Protocols|null protocols;
+    ValidateCert|null validateCert;
     string ciphers;
     boolean hostNameVerification = true;
     boolean sessionCreation = true;
