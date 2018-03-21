@@ -15,8 +15,8 @@ public struct HttpServiceConfig {
     HttpServiceLifeTime lifetime;
     string basePath;
     Compression compression;
-    CorsConfig cors;
-    WebSocketUpgradeConfig webSocketUpgrade;
+    CorsConfig|null cors;
+    WebSocketUpgradeConfig|null webSocketUpgrade;
 }
 
 public function <HttpServiceConfig config> HttpServiceConfig() {

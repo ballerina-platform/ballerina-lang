@@ -1,5 +1,5 @@
 package foo.bar;
 
-function foo() (string) {
+function foo() returns (string) {
     return "hello!";
 }

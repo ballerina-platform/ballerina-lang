@@ -842,7 +842,3 @@ function testRemoveNonExistingAttribute() returns (xml) {
   x.removeAttribute("{http://ballerina.com/aaa}foo555");
   return x;
 }
-
-function main (string[] args) {
-
-}
