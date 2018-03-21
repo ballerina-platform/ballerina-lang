@@ -395,7 +395,7 @@ public class MimeUtilityFunctionTest {
                 "can be obtain either as xml, json, string or blob type");
     }
 
-    /*@Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
     public void testGetTextDataSource() throws IOException {
         try {
@@ -414,8 +414,8 @@ public class MimeUtilityFunctionTest {
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
-    }*/
- /*
+    }
+
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a json data source return an error")
     public void testGetJsonDataSource() throws IOException {
@@ -430,7 +430,7 @@ public class MimeUtilityFunctionTest {
                     (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonDataSource", args);
-            Assert.assertEquals(returns.length, 2);
+            Assert.assertEquals(returns.length, 1);
             Assert.assertNull(returns[0]);
             BStruct errorStruct = (BStruct) returns[1];
             Assert.assertTrue(errorStruct.getStringField(0).contains("Error occurred while extracting json " +
@@ -438,5 +438,5 @@ public class MimeUtilityFunctionTest {
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
-    }*/
+    }
 }

@@ -36,7 +36,7 @@ service<http:Service> test bind mockEP {
                          io:println("---Error---------");
                          setErrorResponse(response, err);
                     }
-                    any | null => {
+                    int | null => {
                         io:println("---any or null---------");
                         response.setStringPayload("Text payload is null");
                     }

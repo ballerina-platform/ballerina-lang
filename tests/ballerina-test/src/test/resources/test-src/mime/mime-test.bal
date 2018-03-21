@@ -228,7 +228,7 @@ function testGetTextDataSource (io:ByteChannel byteChannel) returns string | nul
     return entity.getText();
 }
 
-function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | null | mime:EntityError {
+function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     //Consume byte channel externally
