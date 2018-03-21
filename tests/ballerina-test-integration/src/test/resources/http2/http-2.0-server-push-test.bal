@@ -1,5 +1,5 @@
-import ballerina.net.http;
 import ballerina.io;
+import ballerina.net.http;
 
 endpoint http:ServiceEndpoint frontendEP {
     port:9090
@@ -29,7 +29,16 @@ service<http:Service> frontendHttpService bind frontendEP {
         http:Request serviceReq = {};
         http:HttpHandle handle = {};
         // Submit a request
-        handle, _ = backendClientEP -> submit("GET","/backend/main", serviceReq);
+        var submissionResult = backendClientEP -> submit("GET", "/backend/main", serviceReq);
+        match submissionResult {
+            http:HttpHandle resultantHandle => {
+                handle = resultantHandle;
+            }
+            error err => {
+                io:println("Error occurred while submitting a request");
+                return;
+            }
+        }
 
         // Check whether promises exists
         http:PushPromise[] promises = [];
@@ -38,7 +47,17 @@ service<http:Service> frontendHttpService bind frontendEP {
         while (hasPromise) {
             http:PushPromise pushPromise = {};
             // Get the next promise
-            pushPromise, _ = backendClientEP -> getNextPromise(handle);
+            var nextPromiseResult = backendClientEP -> getNextPromise(handle);
+            match nextPromiseResult {
+                http:PushPromise resultantPushPromise => {
+                    pushPromise = resultantPushPromise;
+                }
+                error err => {
+                    io:println("Error occurred while fetching push promise");
+                    return;
+                }
+            }
+
             io:println("Received a promise for " + pushPromise.path);
             // Store required promises
             promises[promiseCount] = pushPromise;
@@ -57,9 +76,19 @@ service<http:Service> frontendHttpService bind frontendEP {
 
         // Get the requested resource
         http:Response res = {};
-        res, _ = backendClientEP -> getResponse(handle);
+        var result = backendClientEP -> getResponse(handle);
+        match result {
+            http:Response resultantResponse => {
+                res = resultantResponse;
+            }
+            error err => {
+                io:println("Error occurred while fetching response");
+                return;
+            }
+        }
+
         json responsePayload;
-        responsePayload, _ = res.getJsonPayload();
+        responsePayload =? res.getJsonPayload();
         // Check whether correct response received
         if (!(responsePayload.toString().contains("main"))) {
             http:Response errorResponse = {};
@@ -73,9 +102,19 @@ service<http:Service> frontendHttpService bind frontendEP {
         // Fetch required promised responses
         foreach promise in promises {
             http:Response promisedResponse = {};
-            promisedResponse, _ = backendClientEP -> getPromisedResponse(promise);
+            var promisedResponseResult = backendClientEP -> getPromisedResponse(promise);
             json payload;
-            payload, _ = promisedResponse.getJsonPayload();
+            match promisedResponseResult {
+                http:Response resultantPromisedResponse => {
+                    promisedResponse = resultantPromisedResponse;
+                }
+                error err => {
+                    io:println("Error occurred while fetching promised response");
+                    return;
+                }
+            }
+
+            payload =? promisedResponse.getJsonPayload();
             // check whether expected
             string expectedVal = promise.path.subString(1, 10);
             if (!(payload.toString().contains(expectedVal))) {
