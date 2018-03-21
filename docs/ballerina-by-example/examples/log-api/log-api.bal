@@ -1,4 +1,4 @@
-import ballerina.log;
+import ballerina/log;
 
 function main(string[] args) {
     error err = {message: "error occurred"};

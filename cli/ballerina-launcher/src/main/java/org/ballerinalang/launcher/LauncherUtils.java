@@ -30,8 +30,10 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
 import java.io.BufferedReader;
@@ -54,7 +56,7 @@ import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -219,18 +221,17 @@ public class LauncherUtils {
      * @param sourcePath Path to the source from the source root
      * @return Executable program
      */
-    private static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
+    public static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRootPath.toString());
+        options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(sourcePath.toString());
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-
+        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPkgNode);
         if (programFile == null) {
             throw createLauncherException("compilation contains errors");
         }
@@ -242,12 +243,12 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link org.wso2.ballerinalang.programfile.ProgramFile}).
+     * ({@link CompiledBinaryFile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program
      */
-    public static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+    public static ProgramFile getExecutableProgram(CompiledBinaryFile.ProgramFile programFile) {
         ByteArrayInputStream byteIS = null;
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {

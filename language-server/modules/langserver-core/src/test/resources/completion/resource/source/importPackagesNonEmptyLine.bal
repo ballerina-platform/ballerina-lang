@@ -1,6 +1,7 @@
-import ballerina.net.http;
-service<http> service1 {
-    resource echo1 (http:Connection conn, http:Request inRequest) {
+import ballerina/net.http;
+
+service<http:Service> hello {
+    sayHello (endpoint client, http:Request request) {
         h
     }
 }

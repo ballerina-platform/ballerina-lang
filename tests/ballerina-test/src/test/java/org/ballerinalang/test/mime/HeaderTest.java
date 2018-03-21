@@ -119,13 +119,18 @@ public class HeaderTest {
         Assert.assertEquals(returns[1].stringValue(), "totally different value");
     }
 
-    //Enable this test case when this issue [https://github.com/ballerina-lang/ballerina/issues/5335] is fixed.
-   /* @Test(description = "Test getting a value out of a non existence header" , enabled = false)
+    @Test(description = "Test getting a value out of a non existence header")
     public void testNonExistenceHeader() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
-    }*/
+        try {
+            BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader");
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns[0].stringValue(), "");
+        } catch (Exception exception) {
+            String errorMessage = exception.getMessage();
+            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+        }
+
+    }
 
     @Test(description = "Test getting all headers")
     public void testGetCopyOfAllHeaders() {
@@ -143,5 +148,21 @@ public class HeaderTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"heAder1\":[\"value1\"], \"header1\":[\"value2\", " +
                 "\"value3\"], \"hEader2\":[\"value3\"], \"headeR2\":[\"value4\"], " +
                 "\"HeADEr2\":[\"totally different value\"], \"HEADER3\":[\"testVal\"]}");
+    }
+
+    @Test(description = "Test has header function")
+    public void testHasHeader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHasHeader", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(Boolean.parseBoolean(returns[0].stringValue()));
+    }
+
+    @Test(description = "Test has header function for a non-existence header")
+    public void testHasHeaderForNonExistenceHeader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHasHeaderForNonExistenceHeader", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertFalse(Boolean.parseBoolean(returns[0].stringValue()));
     }
 }

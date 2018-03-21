@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina", packageName = "time",
         functionName = "createTime",
         args = {@Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),

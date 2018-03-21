@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.equalsIgnoreCase",
         receiver = @Receiver(type = TypeKind.STRING),
         args = {@Argument(name = "anotherString", type = TypeKind.STRING)},

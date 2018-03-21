@@ -1,7 +1,7 @@
 package ballerina.net.ftp;
 
-import ballerina.lang.files;
-import ballerina.doc;
+import ballerina/lang.files;
+import ballerina/doc;
 
 connector ClientConnector () {
 

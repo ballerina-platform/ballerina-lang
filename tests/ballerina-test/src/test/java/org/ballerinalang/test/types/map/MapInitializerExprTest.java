@@ -39,18 +39,10 @@ import org.testng.annotations.Test;
 public class MapInitializerExprTest {
 
     private CompileResult compileResult;
-    private CompileResult negativeResult;
 
     @BeforeTest
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/map/map-initializer-expr.bal");
-//        negativeResult = BCompileUtil.compile("test-src/types/map/map-literal-negative.bal");
-    }
-
-    @Test
-    public void testMapWithUnsupportedKey() {
-        // testMapWithUnsupportedKey
-        BAssertUtil.validateError(negativeResult, 0, "missing token ':' before '('", 2, 18);
     }
 
     @Test(description = "Test map initializer expression")

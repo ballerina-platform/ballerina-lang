@@ -1,7 +1,7 @@
-import ballerina.io;
-import ballerina.net.ftp;
-import ballerina.lang.files;
-import ballerina.lang.blobs;
+import ballerina/io;
+import ballerina/net.ftp;
+import ballerina/lang.files;
+import ballerina/lang.blobs;
 
 
 function main (string[] args) {

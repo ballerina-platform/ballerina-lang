@@ -1,4 +1,4 @@
-import ballerina.auth.jwtAuth;
+import ballerina/auth.jwtAuth;
 
 function testJwtAuthenticatorCreationWithCache () (jwtAuth:JWTAuthenticator) {
     return jwtAuth:createAuthenticator();

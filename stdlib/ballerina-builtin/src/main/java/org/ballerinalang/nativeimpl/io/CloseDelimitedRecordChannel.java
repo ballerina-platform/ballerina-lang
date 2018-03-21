@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.95
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "closeDelimitedRecordChannel",
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
