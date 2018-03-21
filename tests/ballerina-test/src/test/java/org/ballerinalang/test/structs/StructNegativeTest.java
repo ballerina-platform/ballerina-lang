@@ -71,7 +71,8 @@ public class StructNegativeTest {
     @Test
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for struct literal keys", 7, 21);
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for struct literal keys", 7,
+                21);
     }
 
     @Test(description = "Test defining a struct constant")
