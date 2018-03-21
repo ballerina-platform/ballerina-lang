@@ -34,11 +34,11 @@ public struct ServiceEndpointConfiguration {
     string host;
     int port;
     KeepAlive keepAlive;
-    TransferEncoding transferEncoding;
+    TransferEncoding|null transferEncoding;
     Chunking chunking;
-    ServiceSecureSocket secureSocket;
+    ServiceSecureSocket|null secureSocket;
     string httpVersion;
-    RequestLimits requestLimits;
+    RequestLimits|null requestLimits;
     Filter[] filters;
 }
 
@@ -48,6 +48,7 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
     config.keepAlive = KeepAlive.AUTO;
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
+    config.httpVersion = "1.1";
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
