@@ -5,7 +5,7 @@ service<http> HelloService {
 
   @POST {}
   @Path {value:"/tweet"}
-  resource tweet (message m) {
+   tweet (message m) {
       // Following line is invalid.
       int;
       reply m;
