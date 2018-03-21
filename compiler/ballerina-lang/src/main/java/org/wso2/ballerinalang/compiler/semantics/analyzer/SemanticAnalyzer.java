@@ -29,7 +29,6 @@ import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
-import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
@@ -1115,8 +1114,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     //Streaming related methods.
 
     public void visit(BLangForever foreverStatement) {
-        for(StreamingQueryStatementNode streamingQueryStatement : foreverStatement.gettreamingQueryStatements()) {
-            analyzeStmt((BLangStatement)streamingQueryStatement, env);
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.gettreamingQueryStatements()) {
+            analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
         List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;

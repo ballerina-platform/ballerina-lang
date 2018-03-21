@@ -19,10 +19,25 @@ package org.ballerinalang.nativeimpl.builtin.streamletlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@code Start} is the function to start the streamlet runtime.
@@ -46,5 +61,32 @@ public class StartStreamlet extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         context.setReturnValues();
+
+        String siddhiApp = context.getStringArgument(0);
+        SiddhiAppRuntime siddhiAppRuntime =
+                StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(siddhiApp);
+        Set<String> streamIds = siddhiAppRuntime.getStreamDefinitionMap().keySet();
+        Map<String, InputHandler> streamSpecificInputHandlerMap = new HashMap<>();
+        for (String streamId : streamIds) {
+            streamSpecificInputHandlerMap.put(streamId, siddhiAppRuntime.getInputHandler(streamId));
+        }
+
+        BRefValueArray inputStreamReferenceArray = (BRefValueArray) context.getRefArgument(0);
+
+        BRefValueArray functionPointerArray = (BRefValueArray) context.getRefArgument(4);
+
+        for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
+            BStream stream = (BStream) inputStreamReferenceArray.get(i);
+            InputHandler inputHandler = streamSpecificInputHandlerMap.get(stream.getStreamId());
+            stream.subscribe(inputHandler);
+        }
+
+        for (int i = 0; i < functionPointerArray.size(); i++) {
+            BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.get(i);
+            String functionName = functionPointer.value().getFunctionName();
+            String streamId = "stream" + functionName.replaceAll("\\$", "_");
+            StreamingRuntimeManager.getInstance().addCallback(streamId, functionPointer, siddhiAppRuntime);
+
+        }
     }
 }

@@ -27,7 +27,6 @@ import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
-import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
@@ -518,7 +517,9 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangStreamAction streamAction) {
         streamActionClause = new StringBuilder("insert into ");
-        streamActionClause.append(streamAction.getInvokableBody().getFunctionNode().getName().getValue());
+        String streamName = "stream" + streamAction.getInvokableBody().getFunctionNode().getName().getValue();
+        streamName = streamName.replaceAll("\\$", "_");
+        streamActionClause.append(streamName);
     }
 
     @Override

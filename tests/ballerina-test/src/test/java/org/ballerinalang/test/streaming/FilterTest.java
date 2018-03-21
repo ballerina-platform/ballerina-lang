@@ -20,10 +20,7 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,7 +40,7 @@ public class FilterTest {
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterQuery");
+        BValue[] returns = BRunUtil.invoke(result, "startMain");
 
 //        BRefValueArray outputEmployeeEvents = (BRefValueArray) returns[0];
 //        Assert.assertNotNull(outputEmployeeEvents);

@@ -169,7 +169,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -458,7 +457,7 @@ public class BLangPackageBuilder {
 
         addType(constrainedType);
     }
-    
+
     public void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
         Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
 
@@ -854,7 +853,7 @@ public class BLangPackageBuilder {
     }
 
     public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable,
-            boolean async) {
+                                         boolean async) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
@@ -2696,7 +2695,7 @@ public class BLangPackageBuilder {
 
         addStmtToCurrentBlock(foreverNode);
     }
-    
+
     public void markLastExpressionAsAwait() {
         ((BLangExpression) this.exprNodeStack.peek()).await = true;
     }
