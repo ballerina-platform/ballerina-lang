@@ -83,7 +83,7 @@ function main (string[] args) {
         http:HttpHandle resultantHandle => {
             handle = resultantHandle;
         }
-        error err => {
+        http:HttpConnectorError err => {
             io:println("Error occurred while submitting a request");
             return;
         }
@@ -101,7 +101,7 @@ function main (string[] args) {
             http:PushPromise resultantPushPromise => {
                 pushPromise = resultantPushPromise;
             }
-            error err => {
+            http:HttpConnectorError err => {
                 io:println("Error occurred while fetching push promise");
                 return;
             }
@@ -127,7 +127,7 @@ function main (string[] args) {
         http:Response resultantResponse => {
             res = resultantResponse;
         }
-        error err => {
+        http:HttpConnectorError err => {
             io:println("Error occurred while fetching response");
             return;
         }
@@ -143,7 +143,7 @@ function main (string[] args) {
             http:Response resultantPromisedResponse => {
                 promisedResponse = resultantPromisedResponse;
             }
-            error err => {
+            http:HttpConnectorError err => {
                 io:println("Error occurred while fetching promised response");
                 return;
             }

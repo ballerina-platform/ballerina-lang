@@ -34,7 +34,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             http:HttpHandle resultantHandle => {
                 handle = resultantHandle;
             }
-            error err => {
+            http:HttpConnectorError err1 => {
                 io:println("Error occurred while submitting a request");
                 return;
             }
@@ -52,7 +52,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:PushPromise resultantPushPromise => {
                     pushPromise = resultantPushPromise;
                 }
-                error err => {
+                http:HttpConnectorError err2 => {
                     io:println("Error occurred while fetching push promise");
                     return;
                 }
@@ -81,7 +81,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             http:Response resultantResponse => {
                 res = resultantResponse;
             }
-            error err => {
+            http:HttpConnectorError err3 => {
                 io:println("Error occurred while fetching response");
                 return;
             }
@@ -106,7 +106,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:Response resultantPromisedResponse => {
                     promisedResponse = resultantPromisedResponse;
                 }
-                error err => {
+                http:HttpConnectorError err4 => {
                     io:println("Error occurred while fetching promised response");
                     return;
                 }
