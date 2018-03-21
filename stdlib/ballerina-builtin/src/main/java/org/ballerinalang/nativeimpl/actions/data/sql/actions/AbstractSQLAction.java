@@ -168,7 +168,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             BRefValueArray tuple = new BRefValueArray(BTypes.typeAny);
             tuple.add(0, updatedCount);
             tuple.add(1, generatedKeys);
-            context.setReturnValues(tuple);//TODO:Set null for error
+            context.setReturnValues(tuple); //TODO:Set null for error
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
