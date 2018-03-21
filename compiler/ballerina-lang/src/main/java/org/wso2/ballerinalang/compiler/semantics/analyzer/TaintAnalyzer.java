@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -558,15 +557,8 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         if (returnNode.namedReturnVariables == null) {
             // If named returns are not used, evaluate each expression to identify the tainted status.
             for (BLangExpression expr : returnNode.exprs) {
-                if (expr.type.tag == TypeTags.TUPLE) {
-                    BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
-                    bracedOrTupleExpr.expressions.forEach(tupleExpr -> {
-                        tupleExpr
-                    });
-                } else {
-                    expr.accept(this);
-                    returnTaintedStatus.addAll(taintedStatusList);
-                }
+                expr.accept(this);
+                returnTaintedStatus.addAll(taintedStatusList);
             }
         } else {
             // If named returns are used, report back the tainted status of each variable.
