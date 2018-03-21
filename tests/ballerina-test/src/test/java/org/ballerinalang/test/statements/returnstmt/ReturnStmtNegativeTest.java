@@ -36,6 +36,13 @@ public class ReturnStmtNegativeTest {
     }
 
     @Test(description = "Test not enough arguments to return")
+    public void testNotEnoughArgsToReturn1() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-1.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "not enough return values", 2, 5);
+    }
+
+    @Test(description = "Test not enough arguments to return")
     public void testNotEnoughArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
