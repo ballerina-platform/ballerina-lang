@@ -7,11 +7,11 @@ function main (string[] args) {
 
     io:ByteChannel bchannel = target.openChannel(args[0]);
     int intArg;
-    intArg, _ = <int> args[0];
+    (intArg, _) = <int> args[0];
 
     blob data;
     int len;
-    data, len, _ = bchannel.read(intArg);
+    (data, len, _) = bchannel.read(intArg);
 
     testFunction(data, data);
 }

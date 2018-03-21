@@ -7,14 +7,14 @@ function main (string[] args) {
 
     io:ByteChannel bchannel = io:openFile(filePath, permission);
     io:CharacterChannel channel;
-    channel, _ = io:createCharacterChannel(bchannel, "UTF-8");
+    (channel, _) = io:createCharacterChannel(bchannel, "UTF-8");
 
     int len;
-    len, _ = channel.writeCharacters(chars, 0);
+    (len, _) = channel.writeCharacters(chars, 0);
 
     io:IOError err;
     string text;
-    text, err = channel.readCharacters(1);
+    (text, err) = channel.readCharacters(1);
 
     testFunction(text, text);
 }
