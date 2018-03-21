@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -757,6 +758,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(ternaryExpr.expr);
         analyzeExpr(ternaryExpr.thenExpr);
         analyzeExpr(ternaryExpr.elseExpr);
+    }
+    
+    public void visit(BLangAwaitExpr awaitExpr) {
+        analyzeExpr(awaitExpr.expr);
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
