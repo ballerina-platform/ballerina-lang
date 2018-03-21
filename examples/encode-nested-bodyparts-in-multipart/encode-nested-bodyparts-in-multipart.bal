@@ -2,21 +2,21 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-endpoint<http:Service> multipartEP {
+endpoint http:ClientEndpoint clientEP {
+    targets:[{uri:"http://localhost:9093"}]
+};
+
+endpoint http:ServiceEndpoint mockEP {
     port:9092
-}
+};
 
-endpoint<http:Client> clientEP {
-    serviceUri: "http://localhost:9093"
-}
-
-@http:serviceConfig { endpoints:[multipartEP] }
-service<http:Service> nestedparts {
-      @http:resourceConfig {
+@http:ServiceConfig {basePath:"/nestedparts"}
+service<http:Service> test bind mockEP {
+      @http:ResourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource nestedPartSender (http:ServerConnector conn, http:Request req) {
+    nestedPartSender (endpoint conn, http:Request req) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
@@ -50,7 +50,7 @@ service<http:Service> nestedparts {
         request.setMultiparts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
 
         http:Response resp1 = {};
-        resp1, _ = clientEP -> post("/nestedparts/decoder", request);
+        var returnResponse = clientEP -> post("/nestedparts/decoder", request);
 
         _ = conn -> forward(resp1);
     }
