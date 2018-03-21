@@ -420,6 +420,9 @@ public class Generator {
                 param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
             ExpressionNode bLangRecordLiteral = annotation.getExpression();
+            if (((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().size() != 1) {
+                continue;
+            }
             BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().get(0)
                     .getValue();
             String attribVal = bLangLiteral.toString();
@@ -475,6 +478,9 @@ public class Generator {
 
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
             ExpressionNode bLangRecordLiteral = annotation.getExpression();
+            if (((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().size() != 1) {
+                continue;
+            }
             BLangExpression bLangLiteral = ((BLangRecordLiteral) bLangRecordLiteral).getKeyValuePairs().get(0)
                     .getValue();
             String attribVal = bLangLiteral.toString();
