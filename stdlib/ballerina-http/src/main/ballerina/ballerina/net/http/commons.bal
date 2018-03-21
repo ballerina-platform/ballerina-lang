@@ -32,7 +32,7 @@ enum HttpOperation {
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest, Request inRequest,
-                                HttpOperation requestAction, HttpClient httpClient) returns (Response, HttpConnectorError) {
+                                HttpOperation requestAction, HttpClient httpClient) returns Response | HttpConnectorError {
     if (HttpOperation.GET == requestAction) {
         return httpClient.get(path, outRequest);
     } else if (HttpOperation.POST == requestAction) {
@@ -53,12 +53,12 @@ public function invokeEndpoint (string path, Request outRequest, Request inReque
         HttpConnectorError httpConnectorError = {};
         httpConnectorError.statusCode = 400;
         httpConnectorError.message = "Unsupported connector action received.";
-        return null, httpConnectorError;
+        return httpConnectorError;
     }
 }
 
 // Extracts HttpOperation from the Http verb passed in.
-function extractHttpOperation (string httpVerb) returns (HttpOperation connectorAction) {
+function extractHttpOperation (string httpVerb) returns HttpOperation {
     HttpOperation inferredConnectorAction;
     if (GET == httpVerb) {
         inferredConnectorAction = HttpOperation.GET;
@@ -82,7 +82,7 @@ function extractHttpOperation (string httpVerb) returns (HttpOperation connector
 
 // Populate boolean index array by looking at the configured Http status codes to get better performance
 // at runtime.
-function populateErrorCodeIndex (int[] errorCode) returns (boolean[] result) {
+function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     result = [];
     foreach i in errorCode {
         result[i] = true;
@@ -90,7 +90,7 @@ function populateErrorCodeIndex (int[] errorCode) returns (boolean[] result) {
     return result;
 }
 
-function createHttpClientArray (ClientEndpointConfiguration config) returns (HttpClient[]) {
+function createHttpClientArray (ClientEndpointConfiguration config) returns HttpClient[] {
     HttpClient[] httpClients = [];
     int i=0;
     foreach target in config.targets {

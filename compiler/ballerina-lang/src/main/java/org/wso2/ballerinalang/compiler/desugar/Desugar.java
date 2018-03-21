@@ -1237,6 +1237,14 @@ public class Desugar extends BLangNodeVisitor {
         result = mapLiteral;
     }
 
+    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
+        result = streamletLiteral;
+    }
+
+    public void visit(BLangStreamLiteral streamLiteral) {
+        result = streamLiteral;
+    }
+
     @Override
     public void visit(BLangStructLiteral structLiteral) {
         List<String> keys = new ArrayList<>();
