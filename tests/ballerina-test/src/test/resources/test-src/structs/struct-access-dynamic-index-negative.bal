@@ -9,7 +9,7 @@ struct StructField {
     string key;
 }
 
-function testExpressionAsStructIndex () (string) {
+function testExpressionAsStructIndex () returns (string) {
     StructField nameField = {key:"name"};
     Person emp = {name:"Jack", adrs:{"country":"USA", "state":"CA"}, age:25};
     return emp[nameField.key];

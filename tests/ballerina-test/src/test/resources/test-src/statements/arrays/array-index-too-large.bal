@@ -4,7 +4,7 @@ function addTooLargeIndex(int i, int val) {
 }
 
 
-function accessTooLargeIndex(int i)(int) {
+function accessTooLargeIndex(int i) returns (int) {
     int[] arr = [];
     return arr[i];
 }
@@ -15,7 +15,7 @@ function addMinusIndex(int i, int val) {
 }
 
 
-function accessMinusIndex(int i)(int) {
+function accessMinusIndex(int i) returns (int) {
     int[] arr = [];
     return arr[i];
 }

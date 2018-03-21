@@ -62,7 +62,7 @@ public class FindAllWithRegex extends AbstractRegexFunction {
             }
             context.setReturnValues(stringArray);
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(null, BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
     }
 }

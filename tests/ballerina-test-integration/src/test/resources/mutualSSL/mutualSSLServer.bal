@@ -16,17 +16,18 @@ endpoint http:ServiceEndpoint echo {
             protocolName: "TLSv1.2",
             versions: "TLSv1.2,TLSv1.1"
         },
-        ciphers:"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+        ciphers:"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+        sslVerifyClient:"require"
     }
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[echo],
     basePath:"/echo"
 }
 service<http:Service> helloWorld bind echo {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
@@ -42,13 +43,13 @@ endpoint http:ServiceEndpoint echoDummy {
     port:9090
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[echoDummy],
     basePath:"/echoDummy"
 }
 service<http:Service> echoDummyService bind echoDummy {
 
-     @http:resourceConfig {
+     @http:ResourceConfig {
          methods:["POST"],
          path:"/"
      }

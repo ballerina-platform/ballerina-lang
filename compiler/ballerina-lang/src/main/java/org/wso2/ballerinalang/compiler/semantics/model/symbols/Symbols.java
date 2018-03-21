@@ -48,6 +48,16 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BTypeSymbol createObjectSymbol(int flags,
+                                                 Name name,
+                                                 PackageID pkgID,
+                                                 BType type,
+                                                 BSymbol owner) {
+        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.OBJECT;
+        return typeSymbol;
+    }
+
     public static BTypeSymbol createEnumSymbol(int flags,
                                                Name name,
                                                PackageID pkgID,

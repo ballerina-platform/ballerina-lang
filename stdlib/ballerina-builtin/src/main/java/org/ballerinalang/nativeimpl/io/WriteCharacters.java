@@ -78,8 +78,10 @@ public class WriteCharacters implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
+        } else {
+            context.setReturnValues(new BInteger(numberOfCharactersWritten));
         }
-        context.setReturnValues(new BInteger(numberOfCharactersWritten), errorStruct);
         callback.notifySuccess();
         return result;
     }

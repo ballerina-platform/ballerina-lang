@@ -1,4 +1,4 @@
-function makeChild(boolean stone, boolean value) (boolean) {
+function makeChild(boolean stone, boolean value) returns (boolean) {
     boolean result;
     // stone and valuable
     if (stone && value) {
@@ -17,14 +17,14 @@ function makeChild(boolean stone, boolean value) (boolean) {
     return result;
 }
 
-function multiBinaryANDExpression(boolean one, boolean two, boolean three) (boolean) {
+function multiBinaryANDExpression(boolean one, boolean two, boolean three) returns (boolean) {
     return one && two && three;
 }
 
-function multiBinaryORExpression(boolean one, boolean two, boolean three) (boolean) {
+function multiBinaryORExpression(boolean one, boolean two, boolean three) returns (boolean) {
     return one || two || three;
 }
 
-function multiBinaryExpression(boolean one, boolean two, boolean three) (boolean) {
+function multiBinaryExpression(boolean one, boolean two, boolean three) returns (boolean) {
     return (!one || (two && three)) || (!three || (one && two));
 }

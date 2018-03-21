@@ -34,11 +34,11 @@ public struct ServiceEndpointConfiguration {
     string host;
     int port;
     KeepAlive keepAlive;
-    TransferEncoding transferEncoding;
+    TransferEncoding|null transferEncoding;
     Chunking chunking;
-    ServiceSecureSocket secureSocket;
+    ServiceSecureSocket|null secureSocket;
     string httpVersion;
-    RequestLimits requestLimits;
+    RequestLimits|null requestLimits;
     Filter[] filters;
 }
 
@@ -48,6 +48,7 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
     config.keepAlive = KeepAlive.AUTO;
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
+    config.httpVersion = "1.1";
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
@@ -59,13 +60,13 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
 public struct ServiceSecureSocket {
-    TrustStore trustStore;
-    KeyStore keyStore;
-    Protocols protocols;
-    ValidateCert validateCert;
+    TrustStore|null trustStore;
+    KeyStore|null keyStore;
+    Protocols|null protocols;
+    ValidateCert|null validateCert;
     string ciphers;
     string sslVerifyClient;
-    boolean hostNameVerificationEnabled;
+    boolean sessionCreation = true;
 }
 
 public enum KeepAlive {
@@ -102,7 +103,7 @@ public native function <ServiceEndpoint ep> start();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <ServiceEndpoint ep> getClient() returns (Connection);
+public native function <ServiceEndpoint ep> getClient() returns Connection;
 
 @Description { value:"Stops the registered service"}
 public native function <ServiceEndpoint ep> stop();
@@ -148,7 +149,7 @@ public function <WebSocketEndpoint ep> start() {
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
 //TODO make this native
-public function <WebSocketEndpoint ep> getClient() returns (WebSocketConnector) {
+public function <WebSocketEndpoint ep> getClient() returns WebSocketConnector {
     return ep.wsClient.getClient();
 }
 

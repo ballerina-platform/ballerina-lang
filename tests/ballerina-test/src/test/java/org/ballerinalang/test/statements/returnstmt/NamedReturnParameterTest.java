@@ -107,7 +107,7 @@ public class NamedReturnParameterTest {
         Assert.assertSame(returns[1].getClass(), BString.class);
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertNull(returns[1].stringValue());
+        Assert.assertEquals(returns[1].stringValue(), "");
     }
 
     @Test(description = "Test two named return parameters")
@@ -133,6 +133,6 @@ public class NamedReturnParameterTest {
         Assert.assertSame(returns[1].getClass(), BString.class);
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertNull(returns[1].stringValue());
+        Assert.assertEquals(returns[1].stringValue(), "");
     }
 }

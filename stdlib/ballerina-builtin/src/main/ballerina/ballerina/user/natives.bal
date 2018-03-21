@@ -20,20 +20,20 @@ import ballerina.util;
 
 @Description {value:"Returns the current user's country."}
 @Return { value:"Current user's country if it can be determined, an empty string otherwise"}
-public native function getCountry () (string);
+public native function getCountry () returns (string);
 
 @Description {value:"Returns the current user's home directory path."}
 @Return { value:"Current user's home directory if it can be determined, an empty string otherwise"}
-public native function getHome () (string);
+public native function getHome () returns (string);
 
 @Description {value:"Returns the current user's language."}
 @Return { value:"Current user's language if it can be determined, an empty string otherwise"}
-public native function getLanguage () (string);
+public native function getLanguage () returns (string);
 
 @Description {value:"Returns the current user's name."}
 @Return { value:"Current user's name if it can be determined, an empty string otherwise"}
-public native function getName () (string);
+public native function getName () returns (string);
 
 @Description {value:"Returns the current user's locale."}
 @Return { value:"Current user's locale"}
-public native function getLocale () (util:Locale);
+public native function getLocale () returns (util:Locale);

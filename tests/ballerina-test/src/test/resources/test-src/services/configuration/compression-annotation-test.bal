@@ -1,9 +1,9 @@
 import ballerina.net.http;
 import ballerina.net.http.mock;
 
-endpoint<mock:NonListeningService> mockEP {
+endpoint mock:NonListeningService mockEP {
     port:9090
-}
+};
 
 @http:serviceConfig {endpoints:[mockEP], compression: http:Compression.AUTO}
 service<http:Service> autoCompress {
@@ -11,7 +11,7 @@ service<http:Service> autoCompress {
         methods:["GET"],
         path:"/"
     }
-    resource test1 (http:ServerConnector conn, http:Request req) {
+    test1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);
@@ -24,7 +24,7 @@ service<http:Service> alwaysCompress {
         methods:["GET"],
         path:"/"
         }
-    resource test2 (http:ServerConnector conn, http:Request req) {
+    test2 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);
@@ -37,7 +37,7 @@ service<http:Service> neverCompress {
         methods:["GET"],
         path:"/"
     }
-    resource test3 (http:ServerConnector conn, http:Request req) {
+    test3 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);
@@ -50,7 +50,7 @@ service<http:Service> userOverridenValue {
             methods:["GET"],
             path:"/"
     }
-    resource test3 (http:ServerConnector conn, http:Request req) {
+    test3 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello World!!!");
         res.setHeader("content-encoding", "deflate");
