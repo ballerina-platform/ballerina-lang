@@ -16,19 +16,19 @@
 *  under the License.
 */
 
+
 package org.ballerinalang.mime.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
 
@@ -36,37 +36,34 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
- * Get all the header values associated with the given header name.
+ * Check the http header existence.
  *
  * @since 0.966.0
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
-        functionName = "getHeaders",
+        functionName = "hasHeader",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "headerName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class GetHeaders extends BlockingNativeCallableUnit {
+public class HasHeader extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-            throw new BallerinaException("Http Header does not exist!");
+            context.setReturnValues(new BBoolean(false));
+            return;
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         List<String> headerValueList = httpHeaders.getAll(headerName);
-        if (headerValueList == null) {
-            throw new BallerinaException("Http Header does not exist!");
+        if (headerValueList == null || headerValueList.isEmpty()) {
+            context.setReturnValues(new BBoolean(false));
+        } else {
+            context.setReturnValues(new BBoolean(true));
         }
-        int i = 0;
-        BStringArray bStringArray = new BStringArray();
-        for (String headerValue : headerValueList) {
-            bStringArray.add(i, headerValue);
-            i++;
-        }
-        context.setReturnValues(bStringArray);
     }
 }

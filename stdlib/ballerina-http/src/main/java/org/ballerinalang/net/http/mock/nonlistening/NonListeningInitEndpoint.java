@@ -34,10 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.net.http.mock",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
                 structPackage = "ballerina.net.http.mock"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )

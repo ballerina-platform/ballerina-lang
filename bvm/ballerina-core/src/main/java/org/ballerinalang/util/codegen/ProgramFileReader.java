@@ -1466,6 +1466,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWTABLE:
                 case InstructionCodes.NEWSTREAMLET:
+                case InstructionCodes.AWAIT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
