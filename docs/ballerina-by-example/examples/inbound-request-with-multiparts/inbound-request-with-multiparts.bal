@@ -23,7 +23,7 @@ service<http:Service> test bind mockEP {
                     handleContent(part);
                     i = i + 1;
                 }
-                response.setStringPayload("Body parts detected");
+                response.setStringPayload("Multiparts Received!");
             }
             mime:EntityError err => {
                 io:println("Error");
