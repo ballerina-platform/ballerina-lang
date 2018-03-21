@@ -937,6 +937,7 @@
                 <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
+                <module>misc/protobuf-ballerina</module>
 
                 <module>distribution/zip/ballerina</module>
 

@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/runtime;
 
 struct Employee {
     string name;
@@ -46,7 +45,7 @@ streamlet filterStreamlet () {
 }
 
 
-function testFilterQuery () (Employee []) {
+function testFilterQuery () returns (Employee []) {
 
     filterStreamlet pStreamlet = {};
 
@@ -66,7 +65,6 @@ function testFilterQuery () (Employee []) {
 }
 
 function printEmployeeNumber (Employee e) {
-    io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 

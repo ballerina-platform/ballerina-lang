@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "readCharacters",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "numberOfChars", type = TypeKind.INT)},
@@ -73,8 +73,10 @@ public class ReadCharacters implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
+        } else {
+            context.setReturnValues(new BString(readChars));
         }
-        context.setReturnValues(new BString(readChars), errorStruct);
         callback.notifySuccess();
         return result;
     }

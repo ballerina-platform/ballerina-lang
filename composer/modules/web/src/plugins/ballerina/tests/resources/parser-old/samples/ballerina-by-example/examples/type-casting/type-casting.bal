@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function main (string[] args) {
     //Here we assign a 'string' typed value to a variable of type 'any'.

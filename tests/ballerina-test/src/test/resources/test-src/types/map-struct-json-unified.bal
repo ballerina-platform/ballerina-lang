@@ -1,13 +1,15 @@
+import ballerina/io;
+
 struct Person {
     string name;
     int age;
-    Person parent;
+    Person | null parent;
     json info;
     map address;
     int[] marks;
 }
 
-function testMultiValuedStructInlineInit () (Person) {
+function testMultiValuedStructInlineInit () returns (Person) {
     Person p1 = {name:"aaa", age:25,
                     parent:{name:"bbb", age:50},
                     address:{"city":"Colombo", "country":"SriLanka"},
@@ -16,7 +18,7 @@ function testMultiValuedStructInlineInit () (Person) {
     return p1;
 }
 
-function testAccessJsonInStruct () (string, string, string) {
+function testAccessJsonInStruct () returns (string, string, string) {
     Person p1 = {name:"aaa",
                     age:25,
                     parent:{name:"bbb",
@@ -30,13 +32,23 @@ function testAccessJsonInStruct () (string, string, string) {
     string status1;
     string status2;
     string status3;
-    status1, _ = (string)p1.parent.info.status;
-    status2, _ = (string)p1["parent"]["info"]["status"];
-    status3, _ = (string)p1["parent"].info["status"];
-    return status1, status2, status3;
+
+    match p1.parent {
+     Person p2  => status1,_ = (string)p2.info.status;
+     any | null => io:println("Person is null");
+   }
+
+    match p1["parent"] {
+     Person p2 => {
+                    status2, _ = (string) p2["info"]["status"];
+                    status3, _ = (string)p2.info["status"];
+     }
+     any | null => io:println("Person is null");
+    }
+    return ( status1, status2, status3);
 }
 
-function testAccessMapInStruct () (any, any, any, string) {
+function testAccessMapInStruct () returns (any, any, any, string) {
     Person p1 = {name:"aaa",
                     age:25,
                     parent:{name:"bbb",
@@ -48,11 +60,20 @@ function testAccessMapInStruct () (any, any, any, string) {
                 };
     string cityKey = "city";
     string city;
-    city, _ = (string)p1["parent"].address[cityKey];
-    return p1.parent.address.city, p1["parent"]["address"]["city"], p1["parent"].address["city"], city;
+
+    match p1["parent"] {
+        Person p2 =>{
+                city, _ = (string)p2.address[cityKey];
+                return (p2.address.city, p2["address"]["city"], p2.address["city"], city);
+         }
+        any | null => {
+                io:println("Person is null");
+                return (null, null, null, city);
+        }
+    }
 }
 
-function testSetValueToJsonInStruct () (json) {
+function testSetValueToJsonInStruct () returns (json) {
     Person p1 = {name:"aaa",
                     age:25,
                     parent:{name:"bbb",
@@ -62,21 +83,29 @@ function testSetValueToJsonInStruct () (json) {
                            },
                     info:{status:"single"}
                 };
-    p1.parent.info.status = "widowed";
-    p1["parent"]["info"]["retired"] = true;
 
-    return p1["parent"].info;
+    match p1.parent {
+         Person p2 => {
+         p2.info.status = "widowed";
+         p2["info"]["retired"] = true;
+         return p2.info;
+        }
+    any | null => {
+         io:println("Person is null");
+         return null;
+         }
+    }
 }
 
-function testAccessArrayInStruct () (int, int) {
+function testAccessArrayInStruct () returns (int, int) {
     Person p1 = {marks:[87, 94, 72]};
     string statusKey = "status";
-    return p1.marks[1], p1["marks"][2];
+    return (p1.marks[1], p1["marks"][2]);
 }
 
-function testMapInitWithAnyType () (any, map) {
+function testMapInitWithAnyType () returns (any, map) {
     any a = {name:"Supun"};
     map mapCast;
     mapCast, _ = (map)a;
-    return a, mapCast;
+    return (a, mapCast);
 }

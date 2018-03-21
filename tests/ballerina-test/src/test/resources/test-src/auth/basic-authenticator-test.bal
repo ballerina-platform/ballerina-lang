@@ -1,7 +1,7 @@
-import ballerina.auth.basic;
-import ballerina.auth.userstore;
-import ballerina.caching;
-import ballerina.auth.utils;
+import ballerina/auth.basic;
+import ballerina/auth.userstore;
+import ballerina/caching;
+import ballerina/auth.utils;
 
 function testBasicAuthenticatorCreationWithoutCache () (basic:BasicAuthenticator, userstore:UserStore,
                                                         caching:Cache) {

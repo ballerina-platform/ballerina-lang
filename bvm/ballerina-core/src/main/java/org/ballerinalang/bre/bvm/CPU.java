@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -42,6 +43,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
@@ -134,6 +136,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
     }
 
@@ -371,7 +374,6 @@ public class CPU {
                     sf.refRegs[j] = new BTypeDescValue(sf.refRegs[i].getType());
                     break;
                 case InstructionCodes.HALT:
-                    BLangScheduler.workerDone(ctx);
                     ctx = handleHalt(ctx);
                     if (ctx == null) {
                         return;
@@ -625,7 +627,10 @@ public class CPU {
                     break;
                 case InstructionCodes.NEWMAP:
                     i = operands[0];
-                    sf.refRegs[i] = new BMap<String, BRefType>();
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    BMapType mapType = (BMapType) typeRefCPEntry.getType();
+                    sf.refRegs[i] = new BMap<String, BRefType>(mapType);
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
@@ -737,11 +742,8 @@ public class CPU {
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
                     handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
                     break;
-                case InstructionCodes.ASYNC:
-                    execAsync(ctx);
-                    break;
                 case InstructionCodes.AWAIT:
-                    ctx = execAwait(ctx);
+                    ctx = execAwait(ctx, operands);
                     if (ctx == null) {
                         return;
                     }
@@ -1462,7 +1464,19 @@ public class CPU {
                     break;
                 }
 
-                bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                BMapType mapType = (BMapType) bMap.getType();
+                if (sf.refRegs[k] == null) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
+                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else {
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                    mapType.getConstrainedType(), sf.refRegs[k].getType())));
+                    handleError(ctx);
+                    break;
+                }
                 break;
             case InstructionCodes.JSONSTORE:
                 i = operands[0];
@@ -2923,6 +2937,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleReturn(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
@@ -2950,6 +2965,29 @@ public class CPU {
         // Array casting
         if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
             return checkArrayCast(sourceType, targetType);
+        }
+
+        // Check MAP casting
+        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(sourceType, targetType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkMapCast(BType sourceType, BType targetType) {
+
+        BMapType sourceMapType = (BMapType) sourceType;
+        BMapType targetMapType = (BMapType) targetType;
+
+        if (sourceMapType.equals(targetMapType)) {
+            return true;
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
+                && targetMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) sourceMapType.getConstrainedType(),
+                    (BStructType) targetMapType.getConstrainedType());
         }
 
         return false;
@@ -3621,11 +3659,16 @@ public class CPU {
         return;
     }
     
-    private static void execAsync(WorkerExecutionContext ctx) {        
-    }
-    
-    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx) {
-        return null;
+    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx, int[] operands) {
+        int futureReg = operands[0];
+        int retValReg = operands[1];
+        BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
+        WorkerResponseContext respCtx = future.value();
+        if (retValReg != -1) {
+            return respCtx.joinTargetContextInfo(ctx, new int[] { retValReg });
+        } else {
+            return respCtx.joinTargetContextInfo(ctx, new int[0]);
+        }
     }
 
     /**

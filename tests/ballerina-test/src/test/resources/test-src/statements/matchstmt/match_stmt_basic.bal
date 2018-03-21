@@ -30,7 +30,10 @@ function openFile(function (string) returns(File | error) fp) returns (string) {
     File | error k = fp("/tmp/foo.txt");
 
     match k {
-        File f =>  return "file open success";
+        File f =>  {
+                        int a = 10;
+                        return "file open success";
+                   }
         error e =>      return "file open error: " + e.message;
     }
 

@@ -3,7 +3,7 @@
     "line": 4,
     "character": 22
   },
-  "source": "action/source/enumSuggestVarDef2.bal",
+  "source": "resource/source/enumSuggestVarDef2.bal",
   "items": [
     {
       "label": "testEnum",

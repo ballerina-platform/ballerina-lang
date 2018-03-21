@@ -49,6 +49,6 @@ public class StringTemplateLiteralNegativeTest {
                 "mismatched input '}'. expecting {'?', '+', " +
                 "'-', '*', '/', '^', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', ExpressionEnd}", 4, 71);
         BAssertUtil.validateError(resultNegative, 1,
-                "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 5, 13);
+                "mismatched input ';'. expecting {'[', '|', Identifier}", 5, 13);
     }
 }

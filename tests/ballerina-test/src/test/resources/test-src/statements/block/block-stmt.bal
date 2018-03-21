@@ -8,7 +8,7 @@ function testReturnStmtLocation1() {
     return;
 }
 
-function testReturnStmtLocation2()(int) {
+function testReturnStmtLocation2() returns (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -38,7 +38,7 @@ function testReturnStmtLocation4() {
     }
 }
 
-function testCommentAfterReturnStmt()(int) {
+function testCommentAfterReturnStmt() returns (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";

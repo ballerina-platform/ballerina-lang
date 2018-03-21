@@ -103,6 +103,7 @@ public enum DiagnosticCode {
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
+    INVALID_STRUCT_LITERAL_KEY("invalid.struct.literal.key"),
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
@@ -142,6 +143,7 @@ public enum DiagnosticCode {
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
+    UNINITIALIZED_VARIABLE("uninitialized.variable"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),

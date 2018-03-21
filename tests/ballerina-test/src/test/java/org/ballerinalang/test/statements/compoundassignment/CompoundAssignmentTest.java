@@ -317,7 +317,7 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, 10,
                 "incompatible types: expected 'int', found 'float'", 70, 10);
         BAssertUtil.validateError(compileResult, 11,
-                "multi-valued 'getMultiIncrement()' in single-value context", 76, 10);
+                "operator '+' not defined for 'int' and '(int,int)'", 76, 5);
     }
 
 }

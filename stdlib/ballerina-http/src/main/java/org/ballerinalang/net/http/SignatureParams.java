@@ -45,7 +45,8 @@ public class SignatureParams {
     }
 
     void validate() {
-        if (resource.getEntityBodyAttributeValue() == null) {
+        if (resource.getEntityBodyAttributeValue() == null ||
+                resource.getEntityBodyAttributeValue().isEmpty()) {
             validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, paramDetails.size()));
         } else {
             int lastParamIndex = paramDetails.size() - 1;

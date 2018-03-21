@@ -138,7 +138,7 @@ public class IOTest {
 
     }
 
-    @Test(description = "Test 'readRecords' function in ballerina.io package")
+    //@Test(description = "Test 'readRecords' function in ballerina.io package")
     public void testReadRecords() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStringArray records;
@@ -209,7 +209,7 @@ public class IOTest {
         BRunUtil.invoke(characterInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'writeRecords' function in ballerina.io package")
+    //@Test(description = "Test 'writeRecords' function in ballerina.io package")
     public void testWriteRecords() {
         String[] content = {"Name", "Email", "Telephone"};
         BStringArray record = new BStringArray(content);

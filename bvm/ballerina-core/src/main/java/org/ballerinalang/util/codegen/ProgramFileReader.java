@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStreamletType;
@@ -85,6 +86,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
@@ -174,7 +176,7 @@ public class ProgramFileReader {
         int pkgCPIndex;
         UTF8CPEntry utf8CPEntry;
         PackageRefCPEntry packageRefCPEntry;
-        PackageInfo packageInfo;
+        Optional<PackageInfo> packageInfoOptional;
         switch (cpEntryType) {
             case CP_ENTRY_UTF8:
                 short length = dataInStream.readShort();
@@ -217,16 +219,18 @@ public class ProgramFileReader {
                         packageRefCPEntry.getPackageName(), cpIndex, streamletName);
 
                 // Find the streamletInfo
-                packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                StreamletInfo streamletInfo = packageInfo.getStreamletInfo(streamletName);
-                if (streamletInfo == null) {
+                packageInfoOptional = Optional.ofNullable(programFile.getPackageInfo(packageRefCPEntry
+                        .getPackageName()));
+                Optional<StreamletInfo> streamletInfoOptional = packageInfoOptional.map(
+                        packageInfo -> packageInfo.getStreamletInfo(streamletName));
+                if (!streamletInfoOptional.isPresent()) {
                     // This must reference to the current package and the current package is not been read yet.
                     // Therefore we add this to the unresolved CP Entry list.
                     unresolvedCPEntries.add(streamletRefCPEntry);
                     return streamletRefCPEntry;
                 }
 
-                streamletRefCPEntry.setStreamletInfo(streamletInfo);
+                streamletRefCPEntry.setStreamletInfo(streamletInfoOptional.get());
                 return streamletRefCPEntry;
 
             case CP_ENTRY_FUNCTION_REF:
@@ -240,16 +244,18 @@ public class ProgramFileReader {
                         packageRefCPEntry.getPackageName(), cpIndex, funcName);
 
                 // Find the functionInfo
-                packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                FunctionInfo functionInfo = packageInfo.getFunctionInfo(funcName);
-                if (functionInfo == null) {
+                packageInfoOptional = Optional.ofNullable(
+                        programFile.getPackageInfo(packageRefCPEntry.getPackageName()));
+                Optional<FunctionInfo> funcInfoOptional = packageInfoOptional.map(
+                        packageInfo -> packageInfo.getFunctionInfo(funcName));
+                if (!funcInfoOptional.isPresent()) {
                     // This must reference to the current package and the current package is not been read yet.
                     // Therefore we add this to the unresolved CP Entry list.
                     unresolvedCPEntries.add(functionRefCPEntry);
                     return functionRefCPEntry;
                 }
 
-                functionRefCPEntry.setFunctionInfo(packageInfo.getFunctionInfo(funcName));
+                functionRefCPEntry.setFunctionInfo(funcInfoOptional.get());
                 return functionRefCPEntry;
 
             case CP_ENTRY_TRANSFORMER_REF:
@@ -263,16 +269,18 @@ public class ProgramFileReader {
                         packageRefCPEntry.getPackageName(), cpIndex, transformerName);
 
                 // Find the transformerInfo
-                packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                TransformerInfo transformerInfo = packageInfo.getTransformerInfo(transformerName);
-                if (transformerInfo == null) {
+                packageInfoOptional = Optional.ofNullable(
+                        programFile.getPackageInfo(packageRefCPEntry.getPackageName()));
+                Optional<TransformerInfo> transInfoOptional = packageInfoOptional.map(
+                        packageInfo -> packageInfo.getTransformerInfo(transformerName));
+                if (!transInfoOptional.isPresent()) {
                     // This must reference to the current package and the current package is not been read yet.
                     // Therefore we add this to the unresolved CP Entry list.
                     unresolvedCPEntries.add(transformerRefCPEntry);
                     return transformerRefCPEntry;
                 }
 
-                transformerRefCPEntry.setTransformerInfo(transformerInfo);
+                transformerRefCPEntry.setTransformerInfo(transInfoOptional.get());
                 return transformerRefCPEntry;
 
             case CP_ENTRY_ACTION_REF:
@@ -282,10 +290,9 @@ public class ProgramFileReader {
                 cpIndex = dataInStream.readInt();
                 UTF8CPEntry nameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
                 String actionName = nameCPEntry.getValue();
-                ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgCPIndex, packageRefCPEntry.getPackageName(),
+                return new ActionRefCPEntry(pkgCPIndex, packageRefCPEntry.getPackageName(),
                         cpIndex, actionName);
 
-                return actionRefCPEntry;
             case CP_ENTRY_STRUCTURE_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -295,16 +302,18 @@ public class ProgramFileReader {
                         packageRefCPEntry.getPackageName(),
                         cpIndex, utf8CPEntry.getValue());
 
-                packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                StructureTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(utf8CPEntry.getValue());
-                if (structureTypeInfo == null) {
+                packageInfoOptional = Optional.ofNullable(
+                        programFile.getPackageInfo(packageRefCPEntry.getPackageName()));
+                Optional<StructureTypeInfo> structInfoOptional = packageInfoOptional.map(
+                        packageInfo -> packageInfo.getStructureTypeInfo(utf8CPEntry.getValue()));
+                if (!structInfoOptional.isPresent()) {
                     // This must reference to the current package and the current package is not been read yet.
                     // Therefore we add this to the unresolved CP Entry list.
                     unresolvedCPEntries.add(structureRefCPEntry);
                     return structureRefCPEntry;
                 }
 
-                structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
+                structureRefCPEntry.setStructureTypeInfo(structInfoOptional.get());
                 return structureRefCPEntry;
             case CP_ENTRY_TYPE_REF:
                 int typeSigCPIndex = dataInStream.readInt();
@@ -314,16 +323,13 @@ public class ProgramFileReader {
                 return typeRefCPEntry;
             case CP_ENTRY_FORK_JOIN:
                 int forkJoinCPIndex = dataInStream.readInt();
-                ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinCPIndex);
-                return forkJoinCPEntry;
+                return new ForkJoinCPEntry(forkJoinCPIndex);
             case CP_ENTRY_WRKR_DATA_CHNL_REF:
                 int uniqueNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry wrkrDtChnlTypesSigCPEntry = (UTF8CPEntry) constantPool
                         .getCPEntry(uniqueNameCPIndex);
 
-                WorkerDataChannelRefCPEntry wrkrDtChnlRefCPEntry
-                        = new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
-                return wrkrDtChnlRefCPEntry;
+                return new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
             default:
                 throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }
@@ -346,14 +352,17 @@ public class ProgramFileReader {
     }
 
     private void readPackageInfo(DataInputStream dataInStream) throws IOException {
-        int pkgNameCPIndex = dataInStream.readInt();
-        UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgNameCPIndex);
-        PackageInfo packageInfo = new PackageInfo(pkgNameCPIndex, pkgNameCPEntry.getValue());
-        packageInfo.setProgramFile(programFile);
-        programFile.addPackageInfo(packageInfo.getPkgPath(), packageInfo);
+        PackageInfo packageInfo = new PackageInfo();
 
         // Read constant pool in the package.
         readConstantPool(dataInStream, packageInfo);
+
+        int pkgNameCPIndex = dataInStream.readInt();
+        UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
+        packageInfo.nameCPIndex = pkgNameCPIndex;
+        packageInfo.pkgPath = pkgNameCPEntry.getValue();
+        packageInfo.setProgramFile(programFile);
+        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
@@ -1002,6 +1011,17 @@ public class ProgramFileReader {
                 BArrayType arrayType = new BArrayType(elemType);
                 typeStack.push(arrayType);
                 return index;
+            case 'N':
+                index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
+                BType constrainedType = typeStack.pop();
+                BType mapType;
+                if (constrainedType == BTypes.typeAny) {
+                    mapType = BTypes.typeMap;
+                } else {
+                    mapType = new BMapType(constrainedType);
+                }
+                typeStack.push(mapType);
+                return index;
             case 'U':
                 // TODO : Fix this for type casting.
                 typeStack.push(new BFunctionType());
@@ -1030,6 +1050,13 @@ public class ProgramFileReader {
                 return BTypes.typeAny;
             case 'R':
                 return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
+            case 'N':
+                BType constrainedType = getBTypeFromDescriptor(desc.substring(1));
+                if (constrainedType == BTypes.typeAny) {
+                    return BTypes.typeMap;
+                } else {
+                    return new BMapType(constrainedType);
+                }
             case 'C':
             case 'X':
             case 'J':
@@ -1375,7 +1402,6 @@ public class ProgramFileReader {
                 case InstructionCodes.GOTO:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
-                case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWXMLSEQ:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
@@ -1445,8 +1471,10 @@ public class ProgramFileReader {
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
+                case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWTABLE:
                 case InstructionCodes.NEWSTREAMLET:
+                case InstructionCodes.AWAIT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));

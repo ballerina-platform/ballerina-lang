@@ -1,6 +1,6 @@
 package servicechaining.samples;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/bankinfo"}
 service<http> Bankinfo {
