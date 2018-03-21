@@ -3,10 +3,10 @@
 struct Person {
     string name;
     int age;
-    Person? parent;
-    json info;
-    map address;
-    int[] marks;
+    Person | null parent;
+    json | null info;
+    map | null address;
+    int[] | null marks;
     any a;
     float score;
     boolean alive;
@@ -55,7 +55,11 @@ function testMapToStruct () returns (Person | error) {
                 score:5.67,
                 alive:true
             };
-    var p =? <Person> m;
+            
+    var p, err = <Person> m;
+    if (err != null){
+        return err;
+    }
     return p;
 }
 
@@ -69,7 +73,8 @@ function testStructToJson () returns (json) {
                };
 
     json j;
-    j, _ = <json>p;
+    //j, _ = <json>p;
+    //TODO fix this
     return j;
 }
 
@@ -96,7 +101,8 @@ function testJsonToStruct () returns (Person | error) {
                  alive:true,
                  children:null
              };
-    var p =? <Person>j;
+    var p, _ = <Person>j;
+    //TODO fix the error handling
     return p;
 }
 
@@ -108,12 +114,10 @@ function testIncompatibleMapToStruct () returns (Person) {
                 info:{status:"single"},
                 marks:marks
             };
-    Person p;
-    error e;
-    p, e = <Person>m;
-    if (e != null) {
-        throw e;
-    }
+    var p, err = <Person>m;
+    if (err != null){
+        throw err;
+    }   
     return p;
 }
 
@@ -124,12 +128,9 @@ function testMapWithMissingFieldsToStruct () returns (Person) {
                 address:{"city":"Colombo", "country":"SriLanka"},
                 marks:marks
             };
-    Person p;
-    error e;
-    p, e = <Person>m;
-    if (e != null) {
-        throw e;
-    }
+
+    var p, e = <Person>m;
+    //TODO handle error
     return p;
 }
 
@@ -157,9 +158,8 @@ function testMapWithIncompatibleArrayToStruct () returns (Person) {
                 score:5.67,
                 alive:true
             };
-    Person p;
-    error e;
-    p, e = <Person>m;
+
+    var p, e = <Person>m;
     if (e != null) {
         throw e;
     }
@@ -188,8 +188,8 @@ function testMapWithIncompatibleStructToStruct () returns (Employee) {
                 info:{status:"single"},
                 marks:marks
             };
-    Employee e;
-    e, _ = <Employee>m;
+            
+    var e, _ = <Employee>m;
     return e;
 }
 
@@ -200,9 +200,8 @@ function testJsonToStructWithMissingFields () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -216,9 +215,8 @@ function testIncompatibleJsonToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -240,9 +238,8 @@ function testJsonWithIncompatibleMapToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -264,9 +261,8 @@ function testJsonWithIncompatibleTypeToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -288,9 +284,8 @@ function testJsonWithIncompatibleStructToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -299,9 +294,8 @@ function testJsonWithIncompatibleStructToStruct () returns (Person) {
 
 function testJsonArrayToStruct () returns (Person) {
     json j = [87, 94, 72];
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -317,9 +311,7 @@ function testStructWithIncompatibleTypeMapToJson () returns (json) {
     map m = {bar:b};
     Info info = {foo:m};
 
-    json j;
-    error err;
-    j, err = <json>info;
+    var j, err = <json>info;
     if (err != null) {
         throw err;
     }
@@ -380,8 +372,7 @@ struct AnyArray {
 
 function testJsonToAnyArray () returns (AnyArray) {
     json j = {a:[4, "Supun", 5.36, true, {lname:"Setunga"}, [4, 3, 7], null]};
-    AnyArray a;
-    a, _ = <AnyArray>j;
+    var a, _ = <AnyArray>j;
     return a;
 }
 
@@ -391,8 +382,7 @@ struct IntArray {
 
 function testJsonToIntArray () returns (IntArray) {
     json j = {a:[4, 3, 9]};
-    IntArray a;
-    a, _ = <IntArray>j;
+    var a, _ = <IntArray>j;
     return a;
 }
 
@@ -402,15 +392,13 @@ struct StringArray {
 
 function testJsonToStringArray () returns (StringArray) {
     json j = {a:["a", "b", "c"]};
-    StringArray a;
-    a, _ = <StringArray>j;
+    var a, _ = <StringArray>j;
     return a;
 }
 
 function testJsonIntArrayToStringArray () returns (StringArray) {
     json j = {a:[4, 3, 9]};
-    StringArray a;
-    a, _ = <StringArray>j;
+    var a, _ = <StringArray>j;
     return a;
 }
 
@@ -420,9 +408,8 @@ struct XmlArray {
 
 function testJsonToXmlArray () returns (XmlArray) {
     json j = {a:["a", "b", "c"]};
-    XmlArray a;
-    error e;
-    a, e = <XmlArray>j;
+
+    var a, e = <XmlArray>j;
     if (e != null) {
         throw e;
     }
@@ -431,23 +418,23 @@ function testJsonToXmlArray () returns (XmlArray) {
 
 function testNullJsonArrayToArray () returns (StringArray) {
     json j = {a:null};
-    StringArray a;
-    a, _ = <StringArray>j;
+    var a, _ = <StringArray>j;
     return a;
 }
 
 function testNullJsonToArray () returns (StringArray) {
     json j;
-    StringArray a;
-    a, _ = <StringArray>j;
+    var a, err = <StringArray>j;
+    if (err != null){
+        throw err;
+    }
     return a;
 }
 
 function testNonArrayJsonToArray () returns (StringArray) {
     json j = {a:"im not an array"};
-    StringArray a;
-    error e;
-    a, e = <StringArray>j;
+
+    var a, e = <StringArray>j;
     if (e != null) {
         throw e;
     }
@@ -486,27 +473,40 @@ function testNullJsonToBoolean () returns (boolean) {
     return value;
 }
 
-function testNullJsonToStruct () returns (Person | error) {
+function testNullJsonToStruct () returns (Person) {
     json j;
-    var p =? <Person>j;
+    var p, err = <Person>j;
+    if (err != null){
+        throw err;
+    }
     return p;
 }
 
-function testNullMapToStruct () returns (Person | error) {
+function testNullMapToStruct () returns (Person) {
     map m;
-    var p =? <Person> m;
+    var p, err = <Person> m;
+    if (err != null){
+        throw err;
+    }
     return p;
 }
 
-function testNullStructToJson () returns (json | error) {
-    Person p;
-    var j =? <json> p;
+function testNullStructToJson () returns (json) {
+    Person | null p;
+    //var j, err = <json> p;
+    //if (err != null){
+    //    throw err;
+    //}
+    //TODO fix this
+    json j; 
     return j;
 }
 
 function testNullStructToMap () returns (map) {
-    Person p;
-    map m = <map>p;
+    Person | null p;
+    //map m = <map>p;
+    map m;
+    //TODO fix this
     return m;
 }
 
@@ -526,8 +526,10 @@ function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
                  marks:[87, 94, 72]
              };
              
-    Person p;
-    p  =? <Person>j;
+    var p, err  = <Person>j;
+    if (err != null){
+        return err;
+    }
     return p;
 }
 
@@ -537,10 +539,9 @@ struct PersonA {
 }
 
 function JsonToStructWithErrors () returns (PersonA | error) {
-    PersonA pA;
     json j = {name:"supun"};
 
-    pA =? <PersonA>j;
+    var pA, _ = <PersonA>j;
 
     return pA;
 }
@@ -598,7 +599,11 @@ struct StructWithDefaults {
 
 function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | error) {
     json j = {};
-    var testStruct =? <StructWithDefaults>j;
+    var testStruct, err = <StructWithDefaults>j;
+    
+    if (err != null){
+        return err;
+    }
 
     return testStruct;
 }
@@ -614,7 +619,10 @@ struct StructWithoutDefaults {
 
 function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults | error) {
     json j = {};
-    var testStruct =? <StructWithoutDefaults>j;
+    var testStruct, err = <StructWithoutDefaults>j;
+    if (err != null){
+        return err;
+    }
 
     return testStruct;
 }
@@ -640,7 +648,7 @@ function testSameTypeConversion() returns (int) {
     return i;
 }
 
-function testErrorOnConversions() (error, error, error) {
+function testErrorOnConversions() returns (error, error, error) {
     string s1 = "4";
 
     // string to int
@@ -652,10 +660,10 @@ function testErrorOnConversions() (error, error, error) {
     // string to xml
     var x1, err3 = <xml> "<root id=\"123\"/>";
 
-    return err1, err2, err3;
+    return (err1, err2, err3);
 }
 
-function testNullStringToOtherTypes() (int, error,
+function testNullStringToOtherTypes() returns (int, error,
                                        float, error,
                                        boolean, error,
                                        json, error,
@@ -667,7 +675,7 @@ function testNullStringToOtherTypes() (int, error,
     var j, err4 = <json> s;
     var x, err5 = <xml> s;
     
-    return i, err1, f, err2, b, err3, j, err4, x, err5;
+    return (i, err1, f, err2, b, err3, j, err4, x, err5);
 }
 
 function structWithComplexMapToJson() returns (json | error) {
@@ -681,7 +689,8 @@ function structWithComplexMapToJson() returns (json | error) {
     map m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
     
     Info info = {foo : m};
-    var js =? <json> info;
+    var js, _ = <json> info;
+    //TODO handle error
     return js;
 }
 
@@ -697,6 +706,7 @@ struct ComplexArrayStruct{
 
 function structWithComplexArraysToJson() returns (json | error) {
     ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[{}, {}], f:[{}, {}], g:[{"foo":"bar"}]};
-    var js =? <json> t;
+    var js, _ = <json> t;
+    //TODO handle error
     return js;
 }
