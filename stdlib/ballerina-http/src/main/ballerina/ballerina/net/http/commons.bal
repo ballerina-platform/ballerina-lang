@@ -32,7 +32,7 @@ enum HttpOperation {
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest, Request inRequest,
-                                HttpOperation requestAction, HttpClient httpClient) returns (Response | HttpConnectorError) {
+                                HttpOperation requestAction, HttpClient httpClient) returns Response | HttpConnectorError {
     if (HttpOperation.GET == requestAction) {
         return httpClient.get(path, outRequest);
     } else if (HttpOperation.POST == requestAction) {
@@ -83,14 +83,14 @@ function extractHttpOperation (string httpVerb) returns HttpOperation {
 // Populate boolean index array by looking at the configured Http status codes to get better performance
 // at runtime.
 function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
-    result = [];
+    boolean[] result = [];
     foreach i in errorCode {
         result[i] = true;
     }
     return result;
 }
 
-function createHttpClientArray (ClientEndpointConfiguration config) returns (HttpClient[]) {
+function createHttpClientArray (ClientEndpointConfiguration config) returns HttpClient[] {
     HttpClient[] httpClients = [];
     int i=0;
     foreach target in config.targets {

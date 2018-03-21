@@ -1,29 +1,29 @@
-function booleanToIntImplicit(boolean b) (int) {
+function booleanToIntImplicit(boolean b) returns (int) {
     int i = <int>b;
     return i;
 }
 
-function booleanToFloatImplicit(boolean b) (float) {
+function booleanToFloatImplicit(boolean b) returns (float) {
     float f = <float>b;
     return f;
 }
 
-function booleanToIntExplicit(boolean b) (int) {
+function booleanToIntExplicit(boolean b) returns (int) {
     int i = <int> b;
     return i;
 }
 
-function booleanToFloatExplicit(boolean b) (float) {
+function booleanToFloatExplicit(boolean b) returns (float) {
     float f = <float> b;
     return f;
 }
 
-function intToBooleanExplicit(int i) (boolean) {
+function intToBooleanExplicit(int i) returns (boolean) {
     boolean b = <boolean> i;
     return b;
 }
 
-function floatToBooleanExplicit(float f) (boolean) {
+function floatToBooleanExplicit(float f) returns (boolean) {
     boolean b = <boolean> f;
     return b;
 }

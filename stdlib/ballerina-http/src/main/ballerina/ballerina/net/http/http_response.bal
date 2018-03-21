@@ -22,29 +22,29 @@ public struct Response {
 @Param {value:"res: The response message"}
 @Return {value:"Entity of the response"}
 @Return {value:"EntityError will might get thrown during entity construction in case of errors"}
-public native function <Response res> getEntity () returns (mime:Entity, mime:EntityError);
+public native function <Response res> getEntity () returns (mime:Entity | mime:EntityError);
 
 @Description {value:"Get the entity from the response without the body"}
 @Param {value:"req: The response message"}
 @Return {value:"Entity of the response"}
 public native function <Response res> getEntityWithoutBody () returns (mime:Entity);
 
-@Description {value:"Retrieve a response property"}
-@Param {value:"res: The response message"}
-@Param {value:"propertyName: The name of the property"}
-@Return {value:"The property value"}
-public native function <Response res> getProperty (string propertyName) returns (string);
+//@Description {value:"Retrieve a response property"}
+//@Param {value:"res: The response message"}
+//@Param {value:"propertyName: The name of the property"}
+//@Return {value:"The property value"}
+//public native function <Response res> getProperty (string propertyName) returns (string);
 
 @Description {value:"Set the entity to response"}
 @Param {value:"res: The response message"}
 @Return {value:"Entity of the response"}
 public native function <Response res> setEntity (mime:Entity entity);
 
-@Description {value:"Sets a response property"}
-@Param {value:"res: The response message"}
-@Param {value:"propertyName: The name of the property"}
-@Param {value:"propertyValue: The value of the property"}
-public native function <Response res> setProperty (string propertyName, string propertyValue);
+//@Description {value:"Sets a response property"}
+//@Param {value:"res: The response message"}
+//@Param {value:"propertyName: The name of the property"}
+//@Param {value:"propertyValue: The value of the property"}
+//public native function <Response res> setProperty (string propertyName, string propertyValue);
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -54,7 +54,7 @@ public native function <Response res> setProperty (string propertyName, string p
 @Param {value:"res: The response struct"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <Response res> getHeader (string headerName) returns (string) {
+public function <Response res> getHeader (string headerName) returns (string | null) {
     mime:Entity entity = res.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
@@ -72,7 +72,7 @@ public function <Response res> addHeader (string headerName, string headerValue)
 @Param {value:"res: The response message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <Response res> getHeaders (string headerName) returns (string[]) {
+public function <Response res> getHeaders (string headerName) returns (string[] | null) {
     mime:Entity entity = res.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
@@ -103,88 +103,87 @@ public function <Response res> removeAllHeaders () {
 
 @Description {value:"Get all transport headers from the response. Manipulating the return map does not have any impact to the original copy"}
 @Param {value:"res: The response message"}
-public function <Response res> getCopyOfAllHeaders () (map) {
+public function <Response res> getCopyOfAllHeaders () returns (map) {
     mime:Entity entity = res.getEntityWithoutBody();
     return entity.getCopyOfAllHeaders();
 }
 
-@Description {value:"Gets the Content-Length header value from the response"}
-@Param {value:"response: The response message"}
-@Return {value:"length of the message"}
-public function <Response response> getContentLength () returns (int) {
-    if (response.getHeader(CONTENT_LENGTH) != null) {
-        string strContentLength = response.getHeader(CONTENT_LENGTH);
-        return getContentLengthIntValue(strContentLength);
-    }
-    return -1;
-}
+//@Description {value:"Gets the Content-Length header value from the response"}
+//@Param {value:"response: The response message"}
+//@Return {value:"length of the message"}
+//public function <Response response> getContentLength () returns int {
+//    match response.getHeader(CONTENT_LENGTH) {
+//        string contentLengthVal => return getContentLengthIntValue(contentLengthVal);
+//        any | null => return -1;
+//    }
+//}
 
 @Description {value:"Gets the response payload in JSON format"}
 @Param {value:"response: The response message"}
 @Return {value:"The JSON reresentation of the message payload"}
-public function <Response response> getJsonPayload () returns (json, mime:EntityError) {
-    var entity, entityError = response.getEntity();
-    if (entityError != null) {
-        return null, entityError;
+public function <Response response> getJsonPayload () returns (json | mime:EntityError) {
+    var mimeEntity = response.getEntity();
+    match mimeEntity {
+        mime:Entity entity => return entity.getJson();
+        mime:EntityError err => return err;
     }
-    return entity.getJson();
 }
 
 @Description {value:"Gets the response payload in XML format"}
 @Param {value:"response: The response message"}
 @Return {value:"The XML representation of the message payload"}
-public function <Response response> getXmlPayload () returns (xml, mime:EntityError) {
-    var entity, entityError = response.getEntity();
-    if (entityError != null) {
-        return null, entityError;
+public function <Response response> getXmlPayload () returns (xml | mime:EntityError) {
+    var mimeEntity = response.getEntity();
+    match mimeEntity {
+        mime:Entity entity => return entity.getXml();
+        mime:EntityError err => return err;
     }
-    return entity.getXml();
 }
 
 @Description {value:"Gets the response payload as a string"}
 @Param {value:"response: The response message"}
 @Return {value:"The string representation of the message payload"}
-public function <Response response> getStringPayload () returns (string, mime:EntityError) {
-    var entity, entityError = response.getEntity();
-    if (entityError != null) {
-        return null, entityError;
+public function <Response response> getStringPayload () returns (string | null | mime:EntityError) {
+    var mimeEntity = response.getEntity();
+    match mimeEntity {
+        mime:Entity entity => return entity.getText();
+        mime:EntityError err => return err;
     }
-    return entity.getText();
 }
 
 @Description {value:"Gets the response payload in blob format"}
 @Param {value:"response: The response message"}
 @Return {value:"The blob representation of the message payload"}
-public function <Response response> getBinaryPayload () returns (blob, mime:EntityError) {
-    var entity, entityError = response.getEntity();
-    if (entityError != null) {
-        blob byteData;
-        return byteData, entityError;
+public function <Response response> getBinaryPayload () returns (blob | mime:EntityError) {
+    var mimeEntity = response.getEntity();
+    match mimeEntity {
+        mime:Entity entity => return entity.getBlob();
+        mime:EntityError err => return err;
     }
-    return entity.getBlob();
 }
 
 @Description {value:"Gets the response payload as a byte channel except for multiparts. In case of multiparts,
 please use 'getMultiparts()' instead."}
 @Param {value:"response: The response message"}
 @Return {value:"A byte channel as the message payload"}
-public function <Response response> getByteChannel () returns (io:ByteChannel, mime:EntityError) {
-    var entity, entityError = response.getEntity();
-    if (entityError != null) {
-        return null, entityError;
+public function <Response response> getByteChannel () returns (io:ByteChannel | mime:EntityError) {
+    var mimeEntity = response.getEntity();
+    match mimeEntity {
+        mime:Entity entity => return entity.getByteChannel();
+        mime:EntityError err => return err;
     }
-    return entity.getByteChannel();
 }
 
 @Description {value:"Get multiparts from response"}
 @Param {value:"response: The response message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <Response response> getMultiparts () returns (mime:Entity[], mime:EntityError) {
-    var entity, entityError = response.getEntity();
-    if (entityError != null) {
-        return null, entityError;
+public function <Response response> getMultiparts () returns mime:Entity[] | mime:EntityError {
+    var mimeEntity = response.getEntity();
+    match mimeEntity {
+        mime:Entity entity => return entity.getBodyParts();
+        mime:EntityError err => return err;
+        //any | null => return null;
     }
-    return entity.getBodyParts();
 }
 
 @Description {value:"Sets a JSON as the outbound response payload"}
@@ -269,9 +268,9 @@ public function <Response response> setByteChannel (io:ByteChannel payload) {
 @Return {value:"Return 'MediaType' struct"}
 function getMediaTypeFromResponse (Response response, string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-    string contentType = response.getHeader(mime:CONTENT_TYPE);
-    if (contentType != null && contentType != "") {
-        mediaType = mime:getMediaType(contentType);
+    var contentTypeValue = response.getHeader(mime:CONTENT_TYPE);
+    match contentTypeValue {
+        string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
+        any | null => return {};
     }
-    return mediaType;
 }
