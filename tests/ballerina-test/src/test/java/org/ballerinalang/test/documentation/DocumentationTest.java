@@ -156,46 +156,47 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test doc negative cases.", enabled = false)
+    @Test(description = "Test doc negative cases.", enabled = true)
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 18);
+        Assert.assertEquals(compileResult.getWarnCount(), 16);
         BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a'", 5, 1);
         BAssertUtil.validateWarning(compileResult, 1,
                 "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
         BAssertUtil.validateWarning(compileResult, 2,
-                "already documented attribute 'foo'", 20, 1);
+                "already documented attribute 'foo'", 22, 1);
         BAssertUtil.validateWarning(compileResult, 3,
-                "no such documentable attribute 'bar' with doc prefix 'F'", 21, 1);
+                "no such documentable attribute 'bar' with doc prefix 'F'", 23, 1);
         BAssertUtil.validateWarning(compileResult, 4,
-                "already documented attribute 'a'", 29, 1);
+                "already documented attribute 'a'", 31, 1);
         BAssertUtil.validateWarning(compileResult, 5,
-                "no such documentable attribute 'c' with doc prefix 'F'", 31, 1);
+                "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
         BAssertUtil.validateWarning(compileResult, 6,
-                "already documented attribute 'file'", 43, 1);
+                "already documented attribute 'file'", 45, 1);
         BAssertUtil.validateWarning(compileResult, 7,
-                "no such documentable attribute 'successfuls' with doc prefix 'R'", 45, 1);
+                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
         BAssertUtil.validateWarning(compileResult, 8,
-                "no such documentable attribute 'pa' with doc prefix 'T'", 60, 2);
+                "no such documentable attribute 'pa' with doc prefix 'T'", 63, 2);
         BAssertUtil.validateWarning(compileResult, 9,
-                "already documented attribute 'e'", 62, 2);
+                "already documented attribute 'e'", 65, 2);
         BAssertUtil.validateWarning(compileResult, 10,
-                "already documented attribute 'url'", 86, 1);
+                "already documented attribute 'url'", 89, 1);
         BAssertUtil.validateWarning(compileResult, 11,
-                "no such documentable attribute 'urls' with doc prefix 'P'", 87, 1);
+                "no such documentable attribute 'urls' with doc prefix 'P'", 90, 1);
+        /*BAssertUtil.validateWarning(compileResult, 12,
+                "already documented attribute 's'", 96, 5);*//*Commented since no longer support named returns*/
+        /*BAssertUtil.validateWarning(compileResult, 13,
+                "no such documentable attribute 'ssss' with doc prefix 'R'", 97, 5);*/
+        /*Commented since no longer support named returns*/
         BAssertUtil.validateWarning(compileResult, 12,
-                "already documented attribute 's'", 92, 5);
+                "no such documentable attribute 'conn' with doc prefix 'P'", 104, 1);
         BAssertUtil.validateWarning(compileResult, 13,
-                "no such documentable attribute 'ssss' with doc prefix 'R'", 93, 5);
+                "already documented attribute 'req'", 110, 5);
         BAssertUtil.validateWarning(compileResult, 14,
-                "no such documentable attribute 'conn' with doc prefix 'P'", 101, 1);
+                "no such documentable attribute 'reqest' with doc prefix 'P'", 111, 5);
         BAssertUtil.validateWarning(compileResult, 15,
-                "already documented attribute 'req'", 108, 5);
-        BAssertUtil.validateWarning(compileResult, 16,
-                "no such documentable attribute 'reqest' with doc prefix 'P'", 109, 5);
-        BAssertUtil.validateWarning(compileResult, 17,
-                "no such documentable attribute 'testConstd' with doc prefix 'V'", 117, 1);
+                "no such documentable attribute 'testConstd' with doc prefix 'V'", 121, 1);
     }
 
     @Test(description = "Test doc transformer.")
