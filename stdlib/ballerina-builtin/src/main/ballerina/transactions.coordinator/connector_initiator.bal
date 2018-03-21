@@ -40,7 +40,7 @@ function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
     ep.httpClient = httpEP;
 }
 
-function <InitiatorClientEP ep> getClient() returns (InitiatorClient) {
+function <InitiatorClientEP ep> getClient() returns InitiatorClient {
     return {clientEP: ep};
 }
 
@@ -50,38 +50,40 @@ struct InitiatorClient {
 
 function<InitiatorClient client> register (string transactionId,
                                                   int transactionBlockId,
-                                                  Protocol[] participantProtocols) returns (RegistrationResponse registrationRes,
-                                                                            error err) {
+                                                  Protocol[] participantProtocols) 
+                                                  returns RegistrationResponse|error {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     string participantId = getParticipantId(transactionBlockId);
     RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
-
     regReq.participantProtocols = participantProtocols;
 
     json j = <json, regRequestToJson()>regReq;
     http:Request req = {};
     req.setJsonPayload(j);
-    var res, e = httpClient -> post("", req);
-    if (e == null) {
-        int statusCode = res.statusCode;
-        var payload, payloadError = res.getJsonPayload();
-        if (payloadError == null) {
-            if (statusCode == 200) {
-                registrationRes = <RegistrationResponse, jsonToRegResponse()>(payload);
-            } else {
-                if (payload == null) {
-                    var stringPayload, _ = res.getStringPayload();
-                    err = {message:stringPayload};
-                } else {
-                    var errMsg, _ = (string)payload.errorMessage;
-                    err = {message:errMsg};
+    var result = httpClient -> post("", req);
+    match result {
+        error err => {
+            return err;
+        }
+        Response res => {
+            int statusCode = res.statusCode;
+            if(statusCode != 200) {
+                error err = {message: "Registration for transaction: " + transactionId + " failed"};
+                return err;
+            }
+            var jsonPayloadResult = res.getJsonPayload();
+            match jsonPayloadResult {
+                error err => return err;
+                json payload => {
+                    return <RegistrationResponse, jsonToRegResponse()>(payload);
+                }
+                null => {
+                    error err = {message:"Invalid response received for registration request"};
+                    throw err;
                 }
             }
-        } else {
-            err = (error)payloadError;
         }
-    } else {
-        err = (error)e;
     }
-    return;
+    error err = {message: "Unhandled condition in register action"};
+    throw err;
 }
