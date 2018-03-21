@@ -68,11 +68,20 @@ native function <Request req> getEntityWithoutBody () returns (mime:Entity);
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
 
+@Description {value:"Check whether the requested header exists"}
+@Param {value:"req: The request message"}
+@Param {value:"headerName: The header name"}
+@Return {value:"Boolean representing the existence of a given header"}
+public function <Request req> hasHeader (string headerName) returns (boolean) {
+    mime:Entity entity = req.getEntityWithoutBody();
+    return entity.hasHeader(headerName);
+}
+
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: The request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
-public function <Request req> getHeader (string headerName) returns (string | null) {
+public function <Request req> getHeader (string headerName) returns (string) {
     mime:Entity entity = req.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
@@ -81,7 +90,7 @@ public function <Request req> getHeader (string headerName) returns (string | nu
 @Param {value:"req: The request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <Request req> getHeaders (string headerName) returns (string[] | null) {
+public function <Request req> getHeaders (string headerName) returns (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
@@ -130,11 +139,7 @@ public function <Request req> getCopyOfAllHeaders () returns (map) {
 @Param {value:"req: The request message"}
 @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
 public function <Request req> expects100Continue () returns (boolean) {
-    var headerValue = req.getHeader(HEADER_KEY_EXPECT);
-    match headerValue {
-        string header => return header ==  HEADER_VAL_100_CONTINUE;
-        any | null => return false;
-    }
+    return req.getHeader(HEADER_KEY_EXPECT) ==  HEADER_VAL_100_CONTINUE;
 }
 
 //@Description {value:"Gets the Content-Length header from the request"}
@@ -336,9 +341,10 @@ public function <Request request> setByteChannel (io:ByteChannel payload) {
 @Return {value:"Return 'MediaType' struct"}
 function getMediaTypeFromRequest (Request request, string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-    var contentTypeValue = request.getHeader(mime:CONTENT_TYPE);
-    match contentTypeValue {
-        string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
-        int | null => return mediaType;
+    string contentTypeValue = request.getHeader(mime:CONTENT_TYPE);
+    if (contentTypeValue != "") {
+          return mime:getMediaType(contentTypeValue);
+    } else {
+          return mediaType;
     }
 }

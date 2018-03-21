@@ -50,11 +50,20 @@ public native function <Response res> setEntity (mime:Entity entity);
 /// Ballerina Implementations ///
 /////////////////////////////////
 
+@Description {value:"Check whether the requested header exists"}
+@Param {value:"res: The response message"}
+@Param {value:"headerName: The header name"}
+@Return {value:"Boolean representing the existence of a given header"}
+public function <Response res> hasHeader (string headerName) returns (boolean) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    return entity.hasHeader(headerName);
+}
+
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"res: The response struct"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
-public function <Response res> getHeader (string headerName) returns (string | null) {
+public function <Response res> getHeader (string headerName) returns (string) {
     mime:Entity entity = res.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
@@ -72,7 +81,7 @@ public function <Response res> addHeader (string headerName, string headerValue)
 @Param {value:"res: The response message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <Response res> getHeaders (string headerName) returns (string[] | null) {
+public function <Response res> getHeaders (string headerName) returns (string[]) {
     mime:Entity entity = res.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
@@ -268,9 +277,10 @@ public function <Response response> setByteChannel (io:ByteChannel payload) {
 @Return {value:"Return 'MediaType' struct"}
 function getMediaTypeFromResponse (Response response, string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-    var contentTypeValue = response.getHeader(mime:CONTENT_TYPE);
-    match contentTypeValue {
-        string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
-        (int | null) => return mediaType;
+    string contentTypeValue = response.getHeader(mime:CONTENT_TYPE);
+    if (contentTypeValue != "") {
+        return mime:getMediaType(contentTypeValue);
+    } else {
+        return mediaType;
     }
 }
