@@ -103,7 +103,7 @@ public function <Response res> removeAllHeaders () {
 
 @Description {value:"Get all transport headers from the response. Manipulating the return map does not have any impact to the original copy"}
 @Param {value:"res: The response message"}
-public function <Response res> getCopyOfAllHeaders () returns map | null {
+public function <Response res> getCopyOfAllHeaders () returns map {
     mime:Entity entity = res.getEntityWithoutBody();
     return entity.getCopyOfAllHeaders();
 }
@@ -121,7 +121,7 @@ public function <Response response> getContentLength () returns int {
 @Description {value:"Gets the response payload in JSON format"}
 @Param {value:"response: The response message"}
 @Return {value:"The JSON reresentation of the message payload"}
-public function <Response response> getJsonPayload () returns json | null | mime:EntityError {
+public function <Response response> getJsonPayload () returns json | mime:EntityError {
     match response.getEntity() {
         mime:Entity entity => return entity.getJson();
         mime:EntityError err => return err;
@@ -132,7 +132,7 @@ public function <Response response> getJsonPayload () returns json | null | mime
 @Description {value:"Gets the response payload in XML format"}
 @Param {value:"response: The response message"}
 @Return {value:"The XML representation of the message payload"}
-public function <Response response> getXmlPayload () returns xml | null| mime:EntityError {
+public function <Response response> getXmlPayload () returns xml | mime:EntityError {
     match response.getEntity() {
         mime:Entity entity => return entity.getXml();
         mime:EntityError err => return err;

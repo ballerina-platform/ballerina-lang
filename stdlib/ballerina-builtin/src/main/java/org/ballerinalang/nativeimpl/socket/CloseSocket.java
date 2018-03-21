@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
@@ -65,6 +66,6 @@ public class CloseSocket extends BlockingNativeCallableUnit {
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }
-        context.setReturnValues();
+        context.setReturnValues((BValue) null);
     }
 }
