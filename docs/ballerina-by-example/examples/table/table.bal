@@ -55,10 +55,10 @@ function main (string[] args) {
     }
 }
 
-function isLowerSalary (Employee p) (boolean) {
+function isLowerSalary (Employee p) returns (boolean) {
     return p.salary < 200;
 }
 
-function getSalary (Employee p) (float) {
+function getSalary (Employee p) returns (float) {
     return p.salary;
 }
