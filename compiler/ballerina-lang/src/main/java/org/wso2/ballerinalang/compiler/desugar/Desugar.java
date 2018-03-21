@@ -1242,14 +1242,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
-        jsonLiteral.keyValuePairs.forEach(keyVal -> {
-            keyVal.valueExpr = rewriteExpr(keyVal.valueExpr);
-            if (keyVal.key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                keyVal.key = new BLangRecordKey(createStringLiteral(keyVal.key.pos, keyVal.key.fieldSymbol.name.value));
-            } else {
-                keyVal.key.expr = rewriteExpr(keyVal.key.expr);
-            }
-        });
         result = jsonLiteral;
     }
 
