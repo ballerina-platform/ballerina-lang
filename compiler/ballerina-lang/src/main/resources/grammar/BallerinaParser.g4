@@ -360,7 +360,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
     ;
 
 tupleDestructuringStatement

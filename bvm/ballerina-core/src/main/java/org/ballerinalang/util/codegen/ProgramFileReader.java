@@ -219,7 +219,8 @@ public class ProgramFileReader {
                         packageRefCPEntry.getPackageName(), cpIndex, streamletName);
 
                 // Find the streamletInfo
-                packageInfoOptional = Optional.ofNullable(programFile.getPackageInfo(packageRefCPEntry.getPackageName()));
+                packageInfoOptional = Optional.ofNullable(programFile.getPackageInfo(packageRefCPEntry
+                        .getPackageName()));
                 Optional<StreamletInfo> streamletInfoOptional = packageInfoOptional.map(
                         packageInfo -> packageInfo.getStreamletInfo(streamletName));
                 if (!streamletInfoOptional.isPresent()) {

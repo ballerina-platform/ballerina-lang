@@ -5704,8 +5704,8 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class AssignmentStatementContext extends ParserRuleContext {
-		public VariableReferenceListContext variableReferenceList() {
-			return getRuleContext(VariableReferenceListContext.class,0);
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
 		}
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
 		public TerminalNode ASSIGN() { return getToken(BallerinaParser.ASSIGN, 0); }
@@ -5748,7 +5748,7 @@ public class BallerinaParser extends Parser {
 			}
 
 			setState(1163);
-			variableReferenceList();
+			variableReference(0);
 			setState(1164);
 			_la = _input.LA(1);
 			if ( !(_la==ASSIGN || _la==SAFE_ASSIGNMENT) ) {
@@ -16178,7 +16178,7 @@ public class BallerinaParser extends Parser {
 		"\u0483\3\2\2\2\u0484\u0485\3\2\2\2\u0485\u0486\3\2\2\2\u0486\u0487\7t"+
 		"\2\2\u0487\u0489\3\2\2\2\u0488\u0478\3\2\2\2\u0488\u0480\3\2\2\2\u0489"+
 		"\u0083\3\2\2\2\u048a\u048c\7K\2\2\u048b\u048a\3\2\2\2\u048b\u048c\3\2"+
-		"\2\2\u048c\u048d\3\2\2\2\u048d\u048e\5\u0090I\2\u048e\u0491\t\3\2\2\u048f"+
+		"\2\2\u048c\u048d\3\2\2\2\u048d\u048e\5\u00c2b\2\u048e\u0491\t\3\2\2\u048f"+
 		"\u0492\5\u00f0y\2\u0490\u0492\5\u00d2j\2\u0491\u048f\3\2\2\2\u0491\u0490"+
 		"\3\2\2\2\u0492\u0493\3\2\2\2\u0493\u0494\7l\2\2\u0494\u0085\3\2\2\2\u0495"+
 		"\u0497\7K\2\2\u0496\u0495\3\2\2\2\u0496\u0497\3\2\2\2\u0497\u0498\3\2"+
