@@ -1489,12 +1489,17 @@ public class Desugar extends BLangNodeVisitor {
             return null;
         }
 
+        if (node.desugered) {
+            return node;
+        }
+
         SymbolEnv previousEnv = this.env;
         this.env = env;
 
         node.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
+        resultNode.desugered = true;
 
         this.env = previousEnv;
         return (E) resultNode;
@@ -1506,6 +1511,10 @@ public class Desugar extends BLangNodeVisitor {
             return null;
         }
 
+        if (node.desugered) {
+            return node;
+        }
+        
         BLangExpression expr = node;
         if (node.impCastExpr != null) {
             expr = node.impCastExpr;
@@ -1515,6 +1524,7 @@ public class Desugar extends BLangNodeVisitor {
         expr.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
+        resultNode.desugered = true;
         return (E) resultNode;
     }
 
