@@ -315,12 +315,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.diagCode = preDiagCode;
 
         // If the typeNode.nullable is true then convert the resultType to a union type
-        // if it is not already a union type or a JSON type
+        // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
             unionType.memberTypes.add(symTable.nullType);
             unionType.setNullable(true);
-        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON) {
+        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
             Set<BType> memberTypes = new HashSet<BType>(2) {{
                 add(resultType);
                 add(symTable.nullType);
