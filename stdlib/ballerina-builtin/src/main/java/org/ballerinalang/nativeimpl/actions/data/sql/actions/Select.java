@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.TraceUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class Select extends AbstractSQLAction {
         Map<String, String> tags = new HashMap<>();
         tags.put(TAG_KEY_DB_STATEMENT, query);
         tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
-        context.getParentWorkerExecutionContext().getTracer().addTags(tags);
+        TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
 
         executeQuery(context, datasource, query, parameters, structType);
     }

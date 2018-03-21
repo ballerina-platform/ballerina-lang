@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BStruct;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_TRACER;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
@@ -58,10 +59,24 @@ public class TraceUtil {
         WorkerExecutionContext parent = ctx;
         while (parent.parent != null) {
             parent = parent.parent;
-            if (parent.getTracer().getInvocationID() != null) {
-                return parent.getTracer();
+            if (getTracer(parent).getInvocationID() != null) {
+                return getTracer(parent);
             }
         }
-        return new NoOpTracer();
+        return NoOpTracer.getInstance();
+    }
+
+    public static void setTracer(WorkerExecutionContext ctx, Tracer tracer) {
+        if (ctx.localProps == null) {
+            ctx.localProps = new HashMap<>();
+        }
+        ctx.localProps.put(KEY_TRACER, tracer);
+    }
+
+    public static Tracer getTracer(WorkerExecutionContext ctx) {
+        if (ctx.localProps != null) {
+            return (Tracer) ctx.localProps.getOrDefault(KEY_TRACER, NoOpTracer.getInstance());
+        }
+        return NoOpTracer.getInstance();
     }
 }

@@ -30,6 +30,17 @@ import java.util.Map;
  * @since 0.964.1
  */
 public class NoOpTracer implements Tracer {
+
+    private static final NoOpTracer instance = new NoOpTracer();
+
+    private NoOpTracer() {
+
+    }
+
+    public static NoOpTracer getInstance() {
+        return instance;
+    }
+
     @Override
     public void startSpan() {
         //do nothing.

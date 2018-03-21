@@ -46,6 +46,7 @@ public class TraceManagerWrapper {
     private Map<String, List<Tracer>> tracerRegistry = new HashMap<>();
     private TraceManager manager;
     private TracerFactory factory;
+    private boolean enabled;
 
     private TraceManagerWrapper() {
         try {
@@ -53,9 +54,8 @@ public class TraceManagerWrapper {
                     .forName(TRACER_MANAGER_CLASS)
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
-            factory = (manager.isEnabled())
-                    ? new BTracerFactory()
-                    : new NoOpTracerFactory();
+            enabled = manager.isEnabled();
+            factory = (enabled) ? new BTracerFactory() : new NoOpTracerFactory();
         } catch (Exception e) {
             factory = new NoOpTracerFactory();
         }
@@ -69,8 +69,12 @@ public class TraceManagerWrapper {
         return getInstance().factory.getTracer(ctx, isClientCtx);
     }
 
+    public boolean isTraceEnabled() {
+        return enabled;
+    }
+
     public void startSpan(WorkerExecutionContext ctx) {
-        Tracer aBTracer = ctx.getTracer();
+        Tracer aBTracer = TraceUtil.getTracer(ctx);
         Tracer rBTracer = TraceUtil.getParentTracer(ctx);
         addToRegistry(aBTracer);
 

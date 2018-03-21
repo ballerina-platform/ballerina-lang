@@ -47,7 +47,7 @@ public class WorkerExecutionContext {
     
     public Map<String, Object> globalProps;
     
-    public Map<String, Object> localProps = new HashMap<>();
+    public Map<String, Object> localProps;
     
     public int ip;
         
@@ -74,8 +74,6 @@ public class WorkerExecutionContext {
     private BStruct error;
 
     private DebugContext debugContext;
-
-    private Tracer tracer;
 
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
@@ -187,17 +185,6 @@ public class WorkerExecutionContext {
 
     public DebugContext getDebugContext() {
         return debugContext;
-    }
-
-    public Tracer getTracer() {
-        if (this.tracer == null) {
-            this.tracer = new NoOpTracer();
-        }
-        return this.tracer;
-    }
-
-    public void setTracer(Tracer tracer) {
-        this.tracer = tracer;
     }
 
     @Override

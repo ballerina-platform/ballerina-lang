@@ -497,14 +497,14 @@ public class BLangVMUtils {
         tracer.setConnectorName(resource.getServiceName());
         tracer.setActionName(resource.getName());
         tracer.generateInvocationID();
-        ctx.setTracer(tracer);
+        TraceUtil.setTracer(ctx, tracer);
         tracer.startSpan();
     }
 
     public static void initClientConnectorTrace(WorkerExecutionContext ctx, String connectorName, String actionName) {
         Tracer root = TraceUtil.getParentTracer(ctx);
         Tracer active = TraceManagerWrapper.newTracer(ctx, true);
-        ctx.setTracer(active);
+        TraceUtil.setTracer(ctx, active);
 
         if (root.getInvocationID() == null) {
             active.generateInvocationID();

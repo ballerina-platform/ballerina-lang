@@ -34,6 +34,7 @@ public class TraceConstants {
     static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
     static final String DEFAULT_ACTION_NAME = "BallerinaAction";
     public static final String TRACE_PREFIX = "trace___";
+    public static final String KEY_TRACER = "_tracer_";
 
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
     public static final String TAG_KEY_HTTP_METHOD = "http.method";

@@ -16,20 +16,32 @@
  * under the License.
  */
 
-package org.ballerinalang.util.tracer.factory;
+package org.ballerinalang.util.tracer;
 
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.tracer.NoOpTracer;
-import org.ballerinalang.util.tracer.Tracer;
+import org.ballerinalang.model.values.BStruct;
 
 /**
- * {@link NoOpTracerFactory} will produce {@link NoOpTracer}s.
+ * {@link TraceableCallback} represents the callback functionality
+ * for traceable functions.
  *
- * @since 0.964.1
+ * @since 0.965.0
  */
-public class NoOpTracerFactory implements TracerFactory {
+public class TraceableCallback implements CallableUnitCallback {
+    private Tracer tracer;
+
+    public TraceableCallback(WorkerExecutionContext ctx) {
+        this.tracer = TraceUtil.getTracer(ctx);
+    }
+
     @Override
-    public Tracer getTracer(WorkerExecutionContext ctx, boolean isClientCtx) {
-        return NoOpTracer.getInstance();
+    public void notifySuccess() {
+        TraceUtil.finishTraceSpan(this.tracer);
+    }
+
+    @Override
+    public void notifyFailure(BStruct error) {
+        TraceUtil.finishTraceSpan(this.tracer, error);
     }
 }
