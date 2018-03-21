@@ -36,9 +36,9 @@ public class LengthOfOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions/unaryoperations/lengthof-operation.bal");
-        resNegative = BCompileUtil.compile(this, "test-src",
-                "expressions/unaryoperations/lengthof-operation-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/unaryoperations/lengthof-operation.bal");
+        resNegative = BCompileUtil.compile(
+                "test-src/expressions/unaryoperations/lengthof-operation-negative.bal");
     }
 
     @Test(description = "Test lengthof unary expression")
@@ -219,25 +219,19 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when array is null.",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+    @Test(description = "Test lengthof unary expression when array is null.")
     public void testArrayLengthAccessExpArrayNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessNullArrayCase", args);
     }
 
-    @Test(description = "Test lengthof unary expression when reference point to json null.",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+    @Test(description = "Test lengthof unary expression when reference point to json null.")
     public void testArrayLengthAccessTestJSONArrayNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);
     }
 
-    @Test(description = "Test lengthof unary expression when reference point to null map.",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+    @Test(description = "Test lengthof unary expression when reference point to null map.")
     public void testArrayLengthAccessTestMapNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessNullMapCase", args);
@@ -284,9 +278,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(description = "Test lengthof string", 
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+    @Test(description = "Test lengthof string")
     public void lengthOfNullString() {
         BRunUtil.invoke(result, "lengthOfNullString");
     }
