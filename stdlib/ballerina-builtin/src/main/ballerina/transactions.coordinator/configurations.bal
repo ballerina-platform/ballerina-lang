@@ -43,13 +43,13 @@ function getCoordinatorHost () returns string {
 function getCoordinatorPort () returns int {
     io:println("###### getCoordinatorPort");
     int port;
-    var result = config:getInstanceValue("http", "coordinator.port")
+    var result = config:getInstanceValue("http", "coordinator.port");
     match result {
         string p => {
             var result2 = <int>p;
             match result2 {
                 error e => port = getAvailablePort();
-                int p => port = p;   
+                int p2 => port = p2;   
             }
         }
         any x => port = getAvailablePort(); //TODO: change this to null

@@ -131,13 +131,11 @@ function notifyAbortToVolatileParticipants (TwoPhaseCommitTransaction txn) retur
     map<Participant> participants = txn.participants;
     foreach _, participant in participants {
         Protocol[] protocols = participant.participantProtocols;
-        if (protocols != null) {
-            foreach proto in protocols {
-                if (proto.name == PROTOCOL_VOLATILE) {
-                    var ret = notifyRemoteParticipant(txn, participant, "abort");
-                    match ret {
-                        error err => return false;
-                    }
+        foreach proto in protocols {
+            if (proto.name == PROTOCOL_VOLATILE) {
+                var ret = notifyRemoteParticipant(txn, participant, "abort");
+                match ret {
+                    error err => return false;
                 }
             }
         }
@@ -150,17 +148,18 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns string|error {
     string|error ret = "aborted";
     foreach _, participant in participants {
         Protocol[] protocols = participant.participantProtocols;
-        if (protocols != null) {
-            foreach proto in protocols {
-                if (proto.protocolFn != null) {
-                    // if the participant if a local participant, i.e. protoFn is set, then call that fn
+        foreach proto in protocols {
+            match proto.protocolFn {
+                (function (string,int,string) returns boolean) protocolFn => {
+                    // if the participant is a local participant, i.e. protoFn is set, then call that fn
                     log:printInfo("Notify(abort) local participant: " + participant.participantId);
                     boolean successful = proto.protocolFn(txn.transactionId, proto.transactionBlockId, "notifyabort");
                     if (!successful) {
                         error e = {message:"Hazard-Outcome"}; //TODO: Must set this for the entire transaction and not override during loop execution
                         ret = e;
-                    }
-                } else if (proto.url != null) {
+                    }   
+                }
+                any x => { 
                     var result = notifyRemoteParticipant(txn, participant, "abort");
                     match result {
                         string status => {
@@ -173,10 +172,7 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns string|error {
                             error e = {message:"Hazard-Outcome"}; //TODO: Must set this for the entire transaction and not override during loop execution
                             ret = e;
                         }
-                    }
-                } else {
-                    error e = {message:"Both protocol function and URL are null"};
-                    throw e;
+                    }    
                 }
             }
         }
@@ -188,22 +184,20 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
     boolean successful = true;
     foreach _, participant in txn.participants {
         Protocol[] protocols = participant.participantProtocols;
-        if (protocols != null) {
-            foreach proto in protocols {
-                if (proto.name == protocol) {
-                    if (proto.protocolFn != null) {
-                        // if the participant if a local participant, i.e. protoFn is set, then call that fn
+        foreach proto in protocols {
+            if (proto.name == protocol) {
+                match proto.protocolFn {
+                    (function (string,int,string) returns boolean) protocolFn => {
+                        // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Preparing local participant: " + participant.participantId);
                         if (!proto.protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
                             successful = false;
-                        }
-                    } else if (proto.url != null) {
+                        }  
+                    }
+                    any x => { 
                         if (!prepareRemoteParticipant(txn, participant, proto.url)) {
                             successful = false;
                         }
-                    } else {
-                        error err = {message:"Both protocol function and URL are null"};
-                        throw err;
                     }
                 }
             }
@@ -291,22 +285,20 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns boolean 
     boolean successful = true;
     foreach _, participant in txn.participants {
         Protocol[] protocols = participant.participantProtocols;
-        if (protocols != null) {
-            foreach proto in protocols {
-                if (proto.protocolFn != null) {
-                    // if the participant if a local participant, i.e. protoFn is set, then call that fn
+        foreach proto in protocols {
+            match proto.protocolFn {
+                (function (string,int,string) returns boolean) protocolFn => {
+                    // if the participant is a local participant, i.e. protoFn is set, then call that fn
                     log:printInfo("Notify(" + message + ") local participant: " + participant.participantId);
                     if(!proto.protocolFn(txn.transactionId, proto.transactionBlockId, "notify" + message)) {
                         successful = false;
-                    }
-                } else if (proto.url != null) {
+                    }  
+                }
+                any x => { 
                     var result = notifyRemoteParticipant(txn, participant, message);
                     match result {
                         error err => successful = false;
                     }
-                } else {
-                    error e = {message:"Both protocol function and URL are null"};
-                    throw e;
                 }
             }
         }
@@ -329,7 +321,7 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
         var result = participantEP -> notify(transactionId, message);
         match result {
             error err => {
-                log:printErrorCause("Remote participant: " + participantId + " replied with an error", participantErr);
+                log:printErrorCause("Remote participant: " + participantId + " replied with an error", err);
                 ret = err; 
             }
             string notificationStatus => {
@@ -347,13 +339,13 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
 
 // This function will be called by the initiator
 function commitTransaction (string transactionId, int transactionBlockId) returns string|error {
-    var txn =? (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
-    if (txn == null) {
+    if (!initiatedTransactions.hasKey(transactionId)) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
         error err = {message:msg};
         return err;
     } else {
+        var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         log:printInfo("Committing transaction: " + transactionId);
         // return response to the initiator. ( Committed | Aborted | Mixed )
         return twoPhaseCommit(txn, transactionBlockId);
@@ -363,12 +355,13 @@ function commitTransaction (string transactionId, int transactionBlockId) return
 // This function will be called by the initiator
 function abortInitiatorTransaction (string transactionId, int transactionBlockId) returns string|error {
     string|error ret = "";
-    var txn =? (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
-    if (txn == null) {
+    if (!initiatedTransactions.hasKey(transactionId)) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
-        ret = {message:msg};
+        error err = {message:msg};
+        return err;
     } else {
+        var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         log:printInfo("Aborting transaction: " + transactionId);
         // return response to the initiator. ( Aborted | Mixed )
         var result = notifyAbort(txn);
@@ -394,25 +387,25 @@ documentation {
 
     P{{transactionId}} - Transaction ID
     P{{transactionBlockId}} - Transaction block ID. Each transaction block in a process will have a unique ID.
-    // R{{message}} - The message returned from the initiator which informs the state of the abort request.
-    // R{{err}} - Error if an error occurred while aborting.
 }
 function abortLocalParticipantTransaction (string transactionId, int transactionBlockId) returns string|error {
     string|error ret = "";
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    var txn =? (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
-    if (txn == null) {
+    if (!participatedTransactions.hasKey(participatedTxnId)) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
-        ret = {message:msg};
+        error err = {message:msg};
+        return err;
     } else {
+        var txn =? (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
         boolean successful = abortResourceManagers(transactionId, transactionBlockId);
         if (successful) {
             txn.state = TransactionState.ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
         } else {
-            log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
-            ret = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
+            string msg = "Aborting local resource managers failed for transaction:" + participatedTxnId;
+            log:printErrorCause(msg);
+            ret = {message:msg};
         } 
     }
     return ret;

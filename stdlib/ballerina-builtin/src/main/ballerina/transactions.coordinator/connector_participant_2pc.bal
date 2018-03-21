@@ -60,7 +60,7 @@ public function<Participant2pcClient client> prepare (string transactionId) retu
         error commErr => {
             return commErr;
         }
-        Response res => {
+        http:Response res => {
             int statusCode = res.statusCode;
             if (statusCode == 404) {
                 error err = {message: "Transaction-Unknown"};
@@ -72,14 +72,11 @@ public function<Participant2pcClient client> prepare (string transactionId) retu
                     json payload => {
                         var transformResult = <PrepareResponse>payload;
                         match transformResult {
-                            error transformErr => return err2;
+                            error transformErr => return transformErr;
                             PrepareResponse prepareRes => {
                                 return prepareRes.message;    
                             }
                         }
-                    null => {
-                        error err = {message:"Error occurred while preparing"};
-                        return err;
                     }
                 } 
             } else {    
@@ -105,33 +102,27 @@ public function<Participant2pcClient client> notify (string transactionId, strin
         error commErr => {
             return commErr;
         }
-        Response res => {
+        http:Response res => {
             int statusCode = res.statusCode;
-            if ((statusCode == 400 && msg == "Not-Prepared") ||
+            var payloadResult = res.getJsonPayload();
+            match payloadResult {
+                error payloadErr => return payloadErr;
+                json payload => {
+                    var notifyRes =? <NotifyResponse>payload;  
+                    string msg = notifyRes.message;
+                    if (statusCode == 200) {
+                        return msg;
+                    } else if ((statusCode == 400 && msg == "Not-Prepared") ||
                             (statusCode == 404 && msg == "Transaction-Unknown") ||
                             (statusCode == 500 && msg == "Failed-EOT")) {
-                error err = {message:msg};
-                return err;
-            } else if(statusCode == 200) {   
-                var jsonPayloadResult = res.getJsonPayload();
-                match jsonPayloadResult {
-                    error err => return err;
-                    json payload => {
-                        var jsonTransformResult = <NotifyResponse>payload;  
-                        match jsonTransformResult {
-                            error transformErr => return transformErr;
-                            NotifyResponse notifyRes => return notifyRes.message;
-                        }  
-                    }
-                    null => {
-                        error err = {message:"Error occurred while notifying"};
-                        return err;
+                        error participantErr = {message:msg};
+                        return participantErr;
+                    } else {
+                        error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
+                                                                                client.clientEP.conf.participantURL};
+                        return participantErr;
                     } 
                 }
-            } else {
-                error err = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
-                                                                        client.clientEP.conf.participantURL};
-                return err;
             }
         }
     }
