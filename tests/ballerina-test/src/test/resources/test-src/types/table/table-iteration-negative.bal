@@ -20,22 +20,22 @@ struct EmployeeSalaryIncompatible {
     float salary;
 }
 
-function getSalaryInCompatibleInput(EmployeeIncompatible e) (EmployeeSalary) {
+function getSalaryInCompatibleInput(EmployeeIncompatible e) returns (EmployeeSalary) {
     EmployeeSalary s = {id: e.id, salary: e.salary};
     return s;
 }
 
-function getSalaryIncompatibleOutput(Employee e) (EmployeeSalaryIncompatible) {
+function getSalaryIncompatibleOutput(Employee e) returns (EmployeeSalaryIncompatible) {
     EmployeeSalaryIncompatible s = {id: e.id, salary: e.salary};
     return s;
 }
 
-function getSalaryIncompatibleInputOutput(EmployeeIncompatible e) (EmployeeSalaryIncompatible) {
+function getSalaryIncompatibleInputOutput(EmployeeIncompatible e) returns (EmployeeSalaryIncompatible) {
     EmployeeSalaryIncompatible s = {id: e.id, salary: e.salary};
     return s;
 }
 
-function createTable() (table<Employee>) {
+function createTable() returns (table<Employee>) {
     table<Employee> dt = {};
 
     Employee e1 = {id:1, name:"A", salary:100};
@@ -49,21 +49,21 @@ function createTable() (table<Employee>) {
     return dt;
 }
 
-function testInCompatibleInput() (table) {
+function testInCompatibleInput() returns (table) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> t = dt.select(getSalaryInCompatibleInput);
     return t;
 }
 
-function testIncompatibleOutput() (table) {
+function testIncompatibleOutput() returns (table) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> t = dt.select(getSalaryIncompatibleOutput);
     return t;
 }
 
-function testIncompatibleInputOutput() (table) {
+function testIncompatibleInputOutput() returns (table) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> t = dt.select(getSalaryIncompatibleInputOutput);

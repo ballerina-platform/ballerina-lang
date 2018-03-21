@@ -326,7 +326,7 @@ function testCloseConnectionPool () returns (int) {
     return count;
 }
 
-function testSelect() (table) {
+function testSelect() returns (table) {
 
     table<Employee> dt =  createTable();
 
@@ -334,48 +334,48 @@ function testSelect() (table) {
     return salaryTable;
 }
 
-function testSelectCompatibleLambdaInput() (table) {
+function testSelectCompatibleLambdaInput() returns (table) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
     return salaryTable;
 }
 
-function testSelectCompatibleLambdaOutput() (table) {
+function testSelectCompatibleLambdaOutput() returns (table) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
     return salaryTable;
 }
 
-function testSelectCompatibleLambdaInputOutput() (table) {
+function testSelectCompatibleLambdaInputOutput() returns (table) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
     return salaryTable;
 }
 
-function getEmployeeSalary(Employee e) (EmployeeSalary) {
+function getEmployeeSalary(Employee e) returns (EmployeeSalary) {
     EmployeeSalary s = {id: e.id, salary: e.salary};
     return s;
 }
 
-function getEmployeeSalaryCompatibleInput(EmployeeCompatible e) (EmployeeSalary) {
+function getEmployeeSalaryCompatibleInput(EmployeeCompatible e) returns (EmployeeSalary) {
     EmployeeSalary s = {id: e.id, salary: e.salary};
     return s;
 }
 
-function getEmployeeSalaryCompatibleOutput(Employee e) (EmployeeSalaryCompatible ) {
+function getEmployeeSalaryCompatibleOutput(Employee e) returns (EmployeeSalaryCompatible ) {
     EmployeeSalaryCompatible s = {id: e.id, salary: e.salary};
     return s;
 }
 
-function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) (EmployeeSalaryCompatible) {
+function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) returns (EmployeeSalaryCompatible) {
     EmployeeSalaryCompatible s = {id: e.id, salary: e.salary};
     return s;
 }
 
-function createTable() (table<Employee>) {
+function createTable() returns (table<Employee>) {
     table<Employee> dt = {};
 
     Employee e1 = {id:1, name:"A", salary:100};
@@ -389,7 +389,7 @@ function createTable() (table<Employee>) {
     return dt;
 }
 
-function isBellow35(Person p) (boolean) {
+function isBellow35(Person p) returns (boolean) {
     return p.age < 35;
 }
 
