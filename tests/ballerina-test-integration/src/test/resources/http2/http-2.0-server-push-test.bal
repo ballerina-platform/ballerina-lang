@@ -87,8 +87,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             }
         }
 
-        json responsePayload;
-        responsePayload =? res.getJsonPayload();
+        json responsePayload =? res.getJsonPayload();
         // Check whether correct response received
         if (!(responsePayload.toString().contains("main"))) {
             http:Response errorResponse = {};
@@ -103,7 +102,6 @@ service<http:Service> frontendHttpService bind frontendEP {
         foreach promise in promises {
             http:Response promisedResponse = {};
             var promisedResponseResult = backendClientEP -> getPromisedResponse(promise);
-            json payload;
             match promisedResponseResult {
                 http:Response resultantPromisedResponse => {
                     promisedResponse = resultantPromisedResponse;
@@ -114,7 +112,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 }
             }
 
-            payload =? promisedResponse.getJsonPayload();
+            json payload =? promisedResponse.getJsonPayload();
             // check whether expected
             string expectedVal = promise.path.subString(1, 10);
             if (!(payload.toString().contains(expectedVal))) {
