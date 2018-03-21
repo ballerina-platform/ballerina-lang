@@ -975,7 +975,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
-        Operand typeCPIndex = getTypeCPIndex(symTable.anyType);
+        Operand typeCPIndex = getTypeCPIndex(new BArrayType(symTable.anyType));
         emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex);
 
         // Emit instructions populate initial array values;
