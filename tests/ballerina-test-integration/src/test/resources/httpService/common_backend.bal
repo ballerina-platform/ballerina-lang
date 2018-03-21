@@ -1,5 +1,4 @@
 import ballerina.net.http;
-import ballerina.log;
 
 endpoint http:ServiceEndpoint echoEP {
     port:9099
