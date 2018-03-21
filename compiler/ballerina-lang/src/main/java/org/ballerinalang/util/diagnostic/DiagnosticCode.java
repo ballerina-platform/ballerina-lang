@@ -103,6 +103,7 @@ public enum DiagnosticCode {
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
+    INVALID_STRUCT_LITERAL_KEY("invalid.struct.literal.key"),
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 

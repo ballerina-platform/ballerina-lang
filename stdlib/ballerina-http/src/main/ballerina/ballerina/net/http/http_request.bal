@@ -339,6 +339,6 @@ function getMediaTypeFromRequest (Request request, string defaultContentType) re
     var contentTypeValue = request.getHeader(mime:CONTENT_TYPE);
     match contentTypeValue {
         string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
-        any | null => return {};
+        int | null => return mediaType;
     }
 }

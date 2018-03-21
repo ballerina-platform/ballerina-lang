@@ -3,7 +3,7 @@ package pkg.bc;
 import pkg.ab;
 import ballerina.runtime;
 
-function lockWithinLockInWorkers() (int, string) {
+function lockWithinLockInWorkers() returns (int, string) {
     worker w1 {
         lock {
             ab:lockInt1 = 90;
@@ -27,6 +27,6 @@ function lockWithinLockInWorkers() (int, string) {
     }
     worker w3 {
         runtime:sleepCurrentWorker(30);
-        return ab:lockInt1, ab:lockString1;
+        return (ab:lockInt1, ab:lockString1);
     }
 }

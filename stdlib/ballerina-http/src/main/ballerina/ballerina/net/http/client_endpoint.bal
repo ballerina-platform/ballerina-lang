@@ -40,7 +40,7 @@ public enum Algorithm {
 @Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
     string uri;
-    SecureSocket secureSocket;
+    SecureSocket|null secureSocket;
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
@@ -66,10 +66,10 @@ public struct ClientEndpointConfiguration {
     Chunking chunking;
     string httpVersion;
     string forwarded = "disable";
-    FollowRedirects followRedirects;
-    Retry retry;
-    Proxy proxy;
-    ConnectionThrottling connectionThrottling;
+    FollowRedirects|null followRedirects;
+    Retry|null retry;
+    Proxy|null proxy;
+    ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     //function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
     //FailoverConfig failoverConfig;
@@ -80,6 +80,7 @@ public struct ClientEndpointConfiguration {
 public function <ClientEndpointConfiguration config> ClientEndpointConfiguration() {
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
+    config.httpVersion = "1.1";
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
@@ -145,10 +146,10 @@ public struct Retry {
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
 @Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
 public struct SecureSocket {
-    TrustStore trustStore;
-    KeyStore keyStore;
-    Protocols protocols;
-    ValidateCert validateCert;
+    TrustStore|null trustStore;
+    KeyStore|null keyStore;
+    Protocols|null protocols;
+    ValidateCert|null validateCert;
     string ciphers;
     boolean hostNameVerification = true;
     boolean sessionCreation = true;
