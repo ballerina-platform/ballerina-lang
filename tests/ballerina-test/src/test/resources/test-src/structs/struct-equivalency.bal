@@ -179,7 +179,7 @@ public function <employee3 e> getEmployeeId () returns (int) {
     return e.employeeId;
 }
 
-function testEqOfPublicStructs1 () (string) {
+function testEqOfPublicStructs1 () returns (string) {
     employee3 e = {age:14, name:"rat"};
     e.setSSN("234-56-1234");
 
@@ -188,7 +188,7 @@ function testEqOfPublicStructs1 () (string) {
     return p.getSSN();
 }
 
-function testEqOfPublicStructs2 () (string) {
+function testEqOfPublicStructs2 () returns (string) {
     eq2:employee e = {age:14, name:"rat"};
     e.setSSN("234-56-3345");
 
@@ -243,7 +243,7 @@ function <userFoo u> getAge () returns (int) {
 }
 
 
-function testRuntimeEqPrivateStructsInSamePackage () (string) {
+function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
     userFoo uFoo = {age:10, name:"ttt", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
@@ -301,7 +301,7 @@ public function <userPFoo u> getAge () returns (int) {
 }
 
 
-function testRuntimeEqPublicStructsInSamePackage () (string) {
+function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
@@ -315,7 +315,7 @@ function testRuntimeEqPublicStructsInSamePackage () (string) {
     return uB.name;
 }
 
-function testRuntimeEqPublicStructs () (string) {
+function testRuntimeEqPublicStructs () returns (string) {
     req:userPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
@@ -329,7 +329,7 @@ function testRuntimeEqPublicStructs () (string) {
     return uB.name;
 }
 
-function testRuntimeEqPublicStructs1 () (string) {
+function testRuntimeEqPublicStructs1 () returns (string) {
     req:userPFoo uFoo = {age:10, name:"Brandon", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
@@ -389,10 +389,12 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
     // testing value passing.
     p.setContact(o);
     string result3 = p.getAddress();
-    return result1, result2, result3;
+    return (result1, result2, result3);
 }
 
-function testStructEquivalencyWithFunctionType () returns (string s1, string s2) {
+function testStructEquivalencyWithFunctionType () returns (string, string) {
+    string s1;
+    string s2;
     SomeOtherStruct x = {s:"sss"};
     AnyStruct aa = {};
     s1 = aa.shout(x);
@@ -402,7 +404,7 @@ function testStructEquivalencyWithFunctionType () returns (string s1, string s2)
     AnyStruct aaa = ss;
     s2 = aaa.shout(x);
     _ = aaa.call();
-    return;
+    return (s1,s2);
 }
 
 struct AnyStruct {
@@ -413,7 +415,7 @@ function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
     return "anyStruct" + j.toString();
 }
 
-function <AnyStruct a> call () returns (AnotherAnyStruct aa) {
+function <AnyStruct a> call () returns (AnotherAnyStruct) {
     return {} ;
 }
 
@@ -426,7 +428,7 @@ function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
     return "someStruct" + j.toString();
 }
 
-function <SomeStruct b> call () returns (SomeOtherStruct aa) {
+function <SomeStruct b> call () returns (SomeOtherStruct) {
     return { s : "return"};
 }
 
