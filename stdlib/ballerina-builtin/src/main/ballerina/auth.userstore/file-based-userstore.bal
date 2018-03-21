@@ -29,10 +29,7 @@ public struct FilebasedUserstore {
 @Return {value:"boolean: true if authentication is a success, else false"}
 public function <FilebasedUserstore userstore> authenticate (string user, string password) returns (boolean) {
     string passwordHash = readPasswordHash(user);
-    if (passwordHash != null && passwordHash == crypto:getHash(password, crypto:Algorithm.SHA256)) {
-        return true;
-    }
-    return false;
+    return passwordHash == crypto:getHash(password, crypto:Algorithm.SHA256);
 }
 
 @Description {value:"Reads the password hash for a user"}
@@ -40,19 +37,15 @@ public function <FilebasedUserstore userstore> authenticate (string user, string
 @Return {value:"string: password hash read from userstore, or null if not found"}
 function readPasswordHash (string username) returns (string) {
     // first read the user id from user->id mapping
-    string userid = readUserId(username);
-    if (userid == null) {
-        return null;
-    }
     // read the hashed password from the userstore file, using the user id
-    return config:getInstanceValue(userid, "password");
+    return getUserstoreConfigValue(readUserId(username), "password");
 }
 
 @Description {value:"Reads the user id for the given username"}
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
-function readUserId (string username) returns (string) {
-    return config:getInstanceValue(username, "userid");
+public function readUserId (string username) returns (string) {
+    return getUserstoreConfigValue(username, "userid");
 }
 
 @Description {value:"Reads the groups for a user"}
@@ -60,11 +53,15 @@ function readUserId (string username) returns (string) {
 @Return {value:"string: comma separeted groups list, as specified in the userstore file or null if not found"}
 public function <FilebasedUserstore userstore> readGroupsOfUser (string username) returns (string) {
     // first read the user id from user->id mapping
-    string userid = readUserId(username);
-    if (userid == null) {
-        return null;
-    }
     // reads the groups for the userid
-    return config:getInstanceValue(userid, "groups");
+    return getUserstoreConfigValue(readUserId(username), "groups");
 }
 
+function getUserstoreConfigValue (string instanceId, string property) returns (string) {
+    match config:getInstanceValue(instanceId, property) {
+        string value => {
+            return value == null ? "" : value;
+        }
+        any|null => return "";
+    }
+}
