@@ -153,7 +153,7 @@ public function <Request request> getJsonPayload () returns json | null | mime:E
     match request.getEntity() {
         mime:Entity entity => return entity.getJson();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 
@@ -162,9 +162,9 @@ public function <Request request> getJsonPayload () returns json | null | mime:E
 @Return {value:"The XML representation of the message payload"}
 public function <Request request> getXmlPayload () returns xml | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => entity.getXml();
+        mime:Entity entity => return entity.getXml();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 
@@ -173,9 +173,9 @@ public function <Request request> getXmlPayload () returns xml | null | mime:Ent
 @Return {value:"The string representation of the message payload"}
 public function <Request request> getStringPayload () returns string | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => entity.getText();
+        mime:Entity entity => return entity.getText();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 
@@ -184,7 +184,7 @@ public function <Request request> getStringPayload () returns string | null | mi
 @Return {value:"The blob representation of the message payload"}
 public function <Request request> getBinaryPayload () returns blob | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => entity.getBlob();
+        mime:Entity entity => return entity.getBlob();
         mime:EntityError err => return err;
     }
 }
@@ -195,7 +195,7 @@ please use 'getMultiparts()' instead."}
 @Return {value:"A byte channel as the message payload"}
 public function <Request request> getByteChannel () returns io:ByteChannel | mime:EntityError {
     match request.getEntity() {
-        mime:Entity[] entity => return entity.getByteChannel();
+        mime:Entity entity => return entity.getByteChannel();
         mime:EntityError err => return err;
     }
 }
@@ -207,10 +207,12 @@ public function <Request request> getFormParams () returns map | mime:EntityErro
     match request.getEntity() {
         mime:EntityError err => return err;
         mime:Entity entity => {
+
+            map parameters = {};
             match entity.getText() {
-                mime:EntityError txtErr => return {}; // TODO: Check if this is ok
+                mime:EntityError txtErr => return txtErr; // TODO: Check if this is ok
+
                 string formData => {
-                    map parameters = {};
                     if (formData != null && formData != "") {
                         string[] entries = formData.split("&");
                         int entryIndex = 0;
@@ -228,11 +230,40 @@ public function <Request request> getFormParams () returns map | mime:EntityErro
                         }
                     }
                 }
+
+                any | null => return parameters;
             }
+            return parameters;
         }
     }
+    //var entity, entityError = request.getEntity();
+    //if (entityError != null) {
+    //    return null, entityError;
+    //}
+    //var formData, entityErr = entity.getText();
+    //map parameters = {};
+    //if (entityErr != null) {
+    //    return parameters, entityErr;
+    //}
+    //if (formData != null && formData != "") {
+    //    string[] entries = formData.split("&");
+    //    int entryIndex = 0;
+    //    while (entryIndex < lengthof entries) {
+    //        int index = entries[entryIndex].indexOf("=");
+    //        if (index != -1) {
+    //            string name = entries[entryIndex].subString(0, index).trim();
+    //            int size = entries[entryIndex].length();
+    //            string value = entries[entryIndex].subString(index + 1, size).trim();
+    //            if (value != "") {
+    //                parameters[name] = value;
+    //            }
+    //        }
+    //        entryIndex = entryIndex + 1;
+    //    }
+    //}
+    //return parameters, null;
     
-    return parameters;
+    //return parameters;
 }
 
 @Description {value:"Get multiparts from request"}
@@ -240,9 +271,9 @@ public function <Request request> getFormParams () returns map | mime:EntityErro
 @Return {value:"Returns the body parts as an array of entities"}
 public function <Request request> getMultiparts () returns mime:Entity[] | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => entity.getBodyParts();
+        mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
-        any | null => return null;
+        //any | null => return null;
     }
 }
 
