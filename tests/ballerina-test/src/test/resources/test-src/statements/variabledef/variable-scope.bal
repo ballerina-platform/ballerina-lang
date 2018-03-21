@@ -1,4 +1,4 @@
-function scopeIfValue(int a, int b, int c) returns (int) {
+function scopeIfValue(int a, int b, int c) returns int {
     int k;
     if(a > b) {
         k = k + c;
@@ -14,7 +14,7 @@ function scopeIfValue(int a, int b, int c) returns (int) {
     return k;
 }
 
-function scopeWhileScope (int a, int b, int c) returns (int) {
+function scopeWhileScope (int a, int b, int c) returns int {
     int k = 5;
     while (a > b ) {
         b = b + 1;

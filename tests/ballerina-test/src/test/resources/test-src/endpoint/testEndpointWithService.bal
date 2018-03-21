@@ -59,7 +59,8 @@ struct DummyServiceType {
 }
 
 function <DummyServiceType s> getEndpoint() returns (DummyEndpoint){
-    return null;
+    DummyEndpoint ep = {};
+    return ep;
 }
 
 service<DummyServiceType> foo bind ep {

@@ -1,21 +1,18 @@
-import ballerina.caching;
-import ballerina.runtime;
+import ballerina/caching;
+import ballerina/runtime;
 
-function testCreateCache (string name, int timeOut, int capacity, float evictionFactor) returns
-                                                                                        (string, int, int, float) {
+function testCreateCache (string name, int timeOut, int capacity, float evictionFactor) returns (string, int, int, float) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     return (cache.name, cache.expiryTimeMillis, cache.capacity, cache.evictionFactor);
 }
 
-function testPut (string name, int timeOut, int capacity, float evictionFactor, string key, string value)
-                                                                                        returns (int) {
+function testPut (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     cache.put(key, value);
     return cache.size();
 }
 
-function testGet (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns
-                                                                                                      (int, string) {
+function testGet (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int, string) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     cache.put(key, value);
     var value, e = (string)cache.get(key);
@@ -25,8 +22,7 @@ function testGet (string name, int timeOut, int capacity, float evictionFactor, 
     return (cache.size(), value);
 }
 
-function testRemove (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns
-                                                                                                             (int) {
+function testRemove (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     cache.put(key, value);
     cache.remove(key);

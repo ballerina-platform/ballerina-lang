@@ -1,4 +1,4 @@
-import ballerina.time;
+import ballerina/time;
 
 function testCurrentTime () returns (int, string, int){
     time:Time timeStruct = time:currentTime();
@@ -78,7 +78,9 @@ function testGetFunctions () returns (int, int, int, int, int, int, int, string)
 function testGetDateFunction () returns (int, int, int) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1456876583555, zone:zoneValue};
-    return timeStruct.getDate();
+    int year; int month; int day;
+    (year, month, day) = timeStruct.getDate();
+    return (year, month, day);
 }
 
 function testGetTimeFunction () returns (int, int, int, int) {

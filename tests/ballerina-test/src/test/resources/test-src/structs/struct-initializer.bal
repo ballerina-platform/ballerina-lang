@@ -17,12 +17,12 @@ function <person p> getAge() {
 
 function testStructInitializerInSamePackage1() returns (int, string){
     person p = {name:"Peter"};
-    return p.age, p.name;
+    return (p.age, p.name);
 }
 
 function testStructInitializerInAnotherPackage() returns (int, string){
     inp:employee e = {name:"Peter"};
-    return e.age, e.name;
+    return (e.age, e.name);
 }
 
 // testStructInitializerOrder
@@ -39,6 +39,5 @@ function <employee p> employee() {
 
 function testStructInitializerOrder() returns (int, string){
     employee p = {age: 40};
-    return p.age, p.name;
+    return (p.age, p.name);
 }
-

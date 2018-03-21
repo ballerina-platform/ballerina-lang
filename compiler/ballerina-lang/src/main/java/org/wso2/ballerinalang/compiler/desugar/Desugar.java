@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -180,6 +182,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
 
     private SymbolTable symTable;
+    private final PackageCache packageCache;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
@@ -218,6 +221,7 @@ public class Desugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -691,7 +695,6 @@ public class Desugar extends BLangNodeVisitor {
         //      io:println("string value: " + s);
         //  }
 
-        matchStmt.expr = rewriteExpr(matchStmt.expr);
 
         // First create a block statement to hold generated statements
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
@@ -1003,6 +1006,12 @@ public class Desugar extends BLangNodeVisitor {
         ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
         result = ternaryExpr;
     }
+    
+    @Override
+    public void visit(BLangAwaitExpr awaitExpr) {
+        awaitExpr.expr = rewriteExpr(awaitExpr.expr);
+        result = awaitExpr;
+    }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -1263,8 +1272,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // TODO: find a better way to get the default value expressions of a struct field
         BStructType type = (BStructType) structLiteral.type;
-        BPackageSymbol pkgSymbol = symTable.pkgSymbolMap.get(type.tsymbol.pkgID);
-        BLangPackage pkg = symTable.pkgEnvMap.get(pkgSymbol).enclPkg;
+        BLangPackage pkg = this.packageCache.get(type.tsymbol.pkgID);
         BLangStruct structDef = pkg.structs.stream()
                 .filter(struct -> struct.name.value.equals(type.tsymbol.name.value))
                 .findFirst()

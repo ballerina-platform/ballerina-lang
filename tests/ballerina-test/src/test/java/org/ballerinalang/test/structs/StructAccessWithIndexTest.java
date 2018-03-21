@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -100,7 +101,7 @@ public class StructAccessWithIndexTest {
 
         // Check the default value of a field where the default value is not set
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), null);
+        Assert.assertEquals(returns[1].stringValue(), BLangConstants.STRING_EMPTY_VALUE);
 
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
@@ -129,7 +130,8 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accessing an undeclared field of a struct")
     public void testUndeclaredFieldAccess() {
-        BAssertUtil.validateError(negativeResult, 1, "undefined field 'id' in struct 'Department'", 9, 5);
+        BAssertUtil.validateError(negativeResult, 1, "variable 'dpt' is not initialized", 8, 5);
+        BAssertUtil.validateError(negativeResult, 2, "undefined field 'id' in struct 'Department'", 9, 5);
     }
 
     @Test(description = "Test accesing a struct with a dynamic index")
@@ -143,35 +145,31 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accessing an field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitField() {
         BRunUtil.invoke(compileResult, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitArrayField() {
         BRunUtil.invoke(compileResult, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitLastField() {
         BRunUtil.invoke(compileResult, "testGetNonInitLastAttribute");
     }
 
-    @Test(description = "Test setting an field of a noninitialized child struct",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+    @Test(description = "Test setting an field of a noninitialized child struct")
     public void testSetNonInitField() {
         BRunUtil.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
     }
 
-    @Test(description = "Test setting the field of a noninitialized root struct",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+    @Test(description = "Test setting the field of a noninitialized root struct")
     public void testSetNonInitLastField() {
         BRunUtil.invoke(compileResult, "testSetFieldOfNonInitStruct");
     }

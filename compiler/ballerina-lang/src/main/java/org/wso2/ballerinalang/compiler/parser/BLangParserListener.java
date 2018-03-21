@@ -1054,7 +1054,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        // If the key is a stringLiteral or stringTemplateLiteral, they are added to the model
+        // If the key is an expression, they are added to the model
         // from their respective listener methods
         if (ctx.Identifier() != null) {
             DiagnosticPos pos = getCurrentPos(ctx);
@@ -2864,8 +2864,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     /**
      * {@inheritDoc}
      */
-    @Override public void exitAwaitExpression(BallerinaParser.AwaitExpressionContext ctx) { 
-        this.pkgBuilder.markLastExpressionAsAwait();
+    @Override
+    public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) { 
+        this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
