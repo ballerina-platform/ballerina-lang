@@ -31,12 +31,12 @@ service<http:Service> frontendHttpService bind frontendEP {
         // Submit a request
         var submissionResult = backendClientEP -> submit("GET", "/backend/main", serviceReq);
         match submissionResult {
-            http:HttpHandle resultantHandle => {
-                handle = resultantHandle;
-            }
             http:HttpConnectorError err1 => {
                 io:println("Error occurred while submitting a request");
                 return;
+            }
+            http:HttpHandle resultantHandle => {
+                handle = resultantHandle;
             }
         }
 
