@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1256,6 +1257,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         ternaryExpr.elseExpr.regIndex = createLHSRegIndex(ternaryExprRegIndex);
         this.genNode(ternaryExpr.elseExpr, this.env);
         endJumpAddr.value = nextIP();
+    }
+    
+    public void visit(BLangAwaitExpr awaitExpr) {
+        //TODO
     }
 
     public void visit(BLangTypeofExpr accessExpr) {

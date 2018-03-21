@@ -40,13 +40,7 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      * This result of this expression is saved in this virtual register index. This field is used
      * during the code generation phase of the compiler.
      */
-    public RegIndex regIndex;
-    
-    /**
-     * Marks this expression if it's an expression that is used with the
-     * await option.
-     */
-    public boolean await;
+    public RegIndex regIndex;    
 
     public boolean isMultiReturnExpr() {
         return false;
