@@ -1,4 +1,4 @@
-function testWhileStmt(int x, int y) (int) {
+function testWhileStmt(int x, int y) returns (int) {
     int z;
 
     while(x >= y) {
@@ -8,7 +8,7 @@ function testWhileStmt(int x, int y) (int) {
     return z;
 }
 
-function testWhileScope(int number)(int) {
+function testWhileScope(int number) returns (int) {
     int i = number;
     while(i < 4) {
         i = i + 1;
@@ -23,7 +23,7 @@ function testWhileScope(int number)(int) {
     return i;
 }
 
-function testWhileScopeWithIf()(int, double) {
+function testWhileScopeWithIf() returns (int, double) {
     double[] values = [];
     string operator;
     double sum = 0.0d;
@@ -43,5 +43,5 @@ function testWhileScopeWithIf()(int, double) {
         sum = sum + values[j];
         j = j + 1;
     }
-    return j, sum;
+    return (j, sum);
 }

@@ -1,4 +1,4 @@
-function arrayInitTest() (int) {
+function arrayInitTest() returns (int) {
     int[] arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     int size;
     int index;
@@ -17,7 +17,7 @@ function arrayInitTest() (int) {
     return sum;
 }
 
-function arrayReturnTest() (string[]) {
+function arrayReturnTest() returns (string[]) {
     string[] animals;
 
     animals = ["Lion", "Cat", "Leopard", "Dog", "Tiger", "Croc"];
