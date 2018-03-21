@@ -302,6 +302,7 @@ function localParticipantProtocolFn (string transactionId,
         error err = {message: "Invalid protocol action:" + protocolAction};
         throw err;
     }
+    return false;
 }
 function removeParticipatedTransaction(string participatedTxnId) {
     boolean removed = participatedTransactions.remove(participatedTxnId);

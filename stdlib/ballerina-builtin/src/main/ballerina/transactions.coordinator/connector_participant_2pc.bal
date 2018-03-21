@@ -73,9 +73,7 @@ public function<Participant2pcClient client> prepare (string transactionId) retu
                         var transformResult = <PrepareResponse>payload;
                         match transformResult {
                             error transformErr => return transformErr;
-                            PrepareResponse prepareRes => {
-                                return prepareRes.message;    
-                            }
+                            PrepareResponse prepareRes => return prepareRes.message; 
                         }
                     }
                 } 
@@ -84,10 +82,9 @@ public function<Participant2pcClient client> prepare (string transactionId) retu
                             client.clientEP.conf.participantURL};
                 return err;            
             }
- 
         }
     }
-    error err = {message: "Unhandled condition in prepare action"};
+    error err = {message: "Unhandled condition in prepare action"}l
     throw err;
 }
 
@@ -126,6 +123,4 @@ public function<Participant2pcClient client> notify (string transactionId, strin
             }
         }
     }
-    error err = {message: "Unhandled condition in notify action"};
-    throw err;
 }

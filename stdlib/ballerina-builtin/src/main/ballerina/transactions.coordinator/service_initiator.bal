@@ -128,8 +128,8 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
                 match connErr {
                     error err => log:printErrorCause("Sending response for register request for transaction " + txnId +
                                         " failed", err);
-                    any x => log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                 }
+                log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
             }
         }
         //TODO: Need to handle the  Cannot-Register error case    

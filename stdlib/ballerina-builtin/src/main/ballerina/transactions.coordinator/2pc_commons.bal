@@ -136,6 +136,7 @@ function notifyAbortToVolatileParticipants (TwoPhaseCommitTransaction txn) retur
                 var ret = notifyRemoteParticipant(txn, participant, "abort");
                 match ret {
                     error err => return false;
+                    string s => return true;
                 }
             }
         }
@@ -298,6 +299,7 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns boolean 
                     var result = notifyRemoteParticipant(txn, participant, message);
                     match result {
                         error err => successful = false;
+                        string s => successful = true;
                     }
                 }
             }

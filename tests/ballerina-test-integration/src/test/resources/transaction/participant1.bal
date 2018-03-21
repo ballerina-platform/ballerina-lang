@@ -67,7 +67,7 @@ service<http:Service> participant1 bind participant1EP {
     }
 }
 
-function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
+function sendErrorResponseToCaller(endpoint http:ServiceEndpoint conn) {
     http:Response errRes = {statusCode: 500};
     var respondResult = conn -> respond(errRes); 
     match respondResult {

@@ -77,13 +77,7 @@ function<InitiatorClient client> register (string transactionId,
                 json payload => {
                     return <RegistrationResponse, jsonToRegResponse()>(payload);
                 }
-                any x => { //TODO: change this to null
-                    error err = {message:"Invalid response received for registration request"};
-                    throw err;
-                }
             }
         }
     }
-    error err = {message: "Unhandled condition in register action"};
-    throw err;
 }

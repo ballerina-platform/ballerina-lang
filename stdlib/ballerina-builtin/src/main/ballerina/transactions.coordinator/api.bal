@@ -97,7 +97,9 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
                 error err => {
                     txn.state = TransactionState.COMMITTED; //TODO: We can remove this line
                     removeInitiatedTransaction(transactionId);
+                    ret = err;
                 }
+                string s => ret = s;
             }
             return ret;
         }
@@ -143,6 +145,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
             string|error ret = abortInitiatorTransaction(transactionId, transactionBlockId);
             match ret {
                 error err => txn.state = TransactionState.ABORTED;
+                string s => ret = s;
             }
             return ret;
         } else {
