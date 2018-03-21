@@ -52,6 +52,10 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.MATCH_PATTERN_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NON_EMPTY_CODE_BLOCK_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_FIELD_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_FUNCTION_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_INITIALIZER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_ABORT_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_COMMIT_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_RETRY_CLAUSE;
@@ -149,6 +153,10 @@ public class BallerinaBlock extends AbstractBlock {
                     }
                 } else if (childElementType == MATCH_PATTERN_CLAUSE) {
                     indent = Indent.getSpaceIndent(4);
+                } else if (childElementType == OBJECT_BODY) {
+                    indent = Indent.getSpaceIndent(4);
+                } else if (childElementType == OBJECT_FIELD_DEFINITION) {
+                    indent = Indent.getSpaceIndent(4);
                 }
 
                 // If the child node text is empty, the IDEA core will throw an exception.
@@ -171,7 +179,8 @@ public class BallerinaBlock extends AbstractBlock {
 
     private static boolean isADefinitionElement(@NotNull final IElementType parentElementType) {
         if (parentElementType == FUNCTION_DEFINITION || parentElementType == SERVICE_DEFINITION
-                || parentElementType == RESOURCE_DEFINITION || parentElementType == STRUCT_DEFINITION) {
+                || parentElementType == RESOURCE_DEFINITION || parentElementType == STRUCT_DEFINITION
+                || parentElementType == OBJECT_INITIALIZER || parentElementType == OBJECT_FUNCTION_DEFINITION) {
             return true;
         }
         return false;

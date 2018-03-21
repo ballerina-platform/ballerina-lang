@@ -118,7 +118,7 @@ privateObjectFields
     ;
 
 objectInitializer
-    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList callableUnitBody
+    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 objectInitializerParameterList
@@ -152,7 +152,7 @@ objectDefaultableParameter
 
 // TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (LEFT_BRACE callableUnitBody RIGHT_BRACE | SEMICOLON)
     ;
 
 //TODO merge with callableUnitSignature later

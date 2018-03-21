@@ -54,6 +54,10 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinCo
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_matchPatternClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nonEmptyCodeBlockBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_objectBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_objectFieldDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_objectFunctionDefinition;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_objectInitializer;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onabortStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_oncommitStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onretryClause;
@@ -178,6 +182,12 @@ public class BallerinaTypes {
     public static final RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(RULE_variableReference);
     public static final RuleIElementType FUNCTION_REFERENCE = ruleIElementTypes.get(RULE_functionReference);
     public static final RuleIElementType TRANSFORMER_INVOCATION = ruleIElementTypes.get(RULE_transformerInvocation);
+    public static final RuleIElementType OBJECT_BODY = ruleIElementTypes.get(RULE_objectBody);
+
+    public static final RuleIElementType OBJECT_FIELD_DEFINITION = ruleIElementTypes.get(RULE_objectFieldDefinition);
+    public static final RuleIElementType OBJECT_INITIALIZER = ruleIElementTypes.get(RULE_objectInitializer);
+    public static final RuleIElementType OBJECT_FUNCTION_DEFINITION =
+            ruleIElementTypes.get(RULE_objectFunctionDefinition);
 
     public static final RuleIElementType INDEX = ruleIElementTypes.get(RULE_index);
     public static final RuleIElementType FIELD = ruleIElementTypes.get(RULE_field);
