@@ -16,9 +16,9 @@
 
 package ballerina.net.http;
 
-///////////////////////////////
-// HTTP Client Endpoint
-///////////////////////////////
+////////////////////////////////
+///// HTTP Client Endpoint /////
+////////////////////////////////
 
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
@@ -59,7 +59,7 @@ public struct TargetService {
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
 public struct ClientEndpointConfiguration {
-    CircuitBreakerConfig circuitBreaker;
+    //CircuitBreakerConfig circuitBreaker;
     int endpointTimeout = 60000;
     boolean keepAlive = true;
     TransferEncoding transferEncoding;
@@ -71,8 +71,8 @@ public struct ClientEndpointConfiguration {
     Proxy proxy;
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
-    function (LoadBalancer, HttpClient[]) (HttpClient) algorithm;
-    FailoverConfig failoverConfig;
+    //function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
+    //FailoverConfig failoverConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -88,22 +88,22 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     string uri = config.targets[0].uri;
-    if (config.circuitBreaker != null) {
-        ep.config = config;
-        ep.httpClient = createCircuitBreakerClient(uri, config);
-    } else if (config.algorithm != null && lengthof config.targets > 1) {
-        ep.httpClient = createLoadBalancerClient(config);
-    } else if (config.failoverConfig != null) {
-        ep.config = config;
-        ep.httpClient = createFailOverClient(config);
-    } else {
+    //if (config.circuitBreaker != null) {
+    //    ep.config = config;
+    //    ep.httpClient = createCircuitBreakerClient(uri, config);
+    //} else if (config.algorithm != null && lengthof config.targets > 1) {
+    //    ep.httpClient = createLoadBalancerClient(config);
+    //} else if (config.failoverConfig != null) {
+    //    ep.config = config;
+    //    ep.httpClient = createFailOverClient(config);
+    //} else {
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
             uri = uri.subString(0, lastIndex);
         }
         ep.config = config;
         ep.httpClient = createHttpClient(uri, config);
-    }
+    //}
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -116,7 +116,7 @@ public function <ClientEndpoint ep> start() {
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public function <ClientEndpoint ep> getClient() returns (HttpClient) {
+public function <ClientEndpoint ep> getClient() returns HttpClient {
     return ep.httpClient;
 }
 
@@ -126,7 +126,7 @@ public function <ClientEndpoint ep> stop() {
 
 }
 
-public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns (HttpClient);
+public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns HttpClient;
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -182,38 +182,39 @@ public struct ConnectionThrottling {
     int waitTime = 60000;
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
-    validateCircuitBreakerConfiguration(configuration.circuitBreaker);
-    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
-    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
-                                                                    resetTimeout:configuration.circuitBreaker.resetTimeout,
-                                                                    httpStatusCodes:httpStatusCodes
-                                                                };
-    HttpClient cbHttpClient = createHttpClient(uri, configuration);
-    CircuitBreakerClient cbClient = {serviceUri:uri, config:configuration,
-                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                                        httpClient:cbHttpClient,
-                                        circuitHealth:{},
-                                        currentCircuitState:CircuitState.CLOSED};
-    var httpClient , e = (HttpClient) cbClient;
-    return httpClient;
-}
-
-function createLoadBalancerClient(ClientEndpointConfiguration config) (HttpClient) {
-    HttpClient[] lbClients = createHttpClientArray(config);
-    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
-    var httpClient, e = (HttpClient)lb;
-    return httpClient;
-}
-
-function createFailOverClient(ClientEndpointConfiguration config) (HttpClient) {
-    HttpClient[] clients = createHttpClientArray(config);
-    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
-    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
-                                          failoverCodesIndex : failoverCodes,
-                                          failoverInterval : config.failoverConfig.interval};
-
-    Failover failover = {serviceUri:config.targets[0].uri, config:config, failoverInferredConfig:failoverInferredConfig};
-    var httpClient, e = (HttpClient) failover;
-    return httpClient;
-}
+//function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+//    validateCircuitBreakerConfiguration(configuration.circuitBreaker);
+//    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
+//    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
+//        { failureThreshold:configuration.circuitBreaker.failureThreshold,
+//          resetTimeout:configuration.circuitBreaker.resetTimeout, httpStatusCodes:httpStatusCodes };
+//    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+//    CircuitBreakerClient cbClient = {serviceUri:uri, config:configuration,
+//                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+//                                        httpClient:cbHttpClient,
+//                                        circuitHealth:{},
+//                                        currentCircuitState:CircuitState.CLOSED};
+//    var httpClient, _ = (HttpClient) cbClient;
+//    return httpClient;
+//}
+//
+//function createLoadBalancerClient(ClientEndpointConfiguration config) returns HttpClient {
+//    HttpClient[] lbClients = createHttpClientArray(config);
+//    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
+//                          algorithm:config.algorithm};
+//    var httpClient, _ = (HttpClient) lb;
+//    return httpClient;
+//}
+//
+//function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
+//    HttpClient[] clients = createHttpClientArray(config);
+//    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
+//    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
+//                                          failoverCodesIndex : failoverCodes,
+//                                          failoverInterval : config.failoverConfig.interval};
+//
+//    Failover failover = {serviceUri:config.targets[0].uri, config:config,
+//                            failoverInferredConfig:failoverInferredConfig};
+//    var httpClient, _ = (HttpClient) failover;
+//    return httpClient;
+//}

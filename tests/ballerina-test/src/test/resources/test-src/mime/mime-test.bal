@@ -1,164 +1,242 @@
 import ballerina.mime;
+import ballerina.log;
 import ballerina.file;
 import ballerina.io;
-import ballerina.net.http;
-import ballerina.net.http.mock;
 
-function testGetMediaType (string contentType) (mime:MediaType) {
+function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
 }
 
-function testToStringOnMediaType (mime:MediaType mediaType) (string) {
+function testToStringOnMediaType (mime:MediaType mediaType) returns (string) {
     return mediaType.toString();
 }
 
-function testToStringWithParametersOnMediaType (mime:MediaType mediaType) (string) {
+function testToStringWithParametersOnMediaType (mime:MediaType mediaType) returns (string) {
     return mediaType.toStringWithParameters();
 }
 
-function testMimeBase64Encode (blob value) (blob) {
+function testMimeBase64Encode (blob value) returns (blob) {
     mime:MimeBase64Encoder encoder = {};
     return encoder.encode(value);
 }
 
-function testMimeBase64EncodeString (string content, string charset) (string) {
+function testMimeBase64EncodeString (string content, string charset) returns (string) {
     mime:MimeBase64Encoder encoder = {};
     return encoder.encodeString(content, charset);
 }
 
-function testMimeBase64Decode (blob value) (blob) {
+function testMimeBase64Decode (blob value) returns (blob) {
     mime:MimeBase64Decoder decoder = {};
     return decoder.decode(value);
 }
 
-function testMimeBase64DecodeString (string content, string charset) (string) {
+function testMimeBase64DecodeString (string content, string charset) returns (string) {
     mime:MimeBase64Decoder decoder = {};
     return decoder.decodeString(content, charset);
 }
 
-function testSetAndGetJson (json jsonContent) (json, mime:EntityError) {
+function testSetAndGetJson (json jsonContent) returns json | mime:EntityError {
     mime:Entity entity = {};
     entity.setJson(jsonContent);
     return entity.getJson();
 }
 
-function testGetJsonMultipleTimes (json jsonContent) (json) {
+function testGetJsonMultipleTimes (json jsonContent) returns (json) {
     mime:Entity entity = {};
     entity.setJson(jsonContent);
-    var returnContent1, entityError1 = entity.getJson();
-    var returnContent2, entityError2 = entity.getJson();
-    var returnContent3, entityError3 = entity.getJson();
-    if (entityError1 != null || entityError2 != null || entityError3 != null) {
-       return null;
+    json | mime:EntityError returnContent1 = entity.getJson();
+    json | mime:EntityError returnContent2 = entity.getJson();
+    json | mime:EntityError returnContent3 = entity.getJson();
+
+    json content1 = {};
+    json content2 = {};
+    json content3 = {};
+
+    match returnContent1 {
+        mime:EntityError err => log:printInfo("error in returnContent1");
+        json j => { content1 = j;}
+
+     }
+
+    match returnContent2 {
+        mime:EntityError err => log:printInfo("error in returnContent2");
+        json j => { content2 = j;}
     }
-    json returnContent = {concatContent:[returnContent1, returnContent2, returnContent3]};
+
+    match returnContent3 {
+        mime:EntityError err => log:printInfo("error in returnContent3");
+        json j => { content3 = j;}
+    }
+
+    json returnContent = {concatContent:[content1, content2, content3]};
     return returnContent;
 }
 
-function testSetAndGetXml (xml xmlContent) (xml, mime:EntityError) {
+function testSetAndGetXml (xml xmlContent) returns xml | mime:EntityError {
     mime:Entity entity = {};
     entity.setXml(xmlContent);
     return entity.getXml();
 }
 
-function testGetXmlMultipleTimes (xml xmlContent) (xml) {
+function testGetXmlMultipleTimes (xml xmlContent) returns (xml) {
     mime:Entity entity = {};
     entity.setXml(xmlContent);
-    var returnContent1, entityError1 = entity.getXml();
-    var returnContent2, entityError2 = entity.getXml();
-    var returnContent3, entityError3 = entity.getXml();
-    if (entityError1 != null && entityError2 != null && entityError3 != null) {
-       return null;
+    xml | mime:EntityError returnContent1 = entity.getXml();
+    xml | mime:EntityError returnContent2 = entity.getXml();
+    xml | mime:EntityError returnContent3 = entity.getXml();
+
+    xml content1;
+    xml content2;
+    xml content3;
+
+    match returnContent1 {
+        mime:EntityError err => log:printInfo("error in returnContent1");
+        xml j => { content1 = j;}
     }
-    xml returnContent = returnContent1 + returnContent2 + returnContent3;
+
+    match returnContent2 {
+        mime:EntityError err => log:printInfo("error in returnContent2");
+        xml j => { content2 = j;}
+    }
+
+    match returnContent3 {
+        mime:EntityError err => log:printInfo("error in returnContent3");
+        xml j => { content3 = j;}
+    }
+
+    xml returnContent = content1 + content2 + content3;
     return returnContent;
 }
 
-function testSetAndGetText (string textContent) (string, mime:EntityError) {
+function testSetAndGetText (string textContent) returns string | null | mime:EntityError {
     mime:Entity entity = {};
     entity.setText(textContent);
     return entity.getText();
 }
 
-function testGetTextMultipleTimes (string textContent) (string) {
+function testGetTextMultipleTimes (string textContent) returns (string) {
     mime:Entity entity = {};
     entity.setText(textContent);
-    var returnContent1, entityError1 = entity.getText();
-    var returnContent2, entityError2 = entity.getText();
-    var returnContent3, entityError3 = entity.getText();
-    if (entityError1 != null && entityError2 != null && entityError3 != null) {
-        return null;
+    string | mime:EntityError | null returnContent1 = entity.getText();
+    string | mime:EntityError | null returnContent2 = entity.getText();
+    string | mime:EntityError | null returnContent3 = entity.getText();
+
+    string content1;
+    string content2;
+    string content3;
+
+    match returnContent1 {
+        int | null => {log:printInfo("null");}
+        mime:EntityError err => log:printInfo("error in returnContent1");
+        string j => { content1 = j;}
     }
-    string returnContent = returnContent1 + returnContent2 + returnContent3;
+
+    match returnContent2 {
+        int | null => {log:printInfo("null");}
+        mime:EntityError err => log:printInfo("error in returnContent2");
+        string j => { content2 = j;}
+    }
+
+    match returnContent3 {
+        int | null => {log:printInfo("null");}
+        mime:EntityError err => log:printInfo("error in returnContent3");
+        string j => { content3 = j;}
+    }
+    string returnContent = content1 + content2 + content3;
     return returnContent;
 }
 
-function testSetAndGetBlob (blob blobContent) (blob, mime:EntityError) {
+function testSetAndGetBlob (blob blobContent) returns blob | mime:EntityError {
     mime:Entity entity = {};
     entity.setBlob(blobContent);
     return entity.getBlob();
 }
 
-function testGetBlobMultipleTimes (blob blobContent) (string) {
+function testGetBlobMultipleTimes (blob blobContent) returns (string) {
     mime:Entity entity = {};
     entity.setBlob(blobContent);
-    var returnContent1, entityError1 = entity.getBlob();
-    var returnContent2, entityError2 = entity.getBlob();
-    var returnContent3, entityError3 = entity.getBlob();
-    if (entityError1 != null && entityError2 != null && entityError3 != null) {
-        return null;
+    blob | mime:EntityError returnContent1 = entity.getBlob();
+    blob | mime:EntityError returnContent2 = entity.getBlob();
+    blob | mime:EntityError returnContent3 = entity.getBlob();
+
+    blob content1;
+    blob content2;
+    blob content3;
+
+    match returnContent1 {
+        mime:EntityError err => log:printInfo("error in returnContent1");
+        blob j => { content1 = j;}
     }
-    string contentAsString = returnContent1.toString("utf-8") + returnContent2.toString("utf-8") +
-                             returnContent3.toString("utf-8");
+
+    match returnContent2 {
+        mime:EntityError err => log:printInfo("error in returnContent2");
+        blob j => { content2 = j;}
+    }
+
+    match returnContent3 {
+        mime:EntityError err => log:printInfo("error in returnContent3");
+        blob j => { content3 = j;}
+    }
+
+
+    string contentAsString = content1.toString("utf-8") + content2.toString("utf-8") +
+                             content3.toString("utf-8");
     return contentAsString;
 }
 
-function testSetFileAsEntityBody (file:File fileHandler) (blob, mime:EntityError) {
+function testSetFileAsEntityBody (file:File fileHandler) returns blob | mime:EntityError {
     mime:Entity entity = {};
     entity.setFileAsEntityBody(fileHandler);
     return entity.getBlob();
 }
 
-function testSetByteChannel (io:ByteChannel byteChannel) (blob, mime:EntityError) {
+function testSetByteChannel (io:ByteChannel byteChannel) returns blob | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     return entity.getBlob();
 }
 
-function testGetByteChannel (io:ByteChannel byteChannel) (io:ByteChannel, mime:EntityError) {
+function testGetByteChannel (io:ByteChannel byteChannel) returns io:ByteChannel | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     return entity.getByteChannel();
 }
 
-function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string textdata) (string, mime:EntityError) {
+function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string textdata) returns string | null | mime:EntityError {
     mime:Entity entity = {};
     entity.setText(textdata);
     entity.setByteChannel(byteChannel);
     return entity.getText();
 }
 
-function testSetJsonAndGetByteChannel (json jsonContent) (io:ByteChannel, mime:EntityError) {
+function testSetJsonAndGetByteChannel (json jsonContent) returns io:ByteChannel | mime:EntityError {
     mime:Entity entity = {};
     entity.setJson(jsonContent);
     return entity.getByteChannel();
 }
 
-function testGetTextDataSource (io:ByteChannel byteChannel) (string, mime:EntityError) {
+function testGetTextDataSource (io:ByteChannel byteChannel) returns string | null | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     //Consume byte channel externally
-    var channel, _ = entity.getByteChannel();
-    consumeChannel(channel);
+    var result = entity.getByteChannel();
+    match result {
+        mime:EntityError err => log:printInfo("error in returnContent1");
+        io:ByteChannel j => { consumeChannel(j);}
+    }
     return entity.getText();
 }
 
-function testGetJsonDataSource (io:ByteChannel byteChannel) (json, mime:EntityError) {
+function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | null | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     //Consume byte channel externally
-    var channel, _ = entity.getByteChannel();
-    consumeChannel(channel);
+    var result = entity.getByteChannel();
+    match result {
+        mime:EntityError err => log:printInfo("error in returnContent1");
+        io:ByteChannel j => { consumeChannel(j);}
+    }
+
     return entity.getJson();
 }
 
@@ -166,26 +244,26 @@ function consumeChannel (io:ByteChannel channel) {
     int numberOfBytesRead = 1;
     blob readContent;
     while (numberOfBytesRead != 0) {
-        readContent, numberOfBytesRead, _ = channel.read(10000);
+        var result = channel.read(1000000);
     }
 }
 
-endpoint<mock:NonListeningService> mockEP {
-    port:9090
-}
-
-@http:serviceConfig {endpoints:[mockEP]}
-service<http:Service> test {
-    @http:resourceConfig {
-        methods:["POST"],
-        path:"/largepayload"
-    }
-    resource getPayloadFromFileChannel (http:ServerConnector conn, http:Request request) {
-        var byteChannel, _ = request.getByteChannel();
-        http:Response response = {};
-        mime:Entity responseEntity = {};
-        responseEntity.setByteChannel(byteChannel);
-        response.setEntity(responseEntity);
-        _ = conn -> respond(response);
-    }
-}
+//endpoint http:ServiceEndpoint mockEP {
+//    port:9090
+//};
+//
+//@http:ServiceConfig {endpoints:[mockEP]}
+//service<http:Service> echo bind echoEP {
+//    @http:ResourceConfig {
+//        methods:["POST"],
+//        path:"/largepayload"
+//    }
+//    getPayloadFromFileChannel (endpoint client, http:Request request) {
+//        var byteChannel, _ = request.getByteChannel();
+//        http:Response response = {};
+//        mime:Entity responseEntity = {};
+//        responseEntity.setByteChannel(byteChannel);
+//        response.setEntity(responseEntity);
+//        _ = client -> respond(response);
+//    }
+//}

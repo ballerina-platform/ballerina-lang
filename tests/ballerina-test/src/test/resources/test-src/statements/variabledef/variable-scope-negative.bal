@@ -1,6 +1,6 @@
 
 
-function testVariableIfScope () (int) {
+function testVariableIfScope () returns (int) {
     int a = 90;
     int b = 50;
     if (a > 20) {
@@ -14,7 +14,7 @@ function testVariableIfScope () (int) {
     return k;
 }
 
-function testVariableElseScope() (int) {
+function testVariableElseScope() returns (int) {
     int a = 10;
     if(a > 20) {
         a = 50;

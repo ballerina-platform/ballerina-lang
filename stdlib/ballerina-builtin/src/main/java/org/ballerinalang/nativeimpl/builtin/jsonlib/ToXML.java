@@ -58,9 +58,10 @@ public class ToXML extends BlockingNativeCallableUnit {
             String arrayEntryTag = optionsStruct.getStringField(1);
             //Converting to xml.
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
+            ctx.setReturnValues(xml);
         } catch (Throwable e) {
             error = Utils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
+            ctx.setReturnValues(error);
         }
-        ctx.setReturnValues(xml, error);
     }
 }

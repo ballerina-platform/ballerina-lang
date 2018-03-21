@@ -33,7 +33,7 @@ public struct AuthzChecker {
 public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache cache) returns (AuthzChecker) {
     if (permissionstore == null) {
         // error, cannot proceed without permissionstore
-        error e = {message:"Permission store cannot be null for authz checker"};
+        error e = {msg:"Permission store cannot be null for authz checker"};
         throw e;
     }
 

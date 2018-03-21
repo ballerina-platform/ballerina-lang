@@ -12,7 +12,7 @@ public struct MediaType {
     string primaryType;
     string subType;
     string suffix;
-    map parameters;
+    map<string> parameters;
 }
 
 @Description {value:"Represent values in Content-Disposition header"}
@@ -67,7 +67,7 @@ public native function <Entity entity> setJson (json jsonContent);
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return json data"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getJson () returns (json, EntityError);
+public native function <Entity entity> getJson () returns json | EntityError;
 
 @Description {value:"Set the entity body with the given xml content"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -78,7 +78,7 @@ public native function <Entity entity> setXml (xml xmlContent);
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return xml data"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getXml () returns (xml, EntityError);
+public native function <Entity entity> getXml () returns xml | EntityError;
 
 @Description {value:"Set the entity body with the given text content"}
 @Param {value:"textContent: Text content that needs to be set to entity"}
@@ -88,7 +88,7 @@ public native function <Entity entity> setText (string textContent);
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return text data"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getText () returns (string, EntityError);
+public native function <Entity entity> getText () returns string | null | EntityError;
 
 @Description {value:"Set the entity body with the given blob content"}
 @Param {value:"blobContent: Blob content that needs to be set to entity"}
@@ -100,7 +100,7 @@ using getEntityWrapper() method instead"}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a blob"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getBlob () returns (blob, EntityError);
+public native function <Entity entity> getBlob () returns blob | EntityError;
 
 @Description {value:"Set the entity body with the given byte channel content"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -111,13 +111,13 @@ public native function <Entity entity> setByteChannel (io:ByteChannel byteChanne
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a byte channel"}
 @Return {value:"EntityError will get thrown in case of errors during byte channel extraction from entity"}
-public native function <Entity entity> getByteChannel () returns (io:ByteChannel, EntityError);
+public native function <Entity entity> getByteChannel () returns io:ByteChannel | EntityError;
 
 @Description {value:"Given an entity, get its body parts."}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return an array of entities which represent its body parts"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getBodyParts () returns (Entity[], EntityError);
+public native function <Entity entity> getBodyParts () returns Entity[] | EntityError;
 
 @Description {value:"Set body parts to entity"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -210,15 +210,7 @@ public native function <MimeBase64Decoder decoder> decodeString (string content,
 @Param {value:"contentType: A MediaType struct"}
 @Return {value:"Return encoding value"}
 function getEncoding (MediaType contentType) returns (string) {
-    var encoding = DEFAULT_CHARSET;
-    error castErr;
-    if (contentType != null && contentType.parameters != null) {
-        encoding, castErr = (string)contentType.parameters.CHARSET;
-        if (castErr != null) {
-            encoding = DEFAULT_CHARSET;
-        }
-    }
-    return encoding;
+    return contentType.parameters.CHARSET;
 }
 
 @Description {value:"Represent 'application/x-www-form-urlencoded' media type value"}
@@ -282,18 +274,18 @@ public const string CONTENT_TYPE = "content-type";
 @Param {value:"headerName: Represent header name"}
 @Return {value:"Return header value associated with the given header name. If multiple header values are present,
 then the first value will be returned"}
-public native function <Entity entity> getHeader (string headerName) returns (string);
+public native function <Entity entity> getHeader (string headerName) returns string | null;
 
 @Description {value:"Get all the header values associated with the given header name"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"headerName: Represent the header name"}
 @Return {value:"Return all the header values associated with the given header name as a string of arrays"}
-public native function <Entity entity> getHeaders (string headerName) returns (string[]);
+public native function <Entity entity> getHeaders (string headerName) returns string[] | null;
 
 @Description {value:"Get all the headers as a map. Please note that manipulating the returned map has no effect to the original copy of headers"}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a copy of all headers as a map."}
-public native function <Entity entity> getCopyOfAllHeaders () (map);
+public native function <Entity entity> getCopyOfAllHeaders () returns map;
 
 @Description {value:"Add the given header value against the given header"}
 @Param {value:"entity: Represent a MIME entity"}

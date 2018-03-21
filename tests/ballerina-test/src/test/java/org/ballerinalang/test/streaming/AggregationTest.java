@@ -20,7 +20,6 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -43,14 +42,13 @@ public class AggregationTest {
 
     @Test(description = "Test streaming aggregation query.")
     public void testAggregationQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testAggregationQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testAggregationQuery");
 
-        BRefValueArray outputStatusCountArray = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputStatusCountArray);
 
-        Assert.assertEquals(outputStatusCountArray.size(), 1, "Expected events are not received");
+        Assert.assertEquals(outputStatusCountArray.length, 1, "Expected events are not received");
 
-        BStruct statusCount0 = (BStruct) outputStatusCountArray.get(0);
+        BStruct statusCount0 = (BStruct) outputStatusCountArray[0];
 
         Assert.assertEquals(statusCount0.getStringField(0), "single");
         Assert.assertEquals(statusCount0.getIntField(0), 2);

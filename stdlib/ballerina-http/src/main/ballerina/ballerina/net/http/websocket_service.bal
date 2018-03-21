@@ -4,5 +4,6 @@ public struct WebSocketService {
 }
 
 function <WebSocketService s> getEndpoint() returns (WebSocketEndpoint ) {
-    return null;
+    WebSocketEndpoint ep = {};
+    return ep;
 }

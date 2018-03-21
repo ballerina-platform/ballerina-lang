@@ -1,8 +1,8 @@
-function testJSONWithUnsupportedKey () (json) {
+function testJSONWithUnsupportedKey () returns (json) {
     json j = { foo(): "supun"};
     return j;
 }
 
-function foo() (string) {
+function foo() returns (string) {
   return "name";
 }

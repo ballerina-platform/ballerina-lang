@@ -20,7 +20,6 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -43,15 +42,14 @@ public class FilterTest {
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterQuery");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "testFilterQuery");
 
-        BRefValueArray outputEmployeeEvents = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputEmployeeEvents);
 
-        Assert.assertEquals(outputEmployeeEvents.size(), 2, "Expected events are not received");
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
 
-        BStruct employee0 = (BStruct) outputEmployeeEvents.get(0);
-        BStruct employee1 = (BStruct) outputEmployeeEvents.get(1);
+        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
+        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
 
         Assert.assertEquals(employee0.getIntField(0), 33);
         Assert.assertEquals(employee1.getIntField(0), 45);

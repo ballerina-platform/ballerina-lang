@@ -3,19 +3,19 @@ import ballerina.caching;
 import ballerina.net.http;
 import ballerina.mime;
 
-function testCreateDisabledBasicAuthCache () (caching:Cache) {
+function testCreateDisabledBasicAuthCache () returns (caching:Cache) {
     return utils:createCache("basic_auth_cache");
 }
 
-function testCreateAuthzCache () (caching:Cache) {
+function testCreateAuthzCache () returns (caching:Cache) {
     return utils:createCache("authz_cache");
 }
 
-function testExtractBasicAuthCredentialsFromInvalidHeader () (string, string, error) {
+function testExtractBasicAuthCredentialsFromInvalidHeader () returns (string, string, error) {
     return utils:extractBasicAuthCredentials("Basic FSADFfgfsagas423gfdGSdfa");
 }
 
-function testExtractBasicAuthCredentials () (string, string, error) {
+function testExtractBasicAuthCredentials () returns (string, string, error) {
     return utils:extractBasicAuthCredentials("Basic aXN1cnU6eHh4");
 }
 

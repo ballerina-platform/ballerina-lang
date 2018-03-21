@@ -23,7 +23,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -48,15 +50,16 @@ public class GetCopyOfAllHeaders extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BMap<String, BValue> headerMap = new BMap<>();
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-            context.setReturnValues();
+            context.setReturnValues(headerMap);
             return;
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != null && !httpHeaders.isEmpty()) {
             context.setReturnValues(HeaderUtil.getAllHeadersAsBMap(httpHeaders));
         } else {
-            context.setReturnValues();
+            context.setReturnValues(headerMap);
         }
     }
 }

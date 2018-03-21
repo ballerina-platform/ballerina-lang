@@ -64,9 +64,9 @@ public class BalScheduleAppointment extends BlockingNativeCallableUnit {
         try {
             Appointment appointment =
                     new Appointment(this, ctx, schedule, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            ctx.setReturnValues(new BString(appointment.getId()), null);
+            ctx.setReturnValues(new BString(appointment.getId()));
         } catch (SchedulingException e) {
-            ctx.setReturnValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));
+            ctx.setReturnValues(BLangVMErrors.createError(ctx, 0, e.getMessage()));
         }
     }
 }

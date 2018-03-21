@@ -45,7 +45,7 @@ public class TransformerTest {
         Assert.assertEquals(result.getErrorCount(), 0);
         BValue[] values = BRunUtil.invoke(result, "emptyTransform");
         Assert.assertNotEquals(values[0], null);
-        Assert.assertEquals(values[0].stringValue(), "{name:\"null\", age:0, address:\"null\"}");
+        Assert.assertEquals(values[0].stringValue(), "{name:\"\", age:0, address:\"\"}");
     }
 
     @Test(description = "Test simple unnamed transformer")
