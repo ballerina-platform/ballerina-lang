@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -719,12 +720,33 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
+        setPreviousNode(endpointNode);
         if (endpointNode.endpointTypeNode != null) {
             this.acceptNode(endpointNode.endpointTypeNode);
         }
 
         if (endpointNode.configurationExpr != null) {
             this.acceptNode(endpointNode.configurationExpr);
+        }
+    }
+
+    @Override
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        setPreviousNode(ternaryExpr);
+        if (ternaryExpr.expr != null) {
+            this.acceptNode(ternaryExpr.expr);
+        }
+
+        if (ternaryExpr.thenExpr != null) {
+            this.acceptNode(ternaryExpr.thenExpr);
+        }
+
+        if (ternaryExpr.elseExpr != null) {
+            this.acceptNode(ternaryExpr.elseExpr);
+        }
+
+        if (ternaryExpr.impCastExpr != null) {
+            this.acceptNode(ternaryExpr.impCastExpr);
         }
     }
 
