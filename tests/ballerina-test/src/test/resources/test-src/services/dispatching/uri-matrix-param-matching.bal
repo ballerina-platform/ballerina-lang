@@ -5,13 +5,13 @@ endpoint<mock:NonListeningService> testEP {
     port:9090
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello",
     endpoints:[testEP]
 }
 service<http:Service> testService {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/t1/{person}/bar/{year}/foo"
     }
@@ -44,7 +44,7 @@ service<http:Service> testService {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/t2/{person}/foo;a=5;b=10"
     }

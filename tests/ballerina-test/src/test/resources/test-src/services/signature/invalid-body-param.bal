@@ -5,13 +5,13 @@ endpoint mock:NonListeningService echoEP {
     port:9090
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/signature",
     endpoints:[echoEP]
 }
 service<http:Service> echo {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"person"
     }
