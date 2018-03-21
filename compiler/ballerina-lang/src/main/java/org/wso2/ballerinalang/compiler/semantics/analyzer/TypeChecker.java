@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -629,6 +630,20 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             resultTypes = expTypes;
         }
+    }
+    
+    public void visit(BLangAwaitExpr awaitExpr) {
+        BType expType = checkExpr(awaitExpr.expr, env, Lists.of(this.symTable.futureType)).get(0);
+        if (expType == symTable.errType) {
+            resultTypes = Lists.of(symTable.errType);
+        } else {
+            BType constraint = ((BFutureType) expType).constraint;
+            resultTypes = Lists.of(constraint);
+            if (constraint == symTable.noType) {
+                resultTypes.clear();
+            }
+        }
+        this.checkAsyncReturnTypes(awaitExpr, resultTypes);
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -1285,7 +1300,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
         List<BType> retTypes = invocableSymbol.type.getReturnTypes();
         if (retTypes.isEmpty()) {
-            return new BFutureType(TypeTags.FUTURE, this.symTable.anyType, null);
+            return new BFutureType(TypeTags.FUTURE, this.symTable.noType, null);
         } else {
             return new BFutureType(TypeTags.FUTURE, retTypes.get(0), null);
         }
@@ -1392,6 +1407,27 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
+    }
+    
+    private void checkAsyncReturnTypes(BLangAwaitExpr awaitExpr, List<BType> actualTypes) {
+        List<BType> newActualTypes = actualTypes;
+        List<BType> newExpTypes = this.expTypes;
+        int expected = this.expTypes.size();
+        int actual = actualTypes.size();
+        if (expected == 1 && actual > 1) {
+            dlog.error(awaitExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT);
+            newActualTypes = getListWithErrorTypes(expected);
+        } else if (expected == 0) {
+            if (this.env.node.getKind() != NodeKind.EXPRESSION_STATEMENT) {
+                dlog.error(awaitExpr.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE);
+            }
+            newExpTypes = newActualTypes;
+        } else if (expected != actual) {
+            dlog.error(awaitExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
+            newActualTypes = getListWithErrorTypes(expected);
+        }
+
+        resultTypes = types.checkTypes(awaitExpr, newActualTypes, newExpTypes);
     }
 
     private void checkConnectorInitTypes(BLangTypeInit iExpr, BType actualType, Name connName) {
