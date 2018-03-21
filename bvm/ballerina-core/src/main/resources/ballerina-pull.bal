@@ -1,7 +1,7 @@
-import ballerina.io;
-import ballerina.net.http;
-import ballerina.runtime;
-import ballerina.file;
+import ballerina/file;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/runtime;
 
 function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
     endpoint<http:HttpClient> httpEndpoint {
@@ -59,7 +59,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
 }
 
 function main(string[] args){
-    pullPackage(args[0], args[1], args[2], args[3]); 
+    pullPackage(args[0], args[1], args[2], args[3]);
 }
 
 function getFileChannel (string filePath, string permission) (io:ByteChannel) {

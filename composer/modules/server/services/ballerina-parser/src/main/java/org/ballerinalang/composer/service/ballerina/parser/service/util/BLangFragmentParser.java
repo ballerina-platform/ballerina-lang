@@ -22,15 +22,14 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangFragmentParserConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangJSONModelConstants;
-import org.ballerinalang.composer.service.ballerina.parser.service.BallerinaParserService;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 /**
@@ -131,13 +130,8 @@ public class BLangFragmentParser {
             compilationUnit = model.getCompilationUnits().stream().
                     filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
         }
-
-        try {
-            return BallerinaParserService.generateJSON(compilationUnit, new HashMap<>());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            // This should never occur.
-            throw new AssertionError("Error while serializing source to JSON.");
-        }
+        
+        return CommonUtil.generateJSON(compilationUnit, new HashMap<>());
     }
 
     protected static String getParsableString(BLangSourceFragment sourceFragment) {

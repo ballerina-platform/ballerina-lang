@@ -21,10 +21,6 @@ import _ from 'lodash';
 import { packageDefinition } from '../../designer-defaults';
 import { EVENTS } from '../../../../../constants';
 import './package-definition.css';
-import ImportDeclaration from './import-node';
-import ImportDeclarationExpanded from './import-declaration-expanded';
-import GlobalDefinitions from './global-definitions';
-import GlobalExpanded from './globals-expanded';
 import ImageUtil from '../../../../image-util';
 import EditableText from './editable-text';
 import CompilationUnitNode from '../../../../../model/tree/abstract-tree/compilation-unit-node';
@@ -260,23 +256,12 @@ class TopLevelNodes extends React.Component {
             this.props.model.viewState.components.importsExpanded === undefined) {
             return (null);
         }
-        const importsExpanded = this.props.model.viewState.importsExpanded;
-        const globalsExpanded = this.props.model.viewState.globalsExpanded;
-        const packageDefTextWidth = 275;
-        const yGutterSize = 10;
-        const xGutterSize = 15;
-        const iconSize = 20;
-        const importDecViewState = this.props.model.viewState.components.importDeclaration;
-        const importsExpandedViewState = this.props.model.viewState.components.importsExpanded;
 
-        const importsBbox = this.props.model.viewState.components.importsBbox;
-        const globalsBbox = this.props.model.viewState.components.globalsBbox;
-        const expandedImportsBbox = this.props.model.viewState.components.importsExpandedBbox;
-        const expandedGlobalsBbox = this.props.model.viewState.components.globalsExpandedBbox;
+        const packageDefTextWidth = 275;
+        const iconSize = 20;
         const astRoot = this.props.model;
         const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
-        const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' })
-            .concat(astRoot.filterTopLevelNodes({ kind: 'Xmlns' }));
+
 
         const packageSuggestions = this.context.environment.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))

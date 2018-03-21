@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"A const declaration can appear only as a top-level construct in Ballerina."}
 const float PI = 3.14159;

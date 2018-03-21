@@ -1,4 +1,4 @@
-import ballerina.jwt.signature;
+import ballerina/jwt.signature;
 
 function testVerifyJWTSignature () (boolean) {
     string data = "ewogICJhbGciOiAiUlMyNTYiLAogICJ0eXAiOiAiSldUIgp9.ewogICJzdWIiOiAiMTIzNjU0IiwKICAibmFtZSI6ICJK" +

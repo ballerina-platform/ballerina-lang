@@ -1,136 +1,170 @@
-import ballerina.data.sql;
+import ballerina/data.sql;
 
 struct ResultCount {
     int COUNTVAL;
 }
 
-function testLocalTransacton () (int returnVal, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                               0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
+function testLocalTransacton () returns (int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int returnVal = 0;
+    int count;
     transaction {
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 200", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 200", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count);
 }
 
-function testTransactonRollback () (int returnVal, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                               0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
+function testTransactonRollback () returns (int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int returnVal = 0;
+    int count;
     try {
         transaction {
-            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,
+            _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
-            _ = testDB.update("Insert into Customers2 (firstName,lastName,registrationID,
+            _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error e) {
         // ignore.
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 210", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 210", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count);
 }
 
-function testTransactonAbort () (int returnVal, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                               0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = -1;
+function testTransactonAbort () returns (int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int returnVal = -1;
+    int count;
     transaction {
-        int insertCount = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')", null);
 
-        insertCount = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')", null);
         int i = 0;
         if (i == 0) {
             abort;
         }
         returnVal = 0;
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 220", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 220", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count);
 }
 
-function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                 0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
-    catchValue = 0;
+function testTransactonErrorThrow () returns (int, int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+	int returnVal = 0;
+    int catchValue = 0;
     try {
         transaction {
-            int insertCount = testDB.update("Insert into Customers (firstName,lastName,
+            int insertCount = testDB -> update("Insert into Customers (firstName,lastName,
                       registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')", null);
             int i = 0;
             if (i == 0) {
                 error err = {message:"error"};
                 throw err;
             }
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error err) {
         catchValue = -1;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 260", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 260", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, catchValue, count) ;
 }
 
-function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
-    catchValue = 0;
+function testTransactionErrorThrowAndCatch () returns (int, int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+	int returnVal = 0;
+    int catchValue = 0;
+    int count;
     transaction {
-        int insertCount = testDB.update("Insert into Customers (firstName,lastName,registrationID,
+        int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,
                  creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')", null);
         int i = 0;
         try {
@@ -141,154 +175,187 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         } catch (error err) {
             catchValue = -1;
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 250", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 250", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, catchValue, count);
 }
 
-function testTransactonCommitted () (int returnVal, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                        0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 1;
+function testTransactonCommitted () returns (int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+	int returnVal = 1;
+    int count;
     transaction {
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 300", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 300", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count);
 }
 
-function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                  0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal1 = 1;
-    returnVal2 = 1;
+function testTwoTransactons () returns (int, int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int returnVal1 = 1;
+    int returnVal2 = 1;
+    int count;
     transaction {
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal1 = 0;
     }
 
     transaction {
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal2 = 0;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 400", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 400", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return returnVal1, returnVal2, count;
+    testDB -> close();
+    return (returnVal1, returnVal2, count);
 }
 
-function testTransactonWithoutHandlers () (int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                              0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    transaction {
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+function testTransactonWithoutHandlers () returns (int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+	transaction {
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", null);
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", null);
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where
                                       registrationID = 350", null, typeof ResultCount);
+    int count;
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return count;
 }
 
-function testLocalTransactionFailed () (string, int) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                             0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
+function testLocalTransactionFailed () returns (string, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
     string a = "beforetx";
     int count = -1;
     try {
         transaction with retries(4) {
             a = a + " inTrx";
-            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                         values ('James', 'Clerk', 111, 5000.75, 'USA')", null);
-            _ = testDB.update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')", null);
-        } failed {
+        } onretry {
             a = a + " inFld";
         }
     } catch (error e) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 111", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 111", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return a, count;
+    testDB -> close();
+    return (a, count);
 }
 
-function testLocalTransactonSuccessWithFailed () (string, int) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                           0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
+function testLocalTransactonSuccessWithFailed () returns (string, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
     string a = "beforetx";
     int count = -1;
     int i = 0;
     try {
         transaction with retries(4) {
             a = a + " inTrx";
-            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 222, 5000.75, 'USA')", null);
             if (i == 2) {
-                _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('Anne', 'Clerk', 222, 5000.75, 'USA')", null);
             } else {
-                _ = testDB.update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+                _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                             values ('Anne', 'Clerk', 222, 5000.75, 'USA')", null);
             }
-        } failed {
+        } onretry {
             a = a + " inFld";
             i = i + 1;
         }
@@ -296,177 +363,217 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 222", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 222", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return a, count;
+    testDB -> close();
+    return (a, count);
 }
 
-function testLocalTransactonFailedWithNextupdate () (int i) {
-    endpoint<sql:ClientConnector> testDB1 {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
+function testLocalTransactonFailedWithNextupdate () returns (int) {
+	endpoint sql:Client testDB1 {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+	
+	endpoint sql:Client testDB2 {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
 
-    endpoint<sql:ClientConnector> testDB2 {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    i = 0;
+    int i = 0;
     try {
         transaction {
-            _ = testDB1.update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
+            _ = testDB1 -> update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 1234, 5000.75, 'USA')", null);
         }
     } catch (error e){
         i = -1;
     }
-    _ = testDB1.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    _ = testDB1 -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')", null);
 
-    testDB1.close();
+    testDB1 -> close();
 
-    table dt = testDB2.select("Select COUNT(*) as countval from Customers where registrationID = 12343", null,
+    table dt = testDB2 -> select("Select COUNT(*) as countval from Customers where registrationID = 12343", null,
                                   typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         i = rs.COUNTVAL;
     }
-    testDB2.close();
-    return;
+    testDB2 -> close();
+    return i;
 }
 
-function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
+function testNestedTwoLevelTransactonSuccess () returns (int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+	
+    int returnVal = 0;
+    int count;
     transaction {
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')", null);
         transaction {
-            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')", null);
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 333", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 333", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
+function testNestedThreeLevelTransactonSuccess () returns (int, int) {
+	endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+	
+    int returnVal = 0;
+    int count;
     transaction {
-        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')", null);
         transaction {
-            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')", null);
             transaction {
-                _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')", null);
             }
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 444", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 444", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
+function testNestedThreeLevelTransactonFailed () returns (int, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int returnVal = 0;
+    int count;
     try {
         transaction {
-            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 555, 5000.75, 'USA')", null);
             transaction {
-                _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 555, 5000.75, 'USA')", null);
                 transaction {
-                    _ = testDB.update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
+                    _ = testDB -> update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 555, 5000.75, 'USA')", null);
                 }
             }
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error e) {
         // ignore.
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 555", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 555", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal, int count, string a) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    returnVal = 0;
+function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, int, string) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int returnVal = 0;
+    int count;
+    string a;
     int index = 0;
     a = "start";
     try {
         transaction {
             a = a + " txL1";
-            _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')", null);
             transaction {
                 a = a + " txL2";
-                _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')", null);
                 transaction with retries(2){
                     a = a + " txL3";
                     if (index == 1) {
                         a = a + " txL3_If";
-                        _ = testDB.update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')", null);
                     } else {
                         a = a + " txL3_Else";
-                         _ = testDB.update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
+                         _ = testDB -> update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')", null);
                     }
-                } failed {
+                } onretry {
                     a = a + " txL3_Failed";
                     index = index + 1;
                 }
             }
-        } failed {
+        } onretry {
             a = a + " txL1_Falied";
             returnVal = -1;
         }
@@ -474,29 +581,35 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal,
         // ignore.
     }
     //check whether update action is performed
-    table dt = testDB.select("Select COUNT(*) as countval from Customers where registrationID = 666", null,
+    table dt = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 666", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return (returnVal, count, a);
 }
 
 
-function testCloseConnectionPool () (int count) {
-    endpoint<sql:ClientConnector> testDB {
-        create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                   0, "TEST_SQL_CONNECTOR_TR", "SA", "", {maximumPoolSize:1});
-    }
-    table dt = testDB.select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+function testCloseConnectionPool () returns (int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+	
+    table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                              typeof ResultCount);
+    int count;
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB.close();
-    return;
+    testDB -> close();
+    return count;
 }
-

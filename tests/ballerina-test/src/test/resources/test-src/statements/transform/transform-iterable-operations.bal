@@ -14,26 +14,26 @@ struct VehicleInfo {
 }
 
 transformer<Person source,VehicleInfo target> {
-    target.numberOfCars = source.vehicles.filter(function(Vehicle vehicle)(boolean){
+    target.numberOfCars = source.vehicles.filter(function(Vehicle vehicle) returns boolean {
                                                      return vehicle.vehicleType == "car";
                                                  }).count();
 
-    target.numberOfBikes = source.vehicles.filter(function(Vehicle vehicle)(boolean){
+    target.numberOfBikes = source.vehicles.filter(function(Vehicle vehicle) returns boolean {
                                                       return vehicle.vehicleType == "bike";
                                                   }).count();
 
-    target.ids = source.vehicles.map(function(Vehicle vehicle)(string){
+    target.ids = source.vehicles.map(function(Vehicle vehicle) returns string {
                                          return vehicle.vid;
                                      });
 }
 
-function testTransformerIterableOperations()(int, int, int) {
+function testTransformerIterableOperations() returns (int, int, int) {
     Person person1 = {  name:"john",
                          vehicles:[{vid: "01", vehicleType:"car"},
                                    {vid: "02", vehicleType:"bike"},
                                    {vid: "03", vehicleType:"car"}
                                   ]};
     VehicleInfo vInfo = <VehicleInfo> person1;
-    return vInfo.numberOfCars, vInfo.numberOfBikes, lengthof(vInfo.ids);
+    return (vInfo.numberOfCars, vInfo.numberOfBikes, lengthof(vInfo.ids));
 }
 

@@ -18,7 +18,8 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +58,9 @@ public class FileSystemProgramDirectory implements SourceDirectory {
 
     @Override
     public List<String> getSourceFileNames() {
+        if (!Files.isDirectory(programDirPath)) {
+            return Collections.emptyList();
+        }
         try {
             return Files.list(programDirPath)
                     .map(ProjectDirs::getLastComp)
@@ -105,7 +110,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     }
 
     @Override
-    public PackageRepository getPackageRepository() {
-        return null;
+    public Repo getPackageRepository() {
+        return new ProgramingSourceRepo(programDirPath);
     }
 }

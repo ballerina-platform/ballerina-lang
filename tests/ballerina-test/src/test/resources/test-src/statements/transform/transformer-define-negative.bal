@@ -64,9 +64,9 @@ transformer <Person p, Employee e1, Employee e2, Employee e3>  Foo_3() {
 }
 
 transformer <Person p, Employee e> Foo_4() {
-    endpoint<TestConnector> con { create TestConnector();}
+    endpoint<testEP> con { }
     
-    string s = con.textAction_1();
+    string s = con -> textAction_1();
     
     return;
     
@@ -103,4 +103,23 @@ transformer <TestConnector con, Employee e1> {
 
 transformer <Person p1, TestConnector con> {
     // empty
+}
+
+struct testEP {
+}
+
+function <testEP ep> init(string name, struct {} config) {
+}
+
+function <testEP ep> start() {
+}
+
+function <testEP ep> stop() {
+}
+
+function <testEP ep> register(type t) {
+}
+
+function <testEP ep> getConnector() returns (TestConnector | null) {
+    return null;
 }

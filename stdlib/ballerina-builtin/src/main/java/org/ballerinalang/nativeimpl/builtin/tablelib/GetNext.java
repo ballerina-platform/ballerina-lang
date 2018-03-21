@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,16 +31,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "table.getNext",
         args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class GetNext extends AbstractNativeFunction {
+public class GetNext extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        BTable table = (BTable) getRefArgument(ctx, 0);
-        return getBValues(table.getNext());
+    public void execute(Context context) {
+        BTable table = (BTable) context.getRefArgument(0);
+        context.setReturnValues(table.getNext());
     }
 }

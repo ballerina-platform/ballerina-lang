@@ -1,22 +1,22 @@
-function testFloatValue() (float) {
+function testFloatValue() returns (float) {
     float b;
     b = 10.1;
     return b;
 }
 
-function testNegativeFloatValue() (float) {
+function testNegativeFloatValue() returns (float) {
     float y;
     y = -10.1;
     return y;
 }
 
-function testFloatValueAssignmentByReturnValue() (float) {
+function testFloatValueAssignmentByReturnValue() returns (float) {
     float x;
     x = testFloatValue();
     return x;
 }
 
-function testFloatAddition() (float) {
+function testFloatAddition() returns (float) {
     float b;
     float a;
     a = 9.9;
@@ -24,7 +24,7 @@ function testFloatAddition() (float) {
     return a + b;
 }
 
-function testFloatMultiplication() (float) {
+function testFloatMultiplication() returns (float) {
     float b;
     float a;
     a = 2.5;
@@ -32,7 +32,7 @@ function testFloatMultiplication() (float) {
     return a * b;
 }
 
-function testFloatSubtraction() (float) {
+function testFloatSubtraction() returns (float) {
     float b;
     float a;
     a = 25.5;
@@ -40,7 +40,7 @@ function testFloatSubtraction() (float) {
     return a - b;
 }
 
-function testFloatDivision() (float) {
+function testFloatDivision() returns (float) {
     float b;
     float a;
     a = 25.5;
@@ -48,16 +48,16 @@ function testFloatDivision() (float) {
     return a / b;
 }
 
-function testFloatParameter(float a) (float) {
+function testFloatParameter(float a) returns (float) {
     float b;
     b = a;
     return b;
 }
 
-function testFloatValues()(float, float, float, float){
+function testFloatValues() returns (float, float, float, float){
     float a = 123.4;
     float b = 1.234e2;
     float c = 123.4f;
     float d = 1.234e2d;
-    return a, b, c, d;
+    return (a, b, c, d);
 }

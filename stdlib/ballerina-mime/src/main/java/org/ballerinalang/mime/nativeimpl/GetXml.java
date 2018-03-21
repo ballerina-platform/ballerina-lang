@@ -19,14 +19,13 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,19 +40,19 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.mime",
+        orgName = "ballerina", packageName = "mime",
         functionName = "getXml",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetXml extends AbstractNativeFunction {
+public class GetXml extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BXML result;
         try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (dataSource != null) {
                 if (dataSource instanceof BXML) {
@@ -68,10 +67,10 @@ public class GetXml extends AbstractNativeFunction {
                 //Set byte channel to null, once the message data source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
+            context.setReturnValues(result);
         } catch (Throwable e) {
-            return this.getBValues(null, MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));
         }
-        return this.getBValues(result, null);
     }
 }

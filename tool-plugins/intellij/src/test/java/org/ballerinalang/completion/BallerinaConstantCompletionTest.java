@@ -39,66 +39,69 @@ public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase
         doTest("const string NAME = <caret>", "true", "false", "null");
     }
 
-    public void testConstantAnnotation() {
-        doCheckResult("test.bal", "@<caret> const string S=\"\";", null, '@');
-    }
-
-    public void testConstantAnnotationWithImports() {
-        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-        doCheckResult("test.bal", "import org.test; <caret> const string S=\"\";", null, '@', "test");
-    }
-
-    public void testConstantAnnotationWithImportsNoAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; @test<caret> const string S=\"\";", null, ':');
-    }
-
-    public void testConstantAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach service {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null);
-    }
-
-    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const {} " +
-                "annotation TEST2 attach resource {}");
-        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null, "TEST");
-    }
-
-    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const {}");
-        doCheckResult("test.bal", "import org.test; @test:T<caret> const string S=\"\";",
-                "import org.test; @test:TEST {} const string S=\"\";", null);
-    }
-
-    public void testConstantAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\";", null, '@',
-                "TEST");
-    }
-
-    public void testConstantAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach const {} @T<caret> const string S=\"\";",
-                "annotation TEST attach const {} @TEST {} const string S=\"\";", null);
-    }
-
-    public void testConstantAnnotationInCurrentPackageDifferentFile() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
-        doCheckResult("test.bal", "<caret> const string S=\"\";", null, '@', "TEST");
-    }
-
-    public void testConstantAnnotationInCurrentPackageDifferentFileAutoComplete() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach function {}");
-        doCheckResult("test.bal", "@T<caret> function A(){}", "@TEST {} function A(){}", null);
-    }
-
-    public void testConstantAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
-        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
-        doCheckResult("test.bal", "<caret> const string S=\"\"; service R{}", null, '@', "TEST");
-    }
-
-    public void testConstantAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\"; service R{}", null, '@',
-                "TEST");
-    }
+    //    public void testConstantAnnotation() {
+    //        doCheckResult("test.bal", "@<caret> const string S=\"\";", null, '@');
+    //    }
+    //
+    //    public void testConstantAnnotationWithImports() {
+    //        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
+    //        doCheckResult("test.bal", "import org.test; <caret> const string S=\"\";", null, '@', "test");
+    //    }
+    //
+    //    public void testConstantAnnotationWithImportsNoAnnotationDefinitions() {
+    //        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
+    //        doCheckResult("test.bal", "import org.test; @test<caret> const string S=\"\";", null, ':');
+    //    }
+    //
+    //    public void testConstantAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
+    //        myFixture.addFileToProject("org/test/file.bal", "public annotation TEST attach service {}");
+    //        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null);
+    //    }
+    //
+    //    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitions() {
+    //        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const
+    // {} " +
+    //                "annotation TEST2 attach resource {}");
+    //        doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null, "TEST");
+    //    }
+    //
+    //    public void testConstantAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
+    //        myFixture.addFileToProject("org/test/file.bal", "package org.test; public annotation TEST attach const
+    // {}");
+    //        doCheckResult("test.bal", "import org.test; @test:T<caret> const string S=\"\";",
+    //                "import org.test; @test:TEST {} const string S=\"\";", null);
+    //    }
+    //
+    //    public void testConstantAnnotationInCurrentPackageSameFile() {
+    //        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\";", null, '@',
+    //                "TEST");
+    //    }
+    //
+    //    public void testConstantAnnotationInCurrentPackageSameFileAutoComplete() {
+    //        doCheckResult("test.bal", "annotation TEST attach const {} @T<caret> const string S=\"\";",
+    //                "annotation TEST attach const {} @TEST {} const string S=\"\";", null);
+    //    }
+    //
+    //    public void testConstantAnnotationInCurrentPackageDifferentFile() {
+    //        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
+    //        doCheckResult("test.bal", "<caret> const string S=\"\";", null, '@', "TEST");
+    //    }
+    //
+    //    public void testConstantAnnotationInCurrentPackageDifferentFileAutoComplete() {
+    //        myFixture.addFileToProject("file.bal", "annotation TEST attach function {}");
+    //        doCheckResult("test.bal", "@T<caret> function A(){}", "@TEST {} function A(){}", null);
+    //    }
+    //
+    //    public void testConstantAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
+    //        myFixture.addFileToProject("file.bal", "annotation TEST attach const {}");
+    //        doCheckResult("test.bal", "<caret> const string S=\"\"; service R{}", null, '@', "TEST");
+    //    }
+    //
+    //    public void testConstantAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
+    //        doCheckResult("test.bal", "annotation TEST attach const {} <caret> const string S=\"\"; service R{}",
+    // null, '@',
+    //                "TEST");
+    //    }
 
     public void testConstantTypesBeforeGlobalVarDef() {
         doTest("const <caret>\n string test =\"\";", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));

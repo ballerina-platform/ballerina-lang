@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Will be used to process the response once the bytes are read from the source.
@@ -36,7 +37,7 @@ public class ReadBytesEvent implements Event {
     /**
      * Holds the name of the property which will hold a reference to the byte content.
      */
-    private static final String CONTENT_PROPERTY = "byte_content";
+    public static final String CONTENT_PROPERTY = "byte_content";
     /**
      * Buffer which will be provided to the channel.
      */
@@ -52,11 +53,31 @@ public class ReadBytesEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
 
-    public ReadBytesEvent(Channel channel, byte[] content, int offset, EventContext context) {
+    public ReadBytesEvent(Channel channel, byte[] content, EventContext context) {
         this.content = ByteBuffer.wrap(content);
         this.context = context;
         this.channel = channel;
-        this.content.position(offset);
+    }
+
+    /**
+     * <p>
+     * Return an array which contains read data
+     * </p>
+     * <p>
+     * If the buffer is not filled will shrink the array to fit for what's filled
+     * </p>
+     *
+     * @return array which contains data read from the channel.
+     */
+    private byte[] getContentData() {
+        int bufferSize = content.limit();
+        int readPosition = content.position();
+        byte[] content = this.content.array();
+        final int startPosition = 0;
+        if (readPosition == bufferSize) {
+            return content;
+        }
+        return Arrays.copyOfRange(content, startPosition, readPosition);
     }
 
     /**
@@ -67,15 +88,14 @@ public class ReadBytesEvent implements Event {
         NumericResult result;
         try {
             int numberOfBytesRead = channel.read(content);
-            byte[] content = this.content.array();
+            byte[] content = getContentData();
             context.getProperties().put(CONTENT_PROPERTY, content);
             result = new NumericResult(numberOfBytesRead, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while reading bytes", e);
             context.setError(e);
             result = new NumericResult(context);
-            return result;
         }
+        return result;
     }
 }

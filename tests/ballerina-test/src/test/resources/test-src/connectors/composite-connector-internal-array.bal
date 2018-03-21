@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 import samples.ballerina-
 
 function testCompositeConnector()(string, string) {

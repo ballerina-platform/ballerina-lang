@@ -14,30 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
-@http:configuration {
+endpoint http:ServiceEndpoint participant1EP {
     port:8889
-}
-service<http> participant1 {
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {
+}
+service<http:Service> participant1 bind participant1EP {
+
+    @http:ResourceConfig {
         path:"/"
     }
-    resource member (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:8890/participant2", {});
-        }
-        http:OutRequest newReq = {};
+    member (endpoint conn, http:Request req) {
+        endpoint http:ClientEndpoint ep {
+            targets: [{uri: "http://localhost:8890/participant2"}]
+        };
+        http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
-        http:InResponse clientResponse2;
+        http:Response clientResponse2;
         transaction {
-            var clientResponse1, _ = endPoint.forward("/task1", req);
-            clientResponse2, _ = endPoint.get("/task2", newReq);
-        } failed {
+            var clientResponse1, _ = ep -> forward("/task1", req);
+            clientResponse2, _ = ep -> get("/task2", newReq);
+        } onretry {
             io:println("Participant1 failed");
         }
-        _ = conn.forward(clientResponse2);
+        _ = conn -> forward(clientResponse2);
     }
 }

@@ -1,4 +1,4 @@
-import ballerina.utils;
+import ballerina/utils;
 function testEncodeDecode(string s)(string) {
   string encoded;
   encoded = utils:base64encode(s);

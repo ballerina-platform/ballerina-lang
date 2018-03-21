@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.TempFileIOChannel;
@@ -183,7 +184,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                return null;
+                return new BXMLItem();
             }
             BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
             byteChannel.close();
@@ -292,7 +293,7 @@ public class EntityBodyHandler {
      */
     public static BRefValueArray getBodyPartArray(BStruct entityStruct) {
         return entityStruct.getNativeData(BODY_PARTS) != null ?
-                (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
+                (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : new BRefValueArray();
     }
 
     public static Channel getByteChannel(BStruct entityStruct) {

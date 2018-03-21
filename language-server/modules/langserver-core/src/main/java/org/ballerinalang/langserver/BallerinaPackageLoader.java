@@ -63,14 +63,18 @@ public class BallerinaPackageLoader {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name)));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(
+                Names.ANON_ORG.value,
+                name)));
     }
 
     public static BLangPackage getBuiltinPackageByName(CompilerContext context, String name) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name)));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(
+                Names.ANON_ORG.value,
+                name)));
     }
     
     public static CompilerContext prepareCompilerContext() {

@@ -36,11 +36,11 @@ import java.nio.file.Paths;
  */
 public class HoverProviderTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "hover";
+            + File.separator + "hover.test";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover";
+    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover.test";
     private static final String METHOD = "textDocument/hover";
-    private String balPath = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "hover.bal";
+    private String balPath = SAMPLES_COPY_DIR + File.separator + "hover.bal";
     private String balFileContent;
 
     @BeforeClass
@@ -60,7 +60,8 @@ public class HoverProviderTest {
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition")
+    @Test(description = "Test Hover for current package's functions",
+            dataProvider = "hoverCurrentPackageFuncPosition")
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
@@ -76,7 +77,8 @@ public class HoverProviderTest {
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's structs", dataProvider = "hoverCurrentPackageStructPosition")
+    @Test(description = "Test Hover for current package's structs",
+            dataProvider = "hoverCurrentPackageStructPosition")
     public void hoverForCurrentPackageStructTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
@@ -132,8 +134,7 @@ public class HoverProviderTest {
      * @return string content read from the json file.
      */
     private String getExpectedValue(String expectedFile) throws IOException {
-        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "test" + File.separator
-                + "expected" + File.separator + expectedFile;
+        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "expected" + File.separator + expectedFile;
         byte[] expectedByte = Files.readAllBytes(Paths.get(expectedFilePath));
         return new String(expectedByte);
     }

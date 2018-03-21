@@ -19,14 +19,13 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -40,19 +39,19 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.mime",
+        orgName = "ballerina", packageName = "mime",
         functionName = "getBodyParts",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetBodyParts extends AbstractNativeFunction {
+public class GetBodyParts extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BRefValueArray partsArray;
+    public void execute(Context context) {
+        BRefValueArray partsArray = new BRefValueArray();
         try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             //Get the body parts from entity's multipart data field, if they've been already been decoded
             partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
             if (partsArray == null || partsArray.size() < 1) {
@@ -68,9 +67,9 @@ public class GetBodyParts extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            return this.getBValues(null, MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
-        return this.getBValues(partsArray, null);
+        context.setReturnValues(partsArray);
     }
 }

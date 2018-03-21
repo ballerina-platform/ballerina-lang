@@ -84,7 +84,7 @@ public class URIConverter implements Converter<URI> {
 
     }
 
-    public Stream<Path> finalize(URI u, PackageID packageID) {
+    public Stream<PackageSourceEntry> finalize(URI u, PackageID packageID) {
         String orgName = packageID.getOrgName().getValue();
         String pkgName = packageID.getName().getValue();
         Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo", orgName, pkgName));

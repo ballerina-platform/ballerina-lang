@@ -1,8 +1,8 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageSourceEntry;
 
-import java.nio.file.Path;
 import java.util.stream.Stream;
 
 /**
@@ -31,7 +31,7 @@ public class StringConverter implements Converter<String> {
     }
 
     @Override
-    public Stream<Path> finalize(String s, PackageID packageID) {
+    public Stream<PackageSourceEntry> finalize(String s, PackageID id) {
         throw new UnsupportedOperationException();
     }
 }

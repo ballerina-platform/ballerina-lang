@@ -16,11 +16,10 @@
 package org.ballerinalang.nativeimpl.os;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -31,21 +30,21 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.os",
+        orgName = "ballerina", packageName = "os",
         functionName = "getEnv",
         args = {@Argument(name = "name", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetEnv extends AbstractNativeFunction {
+public class GetEnv extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String str = getStringArgument(context, 0);
+    public void execute(Context context) {
+        String str = context.getStringArgument(0);
         String value = System.getenv(str);
         if (value == null) {
-            return getBValues(BTypes.typeString.getZeroValue());
+            context.setReturnValues(BTypes.typeString.getZeroValue());
         }
-        return getBValues(new BString(value));
+        context.setReturnValues(new BString(value));
     }
 }

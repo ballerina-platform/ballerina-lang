@@ -22,13 +22,16 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
@@ -52,14 +55,17 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
+    public List<BLangEndpoint> globalEndpoints;
     public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangConnector> connectors;
+    public List<BLangStreamlet> streamlets;
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
+    public List<BLangObject> objects;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
-    public BLangFunction initFunction;
+    public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
     public List<TopLevelNode> topLevelNodes;
@@ -77,11 +83,14 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
+        this.globalEndpoints = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
         this.connectors = new ArrayList<>();
+        this.streamlets = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
+        this.objects = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
@@ -111,6 +120,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
+    public List<? extends EndpointNode> getGlobalEndpoints() {
+        return globalEndpoints;
+    }
+
+    @Override
     public List<BLangVariable> getGlobalVariables() {
         return globalVars;
     }
@@ -126,6 +140,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
+    public List<? extends StreamletNode> getStreamlets() {
+        return streamlets;
+    }
+
+    @Override
     public List<BLangFunction> getFunctions() {
         return functions;
     }
@@ -133,6 +152,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangStruct> getStructs() {
         return structs;
+    }
+
+    @Override
+    public List<? extends ObjectNode> getObjects() {
+        return objects;
     }
 
     @Override
@@ -185,6 +209,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
+    public void addStreamlet(StreamletNode streamletNode) {
+        this.streamlets.add((BLangStreamlet) streamletNode);
+        this.topLevelNodes.add(streamletNode);
+    }
+
+    @Override
     public void addFunction(FunctionNode function) {
         this.functions.add((BLangFunction) function);
         this.topLevelNodes.add(function);
@@ -194,6 +224,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addStruct(StructNode struct) {
         this.structs.add((BLangStruct) struct);
         this.topLevelNodes.add(struct);
+    }
+
+    @Override
+    public void addObject(ObjectNode object) {
+        this.objects.add((BLangObject) object);
+        this.topLevelNodes.add(object);
     }
 
     @Override

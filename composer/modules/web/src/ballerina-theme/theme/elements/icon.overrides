@@ -3,5 +3,5 @@
 *******************************/
 
 i.icon {
-    height  : auto;
+    height      : auto;
 }

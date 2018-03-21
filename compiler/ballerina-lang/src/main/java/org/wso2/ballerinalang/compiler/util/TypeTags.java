@@ -27,17 +27,21 @@ public class TypeTags {
     public static final int STRING = FLOAT + 1;
     public static final int BOOLEAN = STRING + 1;
     public static final int BLOB = BOOLEAN + 1;
-    public static final int TYPE = BLOB + 1;
-    public static final int JSON = TYPE + 1;
+    public static final int TYPEDESC = BLOB + 1;
+    public static final int JSON = TYPEDESC + 1;
     public static final int XML = JSON + 1;
     public static final int TABLE = XML + 1;
-    public static final int MAP = TABLE + 1;
+    public static final int STREAM = TABLE + 1;
+    public static final int MAP = STREAM + 1;
     public static final int ANY = MAP + 1;
     public static final int STRUCT = ANY + 1;
     public static final int CONNECTOR = STRUCT + 1;
-    public static final int ENUM = CONNECTOR + 1;
+    public static final int SERVICE = CONNECTOR + 1;
+    public static final int STREAMLET = SERVICE + 1;
+    public static final int ENUM = STREAMLET + 1;
     public static final int ARRAY = ENUM + 1;
-    public static final int NULL = ARRAY + 1;
+    public static final int UNION = ARRAY + 1;
+    public static final int NULL = UNION + 1;
     public static final int PACKAGE = NULL + 1;
     public static final int INVOKABLE = PACKAGE + 1;
     public static final int NONE = INVOKABLE + 1;
@@ -46,9 +50,10 @@ public class TypeTags {
     public static final int ANNOTATION = XMLNS + 1;
     public static final int XML_ATTRIBUTES = ANNOTATION + 1;
     public static final int ERROR = XML_ATTRIBUTES + 1;
-    public static final int ENDPOINT = ERROR + 1;
-    public static final int ITERATOR = ENDPOINT + 1;
-    public static final int TUPLE_COLLECTION = ITERATOR + 1;
+    public static final int ITERATOR = ERROR + 1;
+    public static final int TUPLE = ITERATOR + 1;
+    public static final int TUPLE_COLLECTION = TUPLE + 1;
+    public static final int FUTURE = TUPLE_COLLECTION + 1;
 
     private TypeTags() {
     }

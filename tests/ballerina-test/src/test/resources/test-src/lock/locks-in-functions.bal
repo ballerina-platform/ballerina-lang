@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 int lockWithinLockInt1 = 0;
 
@@ -8,12 +8,13 @@ blob blobValue;
 
 boolean boolValue;
 
-function lockWithinLock() (int, string) {
+function lockWithinLock() returns (int, string) {
     lock {
         lockWithinLockInt1 = 50;
         lockWithinLockString1 = "sample value";
         lock {
             lockWithinLockString1 = "second sample value";
+            int ret = makeAsync();
             lockWithinLockInt1 = 99;
             lock {
                 lockWithinLockInt1 = 90;
@@ -21,10 +22,19 @@ function lockWithinLock() (int, string) {
         }
         lockWithinLockInt1 = 77;
     }
-    return lockWithinLockInt1, lockWithinLockString1;
+    return (lockWithinLockInt1, lockWithinLockString1);
 }
 
-function lockWithinLockInWorkers() (int, string) {
+function makeAsync() returns (int) {
+    worker w1 {
+        runtime:sleepCurrentWorker(100);
+    }
+    worker w2 {
+        return 6;
+    }
+}
+
+function lockWithinLockInWorkers() returns (int, string) {
     worker w1 {
         lock {
             lockWithinLockInt1 = 90;
@@ -48,11 +58,11 @@ function lockWithinLockInWorkers() (int, string) {
     }
     worker w3 {
         runtime:sleepCurrentWorker(30);
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
 }
 
-function lockInsideWhileLoop() (int) {
+function lockInsideWhileLoop() returns (int) {
     worker w1 {
         int i = 0;
         while (i < 6) {
@@ -72,7 +82,7 @@ function lockInsideWhileLoop() (int) {
     }
 }
 
-function throwErrorInsideLock() (int, string) {
+function throwErrorInsideLock() returns (int, string) {
     worker w1 {
         lock {
             runtime:sleepCurrentWorker(50);
@@ -90,11 +100,11 @@ function throwErrorInsideLock() (int, string) {
             lockWithinLockString1 = "second worker string";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
         }
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
 }
 
-function throwErrorInsideLockInsideTryFinally() (int, string) {
+function throwErrorInsideLockInsideTryFinally() returns (int, string) {
     worker w1 {
         try {
             lock {
@@ -116,7 +126,7 @@ function throwErrorInsideLockInsideTryFinally() (int, string) {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
         }
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
     worker w2 {
         runtime:sleepCurrentWorker(10);
@@ -127,7 +137,7 @@ function throwErrorInsideLockInsideTryFinally() (int, string) {
     }
 }
 
-function throwErrorInsideTryCatchFinallyInsideLock() (int, string) {
+function throwErrorInsideTryCatchFinallyInsideLock() returns (int, string) {
     worker w1 {
         lock {
             try {
@@ -151,7 +161,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() (int, string) {
             }
         }
         runtime:sleepCurrentWorker(10);
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
     worker w2 {
         runtime:sleepCurrentWorker(10);
@@ -162,7 +172,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() (int, string) {
     }
 }
 
-function throwErrorInsideTryFinallyInsideLock() (int, string) {
+function throwErrorInsideTryFinallyInsideLock() returns (int, string) {
     worker w1 {
         lock {
             try {
@@ -186,11 +196,11 @@ function throwErrorInsideTryFinallyInsideLock() (int, string) {
             lockWithinLockString1 = "worker 2 sets the string after try finally";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
         }
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
 }
 
-function throwErrorInsideLockInsideTryCatch() (int, string) {
+function throwErrorInsideLockInsideTryCatch() returns (int, string) {
     worker w1 {
         try {
             lock {
@@ -208,7 +218,7 @@ function throwErrorInsideLockInsideTryCatch() (int, string) {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
         }
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
     worker w2 {
         runtime:sleepCurrentWorker(10);
@@ -219,7 +229,7 @@ function throwErrorInsideLockInsideTryCatch() (int, string) {
     }
 }
 
-function throwErrorInsideTryCatchInsideLock() (int, string) {
+function throwErrorInsideTryCatchInsideLock() returns (int, string) {
     worker w1 {
         lock {
             try {
@@ -239,7 +249,7 @@ function throwErrorInsideTryCatchInsideLock() (int, string) {
             }
         }
         runtime:sleepCurrentWorker(10);
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
     worker w2 {
         runtime:sleepCurrentWorker(10);
@@ -251,7 +261,7 @@ function throwErrorInsideTryCatchInsideLock() (int, string) {
 }
 
 
-function lockWithinLockInWorkersForBlobAndBoolean() (boolean, blob) {
+function lockWithinLockInWorkersForBlobAndBoolean() returns (boolean, blob) {
     worker w1 {
         lock {
             boolValue = true;
@@ -276,11 +286,11 @@ function lockWithinLockInWorkersForBlobAndBoolean() (boolean, blob) {
     }
     worker w3 {
         runtime:sleepCurrentWorker(30);
-        return boolValue, blobValue;
+        return (boolValue, blobValue);
     }
 }
 
-function returnInsideLock() (int, string) {
+function returnInsideLock() returns (int, string) {
     worker w1 {
         string value = returnInsideLockPart();
     }
@@ -295,11 +305,11 @@ function returnInsideLock() (int, string) {
                 lockWithinLockInt1 = 34;
             }
         }
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
 }
 
-function returnInsideLockPart() (string) {
+function returnInsideLockPart() returns (string) {
     lock {
         lockWithinLockInt1 = 44;
         lockWithinLockString1 = "value1";
@@ -307,7 +317,7 @@ function returnInsideLockPart() (string) {
     }
 }
 
-function breakInsideLock() (int, string) {
+function breakInsideLock() returns (int, string) {
     worker w1 {
         int i = 0;
         while (i < 3) {
@@ -332,11 +342,11 @@ function breakInsideLock() (int, string) {
                 lockWithinLockString1 = "wrong value";
             }
         }
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
 }
 
-function nextInsideLock() (int, string) {
+function nextInsideLock() returns (int, string) {
     worker w1 {
         int i = 0;
         while (i < 1) {
@@ -361,7 +371,7 @@ function nextInsideLock() (int, string) {
                 lockWithinLockString1 = "wrong value";
             }
         }
-        return lockWithinLockInt1, lockWithinLockString1;
+        return (lockWithinLockInt1, lockWithinLockString1);
     }
 }
 

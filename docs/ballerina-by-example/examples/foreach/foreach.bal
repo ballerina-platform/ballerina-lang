@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function main (string[] args) {
     io:println("Iterating over a string array");
@@ -43,8 +43,9 @@ function main (string[] args) {
     io:println("\nIterating over an integer range");
     int endValue = 10;
     int sum;
-    // An Integer range in foreach represents an incremental integer value range from the start expression (1) to the end expression (endValue) inclusively. 
-    foreach i in 1..endValue {
+    // An Integer range in foreach represents an incremental integer value range from the start expression (1)
+    // to the end expression (endValue) inclusively.
+    foreach i in [1..endValue] {
         sum = sum + i;
     }
     io:println("summation from 1 to " + endValue + " is :" + sum);

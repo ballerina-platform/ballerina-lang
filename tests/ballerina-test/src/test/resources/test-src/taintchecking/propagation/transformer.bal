@@ -26,6 +26,6 @@ public function main (string[] args) {
     secureFunction(employee.age, employee.age);
 }
 
-public function secureFunction (@sensitive{} any secureIn, any insecureIn) {
+public function secureFunction (@sensitive any secureIn, any insecureIn) {
 
 }

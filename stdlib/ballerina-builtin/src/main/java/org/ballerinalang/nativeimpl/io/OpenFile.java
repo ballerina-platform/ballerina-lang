@@ -45,7 +45,7 @@ import java.util.Set;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "openFile",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "accessMode", type = TypeKind.STRING)},
@@ -78,8 +78,8 @@ public class OpenFile extends AbstractNativeChannel {
      */
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
-        String pathUrl = getStringArgument(context, PATH_FIELD_INDEX);
-        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
+        String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
+        String accessMode = context.getStringArgument(FILE_ACCESS_MODE_INDEX);
         Path path = null;
         Channel channel;
         try {

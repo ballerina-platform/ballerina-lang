@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -41,8 +41,8 @@ deprecated {
 service<http> PizzaService {
 
     deprecated {This Resource is deprecated use `PizzaHutService.orderFromPizza()` instead.}
-    resource orderPizza(http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource orderPizza(http:Connection conn, http:Request req) {
+        http:Response res = {};
         _ = conn.respond(res);
     }
 

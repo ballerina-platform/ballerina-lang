@@ -33,7 +33,9 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANN
  */
 public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
+    @Deprecated
     public List<BAnnotationAttributeSymbol> attributes;
+    public BTypeSymbol attachedType;
     public List<BLangAnnotationAttachmentPoint> attachmentPoints;
 
     public BAnnotationSymbol(Name name, int flags, PackageID pkgID, BType type, BSymbol owner) {

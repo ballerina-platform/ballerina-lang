@@ -17,7 +17,7 @@
  */
 
 import { MENUS, COMMANDS, LABELS } from './constants';
-import { MENUS as WORKSPACE_MENU } from 'core/workspace/constants';
+import { MENUS as TOOLS_MENUS } from './../tools/constants';
 import { MENU_DEF_TYPES } from './../../core/menu/constants';
 
 /**
@@ -30,14 +30,18 @@ export function getMenuDefinitions(plugin) {
     return [
         {
             id: MENUS.IMPORT_SWAGGER_MENU,
-            parent: WORKSPACE_MENU.FILE_MENU,
+            parent: TOOLS_MENUS.TOOLS_MENU,
             label: LABELS.IMPORT_SWAGGER_MENU_TITLE,
             isActive: (appContext) => {
                 return true;
             },
             icon: 'swagger',
+            order: 2,
             command: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
+            divider: {
+                after: true,
+            },
         },
     ];
 }

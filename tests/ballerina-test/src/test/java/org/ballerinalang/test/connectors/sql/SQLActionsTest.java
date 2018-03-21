@@ -52,7 +52,7 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/sql-actions.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
@@ -140,6 +140,17 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSets() {
+        BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithMultipleResultSets");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        BString retValue2 = (BString) returns[1];
+        final String expected2 = "John";
+        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(retValue2.stringValue(), expected2);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testQueryParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testQueryParameters");
         BString retValue = (BString) returns[0];
@@ -223,7 +234,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testNullINParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameters");
         BInteger retValue = (BInteger) returns[0];

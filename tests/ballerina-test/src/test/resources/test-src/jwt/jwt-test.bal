@@ -1,5 +1,5 @@
-import ballerina.jwt;
-import ballerina.time;
+import ballerina/jwt;
+import ballerina/time;
 
 function testIssueJwt () (string, error) {
     jwt:Header header = {};
@@ -9,6 +9,7 @@ function testIssueJwt () (string, error) {
     jwt:Payload payload = {};
     payload.sub = "John";
     payload.iss = "wso2";
+    payload.jti = "100078234ba23";
     payload.aud = ["ballerina", "ballerinaSamples"];
     payload.exp = time:currentTime().time + 600000;
 

@@ -2,6 +2,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageSourceEntry;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -11,7 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.stream.Stream;
 
 /**
- * Provide functions need to covert a patten to steam of paths.
+ * Provide functions need to covert a patten to steam of sources.
  */
 public class PathConverter implements Converter<Path> {
 
@@ -46,7 +47,7 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> expandBal(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.find(path, 1, PathConverter::isBal);
+                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
             } catch (IOException ignore) {
             }
         }
@@ -59,8 +60,12 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> finalize(Path path, PackageID packageID) {
-        return Stream.of(path);
+    public Stream<PackageSourceEntry> finalize(Path path, PackageID id) {
+        if (Files.isRegularFile(path)) {
+            return Stream.of(new FileSystemSourceEntry(path, id));
+        } else {
+            return Stream.of();
+        }
     }
 
     @Override

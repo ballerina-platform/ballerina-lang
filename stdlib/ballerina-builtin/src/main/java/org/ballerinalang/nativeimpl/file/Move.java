@@ -19,10 +19,9 @@ package org.ballerinalang.nativeimpl.file;
 
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -33,7 +32,7 @@ import java.io.File;
  * Moves a file from a given location to another.
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "move",
         args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file"),
@@ -41,13 +40,13 @@ import java.io.File;
                         structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Move extends AbstractNativeFunction {
+public class Move extends BlockingNativeCallableUnit {
 
     @Override 
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
 
-        BStruct source = (BStruct) getRefArgument(context, 0);
-        BStruct destination = (BStruct) getRefArgument(context, 1);
+        BStruct source = (BStruct) context.getRefArgument(0);
+        BStruct destination = (BStruct) context.getRefArgument(1);
 
         File sourceFile = new File(source.getStringField(0));
         if (!sourceFile.exists()) {
@@ -61,6 +60,6 @@ public class Move extends AbstractNativeFunction {
         if (!sourceFile.renameTo(destinationFile)) {
             throw new BallerinaException("failed to move file: " + sourceFile.getPath());
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

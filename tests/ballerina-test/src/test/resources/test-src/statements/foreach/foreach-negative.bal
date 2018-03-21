@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 function test1(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach i, s, f in data {
@@ -52,7 +52,7 @@ function test6(){
 }
 
 function test7(){
-    foreach i in "a".."z" {
+    foreach i in [ "a".."z" ] {
         io:println(i);
     }
 }

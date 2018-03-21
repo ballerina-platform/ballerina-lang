@@ -1,6 +1,6 @@
 package servicechaining.samples;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/branchlocator"}
 service<http> Banklocator {
@@ -8,9 +8,9 @@ service<http> Banklocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection conn, http:InRequest req) {
+    resource product (http:Connection conn, http:Request req) {
         var jsonRequest, payloadError = req.getJsonPayload();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             string zipCode;
             zipCode, _ = (string)jsonRequest.BranchLocator.ZipCode;

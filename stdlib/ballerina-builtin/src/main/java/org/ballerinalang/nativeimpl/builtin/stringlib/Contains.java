@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,22 +32,22 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.contains",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "subString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Contains extends AbstractNativeFunction {
+public class Contains extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String param1 = getStringArgument(context, 0);
-        String subString = getStringArgument(context, 1);
+    public void execute(Context context) {
+        String param1 = context.getStringArgument(0);
+        String subString = context.getStringArgument(1);
 
         BBoolean isContains = new BBoolean(param1.contains(subString));
-        return getBValues(isContains);
+        context.setReturnValues(isContains);
 
     }
 }

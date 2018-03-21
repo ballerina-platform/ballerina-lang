@@ -26,10 +26,7 @@ import java.util.List;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_actionDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttachment;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttributeList;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttributeValue;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationBody;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_callableUnitBody;
@@ -38,11 +35,8 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchC
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_codeBlockBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorDefinition;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseIfClause;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_endpointBody;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_endpointDeclaration;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumFieldList;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expression;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expressionList;
@@ -66,13 +60,11 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parame
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameterTypeNameList;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_privateStructBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordKeyValue;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_resourceDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_returnParameters;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_simpleExpression;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_sourceNotation;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_statement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structDefinition;
@@ -182,10 +174,6 @@ public class BallerinaTypes {
     public static final RuleIElementType NAME_REFERENCE = ruleIElementTypes.get(RULE_nameReference);
     public static final RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(RULE_variableReference);
     public static final RuleIElementType FUNCTION_REFERENCE = ruleIElementTypes.get(RULE_functionReference);
-    public static final RuleIElementType CONNECTOR_REFERENCE = ruleIElementTypes.get(RULE_connectorReference);
-    public static final RuleIElementType ANNOTATION_REFERENCE = ruleIElementTypes.get(RULE_annotationReference);
-    public static final RuleIElementType ENDPOINT_DECLARATION = ruleIElementTypes.get(RULE_endpointDeclaration);
-    public static final RuleIElementType ENDPOINT_BODY = ruleIElementTypes.get(RULE_endpointBody);
     public static final RuleIElementType TRANSFORMER_INVOCATION = ruleIElementTypes.get(RULE_transformerInvocation);
 
     public static final RuleIElementType INDEX = ruleIElementTypes.get(RULE_index);
@@ -195,11 +183,6 @@ public class BallerinaTypes {
     public static final RuleIElementType PARAMETER_LIST = ruleIElementTypes.get(RULE_parameterList);
     public static final RuleIElementType ANNOTATION_ATTACHMENT = ruleIElementTypes.get(RULE_annotationAttachment);
     public static final RuleIElementType ATTACHMENT_POINT = ruleIElementTypes.get(RULE_attachmentPoint);
-    public static final RuleIElementType ANNOTATION_ATTRIBUTE_LIST =
-            ruleIElementTypes.get(RULE_annotationAttributeList);
-    public static final RuleIElementType ANNOTATION_ATTRIBUTE_VALUE =
-            ruleIElementTypes.get(RULE_annotationAttributeValue);
-    public static final RuleIElementType RECORD_LITERAL = ruleIElementTypes.get(RULE_recordLiteral);
     public static final RuleIElementType RECORD_KEY_VALUE = ruleIElementTypes.get(RULE_recordKeyValue);
 
     public static final RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(RULE_expressionList);
@@ -210,7 +193,6 @@ public class BallerinaTypes {
     public static final RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(RULE_returnParameters);
     public static final RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(RULE_valueTypeName);
     public static final RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(RULE_xmlNamespaceName);
-    public static final RuleIElementType SOURCE_NOTATION = ruleIElementTypes.get(RULE_sourceNotation);
     public static final RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(RULE_packageName);
     public static final RuleIElementType INVOCATION = ruleIElementTypes.get(RULE_invocation);
     public static final RuleIElementType ANY_IDENTIFIER_NAME = ruleIElementTypes.get(RULE_anyIdentifierName);
@@ -256,6 +238,7 @@ public class BallerinaTypes {
     public static final TokenIElementType LOCK = tokenIElementTypes.get(BallerinaLexer.LOCK);
     public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
+    public static final TokenIElementType NEW = tokenIElementTypes.get(BallerinaLexer.NEW);
     public static final TokenIElementType ON = tokenIElementTypes.get(BallerinaLexer.ON);
     public static final TokenIElementType ORDER = tokenIElementTypes.get(BallerinaLexer.ORDER);
     public static final TokenIElementType QUERY = tokenIElementTypes.get(BallerinaLexer.QUERY);

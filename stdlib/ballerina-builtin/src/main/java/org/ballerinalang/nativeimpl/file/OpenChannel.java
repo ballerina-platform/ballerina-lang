@@ -48,7 +48,7 @@ import java.util.Set;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "openChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         args = {@Argument(name = "accessMode", type = TypeKind.STRING)},
@@ -93,8 +93,8 @@ public class OpenChannel extends AbstractNativeChannel {
      */
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
-        BStruct fileStruct = (BStruct) getRefArgument(context, FILE_CHANNEL_INDEX);
-        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
+        BStruct fileStruct = (BStruct) context.getRefArgument(FILE_CHANNEL_INDEX);
+        String accessMode = context.getStringArgument(FILE_ACCESS_MODE_INDEX);
         Path path = null;
         Channel channel;
         try {

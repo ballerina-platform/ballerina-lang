@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import { MENUS as WORKSPACE_MENU } from 'core/workspace/constants';
+import { MENUS as TOOLS_MENUS } from './../tools/constants';
 import { MENU_DEF_TYPES } from 'core/menu/constants';
 import { MENUS, COMMANDS, LABELS } from './constants';
 
@@ -30,7 +30,7 @@ export function getMenuDefinitions(plugin) {
     return [
         {
             id: MENUS.EXPORT_DIAGRAM_MENU,
-            parent: WORKSPACE_MENU.FILE_MENU,
+            parent: TOOLS_MENUS.TOOLS_MENU,
             label: LABELS.EXPORT_DIAGRAM_MENU_TITLE,
             isActive: () => {
                 const { editor } = plugin.appContext;
@@ -38,6 +38,7 @@ export function getMenuDefinitions(plugin) {
                 return activeTab && activeTab.file;
             },
             icon: 'export',
+            order: 3,
             command: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
         },

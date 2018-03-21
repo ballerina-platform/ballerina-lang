@@ -16,7 +16,7 @@ function foo() returns (string) {
   }
 }
 
-function testIfStmtWithIncompatibleType1() (boolean) {
+function testIfStmtWithIncompatibleType1() returns boolean {
     if (false) {
         return false;
     } else if ("foo") {

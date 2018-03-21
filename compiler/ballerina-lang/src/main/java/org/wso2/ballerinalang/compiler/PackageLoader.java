@@ -24,14 +24,11 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
-import org.wso2.ballerinalang.compiler.packaging.PathListPackageSource;
+import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
@@ -44,9 +41,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.util.HomeRepoUtils;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -107,25 +102,22 @@ public class PackageLoader {
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
-        Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
+        Path balHomeDir = Paths.get("~/.ballerina_home");
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
 
-        Repo remote = new RemoteRepo(URI.create("https://staging.central.ballerina.io:9090/"));
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
         Repo homeRepo = new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
         Repo projectRepo = new ZipRepo(projectHiddenDir); //new ObjRepo(projectHiddenDir);
-        Repo projectSource = new ProjectSourceRepo(sourceRoot);
-        Repo programingSource = new ProgramingSourceRepo(sourceRoot);
+        Repo currentDirRepo = sourceDirectory.getPackageRepository();
 
-        RepoHierarchyBuilder.RepoNode homeCacheNode = node(homeCacheRepo,
-                                                           node(remote, systemArr));
-        return RepoHierarchyBuilder.build(node(programingSource,
-                                               node(projectSource,
-                                                    node(projectRepo,
-                                                         node(projectCacheRepo, homeCacheNode),
-                                                         node(homeRepo, homeCacheNode)))));
+        RepoHierarchyBuilder.RepoNode homeCacheNode;
+        homeCacheNode = node(homeCacheRepo, systemArr);
+        return RepoHierarchyBuilder.build(node(currentDirRepo,
+                                               node(projectRepo,
+                                                    node(projectCacheRepo, homeCacheNode),
+                                                    node(homeRepo, homeCacheNode))));
     }
 
     private RepoHierarchyBuilder.RepoNode[] loadSystemRepos() {
@@ -145,12 +137,12 @@ public class PackageLoader {
         if (resolution == Resolution.NOT_FOUND) {
             return null;
         }
-        return new PathListPackageSource(pkgId, resolution.paths, resolution.resolvedBy);
+        return new GenericPackageSource(pkgId, resolution.sources, resolution.resolvedBy);
     }
 
     public BLangPackage loadPackage(PackageID pkgId) {
         BLangPackage packageNode = loadPackage(pkgId, null);
-        addImportPkg(packageNode, Names.RUNTIME_PACKAGE.value);
+        addImportPkg(packageNode, Names.BUILTIN_ORG.value, Names.RUNTIME_PACKAGE.value, Names.EMPTY.value);
         return packageNode;
     }
 
@@ -167,9 +159,9 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadAndDefinePackage(String sourcePkg) {
+    public BLangPackage loadAndDefinePackage(String orgName, String pkgName) {
         // TODO This is used only to load the builtin package.
-        PackageID pkgId = getPackageID(sourcePkg);
+        PackageID pkgId = getPackageID(orgName, pkgName);
         return loadAndDefinePackage(pkgId);
     }
 
@@ -207,7 +199,7 @@ public class PackageLoader {
 
     // Private methods
 
-    private void addImportPkg(BLangPackage bLangPackage, String sourcePkgName) {
+    private void addImportPkg(BLangPackage bLangPackage, String orgName, String sourcePkgName, String version) {
         List<Name> nameComps = getPackageNameComps(sourcePkgName);
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         nameComps.forEach(comp -> {
@@ -217,9 +209,9 @@ public class PackageLoader {
         });
 
         BLangIdentifier orgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        orgNameNode.setValue(Names.ANON_ORG.value);
+        orgNameNode.setValue(orgName);
         BLangIdentifier versionNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        versionNode.setValue(Names.DEFAULT_VERSION.value);
+        versionNode.setValue(version);
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = bLangPackage.pos;
         importDcl.pkgNameComps = pkgNameComps;
@@ -231,10 +223,11 @@ public class PackageLoader {
         bLangPackage.imports.add(importDcl);
     }
 
-    private PackageID getPackageID(String sourcePkg) {
+    private PackageID getPackageID(String org, String sourcePkg) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
-        return new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
+        Name orgName = new Name(org);
+        return new PackageID(orgName, pkgNameComps, Names.DEFAULT_VERSION);
     }
 
     private List<Name> getPackageNameComps(String sourcePkg) {

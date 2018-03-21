@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,6 +29,14 @@ import java.util.List;
  * @since 0.94
  */
 public class CorsHeaders {
+
+    private static final String ALLOW_CREDENTIALS_FIELD = "allowCredentials";
+    private static final String ALLOW_HEADERS_FIELD = "allowHeaders";
+    private static final String ALLOW_METHODS_FIELD = "allowMethods";
+    private static final String ALLOWS_ORIGINS_FIELD = "allowOrigins";
+    private static final String EXPOSE_HEADERS_FIELD = "exposeHeaders";
+    private static final String MAX_AGE_FIELD = "maxAge";
+
     private boolean available;
     private List<String> allowOrigins;
     private int allowCredentials; //Not found = -1, false = 0, true = 1
@@ -59,7 +71,7 @@ public class CorsHeaders {
     }
 
     public void setAllowCredentials(int allowCredentials) {
-        if (allowCredentials >= 0) {
+        if (allowCredentials > 0) {
             available = true;
         }
         this.allowCredentials = allowCredentials;
@@ -107,5 +119,33 @@ public class CorsHeaders {
             available = true;
         }
         this.exposeHeaders = exposeHeaders;
+    }
+
+    public static CorsHeaders buildCorsHeaders(Struct corsConfig) {
+        CorsHeaders corsHeaders = new CorsHeaders();
+
+        if (corsConfig == null) {
+            return corsHeaders;
+        }
+
+        corsHeaders.setAllowHeaders(getAsStringList(corsConfig.getArrayField(ALLOW_HEADERS_FIELD)));
+        corsHeaders.setAllowMethods(getAsStringList(corsConfig.getArrayField(ALLOW_METHODS_FIELD)));
+        corsHeaders.setAllowOrigins(getAsStringList(corsConfig.getArrayField(ALLOWS_ORIGINS_FIELD)));
+        corsHeaders.setExposeHeaders(getAsStringList(corsConfig.getArrayField(EXPOSE_HEADERS_FIELD)));
+        corsHeaders.setAllowCredentials(corsConfig.getBooleanField(ALLOW_CREDENTIALS_FIELD) ? 1 : 0);
+        corsHeaders.setMaxAge(corsConfig.getIntField(MAX_AGE_FIELD));
+
+        return corsHeaders;
+    }
+
+    private static List<String> getAsStringList(Value[] values) {
+        if (values == null) {
+            return null;
+        }
+        List<String> valuesList = new ArrayList<>();
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim());
+        }
+        return !valuesList.isEmpty() ? valuesList : null;
     }
 }

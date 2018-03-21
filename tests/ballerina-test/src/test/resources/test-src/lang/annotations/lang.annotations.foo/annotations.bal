@@ -1,7 +1,7 @@
 package lang.annotations.foo;
 
 import lang.annotations.doc1 as doc;
-import ballerina.net.http;
+import ballerina/net.http;
 
 @doc:Description{value:"Constant holding the name of the current ballerina program"}
 const string programName = "TestAnnotations";
@@ -42,8 +42,8 @@ service<http> PizzaService {
 connector TestConnector (string url) {
     
     @doc:Description{value:"Test action of test connector"}
-    action testAction() (http:OutResponse) {
-        http:OutResponse m = {};
+    action testAction() (http:Response) {
+        http:Response m = {};
         return m;
     }
 }

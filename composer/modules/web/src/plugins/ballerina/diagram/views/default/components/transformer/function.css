@@ -54,3 +54,7 @@
     z-index: 0 !important;
     font-size: 12px;
 }
+
+.nested-transformer-header {
+    padding: 5px;    
+}

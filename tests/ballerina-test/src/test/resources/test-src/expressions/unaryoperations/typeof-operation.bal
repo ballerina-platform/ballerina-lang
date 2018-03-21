@@ -1,5 +1,5 @@
-import ballerina.io;
-function refTypeAccessTestTrivialEqualityPositiveCase() (int) {
+import ballerina/io;
+function refTypeAccessTestTrivialEqualityPositiveCase() returns (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
     if ((typeof temp_int) == (typeof temp_int_1)) {
@@ -9,11 +9,11 @@ function refTypeAccessTestTrivialEqualityPositiveCase() (int) {
     }
 }
 
-function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
+function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() returns (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
-    type temp_int_type = (typeof temp_int);
-    type temp_int_1_type = (typeof temp_int_1);
+    typedesc temp_int_type = (typeof temp_int);
+    typedesc temp_int_1_type = (typeof temp_int_1);
 
     if (temp_int_type == temp_int_1_type) {
         return 1;
@@ -22,7 +22,7 @@ function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
     }
 }
 
-function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (int) {
+function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() returns (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
     var temp_int_type = (typeof temp_int);
@@ -35,7 +35,7 @@ function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (
     }
 }
 
-function refTypeAccessTestTrivialEqualityNegativeCase() (int) {
+function refTypeAccessTestTrivialEqualityNegativeCase() returns (int) {
     int temp_int = 2;
     string temp_str = "dummy";
     if ((typeof temp_int) == (typeof temp_str)) {
@@ -45,7 +45,7 @@ function refTypeAccessTestTrivialEqualityNegativeCase() (int) {
     }
 }
 
-function refTypeAccessTestTrivialNotEqualityCase() (int) {
+function refTypeAccessTestTrivialNotEqualityCase() returns (int) {
     int temp_int = 2;
     string temp_str = "dummy";
     if ((typeof temp_int) != (typeof temp_str)) {
@@ -55,7 +55,7 @@ function refTypeAccessTestTrivialNotEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestAnyTypeNegativeCase() (int) {
+function refTypeAccessTestAnyTypeNegativeCase() returns (int) {
     any temp_int = 2;
     string temp_str = "dummy";
     if ((typeof temp_int) == (typeof temp_str)) {
@@ -65,7 +65,7 @@ function refTypeAccessTestAnyTypeNegativeCase() (int) {
     }
 }
 
-function refTypeAccessTestAnyTypePositiveCase() (int) {
+function refTypeAccessTestAnyTypePositiveCase() returns (int) {
     any any_type_var = "dummy";
     string temp_str = "dummy";
     if ((typeof any_type_var) == (typeof temp_str)) {
@@ -75,7 +75,7 @@ function refTypeAccessTestAnyTypePositiveCase() (int) {
     }
 }
 
-function refTypeAccessTestMapAccessCase() (int) {
+function refTypeAccessTestMapAccessCase() returns (int) {
     map int_map = {};
     int_map["index"] = 2;
     map string_map = {};
@@ -87,7 +87,7 @@ function refTypeAccessTestMapAccessCase() (int) {
     }
 }
 
-function refTypeAccessTestArrayAccessCase() (int) {
+function refTypeAccessTestArrayAccessCase() returns (int) {
     int[] int_array = [];
     int_array[0] = 2;
     string[] string_array = [];
@@ -99,7 +99,7 @@ function refTypeAccessTestArrayAccessCase() (int) {
     }
 }
 
-function refTypeAccessTestArrayEqualityCase() (int) {
+function refTypeAccessTestArrayEqualityCase() returns (int) {
     int[] int_array = [];
     int_array[0] = 2;
     string[] string_array = [];
@@ -111,7 +111,7 @@ function refTypeAccessTestArrayEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestArrayEqualityPositiveCase() (int) {
+function refTypeAccessTestArrayEqualityPositiveCase() returns (int) {
     int[] int_array = [];
     int_array[0] = 2;
     int[] int_array_2 = [];
@@ -123,7 +123,7 @@ function refTypeAccessTestArrayEqualityPositiveCase() (int) {
     }
 }
 
-function refTypeAccessTestStructAccessCase() (int) {
+function refTypeAccessTestStructAccessCase() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
 
@@ -134,7 +134,7 @@ function refTypeAccessTestStructAccessCase() (int) {
     }
 }
 
-function refTypeAccessTestStructTypeEqualityCase() (int) {
+function refTypeAccessTestStructTypeEqualityCase() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     Person neal;
@@ -147,7 +147,7 @@ function refTypeAccessTestStructTypeEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestStructTypeNotEqualityCase() (int) {
+function refTypeAccessTestStructTypeNotEqualityCase() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     Person neal;
@@ -160,7 +160,7 @@ function refTypeAccessTestStructTypeNotEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestStructTypeNegativeEqualityCase() (int) {
+function refTypeAccessTestStructTypeNegativeEqualityCase() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     Animal dog;
@@ -173,7 +173,7 @@ function refTypeAccessTestStructTypeNegativeEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestStructTypeNegativeNotEqualityCase() (int) {
+function refTypeAccessTestStructTypeNegativeNotEqualityCase() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     Animal dog;
@@ -186,7 +186,7 @@ function refTypeAccessTestStructTypeNegativeNotEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestStructFieldTypeEqualityCase() (int) {
+function refTypeAccessTestStructFieldTypeEqualityCase() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     Animal dog;
@@ -199,7 +199,7 @@ function refTypeAccessTestStructFieldTypeEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestStructFieldTypeNotEqualityCase() (int) {
+function refTypeAccessTestStructFieldTypeNotEqualityCase() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     Animal dog;
@@ -212,7 +212,7 @@ function refTypeAccessTestStructFieldTypeNotEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestJSONEqualityCase() (int) {
+function refTypeAccessTestJSONEqualityCase() returns (int) {
     json json_object = {"dummy":"dummy"};
     json json_array = [1,2,3];
     if ((typeof json_object) == (typeof json_array)) {
@@ -222,7 +222,7 @@ function refTypeAccessTestJSONEqualityCase() (int) {
     }
 }
 
-function refTypeAccessTestTypeAsReturnValue() (int) {
+function refTypeAccessTestTypeAsReturnValue() returns (int) {
     json json_object = {"dummy":"dummy"};
     json json_array = [1,2,3];
     if ((typeof json_object) == getType(json_array)) {
@@ -232,7 +232,7 @@ function refTypeAccessTestTypeAsReturnValue() (int) {
     }
 }
 
-function getType(any variable)(type){
+function getType(any variable)returns (typedesc){
     return (typeof variable);
 }
 
@@ -247,7 +247,7 @@ struct Animal {
     int age;
 }
 
-function refTypeAccessTestMultiArrayNegativeCase() (int) {
+function refTypeAccessTestMultiArrayNegativeCase() returns (int) {
     json[][][][][][][] jsonMulti = [];
     int[][][][][][][] intMulti = [];
     if ((typeof jsonMulti) == (typeof intMulti)) {
@@ -257,7 +257,7 @@ function refTypeAccessTestMultiArrayNegativeCase() (int) {
     }
 }
 
-function refTypeAccessTestMultiArrayPositiveCase() (int) {
+function refTypeAccessTestMultiArrayPositiveCase() returns (int) {
     json[][][][][][][] jsonMulti = [];
     json[][][][][][][] jsonMulti_2 = [];
     if ((typeof jsonMulti) == (typeof jsonMulti_2)) {
@@ -267,7 +267,7 @@ function refTypeAccessTestMultiArrayPositiveCase() (int) {
     }
 }
 
-function refTypeAccessTestMultiArrayDifferentDimensionCase() (int) {
+function refTypeAccessTestMultiArrayDifferentDimensionCase() returns (int) {
     json[][][][][][][] jsonMulti = [];
     json[][][][][][] jsonMulti_2 = [];
     if ((typeof jsonMulti) == (typeof jsonMulti_2)) {
@@ -277,7 +277,7 @@ function refTypeAccessTestMultiArrayDifferentDimensionCase() (int) {
     }
 }
 
-function refTypeAccessTestMultiArrayDifferentDimensionCaseTwo() (int) {
+function refTypeAccessTestMultiArrayDifferentDimensionCaseTwo() returns (int) {
     json[][][][][][][] jsonMulti = [];
     int[][][][][][] intMulti = [];
     if ((typeof jsonMulti) == (typeof intMulti)) {
@@ -287,7 +287,7 @@ function refTypeAccessTestMultiArrayDifferentDimensionCaseTwo() (int) {
     }
 }
 
-function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
+function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() returns (int) {
     json[][][][][][][] jsonMulti = [];
     int[][][][][][] intMulti = [];
     if ((typeof jsonMulti) != (typeof intMulti)) {
@@ -297,38 +297,38 @@ function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
     }
 }
 
-function typeToAnyImplicitCast() (any, type) {
+function typeToAnyImplicitCast() returns (any, typedesc) {
     int i = 5;
-    type t = (typeof i);
+    typedesc t = (typeof i);
     any typeOfInt = t;
-    return typeOfInt, t;
+    return (typeOfInt, t);
 }
 
-function typeToAnyExplicitCast() (any, type, any) {
+function typeToAnyExplicitCast() returns (any, typedesc, any) {
     int i = 5;
-    type t = (typeof i);
-    return (any)t, t, t;
+    typedesc t = (typeof i);
+    return ((any)t, t, t);
 }
 
-function anyToTypeExplicitCast() (type, any) {
+function anyToTypeExplicitCast() returns (typedesc, any) {
     int i = 5;
     any typeOfInt = (typeof i);
-    var t, _ = (type)typeOfInt;
-    return t, typeOfInt;
+    var t, _ = (typedesc)typeOfInt;
+    return (t, typeOfInt);
 }
 
-function getTypeStringValue()(type){
+function getTypeStringValue() returns (typedesc){
     int value = 4;
     return (typeof value);
 }
 
-function getStructTypeStringValue()(type){
+function getStructTypeStringValue() returns (typedesc){
     Person jack;
     jack = {name:"Jack", age:25};
     return (typeof jack);
 }
 
-function testTypeAccessExprValueType() (int) {
+function testTypeAccessExprValueType() returns (int) {
     int intValue;
     if((typeof intValue) == (typeof int)){
         return 1;
@@ -337,10 +337,10 @@ function testTypeAccessExprValueType() (int) {
     }
 }
 
-function testTypeAccessExprValueTypeNegative() (int) {
+function testTypeAccessExprValueTypeNegative() returns (int) {
     int intValue;
-    type int_t = typeof intValue;
-    type string_t = typeof string;
+    typedesc int_t = typeof intValue;
+    typedesc string_t = typeof string;
     if(int_t == string_t){
        return 1;
     } else {
@@ -348,7 +348,7 @@ function testTypeAccessExprValueTypeNegative() (int) {
     }
 }
 
-function testTypeAccessExprValueTypeArrayNegative() (int) {
+function testTypeAccessExprValueTypeArrayNegative() returns (int) {
     string[] strValue = [];
     if((typeof strValue) == (typeof int[])){
        return 1;
@@ -357,7 +357,7 @@ function testTypeAccessExprValueTypeArrayNegative() (int) {
     }
 }
 
-function testTypeAccessExprValueTypeArray() (int) {
+function testTypeAccessExprValueTypeArray() returns (int) {
     int[] intValue = [];
     if((typeof intValue) == (typeof int[])){
        return 1;
@@ -366,7 +366,7 @@ function testTypeAccessExprValueTypeArray() (int) {
     }
 }
 
-function testTypeAccessExprStructWithValue() (int) {
+function testTypeAccessExprStructWithValue() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     if((typeof jack) == (typeof Person)){
@@ -376,7 +376,7 @@ function testTypeAccessExprStructWithValue() (int) {
     }
 }
 
-function testTypeAccessExprStructWithValueNegative() (int) {
+function testTypeAccessExprStructWithValueNegative() returns (int) {
     Person jack;
     jack = {name:"Jack", age:25};
     if((typeof jack) == (typeof Animal)){
@@ -386,7 +386,7 @@ function testTypeAccessExprStructWithValueNegative() (int) {
     }
 }
 
-function testTypeAccessExprTwoStructTypes() (int) {
+function testTypeAccessExprTwoStructTypes() returns (int) {
     if((typeof Person) == (typeof Animal)){
        return 1;
     } else {
@@ -394,7 +394,7 @@ function testTypeAccessExprTwoStructTypes() (int) {
     }
 }
 
-function testTypeAccessExprSameStructType() (int) {
+function testTypeAccessExprSameStructType() returns (int) {
     if((typeof Person) == (typeof Person)){
        return 1;
     } else {
@@ -402,7 +402,7 @@ function testTypeAccessExprSameStructType() (int) {
     }
 }
 
-function testTypeOfJson() (type, type, type, type, type, type){
+function testTypeOfJson() returns (typedesc, typedesc, typedesc, typedesc, typedesc, typedesc){
     json j1 = {"foo":"bar"}; // object type
     json j2 = [1, "foo", true];
     json j3 = "foo";
@@ -410,10 +410,10 @@ function testTypeOfJson() (type, type, type, type, type, type){
     json j5 = 7.65;
     json j6 = true;
     
-    return typeof j1, typeof j2, typeof j3, typeof j4, typeof j5, typeof j6;
+    return (typeof j1, typeof j2, typeof j3, typeof j4, typeof j5, typeof j6);
 }
 
-function testCheckTypeOfJson() (json, json[], string, int, float, boolean){
+function testCheckTypeOfJson() returns (json, json[], string, int, float, boolean){
     json j1 = {"foo":"bar"}; // object type
     json j2 = [1, "foo", true];
     json j3 = "foo";
@@ -457,12 +457,12 @@ function testCheckTypeOfJson() (json, json[], string, int, float, boolean){
         b, _ = (boolean) j6;
     }
     
-    return j, ja, s, a, f, b;
+    return (j, ja, s, a, f, b);
 }
 
-function testTypeOfStructArray() (type, type, type) {
+function testTypeOfStructArray() returns (typedesc, typedesc, typedesc) {
     Person[] p = [{}, {}];
-    return typeof p, typeof Person[], typeof Person[][];
+    return (typeof p, typeof Person[], typeof Person[][]);
 }
 
 struct Software {
@@ -474,7 +474,7 @@ struct Middleware {
    string name;
 }
 
-function getTypePreserveWhenCast()(int){
+function getTypePreserveWhenCast()returns (int){
    Software s = {name:"WSO2", des:"ESB"};
    Middleware m = (Middleware)s;
    if (typeof s == typeof m){

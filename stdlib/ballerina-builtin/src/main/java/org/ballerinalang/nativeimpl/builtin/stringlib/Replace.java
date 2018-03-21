@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.replace",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "replacePattern", type = TypeKind.STRING),
@@ -41,15 +40,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Replace extends AbstractNativeFunction {
+public class Replace extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String mainString = getStringArgument(context, 0);
-        String replacePattern = getStringArgument(context, 1);
-        String replaceWith = getStringArgument(context, 2);
+    public void execute(Context context) {
+        String mainString = context.getStringArgument(0);
+        String replacePattern = context.getStringArgument(1);
+        String replaceWith = context.getStringArgument(2);
 
         String replacedString = mainString.replace(replacePattern, replaceWith);
-        return getBValues(new BString(replacedString));
+        context.setReturnValues(new BString(replacedString));
     }
 }

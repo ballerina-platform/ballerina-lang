@@ -25,22 +25,22 @@ import org.ballerinalang.util.codegen.ProgramFile;
  *
  * @since 0.94
  */
-public class WorkerContext extends Context {
+public class WorkerContext {
 
     public Context parent;
     StackFrame parentSF;
 
     public WorkerContext(ProgramFile programFile, Context parent) {
-        super(programFile);
-        this.parent = parent;
-        parentSF = parent.getControlStack().currentFrame;
-        this.workerCounter = parent.getWorkerCounter();
-        this.populateContextPropsFromParent();
+//        super(programFile);
+//        this.parent = parent;
+//        parentSF = parent.getControlStack().currentFrame;
+//        this.workerCounter = parent.getWorkerCounter();
+//        this.populateContextPropsFromParent();
     }
     
     private void populateContextPropsFromParent() {
-        this.setConnectorFuture(this.parent.getConnectorFuture());
-        this.setServiceInfo(this.parent.getServiceInfo());
+//        this.setConnectorFuture(this.parent.getConnectorFuture());
+//        this.setServiceInfo(this.parent.getServiceInfo());
     }
 
 }

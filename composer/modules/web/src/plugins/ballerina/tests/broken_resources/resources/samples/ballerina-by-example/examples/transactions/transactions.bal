@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.data.sql;
+import ballerina/lang.system;
+import ballerina/data.sql;
 
 function main (string[] args) {
     map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",

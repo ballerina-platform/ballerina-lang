@@ -46,7 +46,7 @@ public class DocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.")
+    @Test(description = "Test doc annotation.", enabled = false)
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -156,46 +156,47 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test doc negative cases.")
+    @Test(description = "Test doc negative cases.", enabled = true)
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 18);
+        Assert.assertEquals(compileResult.getWarnCount(), 16);
         BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a'", 5, 1);
         BAssertUtil.validateWarning(compileResult, 1,
                 "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
         BAssertUtil.validateWarning(compileResult, 2,
-                "already documented attribute 'foo'", 20, 1);
+                "already documented attribute 'foo'", 22, 1);
         BAssertUtil.validateWarning(compileResult, 3,
-                "no such documentable attribute 'bar' with doc prefix 'F'", 21, 1);
+                "no such documentable attribute 'bar' with doc prefix 'F'", 23, 1);
         BAssertUtil.validateWarning(compileResult, 4,
-                "already documented attribute 'a'", 29, 1);
+                "already documented attribute 'a'", 31, 1);
         BAssertUtil.validateWarning(compileResult, 5,
-                "no such documentable attribute 'c' with doc prefix 'F'", 31, 1);
+                "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
         BAssertUtil.validateWarning(compileResult, 6,
-                "already documented attribute 'file'", 43, 1);
+                "already documented attribute 'file'", 45, 1);
         BAssertUtil.validateWarning(compileResult, 7,
-                "no such documentable attribute 'successfuls' with doc prefix 'R'", 45, 1);
+                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
         BAssertUtil.validateWarning(compileResult, 8,
-                "no such documentable attribute 'pa' with doc prefix 'T'", 60, 2);
+                "no such documentable attribute 'pa' with doc prefix 'T'", 63, 2);
         BAssertUtil.validateWarning(compileResult, 9,
-                "already documented attribute 'e'", 62, 2);
+                "already documented attribute 'e'", 65, 2);
         BAssertUtil.validateWarning(compileResult, 10,
-                "already documented attribute 'url'", 86, 1);
+                "already documented attribute 'url'", 89, 1);
         BAssertUtil.validateWarning(compileResult, 11,
-                "no such documentable attribute 'urls' with doc prefix 'P'", 87, 1);
+                "no such documentable attribute 'urls' with doc prefix 'P'", 90, 1);
+        /*BAssertUtil.validateWarning(compileResult, 12,
+                "already documented attribute 's'", 96, 5);*//*Commented since no longer support named returns*/
+        /*BAssertUtil.validateWarning(compileResult, 13,
+                "no such documentable attribute 'ssss' with doc prefix 'R'", 97, 5);*/
+        /*Commented since no longer support named returns*/
         BAssertUtil.validateWarning(compileResult, 12,
-                "already documented attribute 's'", 92, 5);
+                "no such documentable attribute 'conn' with doc prefix 'P'", 104, 1);
         BAssertUtil.validateWarning(compileResult, 13,
-                "no such documentable attribute 'ssss' with doc prefix 'R'", 93, 5);
+                "already documented attribute 'req'", 110, 5);
         BAssertUtil.validateWarning(compileResult, 14,
-                "no such documentable attribute 'conn' with doc prefix 'P'", 101, 1);
+                "no such documentable attribute 'reqest' with doc prefix 'P'", 111, 5);
         BAssertUtil.validateWarning(compileResult, 15,
-                "already documented attribute 'req'", 108, 5);
-        BAssertUtil.validateWarning(compileResult, 16,
-                "no such documentable attribute 'reqest' with doc prefix 'P'", 109, 5);
-        BAssertUtil.validateWarning(compileResult, 17,
-                "no such documentable attribute 'testConstd' with doc prefix 'V'", 117, 1);
+                "no such documentable attribute 'testConstd' with doc prefix 'V'", 121, 1);
     }
 
     @Test(description = "Test doc transformer.")
@@ -221,7 +222,7 @@ public class DocumentationTest {
                 " address which serves Eg: `POSTCODE 112`\n");
     }
 
-    @Test(description = "Test doc service.")
+    @Test(description = "Test doc service.", enabled = false)
     public void testDocService() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/service.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -253,45 +254,7 @@ public class DocumentationTest {
                 " In request.");
     }
 
-    @Test(description = "Test doc connector.")
-    public void testDocConnector() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/connector.bal");
-        Assert.assertEquals(0, compileResult.getWarnCount());
-        PackageNode packageNode = compileResult.getAST();
-        BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
-        List<BLangDocumentation> docNodes = connector.docAttachments;
-        BLangDocumentation dNode = docNodes.get(0);
-        Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText, "Test Connector\n");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " url for endpoint\n");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " path for endpoint\n");
-
-        dNode = connector.getActions().get(0).docAttachments.get(0);
-        Assert.assertEquals(dNode.getAttributes().size(), 1);
-        Assert.assertEquals(dNode.documentationText,
-                "Test Connector action testAction ");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " which represent successful or not");
-
-        dNode = connector.getActions().get(1).docAttachments.get(0);
-        Assert.assertEquals(dNode.documentationText,
-                "Test Connector action testSend ");
-        Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "ep");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " which represent successful or not ");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " which represent successful or not");
-    }
-
-    @Test(description = "Test doc connector/function.")
+    @Test(description = "Test doc connector/function.", enabled = false)
     public void testDocConnectorFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/connector_function.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -393,7 +356,7 @@ public class DocumentationTest {
                 "    ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```\n");
     }
 
-    @Test(description = "Test doc multiple.")
+    @Test(description = "Test doc multiple.", enabled = false)
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/multiple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -478,7 +441,7 @@ public class DocumentationTest {
                 "usage of deprecated function 'randomNumber'", 10, 12);
     }
 
-    @Test(description = "Test doc deprecated.")
+    @Test(description = "Test doc deprecated.", enabled = false)
     public void testDeprecated() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/deprecated.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
@@ -594,37 +557,6 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "successful");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " boolean `true` or `false`\n");
-
-    }
-
-    @Test(description = "Test doc native connector.")
-    public void testDocNativeConnector() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/native_action.bal",
-                CompilerPhase.TYPE_CHECK);
-        Assert.assertEquals(1, compileResult.getWarnCount());
-        BAssertUtil.validateWarning(compileResult, 0,
-                "no such documentable attribute 's' with doc prefix 'P'", 7, 53);
-        PackageNode packageNode = compileResult.getAST();
-        BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
-        List<BLangDocumentation> docNodes = connector.docAttachments;
-        BLangDocumentation dNode = docNodes.get(0);
-        Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText, "Test Connector\n");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " url for endpoint\n");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " path for endpoint\n");
-
-        dNode = connector.getActions().get(0).docAttachments.get(0);
-        Assert.assertEquals(dNode.getAttributes().size(), 1);
-        Assert.assertEquals(dNode.documentationText,
-                "Test Connector action testAction ");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " which represent successful or not");
 
     }
 

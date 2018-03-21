@@ -37,8 +37,8 @@ public class BallerinaToSwaggerGenerator {
      * @return Swagger definition as a string.
      */
     public static String generateSwagger(ServiceInfo serviceInfo) throws SwaggerGenException {
-        if (null != serviceInfo.getProtocolPkgPath() &&
-                HttpConstants.HTTP_PACKAGE_PATH.equals(serviceInfo.getProtocolPkgPath())) {
+        if (null != serviceInfo.getEndpointName() &&
+                HttpConstants.HTTP_PACKAGE_PATH.equals(serviceInfo.getEndpointName())) {
             if (serviceInfo.getResourceInfoEntries().length > 0) {
                 SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
                 Swagger swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceInfo);

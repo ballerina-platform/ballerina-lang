@@ -16,6 +16,8 @@
  * under the License.
  */
 
+/* eslint-disable react/no-will-update-set-state */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import './DesignViewErrorBoundary.scss';
@@ -27,6 +29,15 @@ class DesignViewErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
         this.state = { hasError: false };
+    }
+    /**
+     * @inheritdoc
+     */
+    componentWillUpdate(nextProps, nextState) {
+        // component has recovered the error and need to set state hasError false.
+        if (this.state.hasError && nextState.hasError) {
+            this.setState({ hasError: false });
+        }
     }
     /**
      * @inheritdoc

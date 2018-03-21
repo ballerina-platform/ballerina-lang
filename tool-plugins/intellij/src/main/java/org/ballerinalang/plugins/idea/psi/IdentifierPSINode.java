@@ -20,7 +20,6 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiNameIdentifierOwner;
-import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -33,11 +32,8 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
-import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueReference;
-import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
-import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
@@ -58,11 +54,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttribute;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
@@ -77,7 +70,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_worker
 /**
  * Represents an Identifier in PSI tree.
  */
-public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement, PsiNameIdentifierOwner {
+public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNameIdentifierOwner {
 
     public IdentifierPSINode(IElementType type, CharSequence text) {
         super(type, text);
@@ -228,14 +221,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new FieldReference(this);
                 case RULE_functionReference:
                     return new FunctionReference(this);
-                case RULE_annotationReference:
-                    return new AnnotationReference(this);
-                case RULE_connectorReference:
-                    return new ConnectorReference(this);
                 case RULE_workerReference:
                     return new WorkerReference(this);
-                case RULE_annotationAttribute:
-                    return new AnnotationAttributeReference(this);
                 case RULE_attachmentPoint:
                     return new AttachmentPointReference(this);
                 case RULE_statement:
