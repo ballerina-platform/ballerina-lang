@@ -20,7 +20,11 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BStruct;
+
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CONNECTOR_ERROR;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
  * {@code DataContext} is the wrapper to hold {@code Context} and {@code CallableUnitCallback}.
@@ -35,7 +39,15 @@ public class DataContext {
     }
 
     public void notifyReply(BStruct response, BStruct httpConnectorError) {
-        context.setReturnValues(response, httpConnectorError);
+        if (response != null) {
+            context.setReturnValues(response);
+        } else if (httpConnectorError != null) {
+            context.setReturnValues(httpConnectorError);
+        } else {
+            BStruct err = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_CONNECTOR_ERROR,
+                                                              "HttpClient failed");
+            context.setReturnValues(err);
+        }
         callback.notifySuccess();
     }
 }
