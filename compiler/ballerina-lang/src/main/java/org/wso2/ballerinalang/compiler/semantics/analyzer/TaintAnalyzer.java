@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -300,7 +301,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamlet streamletNode) {
-        //TODO
+        /* ignore */
     }
 
     public void visit(BLangAction actionNode) {
@@ -315,7 +316,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         structNode.fields.forEach(field -> analyzeNode(field, structEnv));
     }
 
-    //TODO Tests
     public void visit(BLangObject objectNode) {
         BSymbol objectSymbol = objectNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, env);
@@ -458,6 +458,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     public void visit(BLangAssignment assignNode) {
         assignNode.expr.accept(this);
         boolean multiReturnsHandledProperly = taintedStatusList.size() == assignNode.varRefs.size();
+        boolean combinedTaintedStatus = false;
+        if (!multiReturnsHandledProperly) {
+            combinedTaintedStatus = taintedStatusList.stream().filter(status -> status == true).count() > 0;
+        }
         // Propagate tainted status of each variable separately (when multi returns are used).
         for (int varIndex = 0; varIndex < assignNode.varRefs.size(); varIndex++) {
             BLangExpression varRefExpr = assignNode.varRefs.get(varIndex);
@@ -465,7 +469,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             if (multiReturnsHandledProperly) {
                 varTaintedStatus = taintedStatusList.get(varIndex);
             } else {
-                varTaintedStatus = getObservedTaintedStatus();
+                varTaintedStatus = combinedTaintedStatus;
             }
             visitAssignment(varRefExpr, varTaintedStatus, assignNode.pos);
         }
@@ -554,8 +558,15 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         if (returnNode.namedReturnVariables == null) {
             // If named returns are not used, evaluate each expression to identify the tainted status.
             for (BLangExpression expr : returnNode.exprs) {
-                expr.accept(this);
-                returnTaintedStatus.addAll(taintedStatusList);
+                if (expr.type.tag == TypeTags.TUPLE) {
+                    BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
+                    bracedOrTupleExpr.expressions.forEach(tupleExpr -> {
+                        tupleExpr
+                    });
+                } else {
+                    expr.accept(this);
+                    returnTaintedStatus.addAll(taintedStatusList);
+                }
             }
         } else {
             // If named returns are used, report back the tainted status of each variable.
@@ -604,7 +615,9 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         matchStmt.expr.accept(this);
         boolean observedTainedStatus = getObservedTaintedStatus();
         matchStmt.patternClauses.forEach(clause -> {
-            clause.variable.symbol.tainted = observedTainedStatus;
+            if (clause.variable.symbol != null) {
+                clause.variable.symbol.tainted = observedTainedStatus;
+            }
             clause.body.accept(this);
         });
     }
@@ -801,15 +814,28 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         BType varRefType = fieldAccessExpr.expr.type;
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
-                //TODO: Improve to use field level tainted status.
                 fieldAccessExpr.expr.accept(this);
+/*                Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+                BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, this.env,
+                        fieldName, varRefType.tsymbol);
+                setTaintedStatusList(fieldSymbol.tainted);*/
                 break;
             case TypeTags.MAP:
                 fieldAccessExpr.expr.accept(this);
                 break;
             case TypeTags.JSON:
-                //TODO: Improve to use field level tainted status when JSON is backed with Struct.
                 fieldAccessExpr.expr.accept(this);
+/*
+                BType constraintType = ((BJSONType) varRefType).constraint;
+                if (constraintType.tag == TypeTags.STRUCT) {
+                    fieldName = names.fromIdNode(fieldAccessExpr.field);
+                    BSymbol jsonFieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, this.env,
+                            fieldName, varRefType.tsymbol);
+                    setTaintedStatusList(jsonFieldSymbol.tainted);
+                } else {
+                    fieldAccessExpr.expr.accept(this);
+                }
+*/
                 break;
             case TypeTags.ENUM:
                 setTaintedStatusList(false);
@@ -1566,7 +1592,8 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
                     for (BlockingNode blockingNode : remainingBlockedNodeMap.keySet()) {
                         List<BlockedNode> blockedNodeList = remainingBlockedNodeMap.get(blockingNode);
                         for (BlockedNode blockedNode : blockedNodeList) {
-                            this.dlog.error(blockedNode.blockedPos,
+                            // TODO: Change this to an error once return parameters are annotatable
+                            this.dlog.warning(blockedNode.blockedPos,
                                     DiagnosticCode.UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION,
                                     blockedNode.invokableNode.name.value, blockingNode.name.value);
                         }
