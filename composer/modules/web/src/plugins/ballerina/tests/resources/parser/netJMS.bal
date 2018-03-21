@@ -1,4 +1,4 @@
-import ballerina.net.jms;
+import ballerina/net.jms;
 
 function testAcknowledge(message msg, string s){
     jms:acknowledge(msg, s);

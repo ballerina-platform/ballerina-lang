@@ -37,7 +37,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.websub",
+        orgName = "ballerina", packageName = "net.websub",
         functionName = "retrieveSecret",
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         returnType = {@ReturnType(type = TypeKind.STRING)}

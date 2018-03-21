@@ -1,4 +1,4 @@
-import ballerina.utils.logger;
+import ballerina/utils.logger;
 
 function testError (string msg) {
     logger:error(msg);

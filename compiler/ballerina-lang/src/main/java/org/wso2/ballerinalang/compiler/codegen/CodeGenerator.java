@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -156,6 +155,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.ActionInfo;
 import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ConnectorInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.EnumInfo;
@@ -163,6 +164,7 @@ import org.wso2.ballerinalang.programfile.EnumeratorInfo;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
+import org.wso2.ballerinalang.programfile.ImportPackageInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
@@ -172,7 +174,6 @@ import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
 import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
-import org.wso2.ballerinalang.programfile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StreamletInfo;
@@ -267,7 +268,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     // TODO Remove this dependency from the code generator
     private SymbolTable symTable;
 
+    private boolean buildCompiledPackage;
     private ProgramFile programFile;
+    private PackageFile packageFile;
 
     private PackageInfo currentPkgInfo;
     private PackageID currentPkgID;
@@ -308,7 +311,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
     }
 
-    public ProgramFile generate(BLangPackage pkgNode) {
+    public ProgramFile generateBALX(BLangPackage pkgNode) {
         programFile = new ProgramFile();
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
         genPackage(this.symTable.builtInPackageSymbol);
@@ -328,6 +331,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVarCountAttrInfo(programFile, programFile, pvIndexes);
 
         return programFile;
+    }
+
+    public PackageFile generateBALO(BLangPackage pkgNode) {
+        this.buildCompiledPackage = true;
+        this.packageFile = new PackageFile();
+        genPackage(pkgNode.symbol);
+
+        // Add global variable indexes to the ProgramFile
+        prepareIndexes(pvIndexes);
+
+        // Create Global variable attribute info
+        addVarCountAttrInfo(this.packageFile, this.packageFile, pvIndexes);
+        return this.packageFile;
     }
 
     private static void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
@@ -363,23 +379,40 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
+            if (!buildCompiledPackage) {
+                programFile.packageInfoMap.put(pkgNode.symbol.pkgID.bvmAlias(), pkgNode.symbol.packageInfo);
+            }
             return;
         }
-        // first visit all the imports
-        pkgNode.imports.forEach(impPkgNode -> genNode(impPkgNode, this.env));
+
+        // TODO Improve this design without if/else
+        PackageInfo packageInfo = new PackageInfo();
+        pkgNode.symbol.packageInfo = packageInfo;
+        if (buildCompiledPackage) {
+            // Generating the BALO
+            pkgNode.imports.forEach(impPkgNode -> {
+                int impPkgNameCPIndex = addUTF8CPEntry(packageInfo, impPkgNode.symbol.name.value);
+                // TODO Improve the import package version once it is available
+                int impPkgVersionCPIndex = addUTF8CPEntry(packageInfo, PackageID.DEFAULT.version.value);
+                ImportPackageInfo importPkgInfo = new ImportPackageInfo(impPkgNameCPIndex, impPkgVersionCPIndex);
+                packageInfo.importPkgInfoSet.add(importPkgInfo);
+                packageFile.packageInfo = packageInfo;
+            });
+        } else {
+            // Generating a BALX
+            // first visit all the imports
+            pkgNode.imports.forEach(impPkgNode -> genNode(impPkgNode, this.env));
+            // TODO We need to create identifier for both name and the version
+            programFile.packageInfoMap.put(pkgNode.symbol.pkgID.bvmAlias(), packageInfo);
+        }
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
-        int pkgNameCPIndex = addUTF8CPEntry(programFile, currentPkgID.name.value);
-        int pkgVersionCPIndex = addUTF8CPEntry(programFile, currentPkgID.version.value);
-        currentPkgInfo = new PackageInfo(pkgNameCPIndex, pkgVersionCPIndex);
-
-        // TODO We need to create identifier for both name and the version
-        programFile.packageInfoMap.put(currentPkgID.name.value, currentPkgInfo);
-
-        // Insert the package reference to the constant pool of the Ballerina program
-        addPackageRefCPEntry(programFile, currentPkgID);
+        currentPkgInfo = packageInfo;
+        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                    currentPkgID.bvmAlias());
+        currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
 
         // Insert the package reference to the constant pool of the current package
         currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
@@ -410,12 +443,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode.stopFunction);
 
-        for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
-            if (pkgLevelNode.getKind() == NodeKind.VARIABLE || pkgLevelNode.getKind() == NodeKind.XMLNS) {
-                continue;
-            }
-            genNode((BLangNode) pkgLevelNode, this.env);
-        }
+        pkgNode.topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
+                        pkgLevelNode.getKind() != NodeKind.XMLNS)
+                .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
@@ -1120,14 +1151,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
         Operand initFuncRefCPIndex = getOperand(currentPkgInfo.addCPEntry(funcRefCPEntry));
-        Operand[] operands = new Operand[] { initFuncRefCPIndex, getOperand(false), getOperand(1), 
+        Operand[] operands = new Operand[] { initFuncRefCPIndex, getOperand(false), getOperand(1),
                 connectorRegIndex, getOperand(0) };
         emit(InstructionCodes.CALL, operands);
 
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         Operand actionRefCPIndex = getOperand(currentPkgInfo.addCPEntry(actionRefCPEntry));
-        operands = new Operand[] { actionRefCPIndex, getOperand(false), getOperand(1), connectorRegIndex, 
+        operands = new Operand[] { actionRefCPIndex, getOperand(false), getOperand(1), connectorRegIndex,
                 getOperand(0) };
         emit(InstructionCodes.ACALL, operands);
     }
@@ -1258,7 +1289,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.genNode(ternaryExpr.elseExpr, this.env);
         endJumpAddr.value = nextIP();
     }
-    
+
     public void visit(BLangAwaitExpr awaitExpr) {
         Operand valueRegIndex;
         if (awaitExpr.type != null) {
@@ -1399,7 +1430,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Operand getOperand(int value) {
         return new Operand(value);
     }
-    
+
     private Operand getOperand(boolean value) {
         return new Operand(value ? 1 : 0);
     }
@@ -1737,7 +1768,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return currentIndex;
         }
 
-        PackageInfo pkgInfo = programFile.getPackageInfo(iExpr.symbol.pkgID.name.value);
+        PackageInfo pkgInfo = programFile.packageInfoMap.get(iExpr.symbol.pkgID.bvmAlias());
 
         CallableUnitInfo callableUnitInfo;
         if (iExpr.symbol.kind == SymbolKind.FUNCTION) {
@@ -2110,6 +2141,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Create service info
         if (serviceNode.endpointType != null) {
             String endPointQName = serviceNode.endpointType.tsymbol.toString();
+            //TODO: bvmAlias needed?
             int epNameCPIndex = addUTF8CPEntry(currentPkgInfo, endPointQName);
             ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
                     serviceNode.symbol.flags, epNameCPIndex);
@@ -2233,7 +2265,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int addPackageRefCPEntry(ConstantPool pool, PackageID pkgID) {
-        int nameCPIndex = addUTF8CPEntry(pool, pkgID.name.value);
+        int nameCPIndex = addUTF8CPEntry(pool, pkgID.bvmAlias());
         int versionCPIndex = addUTF8CPEntry(pool, pkgID.version.value);
         PackageRefCPEntry packageRefCPEntry = new PackageRefCPEntry(nameCPIndex, versionCPIndex);
         return pool.addCPEntry(packageRefCPEntry);
@@ -3111,8 +3143,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
-            StructInfo errorStructInfo = this.programFile.getPackageInfo(packageSymbol.name.value)
-                    .getStructInfo(structSymbol.name.value);
+            StructInfo errorStructInfo = this.programFile.packageInfoMap.get(packageSymbol.pkgID.bvmAlias())
+                                                                        .getStructInfo(structSymbol.name.value);
             ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
             errorTableEntry.setError(errorStructInfo);
             errorTable.addErrorTableEntry(errorTableEntry);

@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.net.http.swagger;
+import ballerina/net.http;
+import ballerina/net.http.swagger;
 @swagger:ServiceInfo {
     title:"Service4",
     license:

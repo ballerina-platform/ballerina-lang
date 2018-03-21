@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function main (string[] args) {
     //Here you create integer array with with several integer elements.

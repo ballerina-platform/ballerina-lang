@@ -1,6 +1,6 @@
 package ballerina.lang.files;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Closes a given file and its stream"}
 @doc:Param { value:"file: The file to be closed" }

@@ -480,7 +480,7 @@ public class BLangPackageBuilder {
 
         addType(constrainedType);
     }
-    
+
     public void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
         Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
 
@@ -1061,7 +1061,7 @@ public class BLangPackageBuilder {
         }
         addExpressionNode(ternaryExpr);
     }
-    
+
     public void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangAwaitExpr awaitExpr = (BLangAwaitExpr) TreeBuilder.createAwaitExpressionNode();
         awaitExpr.pos = pos;
@@ -1897,7 +1897,8 @@ public class BLangPackageBuilder {
 
             compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
             List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.ANON_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value,
+                                        nameComps, Names.DEFAULT_VERSION.value,
                     Names.DOT.value + nameComps.get(nameComps.size() - 1));
         }
     }

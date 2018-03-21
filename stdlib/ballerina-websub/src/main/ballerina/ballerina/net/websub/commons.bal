@@ -1,9 +1,9 @@
 package ballerina.net.websub;
 
-import ballerina.log;
-import ballerina.mime;
-import ballerina.net.http;
-import ballerina.security.crypto;
+import ballerina/log;
+import ballerina/mime;
+import ballerina/net.http;
+import ballerina/security.crypto;
 
 public const string HUB_CHALLENGE = "hub.challenge";
 public const string HUB_MODE = "hub.mode";

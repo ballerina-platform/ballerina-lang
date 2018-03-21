@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"Global variable declaration."}
 int total = 98;

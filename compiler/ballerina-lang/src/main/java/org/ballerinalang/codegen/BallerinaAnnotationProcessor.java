@@ -123,6 +123,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private NativeElementCodeDef functionToDef(BallerinaFunction func, Element element) {
         NativeFunctionCodeDef def = new NativeFunctionCodeDef();
+        def.org = func.orgName();
         def.pkg = func.packageName();
         if (func.receiver().type() == TypeKind.STRUCT) {
             def.name = func.receiver().structType() + "." + func.functionName();
@@ -137,6 +138,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private NativeElementCodeDef actionToDef(BallerinaAction action, Element element) {
         NativeActionCodeDef def = new NativeActionCodeDef();
+        def.org = action.orgName();
         def.pkg = action.packageName();
         def.connectorName = action.connectorName();
         def.name = action.actionName();
@@ -219,7 +221,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * @since 0.94
      */
     private class NativeFunctionCodeDef implements NativeElementCodeDef {
-        
+
+        public String org;
+
         public String pkg;
         
         public String name;
@@ -239,9 +243,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         }
         
         public String code() {
-            return "registerNativeFunction(new NativeFunctionDef(\"" + this.pkg + "\", \"" + this.name + "\", "
-                    + this.typeArrayToCode(this.argTypes) + ", " + this.typeArrayToCode(this.retTypes) + ", \""
-                    + this.className + "\"))";
+            return "registerNativeFunction(new NativeFunctionDef(\"" + this.org + "\", \"" + this.pkg + "\", " +
+                    "\"" + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", " +
+                    this.typeArrayToCode(this.retTypes) + ", \"" + this.className + "\"))";
         }
         
     }
@@ -254,7 +258,8 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         public String connectorName;
         
         public String code() {
-            return "registerNativeAction(new NativeActionDef(\"" + this.pkg + "\", \"" + this.connectorName + "\", \""
+            return "registerNativeAction(new NativeActionDef(\"" + this.org + "\", \""
+                    + this.pkg + "\", \"" + this.connectorName + "\", \""
                     + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", "
                     + this.typeArrayToCode(this.retTypes) + ", \"" + this.className + "\"))";
         }

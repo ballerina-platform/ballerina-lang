@@ -36,7 +36,7 @@ import java.net.URLDecoder;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.uri",
+        orgName = "ballerina", packageName = "net.uri",
         functionName = "decode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),

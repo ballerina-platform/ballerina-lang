@@ -1,5 +1,5 @@
 
-import ballerina.math as x;
+import ballerina/math as x;
 
 function testRestrictedElementPrefix() returns (xml) {
     xml x = xml `<xmlns:foo>hello</xmlns:foo>`;

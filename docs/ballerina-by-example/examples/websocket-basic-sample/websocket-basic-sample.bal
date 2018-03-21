@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.net.ws;
+import ballerina/io;
+import ballerina/net.ws;
 
 @Description {value:"This example gives you the basic idea of WebSocket endpoint."}
 @ws:configuration {

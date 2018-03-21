@@ -38,7 +38,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.websub",
+        orgName = "ballerina", packageName = "net.websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
                 structPackage = "ballerina.net.websub"),

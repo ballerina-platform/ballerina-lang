@@ -35,7 +35,7 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:replaceAllWithRegex.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.replaceAllWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",

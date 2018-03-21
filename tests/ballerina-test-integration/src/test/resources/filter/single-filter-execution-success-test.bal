@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.log;
+import ballerina/net.http;
+import ballerina/log;
 
 public struct Filter1 {
     function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;

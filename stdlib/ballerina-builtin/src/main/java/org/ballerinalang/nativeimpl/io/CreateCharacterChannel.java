@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "createCharacterChannel",
         args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT, structType = "ByteChannel",
                     structPackage = "ballerina.io"),
