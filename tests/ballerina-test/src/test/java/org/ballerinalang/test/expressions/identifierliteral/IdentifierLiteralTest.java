@@ -203,7 +203,8 @@ public class IdentifierLiteralTest {
 
     //Error scenarios
     //TODO : Need to review this test... 
-    @Test(description = "Test error message when trying to access undefined global var with identifier literal", enabled = false)
+    @Test(description = "Test error message when trying to access undefined global var with identifier literal",
+            enabled = false)
     public void testTryToAccessUndefinedGlobalVarWithIdentifierLiteral() {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-undefined-variable-negative.bal");
