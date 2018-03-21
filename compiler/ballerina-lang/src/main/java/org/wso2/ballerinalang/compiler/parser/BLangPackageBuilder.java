@@ -2675,7 +2675,6 @@ public class BLangPackageBuilder {
         ForeverNode foreverNode = TreeBuilder.createForeverNode();
         ((BLangForever) foreverNode).pos = pos;
         foreverNode.addWS(ws);
-        startBlock();
         this.foreverNodeStack.push(foreverNode);
     }
 
