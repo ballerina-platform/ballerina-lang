@@ -500,8 +500,9 @@ public class TypeCastExprTest {
     public void testMapToStruct() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "incompatible types: 'map' cannot be" +
-                " cast to 'Person', use conversion expression", 36, 16);    }
+        BAssertUtil.validateError(res, 0, "unsafe conversion from 'map' to 'Person', " +
+                "use multi-return conversion expression", 36, 16);
+    }
 
     @Test
     public void testJsonToMap() {
