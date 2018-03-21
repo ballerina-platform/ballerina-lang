@@ -21,9 +21,19 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.util.codegen.ConnectorInfo;
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 
 /**
  * Util Class for handling structs in Ballerina VM.
@@ -43,64 +53,99 @@ public class BLangVMStructs {
         BStructType structType = structInfo.getType();
         BStruct bStruct = new BStruct(structType);
 
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
+        int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
         BStructType.StructField[] structFields = structType.getStructFields();
         for (int i = 0; i < structFields.length; i++) {
-            BType paramType = structFields[i].getFieldType();
             if (values.length < i + 1) {
                 break;
             }
-            switch (paramType.getTag()) {
+            BType paramType = structFields[i].getFieldType();
+            setValue(bStruct, indexes, paramType.getTag(), values[i]);
+        }
+        return bStruct;
+    }
+
+    /**
+     * Create BConnector with given values.
+     *
+     * @param connectorInfo {@link ConnectorInfo} of the {@link BConnector}
+     * @param values        field values of the connector ( including args ).
+     * @return BStruct instance.
+     */
+    public static BConnector createBConnector(ConnectorInfo connectorInfo, Object... values) {
+        BConnector bConnector = new BConnector(connectorInfo.getType());
+        final LocalVariableAttributeInfo localVar = (LocalVariableAttributeInfo) connectorInfo.getAttributeInfo(
+                AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+        int i = 0;
+        int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
+        for (LocalVariableInfo variableInfo : localVar.getLocalVariables()) {
+            if (values.length < i + 1) {
+                break;
+            }
+            final BType varType = variableInfo.getVariableType();
+            setValue(bConnector, indexes, varType.getTag(), values[i]);
+        }
+        return bConnector;
+    }
+
+    private static void setValue(StructureType structureType, int[] regIndexes, int typeTag, Object value) {
+        int index;
+        switch (typeTag) {
             case TypeTags.INT_TAG:
-                ++longRegIndex;
-                if (values[i] != null) {
-                    if (values[i] instanceof Integer) {
-                        bStruct.setIntField(longRegIndex, (Integer) values[i]);
-                    } else if (values[i] instanceof Long) {
-                        bStruct.setIntField(longRegIndex, (Long) values[i]);
+                index = ++regIndexes[0];
+                if (value != null) {
+                    if (value instanceof Integer) {
+                        structureType.setIntField(index, (Integer) value);
+                    } else if (value instanceof Long) {
+                        structureType.setIntField(index, (Long) value);
+                    } else if (value instanceof BInteger) {
+                        structureType.setIntField(index, ((BInteger) value).intValue());
                     }
                 }
                 break;
             case TypeTags.FLOAT_TAG:
-                ++doubleRegIndex;
-                if (values[i] != null) {
-                    if (values[i] instanceof Float) {
-                        bStruct.setFloatField(doubleRegIndex, (Float) values[i]);
-                    } else if (values[i] instanceof Double) {
-                        bStruct.setFloatField(doubleRegIndex, (Double) values[i]);
+                index = ++regIndexes[1];
+                if (value != null) {
+                    if (value instanceof Float) {
+                        structureType.setFloatField(index, (Float) value);
+                    } else if (value instanceof Double) {
+                        structureType.setFloatField(index, (Double) value);
+                    } else if (value instanceof BFloat) {
+                        structureType.setFloatField(index, ((BFloat) value).floatValue());
                     }
                 }
                 break;
             case TypeTags.STRING_TAG:
-                ++stringRegIndex;
-                if (values[i] != null && values[i] instanceof String) {
-                    bStruct.setStringField(stringRegIndex, (String) values[i]);
+                index = ++regIndexes[2];
+                if (value != null) {
+                    if (value instanceof String) {
+                        structureType.setStringField(index, (String) value);
+                    } else if (value instanceof BValue) {
+                        structureType.setStringField(index, ((BValue) value).stringValue());
+                    }
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
-                ++booleanRegIndex;
-                if (values[i] != null && values[i] instanceof Boolean) {
-                    bStruct.setBooleanField(booleanRegIndex, (Boolean) values[i] ? 1 : 0);
+                index = ++regIndexes[3];
+                if (value != null) {
+                    if (value instanceof Boolean) {
+                        structureType.setBooleanField(index, (Boolean) value ? 1 : 0);
+                    } else if (value instanceof BBoolean) {
+                        structureType.setBooleanField(index, ((BBoolean) value).booleanValue() ? 1 : 0);
+                    }
                 }
                 break;
             case TypeTags.BLOB_TAG:
-                ++blobRegIndex;
-                if (values[i] != null && values[i] instanceof BBlob) {
-                    bStruct.setBlobField(blobRegIndex, ((BBlob) values[i]).blobValue());
+                index = ++regIndexes[4];
+                if (value != null && value instanceof BBlob) {
+                    structureType.setBlobField(index, ((BBlob) value).blobValue());
                 }
                 break;
             default:
-                ++refRegIndex;
-                if (values[i] != null && (values[i] instanceof BRefType)) {
-                    bStruct.setRefField(refRegIndex, (BRefType) values[i]);
+                index = ++regIndexes[5];
+                if (value != null && (value instanceof BRefType)) {
+                    structureType.setRefField(index, (BRefType) value);
                 }
-            }
         }
-        return bStruct;
     }
 }

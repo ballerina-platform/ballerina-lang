@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.test.natives;
 
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -37,20 +37,19 @@ public class NativeConstructLoadingTest {
 
     @Test
     public void testLoadingExistingFunction() {
-        AbstractNativeFunction function = this.nativeLoader.loadNativeFunction("ballerina.math", "pow");
+        NativeCallableUnit function = this.nativeLoader.loadNativeFunction("ballerina.math", "pow");
         Assert.assertNotNull(function);
-        Assert.assertTrue(function.isPublic());
     }
 
     @Test
     public void testLoadingNonExistingFunction() {
-        AbstractNativeFunction function = this.nativeLoader.loadNativeFunction("ballerina.lang.system", "foo");
+        NativeCallableUnit function = this.nativeLoader.loadNativeFunction("ballerina.lang.system", "foo");
         Assert.assertNull(function);
     }
 
     @Test
     public void testLoadingFunctionInNonExistingPackage() {
-        AbstractNativeFunction function = this.nativeLoader.loadNativeFunction("ballerina.lang.foo", "println");
+        NativeCallableUnit function = this.nativeLoader.loadNativeFunction("ballerina.lang.foo", "println");
         Assert.assertNull(function);
     }
 }

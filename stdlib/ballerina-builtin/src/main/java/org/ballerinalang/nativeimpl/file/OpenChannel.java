@@ -93,8 +93,8 @@ public class OpenChannel extends AbstractNativeChannel {
      */
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
-        BStruct fileStruct = (BStruct) getRefArgument(context, FILE_CHANNEL_INDEX);
-        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
+        BStruct fileStruct = (BStruct) context.getRefArgument(FILE_CHANNEL_INDEX);
+        String accessMode = context.getStringArgument(FILE_ACCESS_MODE_INDEX);
         Path path = null;
         Channel channel;
         try {

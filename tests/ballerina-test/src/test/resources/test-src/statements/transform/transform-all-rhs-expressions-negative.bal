@@ -17,16 +17,16 @@ struct Employee {
 }
 
 function testTransformWithAllExprs() {
-    TestConnector con = create TestConnector();
+    TestConnector con;
     Person p = {firstname:"John", lastname:"Doe", age:30, city:"London"};
     Employee e1 = <Employee, Foo_1(con)> p;
 }
 
-function <Person p1> getPrefixedName_1(Person p2) (string) {
+function <Person p1> getPrefixedName_1(Person p2) returns (string) {
     return p2.prefix + p1.firstname;
 }
 
-function <Employee e1> getPrefixedName_2(Employee e2) (string) {
+function <Employee e1> getPrefixedName_2(Employee e2) returns (string) {
     return e2.prefix + e1.fname;
 }
 
@@ -112,4 +112,23 @@ connector TestConnector() {
     action textAction_3(Employee e) (string) {
         return "hello";
     }
+}
+
+struct testEP {
+}
+
+function <testEP ep> init(string name, struct {} config) {
+}
+
+function <testEP ep> start() {
+}
+
+function <testEP ep> stop() {
+}
+
+function <testEP ep> register(type t) {
+}
+
+function <testEP ep> getConnector() returns (TestConnector) {
+    return null;
 }

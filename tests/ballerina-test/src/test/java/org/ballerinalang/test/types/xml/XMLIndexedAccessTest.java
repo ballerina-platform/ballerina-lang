@@ -65,13 +65,13 @@ public class XMLIndexedAccessTest {
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
-            expectedExceptionsMessageRegExp = "error: error, message: index out of range: index: 1, size: 1.*")
+            expectedExceptionsMessageRegExp = ".*index out of range: index: 1, size: 1.*")
     public void testXMLAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLAccessWithOutOfIndex");
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
-            expectedExceptionsMessageRegExp = "error: error, message: array index out of range: index: 5, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*array index out of range: index: 5, size: 3.*")
     public void testXMLSequenceAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLSequenceAccessWithOutOfIndex");
     }

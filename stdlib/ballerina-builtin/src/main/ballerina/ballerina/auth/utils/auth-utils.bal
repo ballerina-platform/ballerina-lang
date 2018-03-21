@@ -19,7 +19,6 @@ package ballerina.auth.utils;
 import ballerina.config;
 import ballerina.caching;
 import ballerina.util;
-import ballerina.net.http;
 
 @Description {value:"Configuration entry to check if a cache is enabled"}
 const string CACHE_ENABLED = "enabled";
@@ -45,7 +44,7 @@ const float CACHE_EVICTION_FACTOR_DEFAULT_VALUE = 0.25;
 
 @Description {value:"Creates a cache to store authentication results against basic auth headers"}
 @Return {value:"cache: authentication cache instance"}
-public function createCache (string cacheName) (caching:Cache) {
+public function createCache (string cacheName) returns (caching:Cache) {
     if (isCacheEnabled(cacheName)) {
         int expiryTime;
         int capacity;
@@ -59,7 +58,7 @@ public function createCache (string cacheName) (caching:Cache) {
 @Description {value:"Checks if the specified cache is enalbed"}
 @Param {value:"cacheName: cache name"}
 @Return {value:"boolean: true of the cache is enabled, else false"}
-function isCacheEnabled (string cacheName) (boolean) {
+function isCacheEnabled (string cacheName) returns (boolean) {
     string isCacheEnabled = config:getInstanceValue(cacheName, CACHE_ENABLED);
     if (isCacheEnabled == null) {
         // by default we enable the cache
@@ -79,14 +78,14 @@ function isCacheEnabled (string cacheName) (boolean) {
 @Return {value:"int: cache expiry time"}
 @Return {value:"int: cache capacity"}
 @Return {value:"float: cache eviction factor"}
-function getCacheConfigurations (string cacheName) (int, int, float) {
+function getCacheConfigurations (string cacheName) returns (int, int, float) {
     return getExpiryTime(cacheName), getCapacity(cacheName), getEvictionFactor(cacheName);
 }
 
 @Description {value:"Reads the cache expiry time"}
 @Param {value:"cacheName: cache name"}
 @Return {value:"int: cache expiry time read from ballerina.conf, default value if no configuration entry found"}
-function getExpiryTime (string cacheName) (int) {
+function getExpiryTime (string cacheName) returns (int) {
     // expiry time
     string expiryTime = config:getInstanceValue(cacheName, CACHE_EXPIRY_TIME);
     if (expiryTime == null) {
@@ -104,7 +103,7 @@ function getExpiryTime (string cacheName) (int) {
 @Description {value:"Reads the cache capacity"}
 @Param {value:"cacheName: cache name"}
 @Return {value:"int: cache capacity read from ballerina.conf, default value if no configuration entry found"}
-function getCapacity (string cacheName) (int) {
+function getCapacity (string cacheName) returns (int) {
     string capacity = config:getInstanceValue(cacheName, CACHE_CAPACITY);
     if (capacity == null) {
         return CACHE_CAPACITY_DEFAULT_VALUE;
@@ -120,7 +119,7 @@ function getCapacity (string cacheName) (int) {
 @Description {value:"Reads the cache eviction factor"}
 @Param {value:"cacheName: cache name"}
 @Return {value:"float: cache eviction factor read from ballerina.conf, default value if no configuration entry found"}
-function getEvictionFactor (string cacheName) (float) {
+function getEvictionFactor (string cacheName) returns (float) {
     string evictionFactor = config:getInstanceValue(cacheName, CACHE_EVICTION_FACTOR);
     if (evictionFactor == null) {
         return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
@@ -133,25 +132,12 @@ function getEvictionFactor (string cacheName) (float) {
     }
 }
 
-@Description {value:"Extracts the basic authentication header value from the request"}
-@Param {value:"req: Inrequest instance"}
-@Return {value:"string: value of the basic authentication header"}
-@Return {value:"error: any error occurred while extracting the basic authentication header"}
-public function extractBasicAuthHeaderValue (http:InRequest req) (string, error) {
-    // extract authorization header
-    string basicAuthHeader = req.getHeader(AUTH_HEADER);
-    if (basicAuthHeader == null || !basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
-        return null, handleError("Basic authentication header not sent with the request");
-    }
-    return basicAuthHeader, null;
-}
-
 @Description {value:"Extracts the basic authentication credentials from the header value"}
 @Param {value:"authHeader: basic authentication header"}
 @Return {value:"string: username extracted"}
 @Return {value:"string: password extracted"}
 @Return {value:"error: any error occurred while extracting creadentials"}
-public function extractBasicAuthCredentials (string authHeader) (string, string, error) {
+public function extractBasicAuthCredentials (string authHeader) returns (string, string, error) {
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
@@ -170,7 +156,7 @@ public function extractBasicAuthCredentials (string authHeader) (string, string,
 @Description {value:"Error handler"}
 @Param {value:"message: error message"}
 @Return {value:"error: error populated with the message"}
-function handleError (string message) (error) {
+function handleError (string message) returns (error) {
     error e = {message:message};
     return e;
 }

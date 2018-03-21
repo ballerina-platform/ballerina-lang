@@ -20,6 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -50,6 +51,20 @@ public class RuntimeTest {
         long endTime = System.currentTimeMillis();
         Assert.assertTrue((endTime - startTime) >= 1000);
     }
+    
+    @Test
+    public void testConcurrentSleepCurrentThread() {
+        BIntArray result = (BIntArray) BRunUtil.invoke(compileResult, "testConcurrentSleep")[0];
+        Assert.assertTrue(checkWithErrorMargin(result.get(0), 1000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(1), 1000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(2), 2000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(3), 2000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.get(4), 1000, 500));
+    }
+    
+    private boolean checkWithErrorMargin(long actual, long expected, long error) {
+        return actual <= expected + error && actual >= expected - error; 
+    }
 
     @Test
     public void testSetProperty() {
@@ -76,11 +91,12 @@ public class RuntimeTest {
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testGetProperties() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetProperties");
         Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BString> actualProperties = (BMap) returns[0];
+        BMap<String, BString> actualProperties = (BMap<String, BString>) returns[0];
         Properties expectedProperties = System.getProperties();
         Assert.assertEquals(actualProperties.size(), expectedProperties.size());
 
@@ -109,21 +125,22 @@ public class RuntimeTest {
     @Test
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[{workerName:\"getCallStack\", " +
-                "packageName:\"ballerina.runtime\", fileName:\"<native>\", lineNumber:0}," +
-                " {workerName:\"level2Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:12}," +
-                " {workerName:\"level1Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:8}," +
-                " {workerName:\"testGetCallStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:4}]");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", packageName:\"ballerina" +
+                ".runtime\", fileName:\"<native>\", lineNumber:0}");
+        Assert.assertEquals(returns[1].stringValue(), "{callableName:\"level2Function\", packageName:\".\", " +
+                "fileName:\"runtime-error.bal\", lineNumber:12}");
+        Assert.assertEquals(returns[2].stringValue(), "{callableName:\"level1Function\", packageName:\".\", " +
+                "fileName:\"runtime-error.bal\", lineNumber:8}");
+        Assert.assertEquals(returns[3].stringValue(), "{callableName:\"testGetCallStack\", packageName:\".\", " +
+                "fileName:\"runtime-error.bal\", lineNumber:4}");
     }
 
     @Test
-    public void testErrorStack() {
-        BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStack");
+    public void testErrorStackFrame() {
+        BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStackFrame");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[" +
-                "{workerName:\"level2Error\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:32}, " +
-                "{workerName:\"level1Error\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:25}, " +
-                "{workerName:\"testErrorStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:17}]");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"testErrorStackFrame\", packageName:\".\","
+                + " fileName:\"runtime-error.bal\", lineNumber:17}");
     }
 }

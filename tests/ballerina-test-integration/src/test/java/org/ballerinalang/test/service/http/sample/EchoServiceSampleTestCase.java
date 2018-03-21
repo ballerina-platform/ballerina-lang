@@ -44,7 +44,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
     public void testEchoServiceByBasePath() throws Exception {
         try {
             String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "httpService" + File.separator + "echoService.bal").getAbsolutePath();
+                    + File.separator + "httpService" + File.separator + "echo_service.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
@@ -65,7 +65,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
     public void testEchoServiceWithDynamicPortByBasePath() throws Exception {
         try {
             String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath();
+                    + File.separator + "httpService" + File.separator + "http_echo_service.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -92,7 +92,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
     public void testEchoServiceWithDynamicPortShared() throws Exception {
         try {
             String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath();
+                    + File.separator + "httpService" + File.separator + "http_echo_service.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -119,7 +119,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
     public void testEchoServiceWithDynamicPortHttpsByBasePath() throws Exception {
         try {
             String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath();
+                    + File.separator + "httpService" + File.separator + "https_echo_service.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -147,7 +147,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
     public void testEchoServiceWithDynamicPortHttpsShared() throws Exception {
         try {
             String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath();
+                    + File.separator + "httpService" + File.separator + "https_echo_service.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);

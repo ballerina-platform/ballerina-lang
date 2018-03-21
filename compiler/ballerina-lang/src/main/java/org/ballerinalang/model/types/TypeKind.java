@@ -48,20 +48,26 @@ public enum TypeKind {
      */
     BLOB("blob"),
 
-    TYPE("type"),
+    TYPEDESC("typedesc"),
     TABLE("table"),
+    STREAM("stream"),
     JSON("json"),
     XML("xml"),
     ANY("any"),
     MAP("map"),
+    FUTURE("future"),
     PACKAGE("package"),
     STRUCT("struct"),
+    OBJECT("object"),
     ENUM("enum"),
+    SERVICE("service"),
     CONNECTOR("connector"),
+    STREAMLET("streamlet"),
     ENDPOINT("endpoint"),
     FUNCTION("function"),
     ANNOTATION("annotation"),
     ARRAY("[]"),
+    UNION("|"),
     VOID(""),
     NULL("null"),
     NONE(""),
@@ -69,6 +75,7 @@ public enum TypeKind {
     MESSAGE("message"),
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
+    TUPLE("tuple"),
     ;
 
     private String name;

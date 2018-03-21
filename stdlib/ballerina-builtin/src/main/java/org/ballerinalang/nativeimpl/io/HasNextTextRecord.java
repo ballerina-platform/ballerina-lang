@@ -19,20 +19,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.HasNextDelimitedRecordEvent;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -50,38 +49,47 @@ import java.util.concurrent.CompletableFuture;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasNextTextRecord extends AbstractNativeFunction {
+public class HasNextTextRecord implements NativeCallableUnit {
     /**
      * Specifies the index which contains the byte channel in ballerina.io#hasNextTextRecord.
      */
     private static final int TXT_RECORD_CHANNEL_INDEX = 0;
 
     /**
+     * Responds whether a next record exists.
+     *
+     * @param result the result processed.
+     * @return result context.
+     */
+    private static EventResult response(EventResult<Boolean, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        CallableUnitCallback callback = eventContext.getCallback();
+        Boolean response = result.getResponse();
+        context.setReturnValues(new BBoolean(response));
+        callback.notifySuccess();
+        return result;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        try {
-            BBoolean hasNext;
-            BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
-            if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
-                DelimitedRecordChannel textRecordChannel =
-                        (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-                EventContext eventContext = new EventContext(context);
-                HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
-                        eventContext);
-                CompletableFuture<EventResult> event = EventManager.getInstance().publish(hasNextEvent);
-                EventResult eventResult = event.get();
-                boolean value = (boolean) eventResult.getResponse();
-                hasNext = new BBoolean(value);
-            } else {
-                String message = "Error occurred while checking the next record availability: Null channel returned.";
-                throw new BallerinaException(message, context);
-            }
-            return getBValues(hasNext);
-        } catch (Throwable e) {
-            String message = "Error occurred while querying for hasNext:" + e.getMessage();
-            throw new BallerinaException(message, context);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
+        if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
+            DelimitedRecordChannel textRecordChannel =
+                    (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
+            EventContext eventContext = new EventContext(context, callback);
+            HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
+                    eventContext);
+            CompletableFuture<EventResult> event = EventManager.getInstance().publish(hasNextEvent);
+            event.thenApply(HasNextTextRecord::response);
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

@@ -68,12 +68,11 @@ public class DelimitedRecordWriteEvent implements Event {
         try {
             channel.write(content);
             result = new NumericResult(-1, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while reading from record channel", e);
             context.setError(e);
             result = new NumericResult(context);
-            return result;
         }
+        return result;
     }
 }

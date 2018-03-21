@@ -22,12 +22,12 @@ import Node from '../node';
 class AbstractEndpointTypeNode extends Node {
 
 
-    setConstraint(newValue, silent, title) {
-        const oldValue = this.constraint;
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.constraint = newValue;
+        this.packageAlias = newValue;
 
-        this.constraint.parent = this;
+        this.packageAlias.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractEndpointTypeNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'constraint',
+                    attributeName: 'packageAlias',
                     newValue,
                     oldValue,
                 },
@@ -43,9 +43,62 @@ class AbstractEndpointTypeNode extends Node {
         }
     }
 
-    getConstraint() {
-        return this.constraint;
+    getPackageAlias() {
+        return this.packageAlias;
     }
+
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
+
+
+    setTypeName(newValue, silent, title) {
+        const oldValue = this.typeName;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.typeName = newValue;
+
+        this.typeName.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'typeName',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTypeName() {
+        return this.typeName;
+    }
+
 
 
 }

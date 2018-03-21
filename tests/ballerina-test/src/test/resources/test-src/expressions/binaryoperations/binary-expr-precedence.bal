@@ -1,14 +1,14 @@
-function binaryOrExprWithLeftMostSubExprTrue(boolean one, boolean two, boolean three) (boolean) {
+function binaryOrExprWithLeftMostSubExprTrue(boolean one, boolean two, boolean three) returns (boolean) {
     return one || getBoolean();
 }
 
 
-function binaryANDExprWithLeftMostSubExprFalse(boolean one, boolean two, boolean three) (boolean) {
+function binaryANDExprWithLeftMostSubExprFalse(boolean one, boolean two, boolean three) returns (boolean) {
     return one && getBoolean();
 }
 
 
-function multiBinaryORExpr(boolean one, boolean two, boolean three) (int) {
+function multiBinaryORExpr(boolean one, boolean two, boolean three) returns (int) {
     if ( one || two || three) {
         return 101;
     } else {
@@ -16,7 +16,7 @@ function multiBinaryORExpr(boolean one, boolean two, boolean three) (int) {
     }
 }
 
-function multiBinaryANDExpr(boolean one, boolean two, boolean three) (int) {
+function multiBinaryANDExpr(boolean one, boolean two, boolean three) returns (int) {
     if ( one && two && three) {
         return 101;
     } else {
@@ -24,7 +24,7 @@ function multiBinaryANDExpr(boolean one, boolean two, boolean three) (int) {
     }
 }
 
-function getBoolean()(boolean ) {
+function getBoolean() returns (boolean ) {
     json j = {};
     string val = "ss";
     val, _ = (string)j.isPresent;

@@ -12,11 +12,11 @@ service<http> productmgt {
         methods:["GET"],
         path:"/{prodId}"
     }
-    resource product (http:Connection conn, http:InRequest req, string prodId) {
+    resource product (http:Connection conn, http:Request req, string prodId) {
         json payload;
         payload, _ = (json)productsMap[prodId];
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -25,7 +25,7 @@ service<http> productmgt {
         methods:["POST"],
         path:"/"
     }
-    resource addProduct (http:Connection conn, http:InRequest req) {
+    resource addProduct (http:Connection conn, http:Request req) {
         var jsonReq, payloadError = req.getJsonPayload();
         json payload;
         if (payloadError == null) {
@@ -35,7 +35,7 @@ service<http> productmgt {
         } else {
             payload = {"Status":"An error occurred while retrieving json payload."};
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }

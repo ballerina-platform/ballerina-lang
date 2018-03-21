@@ -18,9 +18,9 @@ function test1 () {
     }
 }
 
-function addFloat1 (float x, float y) (float z) {
-    z = x + y;
-    return;
+function addFloat1 (float x, float y) returns (float) {
+    float z = x + y;
+    return z;
 }
 
 function test2 () {
@@ -32,9 +32,9 @@ function test2 () {
     }
 }
 
-function addFloat2 (float x, float y) (float z) {
-    z = x + y;
-    return;
+function addFloat2 (float x, float y) returns (float) {
+    float z = x + y;
+    return z;
 }
 
 function test3 () {
@@ -64,17 +64,17 @@ function test5 () {
     }
 }
 
-function addFloat3 (float x, float y) (float z) {
-    z = x + y;
-    return;
+function addFloat3 (float x, float y) returns (float) {
+    float z = x + y;
+    return z;
 }
 
-function addFloat4 (float x, float y) (float z) {
-    z = x + y;
-    return;
+function addFloat4 (float x, float y) returns (float) {
+    float z = x + y;
+    return z;
 }
 
-function addFloat5 (float x, float y) (float z) {
-    z = x + y;
-    return;
+function addFloat5 (float x, float y) returns (float) {
+    float z = x + y;
+    return z;
 }

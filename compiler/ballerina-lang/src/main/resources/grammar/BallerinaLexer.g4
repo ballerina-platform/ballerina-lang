@@ -4,6 +4,9 @@ lexer grammar BallerinaLexer;
     boolean inTemplate = false;
     boolean inDocTemplate = false;
     boolean inDeprecatedTemplate = false;
+    boolean inSiddhi = false;
+    boolean inTableSqlQuery = false;
+    boolean inSiddhiInsertQuery = false;
 }
 
 // Reserved words
@@ -12,14 +15,14 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
-PRIVATE      : 'private' ;
+PRIVATE     : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-CONNECTOR   : 'connector' ;
-ACTION      : 'action' ;
+STREAMLET   : 'streamlet' { inSiddhi = true; } ;
 STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
@@ -27,11 +30,45 @@ CONST       : 'const' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
+BIND        : 'bind' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
+
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  } ;
+ON          : 'on' ;
+SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
+GROUP       : 'group' ;
+BY          : 'by' ;
+HAVING      : 'having' ;
+ORDER       : 'order' ;
+WHERE       : 'where' ;
+FOLLOWED    : 'followed' ;
+INSERT      : {inSiddhi}? 'insert' { inSiddhi = false; } ;
+INTO        : 'into' ;
+UPDATE      : {inSiddhi}? 'update' { inSiddhi = false; } ;
+DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
+SET         : 'set' ;
+FOR         : 'for' ;
+WINDOW      : 'window' ;
+QUERY       : 'query' ;
+EXPIRED     : 'expired' ;
+CURRENT     : 'current' ;
+EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
+EVERY       : 'every' ;
+WITHIN      : 'within' ;
+LAST        : {inSiddhi}? 'last' { inSiddhi = false; } ;
+FIRST       : {inSiddhi}? 'first' { inSiddhi = false; } ;
+SNAPSHOT    : 'snapshot' ;
+OUTPUT      : {inSiddhi}? 'output' { inSiddhi = false; } ;
+INNER       : 'inner' ;
+OUTER       : 'outer' ;
+RIGHT       : 'right' ;
+LEFT        : 'left' ;
+FULL        : 'full' ;
+UNIDIRECTIONAL  : 'unidirectional' ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -42,13 +79,17 @@ TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
+TYPE_STREAM     : 'stream' ;
+TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
+TYPE_DESC       : 'typedesc' ;
 TYPE_TYPE       : 'type' ;
+TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;
-CREATE      : 'create' ;
-ATTACH      : 'attach' ;
+NEW         : 'new' ;
 IF          : 'if' ;
+MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
@@ -66,20 +107,24 @@ THROW       : 'throw' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-FAILED      : 'failed' ;
+ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
+ONABORT     : 'onabort' ;
+ONCOMMIT    : 'oncommit' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
-BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
+ASYNC       : 'async' ;
+AWAIT       : 'await' ;
 
 // Separators
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
@@ -119,31 +164,39 @@ LARROW      : '<-' ;
 AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
+ELLIPSIS    : '...' ;
+PIPE        : '|' ;
+EQUAL_GT    : '=>' ;
 
-// §3.10.1 Integer Literals
-IntegerLiteral
-    :   DecimalIntegerLiteral
-    |   HexIntegerLiteral
-    |   OctalIntegerLiteral
-    |   BinaryIntegerLiteral
-    ;
 
-fragment
+// Compound Assignment operators.
+
+COMPOUND_ADD   : '+=' ;
+COMPOUND_SUB   : '-=' ;
+COMPOUND_MUL   : '*=' ;
+COMPOUND_DIV   : '/=' ;
+
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
+
+// Post Arithmetic operators.
+
+INCREMENT      : '++' ;
+DECREMENT      : '--' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 HexIntegerLiteral
     :   HexNumeral IntegerTypeSuffix?
     ;
 
-fragment
 OctalIntegerLiteral
     :   OctalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 BinaryIntegerLiteral
     :   BinaryNumeral IntegerTypeSuffix?
     ;
@@ -426,11 +479,11 @@ LINE_COMMENT
 
 fragment
 IdentifierLiteral
-    : '|' IdentifierLiteralChar+ '|' ;
+    : '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|\\\b\f\n\r\t]
+    : ~[|"\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
@@ -440,6 +493,7 @@ IdentifierLiteralEscapeSequence
     | '\\\\' [btnfr]
     | UnicodeEscape
     ;
+
 
 // XML lexer rules
 

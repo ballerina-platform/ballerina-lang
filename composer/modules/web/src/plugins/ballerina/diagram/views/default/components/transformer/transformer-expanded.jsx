@@ -30,11 +30,13 @@ import TransformerNode from '../../../../../model/tree/abstract-tree/transformer
 import Tree from './tree';
 import FunctionInv from './function';
 import Operator from './operator';
+import NestedTransformer from './nested-transformer';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
 import './transformer-expanded.css';
 import IterableList from './iterable-list';
+import ConversionList from './conversion-list';
 
 /**
  * React component for transform expanded view
@@ -53,7 +55,8 @@ class TransformerExpanded extends React.Component {
         super(props, context);
         this.state = {
             // vertices changes must re-render. Hence added as a state.
-            iterableOperationMenu: {},
+            name: props.model.getName().getValue(),
+            connectionMenu: {},
             vertices: [],
             typedSource: '',
             typedTarget: '',
@@ -101,6 +104,7 @@ class TransformerExpanded extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onConnectionsScroll = this.onConnectionsScroll.bind(this);
         this.onConnectPointMouseEnter = this.onConnectPointMouseEnter.bind(this);
+        this.onNameChange = this.onNameChange.bind(this);
     }
 
     componentDidMount() {
@@ -459,6 +463,11 @@ class TransformerExpanded extends React.Component {
         this.addTarget(this.state.typedTarget);
     }
 
+    onNameChange(event) {
+        this.setState({ name: event.target.value });
+        this.props.model.name.setValue(event.target.value);
+    }
+
 
     getVerticeData(varNode) {
         if (Array.isArray(varNode)) {
@@ -598,6 +607,16 @@ class TransformerExpanded extends React.Component {
                 opExp: nodeExpression,
             });
             return intermediateNodes;
+        } else if (this.transformNodeManager.isTransformerConversion(nodeExpression)) {
+            const conversion = this.transformNodeManager.getConversionVertices(nodeExpression);
+            intermediateNodes.push({
+                type: 'conversion',
+                conversion,
+                parentNode,
+                statement,
+                conExp: nodeExpression,
+            });
+            return intermediateNodes;
         } else {
             return [];
         }
@@ -628,7 +647,8 @@ class TransformerExpanded extends React.Component {
     getFunctionArgConversionType(arguements, sourceId) {
         let type = '';
         arguements.forEach((arg) => {
-            if (TreeUtil.isTypeConversionExpr(arg) && arg.getExpression().getSource() === sourceId) {
+            if (this.transformNodeManager.isTransformerConversion(arg) &&
+                arg.getExpression().getSource() === sourceId) {
                 type = arg.getTypeNode().getTypeKind();
             } else if (TreeUtil.isInvocation(arg)) {
                 type = this.getFunctionArgConversionType(arg.getArgumentExpressions(), sourceId);
@@ -653,7 +673,7 @@ class TransformerExpanded extends React.Component {
     addSource(source) {
         const vertex = this.state.vertices.filter((val) => { return val === source; })[0];
         if (vertex) {
-            this.props.model.setSourceParam(this.transformNodeManager.createVariable('source', vertex));
+            this.props.model.setSource(this.transformNodeManager.createVariable('source', vertex));
             this.setState({ typedSource: '' });
         }
     }
@@ -708,18 +728,17 @@ class TransformerExpanded extends React.Component {
         }
 
         const { exp: expression, isTemp } = this.transformNodeManager.getResolvedExpression(stmtExp, statement);
-        if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
+        if (!isTemp && !this.transformNodeManager.isTransformerConversion(stmtExp) &&
+        (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
             variables.forEach((variable) => {
-                // TODO : remove replace whitespace once its handled from backend
-                const sourceExprString = expression.getSource().replace(/ /g, '').trim();
+                const sourceExprString = this.generateEndpointId(expression.getSource());
                 let sourceId = `${sourceExprString}:${viewId}`;
                 let folded = false;
                 if (!this.sourceElements[sourceId]) {
                     folded = true;
                     sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
-                // TODO : remove replace whitespace once its handled from backend
-                const targetExprString = variable.getSource().replace(/ /g, '').trim();
+                const targetExprString = this.generateEndpointId(variable.getSource());
                 let targetId = `${targetExprString}:${viewId}`;
                 if (!this.targetElements[targetId]) {
                     folded = true;
@@ -732,7 +751,21 @@ class TransformerExpanded extends React.Component {
         if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
             || TreeUtil.isUnaryExpr(expression) || TreeUtil.isTernaryExpr(expression)) {
             this.drawIntermediateNode(variables, expression, statement, isTemp);
+        } else if (this.transformNodeManager.isTransformerConversion(stmtExp)) {
+            this.drawIntermediateNode(variables, stmtExp, statement, isTemp);
         }
+    }
+
+    /**
+     * Generate endpoint ID
+     * @param {string} expression expression string
+     * @returns {string} id generated
+     */
+    generateEndpointId(expression) {
+        if (expression.lastIndexOf('\n') !== -1) {
+            expression = expression.substring(expression.lastIndexOf('\n'));
+        }
+        return expression.replace(/ /g, '').trim();
     }
 
     /**
@@ -770,6 +803,12 @@ class TransformerExpanded extends React.Component {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperatorKind();
             paramExpressions.push(nodeExpression.getExpression());
+        } else if (this.transformNodeManager.isTransformerConversion(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getConversionVertices(nodeExpression);
+            nodeName = nodeExpression.getTransformerInvocation().getName().getValue();
+            paramExpressions.push(nodeExpression.getExpression());
+            paramExpressions = paramExpressions.concat(nodeExpression
+                                .getTransformerInvocation().getArgumentExpressions());
         }
 
         if (_.isUndefined(nodeDef)) {
@@ -795,7 +834,8 @@ class TransformerExpanded extends React.Component {
                 const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
                 expression = exp;
                 if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
-                    || TreeUtil.isUnaryExpr(expression)) {
+                    || TreeUtil.isUnaryExpr(expression)
+                    || this.transformNodeManager.isTransformerConversion(nodeExpression)) {
                     this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement, isTemp);
                 } else if ((!isTemp)
                     || (!TreeUtil.isInvocation(exp) || !TreeUtil.isBinaryExpr(exp) || !TreeUtil.isUnaryExpr(exp))) {
@@ -918,7 +958,7 @@ class TransformerExpanded extends React.Component {
     drawInnerIntermediateNode(parentNodeExpression, nodeExpression, parentNodeDefinition,
                                       parentParameterIndex, statement, nodeExpIsTemp = false) {
         const viewId = this.props.model.getID();
-        const nodeExpID = nodeExpression.getID();
+        let nodeExpID = nodeExpression.getID();
         let nodeDef;
         let nodeName;
         let paramExpressions = [];
@@ -938,6 +978,13 @@ class TransformerExpanded extends React.Component {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperatorKind();
             paramExpressions.push(nodeExpression.getExpression());
+        } else if (this.transformNodeManager.isTransformerConversion(parentNodeExpression)) {
+            nodeDef = this.transformNodeManager.getConversionVertices(parentNodeExpression);
+            nodeName = parentNodeExpression.getTransformerInvocation().getName().getValue();
+            paramExpressions.push(parentNodeExpression.getExpression());
+            paramExpressions = paramExpressions.concat(parentNodeExpression
+                                .getTransformerInvocation().getArgumentExpressions());
+            nodeExpID = parentNodeExpression.getID();
         } else {
             log.error('Invalid node type ' + nodeExpression.kind);
             return;
@@ -1002,7 +1049,9 @@ class TransformerExpanded extends React.Component {
             targetId = `${parentNodeID}:${viewId}`;
         }
 
-        this.drawConnection(sourceId, targetId, folded);
+        if (!this.transformNodeManager.isTransformerConversion(parentNodeExpression)) {
+            this.drawConnection(sourceId, targetId, folded);
+        }
         this.mapper.reposition(this.props.model.getID());
     }
 
@@ -1045,8 +1094,11 @@ class TransformerExpanded extends React.Component {
             } else {
                 expression = statement.getExpression();
             }
-            if (TreeUtil.isTypeConversionExpr(expression)) {
-                if (TreeUtil.isFieldBasedAccessExpr(expression.getExpression())) {
+            // Only consider non transformer conversions
+            if (TreeUtil.isTypeConversionExpr(expression) &&
+                !this.transformNodeManager.isTransformerConversion(expression)) {
+                if (TreeUtil.isFieldBasedAccessExpr(expression.getExpression())
+                    || TreeUtil.isSimpleVariableRef(expression.getExpression())) {
                     if (TreeUtil.isUserDefinedType(expression.getTypeNode())) {
                         type = expression.getTypeNode().getTypeName().getValue();
                     } else {
@@ -1068,16 +1120,19 @@ class TransformerExpanded extends React.Component {
                     type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
                     sourceId.split(':')[0]);
                 }
-            } else if (TreeUtil.isFieldBasedAccessExpr(expression) && (expression.symbolType[0].includes('[]'))) {
+            } else if (TreeUtil.isFieldBasedAccessExpr(expression)
+                        && (expression.symbolType && expression.symbolType[0].includes('[]'))) {
                 type = 'iterable';
             }
         }
         const callback = (pageX, pageY, connection) => {
-            this.setState({ iterableOperationMenu: {
-                showIterables: true,
+            this.setState({ connectionMenu: {
+                showIterables: type === 'iterable',
+                showConversions: type !== 'iterable',
                 iterableX: pageX,
                 iterableY: pageY,
                 currrentConnection: connection,
+                currentStatement: statement,
             } });
         };
         this.mapper.addConnection(sourceId, targetId, folded, type, callback);
@@ -1185,9 +1240,8 @@ class TransformerExpanded extends React.Component {
     }
 
     render() {
-        const { leftOffset } = this.props;
         const vertices = this.state.vertices;
-        const sourceNode = this.props.model.getSourceParam();
+        const sourceNode = this.props.model.getSource();
         const returnNodes = this.props.model.getReturnParameters();
         const paramNodes = this.props.model.getParameters();
         const varDeclarations = this.props.model.getBody().getStatements()
@@ -1227,19 +1281,20 @@ class TransformerExpanded extends React.Component {
                     // are used via temporary variables
                     intermediateNodes.push(...this.getIntermediateNodes(expression, stmt));
                 }
+            } else if (this.transformNodeManager.isTransformerConversion(stmtExp)) {
+                intermediateNodes.push(...this.getIntermediateNodes(stmtExp, stmt));
             }
         });
 
         return (
             <div
                 className='transformOverlay'
-                style={{ paddingLeft: leftOffset }}
             >
                 <div id='transformHeader' className='transform-header'>
                     <i onClick={this.onClose} className='fw fw-left close-transform' />
                     <p className='transform-header-text '>
                         <i className='transform-header-icon fw fw-type-converter' />
-                        <b>{this.props.model.getSignature()}</b>
+                        <b>Transformer</b>
                     </p>
                 </div>
                 <div
@@ -1279,6 +1334,15 @@ class TransformerExpanded extends React.Component {
                                 />
                             </div>
                             <div className='middle-content-frame' />
+                            <div className='transform-name-container'>
+                                <input
+                                    type='text'
+                                    className='transform-name-text'
+                                    value={this.state.name}
+                                    placeholder='name'
+                                    onChange={this.onNameChange}
+                                />
+                            </div>
                             <Scrollbars
                                 style={{ height: 'calc(100% - 50px)' }}
                                 ref={(scroll) => { this.vscroll = scroll; }}
@@ -1343,22 +1407,41 @@ class TransformerExpanded extends React.Component {
                                                         isCollapsed={this.state.foldedFunctions[node.funcInv.getID()]}
                                                         onHeaderClick={this.foldFunction}
                                                     />);
+                                                } else if (node.type === 'operator') {
+                                                    return (<Operator
+                                                        key={node.opExp.getID()}
+                                                        operator={node.operator}
+                                                        statement={node.statement}
+                                                        parentNode={node.parentNode}
+                                                        opExp={node.opExp}
+                                                        recordSourceElement={this.recordSourceElement}
+                                                        recordTargetElement={this.recordTargetElement}
+                                                        viewId={this.props.model.getID()}
+                                                        onEndpointRemove={this.removeEndpoint}
+                                                        onOperatorRemove={this.removeIntermediateNode}
+                                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                        isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
+                                                        onFolderClick={this.foldFunction}
+                                                    />);
+                                                } else {
+                                                    return (<NestedTransformer
+                                                        key={node.conExp.getID()}
+                                                        transformerInvocation={node.conversion}
+                                                        statement={node.statement}
+                                                        parentNode={node.parentNode}
+                                                        conExp={node.conExp}
+                                                        recordSourceElement={this.recordSourceElement}
+                                                        recordTargetElement={this.recordTargetElement}
+                                                        viewId={this.props.model.getID()}
+                                                        onEndpointRemove={this.removeEndpoint}
+                                                        onFunctionRemove={this.removeIntermediateNode}
+                                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                        foldEndpoint={this.foldEndpoint}
+                                                        foldedEndpoints={this.state.foldedEndpoints}
+                                                        isCollapsed={this.state.foldedFunctions[node.conExp.getID()]}
+                                                        onHeaderClick={this.foldFunction}
+                                                    />);
                                                 }
-                                                return (<Operator
-                                                    key={node.opExp.getID()}
-                                                    operator={node.operator}
-                                                    statement={node.statement}
-                                                    parentNode={node.parentNode}
-                                                    opExp={node.opExp}
-                                                    recordSourceElement={this.recordSourceElement}
-                                                    recordTargetElement={this.recordTargetElement}
-                                                    viewId={this.props.model.getID()}
-                                                    onEndpointRemove={this.removeEndpoint}
-                                                    onOperatorRemove={this.removeIntermediateNode}
-                                                    onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                                    isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
-                                                    onFolderClick={this.foldFunction}
-                                                />);
                                             })
                                         }
                                     </DropZone>
@@ -1370,17 +1453,32 @@ class TransformerExpanded extends React.Component {
                                         transformNodeManager={this.transformNodeManager}
                                     />
                                     <IterableList
-                                        showIterables={this.state.iterableOperationMenu.showIterables}
+                                        showIterables={this.state.connectionMenu.showIterables}
                                         bBox={{
-                                            x: this.state.iterableOperationMenu.iterableX,
-                                            y: this.state.iterableOperationMenu.iterableY,
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
                                             h: 0,
                                             w: 0,
                                         }}
-                                        currrentConnection={this.state.iterableOperationMenu.currrentConnection}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
                                         transformNodeManager={this.transformNodeManager}
                                         callback={() => {
-                                            this.setState({ iterableOperationMenu: { showIterables: false } });
+                                            this.setState({ connectionMenu: { showIterables: false } });
+                                        }}
+                                    />
+                                    <ConversionList
+                                        showConvesrsion={this.state.connectionMenu.showConversions}
+                                        bBox={{
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
+                                            h: 0,
+                                            w: 0,
+                                        }}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
+                                        currentStatement={this.state.connectionMenu.currentStatement}
+                                        transformNodeManager={this.transformNodeManager}
+                                        callback={() => {
+                                            this.setState({ connectionMenu: { showConvesrsion: false } });
                                         }}
                                     />
                                     <div className='right-content'>
@@ -1413,7 +1511,6 @@ class TransformerExpanded extends React.Component {
 TransformerExpanded.propTypes = {
     model: PropTypes.instanceOf(TransformerNode).isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
-    leftOffset: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

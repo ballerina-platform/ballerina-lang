@@ -79,6 +79,6 @@ public class Utils {
     }
 
     public static BStruct createConversionError(Context context, String msg) {
-        return BLangVMErrors.createTypeConversionError(context, -1, msg);
+        return BLangVMErrors.createError(context, -1, msg);
     }
 }

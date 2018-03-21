@@ -1,8 +1,8 @@
-function testMultiInteractions(int k) (int){
+function testMultiInteractions(int k) returns int{
     return test(k);
 }
 
-function test (int k) (int q) {
+function test (int k) returns int {
     worker default {
         int x = 1100;
         x -> w1;

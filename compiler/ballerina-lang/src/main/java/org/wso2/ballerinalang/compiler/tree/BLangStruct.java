@@ -40,6 +40,8 @@ public class BLangStruct extends BLangNode implements StructNode {
     public BLangIdentifier name;
     public List<BLangVariable> fields;
     public Set<Flag> flagSet;
+    public List<BLangFunction> functions;
+    public BLangFunction initFunction;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
@@ -50,6 +52,7 @@ public class BLangStruct extends BLangNode implements StructNode {
     public BLangStruct() {
         this.fields = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.functions = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();

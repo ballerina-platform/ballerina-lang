@@ -2,19 +2,19 @@ import ballerina.runtime;
 
 public struct testError {
     string message;
-    error cause;
+    error[] cause;
     string code;
 }
 
 public struct testDataError {
     string message;
-    error cause;
+    error[] cause;
     string data;
 }
 
 public struct testInputError {
     string message;
-    error cause;
+    error[] cause;
     string input;
 }
 

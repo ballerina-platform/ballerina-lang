@@ -19,11 +19,10 @@ package org.ballerinalang.nativeimpl.io.channels;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -38,7 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @see org.ballerinalang.nativeimpl.io.OpenFile
  */
-public abstract class AbstractNativeChannel extends AbstractNativeFunction {
+public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
 
     /**
      * represents the information related to the byte channel.
@@ -86,10 +85,10 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Channel channel = inFlow(context);
         BStruct channelStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context));
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
-        return getBValues(channelStruct);
+        context.setReturnValues(channelStruct);
     }
 }

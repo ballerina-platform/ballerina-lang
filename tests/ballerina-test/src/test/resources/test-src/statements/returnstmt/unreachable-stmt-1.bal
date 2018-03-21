@@ -1,4 +1,4 @@
-function returnStmtBranch1(int value, int b) (int) {
+function returnStmtBranch1(int value, int b) returns (int) {
 
     if( value > 10) {
         return 100;

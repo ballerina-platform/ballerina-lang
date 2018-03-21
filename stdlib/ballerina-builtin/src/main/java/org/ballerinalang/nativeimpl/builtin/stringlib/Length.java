@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,12 +38,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class Length extends AbstractNativeFunction {
+public class Length extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String param1 = getStringArgument(context, 0);
+    public void execute(Context context) {
+        String param1 = context.getStringArgument(0);
         BInteger intValue = new BInteger(param1.length());
-        return getBValues(intValue);
+        context.setReturnValues(intValue);
     }
 }

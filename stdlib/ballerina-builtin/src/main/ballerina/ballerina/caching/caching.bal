@@ -119,7 +119,7 @@ function <Cache cache> evictCache () {
     string[] cacheKeys = cache.getLRUCacheKeys(numberOfKeysToEvict);
     // Iterate through the map and remove entries.
     foreach c in cacheKeys {
-        cache.entries.remove(c);
+        _ = cache.entries.remove(c);
     }
 }
 
@@ -142,12 +142,12 @@ public function <Cache cache> get (string key) returns (any) {
 @Description {value:"Removes a cached value from a cache."}
 @Param {value:"key: key of the cache entry which needs to be removed"}
 public function <Cache cache> remove (string key) {
-    cache.entries.remove(key);
+    _ = cache.entries.remove(key);
 }
 
 @Description {value:"Removes expired cache entries from all caches."}
 @Return {value:"error: Any error which occured during cache expiration"}
-function runCacheExpiry () returns (error) {
+function runCacheExpiry () returns (error|null) {
     // Iterate through all caches.
     foreach currentCacheKey, currentCacheValue in cacheMap {
         var currentCache, err = (Cache)currentCacheValue;
@@ -185,7 +185,7 @@ function runCacheExpiry () returns (error) {
         foreach currentKeyIndex in [0..cachesToBeRemovedIndex) {
             string key = cachesToBeRemoved[currentKeyIndex];
             // Remove the cache entry.
-            currentCacheEntries.remove(key);
+            _ = currentCacheEntries.remove(key);
         }
     }
     return null;
@@ -193,7 +193,7 @@ function runCacheExpiry () returns (error) {
 
 @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
 @Return {value:"numberOfKeysToEvict - number of keys to be evicted"}
-function <Cache cache> getLRUCacheKeys (int numberOfKeysToEvict) (string[]) {
+function <Cache cache> getLRUCacheKeys (int numberOfKeysToEvict) returns (string[]) {
     // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
     string[] cacheKeysToBeRemoved = [];
     int[] timestamps = [];
@@ -239,13 +239,9 @@ function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timesta
 
 @Description {value:"Creates a new cache cleanup task."}
 @Return {value:"string: cache cleanup task ID"}
-function createCacheCleanupTask () (string) {
-    function () returns (error) onTriggerFunction = runCacheExpiry;
-    function (error) onErrorFunction = null;
-    var cacheCleanupTaskID, schedulerError = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
-    // If task creation failed, throw an error.
-    if (schedulerError != null) {
-        throw schedulerError;
-    }
+function createCacheCleanupTask () returns (string) {
+    function () returns (error|null) onTriggerFunction = runCacheExpiry;
+    function (error)|null onErrorFunction = null;
+    cacheCleanupTaskID =? task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
     return cacheCleanupTaskID;
 }

@@ -1,4 +1,4 @@
-function arrayLengthAccessTestAssignmentCase (int x, int y) (int) {
+function arrayLengthAccessTestAssignmentCase (int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -8,7 +8,7 @@ function arrayLengthAccessTestAssignmentCase (int x, int y) (int) {
     return length;
 }
 
-function arrayLengthAccessTestFunctionInvocationCase(int x, int y) (int) {
+function arrayLengthAccessTestFunctionInvocationCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -19,11 +19,11 @@ function arrayLengthAccessTestFunctionInvocationCase(int x, int y) (int) {
 }
 
 
-function arrayLength(int x) (int) {
+function arrayLength(int x) returns (int) {
     return x;
 }
 
-function arrayLengthAccessTestVariableDefinitionCase(int x, int y) (int) {
+function arrayLengthAccessTestVariableDefinitionCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -32,7 +32,7 @@ function arrayLengthAccessTestVariableDefinitionCase(int x, int y) (int) {
     return length;
 }
 
-function arrayLengthAccessTestArrayInitializerCase(int x, int y) (int) {
+function arrayLengthAccessTestArrayInitializerCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -41,7 +41,7 @@ function arrayLengthAccessTestArrayInitializerCase(int x, int y) (int) {
     return tempArr[0];
 }
 
-function arrayLengthAccessTestMapInitializerCase(int x, int y) (int) {
+function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -52,7 +52,7 @@ function arrayLengthAccessTestMapInitializerCase(int x, int y) (int) {
     return length;
 }
 
-function arrayLengthAccessTestReturnStatementCase(int x, int y) (int) {
+function arrayLengthAccessTestReturnStatementCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -60,7 +60,7 @@ function arrayLengthAccessTestReturnStatementCase(int x, int y) (int) {
     return lengthof arr;
 }
 
-function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) (int,int,int) {
+function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) returns (int,int,int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -70,10 +70,10 @@ function arrayLengthAccessTestMultiReturnStatementCase(int x, int y) (int,int,in
     int[] crr = [];
     crr[0] = 1;
     crr[1] = x + y;
-    return lengthof arr, lengthof brr, lengthof crr;
+    return (lengthof arr, lengthof brr, lengthof crr);
 }
 
-function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) (int) {
+function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -82,7 +82,7 @@ function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) (int) {
     return length;
 }
 
-function arrayLengthAccessTestIfConditionCase(int x, int y) (int) {
+function arrayLengthAccessTestIfConditionCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -94,7 +94,7 @@ function arrayLengthAccessTestIfConditionCase(int x, int y) (int) {
     }
 }
 
-function arrayLengthAccessTestBinaryExpressionCase(int x, int y) (int) {
+function arrayLengthAccessTestBinaryExpressionCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -106,7 +106,7 @@ function arrayLengthAccessTestBinaryExpressionCase(int x, int y) (int) {
     }
 }
 
-function arrayLengthAccessTestStructFieldAccessCase(int x, int y) (int) {
+function arrayLengthAccessTestStructFieldAccessCase(int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
@@ -121,7 +121,7 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) (int) {
     }
 }
 
-function arrayLengthAccessNullArrayCase(int x, int y) (int) {
+function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
     int z = x + y;
     int[] arr;
     int length;

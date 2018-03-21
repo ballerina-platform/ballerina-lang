@@ -29,6 +29,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PAC
  */
 public class BPackageSymbol extends BTypeSymbol {
 
+    public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol;
     // TODO Introduce States to the Package Symbol.. DEFINED, TYPE_CHECKED, ANALYZED etc..
 
     public PackageInfo packageInfo;

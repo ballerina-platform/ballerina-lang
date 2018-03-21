@@ -19,12 +19,12 @@
 package org.ballerinalang.nativeimpl.transactions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -38,10 +38,10 @@ import java.net.ServerSocket;
         functionName = "getAvailablePort",
         returnType = {@ReturnType(type = TypeKind.INT)}
 )
-public class GetAvailablePort extends AbstractNativeFunction {
+public class GetAvailablePort extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        return getBValues(new BInteger(findFreePort()));
+    public void execute(Context ctx) {
+        ctx.setReturnValues(new BInteger(findFreePort()));
     }
 
     private int findFreePort() {

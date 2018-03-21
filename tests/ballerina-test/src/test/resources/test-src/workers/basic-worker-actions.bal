@@ -16,7 +16,7 @@ function workerDeclTest() {
    worker wy { }
 }
 
-function forkJoinWithMessageParsingTest() (int) {
+function forkJoinWithMessageParsingTest() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -35,7 +35,7 @@ function forkJoinWithMessageParsingTest() (int) {
 	return x;
 }
 
-function forkJoinWithSingleForkMessages() (int) {
+function forkJoinWithSingleForkMessages() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -56,7 +56,7 @@ function forkJoinWithSingleForkMessages() (int) {
 	return x;
 }
 
-function basicForkJoinTest() (int) {
+function basicForkJoinTest() returns int {
     int x = 10;
     fork {
 	   worker w1 {
@@ -71,7 +71,7 @@ function basicForkJoinTest() (int) {
 	return x;
 }
 
-function forkJoinWithMultipleForkMessages() (int) {
+function forkJoinWithMultipleForkMessages() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -106,7 +106,7 @@ function simpleWorkerMessagePassingTest() {
    }
 }
 
-function forkJoinWithSomeJoin() (map) {
+function forkJoinWithSomeJoin() returns int {
     map m = {};
     m["x"] = 25;
     fork {
@@ -128,10 +128,11 @@ function forkJoinWithSomeJoin() (map) {
 	     m["x"] = b;
 	   }
 	} join (some 1) (map results) {  io:println(results);  }
-	return m;
+	var ret, _ = (int) m["x"];
+	return ret;
 }
 
-function workerReturnTest() (int) {
+function workerReturnTest() returns int {
     worker wx {
 	    int x = 50;
 	    return x + 1;

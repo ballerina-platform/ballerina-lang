@@ -41,7 +41,7 @@ public struct File {
 @Field { value : "cause: The error which caused the I/O error"}
 public struct IOError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a non-existent file."}
@@ -49,7 +49,7 @@ public struct IOError {
 @Field { value : "cause: The error which caused the file not found error"}
 public struct FileNotFoundError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without the required privileges."}
@@ -57,7 +57,7 @@ public struct FileNotFoundError {
 @Field { value : "cause: The error which caused the access denied error"}
 public struct AccessDeniedError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without opening it."}
@@ -65,7 +65,7 @@ public struct AccessDeniedError {
 @Field { value : "cause: The error which caused the file not opened error"}
 public struct FileNotOpenedError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value:"Closes a given file and its stream"}
@@ -75,7 +75,7 @@ public native function <File file> close ();
 @Description { value:"Retrieves the stream from a local file"}
 @Param { value:"file: The file which needs to be opened" }
 @Param { value:"accessMode: The file access mode used when opening the file" }
-public native function <File file> open (string accessMode);
+public native function <File file> open (@sensitive string accessMode);
 
 @Description { value:"Copies a file from a given location to another"}
 @Param { value:"source: File/Directory that should be copied" }
@@ -90,7 +90,7 @@ public native function move (File target, File destination);
 @Description {value:"Checks whether the file exists"}
 @Param { value: "file: The file to be checked for existence"}
 @Return { value:"Returns true if the file exists"}
-public native function <File file> exists () (boolean);
+public native function <File file> exists () returns (boolean);
 
 @Description { value:"Deletes a file from a given location"}
 @Param { value: "file: The file to be deleted"}
@@ -99,53 +99,49 @@ public native function <File file> delete ();
 @Description {value:"Checks whether the file is a directory"}
 @Param { value: "file: The file to be checked to determine whether it is a directory"}
 @Return { value:"Returns true if the file is a directory"}
-public native function <File file> isDirectory () (boolean);
+public native function <File file> isDirectory () returns (boolean);
 
 @Description {value:"Creates the directory structure specified by the file struct"}
 @Param { value: "file: The directory or directory structure to be created"}
 @Return {value:"Returns true if the directory/directories were successfully created"}
-@Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to modify the directory"}
-@Return {value:"Returns an IOError if the directory could not be created"}
-public native function <File file> mkdirs () (boolean, AccessDeniedError, IOError);
+@Return {value:"Returns an IOError if the directory could not be created or the user does not have the necessary permissions to modify the directory"}
+public native function <File file> mkdirs () returns (boolean | error);
 
 @Description {value:"Returns the last modified time of the file"}
 @Param { value: "file: The file of which the modified time needs to be checked"}
 @Return {value:"Returns a Time struct"}
-@Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to read the file"}
-@Return {value:"Returns an IOError if the file could not be read"}
-public native function <File file> getModifiedTime () (time:Time, AccessDeniedError, IOError);
+@Return {value:"Returns an error if the file could not be read"}
+public native function <File file> getModifiedTime () returns (time:Time | error);
 
 @Description {value:"Returns the name of the file"}
 @Param { value: "file: The file of which the name needs to be looked up"}
 @Return {value:"Returns the file name as a string"}
-public native function <File file> getName () (string);
+public native function <File file> getName () returns (string);
 
 @Description {value:"Checks whether the user has read access to the file"}
 @Param { value: "file: The file to be checked for read permission"}
 @Return {value:"Returns true if the user has read access"}
-public native function <File file> isReadable () (boolean);
+public native function <File file> isReadable () returns (boolean);
 
 @Description {value:"Checks whether the user has write access to the file"}
 @Param { value: "file: The file to be checked for write permission"}
 @Return {value:"Returns true if the user has write access"}
-public native function <File file> isWritable () (boolean);
+public native function <File file> isWritable () returns (boolean);
 
 @Description {value:"Creates a new file given by the path in the File struct"}
 @Param { value: "file: The file to be created"}
 @Return {value:"Returns true if the new file was successfully created"}
-@Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to create the file"}
-@Return {value:"Returns an IOError if the file could not be created due to an I/O error"}
-public native function <File file> createNewFile () (boolean, AccessDeniedError, IOError);
+@Return {value:"Returns an error if the file could not be created due to an I/O error or the user does not have the necessary permissions to create the file"}
+public native function <File file> createNewFile () returns (boolean | error);
 
 @Description {value:"Lists the files in the specified directory"}
 @Param { value: "file: The directory whose files list is needed"}
 @Return {value:"Returns an array of File structs if successful"}
-@Return {value:"Returns an AccessDeniedError if the user does not have the necessary permissions to read the directory"}
-@Return {value:"Returns an IOError if the directory could not be opened due to an I/O error"}
-public native function <File file> list () (File[], AccessDeniedError, IOError);
+@Return {value:"Returns an IOError if the directory could not be opened due to an I/O error or the user does not have the necessary permissions to read the directory"}
+public native function <File file> list () returns (File[] | error);
 
 @Description {value:"Function to return a ByteChannel related to the file. This ByteChannel can then be used to read/write from/to the file."}
 @Param { value: "file: The file to which a channel needs to be opened"}
 @Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
 @Return{value:"ByteChannel which will allow to perform I/O operations"}
-public native function <File file>  openChannel (string accessMode)(io:ByteChannel);
+public native function <File file>  openChannel (@sensitive string accessMode) returns (io:ByteChannel);

@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -39,13 +38,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                            @Argument(name = "data",
                                      type = TypeKind.ANY)
                    })
-public class Delete extends AbstractNativeFunction {
+public class Delete extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BTable table = (BTable) getRefArgument(context, 0);
-        BStruct data = (BStruct) getRefArgument(context, 1);
+    public void execute(Context context) {
+        BTable table = (BTable) context.getRefArgument(0);
+        BStruct data = (BStruct) context.getRefArgument(1);
         table.removeData(data);
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

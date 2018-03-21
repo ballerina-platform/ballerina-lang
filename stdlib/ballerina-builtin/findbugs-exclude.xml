@@ -20,7 +20,7 @@
         <Package name="org.ballerinalang.builtin"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.nativeimpl.actions.data.sql.client"/>
+        <Package name="org.ballerinalang.nativeimpl.actions.data.sql.actions"/>
     </Match>
     <Match>
         <Package name="org.ballerinalang.nativeimpl.compression"/>

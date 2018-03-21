@@ -20,13 +20,12 @@ package org.ballerinalang.nativeimpl.jwt.signature;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jwt.crypto.JWSSigner;
 import org.ballerinalang.nativeimpl.jwt.crypto.RSASigner;
 import org.ballerinalang.nativeimpl.security.KeyStore;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -50,15 +49,15 @@ import java.security.PrivateKey;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Sign extends AbstractNativeFunction {
+public class Sign extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String data = getStringArgument(context, 0);
-        String algorithm = getStringArgument(context, 1);
-        String keyAlias = getStringArgument(context, 2);
-        char[] keyPassword = getStringArgument(context, 3).toCharArray();
-        String signature;
+    public void execute(Context context) {
+        String data = context.getStringArgument(0);
+        String algorithm = context.getStringArgument(1);
+        String keyAlias = context.getStringArgument(2);
+        char[] keyPassword = context.getStringArgument(3).toCharArray();
+        String signature = null;
         PrivateKey privateKey;
         try {
             if (keyAlias != null && !keyAlias.isEmpty()) {
@@ -68,9 +67,9 @@ public class Sign extends AbstractNativeFunction {
             }
             JWSSigner signer = new RSASigner(privateKey);
             signature = signer.sign(data, algorithm);
+            context.setReturnValues(new BString(signature));
         } catch (Exception e) {
-            return getBValues(new BString(null), BLangVMErrors.createError(context, 0, e.getMessage()));
-        }
-        return getBValues(new BString(signature));
+            context.setReturnValues(new BString(null), BLangVMErrors.createError(context, 0, e.getMessage()));
+        }        
     }
 }

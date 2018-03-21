@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,9 +18,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Button, Form, Input, Checkbox, Accordion, Icon } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
-import AceEditor from 'react-ace';
+import MonacoEditor from 'react-monaco-editor';
 
 /**
  * File Open Wizard Dialog
@@ -38,11 +38,13 @@ class ImportStructDialog extends React.Component {
             json: '',
             selectedNode: undefined,
             showDialog: true,
+            activeIndex: 1,
         };
         this.onImportJson = this.onImportJson.bind(this);
         this.onDialogHide = this.onDialogHide.bind(this);
         this.textChange = this.textChange.bind(this);
         this.onValidate = this.onValidate.bind(this);
+        this.handleAccordion = this.handleAccordion.bind(this);
     }
 
     /**
@@ -56,7 +58,7 @@ class ImportStructDialog extends React.Component {
      * Called when user clicks 'Import Struct' menu item.
      */
     onImportJson() {
-        if (this.props.onImport(this.state.json)) {
+        if (this.props.onImport(this.state.json, this.state.structName, this.state.removeDefaults)) {
             this.setState({
                 error: '',
                 json: '',
@@ -98,6 +100,19 @@ class ImportStructDialog extends React.Component {
         this.setState({ json: newValue, isJSONError: false, isGenerationError: false });
     }
 
+    /**
+     * Handler function for accordion
+     * @param {object} e 
+     * @param {object} titleProps 
+     */
+    handleAccordion(e, titleProps) {
+        const { index } = titleProps;
+        const { activeIndex } = this.state;
+        const newIndex = activeIndex === index ? -1 : index;
+    
+        this.setState({ activeIndex: newIndex });
+    }
+
 
     /**
      * @inheritdoc
@@ -109,40 +124,90 @@ class ImportStructDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title='Import from JSON'
-                actions={
+                title='Create Struct'
+                titleIcon='fw fw-import'
+                closeDialog
+                actions={[
                     <Button
                         primary
                         onClick={this.onImportJson}
-                        disabled={this.state.json === ''}
                     >
                         Import
                     </Button>
-                }
-                closeAction
+                ]}
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <p>Please enter a valid sample JSON to generate struct definition.</p>
-                <AceEditor
-                    mode='json'
-                    theme='monokai'
-                    onChange={this.textChange}
-                    onValidate={this.onValidate}
-                    value={this.state.json}
-                    name='json'
-                    editorProps={{
-                        $blockScrolling: Infinity,
+                <Form
+                    widths='equal'
+                    onSubmit={(e) => {
+                        this.onImportJson();
                     }}
-                    setOptions={{
-                        showLineNumbers: false,
-                    }}
-                    maxLines={30}
-                    minLines={10}
-                    showGutter={this.state.isGenerationError && this.state.isJSONError}
-                    width='auto'
-                    showPrintMargin={false}
-                />
+                >
+                    <Form.Group controlId='structName' inline className='inverted'>
+                        <Form.Field width={3} htmlFor='structName'>
+                            <label>Struct Name</label>
+                        </Form.Field>
+                        <Form.Field width={12} className='inverted'>
+                            <Input
+                                type='text'
+                                value={this.state.structName}
+                                onChange={(evt) => {
+                                    this.setState({
+                                        error: '',
+                                        structName: evt.target.value,
+                                    });
+                                }}
+                            />
+                        </Form.Field>
+                    </Form.Group>
+                    <Accordion as={Form.Field} className='inverted'>
+                        <Accordion.Title active={this.state.activeIndex === 0} index={0} onClick={this.handleAccordion}>
+                            <Icon name='dropdown' />
+                            Create struct using JSON.
+                        </Accordion.Title>
+                        <Accordion.Content active={this.state.activeIndex === 0}>
+                            <Form.Field>
+                                <p>Please enter a valid sample JSON to generate struct definition.</p>
+                                <MonacoEditor
+                                    width='auto'
+                                    height='300'
+                                    language='json'
+                                    theme='vs-dark'
+                                    value={this.state.json}
+                                    onChange={this.textChange}
+                                    name='json'
+                                    options={{
+                                        autoIndent: true,
+                                        fontSize: 14,
+                                        contextmenu: true,
+                                        renderIndentGuides: true,
+                                        autoClosingBrackets: true,
+                                        matchBrackets: true,
+                                        automaticLayout: true,
+                                        glyphMargin: true,
+                                        folding: true,
+                                        lineNumbersMinChars: 2,
+                                    }}
+                                />
+                            </Form.Field>
+                            <Form.Group controlId='removeDefaults' inline className='inverted'>
+                                <Form.Field width={15} className='inverted'>
+                                    <Checkbox
+                                        label='Import JSON without defaults values.'
+                                        value={this.state.removeDefaults}
+                                        onChange={(evt, data) => {
+                                            this.setState({
+                                                error: '',
+                                                removeDefaults: data.checked,
+                                            });
+                                        }}
+                                    />
+                                </Form.Field>
+                            </Form.Group>
+                        </Accordion.Content>
+                    </Accordion>
+                </Form>
                 {(this.state.isGenerationError && this.state.isJSONError) &&
                     <div className='alert alert-danger'>
                         <p style={errorStyle}>Invalid JSON</p>

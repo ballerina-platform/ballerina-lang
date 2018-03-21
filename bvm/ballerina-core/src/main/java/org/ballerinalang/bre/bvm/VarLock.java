@@ -17,8 +17,7 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.ArrayDeque;
 
 /**
  * {@code VarLock} represents lock object for variables.
@@ -26,17 +25,44 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 0.961.0
  */
 public class VarLock {
-    private Lock lock;
+
+    private ArrayDeque<WorkerExecutionContext> current;
+
+    private ArrayDeque<WorkerExecutionContext> waitingForLock;
 
     public VarLock() {
-        lock = new ReentrantLock();
+        this.current = new ArrayDeque<>();
+        this.waitingForLock = new ArrayDeque<>();
     }
 
-    public void  lock() {
-        this.lock.lock();
+    public synchronized boolean lock(WorkerExecutionContext ctx) {
+        if (isLockFree() || lockedBySameContext(ctx) || lockedByParentContext(ctx)) {
+            current.offerLast(ctx);
+            return true;
+        }
+        waitingForLock.offerLast(ctx);
+        BLangScheduler.workerWaitForLock(ctx);
+        return false;
     }
 
-    public void unlock() {
-        lock.unlock();
+    public synchronized void unlock() {
+        //current cannot be empty as unlock cannot be called without lock being called first.
+        current.removeLast();
+        if (!waitingForLock.isEmpty()) {
+            WorkerExecutionContext ctx = waitingForLock.removeFirst();
+            BLangScheduler.resume(ctx, ctx.ip - 1, false);
+        }
+    }
+
+    private boolean isLockFree() {
+        return current.isEmpty();
+    }
+
+    private boolean lockedByParentContext(WorkerExecutionContext ctx) {
+        return current.getLast() == ctx.parent;
+    }
+
+    private boolean lockedBySameContext(WorkerExecutionContext ctx) {
+        return current.getLast() == ctx;
     }
 }

@@ -21,8 +21,6 @@ import ballerina.log;
 
 @Description {value:"Configuration key for groups in userstore"}
 const string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
-@Description {value:"Configuration key for userids in userstore"}
-const string PERMISSIONSTORE_USERIDS_ENTRY = "userids";
 
 @Description {value:"Represents the permission store"}
 public struct FileBasedPermissionStore { 
@@ -32,7 +30,7 @@ public struct FileBasedPermissionStore {
 @Param {value:"username: user name"}
 @Param {value:"scopeName: name of the scope"}
 @Return {value:"boolean: true if authorized, else false"}
-public function <FileBasedPermissionStore permissionStore> isAuthorized (string username, string scopeName) (boolean) {
+public function <FileBasedPermissionStore permissionStore> isAuthorized (string username, string scopeName) returns (boolean) {
 
     string[] groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
     if (groupsForScope == null) {
@@ -51,7 +49,7 @@ public function <FileBasedPermissionStore permissionStore> isAuthorized (string 
 @Description {value:"Reads groups for the given scopes"}
 @Param {value:"scopeName: name of the scope"}
 @Return {value:"string: comma separated groups specified for the scopename"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (string scopeName) (string) {
+public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string) {
     // reads the groups for the provided scope
     return config:getInstanceValue(scopeName, PERMISSIONSTORE_GROUPS_ENTRY);
 }
@@ -60,7 +58,7 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (st
 @Param {value:"requiredGroupsForScope: array of groups for the scope"}
 @Param {value:"groupsReadFromPermissionstore: array of groups for the user"}
 @Return {value:"boolean: true if two arrays are equal in content, else false"}
-function matchGroups (string[] requiredGroupsForScope, string[] groupsReadFromPermissionstore) (boolean) {
+function matchGroups (string[] requiredGroupsForScope, string[] groupsReadFromPermissionstore) returns (boolean) {
     int groupCountRequiredForResource = lengthof requiredGroupsForScope;
     int matchingRoleCount = 0;
     foreach groupReadFromPermissiontore in groupsReadFromPermissionstore {
@@ -76,7 +74,7 @@ function matchGroups (string[] requiredGroupsForScope, string[] groupsReadFromPe
 @Description {value:"Construct an array of groups from the comma separed group string passed"}
 @Param {value:"groupString: comma separated string of groups"}
 @Return {value:"string[]: array of groups, null if the groups string is empty/null"}
-function getGroupsArray (string groupString) (string[]) {
+function getGroupsArray (string groupString) returns (string[]) {
     if (groupString == null || groupString.length() == 0) {
         log:printDebug("could not extract any groups from groupString: " + groupString);
         return null;
@@ -87,7 +85,7 @@ function getGroupsArray (string groupString) (string[]) {
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
 @Return {value:"string: comma separeted groups list, as specified in the userstore file"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) (string) {
+public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) returns (string) {
     // first read the user id from user->id mapping
     string userid = readUserId(username);
     if (userid == null) {
@@ -101,6 +99,6 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (str
 @Description {value:"Reads the user id for the given username"}
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
-function readUserId (string username) (string) {
-    return config:getInstanceValue(PERMISSIONSTORE_USERIDS_ENTRY, username);
+function readUserId (string username) returns (string) {
+    return config:getInstanceValue(username, "userid");
 }

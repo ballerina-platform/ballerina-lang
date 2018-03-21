@@ -28,7 +28,7 @@ public struct Vector {
 @Field { value : "cause: The cause for the error"}
 public struct IndexOutOfRangeError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value:"Adds the specified element to the end of the vector."}
@@ -50,7 +50,7 @@ public function <Vector v> clear() {
 @Param { value: "v: The vector from which the element will be retrieved"}
 @Param { value: "index: The position of the element to retrieve"}
 @Return { value:"The element at the specified position."}
-public function <Vector v> get (int index) (any) {
+public function <Vector v> get (int index) returns (any) {
     validateRange(v.vectorSize, index);
     return v.vec[index];
 }
@@ -69,7 +69,7 @@ public function <Vector v> insert (any element, int index) {
 @Description { value:"Checks whether the specified vector is empty."}
 @Param { value: "v: The vector to be checked if its empty"}
 @Return { value:"Returns true if there aren't any elements in the vector"}
-public function <Vector v> isEmpty() (boolean) {
+public function <Vector v> isEmpty() returns (boolean) {
     return v.vectorSize == 0;
 }
 
@@ -77,7 +77,7 @@ public function <Vector v> isEmpty() (boolean) {
 @Param { value: "v: The vector from which the element will be removed"}
 @Param { value: "index: The position to remove the element from"}
 @Return { value:"The element at the specified position."}
-public function <Vector v> remove (int index) (any) {
+public function <Vector v> remove (int index) returns (any) {
     validateRange(v.vectorSize, index);
     any element = v.vec[index];
     shiftLeft(v, index);
@@ -90,7 +90,7 @@ public function <Vector v> remove (int index) (any) {
 @Param { value: "element: The replacement element"}
 @Param { value: "index: The position of the element to be replaced"}
 @Return { value:"The element which was originally at the specified position"}
-public function <Vector v> replace(any element, int index) (any) {
+public function <Vector v> replace(any element, int index) returns (any) {
     validateRange(v.vectorSize, index);
     any currentElement = v.vec[index];
     v.vec[index] = element;
@@ -100,7 +100,7 @@ public function <Vector v> replace(any element, int index) (any) {
 @Description { value:"Returns the size of the vector."}
 @Param { value: "v: The vector of which to look-up the size"}
 @Return { value:"The size of the vector"}
-public function <Vector v> size() (int) {
+public function <Vector v> size() returns (int) {
     return v.vectorSize;
 }
 

@@ -54,7 +54,7 @@ public class XMLAttributesTest {
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
-            expectedExceptionsMessageRegExp = "error: error, message: localname of the attribute cannot be empty.*")
+            expectedExceptionsMessageRegExp = ".*localname of the attribute cannot be empty.*")
     public void testAddAttributeWithoutLocalname() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithoutLocalname");
     }
@@ -118,7 +118,7 @@ public class XMLAttributesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class }, 
-            expectedExceptionsMessageRegExp = "error: error, message: failed to add attribute " +
+            expectedExceptionsMessageRegExp = ".*failed to add attribute " +
             "'ns5:foo1'. prefix 'ns5' is already bound to namespace 'http://sample.com/wso2/f/'.*")
     public void testAddAttributeWithQName_4() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");

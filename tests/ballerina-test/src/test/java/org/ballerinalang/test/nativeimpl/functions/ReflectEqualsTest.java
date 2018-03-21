@@ -73,6 +73,11 @@ public class ReflectEqualsTest {
     
     @Test(dataProvider = "ReflectEqualsValidFunctionInfos")
     public void testPrimitivesReflectEqual(FunctionInfo testFunction) {
+        // TODO: This is not scalable. If new internal only functions are added to the model, this test will fail. 
+        // Hence add a separate test per each function.
+        if (testFunction.getName().equals("..<start>") || testFunction.getName().equals("..<stop>")) {
+            return;
+        }
         BValue[] returns = BRunUtil.invoke(compileResultForPrimitives, testFunction.getName());
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);

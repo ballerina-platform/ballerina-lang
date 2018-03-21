@@ -20,10 +20,10 @@ import ballerina.auth.userstore;
 import ballerina.caching;
 
 @Description {value:"Represents a Basic Authenticator"}
-@Field {value:"credentialsStore: CredentialsStore object; ex.: in basic authenticator, the user store"}
+@Field {value:"userStore: UserStore object; ex.: in basic authenticator, the user store"}
 @Field {value:"authCache: Authentication cache object"}
 public struct BasicAuthenticator {
-    userstore:CredentialsStore credentialsStore;
+    userstore:UserStore userStore;
     caching:Cache authCache;
 }
 
@@ -36,18 +36,18 @@ public struct AuthenticationInfo {
 }
 
 @Description {value:"Creates a Basic Authenticator"}
-@Param {value:"credentialsStore: implementation of the credentials store - ldap, jdbc, file based userstore, etc."}
+@Param {value:"userStore: implementation of the credentials store - ldap, jdbc, file based userstore, etc."}
 @Param {value:"cache: cache instance"}
 @Return {value:"BasicAuthenticator instance"}
-public function createAuthenticator (userstore:CredentialsStore credentialsStore,
-                                     caching:Cache cache) (BasicAuthenticator) {
-    if (credentialsStore == null) {
+public function createAuthenticator (userstore:UserStore userStore,
+                                     caching:Cache cache) returns (BasicAuthenticator) {
+    if (userStore == null) {
         // error, cannot proceed without validator
         error e = {message:"Userstore cannot be null for basic authenticator"};
         throw e;
     }
 
-    BasicAuthenticator authenticator = {credentialsStore:credentialsStore, authCache:cache};
+    BasicAuthenticator authenticator = {userStore:userStore, authCache:cache};
     return authenticator;
 }
 
@@ -55,14 +55,14 @@ public function createAuthenticator (userstore:CredentialsStore credentialsStore
 @Param {value:"username: user name"}
 @Param {value:"password: password"}
 @Return {value:"boolean: true if authentication is successful, else false"}
-public function <BasicAuthenticator authenticator> authenticate (string username, string password) (boolean) {
-    return authenticator.credentialsStore.authenticate(username, password);
+public function <BasicAuthenticator authenticator> authenticate (string username, string password) returns (boolean) {
+    return authenticator.userStore.authenticate(username, password);
 }
 
 @Description {value:"Retrieves the cached authentication result if any, for the given basic auth header value"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Return {value:"any: cached entry, or null in a cache miss"}
-function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) (any) {
+public function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) returns (any) {
     if (authenticator.authCache != null) {
         return authenticator.authCache.get(basicAuthCacheKey);
     }
@@ -72,7 +72,8 @@ function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAut
 @Description {value:"Caches the authentication result"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Param {value:"authInfo: AuthenticationInfo instance containing authentication decision"}
-function <BasicAuthenticator authenticator> cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo) {
+public function <BasicAuthenticator authenticator> cacheAuthResult (string basicAuthCacheKey,
+                                                                    AuthenticationInfo authInfo) {
     if (authenticator.authCache != null) {
         authenticator.authCache.put(basicAuthCacheKey, authInfo);
     }
@@ -80,7 +81,7 @@ function <BasicAuthenticator authenticator> cacheAuthResult (string basicAuthCac
 
 @Description {value:"Clears any cached authentication result"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
-function <BasicAuthenticator authenticator> clearCachedAuthResult (string basicAuthCacheKey) {
+public function <BasicAuthenticator authenticator> clearCachedAuthResult (string basicAuthCacheKey) {
     if (authenticator.authCache != null) {
         authenticator.authCache.remove(basicAuthCacheKey);
     }
@@ -90,7 +91,7 @@ function <BasicAuthenticator authenticator> clearCachedAuthResult (string basicA
 @Param {value:"username: user name"}
 @Param {value:"isAuthenticated: authentication decision"}
 @Return {value:"AuthenticationInfo: Authentication decision instance, whether the user is authenticated or not"}
-function createAuthenticationInfo (string username, boolean isAuthenticated) (AuthenticationInfo) {
+public function createAuthenticationInfo (string username, boolean isAuthenticated) returns (AuthenticationInfo) {
     AuthenticationInfo authInfo = {username:username, isAuthenticated:isAuthenticated};
     return authInfo;
 }

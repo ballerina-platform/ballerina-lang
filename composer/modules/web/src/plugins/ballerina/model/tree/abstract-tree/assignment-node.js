@@ -22,6 +22,33 @@ import StatementNode from '../statement-node';
 class AbstractAssignmentNode extends StatementNode {
 
 
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
+
+
     setVariables(newValue, silent, title) {
         const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -139,33 +166,6 @@ class AbstractAssignmentNode extends StatementNode {
     filterVariables(predicateFunction) {
         return _.filter(this.variables, predicateFunction);
     }
-
-
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
 
 

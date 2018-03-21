@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -88,8 +89,13 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
 
         if (funcNode.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (!funcNode.params.isEmpty()) {
-                funcNode.params.forEach(this::acceptNode);
+
+            if (funcNode.receiver != null) {
+                this.acceptNode(funcNode.receiver);
+            }
+
+            if (!funcNode.requiredParams.isEmpty()) {
+                funcNode.requiredParams.forEach(this::acceptNode);
             }
 
             if (!funcNode.retParams.isEmpty()) {
@@ -100,8 +106,16 @@ public class DefinitionTreeVisitor extends NodeVisitor {
                 this.acceptNode(funcNode.body);
             }
 
+            if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
+                funcNode.endpoints.forEach(this::acceptNode);
+            }
+
             if (!funcNode.workers.isEmpty()) {
                 funcNode.workers.forEach(this::acceptNode);
+            }
+
+            if (!funcNode.defaultableParams.isEmpty()) {
+                funcNode.defaultableParams.forEach(this::acceptNode);
             }
         }
     }
@@ -110,8 +124,25 @@ public class DefinitionTreeVisitor extends NodeVisitor {
     public void visit(BLangService serviceNode) {
         if (serviceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
+
+            if (serviceNode.serviceTypeStruct != null) {
+                this.acceptNode(serviceNode.serviceTypeStruct);
+            }
+
+            if (!serviceNode.vars.isEmpty()) {
+                serviceNode.vars.forEach(this::acceptNode);
+            }
+
             if (!serviceNode.resources.isEmpty()) {
                 serviceNode.resources.forEach(this::acceptNode);
+            }
+
+            if (!serviceNode.endpoints.isEmpty()) {
+                serviceNode.endpoints.forEach(this::acceptNode);
+            }
+
+            if (!serviceNode.boundEndpoints.isEmpty()) {
+                serviceNode.boundEndpoints.forEach(this::acceptNode);
             }
 
             if (serviceNode.initFunction != null) {
@@ -124,8 +155,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
     public void visit(BLangResource resourceNode) {
         if (resourceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (!resourceNode.params.isEmpty()) {
-                resourceNode.params.forEach(this::acceptNode);
+            if (!resourceNode.requiredParams.isEmpty()) {
+                resourceNode.requiredParams.forEach(this::acceptNode);
             }
 
             if (!resourceNode.retParams.isEmpty()) {
@@ -160,8 +191,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
     public void visit(BLangAction actionNode) {
         if (actionNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (!actionNode.params.isEmpty()) {
-                actionNode.params.forEach(this::acceptNode);
+            if (!actionNode.requiredParams.isEmpty()) {
+                actionNode.requiredParams.forEach(this::acceptNode);
             }
 
             if (!actionNode.retParams.isEmpty()) {
@@ -254,8 +285,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
             this.acceptNode(transactionNode.transactionBody);
         }
 
-        if (transactionNode.failedBody != null) {
-            this.acceptNode(transactionNode.failedBody);
+        if (transactionNode.onRetryBody != null) {
+            this.acceptNode(transactionNode.onRetryBody);
         }
     }
 
@@ -318,8 +349,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
             acceptNode(transformerNode.source);
         }
 
-        if (!transformerNode.params.isEmpty()) {
-            transformerNode.params.forEach(this::acceptNode);
+        if (!transformerNode.requiredParams.isEmpty()) {
+            transformerNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!transformerNode.retParams.isEmpty()) {
@@ -332,6 +363,23 @@ public class DefinitionTreeVisitor extends NodeVisitor {
 
         if (!transformerNode.workers.isEmpty()) {
             transformerNode.workers.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        if (endpointNode.name.getValue()
+                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, endpointNode);
+            terminateVisitor = true;
+        }
+
+        if (endpointNode.endpointTypeNode != null) {
+            this.acceptNode(endpointNode.endpointTypeNode);
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 

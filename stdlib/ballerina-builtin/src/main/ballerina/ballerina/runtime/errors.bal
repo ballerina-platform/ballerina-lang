@@ -18,21 +18,26 @@ package ballerina.runtime;
 
 public struct NullReferenceException {
     string message;
-    error cause;
+    error[] cause;
 }
 
 public struct IllegalStateException {
     string message;
-    error cause;
+    error[] cause;
 }
 
 public struct CallStackElement {
-    string workerName;
+    string callableName;
     string packageName;
     string fileName;
     int lineNumber;
 }
 
-public native function getCallStack ()(CallStackElement[]);
+public native function getCallStack () returns (CallStackElement[]);
 
-public native function getErrorCallStack (error e)(CallStackElement[]);
+public native function getErrorCallStackFrame (error e) returns (CallStackElement);
+
+public struct CallFailedException {
+    string message;
+    error[] cause;
+}

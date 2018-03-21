@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,13 +44,13 @@ import java.nio.file.Paths;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Exists extends AbstractNativeFunction {
+public class Exists extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct struct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct struct = (BStruct) context.getRefArgument(0);
         Path filePath = Paths.get(struct.getStringField(0));
 
-        return getBValues(new BBoolean(Files.exists(filePath)));
+        context.setReturnValues(new BBoolean(Files.exists(filePath)));
     }
 }

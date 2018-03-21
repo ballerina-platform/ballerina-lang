@@ -1,7 +1,7 @@
 import ballerina.net.http;
 
 service<http> serviceName{
-    resource resourceName (http:Connection conn, http:InRequest req) {
+    resource resourceName (http:Connection conn, http:Request req) {
         testStruct1 myStr = {};
         myStr.
     }

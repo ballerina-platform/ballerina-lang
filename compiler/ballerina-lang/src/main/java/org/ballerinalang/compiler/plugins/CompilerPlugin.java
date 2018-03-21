@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
@@ -142,6 +143,14 @@ public interface CompilerPlugin {
      * @param annotations     a list of annotations attached to the transformer node
      */
     void process(TransformerNode transformerNode, List<AnnotationAttachmentNode> annotations);
+
+    /**
+     * Processes a list of annotations attached to an endpoint node.
+     *
+     * @param endpointNode the endpoint node being annotated
+     * @param annotations  a list of annotations attached to the transformer node
+     */
+    void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Notifies when the code generated phase is completed.
