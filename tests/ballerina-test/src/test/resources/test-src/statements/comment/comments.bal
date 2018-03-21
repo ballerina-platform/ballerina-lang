@@ -74,5 +74,6 @@ function <DummyEndpoint s> init (struct {} conf)  {
 struct DummyService {}
 
 function <DummyService s> getEndpoint() returns (DummyEndpoint) {
-    return null;
+    DummyEndpoint myDummyEndpoint = {};
+    return myDummyEndpoint ;
 }
