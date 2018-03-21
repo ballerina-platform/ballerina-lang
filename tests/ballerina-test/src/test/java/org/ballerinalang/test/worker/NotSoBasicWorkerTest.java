@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -78,11 +79,9 @@ public class NotSoBasicWorkerTest {
     @Test
     public void forkJoinWithSomeSelectedJoin1() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin1", new BValue[0]);
-        Assert.assertEquals(vals.length, 2);
-        BInteger x = (BInteger) vals[0];
-        BInteger y = (BInteger) vals[1];
-        Assert.assertEquals(x.intValue(), 15);
-        Assert.assertEquals(y.intValue(), 5);
+        Assert.assertEquals(vals.length, 1);
+        BInteger xy = (BInteger) vals[0];
+        Assert.assertEquals(xy.intValue(), 75);
     }
     
     @Test
