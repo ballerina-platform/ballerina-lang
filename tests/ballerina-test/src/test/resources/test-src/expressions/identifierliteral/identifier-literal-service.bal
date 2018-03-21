@@ -6,7 +6,8 @@ endpoint mock:NonListeningService testEP {
     port:9090
 };
 
-@http:serviceConfig {
+
+@http:ServiceConfig {
     basePath:"/identifierLiteral",
     endpoints:[testEP],
     cors: {
@@ -18,9 +19,9 @@ endpoint mock:NonListeningService testEP {
           }
 }
 
-service<http:Service> sampleService {
+service<http:Service> ^"sample Service" {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/resource"
     }
@@ -31,7 +32,7 @@ service<http:Service> sampleService {
         _ = outboundEp -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/resource2"
     }
