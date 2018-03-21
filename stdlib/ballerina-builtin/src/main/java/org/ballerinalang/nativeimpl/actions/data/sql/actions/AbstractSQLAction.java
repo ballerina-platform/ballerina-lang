@@ -21,7 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -41,6 +44,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
@@ -51,6 +55,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 
 import java.math.BigDecimal;
 import java.sql.Array;
@@ -164,7 +170,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             }
-            context.setReturnValues(updatedCount, generatedKeys);
+            BRefValueArray tuple = new BRefValueArray(BTypes.typeAny);
+            tuple.add(0, updatedCount);
+            tuple.add(1, generatedKeys);
+            context.setReturnValues(tuple);
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
