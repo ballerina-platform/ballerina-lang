@@ -1,58 +1,58 @@
-function testIntegerValue () (int) {
+function testIntegerValue () returns (int) {
     int b;
     b = 10;
     return b;
 }
 
-function testNegativeIntegerValue () (int) {
+function testNegativeIntegerValue () returns (int) {
     int y;
     y = -10;
     return y;
 }
 
-function testHexValue () (int) {
+function testHexValue () returns (int) {
     int b;
     b = 0xa;
     return b;
 }
 
-function testNegativeHaxValue () (int) {
+function testNegativeHaxValue () returns (int) {
     int b;
     b = -0xa;
     return b;
 }
 
-function testOctalValue () (int) {
+function testOctalValue () returns (int) {
     int b;
     b = 0_12;
     return b;
 }
 
-function testNegativeOctalValue () (int) {
+function testNegativeOctalValue () returns (int) {
     int b;
     b = -0_12;
     return b;
 }
 
-function testBinaryValue () (int) {
+function testBinaryValue () returns (int) {
     int b;
     b = 0b1010;
     return b;
 }
 
-function testNegativeBinaryValue () (int) {
+function testNegativeBinaryValue () returns (int) {
     int b;
     b = -0b1010;
     return b;
 }
 
-function testIntegerValueAssignmentByReturnValue () (int) {
+function testIntegerValueAssignmentByReturnValue () returns (int) {
     int x;
     x = testIntegerValue();
     return x;
 }
 
-function testIntegerAddition () (int) {
+function testIntegerAddition () returns (int) {
     int b;
     int a;
     a = 9;
@@ -60,7 +60,7 @@ function testIntegerAddition () (int) {
     return a + b;
 }
 
-function testIntegerTypesAddition () (int) {
+function testIntegerTypesAddition () returns (int) {
     int b = 10;
     int a = 0xa;
     int c = 0_12;
@@ -69,7 +69,7 @@ function testIntegerTypesAddition () (int) {
 }
 
 
-function testIntegerMultiplication () (int) {
+function testIntegerMultiplication () returns (int) {
     int b;
     int a;
     a = 2;
@@ -77,7 +77,7 @@ function testIntegerMultiplication () (int) {
     return a * b;
 }
 
-function testIntegerTypesMultiplication () (int) {
+function testIntegerTypesMultiplication () returns (int) {
     int b = 1;
     int a = 0x1;
     int c = 0_1;
@@ -85,7 +85,7 @@ function testIntegerTypesMultiplication () (int) {
     return a * b * c * d;
 }
 
-function testIntegerSubtraction () (int) {
+function testIntegerSubtraction () returns (int) {
     int b;
     int a;
     a = 25;
@@ -93,7 +93,7 @@ function testIntegerSubtraction () (int) {
     return a - b;
 }
 
-function testIntegerTypesSubtraction () (int) {
+function testIntegerTypesSubtraction () returns (int) {
     int b = 10;
     int a = 0xa;
     int c = 0_12;
@@ -101,7 +101,7 @@ function testIntegerTypesSubtraction () (int) {
     return (a - b) - (c - d);
 }
 
-function testIntegerDivision () (int) {
+function testIntegerDivision () returns (int) {
     int b;
     int a;
     a = 25;
@@ -109,7 +109,7 @@ function testIntegerDivision () (int) {
     return a / b;
 }
 
-function testIntegerTypesDivision () (int) {
+function testIntegerTypesDivision () returns (int) {
     int b = 10;
     int a = 0xa;
     int c = 0_12;
@@ -117,7 +117,7 @@ function testIntegerTypesDivision () (int) {
     return (a / b) / (c / d);
 }
 
-function testIntegerParameter (int a) (int) {
+function testIntegerParameter (int a) returns (int) {
     int b;
     b = a;
     return b;

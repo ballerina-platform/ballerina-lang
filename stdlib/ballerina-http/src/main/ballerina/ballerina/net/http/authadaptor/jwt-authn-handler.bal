@@ -32,7 +32,7 @@ public struct HttpJwtAuthnHandler {
 @Description {value:"Intercepts a HTTP request for authentication"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) (boolean) {
+public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) returns (boolean) {
     string authHeader = req.getHeader(AUTH_HEADER);
     if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
@@ -49,7 +49,7 @@ public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) 
 @Description {value:"Checks if the provided HTTP request can be authenticated with JWT authentication"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible to authenticate with JWT auth, else false"}
-public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) (boolean) {
+public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
     if (jwtAuthenticator == null) {
         jwtAuthenticator = jwtAuth:createAuthenticator();
@@ -65,7 +65,7 @@ public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) (bo
     }
 }
 
-function extractJWTToken (http:Request req) (string) {
+function extractJWTToken (http:Request req) returns (string) {
     string authHeader = req.getHeader(AUTH_HEADER);
     string[] authHeaderComponents = authHeader.split(" ");
     return authHeaderComponents[1];

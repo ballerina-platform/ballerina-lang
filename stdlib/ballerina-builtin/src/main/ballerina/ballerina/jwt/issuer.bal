@@ -31,18 +31,19 @@ public struct JWTIssuerConfig {
 @Param {value:"config: JWTIssuerConfig object"}
 @Return {value:"string: JWT token string"}
 @Return {value:"error: If token validation fails "}
-public function issue (Header header, Payload payload, JWTIssuerConfig config) (string, error) {
+public function issue (Header header, Payload payload, JWTIssuerConfig config) returns (string | error) {
     string jwtHeader = createHeader(header);
-    var jwtPayload, err = createPayload(payload);
-    if (err != null) {
-        return null, err;
+    string jwtPayload = "";
+    match createPayload(payload) {
+       error e => return e;
+       string payload => jwtPayload = payload;
     }
     string jwtAssertion = jwtHeader + "." + jwtPayload;
     string signature = signature:sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
-    return jwtAssertion + "." + signature, null;
+    return (jwtAssertion + "." + signature);
 }
 
-function createHeader (Header header) (string) {
+function createHeader (Header header) returns (string) {
     json headerJson = {};
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
@@ -50,47 +51,67 @@ function createHeader (Header header) (string) {
     return urlEncode(util:base64Encode(headerJson.toString()));
 }
 
-function createPayload (Payload payload) (string, error) {
+function createPayload (Payload payload) returns (string | error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
-        return null, err;
+        return err;
     }
     payloadJson[SUB] = payload.sub;
     payloadJson[ISS] = payload.iss;
     payloadJson[EXP] = payload.exp;
     payloadJson[IAT] = payload.iat;
-    if (payload.jti != null) {
+    if (payload.jti != "") {
         payloadJson[JTI] = payload.jti;
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     payloadJson = addMapToJson(payloadJson, payload.customClaims);
-    return urlEncode(util:base64Encode(payloadJson.toString())), null;
+    return urlEncode(util:base64Encode(payloadJson.toString()));
 }
 
-function urlEncode (string data) (string) {
+function urlEncode (string data) returns (string) {
     string encodedString = data.replaceAll("\\+", "-");
     encodedString = encodedString.replaceAll("/", "_");
     return encodedString;
 }
 
-function addMapToJson (json inJson, map mapToConvert) (json) {
-    if (mapToConvert != null) {
+function addMapToJson (json inJson, map mapToConvert) returns (json) {
+    if (lengthof mapToConvert != 0) {
         foreach key in mapToConvert.keys() {
             if (typeof mapToConvert[key] == typeof string[]) {
-                var inputArray, e = (string[])mapToConvert[key];
+                string[] inputArray = [];
+                match (string[])mapToConvert[key] {
+                    error e => {}
+                    string[] value => inputArray = value;
+                }
                 inJson[key] = convertStringArrayToJson(inputArray);
             } else if (typeof mapToConvert[key] == typeof int[]) {
-                var inputArray, e = (int[])mapToConvert[key];
+                int[] inputArray = [];
+                match (int[])mapToConvert[key] {
+                    error e => {}
+                    int[] value => inputArray = value;
+                }
                 inJson[key] = convertIntArrayToJson(inputArray);
             } else if (typeof mapToConvert[key] == typeof string) {
-                var inputString, _ = (string)mapToConvert[key];
+                string inputString = "";
+                match (string)mapToConvert[key] {
+                    error e => {}
+                    string value => inputString = value;
+                }
                 inJson[key] = inputString;
             } else if (typeof mapToConvert[key] == typeof int) {
-                var inputInt, _ = (int)mapToConvert[key];
+                int inputInt = (int)mapToConvert[key];
+                match (int)mapToConvert[key] {
+                    error e => {}
+                    int value => inputInt = value;
+                }
                 inJson[key] = inputInt;
             } else if (typeof mapToConvert[key] == typeof boolean) {
-                var inputBool, _ = (boolean)mapToConvert[key];
+                boolean inputBool = false;
+                match (boolean)mapToConvert[key] {
+                    error e => {}
+                    boolean value => inputBool = value;
+                }
                 inJson[key] = inputBool;
             }
         }
@@ -98,7 +119,7 @@ function addMapToJson (json inJson, map mapToConvert) (json) {
     return inJson;
 }
 
-function convertStringArrayToJson (string[] arrayToConvert) (json) {
+function convertStringArrayToJson (string[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
     while (i < lengthof arrayToConvert) {
@@ -108,7 +129,7 @@ function convertStringArrayToJson (string[] arrayToConvert) (json) {
     return jsonPayload;
 }
 
-function convertIntArrayToJson (int[] arrayToConvert) (json) {
+function convertIntArrayToJson (int[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
     while (i < lengthof arrayToConvert) {

@@ -39,10 +39,10 @@ struct student {
         int schoolId;
 }
 
-public function newPerson() (person) {
+public function newPerson() returns (person) {
     return {age:12, name:"mad", ssn:"234-90-8887"};
 }
 
-public function newUser() (user) {
+public function newUser() returns (user) {
     return {age:56, name:"mal", zipcode:"23126"};
 }

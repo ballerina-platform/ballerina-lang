@@ -23,6 +23,7 @@ package org.ballerinalang.model.symbols;
 public enum SymbolKind {
     PACKAGE,
     STRUCT,
+    OBJECT,
     ENUM,
     CONNECTOR,
     STREAMLET,

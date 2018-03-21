@@ -39,7 +39,7 @@ public class BXMLType extends BType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) new BXMLSequence();
     }
 
     @Override

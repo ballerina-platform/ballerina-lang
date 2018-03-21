@@ -77,7 +77,7 @@ public class NetURITest {
         BString expected = new BString("Error occurred while encoding the url. abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testInvalidEncode", inputArg);
-        Assert.assertTrue(returnVals[1].stringValue().contains(expected.stringValue()),
+        Assert.assertTrue(returnVals[0].stringValue().contains(expected.stringValue()),
                 "Error message is not propagated.");
     }
 
@@ -182,7 +182,7 @@ public class NetURITest {
         BString expected = new BString("Error occurred while decoding the url. abc");
         BValue[] inputArg = { url };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testInvalidDecode", inputArg);
-        Assert.assertTrue(returnVals[1].stringValue().contains(expected.stringValue()),
+        Assert.assertTrue(returnVals[0].stringValue().contains(expected.stringValue()),
                 "Error message is not propagated.");
     }
 

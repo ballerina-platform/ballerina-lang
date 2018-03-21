@@ -237,8 +237,7 @@ public interface InstructionCodes {
     int WRKRECEIVE = 191;
     int FORKJOIN = 192;
     
-    int ASYNC = 193;
-    int AWAIT = 194;
+    int AWAIT = 193;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
@@ -283,12 +282,13 @@ public interface InstructionCodes {
     int NEWXMLPI = 247;
     int XMLSTORE = 248;
     int XMLLOAD = 249;
+    int NEWXMLSEQ = 250;
     
-    int TYPEOF = 250;
-    int TYPELOAD = 251;
+    int TYPEOF = 251;
+    int TYPELOAD = 252;
 
-    int TEQ = 252;
-    int TNE = 253;
+    int TEQ = 253;
+    int TNE = 254;
 
-    int INSTRUCTION_CODE_COUNT = 254;
+    int INSTRUCTION_CODE_COUNT = 255;
 }

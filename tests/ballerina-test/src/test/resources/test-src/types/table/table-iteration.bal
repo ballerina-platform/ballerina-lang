@@ -16,7 +16,7 @@ int ageValue = -1;
 float salValue = -1;
 string nameValue = "";
 
-function testForEachInTableWithStmt () (int id, int age, float salary, string name) {
+function testForEachInTableWithStmt () returns (int, int, float, string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -28,6 +28,11 @@ function testForEachInTableWithStmt () (int id, int age, float salary, string na
     };
 
     table<Person> dt = testDB -> select("SELECT * from Person where id = 1", null, typeof Person);
+    int id;
+    int age;
+    float salary;
+    string name;
+
     foreach x in dt {
         id = x.id;
         age = x.age;
@@ -35,10 +40,10 @@ function testForEachInTableWithStmt () (int id, int age, float salary, string na
         name = x.name;
     }
     testDB -> close();
-    return;
+    return (id, age, salary, name);
 }
 
-function testForEachInTable () (int id, int age, float salary, string name) {
+function testForEachInTable () returns (int, int, float, string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -57,15 +62,15 @@ function testForEachInTable () (int id, int age, float salary, string name) {
                     nameValue = p.name;
                 }
        );
-    id = idValue;
-    age = ageValue;
-    salary = salValue;
-    name = nameValue;
+    int id = idValue;
+    int age = ageValue;
+    float salary = salValue;
+    string name = nameValue;
     testDB -> close();
-    return;
+    return (id, age, salary, name);
 }
 
-function testCountInTable () (int count) {
+function testCountInTable () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -77,12 +82,12 @@ function testCountInTable () (int count) {
     };
 
     table<Person> dt = testDB -> select("SELECT * from Person where id < 10", null, typeof Person);
-    count = dt.count();
+    int count = dt.count();
     testDB -> close();
-    return;
+    return count;
 }
 
-function testFilterTable () (int count, int id1, int id2) {
+function testFilterTable () returns (int, int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -95,14 +100,14 @@ function testFilterTable () (int count, int id1, int id2) {
 	
     table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
     Person[] personBelow35 = dt.filter(isBellow35);
-    count = lengthof personBelow35;
-    id1 = personBelow35[0].id;
-    id2 = personBelow35[1].id;
+    int count = lengthof personBelow35;
+    int id1 = personBelow35[0].id;
+    int id2 = personBelow35[1].id;
     testDB -> close();
-    return;
+    return (count, id1, id2);
 }
 
-function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
+function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -114,17 +119,17 @@ function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
-    Person[] personBelow35 = dt.filter(function (Person p) (boolean) {
+    Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
                                            return p.age < 35;
                                        });
-    count = lengthof personBelow35;
-    id1 = personBelow35[0].id;
-    id2 = personBelow35[1].id;
+    int count = lengthof personBelow35;
+    int id1 = personBelow35[0].id;
+    int id2 = personBelow35[1].id;
     testDB -> close();
-    return;
+    return (count, id1, id2);
 }
 
-function testFilterTableWithCount () (int count) {
+function testFilterTableWithCount () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -136,12 +141,12 @@ function testFilterTableWithCount () (int count) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
-    count = dt.filter(isBellow35).count();
+    int count = dt.filter(isBellow35).count();
     testDB -> close();
-    return;
+    return count;
 }
 
-function testMapTable () (string[] names) {
+function testMapTable () returns (string[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -153,12 +158,12 @@ function testMapTable () (string[] names) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    names = dt.map(getName);
+    string[] names = dt.map(getName);
     testDB -> close();
-    return;
+    return names;
 }
 
-function testMapWithFilterTable () (string[] names) {
+function testMapWithFilterTable () returns (string[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -170,12 +175,12 @@ function testMapWithFilterTable () (string[] names) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    names = dt.map(getName).filter(isGeraterThan4String);
+    string[] names = dt.map(getName).filter(isGeraterThan4String);
     testDB -> close();
-    return;
+    return names;
 }
 
-function testFilterWithMapTable () (string[] names) {
+function testFilterWithMapTable () returns (string[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -187,12 +192,12 @@ function testFilterWithMapTable () (string[] names) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    names = dt.filter(isGeraterThan4).map(getName);
+    string[] names = dt.filter(isGeraterThan4).map(getName);
     testDB -> close();
-    return;
+    return names;
 }
 
-function testFilterWithMapAndCountTable () (int count) {
+function testFilterWithMapAndCountTable () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -204,12 +209,12 @@ function testFilterWithMapAndCountTable () (int count) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    count = dt.filter(isGeraterThan4).map(getName).count();
+    int count = dt.filter(isGeraterThan4).map(getName).count();
     testDB -> close();
-    return;
+    return count;
 }
 
-function testAverageWithTable () (float avgSal) {
+function testAverageWithTable () returns (float) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -221,12 +226,12 @@ function testAverageWithTable () (float avgSal) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    avgSal = dt.map(getSalary).average();
+    float avgSal = dt.map(getSalary).average();
     testDB -> close();
-    return;
+    return avgSal;
 }
 
-function testMinWithTable () (float avgSal) {
+function testMinWithTable () returns (float) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -238,12 +243,12 @@ function testMinWithTable () (float avgSal) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    avgSal = dt.map(getSalary).min();
+    float avgSal = dt.map(getSalary).min();
     testDB -> close();
-    return;
+    return avgSal;
 }
 
-function testMaxWithTable () (float avgSal) {
+function testMaxWithTable () returns (float) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -255,12 +260,12 @@ function testMaxWithTable () (float avgSal) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    avgSal = dt.map(getSalary).max();
+    float avgSal = dt.map(getSalary).max();
     testDB -> close();
-    return;
+    return avgSal;
 }
 
-function testSumWithTable () (float avgSal) {
+function testSumWithTable () returns (float) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -272,12 +277,12 @@ function testSumWithTable () (float avgSal) {
     };
 
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    avgSal = dt.map(getSalary).sum();
+    float avgSal = dt.map(getSalary).sum();
     testDB -> close();
-    return;
+    return avgSal;
 }
 
-function testCloseConnectionPool () (int count) {
+function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -290,30 +295,31 @@ function testCloseConnectionPool () (int count) {
 	
     table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                               typeof ResultCount);
+    int count;
     while (dt.hasNext()) {
         var rs, _ = (ResultCount) dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return count;
 }
 
-function isBellow35(Person p)(boolean){
+function isBellow35(Person p) returns (boolean) {
     return p.age < 35;
 }
 
-function getName(Person p)(string s){
+function getName(Person p) returns (string) {
     return p.name;
 }
 
-function getSalary(Person p)(float f){
+function getSalary(Person p) returns (float) {
     return p.salary;
 }
 
-function isGeraterThan4(Person p) (boolean) {
+function isGeraterThan4(Person p) returns (boolean) {
     return lengthof p.name > 4;
 }
 
-function isGeraterThan4String(string s) (boolean) {
+function isGeraterThan4String(string s) returns (boolean) {
     return lengthof s > 4;
 }
