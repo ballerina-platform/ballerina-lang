@@ -81,14 +81,14 @@ function testStructExpressionAsIndex () returns (string) {
 
 function testDefaultVal () returns (string, string, int) {
     Person p = {};
-    return p.name, p.lname, p.age;
+    return (p.name, p.lname, p.age);
 }
 
 function testNestedFieldDefaultVal () returns (string, string, int) {
     Department dpt = {};
     dpt.employees = [];
     dpt.employees[0] = {lname:"Smith"};
-    return dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age;
+    return (dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age);
 }
 
 function testNestedStructInit () returns (Person) {
@@ -105,7 +105,7 @@ struct NegativeValTest {
 
 function getStructNegativeValues () returns (int, int, float, float) {
     NegativeValTest tmp = {};
-    return tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat;
+    return (tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat);
 }
 
 function getStruct () returns (Person) {
