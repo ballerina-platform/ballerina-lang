@@ -6,9 +6,9 @@ public struct TrxError {
 
 string a = "";
 
-function testTransactionStmtWithNoHandlers () (string) {
+function testTransactionStmtWithNoHandlers () returns (string) {
     a = "";
-    a = a +  "start";
+    a = (a +  "start");
     try {
         transaction {
             a = a + " inTrx";
@@ -20,11 +20,11 @@ function testTransactionStmtWithNoHandlers () (string) {
     } catch (error err) {
         a = a + err.message;
     }
-    a = a + " end";
+    a = (a + " end");
     return a;
 }
 
-function testTransactionStmtCommitWithCommitHandler () (string) {
+function testTransactionStmtCommitWithCommitHandler () returns (string) {
     a = "";
     a = a +  "start";
     try {
@@ -42,7 +42,7 @@ function testTransactionStmtCommitWithCommitHandler () (string) {
     return a;
 }
 
-function testTransactionAbortStmtWithAbortHandler () (string) {
+function testTransactionAbortStmtWithAbortHandler () returns (string) {
     a = "";
     a = a +  "start";
     try {
@@ -63,7 +63,7 @@ function testTransactionAbortStmtWithAbortHandler () (string) {
     return a;
 }
 
-function testTransactionAbortStmtWithNoAbortHandler () (string) {
+function testTransactionAbortStmtWithNoAbortHandler () returns (string) {
     a = "";
     a = a +  "start";
     try {
@@ -85,7 +85,7 @@ function testTransactionAbortStmtWithNoAbortHandler () (string) {
 }
 
 
-function testTransactionAbortStmtWithCommitHandler () (string) {
+function testTransactionAbortStmtWithCommitHandler () returns (string) {
     a = "";
     a = a +  "start";
     try {
@@ -106,7 +106,7 @@ function testTransactionAbortStmtWithCommitHandler () (string) {
     return a;
 }
 
-function testTransactionAbortStmtWithAllHandlers () (string) {
+function testTransactionAbortStmtWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     try {
@@ -127,7 +127,7 @@ function testTransactionAbortStmtWithAllHandlers () (string) {
     return a;
 }
 
-function testTransactionCommitStmtWithAllHandlers () (string) {
+function testTransactionCommitStmtWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     try {
@@ -145,7 +145,7 @@ function testTransactionCommitStmtWithAllHandlers () (string) {
     return a;
 }
 
-function testTransactionThrowWithAllHandlers () (string) {
+function testTransactionThrowWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     try {
@@ -167,7 +167,7 @@ function testTransactionThrowWithAllHandlers () (string) {
     return a;
 }
 
-function testTransactionCommitAfterFailureWithAllHandlers () (string) {
+function testTransactionCommitAfterFailureWithAllHandlers () returns (string) {
     int i = 0;
     a = "";
     a = a +  "start";
@@ -190,7 +190,7 @@ function testTransactionCommitAfterFailureWithAllHandlers () (string) {
     return a;
 }
 
-function testMultipleTransactionsWithAllHandlers () (string) {
+function testMultipleTransactionsWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
@@ -213,7 +213,7 @@ function testMultipleTransactionsWithAllHandlers () (string) {
     return a;
 }
 
-function testMultipleTransactionsFailedWithAllHandlers () (string) {
+function testMultipleTransactionsFailedWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     int i = 0;
