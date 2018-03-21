@@ -24,7 +24,7 @@ public native function getAsString(string configKey) returns (string|null);
 @Description {value:"Checks whether the given key is in the configuration registry"}
 @Param {value:"configKey: The configuration key to be looked-up"}
 @Return {value:"Returns true if the key is present; if not returs false"}
-public native function contains (string configKey) (boolean);
+public native function contains (string configKey) returns (boolean);
 
 @Description { value:"Sets the specified key/value pair as a configuration" }
 @Param { value:"configKey: The key of the configuration value to be set" }

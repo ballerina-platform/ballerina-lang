@@ -1,24 +1,23 @@
 import ballerina.net.http;
 import ballerina.config;
 
-endpoint<http:Service> backendEP {
+endpoint http:ServiceEndpoint backendEP {
     port: getBackendPort()
-}
+};
 
-@http:serviceConfig {
-    basePath: config:getAsString("hello.basePath"),
-    endpoints:[backendEP]
+@http:ServiceConfig {
+    basePath: config:getAsString("hello.basePath")
 }
-service<http:Service> hello {
+service<http:Service> hello bind backendEP{
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:ServerConnector conn, http:Request request) {
+    sayHello (endpoint outboundEP, http:Request request) {
         http:Response response = {};
         response.setStringPayload("Hello World!!!");
-        _ = conn -> respond(response);
+        _ = outboundEP -> respond(response);
     }
 }
 
