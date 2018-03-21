@@ -2496,21 +2496,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterForeverStatement(BallerinaParser.ForeverStatementContext ctx) {
+    public void enterWheneverStatement(BallerinaParser.WheneverStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startWheneverNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
-    public void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx) {
+    public void exitWheneverStatement(BallerinaParser.WheneverStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.endForeverNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endWheneverNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

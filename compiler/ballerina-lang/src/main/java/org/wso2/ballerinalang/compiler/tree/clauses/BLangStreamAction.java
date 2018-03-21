@@ -19,10 +19,8 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 

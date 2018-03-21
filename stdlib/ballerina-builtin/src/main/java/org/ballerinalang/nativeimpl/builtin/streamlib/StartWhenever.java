@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.nativeimpl.builtin.streamletlib;
+package org.ballerinalang.nativeimpl.builtin.streamlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -35,12 +35,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * {@code Start} is the function to start the streamlet runtime.
+ * {@code Start} is the function to start the whenever runtime.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(packageName = "ballerina.builtin",
-        functionName = "startStreamlet",
+        functionName = "startWhenever",
         args = {
                 @Argument(name = "streamQuery", type = TypeKind.STRING),
                 @Argument(name = "inStreamRef", type = TypeKind.ARRAY),
@@ -51,7 +51,7 @@ import java.util.Set;
         },
         returnType = {@ReturnType(type = TypeKind.NONE)},
         isPublic = true)
-public class StartStreamlet extends BlockingNativeCallableUnit {
+public class StartWhenever extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

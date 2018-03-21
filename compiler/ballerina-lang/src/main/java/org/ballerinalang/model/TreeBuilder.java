@@ -96,7 +96,7 @@ import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
-import org.ballerinalang.model.tree.statements.ForeverNode;
+import org.ballerinalang.model.tree.statements.WheneverNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
@@ -204,7 +204,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -663,8 +663,8 @@ public class TreeBuilder {
         return new BLangStreamlet();
     }
 
-    public static ForeverNode createForeverNode() {
-        return new BLangForever();
+    public static WheneverNode createWheneverNode() {
+        return new BLangWhenever();
     }
 
     public static WithinClause createWithinClause() {

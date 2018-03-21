@@ -32,15 +32,17 @@ struct Teacher {
 }
 
 Employee[] globalEmployeeArray = [];
-stream<Employee> employeeStream = {};
 stream<Teacher> teacherStream = {};
 
+function printStatusCount () {
+    io:println("GGGGGGGG");
+}
 
-function testFilterQuery () (Employee []) {
+function testFilterQuery () {
 
     printStatusCount();
 
-    forever{
+    whenever{
         from teacherStream
         where age > 30
         select name, age, status
@@ -49,9 +51,22 @@ function testFilterQuery () (Employee []) {
         }
     }
 
-    return globalEmployeeArray;
 }
 
-function printStatusCount () {
-    io:println("GGGGGGGG");
+
+
+function startFilterQuery( ) {
+
+    testFilterQuery();
+
+    Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
+    Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
+    Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
+
+    teacherStream.publish(t1);
+    teacherStream.publish(t2);
+    teacherStream.publish(t3);
+
+    runtime:sleepCurrentWorker(1000);
+
 }
