@@ -58,7 +58,6 @@ service<http:Service> InitiatorService bind initiatorEP {
 }
 
 function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
-    //endpoint conn;
     http:Response errRes = {statusCode: 500};
     var respondResult = conn -> respond(errRes); 
     match respondResult {
