@@ -80,12 +80,12 @@ function main (string[] args) {
     // Submit a request.
     var submissionResult = clientEP -> submit("GET", "/http2Service/main", serviceReq);
     match submissionResult {
-        http:HttpHandle resultantHandle => {
-            handle = resultantHandle;
-        }
         http:HttpConnectorError err => {
             io:println("Error occurred while submitting a request");
             return;
+        }
+        http:HttpHandle resultantHandle => {
+            handle = resultantHandle;
         }
     }
 
@@ -132,8 +132,16 @@ function main (string[] args) {
             return;
         }
     }
-    json responsePayload =? res.getJsonPayload();
-    io:println("Response : " + responsePayload.toString());
+
+    var responsePayload = res.getJsonPayload();
+    match responsePayload {
+        json resultantJsonPayload => {
+            io:println("Response : " + resultantJsonPayload.toString());
+        }
+        any | null => {
+            io:println("Expected response not received");
+        }
+    }
 
     // Fetch required promised responses.
     foreach promise in promises {
@@ -148,7 +156,15 @@ function main (string[] args) {
                 return;
             }
         }
-        json payload =? promisedResponse.getJsonPayload();
-        io:println("Promised resource : " + payload.toString());
+
+        var promisedPayload = promisedResponse.getJsonPayload();
+        match promisedPayload {
+            json promisedJsonPayload => {
+                io:println("Promised resource : " + promisedJsonPayload.toString());
+            }
+            any | null => {
+                io:println("Promised response not received");
+            }
+        }
     }
 }
