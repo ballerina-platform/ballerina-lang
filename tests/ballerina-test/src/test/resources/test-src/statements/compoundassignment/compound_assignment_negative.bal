@@ -1,4 +1,4 @@
-function testMapElementIncrement()(int){
+function testMapElementIncrement()  returns (int){
     map namesMap = {fname:1};
     namesMap["fname"]++;
     int x;
@@ -6,7 +6,7 @@ function testMapElementIncrement()(int){
     return x;
 }
 
-function testMapElementDecrement()(int){
+function testMapElementDecrement() returns (int){
     map namesMap = {fname:1};
     namesMap["fname"]--;
     int x;
@@ -14,70 +14,70 @@ function testMapElementDecrement()(int){
     return x;
 }
 
-function testInvalidExpressionIncrement() (int) {
+function testInvalidExpressionIncrement() returns  (int) {
     getInt()++;
     return getInt();
 }
 
-function testInvalidExpressionDecrement() (int) {
+function testInvalidExpressionDecrement() returns  (int) {
     getInt()--;
     return getInt();
 }
 
-function getInt()(int){
+function getInt() returns (int){
     return 3;
 }
 
-function testStringVarRefIncrement()(string){
+function testStringVarRefIncrement() returns (string){
     string x = "compound";
     x++;
     return x;
 }
 
-function testStringVarRefDecrement()(string){
+function testStringVarRefDecrement() returns (string){
     string x = "compound";
     x--;
     return x;
 }
 
-function testMultiReturnWithCompound()(int){
+function testMultiReturnWithCompound() returns (int){
     int x = 4;
     x += <int>"NotAInteger";
     return x;
 }
 
-function testInvalidRefExpressionWithCompound()(int){
+function testInvalidRefExpressionWithCompound() returns (int){
     int x = 5;
     getInt() += x;
     return x;
 }
 
-function testInvalidTypeJsonStringCompound()(json){
+function testInvalidTypeJsonStringCompound() returns (json){
     json j = {"test":"test"};
     j += "sdasdasd";
     return j;
 }
 
-function testInvalidTypeIntStringCompound()(int){
+function testInvalidTypeIntStringCompound() returns (int){
     int x = 5;
     x += "sdasd";
     return x;
 }
 
-function testIntFloatDivision()(int){
+function testIntFloatDivision() returns (int){
     int x = 5;
     float d = 2.5;
     x /= d;
     return x;
 }
 
-function testCompoundAssignmentAdditionWithFunctionInvocation()(int){
+function testCompoundAssignmentAdditionWithFunctionInvocation() returns (int){
     int x = 5;
     x += getMultiIncrement();
     return x;
 }
 
 
-function getMultiIncrement()(int, int) {
-   return 200, 100;
+function getMultiIncrement() returns (int, int) {
+   return (200, 100);
 }

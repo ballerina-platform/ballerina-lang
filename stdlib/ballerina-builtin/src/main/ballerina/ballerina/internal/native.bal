@@ -13,16 +13,16 @@ public struct annotationData {
     anyStruct value;
 }
 
-public native function getServiceAnnotations (type serviceType) returns (annotationData[]);
+public native function getServiceAnnotations (typedesc serviceType) returns (annotationData[]);
 
-public native function getResourceAnnotations (type serviceType, string resourceName) returns (annotationData[]);
+public native function getResourceAnnotations (typedesc serviceType, string resourceName) returns (annotationData[]);
 
-public native function getConnectorAnnotations (type connectorType) returns (annotationData[]);
+public native function getConnectorAnnotations (typedesc connectorType) returns (annotationData[]);
 
-public native function getActionAnnotations (type connectorType, string actionName) returns (annotationData[]);
+public native function getActionAnnotations (typedesc connectorType, string actionName) returns (annotationData[]);
 
-public native function getStructAnnotations (type structType) returns (annotationData[]);
+public native function getStructAnnotations (typedesc structType) returns (annotationData[]);
 
-public native function getStructFieldAnnotations (type structType, string fieldName) returns (annotationData[]);
+public native function getStructFieldAnnotations (typedesc structType, string fieldName) returns (annotationData[]);
 
 public native function getFunctionAnnotations (any functionPointer) returns (annotationData[]);

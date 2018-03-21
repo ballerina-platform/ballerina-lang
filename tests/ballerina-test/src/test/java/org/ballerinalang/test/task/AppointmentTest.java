@@ -61,8 +61,7 @@ public class AppointmentTest {
                         new BValue[]{new BString(cronExpression)});
         String taskId = returns[0].stringValue();
         assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
-        assertEquals(returns.length, 2); // There should be no errors
-        assertNull(returns[1], "Ballerina scheduler returned an error");
+        assertEquals(returns.length, 1); // There should be no errors
         await().atMost(30, SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(compileResult, "getCount");
             return ((BInteger) counts[0]).intValue() >= 5;
