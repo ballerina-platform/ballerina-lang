@@ -522,7 +522,7 @@ public class TypeCastExprTest {
     public void testMapToJsonCastingError() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/map-to-json-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "incompatible types: 'map' cannot be cast to 'json'", 7, 15);
+        BAssertUtil.validateError(res, 0, "incompatible types: 'map' cannot be convert to 'json'", 7, 15);
     }
 
     @Test(description = "Test casting struct stored as any to struct")
