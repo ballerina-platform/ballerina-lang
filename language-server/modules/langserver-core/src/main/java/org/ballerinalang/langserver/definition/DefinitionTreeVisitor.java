@@ -106,8 +106,16 @@ public class DefinitionTreeVisitor extends NodeVisitor {
                 this.acceptNode(funcNode.body);
             }
 
+            if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
+                funcNode.endpoints.forEach(this::acceptNode);
+            }
+
             if (!funcNode.workers.isEmpty()) {
                 funcNode.workers.forEach(this::acceptNode);
+            }
+
+            if (!funcNode.defaultableParams.isEmpty()) {
+                funcNode.defaultableParams.forEach(this::acceptNode);
             }
         }
     }
@@ -361,14 +369,17 @@ public class DefinitionTreeVisitor extends NodeVisitor {
     @Override
     public void visit(BLangEndpoint endpointNode) {
         if (endpointNode.name.getValue()
-                .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (endpointNode.configurationExpr != null) {
-                this.acceptNode(endpointNode.endpointTypeNode);
-            }
+                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, endpointNode);
+            terminateVisitor = true;
+        }
 
-            if (endpointNode.configurationExpr != null) {
-                this.acceptNode(endpointNode.configurationExpr);
-            }
+        if (endpointNode.endpointTypeNode != null) {
+            this.acceptNode(endpointNode.endpointTypeNode);
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 

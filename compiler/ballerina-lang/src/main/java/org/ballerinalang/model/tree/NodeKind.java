@@ -43,6 +43,7 @@ public enum NodeKind {
     RESOURCE,
     SERVICE,
     STRUCT,
+    OBJECT,
     VARIABLE,
     WORKER,
     XMLNS,
@@ -55,6 +56,7 @@ public enum NodeKind {
     ANNOTATION_ATTACHMENT_ATTRIBUTE_VALUE,
     ARRAY_LITERAL_EXPR,
     BINARY_EXPR,
+    BRACED_TUPLE_EXPR,
     Type_INIT_EXPR,
     STREAMLET_INIT_EXPR,
     FIELD_BASED_ACCESS_EXPR,
@@ -68,6 +70,7 @@ public enum NodeKind {
     SIMPLE_VARIABLE_REF,
     STRING_TEMPLATE_LITERAL,
     TERNARY_EXPR,
+    AWAIT_EXPR,
     TYPEOF_EXPRESSION,
     TYPE_CAST_EXPR,
     TYPE_CONVERSION_EXPR,
@@ -82,6 +85,7 @@ public enum NodeKind {
     XML_TEXT_LITERAL,
     XML_COMMENT_LITERAL,
     XML_PI_LITERAL,
+    XML_SEQUENCE_LITERAL,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,
@@ -109,6 +113,7 @@ public enum NodeKind {
     TRANSACTION,
     TRANSFORM,
     TRY,
+    TUPLE_DESTRUCTURE,
     VARIABLE_DEF,
     WHILE,
     LOCK,
@@ -119,6 +124,7 @@ public enum NodeKind {
     /* Types */
     ARRAY_TYPE,
     UNION_TYPE_NODE,
+    TUPLE_TYPE_NODE,
     BUILT_IN_REF_TYPE,
     CONSTRAINED_TYPE,
     FUNCTION_TYPE,

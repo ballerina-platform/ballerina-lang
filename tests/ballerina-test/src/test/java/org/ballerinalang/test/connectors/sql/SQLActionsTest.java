@@ -234,7 +234,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testNullINParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameters");
         BInteger retValue = (BInteger) returns[0];

@@ -21,4 +21,4 @@ package ballerina.reflect;
 @Param {value:"value1: The first value for equality."}
 @Param {value:"value2: The second value for equality."}
 @Return {value:"TRUE if values are deeply equal, else FALSE."}
-public native function equals (any value1, any value2) (boolean);
+public native function equals (any value1, any value2) returns (boolean);

@@ -3,7 +3,7 @@ xmlns "http://sample.com/wso2/b1" as ns1;
 xmlns "http://sample.com/wso2/c1";
 xmlns "http://sample.com/wso2/d1" as ns3;
 
-function testNamespaceDclr() (xml) {
+function testNamespaceDclr() returns (xml) {
     xmlns "http://sample.com/wso2/a2" as ns0;
     xmlns "http://sample.com/wso2/c2";
     xmlns "http://sample.com/wso2/d2" as ns3;
@@ -13,7 +13,7 @@ function testNamespaceDclr() (xml) {
     return x1; 
 }
 
-function testAddAttributeWithString() (xml) {
+function testAddAttributeWithString() returns (xml) {
     var x1, _ = <xml> "<root xmlns:ns4=\"http://sample.com/wso2/f\"></root>";
     
     // without namespaceUri
@@ -28,14 +28,14 @@ function testAddAttributeWithString() (xml) {
     return x1;
 }
 
-function testAddAttributeWithQName() (xml) {
+function testAddAttributeWithQName() returns (xml) {
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     
     x1@[ns0:foo1] = "bar1";
     return x1;
 }
 
-function testAddAttributeWithDiffQName_1() (xml) {
+function testAddAttributeWithDiffQName_1() returns (xml) {
     xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
     //same uri, non existant prefix
     xmlns "http://sample.com/wso2/f" as pre;
@@ -43,7 +43,7 @@ function testAddAttributeWithDiffQName_1() (xml) {
     return x1;
 }
 
-function testAddAttributeWithDiffQName_2() (xml) {
+function testAddAttributeWithDiffQName_2() returns (xml) {
     xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
     //same uri, existing, non used prefix
     xmlns "http://sample.com/wso2/f/" as ns5;
@@ -51,7 +51,7 @@ function testAddAttributeWithDiffQName_2() (xml) {
     return x1;
 }
 
-function testAddAttributeWithDiffQName_3() (xml) {
+function testAddAttributeWithDiffQName_3() returns (xml) {
     xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
     //same uri, existing, used prefix
     xmlns "http://sample.com/wso2/f/" as ns4;
@@ -59,7 +59,7 @@ function testAddAttributeWithDiffQName_3() (xml) {
     return x1;
 }
 
-function testAddAttributeWithDiffQName_4() (xml) {
+function testAddAttributeWithDiffQName_4() returns (xml) {
     xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
     //different uri, existing, non used prefix
     xmlns "http://sample.com/wso2/f/t" as ns5;
@@ -67,7 +67,7 @@ function testAddAttributeWithDiffQName_4() (xml) {
     return x1;
 }
 
-function testAddAttributeWithDiffQName_5() (xml) {
+function testAddAttributeWithDiffQName_5() returns (xml) {
     xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f" xmlns:ns4="http://sample.com/wso2/f/" xmlns:ns5="http://sample.com/wso2/f/" ns4:diff="yes"></root>`;
     //adding attribute with default namespace
     x1@["{http://sample.com/wso2/c1}foo1"] = "bar1";
@@ -78,39 +78,39 @@ function testAddAttributeWithDiffQName_5() (xml) {
     return x1;
 }
 
-function testAddAttributeWithoutLocalname() (xml) {
+function testAddAttributeWithoutLocalname() returns (xml) {
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     x1@["{http://sample.com/wso2/e}"] = "bar";
     return x1;
 }
 
-function testAddAttributeWithEmptyNamespace() (xml) {
+function testAddAttributeWithEmptyNamespace() returns (xml) {
     var x1, _= <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     x1@["{}foo1"] = "bar";
     return x1;
 }
 
-function testAddNamespaceAsAttribute() (xml, xml) {
+function testAddNamespaceAsAttribute() returns (xml, xml) {
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     x1@["{http://www.w3.org/2000/xmlns/}ns4"] = "http://wso2.com";
     
     var x2, _ = <xml> "<root xmlns=\"http://ballerinalang.org/\" xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     x2@["{http://ballerinalang.org/}ns4"] = "http://wso2.com";
     
-    return x1, x2;
+    return (x1, x2);
 }
 
-function testUpdateNamespaceAsAttribute() (xml, xml) {
+function testUpdateNamespaceAsAttribute() returns (xml, xml) {
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     x1@["{http://www.w3.org/2000/xmlns/}ns3"] = "http://wso2.com";
     
     var x2, _ = <xml> "<root xmlns=\"http://ballerinalang.org/\" xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     x2@["{http://ballerinalang.org/}ns3"] = "http://wso2.com";
     
-    return x1, x2;
+    return (x1, x2);
 }
 
-function testUpdateAttributeWithString() (xml) {
+function testUpdateAttributeWithString() returns (xml) {
     xmlns "http://defaultNs/";
     
     var x1, _ = <xml> "<root xmlns:ns0=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0:foo2=\"bar2\" foo3=\"bar3\"/>";
@@ -127,7 +127,7 @@ function testUpdateAttributeWithString() (xml) {
     return x1;
 }
 
-function testUpdateAttributeWithString_1() (xml) {
+function testUpdateAttributeWithString_1() returns (xml) {
     var x1, _ = <xml> "<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>";
 
     //with a new uri than the assigned uri for the attribute
@@ -136,7 +136,7 @@ function testUpdateAttributeWithString_1() (xml) {
     return x1;
 }
 
-function testUpdateAttributeWithQName() (xml) {
+function testUpdateAttributeWithQName() returns (xml) {
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" ns3:foo2=\"bar2\"/>";
     
     // with a matching namespaceUri and prefix
@@ -149,7 +149,7 @@ function testUpdateAttributeWithQName() (xml) {
     return x1;
 }
 
-function testUpdateAttributeWithQName_1() (xml) {
+function testUpdateAttributeWithQName_1() returns (xml) {
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns0=\"http://sample.com/wso2/a1\" xmlns:ns5=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" ns3:foo2=\"bar2\"/>";
 
     // with a matching namespaceUri but different prefix
@@ -159,41 +159,41 @@ function testUpdateAttributeWithQName_1() (xml) {
     return x1;
 }
 
-function testGetAttributeWithString() (string, string, string) {
+function testGetAttributeWithString() returns (string, string, string) {
     xmlns "http://sample.com/wso2/f";
     var x1, _ = <xml> "<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns:ns0=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0:foo2=\"bar2\" ns4:foo3=\"bar3\"/>";
-    return x1@["foo1"], x1@["{http://sample.com/wso2/e}foo2"], x1@["{http://sample.com/wso2/eee}foo2"];
+    return (x1@["foo1"], x1@["{http://sample.com/wso2/e}foo2"], x1@["{http://sample.com/wso2/eee}foo2"]);
 }
 
-function testGetAttributeWithoutLocalname() (string) {
+function testGetAttributeWithoutLocalname() returns (string) {
     var x1, _ = <xml> "<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns4:foo3=\"bar3\"/>";
     return x1@["{http://sample.com/wso2/e}"];
 }
 
-function testGetAttributeWithEmptyNamespace() (string, string) {
+function testGetAttributeWithEmptyNamespace() returns (string, string) {
     var x1, _ = <xml> "<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns4:foo3=\"bar3\"/>";
-    return x1@["{}foo1"], x1@["foo1"];
+    return (x1@["{}foo1"], x1@["foo1"]);
 }
 
-function testGetNamespaceAsAttribute() (string) {
+function testGetNamespaceAsAttribute() returns (string) {
     var x1, _ = <xml> "<root xmlns:ns4=\"http://sample.com/wso2/f\" xmlns=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns4:foo3=\"bar3\"/>";
     return x1@["{http://sample.com/wso2/e}ns4"];
 }
 
-function testGetAttributeWithQName() (string, string, string) {
+function testGetAttributeWithQName() returns (string, string, string) {
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" ns3:foo2=\"bar2\"/>";
     xmlns "http://sample.com/wso2/f" as ns4;
-    return x1@[ns0:foo1], x1@[ns4:foo2], x1@[ns1:foo2];
+    return (x1@[ns0:foo1], x1@[ns4:foo2], x1@[ns1:foo2]);
 }
 
-function testUsingQNameAsString () (string, string) {
+function testUsingQNameAsString () returns (string, string) {
     string s1 = ns0:wso2;
     string temp = "  " + ns0:ballerina + "  ";
     string s2 = temp.trim();
-    return s1, s2;
+    return (s1, s2);
 }
 
-function testGetAttributesAsMap()(map, map, string, string) {
+function testGetAttributesAsMap() returns (map, map, string, string) {
     var x1, _ = <xml> "<root xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" foo2=\"bar2\"/>";
     var x2, _ = <xml> "<root xmlns=\"http://sample.com/default/namepsace\" xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" foo2=\"bar2\"/>";
     
@@ -202,20 +202,20 @@ function testGetAttributesAsMap()(map, map, string, string) {
     
     var s1, e1 = (string) m1["{http://sample.com/wso2/a1}foo1"];
     var s2, e2 = (string) m1[ns0:foo1];
-    return m1, m2, s1, s2;
+    return (m1, m2, s1, s2);
 }
 
-function testXMLAttributesToAny()(any) {
+function testXMLAttributesToAny() returns (any) {
     var x1, _ = <xml> "<root xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" foo2=\"bar2\"/>";
     
     return foo(x1@);
 }
 
-function foo(any a) (any) {
+function foo(any a) returns (any) {
     return a;
 }
 
-function testRuntimeNamespaceLookup() (xml) {
+function testRuntimeNamespaceLookup() returns (xml) {
     xmlns "http://sample.com/wso2/a1" as ns401;
     xmlns "http://sample.com/wso2/d2" as ns402;
     
@@ -236,7 +236,7 @@ function testRuntimeNamespaceLookup() (xml) {
     return x;
 }
 
-function testRuntimeNamespaceLookupPriority() (xml) {
+function testRuntimeNamespaceLookupPriority() returns (xml) {
     xmlns "http://sample.com/wso2/a1" as ns401;
     
     var x, _ = <xml> "<root xmlns:p1=\"http://wso2.com\" xmlns:p2=\"http://sample.com/wso2/a1\"/>";
@@ -249,7 +249,7 @@ function testRuntimeNamespaceLookupPriority() (xml) {
     return x;
 }
 
-function testSetAttributes() (xml) {
+function testSetAttributes() returns (xml) {
     map attributesMap = {"foo1":"bar1", "{http://wso2.com}foo2":"bar2"};
     attributesMap[ns0:foo3] = "bar3";
     var x, _ = <xml> "<root xmlns:p1=\"http://wso2.com\" xmlns:p2=\"http://sample.com/wso2/a1\"/>";
@@ -259,13 +259,13 @@ function testSetAttributes() (xml) {
     return x;
 }
 
-function testGetAttributeFromSingletonSeq() (string) {
+function testGetAttributeFromSingletonSeq() returns (string) {
     var x1, _ = <xml> "<root><child xmlns:p1=\"http://wso2.com/\" xmlns:p2=\"http://sample.com/wso2/a1/\" p1:foo=\"bar\"/></root>";
     xml x2 = x1.children();
     return x2@["{http://wso2.com/}foo"];
 }
 
-function testGetAttributeFromLiteral() (string) {
+function testGetAttributeFromLiteral() returns (string) {
     xmlns "http://sample.com/wso2/a1" as ns0;
     
     xml x = xml `<root ns0:id="5"/>`;

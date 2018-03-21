@@ -265,6 +265,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
         mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
         mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
+        mnemonics[InstructionCodes.NEWXMLSEQ] = "newxmlseq";
         mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.S2JSONX] = "s2jsonx";

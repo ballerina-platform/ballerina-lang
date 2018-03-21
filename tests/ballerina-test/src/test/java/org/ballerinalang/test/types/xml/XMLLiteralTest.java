@@ -33,6 +33,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+
 /**
  * Test class for XML literal.
  *
@@ -336,7 +338,7 @@ public class XMLLiteralTest {
     }
 
     @Test
-    public void testComplexXMLLiteral() {
+    public void testComplexXMLLiteral() throws IOException {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
         Assert.assertEquals(returns[0].stringValue(),

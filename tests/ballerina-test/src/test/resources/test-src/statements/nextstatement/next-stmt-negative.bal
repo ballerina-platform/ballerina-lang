@@ -1,4 +1,4 @@
-function calculateExp1 (int x, int y) (int) {
+function calculateExp1 (int x, int y) returns (int) {
     int z;
     while (x >= y) {
         y = y + 1;
@@ -16,7 +16,7 @@ function calculateExp1 (int x, int y) (int) {
     return z;
 }
 
-function calculateExp2 (int x, int y) (int) {
+function calculateExp2 (int x, int y) returns (int) {
     int z;
     while (x >= y) {
         y = y + 1;

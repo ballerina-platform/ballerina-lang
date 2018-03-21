@@ -12,6 +12,7 @@ package ballerina.net.http;
 @Field {value: "isOpen: whether the connection is open"}
 @Field {value: "upgradeHeaders: a map of all the upgrade headers of the connection"}
 public struct WebSocketConnector {
+    //TODO:Make these read only
     map attributes;
     string id;
     string negotiatedSubProtocol;
@@ -20,15 +21,6 @@ public struct WebSocketConnector {
     map upgradeHeaders;
 }
 
-//TODO:This throws errors. Fix it.
-//public function <WebSocketConnector conn> WebSocketConnector(map attributes) {
-//    conn.attributes = attributes;
-//}
-
-public function <WebSocketConnector conn> WebSocketConnector() {
-}
-
-//TODO: Following functions throws compilations errors. Fix it.
 //@Description {value:"Gets the ID of the WebSocket connection"}
 //@Return {value:"ID of the connection"}
 //public native function <WebSocketConnector wsConnector> getID() (string);
@@ -88,4 +80,4 @@ public native function <WebSocketConnector conn> cancelUpgradeToWebSocket(int st
 //TODO: Check on this if it should come in the request
 //@Description {value:"Gets the query parameters from the Connection as a map"}
 //@Return {value:"The map of query params" }
-//public native function <WebSocketConnector ep> getQueryParams () (map);
+//public native function <WebSocketConnector ep> getQueryParams () returns (map);

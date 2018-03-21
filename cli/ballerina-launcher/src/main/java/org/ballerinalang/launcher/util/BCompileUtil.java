@@ -278,7 +278,7 @@ public class BCompileUtil {
         }
     }
 
-    public static String readFileAsString(String path) {
+    public static String readFileAsString(String path) throws IOException {
         InputStream is = ClassLoader.getSystemResourceAsStream(path);
         InputStreamReader inputStreamREader = null;
         BufferedReader br = null;
@@ -294,9 +294,8 @@ public class BCompileUtil {
             sb.append(content);
 
             while ((content = br.readLine()) != null) {
-                sb.append("\n" + content);
+                sb.append('\n').append(content);
             }
-        } catch (IOException ignore) {
         } finally {
             if (inputStreamREader != null) {
                 try {

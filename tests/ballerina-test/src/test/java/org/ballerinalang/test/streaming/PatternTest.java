@@ -20,7 +20,6 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -43,12 +42,11 @@ public class PatternTest {
 
     @Test(description = "Test pattern streaming query")
     public void testPatternQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testPatternQuery");
+        BValue[] tempDifferences = BRunUtil.invoke(result, "testPatternQuery");
 
-        BRefValueArray tempDifferences = (BRefValueArray) returns[0];
         Assert.assertNotNull(tempDifferences);
 
-        BStruct tempDifference = (BStruct) tempDifferences.get(0);
+        BStruct tempDifference = (BStruct) tempDifferences[0];
         Assert.assertEquals(tempDifference.getFloatField(0), 7.0);
     }
 

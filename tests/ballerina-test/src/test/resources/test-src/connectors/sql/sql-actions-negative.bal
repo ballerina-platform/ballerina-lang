@@ -1,7 +1,6 @@
 import ballerina.data.sql;
-import ballerina.io;
 
-function testSelectData () (string firstName, error e) {
+function testSelectData () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -11,23 +10,20 @@ function testSelectData () (string firstName, error e) {
         password: "",
         options: {maximumPoolSize:1}
     };
-
+    string firstName;
     try {
-        table dt;
-        dt, e = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
-                          io:print("ERROR:");
-        if (e == null) {
-            var j, _ = <json>dt;
-            firstName = j.toString();
-        }
+        var x = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
+        //TODO:match x to get dt and e
+        var j, _ = <json>dt;
+        firstName = j.toString();
     } finally {
         _ = testDB -> close();
     }
-    return;
+    return firstName;
 }
 
 
-function testGeneratedKeyOnInsert () (string id, error e) {
+function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -38,24 +34,23 @@ function testGeneratedKeyOnInsert () (string id, error e) {
         options: {maximumPoolSize:1}
     };
 
-    id = "";
+    string id = "";
     try {
         string[] generatedID;
         int insertCount;
-        insertCount, generatedID, e = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
+        var x = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
                                                                   null, null);
-        if (e == null) {
-            id = generatedID[0];
-        }
+        //TODO:do match to get (insertCount, generatedID) or error
+        id = generatedID[0];
     } finally {
         _ = testDB -> close();
     }
-    return id, e;
+    return id;
 }
 
 
-function testCallProcedure () (string firstName, error e) {
+function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -65,21 +60,20 @@ function testCallProcedure () (string firstName, error e) {
         password: "",
         options: {maximumPoolSize:1}
     };
-
+    string firstName;
     try {
-        _, e = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
-        if (e == null) {
-            var dt, _ = testDB-> select("SELECT  FirstName from Customers where registrationID = 100", null, null);
-            var j, _ = <json> dt;
-            firstName = j.toString();
-        }
+        _ = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
+        var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null, null);
+        //Match x to get dt and e. do the following if e is not null
+        var j, _ = <json>dt;
+        firstName = j.toString();
     } finally {
         _ = testDB -> close();
     }
-    return;
+    return firstName;
 }
 
-function testBatchUpdate () (int[]updateCount, error e) {
+function testBatchUpdate () returns (int[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -90,6 +84,7 @@ function testBatchUpdate () (int[]updateCount, error e) {
         options: {maximumPoolSize:1}
     };
 
+    int[] updateCount;
     try {
         //Batch 1
         sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
@@ -108,17 +103,16 @@ function testBatchUpdate () (int[]updateCount, error e) {
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
         sql:Parameter[][] parameters = [parameters1, parameters2];
 
-        updateCount, e = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+        var x = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters);
-        io:print("error:");
-        io:print(updateCount);
+    //TODO:match x to get updateCount
     } finally {
         _ = testDB -> close();
     }
-    return updateCount, e;
+    return updateCount;
 }
 
-function testInvalidArrayofQueryParameters () (string value, error e) {
+function testInvalidArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -128,21 +122,19 @@ function testInvalidArrayofQueryParameters () (string value, error e) {
         password: "",
         options: {maximumPoolSize:1}
     };
-
+    string value;
     try {
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
         sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:xmlDataArray};
         sql:Parameter[] parameters = [para0];
-        table dt;
-        dt, e = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
-        if (e == null) {
-            var j, _ = <json> dt;
-            value = j.toString();
-        }
+        var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
+        //Match x to get dt and e. do the following if e is not null
+        var j, _ = <json>dt;
+        value = j.toString();
     } finally {
         _ = testDB -> close();
     }
-    return;
+    return value;
 }

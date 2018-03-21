@@ -12,14 +12,14 @@ struct Employee {
     any ageAny;
 }
 
-function castAndConversionInTransform() (string, int, string, any){
+function castAndConversionInTransform() returns (string, int, string, any){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     any defaultAddress = "New York";
     Employee e = <Employee, Foo(defaultAddress)> p;
-    return e.name, e.age, e.address, e.ageAny;
+    return (e.name, e.age, e.address, e.ageAny);
 }
 
-function getPrefixedName(string a) (string) {
+function getPrefixedName(string a) returns (string) {
     return "";
 }
 
