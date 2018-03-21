@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
  * @since 0.966.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.mime",
+        orgName = "ballerina", packageName = "mime",
         functionName = "setHeader",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "headerName", type = TypeKind.STRING),
