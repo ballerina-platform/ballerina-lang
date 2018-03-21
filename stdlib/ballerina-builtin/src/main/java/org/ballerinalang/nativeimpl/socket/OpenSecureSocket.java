@@ -126,11 +126,11 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
             log.debug("Secure handshake successful.");
             channel = new SocketByteChannel(sslSocket.getInputStream(), sslSocket.getOutputStream());
             socketStruct = createReturnStruct(context, sslSocket, channel);
-            context.setReturnValues(socketStruct, null);
+            context.setReturnValues(socketStruct);
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
         }
     }
 
