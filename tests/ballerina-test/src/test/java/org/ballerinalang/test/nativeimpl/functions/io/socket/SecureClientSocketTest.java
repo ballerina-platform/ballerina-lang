@@ -148,8 +148,7 @@ public class SecureClientSocketTest {
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
-    @Test(dependsOnMethods = "testOpenSecureClientSocket",
-          description = "Test content read/write")
+    @Test(dependsOnMethods = "testOpenSecureClientSocket", description = "Test content read/write", enabled = false)
     public void testWriteReadContent() {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;
@@ -166,7 +165,7 @@ public class SecureClientSocketTest {
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 
-    @Test(dependsOnMethods = "testWriteReadContent",
+    @Test(dependsOnMethods = "testOpenSecureClientSocket",
           description = "Test the connection closure")
     public void testClosure() {
         BRunUtil.invoke(socketClient, "closeSocket");
