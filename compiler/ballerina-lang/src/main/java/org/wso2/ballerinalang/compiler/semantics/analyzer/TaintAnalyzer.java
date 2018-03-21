@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
@@ -807,27 +808,12 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
                 fieldAccessExpr.expr.accept(this);
-/*                Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-                BSymbol fieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, this.env,
-                        fieldName, varRefType.tsymbol);
-                setTaintedStatusList(fieldSymbol.tainted);*/
                 break;
             case TypeTags.MAP:
                 fieldAccessExpr.expr.accept(this);
                 break;
             case TypeTags.JSON:
                 fieldAccessExpr.expr.accept(this);
-/*
-                BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.STRUCT) {
-                    fieldName = names.fromIdNode(fieldAccessExpr.field);
-                    BSymbol jsonFieldSymbol = symResolver.resolveStructField(fieldAccessExpr.pos, this.env,
-                            fieldName, varRefType.tsymbol);
-                    setTaintedStatusList(jsonFieldSymbol.tainted);
-                } else {
-                    fieldAccessExpr.expr.accept(this);
-                }
-*/
                 break;
             case TypeTags.ENUM:
                 setTaintedStatusList(false);
@@ -886,6 +872,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         nonOverridingAnalysis = false;
         boolean elseTaintedCheckResult = getObservedTaintedStatus();
         setTaintedStatusList(thenTaintedCheckResult || elseTaintedCheckResult);
+    }
+
+    public void visit(BLangAwaitExpr awaitExpr) {
+        awaitExpr.expr.accept(this);
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -1585,9 +1575,9 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
                         List<BlockedNode> blockedNodeList = remainingBlockedNodeMap.get(blockingNode);
                         for (BlockedNode blockedNode : blockedNodeList) {
                             // TODO: Change this to an error once return parameters are annotatable
-                            this.dlog.warning(blockedNode.blockedPos,
-                                    DiagnosticCode.UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION,
-                                    blockedNode.invokableNode.name.value, blockingNode.name.value);
+                            //this.dlog.warning(blockedNode.blockedPos,
+                            //        DiagnosticCode.UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION,
+                            //        blockedNode.invokableNode.name.value, blockingNode.name.value);
                         }
                     }
                     break;
