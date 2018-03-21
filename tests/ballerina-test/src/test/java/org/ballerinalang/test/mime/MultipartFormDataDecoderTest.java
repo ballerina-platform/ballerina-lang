@@ -157,7 +157,7 @@ public class MultipartFormDataDecoderTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Ballerina binary file part");
     }
-
+/*
     @Test(description = "Test sending a multipart request as multipart/form-data with multiple body parts")
     public void testMultiplePartsForFormData() {
         String path = "/test/multipleparts";
@@ -196,5 +196,5 @@ public class MultipartFormDataDecoderTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "èlllll");
-    }
+    }*/
 }

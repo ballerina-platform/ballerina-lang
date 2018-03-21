@@ -2,6 +2,7 @@ import ballerina.mime;
 import ballerina.log;
 import ballerina.file;
 import ballerina.io;
+import ballerina.net.http;
 
 function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
@@ -241,29 +242,32 @@ function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | null 
 }
 
 function consumeChannel (io:ByteChannel channel) {
-    int numberOfBytesRead = 1;
-    blob readContent;
-    while (numberOfBytesRead != 0) {
-        var result = channel.read(1000000);
-    }
+    //int numberOfBytesRead = 1;
+    //blob readContent;
+    //while (numberOfBytesRead != 0) {
+    //    var result = channel.read(1000000);
+    //}
+    var result = channel.read(1000000);
 }
 
-//endpoint http:ServiceEndpoint mockEP {
-//    port:9090
-//};
-//
-//@http:ServiceConfig {endpoints:[mockEP]}
-//service<http:Service> echo bind echoEP {
-//    @http:ResourceConfig {
-//        methods:["POST"],
-//        path:"/largepayload"
-//    }
-//    getPayloadFromFileChannel (endpoint client, http:Request request) {
-//        var byteChannel, _ = request.getByteChannel();
-//        http:Response response = {};
-//        mime:Entity responseEntity = {};
-//        responseEntity.setByteChannel(byteChannel);
-//        response.setEntity(responseEntity);
-//        _ = client -> respond(response);
-//    }
-//}
+endpoint http:ServiceEndpoint mockEP {
+    port:9090
+};
+
+@http:ServiceConfig {basePath:"/test"}
+service<http:Service> echo bind mockEP {
+    @http:ResourceConfig {
+        methods:["POST"],
+        path:"/largepayload"
+    }
+    getPayloadFromFileChannel (endpoint client, http:Request request) {
+        http:Response response = {};
+        mime:Entity responseEntity = {};
+        match request.getByteChannel() {
+            io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
+            mime:EntityError err => log:printInfo("invalid value");
+        }
+        response.setEntity(responseEntity);
+        _ = client -> respond(response);
+    }
+}

@@ -581,7 +581,9 @@ public class HttpUtil {
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != transportHeaders) {
             //This is done only when the entity map and transport message do not refer to the same header map
-            transportHeaders.add(httpHeaders);
+            if (httpHeaders != null) {
+                transportHeaders.add(httpHeaders);
+            }
         }
     }
 

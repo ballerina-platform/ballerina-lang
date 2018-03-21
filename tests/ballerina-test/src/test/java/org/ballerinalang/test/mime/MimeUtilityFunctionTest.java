@@ -20,6 +20,7 @@ package org.ballerinalang.test.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -34,11 +35,19 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +55,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.channels.ByteChannel;
+import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -72,7 +84,7 @@ public class MimeUtilityFunctionTest {
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-       // serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "Test 'getMediaType' function in ballerina.mime package")
@@ -335,8 +347,8 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-   /* @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
-            "the original content length", enabled = false)
+    @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
+            "the original content length")
     public void testLargePayload() {
         String path = "/test/largepayload";
         try {
@@ -357,8 +369,7 @@ public class MimeUtilityFunctionTest {
         } catch (IOException | URISyntaxException e) {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }
-    }*/
-
+    }
 
     @Test(description = "An EntityError should be returned in case the byte channel is null")
     public void testGetByteChannelForNull() {
@@ -384,7 +395,7 @@ public class MimeUtilityFunctionTest {
                 "can be obtain either as xml, json, string or blob type");
     }
 
-  /*  @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+    /*@Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
     public void testGetTextDataSource() throws IOException {
         try {
