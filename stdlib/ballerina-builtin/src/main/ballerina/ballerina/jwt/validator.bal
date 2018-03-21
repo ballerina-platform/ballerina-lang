@@ -33,56 +33,74 @@ public struct JWTValidatorConfig {
 @Return {value:"boolean: If JWT token is valied true , else false"}
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns (boolean, Payload, error) {
-    error err;
+public function validate (string jwtToken, JWTValidatorConfig config) returns ((boolean, Payload|null) | error) {
     string[] encodedJWTComponents;
-    encodedJWTComponents, err = getJWTComponents(jwtToken);
-    if (err == null) {
-        Header header;
-        Payload payload;
-        header, payload, err = parseJWT(encodedJWTComponents);
-        if (err == null) {
-            boolean isValid;
-            isValid, err = validateJWT(encodedJWTComponents, header, payload, config);
-            if (isValid) {
-                return true, payload, null;
-            }
+    match getJWTComponents(jwtToken) {
+        string[] encodedJWT => encodedJWTComponents = encodedJWT;
+        error e => return e;
+    }
+
+    Header header;
+    Payload payload;
+    match parseJWT(encodedJWTComponents) {
+        error e => return e;
+        (Header, Payload) result => {
+            var (header,payload) = result;
         }
     }
-    return false, null, err;
+
+    match validateJWT(encodedJWTComponents, header, payload, config) {
+        error e => return e;
+        boolean isValid => return (isValid ? (true, payload) : (false, null));
+    }
 }
 
-function getJWTComponents (string jwtToken) returns (string[], error) {
+function getJWTComponents (string jwtToken) returns (string[] | null | error) {
     string[] jwtComponents = jwtToken.split("\\.");
     if (lengthof jwtComponents != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
         error err = {message:"Invalid JWT token"};
-        return null, err;
+        return err;
     }
-    return jwtComponents, null;
+    return jwtComponents;
 }
 
-function parseJWT (string[] encodedJWTComponents) returns (Header, Payload, error) {
-    var headerJson, payloadJson, err = getDecodedJWTComponents(encodedJWTComponents);
-    if (err != null) {
-        return null, null, err;
+function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload) | error) {
+    json headerJson = {};
+    json payloadJson = {};
+    match getDecodedJWTComponents(encodedJWTComponents) {
+        error e => return e;
+        (json, json) result => {
+            var (headerJson,payloadJson) = result;
+        }
     }
+
     Header jwtHeader = parseHeader(headerJson);
     Payload jwtPayload = parsePayload(payloadJson);
-    return jwtHeader, jwtPayload, null;
+    return (jwtHeader, jwtPayload);
 }
 
-function getDecodedJWTComponents (string[] encodedJWTComponents) returns (json, json, error) {
+function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json) | error) {
     string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
     string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
 
-    var jwtHeaderJson, e1 = <json>jwtHeader;
-    var jwtPayloadJson, e2 = <json>jwtPayload;
-    if (e1 != null || e2 != null) {
-        error err = {message:"Invalid JWT payload"};
-        return null, null, err;
+    json jwtHeaderJson = {};
+    match <json>jwtHeader {
+        json headerJson => jwtHeaderJson = headerJson;
+        error e1 => {
+            error err = {message:"Invalid JWT payload"};
+            return err;
+        }
     }
-    return jwtHeaderJson, jwtPayloadJson, null;
+    json jwtPayloadJson = {};
+    match <json>jwtPayload {
+        json payloadJson => jwtPayloadJson = payloadJson;
+        error e2 => {
+            error err = {message:"Invalid JWT payload"};
+            return err;
+        }
+    }
+    return (jwtHeaderJson, jwtPayloadJson);
 }
 
 function parseHeader (json jwtHeaderJson) returns (Header) {
@@ -124,15 +142,27 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             var value = jwtPayloadJson[key].toString();
-            var intVal, _ = <int>value;
+            int intVal = 0;
+            match <int>value {
+                error e => {}
+                int value => intVal = value;
+            }
             jwtPayload.exp = intVal;
         } else if (key == NBF) {
             var value = jwtPayloadJson[key].toString();
-            var intVal, _ = <int>value;
+            int intVal = 0;
+            match <int>value {
+                error e => {}
+                int value => intVal = value;
+            }
             jwtPayload.nbf = intVal;
         } else if (key == IAT) {
             var value = jwtPayloadJson[key].toString();
-            var intVal, _ = <int>value;
+            int intVal = 0;
+            match <int>value {
+                error e => {}
+                int value => intVal = value;
+            }
             jwtPayload.iat = intVal;
         } else {
             if (lengthof jwtPayloadJson[key] > 0) {
@@ -146,38 +176,38 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
     return jwtPayload;
 }
 
-function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean, error) {
+function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean | error) {
     if (!validateMandatoryFields(jwtPayload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
-        return false, err;
+        return err;
     }
     if (!validateSignature(encodedJWTComponents, jwtHeader, config)) {
         error err = {message:"Invalid signature"};
-        return false, err;
+        return err;
     }
     if (!validateIssuer(jwtPayload, config)) {
         error err = {message:"No Registered IDP found for the JWT with issuer name : " + jwtPayload.iss};
-        return false, err;
+        return err;
     }
     if (!validateAudience(jwtPayload, config)) {
         //TODO need to set expected audience or available audience list
         error err = {message:"Invalid audience"};
-        return false, err;
+        return err;
     }
     if (!validateExpirationTime(jwtPayload)) {
         error err = {message:"JWT token is expired"};
-        return false, err;
+        return err;
     }
     if (!validateNotBeforeTime(jwtPayload)) {
         error err = {message:"JWT token is used before Not_Before_Time"};
-        return false, err;
+        return err;
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
-    return true, null;
+    return true;
 }
 
 function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
-    if (jwtPayload.iss == null || jwtPayload.sub == null || jwtPayload.exp == 0 || jwtPayload.aud == null) {
+    if ( jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || jwtPayload.aud == "") {
         return false;
     }
     return true;
