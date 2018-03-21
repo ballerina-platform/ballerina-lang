@@ -45,7 +45,7 @@ import java.util.Set;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "openFile",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "accessMode", type = TypeKind.STRING)},

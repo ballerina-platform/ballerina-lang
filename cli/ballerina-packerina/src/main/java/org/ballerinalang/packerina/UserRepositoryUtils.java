@@ -34,7 +34,7 @@ import java.nio.file.StandardCopyOption;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.USER_HOME;
 import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
@@ -94,7 +94,7 @@ public class UserRepositoryUtils {
 
         CompilerContext context = new CompilerContext();
         CompilerOptions cOptions = CompilerOptions.getInstance(context);
-        cOptions.put(SOURCE_ROOT, sourceRootPath.toString());
+        cOptions.put(PROJECT_DIR, sourceRootPath.toString());
         cOptions.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         cOptions.put(PRESERVE_WHITESPACE, "false");
 
@@ -103,7 +103,6 @@ public class UserRepositoryUtils {
         compiler.compile(packagePath.toString());
 
         Path srcDirectoryPath = BLangPrograms.validateAndResolveSourcePath(sourceRootPath, packagePath);
-
         Path targetDirectoryPath = initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
                 .resolve(USER_REPO_SRC_DIRNAME)

@@ -35,7 +35,7 @@ import org.ballerinalang.net.websub.hub.Hub;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.websub",
+        orgName = "ballerina", packageName = "net.websub",
         functionName = "validateAndPublishToInternalHub",
         args = {@Argument(name = "hubUrl", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING),

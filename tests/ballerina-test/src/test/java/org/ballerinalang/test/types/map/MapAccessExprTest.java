@@ -39,7 +39,7 @@ public class MapAccessExprTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src", "types/map/map-access-expr.bal");
+        compileResult = BCompileUtil.compile("test-src/types/map/map-access-expr.bal");
     }
 
     @Test(description = "Test map access expression")

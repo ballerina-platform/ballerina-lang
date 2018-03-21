@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.file;
+import ballerina/net.http;
+import ballerina/mime;
+import ballerina/file;
 
 endpoint<http:Service> multipartEP {
     port:9092

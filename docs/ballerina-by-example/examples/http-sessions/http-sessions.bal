@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 endpoint<http:Service> sessionTestEP {
     port:9090

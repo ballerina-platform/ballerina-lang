@@ -31,7 +31,7 @@ import java.util.Set;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Loads the Ballerina builtin core and builtin packages.
@@ -63,20 +63,24 @@ public class BallerinaPackageLoader {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name)));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(
+                Names.ANON_ORG.value,
+                name)));
     }
 
     public static BLangPackage getBuiltinPackageByName(CompilerContext context, String name) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name)));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(
+                Names.ANON_ORG.value,
+                name)));
     }
     
     public static CompilerContext prepareCompilerContext() {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, "");
+        options.put(PROJECT_DIR, "");
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         

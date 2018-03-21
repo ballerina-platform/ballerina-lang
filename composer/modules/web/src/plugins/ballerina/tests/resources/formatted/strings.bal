@@ -1,6 +1,6 @@
-import ballerina.lang.system;
-import ballerina.lang.strings;
-import ballerina.lang.blobs;
+import ballerina/lang.system;
+import ballerina/lang.strings;
+import ballerina/lang.blobs;
 
 function main (string[] args) {
 

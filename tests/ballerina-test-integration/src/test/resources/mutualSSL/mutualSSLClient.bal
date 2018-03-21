@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.io;
-import ballerina.mime;
+import ballerina/net.http;
+import ballerina/io;
+import ballerina/mime;
 
 endpoint http:ClientEndpoint clientEP {
     targets: [{
