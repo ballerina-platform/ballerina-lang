@@ -53,16 +53,16 @@ public class Call extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
-        String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-        BStructType structType = getStructType(context);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
         try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            String query = context.getStringArgument(0);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            BStructType structType = getStructType(context);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
             executeProcedure(context, datasource, query, parameters, structType);
         } catch (Throwable e) {
-            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
         }
     }
 }

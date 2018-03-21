@@ -1029,17 +1029,16 @@ public class SQLDatasourceUtils {
         return sqlConnectorError;
     }
 
-    public static void handleError(Context context, Throwable e) {
-        SQLDatasourceUtils.notifyTxMarkForAbort(context);
-        context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
-        throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
-    }
-
-    public static void notifyTxMarkForAbort(Context context) {
+    public static void handleErrorOnTransaction(Context context) {
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
         if (localTransactionInfo == null) {
             return;
         }
+        SQLDatasourceUtils.notifyTxMarkForAbort(context, localTransactionInfo);
+        throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
+    }
+
+    public static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 

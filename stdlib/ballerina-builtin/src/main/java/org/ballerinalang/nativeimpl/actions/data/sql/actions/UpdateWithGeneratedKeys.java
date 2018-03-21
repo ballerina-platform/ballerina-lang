@@ -55,16 +55,16 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
-        String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-        BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
         try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            String query = context.getStringArgument(0);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
             executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         } catch (Throwable e) {
-            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
         }
     }
 }

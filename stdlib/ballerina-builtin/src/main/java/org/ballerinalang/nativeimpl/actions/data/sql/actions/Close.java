@@ -44,14 +44,14 @@ public class Close extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
         try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
             closeConnections(datasource);
             context.setReturnValues();
         } catch (Throwable e) {
-            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
         }
     }
 }
