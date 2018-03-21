@@ -84,7 +84,7 @@ public function<Participant2pcClient client> prepare (string transactionId) retu
             }
         }
     }
-    error err = {message: "Unhandled condition in prepare action"}l
+    error err = {message: "Unhandled condition in prepare action"};
     throw err;
 }
 
