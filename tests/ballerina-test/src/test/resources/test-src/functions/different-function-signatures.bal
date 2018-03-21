@@ -1,8 +1,8 @@
 //------------ Testing a function with all types of parameters ---------
 
-function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5, string e = "Doe", int... z) 
-            returns (int, float, string, int, string, int[]) {
-    return a, b, c, d, e, z;
+function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5, string e = "Doe", int... z)
+        returns (int, float, string, int, string, int[]) {
+    return (a, b, c, d, e, z);
 }
 
 function testInvokeFunctionInOrder1() returns (int, float, string, int, string, int[]) {
@@ -40,7 +40,7 @@ function testInvokeFunctionWithRequiredAndRestArgs() returns (int, float, string
 }
 
 function funcInvocAsRestArgs() returns (int, float, string, int, string, int[]) {
-    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...getIntArray());
+    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", getIntArray());
 }
 
 function getIntArray() returns (int[]) {
@@ -51,7 +51,7 @@ function getIntArray() returns (int[]) {
 
 function functionWithoutRestParams(int a, float b, string c = "John", int d = 5, string e = "Doe") returns
             (int, float, string, int, string) {
-    return a, b, c, d, e;
+    return (a, b, c, d, e);
 }
 
 function testInvokeFuncWithoutRestParams() returns (int, float, string, int, string) {
@@ -63,7 +63,7 @@ function testInvokeFuncWithoutRestParams() returns (int, float, string, int, str
 
 function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", int d = 7, string e = "Doe")
                                                                                                     returns (int, float, string, int, string) {
-    return a, b, c, d, e;
+    return (a, b, c, d, e);
 }
 
 function testInvokeFuncWithOnlyNamedParams1() returns (int, float, string, int, string) {
