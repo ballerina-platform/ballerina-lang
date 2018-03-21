@@ -30,14 +30,14 @@ import org.testng.annotations.Test;
  */
 public class SQLTest {
 
-    @Test (enabled = false)
+    @Test
     public void testSelectWithUntaintedQuery() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testSelectWithTaintedQueryNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-tainted-query-negative.bal");
@@ -46,7 +46,7 @@ public class SQLTest {
     }
 
 
-    @Test (enabled = false)
+    @Test
     public void testSelectWithUntaintedQueryProducingTaintedReturn() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return.bal");

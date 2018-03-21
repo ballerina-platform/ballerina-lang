@@ -252,8 +252,9 @@ public class TaintedStatusPropagationTest {
     public void testMultiReturnNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/multi-return-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
+        Assert.assertTrue(result.getDiagnostics().length == 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
     }
 
     @Test
