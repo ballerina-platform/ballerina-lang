@@ -64,7 +64,7 @@ public class BatchUpdate extends AbstractSQLAction {
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
             executeBatchUpdate(context, datasource, query, parameters);
         } catch (Throwable e) {
-            context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
         }
     }

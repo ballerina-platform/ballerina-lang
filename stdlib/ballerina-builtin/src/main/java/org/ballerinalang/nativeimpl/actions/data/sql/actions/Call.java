@@ -61,7 +61,7 @@ public class Call extends AbstractSQLAction {
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
             executeProcedure(context, datasource, query, parameters, structType);
         } catch (Throwable e) {
-            context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
         }
     }

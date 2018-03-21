@@ -225,7 +225,7 @@ public native function <ClientConnector client> select (@sensitive string sqlQue
 
 @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
 @Return {value:"The Error occured during SQL client invocation"}
-public native function <ClientConnector client> close ();
+public native function <ClientConnector client> close() returns (null | SQLConnectorError);
 
 @Description {value:"The update action implementation for SQL connector to update data and schema of the database."}
 @Param {value:"sqlQuery: SQL query to execute"}

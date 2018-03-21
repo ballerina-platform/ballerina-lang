@@ -59,7 +59,7 @@ public class Update extends AbstractSQLAction {
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
             executeUpdate(context, datasource, query, parameters);
         } catch (Throwable e) {
-            context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
         }
     }

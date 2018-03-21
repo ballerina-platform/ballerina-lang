@@ -63,7 +63,7 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
             executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         } catch (Throwable e) {
-            context.setReturnValues(null, null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
         }
     }
