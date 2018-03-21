@@ -380,7 +380,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
             if (!buildCompiledPackage) {
-                programFile.packageInfoMap.put(pkgNode.symbol.pkgID.name.value, pkgNode.symbol.packageInfo);
+                programFile.packageInfoMap.put(pkgNode.symbol.pkgID.bvmAlias(), pkgNode.symbol.packageInfo);
             }
             return;
         }
@@ -403,7 +403,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             // first visit all the imports
             pkgNode.imports.forEach(impPkgNode -> genNode(impPkgNode, this.env));
             // TODO We need to create identifier for both name and the version
-            programFile.packageInfoMap.put(pkgNode.symbol.pkgID.name.value, packageInfo);
+            programFile.packageInfoMap.put(pkgNode.symbol.pkgID.bvmAlias(), packageInfo);
         }
 
         // Add the current package to the program file
@@ -1760,7 +1760,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return currentIndex;
         }
 
-        PackageInfo pkgInfo = programFile.getPackageInfo(iExpr.symbol.pkgID.name.value);
+        PackageInfo pkgInfo = programFile.packageInfoMap.get(iExpr.symbol.pkgID.bvmAlias());
 
         CallableUnitInfo callableUnitInfo;
         if (iExpr.symbol.kind == SymbolKind.FUNCTION) {
@@ -3135,8 +3135,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
-            StructInfo errorStructInfo = this.programFile.getPackageInfo(packageSymbol.name.value)
-                    .getStructInfo(structSymbol.name.value);
+            StructInfo errorStructInfo = this.programFile.packageInfoMap.get(packageSymbol.pkgID.bvmAlias())
+                                                                        .getStructInfo(structSymbol.name.value);
             ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
             errorTableEntry.setError(errorStructInfo);
             errorTable.addErrorTableEntry(errorTableEntry);

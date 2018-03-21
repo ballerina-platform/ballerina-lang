@@ -273,6 +273,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
 
         BLangPackage pkgNode = this.packageCache.get(pkdID);
+        if (pkgNode == null) {
+            return annotationSymbols;
+        }
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         if (pkgEnv != null) {
             for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
@@ -332,11 +335,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     private boolean isValidEndpoints(DefinitionID endpoint, CompilerPlugin plugin) {
         PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(endpoint.pkgName), Names.EMPTY);
-        BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
-        if (pkgSymbol == null) {
+        BLangPackage pkgNode = this.packageCache.get(pkdID);
+        if (pkgNode == null) {
             return false;
         }
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         final BSymbol bSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(endpoint.name), SymTag.VARIABLE_NAME);
         return bSymbol != symTable.notFoundSymbol;
     }

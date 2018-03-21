@@ -72,11 +72,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     // cache values.
     ProgramFile programFile;
 
-    public PackageInfo(int packageNameCPIndex, String packageName) {
-        this.nameCPIndex = packageNameCPIndex;
-        this.pkgPath = packageName;
-    }
-
     public int getPkgNameCPIndex() {
         return nameCPIndex;
     }
