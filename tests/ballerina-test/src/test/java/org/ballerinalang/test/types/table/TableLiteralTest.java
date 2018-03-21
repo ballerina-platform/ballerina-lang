@@ -211,7 +211,8 @@ public class TableLiteralTest {
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
-                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name><married>false</married></result></results>");
+                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name>" +
+                        "<married>false</married></result></results>");
     }
 
     @Test(priority = 1)

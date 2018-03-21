@@ -71,8 +71,7 @@ function testIsEmpty (int size) returns (boolean[]) {
     return isEmpty;
 }
 
-function testSize (int[] addElems, int[] insertElems, int[] replaceElems, int nRemoveElems, int size) returns
-                                                                                                      (int[]) {
+function testSize (int[] addElems, int[] insertElems, int[] replaceElems, int nRemoveElems, int size) returns (int[]) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
     int[] vecSizes = [];
@@ -158,8 +157,7 @@ function testGetIndexOutOfRange (int[] indices, int size) returns (any[], error[
     return (vals, errs);
 }
 
-function testInsertIndexOutOfRange (int[] values, int[] indices, int size) returns
-                                               (collections:Vector, collections:IndexOutOfRangeError[]) {
+function testInsertIndexOutOfRange (int[] values, int[] indices, int size) returns (collections:Vector, collections:IndexOutOfRangeError[]) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
     collections:IndexOutOfRangeError[] errs = [];
@@ -179,8 +177,7 @@ function testInsertIndexOutOfRange (int[] values, int[] indices, int size) retur
     return (vector, errs);
 }
 
-function testRemoveIndexOutOfRange (int[] indices, int size) returns
-                             (collections:Vector, any[], collections:IndexOutOfRangeError[]) {
+function testRemoveIndexOutOfRange (int[] indices, int size) returns (collections:Vector, any[], collections:IndexOutOfRangeError[]) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
     any[] removedVals = [];
@@ -201,8 +198,7 @@ function testRemoveIndexOutOfRange (int[] indices, int size) returns
     return (vector, removedVals, errs);
 }
 
-function testReplaceIndexOutOfRange (int[] values, int[] indices, int size) returns
-                                                (collections:Vector, collections:IndexOutOfRangeError[]) {
+function testReplaceIndexOutOfRange (int[] values, int[] indices, int size) returns (collections:Vector, collections:IndexOutOfRangeError[]) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
     collections:IndexOutOfRangeError[] errs = [];
