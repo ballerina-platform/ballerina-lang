@@ -15,7 +15,7 @@ struct Student {
     int age;
 }
 
-function testStructToStruct () (Student) {
+function testStructToStruct () returns (Student) {
     Person p = {name:"Supun",
                    age:25,
                    parent:{name:"Parent", age:50},
@@ -27,7 +27,7 @@ function testStructToStruct () (Student) {
     return s;
 }
 
-function testComplexMapToJson () (json) {
+function testComplexMapToJson () returns (json) {
     map m = {name:"Supun",
                 age:25,
                 gpa:2.81,
@@ -42,14 +42,10 @@ struct Info {
     blob infoBlob;
 }
 
-function testStructWithIncompatibleTypeMapToJson () (json) {
+function testStructWithIncompatibleTypeMapToJson () returns (json) {
     Info info = {};
     json j;
-    error err;
-    j, err = <json>info;
-    if (err != null) {
-        throw err;
-    }
+    j =? <json>info;
     return j;
 
 }
