@@ -19,10 +19,13 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -159,6 +162,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -247,6 +251,13 @@ public class Desugar extends BLangNodeVisitor {
         //Rewriting Object to struct
         pkgNode.objects.forEach(o -> pkgNode.structs.add(rewriteObjectToStruct(o, env)));
 
+        pkgNode.structs = rewrite(pkgNode.structs, env);
+        // Adding struct init functions to package level.
+        pkgNode.structs.forEach(struct -> {
+            pkgNode.functions.add(struct.initFunction);
+            pkgNode.topLevelNodes.add(struct.initFunction);
+        });
+
         pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
@@ -273,6 +284,24 @@ public class Desugar extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         rewrite(pkgEnv.node, pkgEnv);
         result = importPkgNode;
+    }
+
+    @Override
+    public void visit(BLangStruct structNode) {
+        // Add struct level variables to the init function.
+        structNode.fields.stream()
+            .map(field -> {
+                    // If the rhs value is not given in-line inside the struct
+                    // then get the default value literal for that particular struct.
+                    if (field.expr == null) {
+                        field.expr = getInitExpr(field.type);
+                    }
+                    return field;
+                })
+            .filter(field -> field.expr != null)
+            .forEachOrdered(field -> structNode.initFunction.initFunctionStmts.put(field.symbol,
+                    (BLangStatement) createAssignmentStmt(field)));
+        result = structNode;
     }
 
     @Override
@@ -863,7 +892,8 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
-        } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET) {
+        } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET ||
+                (ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -1273,32 +1303,6 @@ public class Desugar extends BLangNodeVisitor {
             keys.add(keyVal.key.fieldSymbol.name.value);
         });
 
-        // TODO: find a better way to get the default value expressions of a struct field
-        BStructType type = (BStructType) structLiteral.type;
-        BPackageSymbol pkgSymbol = symTable.pkgSymbolMap.get(type.tsymbol.pkgID);
-        BLangPackage pkg = symTable.pkgEnvMap.get(pkgSymbol).enclPkg;
-        BLangStruct structDef = pkg.structs.stream()
-                .filter(struct -> struct.name.value.equals(type.tsymbol.name.value))
-                .findFirst()
-                .get();
-        
-        for (int fieldIndex = 0; fieldIndex < type.fields.size(); fieldIndex++) {
-            BStructField field = type.fields.get(fieldIndex);
-            if (keys.contains(field.name.value)) {
-                continue;
-            }
-
-            BLangExpression expr = getStructFieldInitExpr(field.type, structDef, fieldIndex);
-            if (expr == null) {
-                continue;
-            }
-
-            BLangRecordKeyValue recordKeyVal = new BLangRecordKeyValue();
-            recordKeyVal.key = new BLangRecordKey(null);
-            recordKeyVal.key.fieldSymbol = field.symbol;
-            recordKeyVal.valueExpr = expr;
-            structLiteral.defaultValues.add(recordKeyVal);
-        }
         result = structLiteral;
     }
 
@@ -1942,7 +1946,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.STRUCT:
-                return rewriteExpr(new BLangStructLiteral(new ArrayList<>(), type));
+                return new BLangStructLiteral(new ArrayList<>(), type);
             case TypeTags.ARRAY:
                 BLangArrayLiteral array = new BLangArrayLiteral();
                 array.exprs = new ArrayList<>();
@@ -1954,16 +1958,21 @@ public class Desugar extends BLangNodeVisitor {
         return null;
     }
 
-    private BLangExpression getStructFieldInitExpr(BType type, BLangStruct structNode, int fieldIndex) {
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.BLOB:
-                return structNode.fields.get(fieldIndex).expr;
-            default:
-                return getInitExpr(type);
-        }
+    // TODO: Same function is used in symbol enter. Refactor this to reuse the same function.
+    private StatementNode createAssignmentStmt(BLangVariable variable) {
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
+                .createSimpleVariableReferenceNode();
+        varRef.pos = variable.pos;
+        varRef.variableName = variable.name;
+        varRef.symbol = variable.symbol;
+        varRef.type = variable.type;
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = variable.expr;
+        assignmentStmt.pos = variable.pos;
+        assignmentStmt.addVariable(varRef);
+        return assignmentStmt;
     }
+
 }

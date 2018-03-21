@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -731,9 +732,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
                     .collect(Collectors.toList());
         });
+
+        // define init function
+        structNodes.forEach(struct -> {
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, struct.symbol.scope, pkgEnv);
+            defineStructInitFunction(struct, structEnv);
+        });
     }
 
-    private void defineObjectFields(List<BLangObject> objectNodes, SymbolEnv pkgEnv) {
+    private void defineObjectFields(List<? extends BLangObject> objectNodes, SymbolEnv pkgEnv) {
         objectNodes.forEach(object -> {
             // Create object type
             SymbolEnv objectEnv = SymbolEnv.createObjectEnv(object, object.symbol.scope, pkgEnv);
@@ -745,7 +752,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         });
     }
 
-    private void defineObjectMembers(List<BLangObject> objects, SymbolEnv pkgEnv) {
+    private void defineObjectMembers(List<? extends BLangObject> objects, SymbolEnv pkgEnv) {
         objects.forEach(obj -> {
             SymbolEnv objEnv = SymbolEnv.createObjectEnv(obj, obj.symbol.scope, pkgEnv);
             defineObjectInitFunction(obj, objEnv);
@@ -984,6 +991,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(object.initFunction, conEnv);
     }
 
+    private void defineStructInitFunction(BLangStruct struct, SymbolEnv conEnv) {
+        if (struct.initFunction == null) {
+            struct.initFunction = createInitFunction(struct.pos, struct.name.value, Names.INIT_FUNCTION_SUFFIX);
+        }
+
+        struct.initFunction.receiver = createReceiver(struct);
+        struct.initFunction.objectInitFunction = true;
+        struct.initFunction.attachedFunction = true;
+        struct.initFunction.flagSet.add(Flag.ATTACHED);
+
+        // Adding struct level variables to the init function is done at desugar phase
+
+        defineNode(struct.initFunction, conEnv);
+    }
+
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);
@@ -1033,6 +1055,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
         structSymbol.attachedFuncs.add(attachedFunc);
+
+        // FIXME:
+        if (funcNode.name.value.equals(structType.tsymbol.name.value + ".<init>")) {
+            structSymbol.defaultsValuesInitFunc = attachedFunc;
+            return;
+        }
 
         // Check whether this attached function is a struct initializer.
         if (!structType.tsymbol.name.value.equals(funcNode.name.value)) {
@@ -1111,6 +1139,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         assignmentStmt.pos = variable.pos;
         assignmentStmt.addVariable(varRef);
         return assignmentStmt;
+    }
+
+    private BLangVariable createReceiver(BLangStruct struct) {
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = struct.pos;
+        IdentifierNode name = createIdentifier(Names.SELF.getValue());
+        receiver.setName(name);
+        receiver.docTag = DocTag.RECEIVER;
+
+        BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        structTypeNode.pkgAlias = new BLangIdentifier();
+        structTypeNode.typeName = struct.name;
+        receiver.setTypeNode(structTypeNode);
+        return receiver;
     }
 
     private BLangExpressionStmt createInitFuncInvocationStmt(BLangImportPackage importPackage,

@@ -302,6 +302,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
             annotationAttachment.accept(this);
         });
+
+        analyzeDef(structNode.initFunction, structEnv);
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 

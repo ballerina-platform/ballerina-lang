@@ -12,12 +12,12 @@ struct Person {
     Person|null child;
 }
 
-function testStructLiteral1 () (Department) {
+function testStructLiteral1 () returns (Department) {
     Department p = {};
     return p;
 }
 
-function testStructLiteral3 () (Person) {
+function testStructLiteral3 () returns  (Person) {
     Person p = {};
     return p;
 }

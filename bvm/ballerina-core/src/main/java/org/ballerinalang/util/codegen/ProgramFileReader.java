@@ -788,7 +788,10 @@ public class ProgramFileReader {
             if (typeRefCPEntry.getType().getTag() == TypeTags.STRUCT_TAG) {
                 BStructType structType = (BStructType) typeRefCPEntry.getType();
                 AttachedFunctionInfo attachedFuncInfo = structType.structInfo.funcInfoEntries.get(funcName);
-                attachedFuncInfo.functionInfo = functionInfo;
+                // TODO: for 'error' type, receiver is not getting included in the structInfo object. fix it.
+                if (attachedFuncInfo != null) {
+                    attachedFuncInfo.functionInfo = functionInfo;
+                }
             }
         } else {
             uniqueFuncName = funcName;
