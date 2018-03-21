@@ -36,19 +36,21 @@ int employeeIndex = 0;
 stream<Employee> employeeStream = {};
 stream<Teacher> teacherStream = {};
 
-streamlet outputRateLimitingStreamlet () {
-    query q1 {
+function testOutputRateLimitQuery () {
+
+    whenever{
         from teacherStream
         select name, age, status
         output first every 3 events
-        insert into employeeStream
+        => (Employee [] emp) {
+                employeeStream.publish(emp);
+        }
     }
 }
 
+function startOutputRateLimitQuery( ) returns (Employee []) {
 
-function testOutputRateLimitQuery () (Employee []) {
-
-    outputRateLimitingStreamlet pStreamlet = {};
+    testOutputRateLimitQuery ();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
@@ -69,7 +71,7 @@ function testOutputRateLimitQuery () (Employee []) {
     teacherStream.publish(t6);
 
     runtime:sleepCurrentWorker(1000);
-    pStreamlet.stop();
+
     return globalEmployeeArray;
 }
 

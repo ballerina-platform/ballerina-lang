@@ -20,7 +20,9 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,18 +42,16 @@ public class FilterTest {
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "startFilterQuery");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
 
-//        BRefValueArray outputEmployeeEvents = (BRefValueArray) returns[0];
-//        Assert.assertNotNull(outputEmployeeEvents);
-//
-//        Assert.assertEquals(outputEmployeeEvents.size(), 2, "Expected events are not received");
-//
-//        BStruct employee0 = (BStruct) outputEmployeeEvents.get(0);
-//        BStruct employee1 = (BStruct) outputEmployeeEvents.get(1);
-//
-//        Assert.assertEquals(employee0.getIntField(0), 33);
-//        Assert.assertEquals(employee1.getIntField(0), 45);
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
+
+        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
+        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
+
+        Assert.assertEquals(employee0.getIntField(0), 33);
+        Assert.assertEquals(employee1.getIntField(0), 45);
     }
 
 }

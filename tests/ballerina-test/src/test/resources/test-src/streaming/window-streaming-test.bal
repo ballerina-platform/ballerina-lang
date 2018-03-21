@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina.io;
 import ballerina.runtime;
 
 struct StatusCount {
@@ -34,19 +35,21 @@ int index = 0;
 stream<StatusCount> statusCountStream = {};
 stream<Teacher> teacherStream = {};
 
-streamlet windowStreamlet () {
-    query q1 {
+function testWindowQuery () {
+
+    whenever{
         from teacherStream where age > 18 window lengthBatch(3)
         select status, count(status) as totalCount
         group by status
-        insert into statusCountStream
+        => (StatusCount [] emp) {
+                statusCountStream.publish(emp);
+        }
     }
 }
 
+function startWindowQuery () returns (StatusCount []) {
 
-function testWindowQuery () returns (StatusCount []) {
-
-    windowStreamlet pStreamlet = {};
+    testWindowQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
@@ -59,11 +62,11 @@ function testWindowQuery () returns (StatusCount []) {
     teacherStream.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
-    pStreamlet.stop();
     return globalStatusCountArray;
 }
 
 function printStatusCount (StatusCount s) {
+    io:println("printStatusCount function invoked for status:" + s.status +" and count :"+s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina.io;
 import ballerina.runtime;
 
 struct Employee {
@@ -35,18 +36,20 @@ int employeeIndex = 0;
 stream<Employee> employeeStream = {};
 stream<Teacher> teacherStream = {};
 
-streamlet projectionStreamlet () {
-    query q1 {
+function testProjectionQuery () {
+
+    whenever{
         from teacherStream
         select name, age, status
-        insert into employeeStream
+        => (Employee [] emp) {
+                employeeStream.publish(emp);
+        }
     }
 }
 
+function startProjectionQuery( ) returns (Employee []) {
 
-function testProjectionQuery () returns (Employee []) {
-
-    projectionStreamlet pStreamlet = {};
+    testProjectionQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
@@ -59,11 +62,12 @@ function testProjectionQuery () returns (Employee []) {
     teacherStream.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
-    pStreamlet.stop();
+
     return globalEmployeeArray;
 }
 
 function printEmployeeNumber (Employee e) {
+    io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 
