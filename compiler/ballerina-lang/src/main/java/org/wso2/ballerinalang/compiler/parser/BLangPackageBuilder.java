@@ -120,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
@@ -1060,7 +1061,14 @@ public class BLangPackageBuilder {
         }
         addExpressionNode(ternaryExpr);
     }
-
+    
+    public void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangAwaitExpr awaitExpr = (BLangAwaitExpr) TreeBuilder.createAwaitExpressionNode();
+        awaitExpr.pos = pos;
+        awaitExpr.addWS(ws);
+        awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(awaitExpr);
+    }
 
     public void endFunctionDef(DiagnosticPos pos,
                                Set<Whitespace> ws,
@@ -2971,10 +2979,6 @@ public class BLangPackageBuilder {
         }
 
         this.compUnit.addTopLevelNode(streamletNode);
-    }
-    
-    public void markLastExpressionAsAwait() {
-        ((BLangExpression) this.exprNodeStack.peek()).await = true;
     }
 
 }

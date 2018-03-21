@@ -40,7 +40,7 @@ public enum Algorithm {
 @Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
     string uri;
-    SecureSocket secureSocket;
+    SecureSocket|null secureSocket;
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
@@ -68,7 +68,7 @@ public struct ClientEndpointConfiguration {
     string forwarded = "disable";
     FollowRedirects followRedirects;
     Retry retry;
-    Proxy proxy;
+    Proxy|null proxy;
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
     //function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
@@ -145,10 +145,10 @@ public struct Retry {
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
 @Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
 public struct SecureSocket {
-    TrustStore trustStore;
-    KeyStore keyStore;
-    Protocols protocols;
-    ValidateCert validateCert;
+    TrustStore|null trustStore;
+    KeyStore|null keyStore;
+    Protocols|null protocols;
+    ValidateCert|null validateCert;
     string ciphers;
     boolean hostNameVerification = true;
     boolean sessionCreation = true;

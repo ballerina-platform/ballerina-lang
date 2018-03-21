@@ -44,7 +44,7 @@ public class MapInitializerExprTest {
     @BeforeTest
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/map/map-initializer-expr.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/map/map-literal-negative.bal");
+//        negativeResult = BCompileUtil.compile("test-src/types/map/map-literal-negative.bal");
     }
 
     @Test
@@ -152,5 +152,21 @@ public class MapInitializerExprTest {
     public void testMapInitWithStringTemplateAsKey() {
         CompileResult result = BCompileUtil.compile("test-src/types/map/map-initializer-with-string-template.bal");
         BAssertUtil.validateError(result, 0, "mismatched input 'string `'. expecting '}'", 3, 14);
+    }
+
+    @Test(description = "Test map initializer expression")
+    public void mapInitWithIdentifiersTest() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "mapInitWithIdentifiersTest", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+
+        BMap<String, BString> mapValue = (BMap<String, BString>) returns[0];
+        Assert.assertEquals(mapValue.size(), 3);
+
+        Assert.assertEquals(mapValue.get("a").stringValue(), "Lion");
+        Assert.assertEquals(mapValue.get("key1").stringValue(), "Cat");
+        Assert.assertEquals(mapValue.get("key2").stringValue(), "Dog");
     }
 }

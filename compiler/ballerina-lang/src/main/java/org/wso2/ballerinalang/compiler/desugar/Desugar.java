@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1000,6 +1001,12 @@ public class Desugar extends BLangNodeVisitor {
         ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
         result = ternaryExpr;
     }
+    
+    @Override
+    public void visit(BLangAwaitExpr awaitExpr) {
+        awaitExpr.expr = rewriteExpr(awaitExpr.expr);
+        result = awaitExpr;
+    }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -1235,6 +1242,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
+        jsonLiteral.keyValuePairs.forEach(keyVal -> {
+            keyVal.valueExpr = rewriteExpr(keyVal.valueExpr);
+            if (keyVal.key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                keyVal.key = new BLangRecordKey(createStringLiteral(keyVal.key.pos, keyVal.key.fieldSymbol.name.value));
+            } else {
+                keyVal.key.expr = rewriteExpr(keyVal.key.expr);
+            }
+        });
         result = jsonLiteral;
     }
 

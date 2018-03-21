@@ -60,10 +60,10 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
 public struct ServiceSecureSocket {
-    TrustStore trustStore;
-    KeyStore keyStore;
-    Protocols protocols;
-    ValidateCert validateCert;
+    TrustStore|null trustStore;
+    KeyStore|null keyStore;
+    Protocols|null protocols;
+    ValidateCert|null validateCert;
     string ciphers;
     string sslVerifyClient;
     boolean sessionCreation = true;
