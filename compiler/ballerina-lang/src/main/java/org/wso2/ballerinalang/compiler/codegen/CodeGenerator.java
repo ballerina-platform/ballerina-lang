@@ -127,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -1427,6 +1428,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
         this.emit(InstructionCodes.HALT);
+    }
+
+    public void visit(BLangForever foreverStatement) {
+        /* ignore */
     }
 
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,

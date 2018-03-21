@@ -52,7 +52,6 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -82,7 +81,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StreamletInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
@@ -94,7 +92,6 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
-import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -750,7 +747,7 @@ public class CPU {
     }
 
     private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
-            int[] operands) {
+                                                int[] operands) {
         int i;
         int j;
         int k;
@@ -866,7 +863,7 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void execLoadOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1177,7 +1174,7 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void execStoreOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -2005,7 +2002,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
-            int[] operands) {
+                                                  int[] operands) {
         int i;
         int j;
         int k;
@@ -2304,7 +2301,7 @@ public class CPU {
     }
 
     private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
-            int[] operands) {
+                                               int[] operands) {
         int i;
         int j;
         int k;
@@ -2509,7 +2506,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
-            BType targetType) {
+                                               BType targetType) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -2540,13 +2537,13 @@ public class CPU {
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-            String sourceTypeName, String targetTypeName) {
+                                                  String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
-            int errorRegIndex, String errorMessage) {
+                                                  int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         if (errorRegIndex == -1) {
@@ -2632,7 +2629,7 @@ public class CPU {
 //    }
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
-            int committedFuncIndex, int abortedFuncIndex) {
+                                         int committedFuncIndex, int abortedFuncIndex) {
         //If global tx enabled, it is managed via transaction coordinator. Otherwise it is managed locally without
         //any interaction with the transaction coordinator.
         boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
@@ -2749,7 +2746,7 @@ public class CPU {
     }
 
     private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
-                                            int transactionBlockId, String protocol, boolean isInitiator) {
+                                                   int transactionBlockId, String protocol, boolean isInitiator) {
         BValue[] args = {
                 new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)
@@ -2766,7 +2763,7 @@ public class CPU {
 
     private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
                                              int transactionBlockId) {
-        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
+        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         if (returns[1] != null) {
             throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
@@ -2774,8 +2771,8 @@ public class CPU {
     }
 
     private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
-                                        int transactionBlockId) {
-        BValue[] args = { new BString(globalTransactionId), new BInteger(transactionBlockId) };
+                                               int transactionBlockId) {
+        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 
@@ -2819,7 +2816,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-            BType[] types, int[] regs) {
+                                         BType[] types, int[] regs) {
         BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
         dataChannel.putData(vals);
@@ -2866,7 +2863,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-            BType[] types, int[] regs) {
+                                               BType[] types, int[] regs) {
         BRefType[] passedInValues = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValues != null) {
@@ -2885,23 +2882,23 @@ public class CPU {
             int regIndex = argRegs[i];
             BType paramType = paramTypes[i];
             switch (paramType.getTag()) {
-            case TypeTags.INT_TAG:
-                currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
-                break;
-            case TypeTags.FLOAT_TAG:
-                currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
-                break;
-            case TypeTags.STRING_TAG:
-                currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
-                break;
-            case TypeTags.BLOB_TAG:
-                currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
-                break;
-            default:
-                currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
+                case TypeTags.INT_TAG:
+                    currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
+                    break;
+                default:
+                    currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
             }
         }
     }
@@ -3444,7 +3441,7 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3648,10 +3645,10 @@ public class CPU {
         sf.longRegs[j] = newArray.size();
         return;
     }
-    
-    private static void execAsync(WorkerExecutionContext ctx) {        
+
+    private static void execAsync(WorkerExecutionContext ctx) {
     }
-    
+
     private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx) {
         return null;
     }

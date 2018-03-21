@@ -78,7 +78,6 @@ public class StreamingRuntimeManager {
 
         BType[] parameters = functionPointer.value().getFunctionInfo().getParamTypes();
         BStructType structType = (BStructType) ((BArrayType) parameters[0]).getElementType();
-        System.out.println("FFFFFFFFF");
         if (!(parameters[0] instanceof BArrayType)) {
             throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
                     + " a struct array");
@@ -87,8 +86,6 @@ public class StreamingRuntimeManager {
         siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
             @Override
             public void receive(Event[] events) {
-                System.out.println("FFFFFFFF");
-                System.out.println(events);
                 for (Event event : events) {
                     AtomicInteger intVarIndex = new AtomicInteger(-1);
                     AtomicInteger floatVarIndex = new AtomicInteger(-1);
