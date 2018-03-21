@@ -131,7 +131,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -147,6 +146,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -451,7 +451,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangVariableDef varDefNode) {
         if (varDefNode.var.expr instanceof BLangRecordLiteral &&
-            ((BLangRecordLiteral) varDefNode.var.expr).type.tag == TypeTags.STREAM) {
+                ((BLangRecordLiteral) varDefNode.var.expr).type.tag == TypeTags.STREAM) {
             ((BLangRecordLiteral) varDefNode.var.expr).name = varDefNode.var.name;
         }
 
@@ -510,8 +510,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangAssignment assignNode) {
         if (assignNode.expr.type.tag == TypeTags.STREAM && assignNode.varRefs.get(0) instanceof BLangSimpleVarRef) {
-                ((BLangRecordLiteral) assignNode.expr).name =
-                        ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
+            ((BLangRecordLiteral) assignNode.expr).name =
+                    ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
         }
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
@@ -1000,7 +1000,7 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
         iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
-        
+
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
             return;
@@ -1393,7 +1393,7 @@ public class Desugar extends BLangNodeVisitor {
         //Order matters, because these are the args for a function invocation.
         args.add(getSQLPreparedStatement(tableQueryExpression));
         args.add(getFromTableVarRef(tableQueryExpression));
-       // BLangTypeofExpr
+        // BLangTypeofExpr
         retTypes.add(tableQueryExpression.type);
         BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
         if (joinTable != null) {
@@ -1422,7 +1422,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangLiteral getSQLPreparedStatement(BLangTableQueryExpression
-            tableQueryExpression) {
+                                                         tableQueryExpression) {
         //create a literal to represent the sql query.
         BLangLiteral sqlQueryLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         sqlQueryLiteral.typeTag = TypeTags.STRING;
@@ -1434,7 +1434,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStructLiteral getReturnType(BLangTableQueryExpression
-                                                         tableQueryExpression) {
+                                                     tableQueryExpression) {
         //create a literal to represent the sql query.
         BTableType tableType = (BTableType) tableQueryExpression.type;
         BStructType structType = (BStructType) tableType.constraint;
@@ -1704,12 +1704,12 @@ public class Desugar extends BLangNodeVisitor {
 
     /**
      * Reorder the invocation arguments to match the original function signature.
-     * 
+     *
      * @param iExpr Function invocation expressions to reorder the arguments
      */
     private void reorderArguments(BLangInvocation iExpr) {
         BSymbol symbol = iExpr.symbol;
-        
+
         if (symbol == null || symbol.type.tag != TypeTags.INVOKABLE) {
             return;
         }

@@ -133,7 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -767,7 +766,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         streamLiteral.regIndex = calcAndGetExprRegIndex(streamLiteral);
         Operand typeCPIndex = getTypeCPIndex(streamLiteral.type);
         StringCPEntry nameCPEntry = new StringCPEntry(addUTF8CPEntry(currentPkgInfo, streamLiteral.name.value),
-                                                        streamLiteral.name.value);
+                streamLiteral.name.value);
         Operand nameCPIndex = getOperand(currentPkgInfo.addCPEntry(nameCPEntry));
         emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex, nameCPIndex);
     }
@@ -1121,15 +1120,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
         Operand initFuncRefCPIndex = getOperand(currentPkgInfo.addCPEntry(funcRefCPEntry));
-        Operand[] operands = new Operand[] { initFuncRefCPIndex, getOperand(false), getOperand(1), 
-                connectorRegIndex, getOperand(0) };
+        Operand[] operands = new Operand[]{initFuncRefCPIndex, getOperand(false), getOperand(1),
+                connectorRegIndex, getOperand(0)};
         emit(InstructionCodes.CALL, operands);
 
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         Operand actionRefCPIndex = getOperand(currentPkgInfo.addCPEntry(actionRefCPEntry));
-        operands = new Operand[] { actionRefCPIndex, getOperand(false), getOperand(1), connectorRegIndex, 
-                getOperand(0) };
+        operands = new Operand[]{actionRefCPIndex, getOperand(false), getOperand(1), connectorRegIndex,
+                getOperand(0)};
         emit(InstructionCodes.ACALL, operands);
     }
 
@@ -1259,7 +1258,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.genNode(ternaryExpr.elseExpr, this.env);
         endJumpAddr.value = nextIP();
     }
-    
+
     public void visit(BLangAwaitExpr awaitExpr) {
         //TODO
     }
@@ -1392,7 +1391,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Operand getOperand(int value) {
         return new Operand(value);
     }
-    
+
     private Operand getOperand(boolean value) {
         return new Operand(value ? 1 : 0);
     }

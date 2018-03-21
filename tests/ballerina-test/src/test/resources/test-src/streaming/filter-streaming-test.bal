@@ -50,9 +50,7 @@ function testFilterQuery () {
             io:println("HELLLLLLO");
         }
     }
-
 }
-
 
 
 function startFilterQuery( ) {
