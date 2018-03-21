@@ -205,6 +205,8 @@ public class Compiler {
     }
 
     private BLangPackage getBuiltInPackage(Name name) {
-        return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue()))));
+        // TODO: Enable taint analyzer
+        // return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue()))));
+        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
     }
 }
