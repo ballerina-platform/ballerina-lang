@@ -16,8 +16,8 @@
 
 package ballerina.auth.basic;
 
-import ballerina.auth.userstore;
-import ballerina.caching;
+import ballerina/auth.userstore;
+import ballerina/caching;
 
 @Description {value:"Represents a Basic Authenticator"}
 @Field {value:"userStore: UserStore object; ex.: in basic authenticator, the user store"}

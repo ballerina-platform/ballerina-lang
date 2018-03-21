@@ -16,7 +16,7 @@
 
 package ballerina.net.http.authadaptor;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @Description {value:"Representation of Authentication handler for HTTP traffic. Any authention interceptor for
 basic authentication should be struct-wise similar to HttpAuthnInterceptor"}

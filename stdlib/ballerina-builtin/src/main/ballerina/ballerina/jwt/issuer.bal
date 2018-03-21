@@ -16,8 +16,8 @@
 
 package ballerina.jwt;
 
-import ballerina.util;
-import ballerina.jwt.signature;
+import ballerina/util;
+import ballerina/jwt.signature;
 
 @Description {value:"Represents JWT issuer configurations"}
 public struct JWTIssuerConfig {

@@ -16,8 +16,8 @@
 
 package ballerina.auth.authz.permissionstore;
 
-import ballerina.config;
-import ballerina.log;
+import ballerina/config;
+import ballerina/log;
 
 @Description {value:"Configuration key for groups in userstore"}
 const string PERMISSIONSTORE_GROUPS_ENTRY = "groups";

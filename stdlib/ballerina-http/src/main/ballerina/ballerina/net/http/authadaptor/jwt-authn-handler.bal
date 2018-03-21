@@ -16,9 +16,9 @@
 
 package ballerina.net.http.authadaptor;
 
-import ballerina.net.http;
-import ballerina.log;
-import ballerina.auth.jwtAuth;
+import ballerina/net.http;
+import ballerina/log;
+import ballerina/auth.jwtAuth;
 
 @Description {value:"JWT authenticator instance"}
 jwtAuth:JWTAuthenticator jwtAuthenticator;

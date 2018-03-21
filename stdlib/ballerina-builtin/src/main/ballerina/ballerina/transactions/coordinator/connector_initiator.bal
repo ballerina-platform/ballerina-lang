@@ -16,8 +16,8 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.config;
-import ballerina.net.http;
+import ballerina/config;
+import ballerina/net.http;
 
 struct InitiatorClientConfig {
     string registerAtURL;

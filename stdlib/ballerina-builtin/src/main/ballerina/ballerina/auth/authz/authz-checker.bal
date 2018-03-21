@@ -16,8 +16,8 @@
 
 package ballerina.auth.authz;
 
-import ballerina.caching;
-import ballerina.auth.authz.permissionstore;
+import ballerina/caching;
+import ballerina/auth.authz.permissionstore;
 
 @Description {value:"Representation of AuthzChecker"}
 @Field {value:"authzCache: authorization cache instance"}

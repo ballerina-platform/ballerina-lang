@@ -16,11 +16,11 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.caching;
-import ballerina.io;
-import ballerina.log;
-import ballerina.net.http;
-import ballerina.util;
+import ballerina/caching;
+import ballerina/io;
+import ballerina/log;
+import ballerina/net.http;
+import ballerina/util;
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 

@@ -16,12 +16,12 @@
 
 package ballerina.net.http.authadaptor;
 
-import ballerina.net.http;
-import ballerina.auth.basic;
-import ballerina.auth.utils;
-import ballerina.auth.userstore;
-import ballerina.security.crypto;
-import ballerina.log;
+import ballerina/net.http;
+import ballerina/auth.basic;
+import ballerina/auth.utils;
+import ballerina/auth.userstore;
+import ballerina/security.crypto;
+import ballerina/log;
 
 @Description {value:"Authentication cache name"}
 const string AUTH_CACHE = "basic_auth_cache";

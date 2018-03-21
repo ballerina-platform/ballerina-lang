@@ -1,6 +1,6 @@
 package ballerina.net.http.swagger;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @Description {value: "Model for additional swagger information of a ballerina service"}
 @Field {value: "title: Title of the swagger definition"}

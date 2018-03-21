@@ -1,6 +1,6 @@
 package ballerina.lang.jsons;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value: "Options struct for JSON to XML conversion "}
 struct Options {

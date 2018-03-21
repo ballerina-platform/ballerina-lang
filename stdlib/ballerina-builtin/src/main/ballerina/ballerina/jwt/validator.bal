@@ -16,9 +16,9 @@
 
 package ballerina.jwt;
 
-import ballerina.log;
-import ballerina.time;
-import ballerina.util;
+import ballerina/log;
+import ballerina/time;
+import ballerina/util;
 
 @Description {value:"Represents JWT validator configurations"}
 public struct JWTValidatorConfig {

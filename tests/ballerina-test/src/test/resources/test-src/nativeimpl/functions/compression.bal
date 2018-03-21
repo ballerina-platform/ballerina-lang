@@ -1,4 +1,4 @@
-import ballerina.compression;
+import ballerina/compression;
 
 function testUnzipFile(string dirPath, string destDir, string folderToExtract) {
     compression:unzipFile(dirPath, destDir, folderToExtract);

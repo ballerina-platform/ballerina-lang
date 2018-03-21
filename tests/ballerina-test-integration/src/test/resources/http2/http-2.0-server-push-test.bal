@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
 endpoint http:ServiceEndpoint frontendEP {
     port:9090

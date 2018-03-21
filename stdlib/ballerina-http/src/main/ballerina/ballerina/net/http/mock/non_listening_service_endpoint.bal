@@ -1,6 +1,6 @@
 package ballerina.net.http.mock;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @Description {value:"Mock service endpoint which does not open a listening port."}
 public struct NonListeningServiceEndpoint {

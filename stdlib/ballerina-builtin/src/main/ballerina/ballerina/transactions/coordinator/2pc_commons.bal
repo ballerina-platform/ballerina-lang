@@ -16,7 +16,7 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.log;
+import ballerina/log;
 
 const string PROTOCOL_COMPLETION = "completion";
 const string PROTOCOL_VOLATILE = "volatile";

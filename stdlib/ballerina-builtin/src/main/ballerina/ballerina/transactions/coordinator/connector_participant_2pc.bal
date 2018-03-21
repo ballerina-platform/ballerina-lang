@@ -16,7 +16,7 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 public struct Participant2pcClientConfig {
     string participantURL;

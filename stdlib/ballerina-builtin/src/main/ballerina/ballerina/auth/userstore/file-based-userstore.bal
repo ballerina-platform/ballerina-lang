@@ -16,8 +16,8 @@
 
 package ballerina.auth.userstore;
 
-import ballerina.config;
-import ballerina.security.crypto;
+import ballerina/config;
+import ballerina/security.crypto;
 
 @Description {value:"Represents the file-based user store"}
 public struct FilebasedUserstore {

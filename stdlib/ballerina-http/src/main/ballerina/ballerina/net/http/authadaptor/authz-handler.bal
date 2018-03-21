@@ -16,11 +16,11 @@
 
 package ballerina.net.http.authadaptor;
 
-import ballerina.net.http;
-import ballerina.auth.utils;
-import ballerina.auth.authz;
-import ballerina.auth.authz.permissionstore;
-import ballerina.log;
+import ballerina/net.http;
+import ballerina/auth.utils;
+import ballerina/auth.authz;
+import ballerina/auth.authz.permissionstore;
+import ballerina/log;
 
 @Description {value:"Authorization cache name"}
 const string AUTHZ_CACHE = "authz_cache";

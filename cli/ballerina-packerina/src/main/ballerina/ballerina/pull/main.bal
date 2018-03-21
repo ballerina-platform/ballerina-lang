@@ -1,10 +1,10 @@
 package ballerina.pull;
 
-import ballerina.compression;
-import ballerina.file;
-import ballerina.io;
-import ballerina.net.http;
-import ballerina.runtime;
+import ballerina/compression;
+import ballerina/file;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/runtime;
 
 const string FileSeparator = "/";
 

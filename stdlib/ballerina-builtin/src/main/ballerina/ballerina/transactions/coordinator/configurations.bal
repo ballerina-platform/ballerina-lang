@@ -16,8 +16,8 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina.config;
-import ballerina.io;
+import ballerina/config;
+import ballerina/io;
 
 const string basePath = "/balcoordinator";
 const string initiatorCoordinatorBasePath = basePath + "/initiator";

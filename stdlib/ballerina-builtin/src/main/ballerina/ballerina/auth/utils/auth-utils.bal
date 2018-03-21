@@ -16,9 +16,9 @@
 
 package ballerina.auth.utils;
 
-import ballerina.config;
-import ballerina.caching;
-import ballerina.util;
+import ballerina/config;
+import ballerina/caching;
+import ballerina/util;
 
 @Description {value:"Configuration entry to check if a cache is enabled"}
 const string CACHE_ENABLED = "enabled";

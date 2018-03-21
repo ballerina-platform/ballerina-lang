@@ -1,5 +1,5 @@
-import ballerina.log;
-import ballerina.runtime;
+import ballerina/log;
+import ballerina/runtime;
 
 function main (string[] args) {
     int result;

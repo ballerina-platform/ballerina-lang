@@ -16,8 +16,8 @@
 
 package ballerina.net.http.authadaptor;
 
-import ballerina.log;
-import ballerina.net.http;
+import ballerina/log;
+import ballerina/net.http;
 
 @Description {value:"Representation of Authentication handler chain"}
 public struct AuthnHandlerChain {

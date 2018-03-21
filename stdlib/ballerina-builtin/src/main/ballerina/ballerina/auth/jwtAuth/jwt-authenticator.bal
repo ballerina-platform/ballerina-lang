@@ -16,12 +16,12 @@
 
 package ballerina.auth.jwtAuth;
 
-import ballerina.jwt;
-import ballerina.time;
-import ballerina.config;
-import ballerina.caching;
-import ballerina.log;
-import ballerina.auth.utils;
+import ballerina/jwt;
+import ballerina/time;
+import ballerina/config;
+import ballerina/caching;
+import ballerina/log;
+import ballerina/auth.utils;
 
 @Description {value:"Represents a JWT Authenticator"}
 @Field {value:"jwtValidatorConfig: JWTValidatorConfig object"}

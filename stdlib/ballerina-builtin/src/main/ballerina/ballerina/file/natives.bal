@@ -16,8 +16,8 @@
 
 package ballerina.file;
 
-import ballerina.io;
-import ballerina.time;
+import ballerina/io;
+import ballerina/time;
 
 @Description { value:"The Read access mode"}
 public const string R = "R";
