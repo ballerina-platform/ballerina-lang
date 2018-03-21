@@ -28,11 +28,13 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -130,6 +132,10 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
+        if (funcNode.receiver != null) {
+            this.acceptNode(funcNode.receiver);
+        }
+
         if (!funcNode.requiredParams.isEmpty()) {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
@@ -142,9 +148,17 @@ public class PositionTreeVisitor extends NodeVisitor {
             this.acceptNode(funcNode.body);
         }
 
+        if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
+            funcNode.endpoints.forEach(this::acceptNode);
+        }
+
         // Process workers
         if (!funcNode.workers.isEmpty()) {
             funcNode.workers.forEach(this::acceptNode);
+        }
+
+        if (!funcNode.defaultableParams.isEmpty()) {
+            funcNode.defaultableParams.forEach(this::acceptNode);
         }
     }
 
@@ -185,27 +199,22 @@ public class PositionTreeVisitor extends NodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
                 varRefExpr.pkgAlias.value);
-//        if (varRefExpr.type instanceof BEndpointType && ((BEndpointType) varRefExpr.type).constraint != null
-//                && ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name().equals(ContextConstants.CONNECTOR)
-//                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-//            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
-//            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-//            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
-//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.name.getValue());
-//            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY,
-//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.pkgID);
-//            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY,
-//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name());
-//            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
-//            if (varRefExpr.symbol != null) {
-//                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-//                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-//                        varRefExpr.symbol.owner.pkgID);
-//                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
-//            }
-//            setTerminateVisitor(true);
-//        } else
-        if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
+        if (varRefExpr.symbol != null && varRefExpr.symbol instanceof BEndpointVarSymbol &&
+                HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
+                    ((BEndpointVarSymbol) varRefExpr.symbol).name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, ((BEndpointVarSymbol) varRefExpr.symbol).pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.ENDPOINT);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.ENDPOINT);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+                    varRefExpr.symbol.owner.pkgID);
+
+            setTerminateVisitor(true);
+        } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.ENUM)
                 || varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.STRUCT))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
@@ -427,8 +436,24 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
 
+        if (serviceNode.serviceTypeStruct != null) {
+            this.acceptNode(serviceNode.serviceTypeStruct);
+        }
+
+        if (!serviceNode.vars.isEmpty()) {
+            serviceNode.vars.forEach(this::acceptNode);
+        }
+
         if (!serviceNode.resources.isEmpty()) {
             serviceNode.resources.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.endpoints.isEmpty()) {
+            serviceNode.endpoints.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.boundEndpoints.isEmpty()) {
+            serviceNode.boundEndpoints.forEach(this::acceptNode);
         }
 
         if (serviceNode.initFunction != null) {
@@ -454,6 +479,14 @@ public class PositionTreeVisitor extends NodeVisitor {
 
         if (resourceNode.body != null) {
             this.acceptNode(resourceNode.body);
+        }
+
+        if (!resourceNode.endpoints.isEmpty()) {
+            resourceNode.endpoints.forEach(this::acceptNode);
+        }
+
+        if (!resourceNode.workers.isEmpty()) {
+            resourceNode.workers.forEach(this::acceptNode);
         }
     }
 
@@ -492,8 +525,8 @@ public class PositionTreeVisitor extends NodeVisitor {
             acceptNode(transactionNode.transactionBody);
         }
 
-        if (transactionNode.failedBody != null) {
-            acceptNode(transactionNode.failedBody);
+        if (transactionNode.onRetryBody != null) {
+            acceptNode(transactionNode.onRetryBody);
         }
 
         if (transactionNode.retryCount != null) {
@@ -681,6 +714,17 @@ public class PositionTreeVisitor extends NodeVisitor {
                 enumNode.symbol.owner.name.getValue(), enumNode.symbol.owner.pkgID);
         if (enumNode.getPosition().sLine == this.position.getLine()) {
             this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, enumNode.name.getValue());
+        }
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        if (endpointNode.endpointTypeNode != null) {
+            this.acceptNode(endpointNode.endpointTypeNode);
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 

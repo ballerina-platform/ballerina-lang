@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -58,6 +59,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangStreamlet> streamlets;
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
+    public List<BLangObject> objects;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction, startFunction, stopFunction;
@@ -78,6 +80,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.streamlets = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
+        this.objects = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
@@ -139,6 +142,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangStruct> getStructs() {
         return structs;
+    }
+
+    @Override
+    public List<? extends ObjectNode> getObjects() {
+        return objects;
     }
 
     @Override
@@ -206,6 +214,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addStruct(StructNode struct) {
         this.structs.add((BLangStruct) struct);
         this.topLevelNodes.add(struct);
+    }
+
+    @Override
+    public void addObject(ObjectNode object) {
+        this.objects.add((BLangObject) object);
+        this.topLevelNodes.add(object);
     }
 
     @Override

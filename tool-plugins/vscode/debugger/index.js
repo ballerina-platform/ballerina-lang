@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
- 
+
 class BallerinaDebugSession extends LoggingDebugSession {
     initializeRequest(response, args) {
         response.body = response.body || {};

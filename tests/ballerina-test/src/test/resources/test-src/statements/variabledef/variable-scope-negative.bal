@@ -1,6 +1,6 @@
-import ballerina.net.http;
 
-function testVariableIfScope () (int) {
+
+function testVariableIfScope () returns (int) {
     int a = 90;
     int b = 50;
     if (a > 20) {
@@ -14,7 +14,7 @@ function testVariableIfScope () (int) {
     return k;
 }
 
-function testVariableElseScope() (int) {
+function testVariableElseScope() returns (int) {
     int a = 10;
     if(a > 20) {
         a = 50;
@@ -34,19 +34,27 @@ function testVariableWhileScope() {
     int sum = b;
 }
 
-service<http:Service> myService {
+service<DummyService> myService {
     int a = 20;
 
-    resource myResource1(http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    myResource1(string s) {
+        string res = "abc";
         int b = a + 50;
-        _ = conn -> respond(res);
     }
 
-    resource myResource2(http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    myResource2(string s) {
+        string res = "abc";
         int c = b + 50;
-        _ = conn -> respond(res);
     }
 }
 
+struct DummyEndpoint {}
+
+function <DummyEndpoint s> init (struct {} conf)  {
+}
+
+struct DummyService {}
+
+function <DummyService s> getEndpoint() returns (DummyEndpoint) {
+    return null;
+}

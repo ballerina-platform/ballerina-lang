@@ -1,9 +1,17 @@
-import ballerina.net.http;
-
-service<http:Service> helloWorld {
-
-    resource sayHello(http:ServerConnector conn, http:Request req) {
-        http:Response resp = {};
-        return resp;
+service<DummyService> helloWorld {
+    sayHello(string x) {
+        return x;
     }
+}
+
+struct DummyEndpoint {}
+
+function <DummyEndpoint s> init (struct {} conf)  {
+}
+
+struct DummyService {}
+
+function <DummyService s> getEndpoint() returns (DummyEndpoint) {
+    DummyEndpoint ep;
+    return ep;
 }

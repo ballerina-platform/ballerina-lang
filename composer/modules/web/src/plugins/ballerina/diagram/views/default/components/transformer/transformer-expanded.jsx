@@ -36,6 +36,7 @@ import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
 import './transformer-expanded.css';
 import IterableList from './iterable-list';
+import ConversionList from './conversion-list';
 
 /**
  * React component for transform expanded view
@@ -54,7 +55,8 @@ class TransformerExpanded extends React.Component {
         super(props, context);
         this.state = {
             // vertices changes must re-render. Hence added as a state.
-            iterableOperationMenu: {},
+            name: props.model.getName().getValue(),
+            connectionMenu: {},
             vertices: [],
             typedSource: '',
             typedTarget: '',
@@ -102,6 +104,7 @@ class TransformerExpanded extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onConnectionsScroll = this.onConnectionsScroll.bind(this);
         this.onConnectPointMouseEnter = this.onConnectPointMouseEnter.bind(this);
+        this.onNameChange = this.onNameChange.bind(this);
     }
 
     componentDidMount() {
@@ -460,6 +463,11 @@ class TransformerExpanded extends React.Component {
         this.addTarget(this.state.typedTarget);
     }
 
+    onNameChange(event) {
+        this.setState({ name: event.target.value });
+        this.props.model.name.setValue(event.target.value);
+    }
+
 
     getVerticeData(varNode) {
         if (Array.isArray(varNode)) {
@@ -665,7 +673,7 @@ class TransformerExpanded extends React.Component {
     addSource(source) {
         const vertex = this.state.vertices.filter((val) => { return val === source; })[0];
         if (vertex) {
-            this.props.model.setSourceParam(this.transformNodeManager.createVariable('source', vertex));
+            this.props.model.setSource(this.transformNodeManager.createVariable('source', vertex));
             this.setState({ typedSource: '' });
         }
     }
@@ -723,16 +731,14 @@ class TransformerExpanded extends React.Component {
         if (!isTemp && !this.transformNodeManager.isTransformerConversion(stmtExp) &&
         (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
             variables.forEach((variable) => {
-                // TODO : remove replace whitespace once its handled from backend
-                const sourceExprString = expression.getSource().replace(/ /g, '').trim();
+                const sourceExprString = this.generateEndpointId(expression.getSource());
                 let sourceId = `${sourceExprString}:${viewId}`;
                 let folded = false;
                 if (!this.sourceElements[sourceId]) {
                     folded = true;
                     sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
-                // TODO : remove replace whitespace once its handled from backend
-                const targetExprString = variable.getSource().replace(/ /g, '').trim();
+                const targetExprString = this.generateEndpointId(variable.getSource());
                 let targetId = `${targetExprString}:${viewId}`;
                 if (!this.targetElements[targetId]) {
                     folded = true;
@@ -748,6 +754,18 @@ class TransformerExpanded extends React.Component {
         } else if (this.transformNodeManager.isTransformerConversion(stmtExp)) {
             this.drawIntermediateNode(variables, stmtExp, statement, isTemp);
         }
+    }
+
+    /**
+     * Generate endpoint ID
+     * @param {string} expression expression string
+     * @returns {string} id generated
+     */
+    generateEndpointId(expression) {
+        if (expression.lastIndexOf('\n') !== -1) {
+            expression = expression.substring(expression.lastIndexOf('\n'));
+        }
+        return expression.replace(/ /g, '').trim();
     }
 
     /**
@@ -1102,16 +1120,19 @@ class TransformerExpanded extends React.Component {
                     type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
                     sourceId.split(':')[0]);
                 }
-            } else if (TreeUtil.isFieldBasedAccessExpr(expression) && (expression.symbolType[0].includes('[]'))) {
+            } else if (TreeUtil.isFieldBasedAccessExpr(expression)
+                        && (expression.symbolType && expression.symbolType[0].includes('[]'))) {
                 type = 'iterable';
             }
         }
         const callback = (pageX, pageY, connection) => {
-            this.setState({ iterableOperationMenu: {
-                showIterables: true,
+            this.setState({ connectionMenu: {
+                showIterables: type === 'iterable',
+                showConversions: type !== 'iterable',
                 iterableX: pageX,
                 iterableY: pageY,
                 currrentConnection: connection,
+                currentStatement: statement,
             } });
         };
         this.mapper.addConnection(sourceId, targetId, folded, type, callback);
@@ -1273,7 +1294,7 @@ class TransformerExpanded extends React.Component {
                     <i onClick={this.onClose} className='fw fw-left close-transform' />
                     <p className='transform-header-text '>
                         <i className='transform-header-icon fw fw-type-converter' />
-                        <b>{this.props.model.getSignature()}</b>
+                        <b>Transformer</b>
                     </p>
                 </div>
                 <div
@@ -1313,6 +1334,15 @@ class TransformerExpanded extends React.Component {
                                 />
                             </div>
                             <div className='middle-content-frame' />
+                            <div className='transform-name-container'>
+                                <input
+                                    type='text'
+                                    className='transform-name-text'
+                                    value={this.state.name}
+                                    placeholder='name'
+                                    onChange={this.onNameChange}
+                                />
+                            </div>
                             <Scrollbars
                                 style={{ height: 'calc(100% - 50px)' }}
                                 ref={(scroll) => { this.vscroll = scroll; }}
@@ -1423,17 +1453,32 @@ class TransformerExpanded extends React.Component {
                                         transformNodeManager={this.transformNodeManager}
                                     />
                                     <IterableList
-                                        showIterables={this.state.iterableOperationMenu.showIterables}
+                                        showIterables={this.state.connectionMenu.showIterables}
                                         bBox={{
-                                            x: this.state.iterableOperationMenu.iterableX,
-                                            y: this.state.iterableOperationMenu.iterableY,
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
                                             h: 0,
                                             w: 0,
                                         }}
-                                        currrentConnection={this.state.iterableOperationMenu.currrentConnection}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
                                         transformNodeManager={this.transformNodeManager}
                                         callback={() => {
-                                            this.setState({ iterableOperationMenu: { showIterables: false } });
+                                            this.setState({ connectionMenu: { showIterables: false } });
+                                        }}
+                                    />
+                                    <ConversionList
+                                        showConvesrsion={this.state.connectionMenu.showConversions}
+                                        bBox={{
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
+                                            h: 0,
+                                            w: 0,
+                                        }}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
+                                        currentStatement={this.state.connectionMenu.currentStatement}
+                                        transformNodeManager={this.transformNodeManager}
+                                        callback={() => {
+                                            this.setState({ connectionMenu: { showConvesrsion: false } });
                                         }}
                                     />
                                     <div className='right-content'>

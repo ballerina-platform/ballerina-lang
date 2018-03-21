@@ -28,4 +28,4 @@ public native function println (any a);
 @Param { value:"format: Format specifier" }
 @Param { value:"args: Arguments to be formatted, should match number of args in format specifier" }
 @Return { value:"Formatted string" }
-public native function sprintf (string format, any[] args) (string);
+public native function sprintf (string format, any[] args) returns (string);

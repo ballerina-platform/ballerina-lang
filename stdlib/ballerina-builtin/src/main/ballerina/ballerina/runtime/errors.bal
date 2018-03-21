@@ -33,9 +33,9 @@ public struct CallStackElement {
     int lineNumber;
 }
 
-public native function getCallStack ()(CallStackElement[]);
+public native function getCallStack () returns (CallStackElement[]);
 
-public native function getErrorCallStackFrame (error e)(CallStackElement);
+public native function getErrorCallStackFrame (error e) returns (CallStackElement);
 
 public struct CallFailedException {
     string message;

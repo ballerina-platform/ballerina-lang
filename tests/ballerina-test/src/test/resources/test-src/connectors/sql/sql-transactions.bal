@@ -5,7 +5,7 @@ struct ResultCount {
 }
 
 function testLocalTransacton () (int returnVal, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -13,17 +13,15 @@ function testLocalTransacton () (int returnVal, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+    };
 
-    var testDB = testDBEP.getConnector();
-	
     returnVal = 0;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -38,7 +36,7 @@ function testLocalTransacton () (int returnVal, int count) {
 }
 
 function testTransactonRollback () (int returnVal, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -46,10 +44,8 @@ function testTransactonRollback () (int returnVal, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
+    };
+
     returnVal = 0;
     try {
         transaction {
@@ -57,7 +53,7 @@ function testTransactonRollback () (int returnVal, int count) {
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
             _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error e) {
@@ -75,7 +71,7 @@ function testTransactonRollback () (int returnVal, int count) {
 }
 
 function testTransactonAbort () (int returnVal, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -83,10 +79,8 @@ function testTransactonAbort () (int returnVal, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
+    };
+
     returnVal = -1;
     transaction {
         int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -99,7 +93,7 @@ function testTransactonAbort () (int returnVal, int count) {
             abort;
         }
         returnVal = 0;
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -114,7 +108,7 @@ function testTransactonAbort () (int returnVal, int count) {
 }
 
 function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -122,11 +116,9 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
-    returnVal = 0;
+    };
+
+	returnVal = 0;
     catchValue = 0;
     try {
         transaction {
@@ -137,7 +129,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
                 error err = {message:"error"};
                 throw err;
             }
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error err) {
@@ -155,7 +147,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
 }
 
 function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -163,11 +155,9 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
-    returnVal = 0;
+    };
+
+	returnVal = 0;
     catchValue = 0;
     transaction {
         int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,
@@ -181,7 +171,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         } catch (error err) {
             catchValue = -1;
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -196,7 +186,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
 }
 
 function testTransactonCommitted () (int returnVal, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -204,17 +194,15 @@ function testTransactonCommitted () (int returnVal, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
-    returnVal = 1;
+    };
+
+	returnVal = 1;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -229,7 +217,7 @@ function testTransactonCommitted () (int returnVal, int count) {
 }
 
 function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -237,10 +225,8 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
+    };
+
     returnVal1 = 1;
     returnVal2 = 1;
     transaction {
@@ -248,7 +234,7 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal1 = 0;
     }
 
@@ -257,7 +243,7 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal2 = 0;
     }
     //check whether update action is performed
@@ -272,7 +258,7 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
 }
 
 function testTransactonWithoutHandlers () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -280,11 +266,9 @@ function testTransactonWithoutHandlers () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
-    transaction {
+    };
+
+	transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
@@ -302,7 +286,7 @@ function testTransactonWithoutHandlers () (int count) {
 }
 
 function testLocalTransactionFailed () (string, int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -310,10 +294,8 @@ function testLocalTransactionFailed () (string, int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
+    };
+
     string a = "beforetx";
     int count = -1;
     try {
@@ -323,7 +305,7 @@ function testLocalTransactionFailed () (string, int) {
                         values ('James', 'Clerk', 111, 5000.75, 'USA')", null);
             _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')", null);
-        } failed {
+        } onretry {
             a = a + " inFld";
         }
     } catch (error e) {
@@ -341,7 +323,7 @@ function testLocalTransactionFailed () (string, int) {
 }
 
 function testLocalTransactonSuccessWithFailed () (string, int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -349,10 +331,8 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB = testDBEP.getConnector();
-	
+    };
+
     string a = "beforetx";
     int count = -1;
     int i = 0;
@@ -368,7 +348,7 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
                 _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                             values ('Anne', 'Clerk', 222, 5000.75, 'USA')", null);
             }
-        } failed {
+        } onretry {
             a = a + " inFld";
             i = i + 1;
         }
@@ -387,7 +367,7 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
 }
 
 function testLocalTransactonFailedWithNextupdate () (int i) {
-	endpoint<sql:Client> testDBEP1 {
+	endpoint sql:Client testDB1 {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -395,9 +375,9 @@ function testLocalTransactonFailedWithNextupdate () (int i) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+    };
 	
-	endpoint<sql:Client> testDBEP2 {
+	endpoint sql:Client testDB2 {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -405,11 +385,8 @@ function testLocalTransactonFailedWithNextupdate () (int i) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    
-    var testDB1 = testDBEP1.getConnector();
-	var testDB2 = testDBEP2.getConnector();
-	
+    };
+
     i = 0;
     try {
         transaction {
@@ -435,7 +412,7 @@ function testLocalTransactonFailedWithNextupdate () (int i) {
 }
 
 function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -443,8 +420,7 @@ function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-	var testDB = testDBEP.getConnector();
+    };
 	
     returnVal = 0;
     transaction {
@@ -454,7 +430,7 @@ function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
             _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')", null);
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -469,7 +445,7 @@ function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
 }
 
 function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
-	endpoint<sql:Client> testDBEP {
+	endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -477,8 +453,7 @@ function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-	var testDB = testDBEP.getConnector();
+    };
 	
     returnVal = 0;
     transaction {
@@ -492,7 +467,7 @@ function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')", null);
             }
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -507,7 +482,7 @@ function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
 }
 
 function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -515,9 +490,8 @@ function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-	var testDB = testDBEP.getConnector();
-	
+    };
+
     returnVal = 0;
     try {
         transaction {
@@ -531,7 +505,7 @@ function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
                                 values ('James', 'Clerk', 555, 5000.75, 'USA')", null);
                 }
             }
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error e) {
@@ -549,7 +523,7 @@ function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
 }
 
 function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal, int count, string a) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -557,9 +531,8 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal,
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-	var testDB = testDBEP.getConnector();
-	
+    };
+
     returnVal = 0;
     int index = 0;
     a = "start";
@@ -583,12 +556,12 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal,
                          _ = testDB -> update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')", null);
                     }
-                } failed {
+                } onretry {
                     a = a + " txL3_Failed";
                     index = index + 1;
                 }
             }
-        } failed {
+        } onretry {
             a = a + " txL1_Falied";
             returnVal = -1;
         }
@@ -608,7 +581,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal,
 
 
 function testCloseConnectionPool () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -616,8 +589,7 @@ function testCloseConnectionPool () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-	var testDB = testDBEP.getConnector();
+    };
 	
     table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                              typeof ResultCount);
@@ -628,4 +600,3 @@ function testCloseConnectionPool () (int count) {
     testDB -> close();
     return;
 }
-

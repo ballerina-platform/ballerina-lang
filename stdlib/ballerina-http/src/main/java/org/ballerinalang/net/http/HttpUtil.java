@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -40,9 +41,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.session.Session;
@@ -69,7 +68,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -80,7 +78,7 @@ import java.util.Set;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
@@ -152,7 +150,7 @@ public class HttpUtil {
         if (contentType == null) {
             contentType = OCTET_STREAM;
         }
-        HttpUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
@@ -508,10 +506,6 @@ public class HttpUtil {
 
     public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
         connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
-        connection.setStringField(HttpConstants.CONNECTION_HOST_INDEX,
-                ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getHostName());
-        connection.setIntField(HttpConstants.CONNECTION_PORT_INDEX,
-                (Integer) cMsg.getProperty(HttpConstants.LISTENER_PORT));
     }
 
     /**
@@ -558,20 +552,7 @@ public class HttpUtil {
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
         }
-        entity.setRefField(ENTITY_HEADERS_INDEX, prepareEntityHeaderMap(cMsg.getHeaders(), new BMap<>()));
-    }
-
-    private static BMap<String, BValue> prepareEntityHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
-        for (Map.Entry<String, String> header : headers.entries()) {
-            if (headerMap.keySet().contains(header.getKey())) {
-                BStringArray valueArray = (BStringArray) headerMap.get(header.getKey());
-                valueArray.add(valueArray.size(), header.getValue());
-            } else {
-                BStringArray valueArray = new BStringArray(new String[]{header.getValue()});
-                headerMap.put(header.getKey(), valueArray);
-            }
-        }
-        return headerMap;
+        entity.addNativeData(ENTITY_HEADERS, cMsg.getHeaders());
     }
 
     /**
@@ -597,16 +578,10 @@ public class HttpUtil {
             // TODO: refactor this logic properly.
             // return;
         }
-        BMap<String, BValue> entityHeaders = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        if (entityHeaders == null) {
-            return;
-        }
-        Set<String> keys = entityHeaders.keySet();
-        for (String key : keys) {
-            BStringArray headerValues = (BStringArray) entityHeaders.get(key);
-            for (int i = 0; i < headerValues.size(); i++) {
-                transportHeaders.add(key, headerValues.get(i));
-            }
+        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        if (httpHeaders != transportHeaders) {
+            //This is done only when the entity map and transport message do not refer to the same header map
+            transportHeaders.add(httpHeaders);
         }
     }
 
@@ -649,12 +624,6 @@ public class HttpUtil {
         }
     }
 
-    private static void setHeaderToEntity(BStruct struct, String key, String value) {
-        BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
-                (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
-        HeaderUtil.overrideEntityHeader(headerMap, key, value);
-    }
-
     /**
      * Check the existence of entity. Set new entity of not present.
      *
@@ -678,7 +647,7 @@ public class HttpUtil {
         BStruct entity = ConnectorUtils.createAndGetStruct(context
                 , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
                 , org.ballerinalang.mime.util.Constants.ENTITY);
-        entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
+        entity.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
         struct.addNativeData(MESSAGE_ENTITY, entity);
         struct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
         return entity;

@@ -1,36 +1,35 @@
 import ballerina.net.http;
 import ballerina.io;
 
-endpoint<http:Service> ep {
-    port:7090,
-    // HTTP version is set to 2.0.
-    httpVersion:"2.0"
-}
+endpoint http:ServiceEndpoint ep {
+   port:7090,
+   // HTTP version is set to 2.0.
+   httpVersion:"2.0"
+};
 
-@http:serviceConfig {
-    basePath:"/http2Service",
-    endpoints:[ep]
+@http:ServiceConfig {
+    basePath:"/http2Service"
 }
-service<http:Service> http2Service {
+service<http:Service> http2Service bind ep {
 
-  @http:resourceConfig {
-     path:"/main"
-  }
-  resource http2Resource (http:ServerConnector conn, http:Request req) {
+ @http:ResourceConfig {
+    path:"/main"
+ }
+ http2Resource (endpoint client, http:Request req) {
 
     io:println("Request received");
 
     // Send a Push Promise.
     http:PushPromise promise1 = {path:"/resource1", method:"POST"};
-    _ = conn -> promise(promise1);
+    _ = client -> promise(promise1);
 
     // Send another Push Promise.
     http:PushPromise promise2 = {path:"/resource2", method:"POST"};
-    _ = conn -> promise(promise2);
+    _ = client -> promise(promise2);
 
     // Send one more Push Promise.
     http:PushPromise promise3 = {path:"/resource3", method:"POST"};
-    _ = conn -> promise(promise3);
+    _ = client -> promise(promise3);
 
     // Construct requested resource.
     http:Response response = {};
@@ -38,7 +37,7 @@ service<http:Service> http2Service {
     response.setJsonPayload(msg);
 
     // Send the requested resource.
-    _ = conn -> respond(response);
+    _ = client -> respond(response);
 
     // Construct promised resource1.
     http:Response push1 = {};
@@ -46,29 +45,33 @@ service<http:Service> http2Service {
     push1.setJsonPayload(msg);
 
     // Push promised resource1.
-    _ = conn -> pushPromisedResponse(promise1, push1);
+    _ = client -> pushPromisedResponse(promise1, push1);
 
     http:Response push2 = {};
     msg = {"push":{"name":"resource2"}};
     push2.setJsonPayload(msg);
 
     // Push promised resource2.
-    _ = conn -> pushPromisedResponse(promise2, push2);
+    _ = client -> pushPromisedResponse(promise2, push2);
 
     http:Response push3 = {};
     msg = {"push":{"name":"resource3"}};
     push3.setJsonPayload(msg);
 
     // Push promised resource3.
-    _ = conn -> pushPromisedResponse(promise3, push3);
+    _ = client -> pushPromisedResponse(promise3, push3);
   }
 }
 
-endpoint<http:Client> clientEP {
-    serviceUri: "http://localhost:7090",
+endpoint http:ClientEndpoint clientEP {
+    targets: [
+        {
+            uri: "http://localhost:7090"
+        }
+    ],
     // HTTP version is set to 2.0.
     httpVersion:"2.0"
-}
+};
 
 function main (string[] args) {
 

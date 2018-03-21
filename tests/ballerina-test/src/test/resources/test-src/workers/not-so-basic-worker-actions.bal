@@ -1,8 +1,6 @@
-import ballerina.io;
-import ballerina.net.http;
 import ballerina.runtime;
 
-function forkJoinWithTimeoutTest1() (map) {
+function forkJoinWithTimeoutTest1() returns map {
     map m = {};
     fork {
 	   worker w1 {
@@ -22,7 +20,7 @@ function forkJoinWithTimeoutTest1() (map) {
     return m;
 }
 
-function forkJoinWithTimeoutTest2() (map) {
+function forkJoinWithTimeoutTest2() returns map {
     map m = {};
     fork {
 	   worker w1 {
@@ -38,7 +36,7 @@ function forkJoinWithTimeoutTest2() (map) {
     return m;
 }
 
-function complexForkJoinWorkerSendReceive() (map) {
+function complexForkJoinWorkerSendReceive() returns map {
     map m = {};
     m["x"] = 10;
     fork {
@@ -58,7 +56,7 @@ function complexForkJoinWorkerSendReceive() (map) {
     return m;
 }
 
-function chainedWorkerSendReceive() (map) {
+function chainedWorkerSendReceive() returns map {
     map m = {};
     fork {
 	   worker w1 {
@@ -85,7 +83,7 @@ function chainedWorkerSendReceive() (map) {
     return m;
 }
 
-function forkJoinWithSomeSelectedJoin1() (map) {
+function forkJoinWithSomeSelectedJoin1() returns int {
     map m = {};
     m["x"] = 0;
     m["y"] = 0;
@@ -108,11 +106,15 @@ function forkJoinWithSomeSelectedJoin1() (map) {
          runtime:sleepCurrentWorker(1000);
 	     m["x"] = b;
 	   }
-	} join (some 1 w2, w3) (map results) {  io:println(results);  }
-	return m;
+	} join (some 1 w2, w3) (map results) {  }
+	int j;
+	int k;
+	j, _ = (int) m["x"];
+	k, _ = (int) m["y"];
+	return j * k;
 }
 
-function forkJoinWithSomeSelectedJoin2() (map) {
+function forkJoinWithSomeSelectedJoin2() returns map {
     map m = {};
     m["x"] = 0;
     fork {
@@ -136,11 +138,11 @@ function forkJoinWithSomeSelectedJoin2() (map) {
 	     (a * 2) -> w1;
 	     a <- w2;
 	   }
-	} join (some 1 w1, w2, w3) (map results) {  io:println(results);  }
+	} join (some 1 w1, w2, w3) (map results) { }
 	return m;
 }
 
-function forkJoinWithSomeSelectedJoin3() (map) {
+function forkJoinWithSomeSelectedJoin3() returns map {
     map m = {};
     m["x"] = 0;
     fork {
@@ -166,11 +168,11 @@ function forkJoinWithSomeSelectedJoin3() (map) {
 	     (a * 2) -> w1;
 	     m["x"] <- w2;
 	   }
-	} join (some 1 w2, w3) (map results) {  io:println(results);  }
+	} join (some 1 w2, w3) (map results) {  }
 	return m;
 }
 
-function forkJoinWithSomeSelectedJoin4() (map) {
+function forkJoinWithSomeSelectedJoin4() returns int {
     map m = {};
     m["x"] = 0;
     fork {
@@ -189,11 +191,13 @@ function forkJoinWithSomeSelectedJoin4() (map) {
 	     runtime:sleepCurrentWorker(1000);
 	     m["x"] = a * 2;
 	   }
-	} join (some 2 w1, w2, w3) (map results) {  io:println(results);  }
-	return m;
+	} join (some 2 w1, w2, w3) (map results) {  }
+	int x;
+	x, _ = (int) m["x"];
+	return x;
 }
 
-function forkJoinWithSomeSelectedJoin5() (map) {
+function forkJoinWithSomeSelectedJoin5() returns int {
     map m = {};
     m["x"] = 0;
     fork {
@@ -215,10 +219,12 @@ function forkJoinWithSomeSelectedJoin5() (map) {
 	     a -> w2;
 	   }
 	} join (some 2 w1, w2, w3) (map results) { } timeout (1) (map results) {  m["x"] = 555;  }
-	return m;
+	int x;
+	x, _ = (int) m["x"];
+	return x;
 }
 
-function forkJoinWithAllSelectedJoin1() (map) {
+function forkJoinWithAllSelectedJoin1() returns map {
     map m = {};
     m["x"] = 0;
     fork {
@@ -245,13 +251,12 @@ function forkJoinWithAllSelectedJoin1() (map) {
 	     (a * 2) -> w1;
 	     m["x"] <- w2;
 	   }
-	} join (all w2, w3) (map results) {  io:println(results);  }
+	} join (all w2, w3) (map results) {  }
 	return m;
 }
 
-function forkJoinWithAllSelectedJoin2() (map) {
-    map m = {};
-    m["x"] = 0;
+function forkJoinWithAllSelectedJoin2() returns int {
+    int result;
     fork {
 	   worker w1 {
 	     int x = 10;
@@ -265,22 +270,26 @@ function forkJoinWithAllSelectedJoin2() (map) {
 	     a <- w1;
 	     (a * 2) -> w3;
 	     a <- w1;
-	     m["x"] = a;
+	     result = a;
 	     (a * 2) -> w3;
 	     runtime:sleepCurrentWorker(2000);
-	     m["x"] = 33;
+	     result = 33;
 	   }
 	   worker w3 {
 	     int a = 0;
 	     a <- w2;
 	     (a * 2) -> w1;
-	     m["x"] <- w2;
+	     result <- w2;
 	   }
-	} join (all w2, w3) (map results) { } timeout (1) (map results) {  m["x"] = 777;  }
-	return m;
+	} join (all w2, w3) (map results) { } timeout (1) (map results) {
+	     if (result != 33) {
+	         result = 777; 
+	     }  
+	}
+	return result;
 }
 
-function forkJoinWithMessagePassingTimeoutNotTriggered() (map) {
+function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
     map m = {};
     fork {
        worker w1 {
@@ -300,8 +309,11 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() (map) {
     } join (all) (map results) {
         any[] anyArray;
         int b;
-        anyArray, _ = (any[]) results["w1"];
-        b, _ = (int) anyArray[0];
+        error e = {};
+        anyArray, e = (any[]) results["w1"];
+        if (e == null) {
+            b, _ = (int) anyArray[0];
+        }
         int a;
         anyArray, _ = (any[]) results["w2"];
         a, _ = (int) anyArray[0];
@@ -312,7 +324,7 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() (map) {
     return m;
 }
 
-function forkJoinInWorkers() (int) {
+function forkJoinInWorkers() returns int {
     worker wx {
 	    int x = 20;
 	    map m = {};
@@ -334,7 +346,7 @@ function forkJoinInWorkers() (int) {
     }
 }
 
-function largeForkJoinCreationTest() (int) {
+function largeForkJoinCreationTest() returns int {
     int result = 0;
     map m = {};
     int c = 1000;
@@ -411,16 +423,15 @@ function largeForkJoinCreationTest() (int) {
     return result;
 }
 
-function forkJoinWithStruct () (string result) {
+function forkJoinWithStruct () returns string {
+    string result;
     fork {
         worker w1 {
             foo f = {x:1, y:"w1"};
-            io:println(f);
             f -> fork;
         }
         worker w2 {
             float f = 10.344;
-            io:println("[w2] f: " + f);
             f -> fork;
         }
     } join (all) (map results) {
@@ -439,7 +450,8 @@ struct foo {
     string y;
 }
 
-function forkJoinWithSameWorkerContent () (string result) {
+function forkJoinWithSameWorkerContent () returns string {
+    string result;
     fork {
         worker w1 {
             any[] a = [];
@@ -451,7 +463,6 @@ function forkJoinWithSameWorkerContent () (string result) {
         }
 
     } join (all) (map results) {
-        io:println(results);
     }
     fork {
         worker w1 {
@@ -473,14 +484,3 @@ function forkJoinWithSameWorkerContent () (string result) {
     return result;
 }
 
-//function testWorkerStackCreation ()(int) {
-//    endpoint<http:HttpClient> c {
-//        create http:HttpClient("http://example.com", {port:80,keepAlive:true, httpVersion : "1.1", ssl : {}});
-//    }
-//    worker w1 {
-//        return 1;
-//    }
-//    worker w2 {
-//        io:println("testWorkerStackCreation done.");
-//    }
-//}

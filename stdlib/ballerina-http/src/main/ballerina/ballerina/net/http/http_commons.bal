@@ -1,7 +1,5 @@
 package ballerina.net.http;
 
-import ballerina.mime;
-
 public enum Chunking {
     AUTO, ALWAYS, NEVER
 }
@@ -14,6 +12,40 @@ public enum TransferEncoding {
     CHUNKING
 }
 
+@Description { value:"TrustStore struct represents trust store related options to be used for HTTP client/service invocation"}
+@Field {value:"filePath: File path to trust store file"}
+@Field {value:"password: Trust store password"}
+public struct TrustStore {
+    string filePath;
+    string password;
+}
+
+@Description { value:"KeyStore struct represents key store related options to be used for HTTP client/service invocation"}
+@Field {value:"filePath: File path to key store file"}
+@Field {value:"password: Key store password"}
+public struct KeyStore {
+    string filePath;
+    string password;
+}
+
+@Description { value:"Protocols struct represents SSL/TLS protocol related options to be used for HTTP client/service invocation"}
+@Field {value:"protocolVersion: SSL Protocol to be used. eg: TLS1.2"}
+@Field {value:"enabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
+public struct Protocols {
+    string protocolName;
+    string versions;
+}
+
+@Description { value:"ValidateCert struct represents options related to check whether a certificate is revoked or not"}
+@Field {value:"enable: The status of validateCertEnabled"}
+@Field {value:"cacheSize: Maximum size of the cache"}
+@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
+public struct ValidateCert {
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
+}
+
 
 //////////////////////////////
 /// Native implementations ///
@@ -24,44 +56,14 @@ public enum TransferEncoding {
 @Return { value:"The header value" }
 @Return { value:"The header value parameter map" }
 @Return { value:"Error occured during header parsing" }
-public native function parseHeader (string headerValue)(string, map, error);
+public native function parseHeader (string headerValue) returns (string, map) | error;
 
 
-/////////////////////////////////
-/// Ballerina Implementations ///
-/////////////////////////////////
-
-function getFirstHeaderFromEntity (mime:Entity entity, string headerName) (string) {
-    var headerValue, _ = (string[]) entity.headers[headerName];
-    return headerValue == null ? null : headerValue[0];
-}
-
-function getHeadersFromEntity (mime:Entity entity, string headerName) (string[]) {
-    var headerValue, _ = (string[]) entity.headers[headerName];
-    return headerValue;
-}
-
-function getContentLengthIntValue (string strContentLength) (int) {
-    var contentLength, conversionErr = <int>strContentLength;
-    if (conversionErr != null) {
-        contentLength = -1;
-        throw conversionErr;
-    }
-    return contentLength;
-}
-
-function addHeaderToEntity (mime:Entity entity, string headerName, string headerValue){
-    var existingValues = entity.headers[headerName];
-    if (existingValues == null) {
-        setHeaderToEntity(entity, headerName, headerValue);
-    } else {
-        var valueArray, _ = (string[]) existingValues;
-        valueArray[lengthof valueArray] = headerValue;
-        entity.headers[headerName] = valueArray;
-    }
-}
-
-function setHeaderToEntity (mime:Entity entity, string headerName, string headerValue) {
-    string[] valueArray = [headerValue];
-    entity.headers[headerName] = valueArray;
-}
+//function getContentLengthIntValue (string strContentLength) returns (int) {
+//    var contentLength, conversionErr = <int>strContentLength;
+//    if (conversionErr != null) {
+//        contentLength = -1;
+//        throw conversionErr;
+//    }
+//    return contentLength;
+//}

@@ -71,16 +71,15 @@ public class IOUtils {
      * @param channel the channel the bytes should be written.
      * @param content content which should be written.
      * @param offset  the start index of the bytes which should be written.
-     * @param size    the number of bytes which should be written.
      * @return the number of bytes written to the channel.
      * @throws ExecutionException   errors which occur during execution.
      * @throws InterruptedException during interrupt error.
      */
-    public static int writeFull(Channel channel, byte[] content, int offset, int size, EventContext context)
+    public static int writeFull(Channel channel, byte[] content, int offset, EventContext context)
             throws ExecutionException, InterruptedException {
         do {
-            offset = offset + write(channel, content, offset, size, context);
-        } while (offset < size);
+            offset = offset + write(channel, content, offset, context);
+        } while (offset < content.length);
         return offset;
     }
 
@@ -92,18 +91,17 @@ public class IOUtils {
      * This will be a blocking call.
      * </p>
      *
-     * @param channel       channel which should be used to write bytes.
-     * @param content       content which should be written.
-     * @param offset        offset which should be set when writing bytes.
-     * @param numberOfBytes number of bytes which should be written.
-     * @param context       context obtained from the native function call.
+     * @param channel channel which should be used to write bytes.
+     * @param content content which should be written.
+     * @param offset  offset which should be set when writing bytes.
+     * @param context context obtained from the native function call.
      * @return the number of bytes written.
      * @throws InterruptedException if the thread is interrupted
      * @throws ExecutionException   error while execution.
      */
-    private static int write(Channel channel, byte[] content, int offset, int numberOfBytes, EventContext context)
+    private static int write(Channel channel, byte[] content, int offset, EventContext context)
             throws InterruptedException, ExecutionException {
-        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, numberOfBytes, context);
+        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
         EventResult eventResponse = future.get();
         offset = offset + (Integer) eventResponse.getResponse();
@@ -119,16 +117,15 @@ public class IOUtils {
      * Writes bytes to a channel asynchronously.
      * </p>
      *
-     * @param channel       channel which will be used to write bytes.
-     * @param content       content which will be written.
-     * @param offset        the offset which will be set to write bytes.
-     * @param numberOfBytes number of bytes which should be written.
-     * @param context       context of the native function call.
-     * @param function      callback function which should be called upon completion.
+     * @param channel  channel which will be used to write bytes.
+     * @param content  content which will be written.
+     * @param offset   the offset which will be set to write bytes.
+     * @param context  context of the native function call.
+     * @param function callback function which should be called upon completion.
      */
-    public static void write(Channel channel, byte[] content, int offset, int numberOfBytes, EventContext context,
+    public static void write(Channel channel, byte[] content, int offset, EventContext context,
                              Function<EventResult, EventResult> function) {
-        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, numberOfBytes, context);
+        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
         future.thenApply(function);
     }
@@ -138,17 +135,17 @@ public class IOUtils {
      *
      * @param content the initialized array which should be filled with the content.
      * @param channel the channel the content should be read into.
-     * @param offset  if the array size should be read from an offset
      * @throws InterruptedException during interrupt error.
      * @throws ExecutionException   errors which occurs while execution.
      */
-    public static int readFull(Channel channel, byte[] content, int offset, EventContext context)
+    public static int readFull(Channel channel, byte[] content, EventContext context)
             throws InterruptedException, ExecutionException {
-        int numberOfBytesToRead = content.length - offset;
+        int numberOfBytesToRead = content.length;
+        int nBytesRead = 0;
         do {
-            offset = offset + read(channel, content, offset, context);
-        } while (offset < numberOfBytesToRead && !channel.hasReachedEnd());
-        return offset;
+            nBytesRead = nBytesRead + read(channel, content, context);
+        } while (nBytesRead < numberOfBytesToRead && !channel.hasReachedEnd());
+        return nBytesRead;
     }
 
     /**
@@ -192,23 +189,22 @@ public class IOUtils {
      *
      * @param channel channel the bytes should be read from.
      * @param content byte [] which will hold the content which is read.
-     * @param offset  if the bytes should be read by specifying an offset.
      * @param context context obtained from the native function.
      * @return the number of bytes read.
      * @throws InterruptedException errors which occur if the thread is interrupted.
      * @throws ExecutionException   errors which occur during execution.
      */
-    private static int read(Channel channel, byte[] content, int offset, EventContext context)
+    private static int read(Channel channel, byte[] content, EventContext context)
             throws InterruptedException, ExecutionException {
-        ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, context);
+        ReadBytesEvent event = new ReadBytesEvent(channel, content, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         EventResult eventResponse = future.get();
-        offset = (Integer) eventResponse.getResponse();
+        int numberOfBytesRead = (Integer) eventResponse.getResponse();
         Throwable error = ((EventContext) eventResponse.getContext()).getError();
         if (null != error) {
             throw new ExecutionException(error);
         }
-        return offset;
+        return numberOfBytesRead;
     }
 
     /**
@@ -218,13 +214,12 @@ public class IOUtils {
      *
      * @param channel  the channel which the bytes should be read from.
      * @param content  the byte[] which will holds the content which will be read.
-     * @param offset   the offset which should be set while reading bytes.
      * @param context  context which will be obtained from the native function call.
      * @param function the callback function which will be triggered.
      */
-    public static void read(Channel channel, byte[] content, int offset, EventContext context,
+    public static void read(Channel channel, byte[] content, EventContext context,
                             Function<EventResult, EventResult> function) {
-        ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, context);
+        ReadBytesEvent event = new ReadBytesEvent(channel, content, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
     }
@@ -266,7 +261,7 @@ public class IOUtils {
      * @param function     callback function which will be triggered.
      */
     public static void close(Channel byteChannel, EventContext eventContext,
-                      Function<EventResult, EventResult> function) {
+                             Function<EventResult, EventResult> function) {
         CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
         future.thenApply(function);

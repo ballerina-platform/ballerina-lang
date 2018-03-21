@@ -11,7 +11,7 @@ function main (string[] args) {
 
     blob data;
     int len;
-    data, len, _ = bchannel.read(intArg, intArg);
+    data, len, _ = bchannel.read(intArg);
 
     testFunction(data, data);
 }
