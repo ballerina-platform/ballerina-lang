@@ -12,6 +12,6 @@ function testUnzipBytes(blob content, string destDir, string folderToExtract) {
     compression:unzipBytes(content, destDir, folderToExtract);
 }
 
-function testZipToBytes(string dirPath) (blob) {
+function testZipToBytes(string dirPath) returns (blob) {
     return compression:zipToBytes(dirPath);
 }
