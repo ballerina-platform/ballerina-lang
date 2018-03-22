@@ -347,7 +347,7 @@ function commitTransaction (string transactionId, int transactionBlockId) return
         error err = {message:msg};
         return err;
     } else {
-        var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         log:printInfo("Committing transaction: " + transactionId);
         // return response to the initiator. ( Committed | Aborted | Mixed )
         return twoPhaseCommit(txn, transactionBlockId);
@@ -363,7 +363,7 @@ function abortInitiatorTransaction (string transactionId, int transactionBlockId
         error err = {message:msg};
         return err;
     } else {
-        var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         log:printInfo("Aborting transaction: " + transactionId);
         // return response to the initiator. ( Aborted | Mixed )
         var result = notifyAbort(txn);
@@ -399,7 +399,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         error err = {message:msg};
         return err;
     } else {
-        var txn =? (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
         boolean successful = abortResourceManagers(transactionId, transactionBlockId);
         if (successful) {
             txn.state = TransactionState.ABORTED;

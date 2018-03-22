@@ -240,7 +240,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
         error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
         return err;
     } else {
-        var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
             error err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
             return err;
@@ -274,7 +274,7 @@ function localParticipantProtocolFn (string transactionId,
     if(!participatedTransactions.hasKey(participatedTxnId)) {
         return false;
     }
-    var txn =? (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+    var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
     if (protocolAction == "prepare") {
         if (txn.state == TransactionState.ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
