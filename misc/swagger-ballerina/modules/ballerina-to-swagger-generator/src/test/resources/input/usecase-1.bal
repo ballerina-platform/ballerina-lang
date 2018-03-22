@@ -1,11 +1,25 @@
 import ballerina/net.http;
 
-service<http> Service1 {
+endpoint http:ClientEndpoint backendClientEP {
+    targets: [{uri: "http://localhost:8080"}]
+};
 
-    @http:resourceConfig {
-        methods:["GET"]
+endpoint http:ServiceEndpoint backendEP {
+    port:8080
+};
+
+@http:ServiceConfig {
+    basePath:"/hello"
+}
+service<http:Service> Service1 bind backendEP {
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/"
     }
-    resource Resource1 (message m) {
-        reply m;
+    sayHello (endpoint outboundEP, http:Request request) {
+        http:Response response = {};
+        response.setStringPayload("Hello World!!!");
+        _ = outboundEP -> respond(response);
     }
 }

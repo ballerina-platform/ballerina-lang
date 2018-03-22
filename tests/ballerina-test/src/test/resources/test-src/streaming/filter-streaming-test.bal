@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
+import ballerina/io;
 
 struct Employee {
     string name;
@@ -33,21 +34,23 @@ struct Teacher {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 stream<Employee> employeeStream = {};
-stream<Teacher> teacherStream = {};
+stream<Teacher> teacherStream1 = {};
 
-streamlet filterStreamlet () {
-    query q1 {
-        from teacherStream
+function testFilterQuery () {
+    whenever{
+        from teacherStream1
         where age > 30
         select name, age, status
-        insert into employeeStream
+        => (Employee [] emp) {
+                employeeStream.publish(emp);
+        }
     }
 }
 
 
-function testFilterQuery () returns (Employee []) {
+function startFilterQuery( ) returns (Employee []) {
 
-    filterStreamlet pStreamlet = {};
+    testFilterQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
@@ -55,16 +58,17 @@ function testFilterQuery () returns (Employee []) {
 
     employeeStream.subscribe(printEmployeeNumber);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
+    teacherStream1.publish(t1);
+    teacherStream1.publish(t2);
+    teacherStream1.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
-    pStreamlet.stop();
+
     return globalEmployeeArray;
 }
 
 function printEmployeeNumber (Employee e) {
+    io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 

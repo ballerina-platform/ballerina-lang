@@ -81,24 +81,18 @@ public abstract class WebSocketUtil {
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
-    public static void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService,
+    public static void handleHandshake(WebSocketService wsService,
                                        HttpHeaders headers, BStruct wsConnection) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
+        WebSocketInitMessage initMessage =
+                (WebSocketInitMessage) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                wsConnection.setStringField(0, session.getId());
-                wsConnection.setStringField(1, session.getNegotiatedSubprotocol());
-                wsConnection.setBooleanField(0, session.isSecure() ? 1 : 0);
-                wsConnection.setBooleanField(0, session.isOpen() ? 1 : 0);
+                populateEndpoint(session, wsConnection);
                 wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                wsConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, initMessage);
-                Map<String, String> upgradeHeaders = initMessage.getHeaders();
-                BMap<String, BString> bUpgradeHeaders = new BMap<>();
-                upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
-                wsConnection.setRefField(1, bUpgradeHeaders);
                 WebSocketConnectionManager.getInstance().addService(session.getId(), wsService);
 
                 Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
@@ -118,5 +112,12 @@ public abstract class WebSocketUtil {
                 ErrorHandlerUtils.printError(throwable);
             }
         });
+    }
+
+    public static void populateEndpoint(Session session, BStruct endpoint) {
+        endpoint.setStringField(0, session.getId());
+        endpoint.setStringField(1, session.getNegotiatedSubprotocol());
+        endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
+        endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
     }
 }
