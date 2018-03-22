@@ -1,4 +1,4 @@
-import ballerina.mime;
+import ballerina/mime;
 
 function testAddHeader (string headerName, string headerValue, string headerNameToBeUsedForRetrieval) returns string {
     mime:Entity entity = {};

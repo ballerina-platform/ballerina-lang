@@ -36,16 +36,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -558,57 +555,29 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        Name name = names.fromIdNode(cIExpr.userDefinedType.getTypeName());
-        BSymbol symbol = symResolver.resolveConnector(cIExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR,
-                this.env, names.fromIdNode(cIExpr.userDefinedType.pkgAlias), name);
-        if (symbol != symTable.errSymbol && symbol != symTable.notFoundSymbol) {
-            resultTypes = getListWithErrorTypes(expTypes.size());
-            BTypeSymbol connSymbol = (BTypeSymbol) symbol;
-            List<BType> paramTypes = ((BConnectorType) connSymbol.type).paramTypes;
+        BType actualType;
+        if (cIExpr.userDefinedType != null) {
+            actualType = symResolver.resolveTypeNode(cIExpr.userDefinedType, env);
+        } else {
+            actualType = expTypes.get(0);
+        }
 
-            if (paramTypes.size() > cIExpr.argsExpr.size()) {
-                dlog.error(cIExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
-                return;
-            } else if (paramTypes.size() < cIExpr.argsExpr.size()) {
-                dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
-                return;
-            } else {
-                for (int i = 0; i < cIExpr.argsExpr.size(); i++) {
-                    checkExpr(cIExpr.argsExpr.get(i), this.env, Lists.of(paramTypes.get(i)));
-                }
-            }
-            checkConnectorInitTypes(cIExpr, connSymbol.type, name);
+        if (actualType == symTable.errType) {
+            //TODO dlog error?
+            resultTypes = Lists.of(symTable.errType);
             return;
         }
 
-        // Try resolving to object type
-        BStructSymbol objSymbol = (BStructSymbol) symResolver.resolveObject(cIExpr.pos,
-                DiagnosticCode.UNDEFINED_SYMBOL, this.env,
-                names.fromIdNode(cIExpr.userDefinedType.pkgAlias), name);
-
-        if (objSymbol == symTable.errSymbol || objSymbol == symTable.notFoundSymbol) {
-            resultTypes = getListWithErrorTypes(expTypes.size());
+        if (actualType.tag != TypeTags.STRUCT) {
+            //TODO dlog error?
+            resultTypes = Lists.of(symTable.errType);
             return;
         }
 
-        BAttachedFunction initializerFunc = objSymbol.initializerFunc;
-
-        cIExpr.objectInit = true;
-        cIExpr.objectInitInvocation.symbol = initializerFunc.symbol;
+        cIExpr.objectInitInvocation.symbol = ((BStructSymbol) actualType.tsymbol).initializerFunc.symbol;
         checkInvocationParam(cIExpr.objectInitInvocation);
 
-        checkInitTypes(cIExpr, Lists.of(objSymbol.type), name);
-    }
-
-    private void checkInitTypes(BLangTypeInit iExpr, List<BType> actualType, Name connName) {
-        int expected = expTypes.size();
-        if (expTypes.size() > 1) {
-            // TODO change error msg
-            dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, connName);
-            resultTypes = getListWithErrorTypes(expected);
-            return;
-        }
-        resultTypes = types.checkTypes(iExpr, actualType, expTypes);
+        resultTypes = types.checkTypes(cIExpr, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {

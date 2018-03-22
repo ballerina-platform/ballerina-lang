@@ -1,4 +1,4 @@
-import ballerina.data.sql;
+import ballerina/data.sql;
 
 sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
                   driverClassName:"org.hsqldb.jdbc.JDBCDriver", maximumPoolSize:1,

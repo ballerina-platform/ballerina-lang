@@ -38,9 +38,9 @@ public class UnaryExprTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions/unaryoperations/unary-operation.bal");
-        resultNegative = BCompileUtil.compile(this, "test-src",
-                "expressions/unaryoperations/unary-operation-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/unaryoperations/unary-operation.bal");
+        resultNegative = BCompileUtil.compile(
+                "test-src/expressions/unaryoperations/unary-operation-negative.bal");
     }
 
     @Test(description = "Test unary negative expression")

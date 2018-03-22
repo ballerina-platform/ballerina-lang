@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.internal",
+        orgName = "ballerina", packageName = "internal",
         functionName = "getActionAnnotations"
 )
 public class GetActionAnnotations extends AbstractAnnotationReader {

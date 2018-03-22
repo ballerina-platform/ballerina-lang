@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 @http:serviceConfig {basePath:"/identifierLiteral"}
 service<http:Service> |sample service| {

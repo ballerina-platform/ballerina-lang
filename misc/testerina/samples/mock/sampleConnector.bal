@@ -1,8 +1,8 @@
 package mock;
 
-import ballerina.lang.system;
-import ballerina.lang.messages;
-import ballerina.net.http;
+import ballerina/lang.system;
+import ballerina/lang.messages;
+import ballerina/net.http;
 
 connector TestConnector(string param1, string param2, int param3) {
     http:ClientConnector terminalCon = create http:ClientConnector("http://localhost:8080/original");

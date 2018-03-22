@@ -1,8 +1,7 @@
-import ballerina.mime;
-import ballerina.log;
-import ballerina.file;
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/mime;
+import ballerina/log;
+import ballerina/file;
+import ballerina/io;
 
 function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);

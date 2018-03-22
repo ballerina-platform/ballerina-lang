@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.file;
+import ballerina/io;
+import ballerina/file;
 
 function main (string[] args) {
     file:File target = {path:"/tmp/result.txt"};

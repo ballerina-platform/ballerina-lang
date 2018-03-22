@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 public struct testError {
     string message;

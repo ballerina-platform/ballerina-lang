@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint ep {
    port:7090,
@@ -78,7 +78,16 @@ function main (string[] args) {
     http:Request serviceReq = {};
     http:HttpHandle handle = {};
     // Submit a request.
-    handle, _ = clientEP -> submit("GET","/http2Service/main", serviceReq);
+    var submissionResult = clientEP -> submit("GET", "/http2Service/main", serviceReq);
+    match submissionResult {
+        http:HttpConnectorError err => {
+            io:println("Error occurred while submitting a request");
+            return;
+        }
+        http:HttpHandle resultantHandle => {
+            handle = resultantHandle;
+        }
+    }
 
     http:PushPromise[] promises = [];
     int promiseCount = 0;
@@ -87,7 +96,16 @@ function main (string[] args) {
     while (hasPromise) {
         http:PushPromise pushPromise = {};
         // Get the next promise.
-        pushPromise, _ = clientEP -> getNextPromise(handle);
+        var nextPromiseResult = clientEP -> getNextPromise(handle);
+        match nextPromiseResult {
+            http:PushPromise resultantPushPromise => {
+                pushPromise = resultantPushPromise;
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while fetching push promise");
+                return;
+            }
+        }
         io:println("Received a promise for " + pushPromise.path);
 
         if (pushPromise.path == "/resource2") {
@@ -104,17 +122,49 @@ function main (string[] args) {
 
     http:Response res = {};
     // Get the requested resource.
-    res, _ = clientEP -> getResponse(handle);
-    json responsePayload;
-    responsePayload, _ = res.getJsonPayload();
-    io:println("Response : " + responsePayload.toString());
+    var result = clientEP -> getResponse(handle);
+    match result {
+        http:Response resultantResponse => {
+            res = resultantResponse;
+        }
+        http:HttpConnectorError err => {
+            io:println("Error occurred while fetching response");
+            return;
+        }
+    }
+
+    var responsePayload = res.getJsonPayload();
+    match responsePayload {
+        json resultantJsonPayload => {
+            io:println("Response : " + resultantJsonPayload.toString());
+        }
+        any | null => {
+            io:println("Expected response not received");
+        }
+    }
 
     // Fetch required promised responses.
     foreach promise in promises {
         http:Response promisedResponse = {};
-        promisedResponse, _ = clientEP -> getPromisedResponse(promise);
-        json payload;
-        payload, _ = promisedResponse.getJsonPayload();
-        io:println("Promised resource : " + payload.toString());
+        var promisedResponseResult = clientEP -> getPromisedResponse(promise);
+        match promisedResponseResult {
+            http:Response resultantPromisedResponse => {
+                promisedResponse = resultantPromisedResponse;
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while fetching promised response");
+                return;
+            }
+        }
+
+        var promisedPayload = promisedResponse.getJsonPayload();
+        match promisedPayload {
+            json promisedJsonPayload => {
+                io:println("Promised resource : " + promisedJsonPayload.toString());
+            }
+            any | null => {
+                io:println("Promised response not received");
+            }
+        }
     }
 }

@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  * a previous asynchronous invocation.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "getNextPromise",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),

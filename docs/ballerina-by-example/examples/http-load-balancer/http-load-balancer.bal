@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.net.http.resiliency;
+import ballerina/net.http;
+import ballerina/net.http.resiliency;
 
 service<http> loadBalancerService {
 

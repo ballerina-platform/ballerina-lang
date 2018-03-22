@@ -93,7 +93,7 @@
             <!-- copy built-in ballerina sources to the jar -->
             <resource>
                 <directory>${generated.ballerina.source.directory}</directory>
-                <targetPath>META-INF/natives</targetPath>
+                <targetPath>META-INF/ballerina</targetPath>
             </resource>
         </resources>
 

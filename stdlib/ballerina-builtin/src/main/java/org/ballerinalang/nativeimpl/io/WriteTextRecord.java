@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "writeTextRecord",
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",

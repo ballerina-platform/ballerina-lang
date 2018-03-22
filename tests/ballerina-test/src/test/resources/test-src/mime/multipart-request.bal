@@ -1,7 +1,7 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-import ballerina.mime;
-import ballerina.io;
+import ballerina/mime;
 
 function setErrorResponse(http:Response response,  mime:EntityError err) {
     response.statusCode = 500;
