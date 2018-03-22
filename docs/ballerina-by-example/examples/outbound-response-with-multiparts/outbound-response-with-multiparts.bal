@@ -12,7 +12,7 @@ service<http:Service> test bind multipartEP {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartSender (http:ServerConnector conn, http:Request request) {
+    multipartSender (endpoint conn, http:Request request) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
