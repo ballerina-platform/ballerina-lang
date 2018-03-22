@@ -95,9 +95,8 @@ function loadToTable (string filePath) returns (float|io:IOError) {
     float total;
     var result = io:loadToTable(filePath, "\n", ",", "UTF-8", false, typeof Employee);
     match result {
-        table tb => {
-            table<Employee> tableEmp = tb;
-            foreach x in tableEmp {
+        table<Employee> tb => {
+            foreach x in tb {
                 total = total + x.salary;
             }
             return total;
