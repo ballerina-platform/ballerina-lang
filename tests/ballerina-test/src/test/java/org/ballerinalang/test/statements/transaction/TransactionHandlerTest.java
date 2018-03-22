@@ -126,6 +126,6 @@ public class TransactionHandlerTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inFirstTrx beforeRetry-First trxErr inSecondTrx inAboftFunctionSecond end");
+                "start inFirstTrx inAboftFunction beforeRetry-First trxErr inSecondTrx inAboftFunctionSecond end");
     }
 }

@@ -306,15 +306,15 @@ public class BLangFunctions {
                 return null;
             }
         } catch (BLangNullReferenceException e) {
-            return BLangVMUtils.handleNativeInvocationError(parentCtx, 
+            return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createNullRefException(callableUnitInfo));
         } catch (Throwable e) {
-            return BLangVMUtils.handleNativeInvocationError(parentCtx, 
+            return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
         }
     }
-    
-    private static void invokeNativeCallableAsync(CallableUnitInfo callableUnitInfo, 
+
+    private static void invokeNativeCallableAsync(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
         WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(callableUnitInfo.getDefaultWorkerInfo(), parentCtx,
                 argRegs, callableUnitInfo.getParamTypes());
@@ -325,12 +325,12 @@ public class BLangFunctions {
         }
         AsyncInvocableWorkerResponseContext respCtx;
         if (nativeCallable.isBlocking()) {
-            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx);            
+            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx);
         } else {
             respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx);
         }
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
-                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) }, 
+                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) },
                 new BType[] { BTypes.typeFuture });
     }
     
