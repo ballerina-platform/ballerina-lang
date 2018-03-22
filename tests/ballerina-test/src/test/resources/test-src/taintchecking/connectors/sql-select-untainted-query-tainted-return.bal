@@ -22,8 +22,11 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     while (dt.hasNext()) {
-        var rs, _ = (Employee)dt.getNext();
-        testFunction(rs.name);
+        var rs = <Employee>dt.getNext();
+        match rs {
+            Employee emp => testFunction(emp.name);
+            error => return;
+        }
     }
     testDB -> close();
     return;

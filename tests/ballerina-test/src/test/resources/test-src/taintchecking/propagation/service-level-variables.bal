@@ -4,9 +4,9 @@ endpoint http:ServiceEndpoint helloWorldEP {
 port:9090
 };
 
-string globalLevelVariable = "";
+any globalLevelVariable = "";
 service<http:Service> sample bind helloWorldEP {
-    string serviceLevelVariable = "";
+    any serviceLevelVariable = "";
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -14,7 +14,7 @@ service<http:Service> sample bind helloWorldEP {
     }
     params (endpoint outboundEP, http:Request req, string foo) {
         map paramsMap = req.getQueryParams();
-        var bar, _ = (string) paramsMap.bar;
+        var bar = paramsMap.bar;
 
         serviceLevelVariable = "static";
         globalLevelVariable = "static";
