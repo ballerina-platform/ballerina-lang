@@ -16,12 +16,70 @@ patterns:
 - include: '#functionDec'
 - include: '#serviceDec'
 - include: '#documentationDef'
+- include: '#typeDef'
 - include: '#code'
 
 repository:
   declarations:
     patterns:
     - include: '#functionDec'
+
+  typeDef:
+    patterns:
+    - begin: '\b(type)\b'
+      beginCaptures:
+        '1': { name:  keyword.ballerina }
+      end: '(?<=\})'
+      patterns:
+      - include: '#objectDec'
+      - match: '{{identifier}}'
+        name: entity.name.function.ballerina
+      - include: '#comment'
+
+  objectDec:
+    patterns:
+    - begin: '\b(object)\b'
+      beginCaptures:
+        '1': { name:  keyword.ballerina }
+      end: '(?<=\})'
+      patterns:
+      - include: '#objectBody'
+      - include: '#objectBody'
+      - include: '#comment'
+
+  varDefBlock:
+    patterns:
+    - begin: \b(private|public)\b
+      beginCaptures:
+        '1': { name:  keyword.ballerina }
+      end: '(?<=\})'
+      patterns:
+      - include: '#varDefBlockBody'
+
+  varDefBlockBody:
+    patterns:
+    - begin: \{
+      beginCaptures:
+        '0': { name: punctuation.definition.block.ballerina.documentation }
+      end: \}
+      endCaptures:
+        '0': { name: punctuation.definition.block.ballerina.documentation }
+      patterns:
+      - include: '#comment'
+      - include: '#varDefStatement'
+
+  objectBody:
+    patterns:
+    - begin: '\{'
+      end: '\}'
+      beginCaptures:
+        '0': { name: punctuation.definition.block.ballerina }
+      endCaptures:
+        '0': { name: punctuation.definition.block.ballerina }
+      patterns:
+      - include: '#varDefBlock'
+      - include: '#comment'
+      - include: '#code'
 
   functionDec:
     patterns:
@@ -147,7 +205,7 @@ repository:
     patterns:
     - begin: '\b({{identifier}})\b'
       beginCaptures:
-        '1': { name:  keyword.ballerina }
+        '1': { name: entity.name.function.ballerina }
       end: '(?<=\})'
       patterns:
       - include: '#comment'
@@ -318,7 +376,7 @@ repository:
       match: \b(stream|streamlet|aggregation)\b
 
     - name: keyword.other.ballerina
-      match: \b(annotation|package|type|typedesc|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b
+      match: \b(annotation|package|type|typedesc|connector|function|resource|service|action|worker|struct|transformer|endpoint|object)\b
 
     - name: keyword.other.ballerina
       match: \b(const|true|false|reply|create|parameter)\b

@@ -32,6 +32,10 @@
       </dict>
       <dict>
         <key>include</key>
+        <string>#typeDef</string>
+      </dict>
+      <dict>
+        <key>include</key>
         <string>#code</string>
       </dict>
     </array>
@@ -44,6 +48,187 @@
           <dict>
             <key>include</key>
             <string>#functionDec</string>
+          </dict>
+        </array>
+      </dict>
+      <key>typeDef</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\b(type)\b</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>(?&lt;=\})</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#objectDec</string>
+              </dict>
+              <dict>
+                <key>match</key>
+                <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
+                <key>name</key>
+                <string>entity.name.function.ballerina</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>objectDec</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\b(object)\b</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>(?&lt;=\})</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#objectBody</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#objectBody</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>varDefBlock</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\b(private|public)\b</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>(?&lt;=\})</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#varDefBlockBody</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>varDefBlockBody</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\{</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina.documentation</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>\}</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina.documentation</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#varDefStatement</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>objectBody</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\{</string>
+            <key>end</key>
+            <string>\}</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina</string>
+              </dict>
+            </dict>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#varDefBlock</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#code</string>
+              </dict>
+            </array>
           </dict>
         </array>
       </dict>
@@ -438,7 +623,7 @@
               <key>1</key>
               <dict>
                 <key>name</key>
-                <string>keyword.ballerina</string>
+                <string>entity.name.function.ballerina</string>
               </dict>
             </dict>
             <key>end</key>
@@ -923,7 +1108,7 @@
             <key>name</key>
             <string>keyword.other.ballerina</string>
             <key>match</key>
-            <string>\b(annotation|package|type|typedesc|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b</string>
+            <string>\b(annotation|package|type|typedesc|connector|function|resource|service|action|worker|struct|transformer|endpoint|object)\b</string>
           </dict>
           <dict>
             <key>name</key>
