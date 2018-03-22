@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -142,20 +142,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
-    public BSymbol resolveExplicitCastOperator(BType sourceType,
+    public BSymbol resolveImplicitConversionOp(BType sourceType,
                                                BType targetType) {
-        return types.getCastOperator(sourceType, targetType);
-    }
-
-    public BSymbol resolveImplicitCastOperator(BType sourceType,
-                                               BType targetType) {
-
-        BSymbol symbol = resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
+        BSymbol symbol = resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         if (symbol == symTable.notFoundSymbol) {
             return symbol;
         }
 
-        BCastOperatorSymbol castSymbol = (BCastOperatorSymbol) symbol;
+        BConversionOperatorSymbol castSymbol = (BConversionOperatorSymbol) symbol;
         if (castSymbol.implicit) {
             return symbol;
         }
@@ -610,6 +604,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             // Update error type to actual type.
             symbol.type = symTable.errStructType;
             symbol.scope = symbol.type.tsymbol.scope;
+            symbol.type.tsymbol = (BTypeSymbol) symbol;
             return true;
         }
         return false;

@@ -14,7 +14,7 @@ service<http:Service> test bind multipartEP {
     }
     nestedPartReceiver (endpoint conn, http:Request req)  {
         http:Response res = {};
-        match request.getMultiparts() {
+        match req.getMultiparts() {
             mime:Entity[] parentParts => {
                 int i = 0;
                 while (i < lengthof parentParts) {
@@ -60,7 +60,7 @@ function handleContent (mime:Entity bodyPart) {
         var payload = bodyPart.getXml();
         match payload {
             mime:EntityError err => io:println("Error in getting xml payload");
-            xml xmlCotnent => io:println(xmlContent);
+            xml xmlContent => io:println(xmlContent);
         }
     } else if (mime:APPLICATION_JSON == contentType) {
         //Extract json data from body part and print.
@@ -75,6 +75,7 @@ function handleContent (mime:Entity bodyPart) {
         match payload {
             mime:EntityError err => io:println("Error in getting string payload");
             string textContent => io:println(textContent);
+            int | null => io:println("null payload");
         }
     }
 }

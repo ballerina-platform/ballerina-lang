@@ -1873,18 +1873,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.createTypeCastExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitTypeAccessExpression(BallerinaParser.TypeAccessExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2074,7 +2062,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos currentPos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
-        boolean exprAvailable = ctx.simpleLiteral() != null;
+        boolean exprAvailable = ctx.expression() != null;
         if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
             this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateStructBodyContext) {

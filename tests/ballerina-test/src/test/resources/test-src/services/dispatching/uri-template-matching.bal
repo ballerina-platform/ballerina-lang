@@ -5,13 +5,13 @@ endpoint<mock:NonListeningService> testEP {
     port:9090
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello",
     endpoints:[testEP]
 }
 service<http:Service> echo11 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"echo2"
     }
@@ -22,7 +22,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}-{xyz}"
     }
@@ -33,7 +33,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}"
     }
@@ -44,7 +44,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}"
     }
@@ -55,7 +55,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
@@ -66,7 +66,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/{bar}"
     }
@@ -77,7 +77,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/*"
     }
@@ -88,7 +88,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
@@ -99,7 +99,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo3/{abc}+{xyz}"
     }
@@ -114,7 +114,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
@@ -140,7 +140,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo12/{abc}/bar"
     }
@@ -151,7 +151,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo125"
     }
@@ -166,7 +166,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/paramNeg"
     }
@@ -182,7 +182,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo13"
     }
@@ -199,7 +199,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo14"
     }
@@ -216,7 +216,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo15"
     }
@@ -233,7 +233,7 @@ service<http:Service> echo11 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/so2"
     }
@@ -241,13 +241,13 @@ service<http:Service> echo11 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello/world",
     endpoints:[testEP]
 }
 service<http:Service> echo22 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2"
     }
@@ -258,7 +258,7 @@ service<http:Service> echo22 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/*"
     }
@@ -269,7 +269,7 @@ service<http:Service> echo22 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/foo/bar"
     }
@@ -281,7 +281,7 @@ service<http:Service> echo22 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/",
     endpoints:[testEP]
 }
@@ -298,12 +298,12 @@ service<http:Service> echo33 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo44 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"echo2"
     }
     resource echo221 (http:ServerConnector conn, http:Request req) {
@@ -323,7 +323,7 @@ service<http:Service> echo44 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"echo2"
     }
@@ -335,11 +335,11 @@ service<http:Service> echo44 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo55 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/foo/bar"
     }
     resource echo1 (http:ServerConnector conn, http:Request req) {
@@ -353,7 +353,7 @@ service<http:Service> echo55 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/*"
     }
     resource echo2 (http:ServerConnector conn, http:Request req) {
@@ -363,7 +363,7 @@ service<http:Service> echo55 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/foo/*"
     }
     resource echo5 (http:ServerConnector conn, http:Request req) {
@@ -378,11 +378,11 @@ service<http:Service> echo55 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo66 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/a/*"
     }
     resource echo1 (http:ServerConnector conn, http:Request req) {
@@ -392,7 +392,7 @@ service<http:Service> echo66 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/a"
     }
     resource echo2 (http:ServerConnector conn, http:Request req) {
@@ -406,13 +406,13 @@ service<http:Service> echo66 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/uri",
     endpoints: [testEP]
 }
 service<http:Service> WildcardService {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/{id}",
         methods:["POST"]
     }
@@ -423,7 +423,7 @@ service<http:Service> WildcardService {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/*"
     }
     resource wildcardResource (http:ServerConnector conn, http:Request req) {

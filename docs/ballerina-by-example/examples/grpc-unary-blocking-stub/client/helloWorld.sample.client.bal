@@ -7,12 +7,15 @@ function main (string[] args) {
             port: 9090
         };
 
-    var res, err = helloWorldBlockingEp -> hello("WSO2");
-    if (err != null) {
-        io:println("Error from Connector: " + err.message);
-    } else {
-        io:println("Client Got Response : ");
-        io:println(res);
+    string | error unionResp = helloWorldBlockingEp -> hello("WSO2");
+    match unionResp {
+        string payload => {
+            io:println("Client Got Response : ");
+            io:println(payload);
+        }
+        error err => {
+            io:println("Error from Connector: " + err.message);
+        }
     }
 }
 

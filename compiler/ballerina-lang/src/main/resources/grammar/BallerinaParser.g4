@@ -611,7 +611,6 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
@@ -672,7 +671,7 @@ formalParameterList
     ;
 
 fieldDefinition
-    :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 simpleLiteral

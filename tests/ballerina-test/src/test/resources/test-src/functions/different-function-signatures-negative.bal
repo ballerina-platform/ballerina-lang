@@ -1,11 +1,11 @@
 function duplicateNamedParams(int a, float b, string c = "John", string c = "Doe", int... z) {
 }
 
-function functionAnyRestParam(any... z) (any[]) {
+function functionAnyRestParam(any... z) returns (any[]) {
     return z;
 }
 
-function testInvokeFuncWithAnyRestParam1() (any[]) {
+function testInvokeFuncWithAnyRestParam1() returns (any[]) {
     int[] a = [10, 20, 30];
     return functionAnyRestParam(...a);
 }
@@ -29,10 +29,10 @@ function funcInvocWitTooManyArgs() {
     bar(5, b="Alex", 6, ...array);
 }
 
-function funcInvocAsRestArgs() (int, float, string, int, string, int[]) {
+function funcInvocAsRestArgs() returns (int, float, string, int, string, int[]) {
     bar(5, b="Alex", 6, ...getIntArray());
 }
 
-function getIntArray() (int[], string) {
+function getIntArray() returns (int[], string) {
     return [1,2,3,4], "hello";
 }
