@@ -203,8 +203,13 @@ function createLoadBalancerClient(ClientEndpointConfiguration config) returns Ht
     HttpClient[] lbClients = createHttpClientArray(config);
     LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
                           algorithm:config.algorithm};
-    var httpClient, _ = (HttpClient) lb;
-    return httpClient;
+    HttpClient lbClient = {};
+    error conversionErr = {};
+    match <HttpClient>lb {
+        HttpClient client => lbClient = client;
+        error err => conversionErr = err;
+    }
+    return lbClient;
 }
 
 //function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
