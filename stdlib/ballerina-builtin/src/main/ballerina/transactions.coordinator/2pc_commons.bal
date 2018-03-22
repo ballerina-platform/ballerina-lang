@@ -154,7 +154,7 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns string|error {
                 (function (string,int,string) returns boolean) protocolFn => {
                     // if the participant is a local participant, i.e. protoFn is set, then call that fn
                     log:printInfo("Notify(abort) local participant: " + participant.participantId);
-                    boolean successful = proto.protocolFn(txn.transactionId, proto.transactionBlockId, "notifyabort");
+                    boolean successful = protocolFn(txn.transactionId, proto.transactionBlockId, "notifyabort");
                     if (!successful) {
                         error e = {message:"Hazard-Outcome"}; //TODO: Must set this for the entire transaction and not override during loop execution
                         ret = e;
@@ -191,7 +191,7 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
                     (function (string,int,string) returns boolean) protocolFn => {
                         // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Preparing local participant: " + participant.participantId);
-                        if (!proto.protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
+                        if (!protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
                             successful = false;
                         }  
                     }
@@ -291,7 +291,7 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns boolean 
                 (function (string,int,string) returns boolean) protocolFn => {
                     // if the participant is a local participant, i.e. protoFn is set, then call that fn
                     log:printInfo("Notify(" + message + ") local participant: " + participant.participantId);
-                    if(!proto.protocolFn(txn.transactionId, proto.transactionBlockId, "notify" + message)) {
+                    if(!protocolFn(txn.transactionId, proto.transactionBlockId, "notify" + message)) {
                         successful = false;
                     }  
                 }
@@ -406,7 +406,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
         } else {
             string msg = "Aborting local resource managers failed for transaction:" + participatedTxnId;
-            log:printErrorCause(msg);
+            log:printError(msg);
             ret = {message:msg};
         } 
     }

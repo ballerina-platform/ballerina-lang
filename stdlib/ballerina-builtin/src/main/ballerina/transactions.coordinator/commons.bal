@@ -190,7 +190,8 @@ function respondToBadRequest (string msg) returns http:Response {
 function createNewTransaction (string coordinationType) returns Transaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
         TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(), coordinationType:TWO_PHASE_COMMIT};
-        return twopcTxn;
+        Transaction txn =? <Transaction>twopcTxn;
+        return txn;
     } else {
         error e = {message:"Unknown coordination type: " + coordinationType};
         throw e;
