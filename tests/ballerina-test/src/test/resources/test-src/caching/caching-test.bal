@@ -1,5 +1,5 @@
-import ballerina/caching;
-import ballerina/runtime;
+import ballerina / caching;
+import ballerina / runtime;
 
 function testCreateCache (string name, int timeOut, int capacity, float evictionFactor) returns (string, int, int, float) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
@@ -15,11 +15,11 @@ function testPut (string name, int timeOut, int capacity, float evictionFactor, 
 function testGet (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int, string) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     cache.put(key, value);
-    var value, e = (string)cache.get(key);
-    if (e != null) {
-        return (-1, "");
+    var returnValue = <string>cache.get(key);
+    match returnValue {
+        string s => return (cache.size(), s);
+        error => return (-1, "");
     }
-    return (cache.size(), value);
 }
 
 function testRemove (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int) {
