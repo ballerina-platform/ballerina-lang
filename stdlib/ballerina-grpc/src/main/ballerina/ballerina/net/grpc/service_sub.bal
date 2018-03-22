@@ -25,25 +25,24 @@ public struct ServiceStub {
 @Param {value: "Proto descriptor key. Key of proto descriptor"}
 @Param {value: "Proto descriptor map. descriptor map with all dependent descriptors"}
 public native function<ServiceStub ep> initStub (any clientEndpoint, string stubType, string descriptorKey, map
-                                                                                                      descriptorMap);
+                                                                                                            descriptorMap);
 
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  blockingExecute (string methodID, any payload) (any , ConnectorError);
+public native function<ServiceStub ep>  blockingExecute (string methodID, any payload) returns (any | ConnectorError);
 
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
 public native function<ServiceStub ep>  nonBlockingExecute (string methodID, any payload, typedesc listenerService)
-(ConnectorError);
+returns (ConnectorError);
 
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  streamingExecute (string methodID, typedesc listenerService) (ClientConnection ,
-                                                                                               ConnectorError);
-
+public native function<ServiceStub ep>  streamingExecute (string methodID, typedesc listenerService)
+returns (Client | ConnectorError);
 
 @Description {value:"Represents the gRPC client connector connection"}
 @Field {value:"host: The server host name"}
@@ -57,17 +56,17 @@ public struct ClientConnection {
 @Param {value:"conn: The server connector connection"}
 @Param {value:"res: The outbound response message"}
 @Return {value:"Error occured during HTTP server connector respond"}
-public native function <ClientConnection conn> send (any res) (ConnectorError);
+public native function <ClientConnection conn> send (any res) returns (ConnectorError);
 
 @Description {value:"Informs the caller, server finished sending messages."}
 @Param {value:"conn: The server connector connection"}
 @Return {value:"Error occured during HTTP server connector respond"}
-public native function <ClientConnection conn> complete () (ConnectorError);
+public native function <ClientConnection conn> complete () returns (ConnectorError);
 
 @Description {value:"Forwards inbound response to the caller"}
 @Param {value:"conn: The server connector connection"}
 @Param {value:"res: The inbound response message"}
 @Return {value:"Error occured during HTTP server connector forward"}
-public native function <ClientConnection conn> errorResponse (ClientError clientError) (ConnectorError);
+public native function <ClientConnection conn> errorResponse (ClientError clientError) returns (ConnectorError);
 
 

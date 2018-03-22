@@ -69,7 +69,7 @@ public class MessageConstants {
     public static final String CONNECTOR_ERROR = "ConnectorError";
     public static final String SERVER_ERROR = "ServerError";
     public static final String CLIENT_ERROR = "ClientError";
-
+    public static final String CLIENT= "Client";
     public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
 
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
