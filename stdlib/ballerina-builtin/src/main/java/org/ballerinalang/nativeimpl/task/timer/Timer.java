@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
@@ -62,6 +63,7 @@ public class Timer {
         
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         TaskRegistry.getInstance().addTimer(this);
+        BLangScheduler.workerCountUp();
     }
 
     /**
@@ -83,6 +85,7 @@ public class Timer {
     }
 
     public void stop() throws TaskException {
+        BLangScheduler.workerCountDown();
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
     }

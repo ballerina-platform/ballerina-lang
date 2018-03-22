@@ -195,8 +195,10 @@ public class Types {
             return true;
         }
 
+        // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
+        // it to a constrained table reference.
         if (target.tag == TypeTags.TABLE && source.tag == TypeTags.TABLE) {
-            return true;
+           return true;
         }
 
         if (target.tag == TypeTags.STREAM && source.tag == TypeTags.STREAM) {
@@ -1086,7 +1088,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
                 continue;
             }
 
@@ -1131,7 +1133,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
                 continue;
             }
 
