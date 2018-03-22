@@ -195,8 +195,10 @@ public class Types {
             return true;
         }
 
+        // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
+        // it to a constrained table reference.
         if (target.tag == TypeTags.TABLE && source.tag == TypeTags.TABLE) {
-            return true;
+           return true;
         }
 
         if (target.tag == TypeTags.STREAM && source.tag == TypeTags.STREAM) {
