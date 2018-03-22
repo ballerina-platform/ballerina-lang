@@ -420,6 +420,7 @@ public class BallerinaParserService implements ComposerService {
         final String filePath = bFileRequest.getFilePath();
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
+        final java.nio.file.Path packagePath = Paths.get(bFileRequest.getFilePath());
 
         Pattern pkgPattern = Pattern.compile(PACKAGE_REGEX);
         Matcher pkgMatcher = pkgPattern.matcher(content);
@@ -452,7 +453,8 @@ public class BallerinaParserService implements ComposerService {
                 : null;
         // always use dirty content from editor to generate model
         // TODO: Remove this once in-memory file resolver with dirty content for compiler is implemented
-        final BallerinaFile balFileFromDirtyContent = ParserUtils.getBallerinaFileForContent(fileName, content,
+        final BallerinaFile balFileFromDirtyContent = ParserUtils.getBallerinaFileForContent(packagePath,
+                fileName, content,
                 CompilerPhase.CODE_ANALYZE);
         // always get compilation unit and diagnostics from dirty content
         final BLangPackage model = balFileFromDirtyContent.getBLangPackage();

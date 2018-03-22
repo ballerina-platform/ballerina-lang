@@ -1,7 +1,8 @@
 import ballerina/jwt;
 import ballerina/time;
+import ballerina/io;
 
-function testIssueJwt () (string, error) {
+function testIssueJwt () returns (string)|error {
     jwt:Header header = {};
     header.alg = "RS256";
     header.typ = "JWT";
@@ -16,15 +17,22 @@ function testIssueJwt () (string, error) {
     jwt:JWTIssuerConfig config = {};
     config.certificateAlias = "ballerina";
     config.keyPassword = "ballerina";
-    var jwtString, e = jwt:issue(header, payload, config);
-    return jwtString, e;
+    match jwt:issue(header, payload, config) {
+        string jwtString => return jwtString;
+        error err => return err;
+    }
 }
 
-function testValidateJwt (string jwtToken) (boolean, error) {
+function testValidateJwt (string jwtToken) returns (boolean)|error {
+    io:println(jwtToken);
     jwt:JWTValidatorConfig config = {};
     config.issuer = "wso2";
     config.certificateAlias = "ballerina";
     config.audience = "ballerinaSamples";
-    var status, payload, e = jwt:validate(jwtToken, config);
-    return status, e;
+    var value = jwt:validate(jwtToken, config);
+    match value {
+        jwt:Payload result => return true;
+        boolean isValid => return isValid;
+        error err => return err;
+    }
 }
