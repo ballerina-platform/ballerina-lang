@@ -33,7 +33,8 @@ import java.util.List;
  * This function returns the span context of a given span.
  */
 @BallerinaFunction(
-        packageName = "ballerina.testing",
+        orgName = "ballerina",
+        packageName = "testing",
         functionName = "getFinishedSpansCount",
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
