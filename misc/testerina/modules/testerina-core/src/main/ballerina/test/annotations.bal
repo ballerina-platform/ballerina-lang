@@ -24,19 +24,19 @@ public struct MockConfig {
     string functionName;
 }
 
-public annotation <function> config TestConfig;
+public annotation <function> Config TestConfig;
 
-public annotation <function> mock MockConfig;
+public annotation <function> Mock MockConfig;
 
 @Description { value:"Identifies beforeSuite function."}
-public annotation <function> beforeSuite;
+public annotation <function> BeforeSuite;
 
 @Description { value:"Identifies afterSuite function."}
-public annotation <function> afterSuite;
+public annotation <function> AfterSuite;
 
 @Description { value:"Identifies beforeTest function."}
-public annotation <function> beforeEach;
+public annotation <function> BeforeEach;
 
 @Description { value:"Identifies afterTest function."}
-public annotation <function> afterEach;
+public annotation <function> AfterEach;
 

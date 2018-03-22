@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-@test:config{
+@test:Config{
     dataProvider:"dataGen"
 }
 function testFunc1 (string fValue, string sValue, string result) {
@@ -17,7 +17,7 @@ function dataGen() returns (string[][]) {
     return [["1", "2", "3"], ["10", "20", "30"], ["5", "6", "11"]];
 }
 
-@test:config{
+@test:Config{
     dataProvider:"dataGen2"
 }
 function testFunc2 (string fValue, string sValue, string result) {
@@ -29,7 +29,7 @@ function testFunc2 (string fValue, string sValue, string result) {
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
-@test:config{
+@test:Config{
     dataProvider:"dataGen3"
 }
 function testFunc3 (json fValue, json sValue, json result) {
