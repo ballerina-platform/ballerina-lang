@@ -154,6 +154,18 @@ public struct Encoding {
     boolean allowReserved;
 }
 
+@Description {value: "Configuration elements for client code generation"}
+@Field {value: "generate: generates client code if set to true"}
+public struct ClientInformation {
+    boolean generate = true;
+}
+
+@Description {value: "Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation"}
+public annotation <endpoint> ClientEndpoint;
+
+@Description {value: "Annotation to configure client code generation"}
+public annotation <service> ClientConfig ClientInformation;
+
 @Description {value: "Annotation for additional swagger information of a ballerina service"}
 public annotation <service> ServiceInfo ServiceInformation;
 
