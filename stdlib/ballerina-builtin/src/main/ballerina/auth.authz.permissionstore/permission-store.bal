@@ -28,7 +28,6 @@ public struct PermissionStore {
 public function <PermissionStore permissionStore> isAuthorized (string username, string scopeName) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
-    return false;
 }
 
 @Description {value:"Reads groups for the given scopes"}
@@ -37,7 +36,6 @@ public function <PermissionStore permissionStore> isAuthorized (string username,
 public function <PermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string) {
     error e = {message:"Not implemented"};
     throw e;
-    return "";
 }
 
 @Description {value:"Reads the groups for a user"}
@@ -46,6 +44,5 @@ public function <PermissionStore permissionStore> readGroupsOfScope (string scop
 public function <PermissionStore permissionStore> readGroupsOfUser (string username) returns (string) {
     error e = {message:"Not implemented"};
     throw e;
-    return "";
 }
 
