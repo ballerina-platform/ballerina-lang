@@ -6,6 +6,7 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -115,6 +116,11 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
                 }
             }
             return this.cachedEntryNames;
+        }
+
+        @Override
+        public RepoHierarchy getRepoHierarchy() {
+            return null;
         }
 
         @Override

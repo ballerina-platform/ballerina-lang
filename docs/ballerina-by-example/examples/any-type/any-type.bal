@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"This function returns an 'any' typed value."}
 function getValue () returns (any) {

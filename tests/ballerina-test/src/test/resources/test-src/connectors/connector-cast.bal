@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 function testConnectorCast() (http:HttpClient, error) {
     any client = create http:HttpClient("http://localhost:9090", {});

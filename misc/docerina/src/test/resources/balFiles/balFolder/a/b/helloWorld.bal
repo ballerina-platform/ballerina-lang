@@ -1,6 +1,6 @@
 package a.b;
 
-import ballerina.io;
+import ballerina/io;
 
 function main (string[] args) (int) {
     io:println("Hello, World! " + args[0]);

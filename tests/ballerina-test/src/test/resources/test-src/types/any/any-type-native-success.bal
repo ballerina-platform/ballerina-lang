@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 function successfulXmlCasting() returns (string) {
   any abc = jsonReturnFunction();
   json jsonVal;

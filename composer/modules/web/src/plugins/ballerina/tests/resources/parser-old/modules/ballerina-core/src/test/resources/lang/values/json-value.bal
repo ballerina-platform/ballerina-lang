@@ -1,4 +1,4 @@
-import ballerina.lang.errors;
+import ballerina/lang.errors;
 
 function testStringAsJsonVal() (json){
     json j = "Supun";

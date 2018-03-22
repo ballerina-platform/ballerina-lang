@@ -79,4 +79,7 @@
     <Match>
         <Package name="org.ballerinalang.util" />
     </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol"/>
+    </Match>
 </FindBugsFilter>

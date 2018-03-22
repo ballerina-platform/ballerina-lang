@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 endpoint http:ServiceEndpoint participant2EP {
     port:8890

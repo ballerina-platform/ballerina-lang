@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description {value:"This is the base connector we are going to decorate"}
 connector StockQuoteConnector (int i) {

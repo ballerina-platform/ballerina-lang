@@ -215,7 +215,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
         
-        mnemonics[InstructionCodes.ASYNC] = "async";
         mnemonics[InstructionCodes.AWAIT] = "await";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";

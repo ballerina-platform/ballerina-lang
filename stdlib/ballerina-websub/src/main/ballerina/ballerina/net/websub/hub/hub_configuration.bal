@@ -1,6 +1,6 @@
 package ballerina.net.websub.hub;
 
-import ballerina.config;
+import ballerina/config;
 
 const string BASE_PATH = "/websub";
 const string HUB_PATH = "/hub";

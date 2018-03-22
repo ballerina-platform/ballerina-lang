@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * ballerina.model.map:clear()
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "map.clear",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         isPublic = true
