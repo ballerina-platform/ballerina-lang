@@ -209,7 +209,7 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
 
 function getParticipant2pcClientEP(string participantURL) returns Participant2pcClientEP {
     if(httpClientCache.hasKey(participantURL)) {
-        var participantEP =? (Participant2pcClientEP)httpClientCache.get(participantURL);
+        var participantEP =? <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
         Participant2pcClientEP participantEP = {};
