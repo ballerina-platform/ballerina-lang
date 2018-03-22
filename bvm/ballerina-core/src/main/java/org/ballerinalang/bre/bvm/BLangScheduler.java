@@ -162,22 +162,20 @@ public class BLangScheduler {
         }
     }
     
-    public static WorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
+    public static AsyncInvocableWorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
             Context nativeCtx) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
-        CallableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(), 1);
+        AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
         NativeCallExecutor exec = new NativeCallExecutor(nativeCallable, nativeCtx, respCtx);
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(exec);
         return respCtx;
     }
     
-    public static WorkerResponseContext executeNonBlockingNativeAsync(NativeCallableUnit nativeCallable, 
+    public static AsyncInvocableWorkerResponseContext executeNonBlockingNativeAsync(NativeCallableUnit nativeCallable,
             Context nativeCtx) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
-        WorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 1);
+        AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
         BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
-        workerCountUp();
         nativeCallable.execute(nativeCtx, callback);
         return respCtx;
     }
@@ -216,6 +214,7 @@ public class BLangScheduler {
             this.nativeCallable = nativeCallable;
             this.nativeCtx = nativeCtx;
             this.respCtx = respCtx;
+            workerCountUp();
         }
         
         @Override
@@ -225,7 +224,6 @@ public class BLangScheduler {
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
             try {
-                workerCountUp();
                 this.nativeCallable.execute(this.nativeCtx, null);
                 BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
                 runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
@@ -248,19 +246,25 @@ public class BLangScheduler {
     /**
      * This class represents the callback functionality for async non-blocking native calls.
      */
-    private static class BLangAsyncCallableUnitCallback implements CallableUnitCallback {
+    public static class BLangAsyncCallableUnitCallback implements CallableUnitCallback {
 
         private WorkerResponseContext respCtx;
         
         private Context nativeCallCtx;
+        
+        private boolean cancelled;
             
         public BLangAsyncCallableUnitCallback(WorkerResponseContext respCtx, Context nativeCallCtx) {
             this.respCtx = respCtx;
             this.nativeCallCtx = nativeCallCtx;
+            workerCountUp();
         }
         
         @Override
-        public void notifySuccess() {
+        public synchronized void notifySuccess() {
+            if (this.cancelled) {
+                return;
+            } 
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
@@ -271,7 +275,10 @@ public class BLangScheduler {
         }
 
         @Override
-        public void notifyFailure(BStruct error) {
+        public synchronized void notifyFailure(BStruct error) {
+            if (this.cancelled) {
+                return;
+            }
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
@@ -280,6 +287,15 @@ public class BLangScheduler {
                     new WorkerExecutionContext(error), SignalType.ERROR, result));
             BLangScheduler.resume(ctx);
             workerCountDown();
+        }
+        
+        public synchronized boolean cancel() {
+            if (this.cancelled) {
+                return false;
+            }
+            this.cancelled = true;
+            workerCountDown();
+            return true;
         }
 
     }

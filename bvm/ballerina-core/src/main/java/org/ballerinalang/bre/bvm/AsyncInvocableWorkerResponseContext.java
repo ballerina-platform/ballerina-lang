@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BType;
+import org.ballerinalang.bre.bvm.BLangScheduler.BLangAsyncCallableUnitCallback;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.ArrayList;
@@ -33,8 +35,30 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     
     private boolean errored;
     
-    public AsyncInvocableWorkerResponseContext(BType[] responseTypes, int workerCount) {
-        super(responseTypes, workerCount);
+    private List<WorkerExecutionContext> workerExecutionContexts;
+        
+    private BLangAsyncCallableUnitCallback nonBlockingCallback;
+    
+    private CallableUnitInfo callableUnitInfo;
+    
+    private boolean cancelled;
+    
+    public AsyncInvocableWorkerResponseContext(CallableUnitInfo callableUnitInfo, int workerCount) {
+        super(callableUnitInfo.getRetParamTypes(), workerCount);
+        this.callableUnitInfo = callableUnitInfo;
+    }
+    
+    public AsyncInvocableWorkerResponseContext(CallableUnitInfo callableUnitInfo) {
+        super(callableUnitInfo.getRetParamTypes(), 1);
+        this.callableUnitInfo = callableUnitInfo;
+    }
+    
+    public void setWorkerExecutionContexts(List<WorkerExecutionContext> workerExecutionContexts) {
+        this.workerExecutionContexts = workerExecutionContexts;
+    }
+    
+    public void setNonBlockingCallback(BLangAsyncCallableUnitCallback nonBlockingCallback) {
+        this.nonBlockingCallback = nonBlockingCallback;
     }
     
     @Override
@@ -97,6 +121,34 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
         WorkerExecutionContext ctx = this.onFinalizedError(targetCtx, 
                 BLangVMErrors.createCallFailedException(targetCtx, this.getWorkerErrors()));
         return BLangScheduler.resume(ctx, runInCaller);
+    }
+    
+    public boolean isDone() {
+        return this.isFulfilled() || this.errored || this.cancelled;
+    }
+    
+    public synchronized boolean cancel() {
+        if (this.isDone()) {
+            return false;
+        }
+        if (this.workerExecutionContexts != null) {
+            //TODO
+            this.cancelled = true;
+        } else if (this.nonBlockingCallback != null) {
+            this.cancelled = this.nonBlockingCallback.cancel();
+        }
+        if (this.cancelled) {
+            this.sendAsyncCancelErrorSignal();
+        }
+        return this.cancelled;
+    }
+    
+    private void sendAsyncCancelErrorSignal() {
+        WorkerData result = BLangVMUtils.createWorkerData(this.callableUnitInfo.retWorkerIndex);
+        BStruct error = BLangVMErrors.createCallCancelledException(this.callableUnitInfo);
+        WorkerExecutionContext ctx = this.signal(new WorkerSignal(
+                new WorkerExecutionContext(error), SignalType.ERROR, result));
+        BLangScheduler.resume(ctx);
     }
     
     /**
