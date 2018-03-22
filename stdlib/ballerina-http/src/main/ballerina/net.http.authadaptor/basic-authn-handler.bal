@@ -98,7 +98,12 @@ function getCachedValue (string cacheKey) returns (boolean | null) {
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
 public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:Request req) returns (boolean) {
-    string basicAuthHeader = req.getHeader(AUTH_HEADER);
+    string basicAuthHeader;
+    try {
+        basicAuthHeader = req.getHeader(AUTH_HEADER);
+    } catch (error e) {
+        return false;
+    }
     match basicAuthHeader {
         string basicAuthHeaderStr => {
             return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);

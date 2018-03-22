@@ -102,7 +102,12 @@ function getCachedAuthzValue (string cacheKey) returns (boolean | null) {
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
 public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:Request req) returns (boolean) {
-    string basicAuthHeader = req.getHeader(AUTH_HEADER);
+    string basicAuthHeader;
+    try {
+        basicAuthHeader = req.getHeader(AUTH_HEADER);
+    } catch (error e) {
+       return false;
+    }
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
         return true;
     }
