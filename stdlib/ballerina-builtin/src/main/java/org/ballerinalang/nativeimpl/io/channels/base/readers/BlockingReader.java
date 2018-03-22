@@ -40,8 +40,6 @@ public class BlockingReader implements Reader {
 
     /**
      * Reads bytes in blocking mode. Could be used if it's required to readFull().
-     * <p>
-     * <p>
      * {@inheritDoc}
      */
     @Override

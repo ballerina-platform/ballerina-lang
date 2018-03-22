@@ -71,7 +71,9 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_ANY;
+        StringBuilder sig = new StringBuilder(TypeDescriptor.SIG_UNION + memberTypes.size() + ";");
+        memberTypes.forEach(memberType -> sig.append(memberType.getDesc()));
+        return sig.toString();
     }
 
     public void setNullable(boolean nullable) {

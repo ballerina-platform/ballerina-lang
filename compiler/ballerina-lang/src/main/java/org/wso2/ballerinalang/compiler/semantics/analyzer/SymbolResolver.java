@@ -392,7 +392,9 @@ public class SymbolResolver extends BLangNodeVisitor {
      * Return the symbol with the given name.
      * This method only looks at the symbol defined in the given scope.
      *
+     * @param pos       diagnostic position
      * @param scope     current scope
+     * @param env       symbol environment
      * @param name      symbol name
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
