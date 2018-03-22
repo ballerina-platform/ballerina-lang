@@ -43,15 +43,10 @@ public struct HttpBasicAuthnHandler {
 public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request req) returns (boolean) {
 
     // extract the header value
-    var basicAuthHeader = extractBasicAuthHeaderValue(req);
-    string basicAuthHeaderValue;
-    match basicAuthHeader {
-        string basicAuthHeaderStr => {
-            basicAuthHeaderValue = basicAuthHeaderStr;
-        }
-        error err => {
-            return false;
-        }
+    string basicAuthHeaderValue = extractBasicAuthHeaderValue(req);
+    if (basicAuthHeaderValue.length() == 0) {
+        log:printErrorCause("Error in extracting basic authentication header");
+        return false;
     }
     
     // check in the cache - cache key is the sha256 hash of the basic auth header value
@@ -89,8 +84,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
 }
 
 function getCachedValue (string cacheKey) returns (boolean | null) {
-    any cachedAuthResult = basicAuthenticator.getCachedAuthResult(basicAuthCacheKey);
-    match cachedAuthResult {
+    match basicAuthenticator.getCachedAuthResult(cacheKey) {
         basic:AuthenticationInfo authnInfo => {
             log:printDebug("Auth cache hit");
             return authnInfo.isAuthenticated;

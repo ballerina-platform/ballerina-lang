@@ -30,13 +30,8 @@ public struct AuthzChecker {
 @Param {value:"permissionstore: PermissionStore instance"}
 @Param {value:"cache: Cache instance"}
 @Return {value:"AuthzChecker: AuthzChecker instance"}
-public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache cache) returns (AuthzChecker) {
-    if (permissionstore == null) {
-        // error, cannot proceed without permissionstore
-        error e = {msg:"Permission store cannot be null for authz checker"};
-        throw e;
-    }
-
+public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache|null cache)
+                                                                                        returns (AuthzChecker) {
     AuthzChecker authzChecker = {permissionstore:permissionstore, authzCache:cache};
     return authzChecker;
 }
@@ -54,7 +49,7 @@ public function <AuthzChecker authzChecker> check (string username, string scope
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Return {value:"any: cached entry, or null in a cache miss"}
 public function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCacheKey) returns (any) {
-    if (authzChecker.authzCache != null) {
+    if (isCacheEnabled(authzChecker.authzCache)) {
         return authzChecker.authzCache.get(authzCacheKey);
     }
     return null;
@@ -64,7 +59,7 @@ public function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCa
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Param {value:"isAuthorized: authorization decision"}
 public function <AuthzChecker authzChecker> cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
-    if (authzChecker.authzCache != null) {
+    if (isCacheEnabled(authzChecker.authzCache)) {
         authzChecker.authzCache.put(authzCacheKey, isAuthorized);
     }
 }
@@ -72,7 +67,13 @@ public function <AuthzChecker authzChecker> cacheAuthzResult (string authzCacheK
 @Description {value:"Clears any cached authorization result"}
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 public function <AuthzChecker authzChecker> clearCachedAuthzResult (string authzCacheKey) {
-    if (authzChecker.authzCache != null) {
+    if (isCacheEnabled(authzChecker.authzCache)) {
         authzChecker.authzCache.remove(authzCacheKey);
     }
+}
+
+function isCacheEnabled (caching:Cache cache) returns (boolean) {
+    // consider cache is not there if the cache name is empty
+    // TODO: fix properly with null check
+    return cache.name.length == 0;
 }

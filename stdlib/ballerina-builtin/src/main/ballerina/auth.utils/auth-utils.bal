@@ -44,7 +44,7 @@ const float CACHE_EVICTION_FACTOR_DEFAULT_VALUE = 0.25;
 
 @Description {value:"Creates a cache to store authentication results against basic auth headers"}
 @Return {value:"cache: authentication cache instance"}
-public function createCache (string cacheName) returns (caching:Cache|null) {
+public function createCache (string cacheName) returns (caching:Cache) {
     if (isCacheEnabled(cacheName)) {
         int expiryTime;
         int capacity;

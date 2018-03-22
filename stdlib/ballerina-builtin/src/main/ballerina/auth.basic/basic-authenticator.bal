@@ -41,12 +41,6 @@ public struct AuthenticationInfo {
 @Return {value:"BasicAuthenticator instance"}
 public function createAuthenticator (userstore:UserStore userStore,
                                      caching:Cache cache) returns (BasicAuthenticator) {
-    if (userStore == null) {
-        // error, cannot proceed without validator
-        error e = {message:"Userstore cannot be null for basic authenticator"};
-        throw e;
-    }
-
     BasicAuthenticator authenticator = {userStore:userStore, authCache:cache};
     return authenticator;
 }
@@ -63,7 +57,7 @@ public function <BasicAuthenticator authenticator> authenticate (string username
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Return {value:"any: cached entry, or null in a cache miss"}
 public function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) returns (any) {
-    if (authenticator.authCache != null) {
+    if (isCacheEnabled(authenticator.authCache)) {
         return authenticator.authCache.get(basicAuthCacheKey);
     }
     return null;
@@ -74,7 +68,7 @@ public function <BasicAuthenticator authenticator> getCachedAuthResult (string b
 @Param {value:"authInfo: AuthenticationInfo instance containing authentication decision"}
 public function <BasicAuthenticator authenticator> cacheAuthResult (string basicAuthCacheKey,
                                                                     AuthenticationInfo authInfo) {
-    if (authenticator.authCache != null) {
+    if (isCacheEnabled(authenticator.authCache)) {
         authenticator.authCache.put(basicAuthCacheKey, authInfo);
     }
 }
@@ -82,7 +76,7 @@ public function <BasicAuthenticator authenticator> cacheAuthResult (string basic
 @Description {value:"Clears any cached authentication result"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 public function <BasicAuthenticator authenticator> clearCachedAuthResult (string basicAuthCacheKey) {
-    if (authenticator.authCache != null) {
+    if (isCacheEnabled(authenticator.authCache)) {
         authenticator.authCache.remove(basicAuthCacheKey);
     }
 }
@@ -94,4 +88,10 @@ public function <BasicAuthenticator authenticator> clearCachedAuthResult (string
 public function createAuthenticationInfo (string username, boolean isAuthenticated) returns (AuthenticationInfo) {
     AuthenticationInfo authInfo = {username:username, isAuthenticated:isAuthenticated};
     return authInfo;
+}
+
+function isCacheEnabled (caching:Cache cache) returns (boolean) {
+    // consider cache is not there if the cache name is empty
+    // TODO: fix properly with null check
+    return cache.name.length() == 0;
 }
