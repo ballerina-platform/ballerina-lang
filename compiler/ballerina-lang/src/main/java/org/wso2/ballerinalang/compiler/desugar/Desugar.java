@@ -1510,7 +1510,7 @@ public class Desugar extends BLangNodeVisitor {
             return null;
         }
 
-        if (node.desugered) {
+        if (node.desugared) {
             return node;
         }
 
@@ -1520,7 +1520,7 @@ public class Desugar extends BLangNodeVisitor {
         node.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
-        resultNode.desugered = true;
+        resultNode.desugared = true;
 
         this.env = previousEnv;
         return (E) resultNode;
@@ -1532,10 +1532,10 @@ public class Desugar extends BLangNodeVisitor {
             return null;
         }
 
-        if (node.desugered) {
+        if (node.desugared) {
             return node;
         }
-        
+
         BLangExpression expr = node;
         if (node.impConversionExpr != null) {
             expr = node.impConversionExpr;
@@ -1545,7 +1545,7 @@ public class Desugar extends BLangNodeVisitor {
         expr.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
-        resultNode.desugered = true;
+        resultNode.desugared = true;
         return (E) resultNode;
     }
 

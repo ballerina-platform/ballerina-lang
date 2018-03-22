@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,29 +22,30 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.config:getGlobalValue.
+ * Native function ballerina.config:setConfig.
  *
- * @since 0.95
+ * @since 0.966.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "config",
-        functionName = "getGlobalValue",
-        args = {@Argument(name = "property", type = TypeKind.STRING)},
+        functionName = "setConfig",
+        args = {@Argument(name = "configKey", type = TypeKind.STRING),
+                @Argument(name = "configValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetGlobalValue extends BlockingNativeCallableUnit {
+public class SetConfig extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         String configKey = context.getStringArgument(0);
-        String globalValue = ConfigRegistry.getInstance().getGlobalConfigValue(configKey);
-        context.setReturnValues(new BString(globalValue));
+        String configValue = context.getStringArgument(1);
+        ConfigRegistry.getInstance().addConfiguration(configKey, configValue);
+        context.setReturnValues();
     }
 }

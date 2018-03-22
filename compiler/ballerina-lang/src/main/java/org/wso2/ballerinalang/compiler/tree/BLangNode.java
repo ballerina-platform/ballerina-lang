@@ -37,6 +37,11 @@ public abstract class BLangNode implements Node {
     public boolean desugered;
 
     /**
+     * Indicates whether the node has already been desugared.
+     */
+    public boolean desugared;
+
+    /**
      * The position of this node in the source file.
      */
     public DiagnosticPos pos;
