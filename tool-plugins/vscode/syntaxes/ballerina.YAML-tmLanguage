@@ -85,8 +85,14 @@ repository:
 
   functionReturns:
     patterns:
-    - match: 'returns'
-      name: keyword.ballerina
+    - begin: '\breturns\b'
+      beginCaptures:
+        '0': { name: keyword.ballerina }
+      end: (?=\{)
+      patterns:
+        - match: '{{identifier}}'
+          name: storage.type.ballerina
+        - include: '#comment'
 
   serviceEndpointAttachments:
     patterns:
@@ -121,6 +127,7 @@ repository:
         '0': { name: punctuation.definition.block.ballerina }
       patterns:
       - include: '#comment'
+      - include: '#matchStatement'
       - include: '#code'
 
   serviceBody:
@@ -159,6 +166,59 @@ repository:
       - include: '#comment'
       - include: '#code'
 
+  matchStatement:
+    patterns:
+    - begin: '\b(match)\b'
+      beginCaptures:
+        '1': { name:  keyword.ballerina }
+      end: '(?<=\})'
+      patterns:
+      - match: '{{identifier}}'
+        name: variable.parameter.ballerina
+      - include: '#matchStatementBody'
+
+  matchStatementBody:
+    patterns:
+    - begin: \{
+      beginCaptures:
+        '0': { name: punctuation.definition.block.ballerina.documentation }
+      end: \}
+      endCaptures:
+        '0': { name: punctuation.definition.block.ballerina.documentation }
+      patterns:
+      - include: '#varDefStatement'
+      - include: '#matchedStatement'
+
+  varDefStatement:
+    patterns:
+    - begin: \b({{identifier}})\b
+      beginCaptures:
+        '1': { name: storage.type.ballerina }
+      end: \b({{identifier}})\b
+      endCaptures:
+        '1': { name: variable.parameter.ballerina }
+      patterns:
+      - include: '#continuedType'
+      - include: '#comment'
+
+  matchedStatement:
+    patterns:
+    - begin: '=>'
+      beginCaptures:
+        '0': { name:  keyword.ballerina }
+      end: '(?<=\})'
+      patterns:
+      - include: '#functionBody'
+
+  continuedType:
+    patterns:
+    - begin: '[|,:]'
+      end: \b({{identifier}})\b
+      endCaptures:
+        '1': { name: storage.type.ballerina }
+      patterns:
+      - include: '#comment'
+
   documentationDef:
     patterns:
     - begin: \b(documentation|deprecated)\b
@@ -177,27 +237,27 @@ repository:
       endCaptures:
         '0': { name: punctuation.definition.block.ballerina.documentation }
       patterns:
-        - match: (P|R|T|F|V)({{)(.+)(}})
-          captures:
-            '1': {name: keyword.other.ballerina.documentation}
-            '2': {name: keyword.other.ballerina.documentation}
-            '3': {name: variable.parameter.ballerina.documentation}
-            '4': {name: keyword.other.ballerina.documentation}
+      - match: (P|R|T|F|V)({{)(.+)(}})
+        captures:
+          '1': {name: keyword.other.ballerina.documentation}
+          '2': {name: keyword.other.ballerina.documentation}
+          '3': {name: variable.parameter.ballerina.documentation}
+          '4': {name: keyword.other.ballerina.documentation}
 
-        - name: comment.block.code.ballerina.documentation
-          begin: \```
-          end: \```
+      - name: comment.block.code.ballerina.documentation
+        begin: \```
+        end: \```
 
-        - name: comment.block.code.ballerina.documentation
-          begin: \``
-          end: \``
+      - name: comment.block.code.ballerina.documentation
+        begin: \``
+        end: \``
 
-        - name: comment.block.code.ballerina.documentation
-          begin: \`
-          end: \`
+      - name: comment.block.code.ballerina.documentation
+        begin: \`
+        end: \`
 
-        - name: comment.block.ballerina.documentation
-          match: .
+      - name: comment.block.ballerina.documentation
+        match: .
 
   publicKeyword:
     patterns:
@@ -243,7 +303,7 @@ repository:
       match: \b(if|else|iterator|try|catch|finally|fork|join|all|some|while|foreach|in|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b
 
     - name: keyword.other.ballerina
-      match: \b(import|version|public|attach|as|native|documentation|lock)\b
+      match: \b(import|version|public|private|attach|as|native|documentation|lock)\b
 
     - name: keyword.other.siddhi.ballerina
       match: \b(from|on|select|group|by|having|order|where|followed|insert|into|update|delete|set|for|window|query)\b
@@ -258,7 +318,7 @@ repository:
       match: \b(stream|streamlet|aggregation)\b
 
     - name: keyword.other.ballerina
-      match: \b(annotation|package|type|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b
+      match: \b(annotation|package|type|typedesc|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b
 
     - name: keyword.other.ballerina
       match: \b(const|true|false|reply|create|parameter)\b

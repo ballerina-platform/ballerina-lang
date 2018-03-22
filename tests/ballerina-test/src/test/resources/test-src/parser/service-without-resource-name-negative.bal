@@ -1,9 +1,9 @@
 import ballerina/net.http;
 
-service<http> HelloService {
+service<http:Service> HelloService {
 
-  @Path {value:"/tweet"}
-  resource {
+
+    (endpoint outboundEP, http:Request request) {
       int b;
       return m;
   }
