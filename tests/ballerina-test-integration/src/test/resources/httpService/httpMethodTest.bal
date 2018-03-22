@@ -157,6 +157,7 @@ service<http:Service> quoteService bind serviceEndpoint {
 
     @http:ResourceConfig {
         methods:["POST"],
+        path:"employee",
         body:"person"
     }
     employee (endpoint client, http:Request req, json person) {
