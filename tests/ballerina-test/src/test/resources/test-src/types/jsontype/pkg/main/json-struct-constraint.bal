@@ -7,8 +7,8 @@ function testJsonStructConstraint () returns (json, json, json) {
     j.name = "John Doe";
     j.age = 30;
     j.address = "London";
-    var name, _ = (string)j.name;
-    var age, _ = (int)j.age;
-    var address, _ = (string)j.address;
+    var name = <string>j.name;
+    var age  = <int>j.age;
+    var address = <string>j.address;
     return (j.name, j.age, j.address);
 }

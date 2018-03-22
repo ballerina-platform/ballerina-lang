@@ -8,9 +8,9 @@ function toString (json msg) returns (string) {
     return msg.toString();
 }
 
-function testParse (string jsonStr) returns (json, error) {
-    var j, e = <json> jsonStr;
-    return (j, e);
+function testParse (string jsonStr) returns (json | error) {
+    var j =? <json> jsonStr;
+    return j;
 }
 
 function testGetKeys () returns (string[], string[], string[], string[]) {
@@ -55,10 +55,10 @@ function testToXMLWithOptions (json msg) returns (xml | error) {
     return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
 }
 
-function testStringToJSONConversion() returns (json, error) {
+function testStringToJSONConversion() returns (json | error) {
     string s = "{\"foo\": \"bar\"}";
-    var j, e = <json> s;
-    return (j, e);
+    var j = <json> s;
+    return j;
 }
 
 function testJSONArrayToJsonAssignment() returns (json) {
