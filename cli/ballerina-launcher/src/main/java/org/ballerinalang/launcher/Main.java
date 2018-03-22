@@ -213,6 +213,9 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
 
+        @Parameter(names = {"--offline", "-o"})
+        private boolean offline;
+
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
@@ -255,7 +258,7 @@ public class Main {
                 }
 
                 LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams, configFilePath,
-                                         new String[0]);
+                                         new String[0], offline);
                 return;
             }
 
@@ -269,7 +272,8 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams, configFilePath, programArgs);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams,
+                                     configFilePath, programArgs, offline);
         }
 
         @Override

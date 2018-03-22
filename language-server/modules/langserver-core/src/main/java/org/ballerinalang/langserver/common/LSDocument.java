@@ -30,7 +30,6 @@ public class LSDocument {
     private String sourceRoot;
 
     public LSDocument() {
-
     }
 
     public LSDocument(String uri) {
