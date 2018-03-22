@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function floattoint(float value) returns (int) {
     int result;
@@ -156,7 +156,8 @@ function testStructToStruct() returns (Student) {
                    info:{status:"single"},
                    marks:[24, 81]
                };
-    return <Student> p;
+    var p2 =? <Student> p;
+    return p2;
 }
 
 //function testNullStructToStruct() returns (Student) {
@@ -375,7 +376,7 @@ function testCompatibleStructForceCasting() returns (A | error) {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
-    b = <B> a;
+    b =? <B> a;
     A c =? <A> b;
 
     //TODO Handle error

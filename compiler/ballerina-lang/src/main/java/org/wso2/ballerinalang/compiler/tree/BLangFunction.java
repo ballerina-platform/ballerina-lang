@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -36,11 +36,9 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     //TODO remove this and use ATTACHED flag instead
     public boolean attachedFunction;
 
-    public boolean objectInitFunction;
-
     public boolean interfaceFunction;
 
-    public Map<BVarSymbol, BLangStatement> initFunctionStmts = new HashMap<>();
+    public Map<BVarSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
 
     public VariableNode getReceiver() {
         return receiver;
