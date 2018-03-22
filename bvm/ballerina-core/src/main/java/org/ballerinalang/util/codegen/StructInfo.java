@@ -36,6 +36,7 @@ public class StructInfo extends StructureTypeInfo {
     private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
     public Map<String, AttachedFunctionInfo> funcInfoEntries = new HashMap<>();
     public AttachedFunctionInfo initializer;
+    public AttachedFunctionInfo defaultsValuesInitFunc;
 
     public StructInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name, int flags) {
         super(pkgPathCPIndex, packagePath, nameCPIndex, name, flags);

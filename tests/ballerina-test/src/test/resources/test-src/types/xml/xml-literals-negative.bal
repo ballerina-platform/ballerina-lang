@@ -78,7 +78,3 @@ function undefinedNamespace() {
 function defineEmptyNamespace() {
     xmlns "" as ns0;
 }
-
-function main (string[] args) {
-
-}
