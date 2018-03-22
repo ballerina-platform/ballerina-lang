@@ -450,7 +450,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(content);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path, pkgName);
-        LSDocument sourceDocument = new LSDocument(sourceRoot);
+        LSDocument sourceDocument = new LSDocument();
+        sourceDocument.setUri(document.getURIString());
+        sourceDocument.setSourceRoot(sourceRoot);
+
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
                 false, documentManager);

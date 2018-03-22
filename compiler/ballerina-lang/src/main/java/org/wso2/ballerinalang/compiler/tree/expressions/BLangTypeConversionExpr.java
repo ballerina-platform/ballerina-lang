@@ -82,7 +82,7 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     @Override
     public String toString() {
-        return "<" + String.valueOf(typeNode) + "> " + String.valueOf(expr);
+        return "<" + targetType.toString() + "> " + String.valueOf(expr);
     }
 
     @Override
