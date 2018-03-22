@@ -2940,7 +2940,7 @@ public class CPU {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer) {
+            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
 
@@ -2980,7 +2980,7 @@ public class CPU {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer) {
+            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
 
