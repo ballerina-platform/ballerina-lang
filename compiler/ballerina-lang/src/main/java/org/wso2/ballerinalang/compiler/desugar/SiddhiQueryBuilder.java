@@ -420,7 +420,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamDefinitionQuery.append(streamDefinition).append("\n");
     }
 
-
     private void getStreamDefintionForFuntionVariable(BVarSymbol varSymbol) {
         StringBuilder streamDefinition = new StringBuilder("define stream ");
         streamDefinition.append(varSymbol.name).append("( ");
