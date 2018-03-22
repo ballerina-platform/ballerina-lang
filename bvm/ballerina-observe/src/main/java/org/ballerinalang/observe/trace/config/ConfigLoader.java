@@ -36,7 +36,7 @@ public class ConfigLoader {
 
     public static OpenTracingConfig load() {
         String configLocation = ConfigRegistry.getInstance()
-                .getGlobalConfigValue(Constants.BALLERINA_TRACE_CONFIG_KEY);
+                .getConfiguration(Constants.BALLERINA_TRACE_CONFIG_KEY);
         if (configLocation == null) {
             return null;
         } else {

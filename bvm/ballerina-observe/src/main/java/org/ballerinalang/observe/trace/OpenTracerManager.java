@@ -47,8 +47,7 @@ public class OpenTracerManager implements TraceManager {
     public OpenTracerManager() {
         OpenTracingConfig openTracingConfig = ConfigLoader.load();
         if (openTracingConfig != null) {
-            enabled = !Boolean.valueOf(ConfigRegistry.getInstance().getGlobalConfigValue
-                    (DISABLE_OBSERVE_KEY));
+            enabled = !Boolean.valueOf(ConfigRegistry.getInstance().getConfiguration(DISABLE_OBSERVE_KEY));
             tracerStore = enabled ? new TracersStore(openTracingConfig) : null;
         }
     }
