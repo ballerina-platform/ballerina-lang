@@ -24,4 +24,3 @@ service<http:Service> echo bind ep {
         _ = client -> respond(res);
     }
 }
-

@@ -145,5 +145,3 @@ public function responseFilterFunc (http:Response response, http:FilterContext c
     http:FilterResult responseFilterResult = {canProceed:true, statusCode:200, message:"Successful"};
     return responseFilterResult;
 }
-
-

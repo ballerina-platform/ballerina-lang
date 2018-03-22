@@ -132,4 +132,3 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string|
         }
     }
 }
-
