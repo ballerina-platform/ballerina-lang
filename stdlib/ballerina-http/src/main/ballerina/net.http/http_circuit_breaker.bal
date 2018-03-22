@@ -18,6 +18,7 @@ package ballerina.net.http;
 
 import ballerina/log;
 import ballerina/time;
+import ballerina/io;
 
 @Description {value:"The algorithms which can be used in crypto functions."}
 @Field {value:"MD5: MD5 algorithm"}
@@ -448,17 +449,6 @@ public function updateCircuitState (CircuitHealth circuitHealth, CircuitState cu
    }
    return currentState;
 }
-
-//function updateCircuitHealth(CircuitHealth circuitHealth, Response inResponse,
-//              HttpConnectorError httpConnectorError, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
-//   lock {
-//       circuitHealth.requestCount = circuitHealth.requestCount + 1;
-//       if ((inResponse != null && circuitBreakerInferredConfig.httpStatusCodes[inResponse.statusCode] == true) || httpConnectorError != null) {
-//           circuitHealth.errorCount = circuitHealth.errorCount + 1;
-//           circuitHealth.lastErrorTime = time:currentTime();
-//       }
-//   }
-//}
 
 function updateCircuitHealthFailure(CircuitHealth circuitHealth,
                              HttpConnectorError httpConnectorError, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
