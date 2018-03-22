@@ -38,6 +38,7 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     public BLangExpression expr;
     public BLangType typeNode;
+    public BType targetType;
     public List<BType> types = new ArrayList<>(0);
     public BConversionOperatorSymbol conversionSymbol;
     public BLangInvocation transformerInvocation;

@@ -88,9 +88,10 @@ function throwErrorInsideLock() returns (int, string) {
             runtime:sleepCurrentWorker(50);
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
             lockWithinLockString1 = "hello";
-            var ddd, err = <int>lockWithinLockString1;
-            if (err != null) {
-                throw err;
+            int ddd;
+            match <int>lockWithinLockString1 {
+                int a => ddd = a;
+                error err => throw err;
             }
         }
     }
@@ -111,9 +112,10 @@ function throwErrorInsideLockInsideTryFinally() returns (int, string) {
                 runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
-                var ddd, err = <int>lockWithinLockString1;
-                if (err != null) {
-                    throw err;
+                int ddd;
+                match <int>lockWithinLockString1 {
+                    int a => ddd = a;
+                    error err => throw err;
                 }
             }
         } catch (error e) {
@@ -144,9 +146,10 @@ function throwErrorInsideTryCatchFinallyInsideLock() returns (int, string) {
                 runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
-                var ddd, err = <int>lockWithinLockString1;
-                if (err != null) {
-                    throw err;
+                int ddd;
+                match <int>lockWithinLockString1 {
+                    int a => ddd = a;
+                    error err => throw err;
                 }
 
             } catch (error e) {
@@ -179,9 +182,10 @@ function throwErrorInsideTryFinallyInsideLock() returns (int, string) {
                 runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
-                var ddd, err = <int>lockWithinLockString1;
-                if (err != null) {
-                    throw err;
+                int ddd;
+                match <int>lockWithinLockString1 {
+                    int a => ddd = a;
+                    error err => throw err;
                 }
             } finally {
                 lock {
@@ -207,9 +211,10 @@ function throwErrorInsideLockInsideTryCatch() returns (int, string) {
                 runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
-                var ddd, err = <int>lockWithinLockString1;
-                if (err != null) {
-                    throw err;
+                int ddd;
+                match <int>lockWithinLockString1 {
+                    int a => ddd = a;
+                    error err => throw err;
                 }
             }
         } catch (error e) {
@@ -236,9 +241,10 @@ function throwErrorInsideTryCatchInsideLock() returns (int, string) {
                 runtime:sleepCurrentWorker(50);
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
                 lockWithinLockString1 = "hello";
-                var ddd, err = <int>lockWithinLockString1;
-                if (err != null) {
-                    throw err;
+                int ddd;
+                match <int>lockWithinLockString1 {
+                    int a => ddd = a;
+                    error err => throw err;
                 }
 
             } catch (error e) {

@@ -68,14 +68,14 @@ public abstract class MethodListener {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
         BStruct clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_RESPONDER);
+                MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, MessageConstants.CLIENT_RESPONDER);
         clientEndpoint.setIntField(0, responseObserver.hashCode());
         clientEndpoint.addNativeData(MessageConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
 
         // create endpoint type instance on request.
         BStruct endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT_TYPE);
+                MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT_TYPE);
         endpoint.setRefField(0, clientEndpoint);
         return endpoint;
     }
