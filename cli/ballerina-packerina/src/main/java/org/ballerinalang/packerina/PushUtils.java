@@ -118,13 +118,9 @@ public class PushUtils {
         if (patten == Patten.NULL) {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
-        Converter converter = projectRepo.getConverterInstance();
-        List<Path> paths = patten.convertToPaths(converter, packageID).collect(Collectors.toList());
-        if (paths.isEmpty()) {
-            throw new BLangCompilerException("Couldn't find package " + packageID.toString());
-        }
-        return Paths.get(patten.convertToPaths(converter, packageID).collect(Collectors.toList()).get(0)
-                .getFileSystem().toString());
+        Converter<Path> converter = projectRepo.getConverterInstance();
+        List<Path> collect = patten.convert(converter).collect(Collectors.toList());
+        return Paths.get(collect.get(0).getFileSystem().toString());
     }
 
     /**

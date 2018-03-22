@@ -1,6 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
@@ -100,7 +101,7 @@ public class URIConverter implements Converter<URI> {
             Patten pattern = new Patten(Patten.WILDCARD_DIR,
                     Patten.path(pkgName + ".zip"),
                     Patten.path("src"), Patten.WILDCARD_SOURCE);
-            return pattern.convertToPaths(new ZipConverter(destDirPath), packageID);
+            return pattern.convertToSources(new ZipConverter(destDirPath), packageID);
         } catch (Exception ignore) {
         }
         return Stream.of();

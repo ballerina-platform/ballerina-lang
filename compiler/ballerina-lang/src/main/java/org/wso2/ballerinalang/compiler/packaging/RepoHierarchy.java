@@ -5,6 +5,7 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,8 +28,8 @@ public class RepoHierarchy {
     }
 
     public Resolution resolve(PackageID pkg) {
-//        PrintStream out = System.out;
-//        out.println("Searching " + pkg);
+        PrintStream out = System.out;
+        out.println("Searching " + pkg);
         for (int i = 0; i < repos.length; i++) {
             Repo repo = repos[i];
             Patten patten = repo.calculate(pkg);
@@ -36,17 +37,17 @@ public class RepoHierarchy {
                 Converter converter = repo.getConverterInstance();
                 List<PackageSourceEntry> paths = patten.convertToSources(converter, pkg)
                                                        .collect(Collectors.toList());
-//                out.println("\t looking in " + repo + " for patten\n\t\t" +
-//                                    patten + " and found \n\t\t\t" +
-//                                    sources);
+                out.println("\t looking in " + repo + " for patten\n\t\t" +
+                                    patten + " and found \n\t\t\t" +
+                                   paths);
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);
                 }
             } else {
-//                out.println("\t skipping " + repo);
+               out.println("\t skipping " + repo);
             }
         }
-//        out.println("\t could not find");
+       out.println("\t could not find");
         return Resolution.NOT_FOUND;
     }
 

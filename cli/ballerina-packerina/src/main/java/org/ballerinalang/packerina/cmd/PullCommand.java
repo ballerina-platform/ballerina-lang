@@ -110,7 +110,7 @@ public class PullCommand implements BLauncherCmd {
         Patten patten = remoteRepo.calculate(packageID);
         if (patten != Patten.NULL) {
             Converter converter = remoteRepo.getConverterInstance();
-            patten.convertToPaths(converter, packageID).collect(Collectors.toList());
+            patten.convertToSources(converter, packageID).collect(Collectors.toList());
 
         } else {
             outStream.println("couldn't find package " + patten);

@@ -1,38 +1,65 @@
-import ballerina/file;
 import ballerina/io;
 import ballerina/net.http;
 import ballerina/runtime;
+import ballerina/file;
 
 function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
-    endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(url, getConnectorConfigs());
-    }
-    http:OutRequest req = {};
+    endpoint http:ClientEndpoint httpEndpoint {
+        targets: [
+        {
+            uri: url,
+            secureSocket: {
+                trustStore: {
+                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
+                },
+                hostNameVerification:false
+             }
+        }
+        ]
+    };
+    http:Request req = {};
+    http:Response res = {};
     req.addHeader("Accept-Encoding", "identity");
-    var resp, errRes = httpEndpoint.get("", req);
-    if (errRes != null) {
-        error err = {message:errRes.message};
-        throw err;
+    var httpResponse = httpEndpoint -> get("", req);
+    match httpResponse {
+     error errRes => throw errRes;
+     http:Response response => res = response;
     }
-    if (resp.statusCode != 200) {
-        var jsonResponse, errJson = resp.getJsonPayload();
-        if (errJson != null) {
-            error err = {message:errJson.message};
-            throw err;
-        } else {
-            io:println(jsonResponse.msg.toString());
+
+    if (res.statusCode != 200) {
+        var jsonResponse = res.getJsonPayload();
+        match jsonResponse {
+            error errRes => throw errRes;
+            json jsonObj => io:println(jsonObj.msg.toString());
         }
     } else {
-        var pkgSize, conversionErr = <int>resp.getHeader("content-length");
-        var sourceChannel, sourceChannelErr = resp.getByteChannel();
-        if (sourceChannelErr != null) {
-            error err = {message:sourceChannelErr.message};
+        string contentLengthHeader;
+        if (res.hasHeader("content-length")) {
+            contentLengthHeader = res.getHeader("content-length");
+        } else {
+            error err = {message:"Unable to find the Content-Length header"};
             throw err;
+        }
+
+        var pkgSize, conversionErr = <int> contentLengthHeader;
+        io:ByteChannel sourceChannel = {};
+        var srcChannel = res.getByteChannel();
+        match srcChannel {
+            error errRes => throw errRes;
+            io:ByteChannel channel => sourceChannel = channel;
         }
 
         // Get the package version from the canonical header of the response
-        string headerValue = resp.getHeader("Link");
-        string canonicalLinkURL = headerValue.subString(headerValue.indexOf("<") + 1, headerValue.indexOf(">"));
+        string linkHeaderVal;
+        if (res.hasHeader("Link")) {
+            linkHeaderVal = res.getHeader("Link");
+        } else {
+            error err = {message:"Unable to find the Canonical Link header"};
+            throw err;
+        }
+
+        string canonicalLinkURL = linkHeaderVal.subString(linkHeaderVal.indexOf("<") + 1, linkHeaderVal.indexOf(">"));
         string pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
 
         string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
@@ -48,8 +75,9 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
 
-        io:IOError destDirChannelCloseError;
-        io:IOError srcCloseError;
+        io:IOError destDirChannelCloseError = {};
+        io:IOError srcCloseError = {};
+
         copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
         if (destDirChannel != null) {
             destDirChannelCloseError = destDirChannel.close();
@@ -58,33 +86,36 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
     }
 }
 
-function main(string[] args){
+public function main(string[] args){
     pullPackage(args[0], args[1], args[2], args[3]);
 }
 
-function getFileChannel (string filePath, string permission) (io:ByteChannel) {
+
+function getFileChannel (string filePath, string permission) returns (io:ByteChannel) {
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }
 
-function readBytes (io:ByteChannel channel, int numberOfBytes) (blob, int) {
+function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
     blob bytes;
     int numberOfBytesRead;
-    io:IOError readError;
 
-    bytes, numberOfBytesRead, readError = channel.read(numberOfBytes, 0);
-    if (readError != null) {
-        throw readError.cause;
+    var bytesRead = channel.read(numberOfBytes);
+    match bytesRead {
+        (blob, int) byteResponse => {
+           (bytes, numberOfBytesRead) = byteResponse;
+        }
+        io:IOError readError => throw readError;
     }
-    return bytes, numberOfBytesRead;
+    return (bytes, numberOfBytesRead);
 }
 
-function writeBytes (io:ByteChannel channel, blob content, int startOffset, int size) (int) {
+function writeBytes (io:ByteChannel channel, blob content, int startOffset) returns (int) {
     int numberOfBytesWritten;
-    io:IOError writeError;
-    numberOfBytesWritten, writeError = channel.write(content, startOffset, size);
-    if (writeError != null) {
-        throw writeError.cause;
+    var bytesWritten = channel.write(content, startOffset);
+    match bytesWritten {
+        int noOfBytes => numberOfBytesWritten = noOfBytes;
+        io:IOError writeError => throw writeError;
     }
     return numberOfBytesWritten;
 }
@@ -101,15 +132,14 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     string equals = "==========";
     string tabspaces = "          ";
     boolean done = false;
-
     try {
         while (!done) {
-            readContent, readCount = readBytes(src, bytesChunk);
+            (readContent, readCount) = readBytes(src, bytesChunk);
             if (readCount <= 0) {
                 done = true;
             }
             if (dest != null) {
-                numberOfBytesWritten = writeBytes(dest, readContent, 0, readCount);
+                numberOfBytesWritten = writeBytes(dest, readContent, 0);
             }
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
@@ -125,7 +155,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     io:print("\r" + rightPad(fullPkgPath + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
 }
 
-function rightPad (string msg, int length) (string) {
+function rightPad (string msg, int length) returns (string) {
     int i = -1;
     length = length - msg.length();
     string char = " ";
@@ -136,7 +166,7 @@ function rightPad (string msg, int length) (string) {
     return msg;
 }
 
-function truncateString (string text) (string) {
+function truncateString (string text) returns (string) {
     int indexOfVersion = text.lastIndexOf(":");
     string withoutVersion = text.subString(0, indexOfVersion);
     string versionOfPkg = text.subString(indexOfVersion, text.length());
@@ -158,33 +188,14 @@ function truncateString (string text) (string) {
     return text;
 }
 
-function getConnectorConfigs() (http:Options) {
-    http:Options option = {
-                              ssl: {
-                                       trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                                       trustStorePassword:"ballerina"
-                                   },
-                              followRedirects: {}
-                          };
-    return option;
-}
-
 function createDirectories (string directoryPath) {
-    file:AccessDeniedError adError;
-    file:IOError ioError;
     boolean folderCreated;
-
     file:File folder = {path:directoryPath};
     if (!folder.exists()) {
-        folderCreated, adError, ioError = folder.mkdirs();
-    }
-    if (folderCreated) {
-        if (adError != null) {
-            error err = {message:"Error occurred while creating the directories", cause:adError.cause};
-            throw err;
-        } else if (ioError != null) {
-            error err = {message:"Error occurred while creating the directories", cause:ioError.cause};
-            throw err;
+        var makeDirs = folder.mkdirs();
+        match makeDirs {
+            boolean created => folderCreated = created;
+            error err => throw err;
         }
     }
 }

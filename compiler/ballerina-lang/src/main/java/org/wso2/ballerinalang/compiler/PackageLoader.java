@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
@@ -41,7 +42,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.util.HomeRepoUtils;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -102,10 +105,11 @@ public class PackageLoader {
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
-        Path balHomeDir = Paths.get("~/.ballerina_home");
+        Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
 
+        Repo remote = new RemoteRepo(URI.create("https://staging.central.ballerina.io:9090/"));
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
         Repo homeRepo = new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
@@ -113,7 +117,7 @@ public class PackageLoader {
         Repo currentDirRepo = sourceDirectory.getPackageRepository();
 
         RepoHierarchyBuilder.RepoNode homeCacheNode;
-        homeCacheNode = node(homeCacheRepo, systemArr);
+        homeCacheNode =  node(homeCacheRepo, node(remote, systemArr));
         return RepoHierarchyBuilder.build(node(currentDirRepo,
                                                node(projectRepo,
                                                     node(projectCacheRepo, homeCacheNode),
