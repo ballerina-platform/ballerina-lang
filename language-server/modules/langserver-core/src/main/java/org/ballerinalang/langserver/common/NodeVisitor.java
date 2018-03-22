@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -107,7 +106,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -174,11 +172,6 @@ public class NodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConnector connectorNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangStreamlet streamletNode) {
         // No implementation
     }
 
@@ -637,11 +630,6 @@ public class NodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangQueryStatement queryStatement) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangWithinClause withinClause) {
         // No implementation
     }
@@ -746,11 +734,6 @@ public class NodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
         // No implementation
     }
 

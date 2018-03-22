@@ -1,7 +1,7 @@
 package ballerina.net.http;
 
 public struct WebSocketClient {
-    string epName;
+    WebSocketConnector conn;
     WebSocketClientEndpointConfig config;
 }
 
@@ -15,7 +15,13 @@ public struct WebSocketClientEndpointConfig {
     typedesc callbackService;
     string [] subProtocols;
     map<string> customHeaders;
-    int idleTimeoutInSeconds = -1;
+    int idleTimeoutInSeconds;
+}
+
+@Description {value:"Initializes the WebSocketClientEndpointConfig struct with default values."}
+@Param {value:"config: The WebSocketClientEndpointConfig struct to be initialized"}
+public function <WebSocketClientEndpointConfig config> WebSocketClientEndpointConfig() {
+    config.idleTimeoutInSeconds = -1;
 }
 
 //TODO: This throws errors. Fix it.
@@ -64,7 +70,9 @@ public native function <WebSocketClient h> start();
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> getClient() returns (WebSocketConnector);
+public function <WebSocketClient h> getClient() returns (WebSocketConnector){
+    return h.conn;
+}
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }

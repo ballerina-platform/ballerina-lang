@@ -1,45 +1,50 @@
 import ballerina/io;
 import ballerina/net.http;
-import ballerina/net.ws;
 
-@http:configuration {
-    basePath:"/test",
-    webSocket:@http:webSocket {
-                  upgradePath:"/ws",
-                  serviceName:"wsServic"
-              }
+endpoint http:ServiceEndpoint servicEp {
+port:9090
+};
+
+@http:ServiceConfig {
+      basePath:"/test",
+webSocketUpgrade:{
+upgradePath: "/ws",
+upgradeService: typeof wsServic
 }
-service<http> httpService {
+}
+service<http:Service> httpService bind servicEp {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/world",
         methods:["POST","GET","PUT","My"]
     }
-    resource testResource(http:Connection conn, http:Request req) {
+    testResource(endpoint conn, http:Request req) {
         http:Response resp = {};
-        var payload, _ = req.getStringPayload();
+        var payload =? req.getStringPayload();
         io:println(payload);
         resp.setStringPayload("I received");
-        _ = conn.respond(resp);
+        _ = conn->respond(resp);
     }
 }
 
-@ws:configuration {
+@http:WebSocketServiceConfig {
     subProtocols:["xml, json"],
     idleTimeoutInSeconds:5
 }
-service<ws> wsService  {
+service<http: WebSocketService > wsService{
 
-    resource onOpen(ws:Connection conn) {
-        io:println("New WebSocket connection: " + conn.getID());
+    onOpen(endpoint ep) {
+        var conn = ep.getClient();
+        io:println("New WebSocket connection: " + conn.id);
     }
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+    onTextMessage(endpoint ep, http:TextFrame frame) {
         io:println(frame.text);
-        conn.pushText(frame.text);
+        ep->pushText(frame.text);
+    }
+    onIdleTimeout(endpoint ep) {
+        var conn = ep.getClient();
+        io:println("Idle timeout: " + conn.id);
     }
 
-    resource onIdleTimeout(ws:Connection conn) {
-        io:println("Idle timeout: " + conn.getID());
-    }
 }

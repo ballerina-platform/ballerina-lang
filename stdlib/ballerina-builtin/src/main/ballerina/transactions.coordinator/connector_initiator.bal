@@ -16,7 +16,6 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina/config;
 import ballerina/net.http;
 
 struct InitiatorClientConfig {
@@ -32,56 +31,39 @@ struct InitiatorClientEP {
     http:ClientEndpoint httpClient;
 }
 
-function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
+function <InitiatorClientEP ep> init (InitiatorClientConfig conf) {
     endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.registerAtURL}],
-                                            endpointTimeout:conf.endpointTimeout,
-                                            retry:{count:conf.retryConfig.count,
-                                                            interval:conf.retryConfig.interval}};
+        endpointTimeout:conf.endpointTimeout,
+        retry:{count:conf.retryConfig.count,
+                  interval:conf.retryConfig.interval}};
     ep.httpClient = httpEP;
 }
 
-function <InitiatorClientEP ep> getClient() returns (InitiatorClient) {
-    return {clientEP: ep};
+function <InitiatorClientEP ep> getClient () returns InitiatorClient {
+    return {clientEP:ep};
 }
 
 struct InitiatorClient {
     InitiatorClientEP clientEP;
 }
 
-function<InitiatorClient client> register (string transactionId,
-                                                  int transactionBlockId,
-                                                  Protocol[] participantProtocols) returns (RegistrationResponse registrationRes,
-                                                                            error err) {
+function <InitiatorClient client> register (string transactionId,
+                                            int transactionBlockId,
+                                            Protocol[] participantProtocols) returns RegistrationResponse|error {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     string participantId = getParticipantId(transactionBlockId);
     RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
-
     regReq.participantProtocols = participantProtocols;
 
     json j = <json, regRequestToJson()>regReq;
     http:Request req = {};
     req.setJsonPayload(j);
-    var res, e = httpClient -> post("", req);
-    if (e == null) {
-        int statusCode = res.statusCode;
-        var payload, payloadError = res.getJsonPayload();
-        if (payloadError == null) {
-            if (statusCode == 200) {
-                registrationRes = <RegistrationResponse, jsonToRegResponse()>(payload);
-            } else {
-                if (payload == null) {
-                    var stringPayload, _ = res.getStringPayload();
-                    err = {message:stringPayload};
-                } else {
-                    var errMsg, _ = (string)payload.errorMessage;
-                    err = {message:errMsg};
-                }
-            }
-        } else {
-            err = (error)payloadError;
-        }
-    } else {
-        err = (error)e;
+    var res =? httpClient -> post("", req);
+    int statusCode = res.statusCode;
+    if (statusCode != 200) {
+        error err = {message:"Registration for transaction: " + transactionId + " failed"};
+        return err;
     }
-    return;
+    var payload =? res.getJsonPayload();
+    return <RegistrationResponse, jsonToRegResponse()>(payload);
 }

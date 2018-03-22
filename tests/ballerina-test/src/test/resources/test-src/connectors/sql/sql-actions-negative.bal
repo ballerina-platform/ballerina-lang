@@ -12,11 +12,20 @@ function testSelectData () returns (string) {
     };
     string firstName;
     try {
-        table dt = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
-        var j, _ = <json>dt;
-        firstName = j.toString();
+        var x = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
+
+        match x {
+            table dt => {
+                var j =? <json>dt;
+                firstName = j.toString();
+            }
+            sql:SQLConnectorError err1 => {
+               firstName = err1.message;
+            }
+        }
+
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return firstName;
 }
@@ -37,15 +46,25 @@ function testGeneratedKeyOnInsert () returns (string) {
     try {
         string[] generatedID;
         int insertCount;
-        (insertCount, generatedID) = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
+        var x = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
                                                                   null, null);
-        id = generatedID[0];
+
+        match x {
+            (int, string[] ) =>{
+                id = generatedID[0];
+            }
+                sql:SQLConnectorError err1 =>{
+                id = err1.message;
+            }
+        }
+
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return id;
 }
+
 
 
 function testCallProcedure () returns (string) {
@@ -60,17 +79,24 @@ function testCallProcedure () returns (string) {
     };
     string firstName;
     try {
-        _ = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
-        table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null, null);
-        var j, _ = <json>dt;
-        firstName = j.toString();
+        var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
+        match x {
+            table[] dt  =>{
+                var j =? <json>dt[0];
+                firstName = j.toString();
+            }
+            sql:SQLConnectorError err1 =>{
+                firstName = err1.message;
+            }
+        }
+
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return firstName;
 }
 
-function testBatchUpdate () returns (int[]) {
+function testBatchUpdate () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -82,6 +108,7 @@ function testBatchUpdate () returns (int[]) {
     };
 
     int[] updateCount;
+    string returnVal;
     try {
         //Batch 1
         sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
@@ -100,12 +127,21 @@ function testBatchUpdate () returns (int[]) {
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
         sql:Parameter[][] parameters = [parameters1, parameters2];
 
-        updateCount = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+        var x = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters);
+        match x {
+            int[] data  =>{
+                updateCount = data;
+                returnVal = "success";
+            }
+            sql:SQLConnectorError err1 =>{
+                returnVal = err1.message;
+            }
+        }
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
-    return updateCount;
+    return returnVal;
 }
 
 function testInvalidArrayofQueryParameters () returns (string) {
@@ -125,11 +161,19 @@ function testInvalidArrayofQueryParameters () returns (string) {
         xml[] xmlDataArray = [x1, x2];
         sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:xmlDataArray};
         sql:Parameter[] parameters = [para0];
-        table dt = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
-        var j, _ = <json>dt;
-        value = j.toString();
+        var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
+        match x {
+            table dt  =>{
+                var j =? <json>dt;
+                value = j.toString();
+            }
+            sql:SQLConnectorError err1 =>{
+                value = err1.message;
+            }
+        }
+
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return value;
 }

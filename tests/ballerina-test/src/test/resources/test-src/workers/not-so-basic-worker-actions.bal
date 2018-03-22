@@ -109,8 +109,8 @@ function forkJoinWithSomeSelectedJoin1() returns int {
 	} join (some 1 w2, w3) (map results) {  }
 	int j;
 	int k;
-	j, _ = (int) m["x"];
-	k, _ = (int) m["y"];
+	j =? <int> m["x"];
+	k =? <int> m["y"];
 	return j * k;
 }
 
@@ -192,8 +192,7 @@ function forkJoinWithSomeSelectedJoin4() returns int {
 	     m["x"] = a * 2;
 	   }
 	} join (some 2 w1, w2, w3) (map results) {  }
-	int x;
-	x, _ = (int) m["x"];
+	int x =? <int> m["x"];
 	return x;
 }
 
@@ -220,7 +219,7 @@ function forkJoinWithSomeSelectedJoin5() returns int {
 	   }
 	} join (some 2 w1, w2, w3) (map results) { } timeout (1) (map results) {  m["x"] = 555;  }
 	int x;
-	x, _ = (int) m["x"];
+	x =? <int> m["x"];
 	return x;
 }
 
@@ -307,16 +306,20 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
          a -> fork;
        }
     } join (all) (map results) {
-        any[] anyArray;
         int b;
         error e = {};
-        anyArray, e = (any[]) results["w1"];
-        if (e == null) {
-            b, _ = (int) anyArray[0];
-        }
+		var result = <any[]> results["w1"];
+		any[] anyArray;
+		match result{
+			any[] arr => {
+				anyArray = arr;
+                b =? <int> arr[0];
+			}
+    		error err => e = err;
+		}
         int a;
-        anyArray, _ = (any[]) results["w2"];
-        a, _ = (int) anyArray[0];
+        anyArray =? <any[]> results["w2"];
+        a =? <int> anyArray[0];
         m["x"] = (a + 1) * b;
     } timeout (5) (map results) { 
         m["x"] = 15; 
@@ -338,8 +341,8 @@ function forkJoinInWorkers() returns int {
 	    } join (all) (map results) { 
 	       int a;
 	       int b;
-	       a, _ = (int) m["a"];
-	       b, _ = (int) m["b"];
+	       a =? <int> m["a"];
+	       b =? <int> m["b"];
 	       x = a + b;
 	    }
 	    return x;
@@ -415,7 +418,7 @@ function largeForkJoinCreationTest() returns int {
 		     (a + b) -> w1;
 		   }
 	    } join (all) (map results) {
-	       var x, _ = (int) m["x"]; 
+	       var x =? <int> m["x"];
 	       result = x;
 	    }
 	    c = c - 1;
@@ -435,11 +438,11 @@ function forkJoinWithStruct () returns string {
             f -> fork;
         }
     } join (all) (map results) {
-        var resW1, _ = (any[])results["w1"];
-        var f, _ = (foo)resW1[0];
+        var resW1 =? <any[]> results["w1"];
+        var f =? <foo> resW1[0];
         result = "[join-block] sW1: " + f.y;
-        var resW2, _ = (any[])results["w2"];
-        var fW2, _ = (float)resW2[0];
+        var resW2 =? <any[]> results["w2"];
+        var fW2 =? <float> resW2[0];
         result = result + "[join-block] fW2: " + fW2;
     }
     return result;
@@ -474,11 +477,11 @@ function forkJoinWithSameWorkerContent () returns string {
             a -> fork;
         }
     } join (all) (map results) {
-        var resW1, _ = (any[])results["w1"];
-        var s1, _ = (string[])resW1[0];
+        var resW1 =? <any[]> results["w1"];
+        var s1 =? <string[]> resW1[0];
         result = "W1: " + s1[0];
-        var resW2, _ = (any[])results["w2"];
-        var s2, _ = (string[])resW2[0];
+        var resW2 =? <any[]> results["w2"];
+        var s2 =? <string[]> resW2[0];
         result = result + ", W2: " + s2[0];
     }
     return result;

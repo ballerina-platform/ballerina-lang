@@ -28,7 +28,10 @@ import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
@@ -105,19 +108,30 @@ public class PackageLoader {
         Path balHomeDir = Paths.get("~/.ballerina_home");
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
+        Converter<Path> converter = sourceDirectory.getConverter();
 
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
         Repo homeRepo = new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
-        Repo projectRepo = new ZipRepo(projectHiddenDir); //new ObjRepo(projectHiddenDir);
-        Repo currentDirRepo = sourceDirectory.getPackageRepository();
+        Repo projectRepo = new ZipRepo(projectHiddenDir);
 
         RepoHierarchyBuilder.RepoNode homeCacheNode;
         homeCacheNode = node(homeCacheRepo, systemArr);
-        return RepoHierarchyBuilder.build(node(currentDirRepo,
-                                               node(projectRepo,
-                                                    node(projectCacheRepo, homeCacheNode),
-                                                    node(homeRepo, homeCacheNode))));
+        RepoHierarchyBuilder.RepoNode nonLocalRepos = node(projectRepo,
+                                                           node(projectCacheRepo, homeCacheNode),
+                                                           node(homeRepo, homeCacheNode));
+        RepoHierarchyBuilder.RepoNode fullRepoGraph;
+        if (converter != null) {
+            Repo programingSource = new ProgramingSourceRepo(converter);
+            Repo projectSource = new ProjectSourceRepo(converter);
+            fullRepoGraph = node(programingSource,
+                                 node(projectSource,
+                                      nonLocalRepos));
+        } else {
+            fullRepoGraph = nonLocalRepos;
+        }
+        return RepoHierarchyBuilder.build(fullRepoGraph);
+
     }
 
     private RepoHierarchyBuilder.RepoNode[] loadSystemRepos() {

@@ -11,6 +11,28 @@ struct ResultCount {
     int COUNTVAL;
 }
 
+struct Employee {
+    int id;
+    string name;
+    float salary;
+}
+
+struct EmployeeCompatible {
+    int id;
+    string name;
+    float salary;
+}
+
+struct EmployeeSalary {
+    int id;
+    float salary;
+}
+
+struct EmployeeSalaryCompatible {
+    int id;
+    float salary;
+}
+
 int idValue = -1;
 int ageValue = -1;
 float salValue = -1;
@@ -27,7 +49,9 @@ function testForEachInTableWithStmt () returns (int, int, float, string) {
         options: {maximumPoolSize:1}
     };
 
-    table<Person> dt = testDB -> select("SELECT * from Person where id = 1", null, typeof Person);
+    table dt1 =? testDB -> select("SELECT * from Person where id = 1", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
+
     int id;
     int age;
     float salary;
@@ -39,7 +63,7 @@ function testForEachInTableWithStmt () returns (int, int, float, string) {
         salary = x.salary;
         name = x.name;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (id, age, salary, name);
 }
 
@@ -53,8 +77,10 @@ function testForEachInTable () returns (int, int, float, string) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB-> select("SELECT * from Person where id = 1", null, typeof Person);
+
+    table dt1 =? testDB-> select("SELECT * from Person where id = 1", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
+
     dt.foreach (function (Person p) {
                     idValue = p.id;
                     ageValue = p.age;
@@ -66,7 +92,7 @@ function testForEachInTable () returns (int, int, float, string) {
     int age = ageValue;
     float salary = salValue;
     string name = nameValue;
-    testDB -> close();
+    _ = testDB -> close();
     return (id, age, salary, name);
 }
 
@@ -81,9 +107,10 @@ function testCountInTable () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    table<Person> dt = testDB -> select("SELECT * from Person where id < 10", null, typeof Person);
+    table dt1 =? testDB -> select("SELECT * from Person where id < 10", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     int count = dt.count();
-    testDB -> close();
+    _ = testDB -> close();
     return count;
 }
 
@@ -97,13 +124,14 @@ function testFilterTable () returns (int, int, int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     Person[] personBelow35 = dt.filter(isBellow35);
     int count = lengthof personBelow35;
     int id1 = personBelow35[0].id;
     int id2 = personBelow35[1].id;
-    testDB -> close();
+    _ = testDB -> close();
     return (count, id1, id2);
 }
 
@@ -117,15 +145,16 @@ function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
                                            return p.age < 35;
                                        });
     int count = lengthof personBelow35;
     int id1 = personBelow35[0].id;
     int id2 = personBelow35[1].id;
-    testDB -> close();
+    _ = testDB -> close();
     return (count, id1, id2);
 }
 
@@ -139,10 +168,11 @@ function testFilterTableWithCount () returns (int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     int count = dt.filter(isBellow35).count();
-    testDB -> close();
+    _ = testDB -> close();
     return count;
 }
 
@@ -156,10 +186,11 @@ function testMapTable () returns (string[]) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     string[] names = dt.map(getName);
-    testDB -> close();
+    _ = testDB -> close();
     return names;
 }
 
@@ -173,10 +204,11 @@ function testMapWithFilterTable () returns (string[]) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     string[] names = dt.map(getName).filter(isGeraterThan4String);
-    testDB -> close();
+    _ = testDB -> close();
     return names;
 }
 
@@ -190,10 +222,11 @@ function testFilterWithMapTable () returns (string[]) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     string[] names = dt.filter(isGeraterThan4).map(getName);
-    testDB -> close();
+    _ = testDB -> close();
     return names;
 }
 
@@ -207,10 +240,11 @@ function testFilterWithMapAndCountTable () returns (int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     int count = dt.filter(isGeraterThan4).map(getName).count();
-    testDB -> close();
+    _ = testDB -> close();
     return count;
 }
 
@@ -224,10 +258,11 @@ function testAverageWithTable () returns (float) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     float avgSal = dt.map(getSalary).average();
-    testDB -> close();
+    _ = testDB -> close();
     return avgSal;
 }
 
@@ -241,10 +276,11 @@ function testMinWithTable () returns (float) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     float avgSal = dt.map(getSalary).min();
-    testDB -> close();
+    _= testDB -> close();
     return avgSal;
 }
 
@@ -258,10 +294,11 @@ function testMaxWithTable () returns (float) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     float avgSal = dt.map(getSalary).max();
-    testDB -> close();
+    _ =testDB -> close();
     return avgSal;
 }
 
@@ -276,9 +313,10 @@ function testSumWithTable () returns (float) {
         options: {maximumPoolSize:1}
     };
 
-    table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     float avgSal = dt.map(getSalary).sum();
-    testDB -> close();
+    _ = testDB -> close();
     return avgSal;
 }
 
@@ -292,16 +330,80 @@ function testCloseConnectionPool () returns (int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+
+    table dt1 =? testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                               typeof ResultCount);
+    table<Person> dt = dt1; //TODO:remove this
     int count;
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount) dt.getNext();
+        var rs =? <ResultCount> dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return count;
+}
+
+function testSelect() returns (table) {
+
+    table<Employee> dt =  createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
+    return salaryTable;
+}
+
+function testSelectCompatibleLambdaInput() returns (table) {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
+    return salaryTable;
+}
+
+function testSelectCompatibleLambdaOutput() returns (table) {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
+    return salaryTable;
+}
+
+function testSelectCompatibleLambdaInputOutput() returns (table) {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
+    return salaryTable;
+}
+
+function getEmployeeSalary(Employee e) returns (EmployeeSalary) {
+    EmployeeSalary s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function getEmployeeSalaryCompatibleInput(EmployeeCompatible e) returns (EmployeeSalary) {
+    EmployeeSalary s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function getEmployeeSalaryCompatibleOutput(Employee e) returns (EmployeeSalaryCompatible ) {
+    EmployeeSalaryCompatible s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) returns (EmployeeSalaryCompatible) {
+    EmployeeSalaryCompatible s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function createTable() returns (table<Employee>) {
+    table<Employee> dt = {};
+
+    Employee e1 = {id:1, name:"A", salary:100};
+    Employee e2 = {id:2, name:"B", salary:200};
+    Employee e3 = {id:3, name:"C", salary:300};
+
+    dt.add(e1);
+    dt.add(e2);
+    dt.add(e3);
+
+    return dt;
 }
 
 function isBellow35(Person p) returns (boolean) {

@@ -107,6 +107,22 @@ public class ServerInstance implements Server {
     }
 
     /**
+     * Start the server pointing to the ballerina.conf path
+     *
+     * @param balFile ballerina file path
+     * @param ballerinaConfPath ballerina.conf file path
+     * @throws BallerinaTestException if an error occurs while starting the server
+     */
+    public void startBallerinaServerWithConfigPath(String balFile, String ballerinaConfPath) throws
+            BallerinaTestException {
+        String balConfigPathArg = "-Bballerina.conf=" + ballerinaConfPath;
+        String[] args = {balFile, balConfigPathArg};
+        setArguments(args);
+
+        startServer();
+    }
+
+    /**
      * Start a server instance y extracting a server zip distribution.
      *
      * @throws Exception if server start fails

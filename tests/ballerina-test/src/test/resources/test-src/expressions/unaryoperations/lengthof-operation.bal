@@ -47,7 +47,7 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":(lengthof arr)};
     int length;
-    length, _ = (int) tempMap["length"];
+    length =? <int> tempMap["length"];
     return length;
 }
 
@@ -77,7 +77,7 @@ function arrayLengthAccessTestTypeCastExpressionCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length = (int) (lengthof arr);
+    int length = <int> (lengthof arr);
     return length;
 }
 

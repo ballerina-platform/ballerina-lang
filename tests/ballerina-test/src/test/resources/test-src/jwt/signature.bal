@@ -1,6 +1,6 @@
 import ballerina/jwt.signature;
 
-function testVerifyJWTSignature () (boolean) {
+function testVerifyJWTSignature () returns (boolean) {
     string data = "ewogICJhbGciOiAiUlMyNTYiLAogICJ0eXAiOiAiSldUIgp9.ewogICJzdWIiOiAiMTIzNjU0IiwKICAibmFtZSI6ICJK" +
                   "b2huIiwKICAiaXNzIjogIndzbzIiLAogICJhdWQiOiAiYmFsbGVyaW5hIiwKICAiZXhwIjogMTUxOTk5NDU2NDI0OQp9";
     string signature = "X10zu93zSfo0TJQdyDrWZEr5RfX-8vA3dNuxkVRhhj_v51Q7FQ2WUP_rQpJGL2VyFpu23W1ypXXGiDMqDZodqQ8v" +
@@ -12,7 +12,7 @@ function testVerifyJWTSignature () (boolean) {
     return signature:verify(data, signature, algorithm, keyAlias);
 }
 
-function testSignJWTData () (boolean ) {
+function testSignJWTData () returns (boolean) {
     string data = "ewogICJhbGciOiAiUlMyNTYiLAogICJ0eXAiOiAiSldUIgp9.ewogICJzdWIiOiAiMTIzNjU0IiwKICAibmFtZSI6ICJK" +
                   "b2huIiwKICAiaXNzIjogIndzbzIiLAogICJhdWQiOiAiYmFsbGVyaW5hIiwKICAiZXhwIjogMTUxOTk5NDU2NDI0OQp9";
     string signature = "X10zu93zSfo0TJQdyDrWZEr5RfX-8vA3dNuxkVRhhj_v51Q7FQ2WUP_rQpJGL2VyFpu23W1ypXXGiDMqDZodqQ8v" +

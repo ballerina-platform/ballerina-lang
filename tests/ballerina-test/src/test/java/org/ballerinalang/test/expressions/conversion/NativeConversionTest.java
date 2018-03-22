@@ -133,8 +133,7 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(2), 72);
     }
 
-    @Test (enabled = false)
-    //TODO: enable test case
+    @Test
     public void testJsonToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStruct");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -212,7 +211,7 @@ public class NativeConversionTest {
     @Test(description = "Test converting a struct to a struct")
     public void testStructToStruct() {
         BAssertUtil.validateError(negativeResult, 0,
-                "incompatible types: 'Person' cannot be convert to 'Student', use cast expression", 26, 17);
+                "incompatible types: expected 'Student', found 'Student|error'", 26, 17);
     }
 
     @Test(description = "Test converting a map to json")

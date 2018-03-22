@@ -7,10 +7,10 @@ function main (string[] args) {
     //This cast is unsafe, because the value of the variable 'a' is unknown till runtime.
     //Therefore the compiler will enforce you to use multi-return type cast expression.
     //This is an error that occurs during a Type Casting.
-    var s, castErr = (string)a;
-    if(castErr != null) {
-        io:println("error: " + castErr.message);
-    } else {
-        io:println(s);
-    }    
+    var s = <string>a;
+
+    match s {
+        string str =>  io:println(str);
+        error err =>  io:println("error: " + err.message);
+    }
 }

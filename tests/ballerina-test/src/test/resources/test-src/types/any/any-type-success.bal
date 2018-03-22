@@ -13,17 +13,20 @@ function tableReturnTestAsAny() returns (any) {
     return abc;
 }
 
-function inputAnyAsTableTest() returns (table) {
+function inputAnyAsTableTest() returns (table) | error {
     return anyToTableCastFunction(tableReturnFunction());
 }
 
-function anyToTableCastFunction (any aTable) returns (table) {
-    var casted, err = (table) aTable;
-    return casted;
+function anyToTableCastFunction (any aTable) returns (table) | error {
+    var result = <table> aTable;
+    match result {
+        table casted => return casted;
+        error e => return e;
+    }
 }
 
 function tableReturnFunction () returns (table) {
-    table < Employee> tb = {};
+    table <Employee> tb = {};
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
     tb.add(e1);
@@ -45,7 +48,7 @@ function anyMethodParameter() returns (any) {
 
 function anyParam(any val) returns (int) {
   int m;
-  m, _ = (int)val;
+  m =? <int>val;
   return m;
 }
 
@@ -65,7 +68,7 @@ struct Sample {
 function successfulIntCasting() returns (int) {
   any abc = floatReturn();
   float floatVal;
-  floatVal, _ = (float)abc;
+  floatVal =? <float>abc;
   //Int to float is a conversion now
   int intVal;
   intVal = <int>floatVal;
