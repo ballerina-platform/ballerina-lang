@@ -34,7 +34,7 @@ function main (string[] args) {
 
     //Create a directory, along with the parent directories.
     file:File dirs = {path:"/tmp/dir/abc/def"};
-    var dirCreated =? dirs.mkdirs();
+    _ = dirs.mkdirs();
 
     //Check if a file is a directory.
     file:File possibleDir = {path:"/tmp/dir/abc"};
