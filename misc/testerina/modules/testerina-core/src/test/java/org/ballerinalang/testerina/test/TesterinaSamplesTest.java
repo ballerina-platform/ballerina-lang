@@ -21,9 +21,12 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,9 +40,13 @@ public class TesterinaSamplesTest {
     private String testerinaRoot;
 
     @BeforeClass
-    public void setUserDir() {
+    public void setUserDir() throws IOException {
         // This is comming from the pom
         testerinaRoot = System.getProperty("user.dir") + "/../../samples";
+        // TODO : Done as a workaround to create the .ballerina directory
+        Path filePath = Paths.get(testerinaRoot + "/.ballerina");
+        Files.deleteIfExists(filePath);
+        Files.createDirectory(filePath);
     }
 
     // /samples/functionTest
@@ -69,9 +76,14 @@ public class TesterinaSamplesTest {
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
     }
 
+    // TODO : Added as a temporary solution to cleanup .ballerina directory
+    @AfterClass
+    public void cleanDirectory() throws IOException {
+        Files.deleteIfExists(Paths.get(testerinaRoot + "/.ballerina"));
+    }
+
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
-
 }
