@@ -1,4 +1,4 @@
-package org.ballerinalang.services;
+package org.ballerinalang.util;
 
 import java.util.HashMap;
 import java.util.Iterator;

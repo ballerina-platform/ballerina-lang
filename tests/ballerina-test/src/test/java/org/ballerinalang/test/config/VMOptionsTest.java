@@ -1,6 +1,6 @@
 package org.ballerinalang.test.config;
 
-import org.ballerinalang.services.VMOptions;
+import org.ballerinalang.util.VMOptions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
