@@ -41,6 +41,12 @@ public struct CorsConfig {
     int maxAge = -1;
 }
 
+@Description {value:"Initializes the CorsConfig struct with default values."}
+@Param {value:"config: The CorsConfig struct to be initialized"}
+public function <CorsConfig config> CorsConfig() {
+    config.maxAge = -1;
+}
+
 public struct WebSocketUpgradeConfig {
     string upgradePath;
     typedesc upgradeService;

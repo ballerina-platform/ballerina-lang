@@ -38,7 +38,7 @@ function init() {
     isNonExistingServiceStarted = test:startServices("servicemocktestX");
 }
 
-@test:config{before: "init"}
+@test:Config{before: "init"}
 function testService () {
     endpoint http:ClientEndpoint httpEndpoint {
         targets:[{
