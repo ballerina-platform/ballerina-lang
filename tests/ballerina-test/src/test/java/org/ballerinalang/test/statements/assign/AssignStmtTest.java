@@ -155,28 +155,37 @@ public class AssignStmtTest {
     public void testAssignmentNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         //testIncompatibleTypeAssign
-        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'boolean', found 'int'", 3, 9);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'boolean'" +
+                ", found 'int'", 3, 9);
         //testAssignCountMismatch1
-        BAssertUtil.validateError(resultNegative, 1, "assignment count mismatch: expected 2 values, but found 3", 11,
-                15);
+        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected " +
+                        "'(int,string)', found '(int,string,int)'", 11,
+                17);
         //testAssignCountMismatch2
-        BAssertUtil.validateError(resultNegative, 2, "assignment count mismatch: expected 4 values, but found 3", 21,
-                21);
+        BAssertUtil.validateError(resultNegative, 2, "incompatible types: expected " +
+                        "'(int,string,int,int)', found '(int,string,int)'", 21,
+                23);
         //testAssignTypeMismatch1
-        BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected 'int', found 'string'", 30, 18);
-        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'string', found 'int'", 35, 12);
+        BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected " +
+                "'(int,string,int)', found '(string,string,int)'", 30, 20);
+        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected " +
+                "'string', found 'int'", 35, 13);
         //testAssignTypeMismatch2
-        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'int', found 'string'", 43, 18);
-        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'string', found 'int'", 44, 15);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected " +
+                "'(int,int,int)', found '(int,string,int)'", 43, 20);
+        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected " +
+                "'string', found 'int'", 44, 16);
         //testVarRepeatedReturn1
-        BAssertUtil.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 18);
-        BAssertUtil.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 21);
+        BAssertUtil.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 19);
+        BAssertUtil.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 22);
         //testVarRepeatedReturn2
-        BAssertUtil.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 18);
-        BAssertUtil.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 21);
+        BAssertUtil.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 19);
+        BAssertUtil.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 22);
 
-        BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to constant 'i'", 65, 5);
-        BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'", 71, 5);
+        BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to constant 'i'",
+                65, 5);
+        BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'",
+                71, 5);
     }
 
     @Test(description = "Test negative assignment statement with cast and conversion with var.")
