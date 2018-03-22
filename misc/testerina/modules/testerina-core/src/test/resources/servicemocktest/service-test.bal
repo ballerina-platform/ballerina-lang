@@ -1,9 +1,9 @@
-package src.test.resources.servicemocktest;
+package servicemocktest;
 
-import ballerina.net.http;
-import ballerina.io;
-import ballerina.test;
-import ballerina.config;
+import ballerina/net.http;
+import ballerina/io;
+import ballerina/test;
+import ballerina/config;
 
 endpoint http:ServiceEndpoint eventEP {
     port: 9092

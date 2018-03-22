@@ -21,7 +21,6 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -35,13 +34,12 @@ import java.util.HashMap;
  */
 public class TesterinaSamplesTest {
 
-    private final String userDir = System.getProperty("user.dir");
+    private String testerinaRoot;
 
     @BeforeClass
     public void setUserDir() {
         // This is comming from the pom
-        String testerinaRoot = System.getProperty("testerina.root");
-        System.setProperty("user.dir", testerinaRoot + "/samples");
+        testerinaRoot = System.getProperty("user.dir") + "/../../samples";
     }
 
     // /samples/functionTest
@@ -49,7 +47,7 @@ public class TesterinaSamplesTest {
     public void functionTestSampleTest() {
         cleanup();
         BTestRunner runner = new BTestRunner();
-        runner.runTest(new Path[] { Paths.get("functionTest") }, new ArrayList<>());
+        runner.runTest(testerinaRoot, new Path[] { Paths.get("functionTest") }, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionTest", "passed"), 6);
     }
 
@@ -58,7 +56,7 @@ public class TesterinaSamplesTest {
     public void assertSampleTest() {
         cleanup();
         BTestRunner runner = new BTestRunner();
-        runner.runTest(new Path[] { Paths.get("features/assertions.bal") }, new ArrayList<>());
+        runner.runTest(testerinaRoot, new Path[] { Paths.get("features/assertions.bal") }, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 14);
     }
 
@@ -67,7 +65,7 @@ public class TesterinaSamplesTest {
     public void dataProviderSampleTest() {
         cleanup();
         BTestRunner runner = new BTestRunner();
-        runner.runTest(new Path[] { Paths.get("features/data-providers.bal") }, new ArrayList<>());
+        runner.runTest(testerinaRoot, new Path[] { Paths.get("features/data-providers.bal") }, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
     }
 
@@ -76,8 +74,4 @@ public class TesterinaSamplesTest {
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
 
-    @AfterClass
-    public void resetUserDir() {
-        System.setProperty("user.dir", userDir);
-    }
 }

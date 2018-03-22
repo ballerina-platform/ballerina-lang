@@ -61,8 +61,8 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included
      */
-    public void runTest(Path[] sourceFilePaths, List<String> groups) {
-        runTest(sourceFilePaths, groups, true);
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
+        runTest(sourceRoot, sourceFilePaths, groups, true);
     }
 
     /**
@@ -72,7 +72,7 @@ public class BTestRunner {
      * @param groups          List of groups to be included/excluded
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
      */
-    public void runTest(Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
         outStream.println("---------------------------------------------------------------------------");
         outStream.println("    T E S T S");
         outStream.println("---------------------------------------------------------------------------");
@@ -81,8 +81,8 @@ public class BTestRunner {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
-            CompileResult compileResult = BCompileUtil.compile(programDirPath.toString(), sourcePackage.toString(),
-                    CompilerPhase.CODE_GEN);
+            CompileResult compileResult = BCompileUtil.compile(sourceRoot == null ? programDirPath.toString() :
+                    sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic

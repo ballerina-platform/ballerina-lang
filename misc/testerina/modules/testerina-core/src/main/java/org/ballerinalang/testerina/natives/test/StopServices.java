@@ -35,13 +35,12 @@ import org.ballerinalang.util.program.BLangFunctions;
  *
  * @since 0.94.1
  */
-@BallerinaFunction(packageName = "ballerina.test",
-                   functionName = "stopServices", args = {
-        @Argument(name = "packageName", type = TypeKind.STRING)}, isPublic = true)
+@BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "stopServices", args = {@Argument(name
+        = "packageName", type = TypeKind.STRING)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Stops all the " +
-        "services defined in the package specified in the 'packageName' argument")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of the " +
-        "package")})
+        "" + "services defined in the package specified in the 'packageName' argument")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of the "
+        + "package")})
 public class StopServices extends BlockingNativeCallableUnit {
 
     /**

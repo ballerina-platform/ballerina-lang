@@ -33,13 +33,14 @@ import java.util.HashMap;
  */
 public class DisableFunctionsTest {
 
-    private Path[] filePaths = { Paths.get("src/test/resources/annotations-test/disable-test.bal") };
+    private String sourceRoot = "src/test/resources/annotations-test";
+    private Path[] filePaths = { Paths.get("disable-test.bal") };
 
     @Test
     public void disableFunctionsTest() {
         cleanup();
         BTestRunner testRunner = new BTestRunner();
-        testRunner.runTest(filePaths, new ArrayList<>());
+        testRunner.runTest(sourceRoot, filePaths, new ArrayList<>());
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 2);
         // disabled tests shouldn't count as skipped
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);

@@ -39,14 +39,13 @@ import org.ballerinalang.util.program.BLangFunctions;
  *
  * @since 0.94.1
  */
-@BallerinaFunction(packageName = "ballerina.test",
-                   functionName = "startServices", args = {
-        @Argument(name = "packageName", type = TypeKind.STRING)}, returnType = {
-        @ReturnType(type = TypeKind.BOOLEAN)}, isPublic = true)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Starts all the" +
-        " services defined in the package specified in the 'packageName' argument")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of the " +
-        "package")})
+@BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServices", args = {@Argument
+        (name = "packageName", type = TypeKind.STRING)}, returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        isPublic = true)
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Starts all " +
+        "the" + " services defined in the package specified in the 'packageName' argument")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of the "
+        + "package")})
 public class StartServices extends BlockingNativeCallableUnit {
 
     /**

@@ -1,7 +1,7 @@
-package src.test.resources.functionmocktest2.pkg;
+package functionmocktest2.pkg;
 
-import ballerina.test;
-import ballerina.io;
+import ballerina/test;
+import ballerina/io;
 
 @test:config{}
 function testAssertIntEquals () {

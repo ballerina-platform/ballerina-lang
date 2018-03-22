@@ -1,9 +1,9 @@
-package src.test.resources.servicemocktest2;
+package servicemocktest2;
 
-import ballerina.config;
-import ballerina.net.http;
-import ballerina.io;
-import ballerina.mime;
+import ballerina/config;
+import ballerina/net.http;
+import ballerina/io;
+import ballerina/mime;
 
 string eventServiceEP = "http://localhost:9092/events";
 

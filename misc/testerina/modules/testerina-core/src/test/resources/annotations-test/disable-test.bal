@@ -1,4 +1,4 @@
-import ballerina.test;
+import ballerina/test;
 
 @test:config{
     enable:false

@@ -1,5 +1,5 @@
-import ballerina.test;
-import ballerina.io;
+import ballerina/test;
+import ballerina/io;
 
 @test:config{
     dataProvider:"invalidDataGen"

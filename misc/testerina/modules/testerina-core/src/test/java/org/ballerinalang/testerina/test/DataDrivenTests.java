@@ -32,14 +32,15 @@ import java.util.List;
  */
 public class DataDrivenTests {
 
-    private Path[] filePaths = { Paths.get("src/test/resources/annotations-test/data-driven-positive-test.bal") };
+    private String sourceRoot = "src/test/resources/annotations-test";
+    private Path[] filePaths = { Paths.get("data-driven-positive-test.bal") };
     private Path[] filePathsGrouped = {
-            Paths.get("src/test/resources/annotations-test/data-driven-with-groups-test.bal") };
+            Paths.get("data-driven-with-groups-test.bal") };
 
     @Test
     public void dataSetTest() {
         BTestRunner testRunner = new BTestRunner();
-        testRunner.runTest(filePaths, null);
+        testRunner.runTest(sourceRoot, filePaths, null);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 2);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 2);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -50,7 +51,7 @@ public class DataDrivenTests {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g1");
-        testRunner.runTest(filePathsGrouped, groupList);
+        testRunner.runTest(sourceRoot, filePathsGrouped, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 2);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 2);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 4);
@@ -63,7 +64,7 @@ public class DataDrivenTests {
         groupList.add("g1");
         groupList.add("g2");
         groupList.add("default");
-        testRunner.runTest(filePathsGrouped, groupList);
+        testRunner.runTest(sourceRoot, filePathsGrouped, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 6);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 5);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 1);
@@ -74,7 +75,7 @@ public class DataDrivenTests {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("default");
-        testRunner.runTest(filePathsGrouped, groupList);
+        testRunner.runTest(sourceRoot, filePathsGrouped, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 4);

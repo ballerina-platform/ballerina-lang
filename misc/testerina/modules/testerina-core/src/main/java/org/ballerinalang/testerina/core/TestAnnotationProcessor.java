@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
@@ -87,9 +88,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     @Override
     public void process(PackageNode packageNode) {
         if (!packageInit) {
-            String packageName = packageNode.getPackageDeclaration() == null ? "." : packageNode
-                    .getPackageDeclaration().getPackageName().stream().map(pkg -> pkg.getValue()).collect(Collectors
-                            .joining("."));
+            String packageName = ((BLangPackage) packageNode).packageID == null ? "." : ((BLangPackage) packageNode)
+                    .packageID.getName().getValue();
             suite = registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
             packageInit = true;
         }

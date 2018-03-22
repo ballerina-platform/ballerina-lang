@@ -113,9 +113,9 @@ public class TestCmd implements BLauncherCmd {
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 
         if (disableGroupList != null) {
-            runTests(paths, disableGroupList, false);
+            new BTestRunner().runTest(sourceRoot, paths, disableGroupList, false);
         } else {
-            runTests(paths, groupList, true);
+            new BTestRunner().runTest(sourceRoot, paths, groupList, true);
         }
         Runtime.getRuntime().exit(0);
     }
@@ -220,10 +220,6 @@ public class TestCmd implements BLauncherCmd {
             Arrays.fill(charArray, ' ');
             out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
         }
-    }
-
-    private void runTests(Path [] paths, List<String> groups, boolean shouldIncludeGroups) {
-        new BTestRunner().runTest(paths, groups, shouldIncludeGroups);
     }
 
     @Override

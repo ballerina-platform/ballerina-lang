@@ -34,6 +34,8 @@ import java.util.HashMap;
  */
 public class DataProviderTest {
 
+    private String sourceRoot = "src/test/resources/annotations-test";
+
     @BeforeClass
     public void setup() {
     }
@@ -42,7 +44,7 @@ public class DataProviderTest {
     public void testBefore() {
         cleanup();
         BTestRunner runner = new BTestRunner();
-        runner.runTest(new Path[]{Paths.get("src/test/resources/annotations-test/data-provider-test.bal")}, new
+        runner.runTest(sourceRoot, new Path[]{Paths.get("data-provider-test.bal")}, new
                 ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 5);
 
@@ -52,8 +54,8 @@ public class DataProviderTest {
             "function \\[invalidDataGen\\] should return an array of arrays.*")
     public void testInvalidDataProviderNonArrayOfArraysReturn() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get
-                        ("src/test/resources/annotations-test/invalid-data-provider-test.bal")},
+        new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
+                        ("invalid-data-provider-test.bal")},
                 new ArrayList<>());
     }
 
@@ -62,16 +64,16 @@ public class DataProviderTest {
 //            + "\\[invalidDataGen\\] should have only one return type.*")
     public void testInvalidDataProviderMultiReturn() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get
-                ("src/test/resources/annotations-test/invalid-data-provider-test-2.bal")}, new ArrayList<>());
+        new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
+                ("invalid-data-provider-test-2.bal")}, new ArrayList<>());
     }
 
     @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = ".*Data provider " +
             "function \\[invalidDataGen\\] should return an array of arrays.*")
     public void testInvalidDataProviderPrimitiveReturn() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get
-                        ("src/test/resources/annotations-test/invalid-data-provider-test-3.bal")},
+        new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
+                        ("invalid-data-provider-test-3.bal")},
                 new ArrayList<>());
 
     }

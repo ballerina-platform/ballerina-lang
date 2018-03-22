@@ -34,7 +34,8 @@ import java.util.List;
  */
 public class GroupFilterTest {
 
-    private Path[] filePaths = {Paths.get("src/test/resources/annotations-test/groups-test.bal")};
+    private String sourceRoot = "src/test/resources/annotations-test";
+    private Path[] filePaths = {Paths.get("groups-test.bal")};
 
     @Test
     public void singleGroupFilterTest() {
@@ -42,7 +43,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g1");
-        testRunner.runTest(filePaths, groupList);
+        testRunner.runTest(sourceRoot, filePaths, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 3);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         // disabled tests won't be counted as skipped
@@ -56,7 +57,7 @@ public class GroupFilterTest {
         List<String> groupList = new ArrayList<>();
         groupList.add("g2");
         groupList.add("g4");
-        testRunner.runTest(filePaths, groupList);
+        testRunner.runTest(sourceRoot, filePaths, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 3);
     }
 
@@ -66,7 +67,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
-        testRunner.runTest(filePaths, groupList);
+        testRunner.runTest(sourceRoot, filePaths, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -79,7 +80,7 @@ public class GroupFilterTest {
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
         try {
-            testRunner.runTest(filePaths, groupList);
+            testRunner.runTest(sourceRoot, filePaths, groupList);
         } catch (RuntimeException e) {
         }
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 0);
@@ -90,7 +91,7 @@ public class GroupFilterTest {
     public void noGroupFiltersTest() {
         cleanup();
         BTestRunner testRunner = new BTestRunner();
-        testRunner.runTest(filePaths, null);
+        testRunner.runTest(sourceRoot, filePaths, null);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -103,7 +104,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
-        testRunner.runTest(filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -116,7 +117,7 @@ public class GroupFilterTest {
         List<String> groupList = new ArrayList<>();
         groupList.add("g4");
         groupList.add("g5");
-        testRunner.runTest(filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 3);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -128,7 +129,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
-        testRunner.runTest(filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);

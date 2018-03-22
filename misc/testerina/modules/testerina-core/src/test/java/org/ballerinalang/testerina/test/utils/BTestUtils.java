@@ -17,7 +17,6 @@
 package org.ballerinalang.testerina.test.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructType;
@@ -28,24 +27,13 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
-import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
  * Utility methods for unit tests.
@@ -54,18 +42,14 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  */
 public class BTestUtils {
 
-    private static Path resourceDir = Paths.get(
-            BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-
     /**
      * Compile and return the semantic errors.
      *
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static org.ballerinalang.launcher.util.CompileResult compile(String sourceFilePath) {
-        return BCompileUtil.compile(resourceDir.toString(), sourceFilePath.toString(),
-                CompilerPhase.CODE_GEN);
+    public static org.ballerinalang.launcher.util.CompileResult compile(String sourceRoot, String sourceFilePath) {
+        return BCompileUtil.compile(sourceRoot, sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
     /**
@@ -103,81 +87,81 @@ public class BTestUtils {
 //        }
 //    }
 
-    /**
-     * Compile and return the semantic errors.
-     *
-     * @param sourceFilePath Path to source package/file
-     * @param compilerPhase  Compiler phase
-     * @return Semantic errors
-     */
-    public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        return compile(sourceRoot.toString(), packageName, compilerPhase);
-    }
-
-    /**
-     * Compile and return the semantic errors.
-     *
-     * @param sourceRoot    root path of the source packages
-     * @param packageName   name of the package to compile
-     * @param compilerPhase Compiler phase
-     * @return Semantic errors
-     */
-    public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
-        options.put(COMPILER_PHASE, compilerPhase.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
-        context.put(DiagnosticListener.class, listener);
-
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-        if (programFile != null) {
-            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
-        }
-
-        return comResult;
-    }
-
-    /**
-     * Compile and return the compiled package node.
-     *
-     * @param sourceFilePath Path to source package/file
-     * @return compiled package node
-     */
-    public static BLangPackage compileAndGetPackage(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
-        context.put(DiagnosticListener.class, listener);
-
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        BLangPackage compiledPkg = (BLangPackage) compiler.getAST();
-
-        return compiledPkg;
-    }
+//    /**
+//     * Compile and return the semantic errors.
+//     *
+//     * @param sourceFilePath Path to source package/file
+//     * @param compilerPhase  Compiler phase
+//     * @return Semantic errors
+//     */
+//    public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase) {
+//        Path sourcePath = Paths.get(sourceFilePath);
+//        String packageName = sourcePath.getFileName().toString();
+//        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+//        return compile(sourceRoot.toString(), packageName, compilerPhase);
+//    }
+//
+//    /**
+//     * Compile and return the semantic errors.
+//     *
+//     * @param sourceRoot    root path of the source packages
+//     * @param packageName   name of the package to compile
+//     * @param compilerPhase Compiler phase
+//     * @return Semantic errors
+//     */
+//    public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
+//        CompilerContext context = new CompilerContext();
+//        CompilerOptions options = CompilerOptions.getInstance(context);
+//        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+//        options.put(COMPILER_PHASE, compilerPhase.toString());
+//        options.put(PRESERVE_WHITESPACE, "false");
+//
+//        CompileResult comResult = new CompileResult();
+//
+//        // catch errors
+//        DiagnosticListener listener = comResult::addDiagnostic;
+//        context.put(DiagnosticListener.class, listener);
+//
+//        // compile
+//        Compiler compiler = Compiler.getInstance(context);
+//        compiler.compile(packageName);
+//        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+//        if (programFile != null) {
+//            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+//        }
+//
+//        return comResult;
+//    }
+//
+//    /**
+//     * Compile and return the compiled package node.
+//     *
+//     * @param sourceFilePath Path to source package/file
+//     * @return compiled package node
+//     */
+//    public static BLangPackage compileAndGetPackage(String sourceFilePath) {
+//        Path sourcePath = Paths.get(sourceFilePath);
+//        String packageName = sourcePath.getFileName().toString();
+//        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+//        CompilerContext context = new CompilerContext();
+//        CompilerOptions options = CompilerOptions.getInstance(context);
+//        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+//        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+//        options.put(PRESERVE_WHITESPACE, "false");
+//
+//        CompileResult comResult = new CompileResult();
+//
+//        // catch errors
+//        DiagnosticListener listener = comResult::addDiagnostic;
+//        context.put(DiagnosticListener.class, listener);
+//
+//        // compile
+//        Compiler compiler = Compiler.getInstance(context);
+//        compiler.compile(packageName);
+//        BLangPackage compiledPkg = (BLangPackage) compiler.getAST();
+//
+//        return compiledPkg;
+//    }
 
     /**
      * Invoke a ballerina function.
@@ -255,24 +239,24 @@ public class BTestUtils {
      *
      * @param sourceFilePath Path to the ballerina file.
      */
-    public static void run(String sourceFilePath) {
-        // TODO: improve. How to get the output
-        CompileResult result = compile(sourceFilePath);
-        ProgramFile programFile = result.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-
-        // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
-            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        if (programFile.isMainEPAvailable()) {
-            LauncherUtils.runMain(programFile, new String[0]);
-        } else {
-            LauncherUtils.runServices(programFile);
-        }
-    }
+//    public static void run(String sourceFilePath) {
+//        // TODO: improve. How to get the output
+//        CompileResult result = compile(sourceFilePath);
+//        ProgramFile programFile = result.getProgFile();
+//        Debugger debugger = new Debugger(programFile);
+//        programFile.setDebugger(debugger);
+//
+//        // If there is no main or service entry point, throw an error
+//        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+//            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
+//        }
+//
+//        if (programFile.isMainEPAvailable()) {
+//            LauncherUtils.runMain(programFile, new String[0]);
+//        } else {
+//            LauncherUtils.runServices(programFile);
+//        }
+//    }
 
     /**
      * Assert an error.

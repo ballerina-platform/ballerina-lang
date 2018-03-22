@@ -1,7 +1,7 @@
-package src.test.resources.servicemocktest2;
+package servicemocktest2;
 
-import ballerina.net.http;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint portalEP {
     port: 9090

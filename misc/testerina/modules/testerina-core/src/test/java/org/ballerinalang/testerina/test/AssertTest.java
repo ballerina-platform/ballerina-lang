@@ -38,7 +38,7 @@ public class AssertTest {
     @BeforeClass
     public void setup() {
         try {
-            compileResult = BTestUtils.compile("assert-test/assert-test.bal");
+            compileResult = BTestUtils.compile("src/test/resources/assert-test", "assert-test.bal");
         } catch (Exception e) {
             throw e;
         }

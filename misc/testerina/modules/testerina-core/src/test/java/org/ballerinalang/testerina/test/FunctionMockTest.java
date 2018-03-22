@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -32,6 +33,8 @@ import java.util.HashMap;
  */
 public class FunctionMockTest {
 
+    private String sourceRoot = "src/test/resources/";
+
     @BeforeClass
     public void setup() {
     }
@@ -44,8 +47,10 @@ public class FunctionMockTest {
     @Test
     public void testBefore2() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/functionmocktest/pkg/"), Paths.get
-                ("src/test/resources/functionmocktest2/pkg/")}, new
-                ArrayList<>());
+        BTestRunner runner = new BTestRunner();
+        runner.runTest(sourceRoot, new Path[]{Paths.get("functionmocktest.pkg"), Paths.get("functionmocktest2.pkg")},
+                new ArrayList<>());
+        Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionmocktest.pkg", "passed"), 1);
+        Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionmocktest2.pkg", "passed"), 1);
     }
 }

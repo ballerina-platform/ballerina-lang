@@ -1,4 +1,4 @@
-import ballerina.test;
+import ballerina/test;
 
 @test:config{
     valueSets:["1,2,3","4,4,8","1,5,7","4,4,5"],

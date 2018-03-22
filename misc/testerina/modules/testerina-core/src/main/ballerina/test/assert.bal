@@ -1,5 +1,5 @@
 package ballerina.test;
-import ballerina.reflect;
+import ballerina/reflect;
 
 const string assertFailureErrorCategory = "assert-failure";
 
