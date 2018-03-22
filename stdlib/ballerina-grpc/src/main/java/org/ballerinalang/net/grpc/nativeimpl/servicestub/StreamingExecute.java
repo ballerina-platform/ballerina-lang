@@ -65,7 +65,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX
                 @Argument(name = "listenerService", type = TypeKind.TYPEDESC)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT,structType = CLIENT,
+                @ReturnType(type = TypeKind.STRUCT, structType = CLIENT,
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
                 @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
@@ -81,7 +81,7 @@ public class StreamingExecute extends AbstractExecute {
                     "is not initialized properly");
             return;
         }
-
+        
         Object connectionStub = serviceStub.getNativeData(SERVICE_STUB);
         if (connectionStub == null) {
             notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
@@ -112,7 +112,7 @@ public class StreamingExecute extends AbstractExecute {
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = grpcNonBlockingStub.executeClientStreaming
                             (responseObserver, methodName);
-
+                    
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
                     requestSender = grpcNonBlockingStub.executeBidiStreaming
                             (responseObserver, methodName);
@@ -133,7 +133,7 @@ public class StreamingExecute extends AbstractExecute {
             }
         }
     }
-
+    
     private Value getTypeField(BTypeDescValue refField) {
         if (refField == null) {
             return null;
