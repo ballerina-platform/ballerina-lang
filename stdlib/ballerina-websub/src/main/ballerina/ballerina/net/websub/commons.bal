@@ -1,8 +1,9 @@
 package ballerina.net.websub;
 
-import ballerina.mime;
-import ballerina.net.http;
-import ballerina.security.crypto;
+import ballerina/log;
+import ballerina/mime;
+import ballerina/net.http;
+import ballerina/security.crypto;
 
 public const string HUB_CHALLENGE = "hub.challenge";
 public const string HUB_MODE = "hub.mode";
@@ -86,21 +87,18 @@ function buildIntentVerificationResponse(http:Request request, string mode,
 
 }
 
-@Description {value:"Function to process and extract information for requests received at the callback" }
+@Description {value:"Function to validate signature for requests received at the callback" }
 @Param {value:"request: The request received"}
-@Return {value:"WebSubNotification extracting the WebSub headers and the payload"}
-@Return {value:"WebSubError, if an error occurred in extraction"}
-public function processWebSubNotification(http:Request request)
-                                (WebSubNotification webSubNotification, WebSubError webSubError) {
-
-    SubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
-    var secret, _ = (string) webSubSubscriberAnnotations["secret"];
+@Param {value:"serviceType: The type of the service for which the request was rceived"}
+@Return {value:"WebSubError, if an error occurred in extraction or signature validation failed"}
+public function processWebSubNotification(http:Request request, typedesc serviceType) (WebSubError webSubError) {
+    string secret = retrieveSecret(serviceType);
     string xHubSignature = (string) request.getHeader(X_HUB_SIGNATURE);
 
     json payload;
     mime:EntityError entityError;
-
     payload, entityError = request.getJsonPayload(); //TODO: fix for all types
+
     if (entityError != null) {
         webSubError = {errorMessage:"Error extracting notification payload: " + entityError.message};
         return;
@@ -109,7 +107,6 @@ public function processWebSubNotification(http:Request request)
     if (secret != null && request.getHeader(X_HUB_SIGNATURE) == null) {
         webSubError = {errorMessage:X_HUB_SIGNATURE + " header not present for subscription added specifying "
                                     + HUB_SECRET};
-        return;
     } else if (secret == null) {
         if (request.getHeader(X_HUB_SIGNATURE) != null) {
             log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
@@ -117,17 +114,7 @@ public function processWebSubNotification(http:Request request)
     } else {
         webSubError = validateSignature(xHubSignature, payload.toString(), secret);
     }
-
-    if (webSubError == null) {
-        WebSubHeaders webSubHeaders = {xHubUuid:(string)request.getHeader(X_HUB_UUID),
-                                          xHubTopic:request.getHeader(X_HUB_TOPIC)};
-        if (xHubSignature != null) {
-            webSubHeaders.xHubSignature = xHubSignature;
-        }
-        webSubNotification = { webSubHeaders:webSubHeaders, payload:payload };
-    }
     return;
-
 }
 
 @Description {value:"Function to validate the signature header included in the notification"}
@@ -135,7 +122,6 @@ public function processWebSubNotification(http:Request request)
 @Param {value:"secret: The secret used when subscribing"}
 @Return {value:"WebSubError if an error occurs validating the signature or the signature is invalid"}
 function validateSignature (string xHubSignature, string stringPayload, string secret) (WebSubError webSubError) {
-
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
@@ -156,25 +142,6 @@ function validateSignature (string xHubSignature, string stringPayload, string s
         webSubError = {errorMessage:"Signature validation failed: Invalid Signature!"};
     }
     return;
-
-}
-
-@Description {value:"Struct to represent content received by the callback"}
-@Field {value:"webSubHeaders: WebSub specific headers"}
-@Field {value:"payload: The payload received"}
-public struct WebSubNotification {
-    WebSubHeaders webSubHeaders;
-    json payload;
-}
-
-@Description {value:"Struct to represent WebSub specific headers"}
-@Field {value:"xHubUuid: Unique ID representing the content delivery"}
-@Field {value:"xHubTopic: The topic for which the content delivery happened"}
-@Field {value:"xHubSignature: The signature if the subscription was created specifying a secret"}
-public struct WebSubHeaders {
-    string xHubUuid;
-    string xHubTopic;
-    string xHubSignature;
 }
 
 @Description {value:"Struct to represent a WebSub subscription request"}

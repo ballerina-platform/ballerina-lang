@@ -39,7 +39,7 @@ import java.util.Locale;
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "forward",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),

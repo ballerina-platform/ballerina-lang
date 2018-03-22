@@ -302,6 +302,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
             annotationAttachment.accept(this);
         });
+
+        analyzeDef(structNode.initFunction, structEnv);
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 
@@ -475,40 +477,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         handleSafeAssignment(varNode.pos, lhsType, rhsExpr, varInitEnv);
     }
 
-    private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
-        // Collect all the lhs types
-        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
-                ((BUnionType) lhsType).memberTypes :
-                new HashSet<BType>() {{
-                    add(lhsType);
-                }};
-
-        // If there is at least one lhs type which assignable to the error type, then report an error.
-        for (BType type : lhsTypes) {
-            if (types.isAssignable(symTable.errStructType, type)) {
-                dlog.error(lhsPos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-                typeChecker.checkExpr(rhsExpr, env, Lists.of(symTable.errType));
-                return;
-            }
-        }
-
-        // Create a new union type with the error type and continue the type checking process.
-        lhsTypes.add(symTable.errStructType);
-        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nullType));
-        typeChecker.checkExpr(rhsExpr, env, Lists.of(lhsUnionType));
-
-        if (rhsExpr.type.tag == TypeTags.UNION) {
-            BUnionType rhsUnionType = (BUnionType) rhsExpr.type;
-            for (BType type : rhsUnionType.memberTypes) {
-                if (types.isAssignable(symTable.errStructType, type)) {
-                    return;
-                }
-            }
-        } else if (rhsExpr.type.tag != TypeTags.ERROR) {
-            dlog.error(rhsExpr.pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-        }
-    }
-
 
     // Statements
 
@@ -519,6 +487,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariableDef varDefNode) {
         analyzeDef(varDefNode.var, env);
+
+        // Check whether variable is initialized, if the type don't support default values.
+        // eg: struct types.
+        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.var.type)) {
+            dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
+        }
     }
 
     public void visit(BLangPostIncrement postIncrement) {
@@ -1460,6 +1434,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes = Lists.of(symTable.noType);
         }
         List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        if (assignNode.safeAssignment) {
+            rhsTypes = Lists.of(handleSafeAssignmentWithVarDeclaration(assignNode.pos, rhsTypes.get(0)));
+        }
+
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
             if (rhsTypes.get(0) != symTable.errType) {
                 BTupleType tupleType = (BTupleType) rhsTypes.get(0);
@@ -1468,6 +1446,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
             }
         }
+
         // visit all lhs expressions
         for (int i = 0; i < assignNode.varRefs.size(); i++) {
             BLangExpression varRef = assignNode.varRefs.get(i);
@@ -1532,5 +1511,65 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             binaryExpressionNode.type = symTable.errType;
         }
         return binaryExpressionNode;
+    }
+
+    private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
+        // Collect all the lhs types
+        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
+                ((BUnionType) lhsType).memberTypes :
+                new HashSet<BType>() {{
+                    add(lhsType);
+                }};
+
+        // If there is at least one lhs type which assignable to the error type, then report an error.
+        for (BType type : lhsTypes) {
+            if (types.isAssignable(symTable.errStructType, type)) {
+                dlog.error(lhsPos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+                typeChecker.checkExpr(rhsExpr, env, Lists.of(symTable.errType));
+                return;
+            }
+        }
+
+        // Create a new union type with the error type and continue the type checking process.
+        lhsTypes.add(symTable.errStructType);
+        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nullType));
+        typeChecker.checkExpr(rhsExpr, env, Lists.of(lhsUnionType));
+
+        if (rhsExpr.type.tag == TypeTags.UNION) {
+            BUnionType rhsUnionType = (BUnionType) rhsExpr.type;
+            for (BType type : rhsUnionType.memberTypes) {
+                if (types.isAssignable(symTable.errStructType, type)) {
+                    return;
+                }
+            }
+        } else if (rhsExpr.type.tag != TypeTags.ERROR) {
+            dlog.error(rhsExpr.pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+        }
+    }
+
+    private BType handleSafeAssignmentWithVarDeclaration(DiagnosticPos pos, BType rhsType) {
+        if (rhsType.tag != TypeTags.UNION && types.isAssignable(symTable.errStructType, rhsType)) {
+            dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+        } else if (rhsType.tag != TypeTags.UNION) {
+            return rhsType;
+        }
+
+        // Collect all the rhs types from the union type
+        BUnionType unionType = (BUnionType) rhsType;
+        List<BType> rhsTypeList = new ArrayList<>(unionType.memberTypes);
+        for (BType type : rhsTypeList) {
+            if (types.isAssignable(symTable.errStructType, type)) {
+                unionType.memberTypes.remove(type);
+            }
+        }
+
+        if (unionType.memberTypes.isEmpty()) {
+            dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+            return symTable.noType;
+        } else if (unionType.memberTypes.size() == 1) {
+            return unionType.memberTypes.toArray(new BType[0])[0];
+        }
+
+        return unionType;
     }
 }

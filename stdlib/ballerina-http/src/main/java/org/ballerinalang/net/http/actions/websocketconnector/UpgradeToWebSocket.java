@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.Set;
 
@@ -37,7 +36,7 @@ import java.util.Set;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "upgradeToWebSocket",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina.net.http"),
@@ -54,15 +53,13 @@ public class UpgradeToWebSocket extends BlockingNativeCallableUnit {
         WebSocketService webSocketService = (WebSocketService) serverConnector.getNativeData(
                 WebSocketConstants.WEBSOCKET_SERVICE);
         BMap<String, BString> headers = (BMap<String, BString>) context.getRefArgument(1);
-        WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) serverConnector.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
         Set<String> keys = headers.keySet();
         for (String key : keys) {
             httpHeaders.add(key, headers.get(key));
         }
 
-        WebSocketUtil.handleHandshake(initMessage, webSocketService, httpHeaders, serverConnector);
+        WebSocketUtil.handleHandshake(webSocketService, httpHeaders, serverConnector);
 
         context.setReturnValues();
     }

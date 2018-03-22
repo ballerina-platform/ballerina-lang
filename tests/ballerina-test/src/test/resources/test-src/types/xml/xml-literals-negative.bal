@@ -1,12 +1,12 @@
 
-import ballerina.math as x;
+import ballerina/math as x;
 
-function testRestrictedElementPrefix() (xml) {
+function testRestrictedElementPrefix() returns (xml) {
     xml x = xml `<xmlns:foo>hello</xmlns:foo>`;
     return x;
 }
 
-function xmlUndeclaredElementPrefix() (xml) {
+function xmlUndeclaredElementPrefix() returns (xml) {
     xml x = xml `<ns1:foo>hello</ns1:foo>`;
     return x;
 }
@@ -77,4 +77,8 @@ function undefinedNamespace() {
 
 function defineEmptyNamespace() {
     xmlns "" as ns0;
+}
+
+function main (string[] args) {
+
 }

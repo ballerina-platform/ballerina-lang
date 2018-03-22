@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  * {@code Delete} is the DELETE action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "delete",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),

@@ -1,23 +1,23 @@
-import ballerina.user;
-import ballerina.util;
+import ballerina/user;
+import ballerina/util;
 
-function testGetHome () (string) {
+function testGetHome () returns (string) {
     return user:getHome();
 }
 
-function testGetName () (string) {
+function testGetName () returns (string) {
     return user:getName();
 }
 
-function testGetLanguage () (string) {
+function testGetLanguage () returns (string) {
     return user:getLanguage();
 }
 
-function testGetCountry () (string) {
+function testGetCountry () returns (string) {
     return user:getCountry();
 }
 
-function testGetLocale () (string, string) {
+function testGetLocale () returns (string, string) {
     util:Locale locale = user:getLocale();
-    return locale.language, locale.countryCode;
+    return (locale.language, locale.countryCode);
 }

@@ -1,5 +1,5 @@
-import ballerina.caching;
-import ballerina.runtime;
+import ballerina/caching;
+import ballerina/runtime;
 
 function testCreateCache (string name, int timeOut, int capacity, float evictionFactor) (string, int, int, float) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);

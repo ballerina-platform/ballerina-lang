@@ -10,7 +10,7 @@ function concatIntString (int i, string v) {
 
 json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
 
-function testJSONObject () (string) {
+function testJSONObject () returns (string) {
     output = "";
     foreach j in j1 {
         concatString(j.toString());
@@ -18,7 +18,7 @@ function testJSONObject () (string) {
     return output;
 }
 
-function testJSONArray () (string) {
+function testJSONArray () returns (string) {
     output = "";
     foreach j in j1.subjects {
         concatString(j.toString());
@@ -26,7 +26,7 @@ function testJSONArray () (string) {
     return output;
 }
 
-function testArrayOfJSON () (string) {
+function testArrayOfJSON () returns (string) {
     output = "";
     var array, _ = (json[]) j1.subjects;
     foreach i, j in array {
@@ -35,7 +35,7 @@ function testArrayOfJSON () (string) {
     return output;
 }
 
-function testJSONString () (string) {
+function testJSONString () returns (string) {
     output = "";
     foreach j in j1.name {
         concatString(j.toString());
@@ -43,7 +43,7 @@ function testJSONString () (string) {
     return output;
 }
 
-function testJSONNumber () (string) {
+function testJSONNumber () returns (string) {
     output = "";
     foreach j in j1.age {
         concatString(j.toString());
@@ -51,7 +51,7 @@ function testJSONNumber () (string) {
     return output;
 }
 
-function testJSONBoolean () (string) {
+function testJSONBoolean () returns (string) {
     output = "";
     foreach j in j1.pass {
         concatString(j.toString());
@@ -59,7 +59,7 @@ function testJSONBoolean () (string) {
     return output;
 }
 
-function testJSONNull () (string) {
+function testJSONNull () returns (string) {
     output = "";
     foreach j in j1.city {
         concatString(j.toString());
@@ -77,7 +77,7 @@ struct Protocol {
     string url;
 }
 
-function testJSONToStructCast () (string) {
+function testJSONToStructCast () returns (string) {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
     var protocolsData, _ = <Protocols>j;
     output = "";
@@ -87,7 +87,7 @@ function testJSONToStructCast () (string) {
     return output;
 }
 
-function testAddWhileIteration () (string) {
+function testAddWhileIteration () returns (string) {
     output = "";
     foreach j in j1 {
         if (j.toString() == "bob") {
@@ -101,7 +101,7 @@ function testAddWhileIteration () (string) {
     return output;
 }
 
-function testDeleteWhileIteration () (string) {
+function testDeleteWhileIteration () returns (string) {
     output = "";
     foreach j in j1 {
         if (j.toString() == "bob") {

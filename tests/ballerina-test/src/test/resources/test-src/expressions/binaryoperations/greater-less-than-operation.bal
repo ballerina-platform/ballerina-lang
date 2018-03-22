@@ -1,4 +1,4 @@
-function testIntRanges(int a) (int) {
+function testIntRanges(int a) returns (int) {
     int retunType;
     if (a <= 0) {
         retunType = 1;
@@ -10,7 +10,7 @@ function testIntRanges(int a) (int) {
     return retunType;
 }
 
-function testFloatRanges(float a) (int) {
+function testFloatRanges(float a) returns (int) {
     int retunType;
     if (a <= 0.0) {
         retunType = 1;
@@ -22,38 +22,38 @@ function testFloatRanges(float a) (int) {
     return retunType;
 }
 
-function testIntAndFloatCompare(int a, float b) (boolean) {
+function testIntAndFloatCompare(int a, float b) returns (boolean) {
     return a > b;
 }
 
-function intGTFloat(int a, float b) (boolean) {
+function intGTFloat(int a, float b) returns (boolean) {
     return a > b;
 }
 
-function floatGTInt(float a, int b) (boolean) {
+function floatGTInt(float a, int b) returns (boolean) {
     return a > b;
 }
 
-function intLTFloat(int a, float b) (boolean) {
+function intLTFloat(int a, float b) returns (boolean) {
     return a < b;
 }
 
-function floatLTInt(float a, int b) (boolean) {
+function floatLTInt(float a, int b) returns (boolean) {
     return a < b;
 }
 
-function intLTEFloat(int a, float b) (boolean) {
+function intLTEFloat(int a, float b) returns (boolean) {
     return a <= b;
 }
 
-function floatLTEInt(float a, int b) (boolean) {
+function floatLTEInt(float a, int b) returns (boolean) {
     return a <= b;
 }
 
-function intGTEFloat(int a, float b) (boolean) {
+function intGTEFloat(int a, float b) returns (boolean) {
     return a >= b;
 }
 
-function floatGTEInt(float a, int b) (boolean) {
+function floatGTEInt(float a, int b) returns (boolean) {
     return a >= b;
 }

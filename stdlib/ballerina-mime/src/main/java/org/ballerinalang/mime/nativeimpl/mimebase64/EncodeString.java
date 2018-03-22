@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
  *
  * @since 0.96
  */
-@BallerinaFunction(packageName = "ballerina.mime",
+@BallerinaFunction(orgName = "ballerina", packageName = "mime",
                    functionName = "encodeString",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "MimeBase64Encoder",

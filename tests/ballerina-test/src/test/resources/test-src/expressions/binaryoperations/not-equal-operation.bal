@@ -1,4 +1,4 @@
-function checkIntEquality(int a, int b) (int) {
+function checkIntEquality(int a, int b) returns (int) {
     int returnType;
     if (a == b) {
         returnType = 1;
@@ -9,7 +9,7 @@ function checkIntEquality(int a, int b) (int) {
     return returnType;
 }
 
-function checkFloatEquality(float a, float b) (int) {
+function checkFloatEquality(float a, float b) returns (int) {
     int returnType;
     if (a == b) {
         returnType = 1;
@@ -20,7 +20,7 @@ function checkFloatEquality(float a, float b) (int) {
     return returnType;
 }
 
-function checkBooleanEquality(boolean a, boolean b) (int) {
+function checkBooleanEquality(boolean a, boolean b) returns (int) {
     int returnType;
     if (a == b) {
         returnType = 1;
@@ -31,7 +31,7 @@ function checkBooleanEquality(boolean a, boolean b) (int) {
     return returnType;
 }
 
-function checkStringEquality(string a, string b) (int) {
+function checkStringEquality(string a, string b) returns (int) {
     int returnType;
     if (a == b) {
         returnType = 1;

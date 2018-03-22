@@ -63,5 +63,10 @@ public class BasicTupleTest {
         BValue[] returns = BRunUtil.invoke(result, "testFunctionReturnValue", new BValue[] {});
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "x5.0z");
+
+        returns = BRunUtil.invoke(result, "testFunctionReturnValue2", new BValue[] {});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "xz");
+        Assert.assertEquals(returns[1].stringValue(), "5.0");
     }
 }

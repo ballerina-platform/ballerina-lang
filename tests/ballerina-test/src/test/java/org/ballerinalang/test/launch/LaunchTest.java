@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.launch;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -29,31 +30,23 @@ import org.testng.annotations.Test;
  */
 public class LaunchTest {
 
-    @Test(expectedExceptions = {IllegalArgumentException.class }, 
-            expectedExceptionsMessageRegExp = "cannot resolve package 'xxxx'")
+    @Test(expectedExceptions = {BLangCompilerException.class },
+            expectedExceptionsMessageRegExp = "cannot find package 'xxxx'")
     public void testRunNonExistingPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "xxxx");
         Assert.assertEquals(result.getErrorCount(), 0);
         Assert.assertNull(result.getProgFile());
     }
 
-    @Test
-    public void testRunEmptyPackage() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "foo");
-        Assert.assertEquals(result.getErrorCount(), 0);
-        Assert.assertNull(result.getProgFile());
-    }
+//    @Test
+//    public void testRunEmptyPackage() {
+//        CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "foo");
+//        Assert.assertEquals(result.getErrorCount(), 0);
+//        Assert.assertNull(result.getProgFile());
+//    }
 
     @Test
     public void testRunPackageWithFileSeparater() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/launch/", "foo/bar");
-        Assert.assertEquals(compileResult.getErrorCount(), 0);
-        BValue[] result = BRunUtil.invoke(compileResult, "foo");
-        Assert.assertEquals(result[0].stringValue(), "hello!");
-    }
-
-    @Test
-    public void testRunPackageWithDotSeparater() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/launch/", "foo.bar");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
         BValue[] result = BRunUtil.invoke(compileResult, "foo");

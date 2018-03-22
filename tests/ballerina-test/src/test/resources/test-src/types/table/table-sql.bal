@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 struct Person {
     int id;
@@ -28,7 +28,7 @@ struct Student {
     int age = -1;
 }
 
-function testSimpleSelectAll () (int) {
+function testSimpleSelectAll () returns (int) {
 
     table<Person> personTable = {};
     int recordCount = 0;
@@ -52,7 +52,7 @@ function testSimpleSelectAll () (int) {
     return recordCount;
 }
 
-function testSimpleSelectFewFields () (int) {
+function testSimpleSelectFewFields () returns (int) {
 
     table<Person> personTable = {};
     int recordCount = 0;
@@ -76,7 +76,7 @@ function testSimpleSelectFewFields () (int) {
     return recordCount;
 }
 
-function testSimpleSelectWithJoin () (int) {
+function testSimpleSelectWithJoin () returns (int) {
 
     table<Person> personTable = {};
     table<Order> orderTable = {};
@@ -114,7 +114,7 @@ function testSimpleSelectWithJoin () (int) {
     return recordCount;
 }
 
-function testSelectWithJoinAndWhere () (int) {
+function testSelectWithJoinAndWhere () returns (int) {
 
     table<Person> personTable = {};
     table<Order> orderTable = {};
@@ -147,13 +147,13 @@ function testSelectWithJoinAndWhere () (int) {
 
     while (orderDetailsTable.hasNext()) {
         var rs = orderDetailsTable.getNext();
-        recordCount = recordCount +1;
+        recordCount = recordCount + 1;
     }
 
     return recordCount;
 }
 
-function testSelectWithJoinAndWhereWithGroupBy () (int) {
+function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
 
     table<Person> personTable = {};
     table<Order> orderTable = {};

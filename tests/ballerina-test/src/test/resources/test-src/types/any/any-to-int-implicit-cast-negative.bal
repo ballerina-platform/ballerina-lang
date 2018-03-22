@@ -3,7 +3,7 @@ function invalidCastingError() {
   int sample = abc;
 }
 
-function intReturn()(any) {
+function intReturn() returns (any) {
   int val = 6;
   return val;
 }

@@ -1,6 +1,6 @@
 package samples.functionTest;
 
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 
 function main (string[] args) {

@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 public function main (string[] args) {
     map words = { a:"ant", b:"bear", c:"cat", d:"dear", e:"elephant" };
@@ -12,7 +12,7 @@ public function main (string[] args) {
 
     int[] numbers = [-5, -3, 2, 7, 12];
     // Filter operation returns a collection containing all elements that satisfy the input predicate function.
-    float avg = numbers.filter(function (int i)(boolean){
+    float avg = numbers.filter(function (int i) returns boolean {
                                    return i >= 0;
                                })
     // Average operation returns the average of the int/float collection. Other support operations are max(), min() and sum().
@@ -22,8 +22,8 @@ public function main (string[] args) {
     io:println("\nExecution Order");
     // Example of multiple iterable operations.
     json j = {name:"apple", colors:["red", "green"], price:5};
-    j.map(function (json j)(string s) {
-                    s = j.toString();
+    j.map(function (json j) returns string {
+                    string s = j.toString();
                     io:println("- map operation's value :" + s);
                     return s;
                 })
@@ -34,7 +34,7 @@ public function main (string[] args) {
 
 }
 
-function toUpper (any value) (string) {
+function toUpper (any value) returns string {
     var word, _ = (string) value;
     return word.toUpperCase();
 }

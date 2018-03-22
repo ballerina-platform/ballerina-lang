@@ -1,56 +1,54 @@
-function testSingleNamedReturnParam(int a, string b) (int x) {
+function testSingleNamedReturnParam(int a, string b) returns (int) {
     int p;
     p = a + 2;
-    x = p;
-    return x;
+    return p;
 }
 
-function testSingleNamedReturnParamDefaultValue(int a, string b) (int x) {
-    return;
+function testSingleNamedReturnParamDefaultValue(int a, string b) returns (int) {
+    int p;
+    return p;
 }
 
-function testSingleNamedReturnParamZeroReturnArgs(int a, string b) (int x) {
+function testSingleNamedReturnParamZeroReturnArgs(int a, string b) returns (int) {
     int p;
     p = a + 2;
-    x = p;
-    return;
+    return p;
 }
 
-function testSingleNamedReturnParamDefaultValueZeroReturnArgs(int a, string b) (int x) {
-    return;
-}
-
-
-function testTwoNamedReturnParam(int a, string b) (int x, string s) {
+function testSingleNamedReturnParamDefaultValueZeroReturnArgs(int a, string b) returns (int) {
     int p;
-    string name;
-
-    p = a + 2;
-    name = b + ", john";
-
-    x = p;
-    s = name;
-
-    return x, s;
+    return p;
 }
 
-function testTwoNamedReturnParamDefaultValue() (int x, string s) {
-    return x, s;
-}
 
-function testTwoNamedReturnParamZeroReturnArgs(int a, string b) (int x, string s) {
+function testTwoNamedReturnParam(int a, string b) returns (int, string) {
     int p;
     string name;
 
     p = a + 2;
     name = b + ", john";
 
-    x = p;
-    s = name;
-
-    return;
+    return (p, name);
 }
 
-function testTwoNamedReturnParamZeroReturnArgsDefaultValue() (int x, string s) {
-    return;
+function testTwoNamedReturnParamDefaultValue() returns (int, string) {
+    int p;
+    string name;
+    return (p, name);
+}
+
+function testTwoNamedReturnParamZeroReturnArgs(int a, string b) returns (int, string) {
+    int p;
+    string name;
+
+    p = a + 2;
+    name = b + ", john";
+
+    return (p,name);
+}
+
+function testTwoNamedReturnParamZeroReturnArgsDefaultValue() returns (int, string) {
+    int p;
+    string name;
+    return (p,name);
 }

@@ -1,6 +1,6 @@
-import ballerina.lang.system;
-import ballerina.doc;
-import ballerina.lang.jsons;
+import ballerina/lang.system;
+import ballerina/doc;
+import ballerina/lang.jsons;
 
 @doc:Description {value:"Workers interact with each other by sending and receiving messages. Ballerina checks the send/receive signatures of every pair of workers and validate in order to avoid deadlocks."}
 function main (string[] args) {

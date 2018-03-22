@@ -111,7 +111,7 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         String expectedCharacters = "aaa";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
@@ -148,7 +148,7 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
                 new BString("\n"), new BString(",")};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
 
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -201,7 +201,7 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         args = new BValue[]{new BString(content), new BInteger(0)};
         BRunUtil.invoke(characterInputOutputProgramFile, "writeCharacters", args);
@@ -218,7 +218,7 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"), new BString("\n"), new
                 BString(",")};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
 
         args = new BValue[]{record};
         BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);

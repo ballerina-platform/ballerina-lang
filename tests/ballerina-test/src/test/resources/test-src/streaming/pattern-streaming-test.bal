@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/runtime;
 
 struct RoomTempInfo {
     int deviceID;
@@ -50,7 +49,7 @@ streamlet TempPatternStreamlet () {
 }
 
 
-function testPatternQuery () (TempDiffInfo []) {
+function testPatternQuery () returns (TempDiffInfo []) {
 
     TempPatternStreamlet pStreamlet = {};
 
@@ -79,8 +78,6 @@ function testPatternQuery () (TempDiffInfo []) {
 }
 
 function printTempDifference (TempDiffInfo tempDiffInfo) {
-    io:println("printTemoDifference function invoked for Room:" + tempDiffInfo.roomNo +" and temp difference :" +
-               tempDiffInfo.tempDifference);
     addToGlobalTempDiffArray(tempDiffInfo);
 }
 

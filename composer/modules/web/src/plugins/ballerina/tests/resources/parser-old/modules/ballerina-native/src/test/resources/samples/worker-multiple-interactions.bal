@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function testMultiInteractions(int k)(int q) {
     int x = 1100;

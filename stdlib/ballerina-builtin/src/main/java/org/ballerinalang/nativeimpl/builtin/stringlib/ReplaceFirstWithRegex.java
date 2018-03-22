@@ -35,7 +35,7 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:replaceFirstWithRegex.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.replaceFirstWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
@@ -60,7 +60,7 @@ public class ReplaceFirstWithRegex extends AbstractRegexFunction {
             String replacedString = matcher.replaceFirst(replaceWith);
             context.setReturnValues(new BString(replacedString));
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(new BString(""), BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
     }
 }

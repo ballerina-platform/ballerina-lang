@@ -179,16 +179,14 @@ public class HttpService {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
             httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
-            return httpService;
+        } else {
+            Struct serviceConfig = serviceConfigAnnotation.getValue();
+            httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
+            httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
+            httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
+            httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
+            httpService.setTransactionInfectable(serviceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
         }
-
-        Struct serviceConfig = serviceConfigAnnotation.getValue();
-
-        httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
-        httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
-        httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
-        httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
-        httpService.setTransactionInfectable(serviceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
 
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBallerinaService().getResources()) {

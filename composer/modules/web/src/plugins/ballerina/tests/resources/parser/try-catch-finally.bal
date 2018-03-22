@@ -1,4 +1,4 @@
-import ballerina.lang.errors;
+import ballerina/lang.errors;
 
 struct testError {
     string msg;

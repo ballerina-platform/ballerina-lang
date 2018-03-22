@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/runtime;
 
 struct StatusCount {
     string status;
@@ -52,7 +51,7 @@ streamlet pipelineStreamlet () {
 }
 
 
-function testPipelineQuery () (StatusCount []) {
+function testPipelineQuery () returns (StatusCount []) {
 
     pipelineStreamlet pStreamlet = {};
 
@@ -72,7 +71,6 @@ function testPipelineQuery () (StatusCount []) {
 }
 
 function printStatusCount (StatusCount s) {
-    io:println("printStatusCount function invoked for status:" + s.status +" and total count :"+s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 

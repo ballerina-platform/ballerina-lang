@@ -105,6 +105,6 @@ public class BType implements ValueType {
     }
 
     protected String getQualifiedTypeName() {
-        return tsymbol.pkgID.name + ":" + tsymbol.name;
+        return tsymbol.pkgID.bvmAlias() + ":" + tsymbol.name;
     }
 }

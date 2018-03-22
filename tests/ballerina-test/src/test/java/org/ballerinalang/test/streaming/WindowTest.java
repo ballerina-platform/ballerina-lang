@@ -20,7 +20,6 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -43,15 +42,14 @@ public class WindowTest {
 
     @Test(description = "Test window streaming query with groupby and aggregation function.")
     public void testWindowQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testWindowQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testWindowQuery");
 
-        BRefValueArray outputStatusCountArray = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputStatusCountArray);
 
-        Assert.assertEquals(outputStatusCountArray.size(), 2, "Expected events are not received");
+        Assert.assertEquals(outputStatusCountArray.length, 2, "Expected events are not received");
 
-        BStruct statusCount0 = (BStruct) outputStatusCountArray.get(0);
-        BStruct statusCount1 = (BStruct) outputStatusCountArray.get(1);
+        BStruct statusCount0 = (BStruct) outputStatusCountArray[0];
+        BStruct statusCount1 = (BStruct) outputStatusCountArray[1];
 
         Assert.assertEquals(statusCount0.getIntField(0), 2);
         Assert.assertEquals(statusCount1.getIntField(0), 1);
