@@ -123,20 +123,22 @@ function <Cache cache> evictCache () {
     }
 }
 
-@Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
+@Description {value:"Returns the cached value associated with the given key. If the provided cache key is not found,
+an error will be thrown. So use the hasKey function to check for the existance of a particular key."}
 @Param {value:"key: key which is used to retrieve the cached value"}
 @Return {value:"The cached value associated with the given key"}
 public function <Cache cache> get (string key) returns (any) {
+    // If the key is not found, an error will be thrown from here.
     any value = cache.entries[key];
-    if (value == null) {
-        return null;
+    // So the value will be always not null here.
+    var entry = <CacheEntry>value;
+    match (entry) {
+        CacheEntry ce => {
+            ce.lastAccessedTime = time:currentTime().time;
+            return ce.value;
+        }
+        error e => throw e;
     }
-    var entry, e = (CacheEntry)value;
-    if (e != null || entry == null) {
-        return null;
-    }
-    entry.lastAccessedTime = time:currentTime().time;
-    return entry.value;
 }
 
 @Description {value:"Removes a cached value from a cache."}
@@ -150,42 +152,46 @@ public function <Cache cache> remove (string key) {
 function runCacheExpiry () returns (error|null) {
     // Iterate through all caches.
     foreach currentCacheKey, currentCacheValue in cacheMap {
-        var currentCache, err = (Cache)currentCacheValue;
-        if (err != null) {
-            next;
-        }
-        // If the cache is null, go to next cache.
-        if (currentCache == null) {
-            next;
-        }
-        // Get the entries in the current cache.
-        map currentCacheEntries = currentCache.entries;
-        // Ge the keys in the current cache.
-        string[] currentCacheEntriesKeys = currentCacheEntries.keys();
-        // Get the expiry time of the current cache
-        int currentCacheExpiryTime = currentCache.expiryTimeMillis;
+        var value = <Cache>currentCacheValue;
+        match (value) {
+            Cache currentCache => {
+            // Get the entries in the current cache.
+                map currentCacheEntries = currentCache.entries;
+                // Ge the keys in the current cache.
+                string[] currentCacheEntriesKeys = currentCacheEntries.keys();
+                // Get the expiry time of the current cache
+                int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
-        // Create a new array to store keys of cache entries which needs to be removed.
-        string[] cachesToBeRemoved = [];
-        int cachesToBeRemovedIndex = 0;
-        // Iterate through all keys.
-        foreach key in currentCacheEntriesKeys {
-            // Get the corresponding entry from the cache.
-            var entry, _ = (CacheEntry)currentCacheEntries[key];
-            // Get the current system time.
-            int currentSystemTime = time:currentTime().time;
-            // Check whether the cache entry needs to be removed.
-            if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
-                cachesToBeRemoved[cachesToBeRemovedIndex] = key;
-                cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
+                // Create a new array to store keys of cache entries which needs to be removed.
+                string[] cachesToBeRemoved = [];
+                int cachesToBeRemovedIndex = 0;
+                // Iterate through all keys.
+                foreach key in currentCacheEntriesKeys {
+                    // Get the corresponding entry from the cache.
+                    var entry = <CacheEntry>currentCacheEntries[key];
+                    match (entry) {
+                        CacheEntry ce => {// Get the current system time.
+                            int currentSystemTime = time:currentTime().time;
+                            // Check whether the cache entry needs to be removed.
+                            if (currentSystemTime >= ce.lastAccessedTime + currentCacheExpiryTime) {
+                                cachesToBeRemoved[cachesToBeRemovedIndex] = key;
+                                cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
+                            }
+                        }
+                        error => next;
+                    }
+                }
+
+                // Iterate through the key list which needs to be removed.
+                foreach currentKeyIndex in [0..cachesToBeRemovedIndex) {
+                    string key = cachesToBeRemoved[currentKeyIndex];
+                    // Remove the cache entry.
+                    _ = currentCacheEntries.remove(key);
+                }
             }
-        }
-
-        // Iterate through the key list which needs to be removed.
-        foreach currentKeyIndex in [0..cachesToBeRemovedIndex) {
-            string key = cachesToBeRemoved[currentKeyIndex];
-            // Remove the cache entry.
-            _ = currentCacheEntries.remove(key);
+            error => {
+                next;
+            }
         }
     }
     return null;
@@ -201,9 +207,12 @@ function <Cache cache> getLRUCacheKeys (int numberOfKeysToEvict) returns (string
     string[] keys = entries.keys();
     // Iterate through each key.
     foreach key in keys {
-        var entry, _ = (CacheEntry)entries[key];
+        var entry = <CacheEntry>entries[key];
+        match (entry) {
+            CacheEntry ce => checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, ce.lastAccessedTime);
+            error => next;
+        }
         // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
-        checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
     }
     // Return the array.
     return cacheKeysToBeRemoved;

@@ -1,4 +1,4 @@
-function checkFunctionPointerNullEqual()(int){
+function checkFunctionPointerNullEqual() returns (int){
    function (int, string) returns (float) f = getIt();
    if (f == null) {
        return 1;
@@ -7,7 +7,7 @@ function checkFunctionPointerNullEqual()(int){
    }
 }
 
-function checkFunctionPointerNullNotEqual()(int){
+function checkFunctionPointerNullNotEqual() returns (int){
    function (int, string) returns (float) f = getIt();
    if (f != null) {
        return 1;
@@ -16,13 +16,13 @@ function checkFunctionPointerNullNotEqual()(int){
    }
 }
 
-function getIt () (function (int, string) returns (float) f) {
-    f = test;
-    return;
+function getIt () returns (function (int, string) returns (float)) {
+    function (int, string) returns (float) f = test;
+    return f;
 }
 
-function test (int x, string s) returns (float f) {
+function test (int x, string s) returns (float) {
     var y, _ = <int>s;
-    f = x * 1.0 * y;
-    return;
+    float f = x * 1.0 * y;
+    return f;
 }

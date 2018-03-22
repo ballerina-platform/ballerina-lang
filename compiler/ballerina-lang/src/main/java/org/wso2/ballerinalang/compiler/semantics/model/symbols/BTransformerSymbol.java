@@ -31,7 +31,7 @@ public class BTransformerSymbol extends BConversionOperatorSymbol {
                               BType type,
                               BSymbol owner, 
                               boolean safe) {
-        super(pkgID, type, owner, safe, -1);
+        super(pkgID, type, owner, false, safe, -1);
         this.name = name;
         tag = SymTag.TRANSFORMER;
     }

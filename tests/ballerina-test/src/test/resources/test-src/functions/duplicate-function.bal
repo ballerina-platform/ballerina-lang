@@ -1,4 +1,4 @@
-function foo(string param) (boolean){
+function foo(string param) returns (boolean){
 	return true;
 }
 
