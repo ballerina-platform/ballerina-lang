@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.config;
+import ballerina/net.http;
+import ballerina/config;
 
 endpoint http:ServiceEndpoint backendEP {
     port: getBackendPort()

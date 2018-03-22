@@ -1,4 +1,4 @@
-import ballerina.config;
+import ballerina/config;
 
 function testGetAsString(string key) returns (string|null) {
     return config:getAsString(key);
