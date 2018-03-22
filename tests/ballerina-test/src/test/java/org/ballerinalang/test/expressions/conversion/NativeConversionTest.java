@@ -131,8 +131,6 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(0), 87);
         Assert.assertEquals(marksArray.get(1), 94);
         Assert.assertEquals(marksArray.get(2), 72);
-        
-        Assert.assertNull(returns[1]);
     }
 
     @Test

@@ -79,6 +79,15 @@ public class TypeCastExprTest {
     }
 
     @Test
+    public void floattointWithError() {
+        BValue[] args = {new BFloat(222222.44444f)};
+        BValue[] returns = BRunUtil.invoke(result, "floattointWithError", args);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        final String expected = "222222";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test
     public void testIntToFloat() {
         BValue[] args = {new BInteger(55555555)};
         BValue[] returns = BRunUtil.invoke(result, "inttofloat", args);
@@ -411,11 +420,11 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testNullJsonToBoolean", new BValue[]{});
     }
 
-    @Test(description = "Test casting a null Struct to Struct")
-    public void testNullStructToStruct() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullStructToStruct", new BValue[]{});
-        Assert.assertEquals(returns[0], null);
-    }
+//    @Test(description = "Test casting a null Struct to Struct")
+//    public void testNullStructToStruct() {
+//        BValue[] returns = BRunUtil.invoke(result, "testNullStructToStruct", new BValue[]{});
+//        Assert.assertEquals(returns[0], null);
+//    }
 
     @Test(description = "Test casting an int as any type to json",
             expectedExceptions = {BLangRuntimeException.class},

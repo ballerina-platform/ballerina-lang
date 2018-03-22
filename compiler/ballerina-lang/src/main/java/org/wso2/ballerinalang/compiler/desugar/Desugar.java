@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -562,11 +561,11 @@ public class Desugar extends BLangNodeVisitor {
         // Resolve Access Expr's cast operator
         for (int i = 0; i < stmt.varRefs.size(); i++) {
             BLangExpression varRef = stmt.varRefs.get(i);
-            BSymbol symbol = symResolver.resolveExplicitCastOperator(symTable.anyType, varRef.type);
+            BSymbol symbol = symResolver.resolveConversionOperator(symTable.anyType, varRef.type);
             if (symbol == symTable.notFoundSymbol) {
-                stmt.castOperatorSymbols.add(null);
+                stmt.convOperatorSymbols.add(null);
             } else {
-                stmt.castOperatorSymbols.add((BCastOperatorSymbol) symbol);
+                stmt.convOperatorSymbols.add((BConversionOperatorSymbol) symbol);
             }
         }
     }
@@ -1413,7 +1412,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             literal.type = symTable.getTypeFromTag(type);
             types.setImplicitCastExpr(literal, new BType(type, null), symTable.anyType);
-            expr.exprs.add(literal.impCastExpr);
+            expr.exprs.add(literal.impConversionExpr);
         });
         return expr;
     }
@@ -1501,9 +1500,9 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangExpression expr = node;
-        if (node.impCastExpr != null) {
-            expr = node.impCastExpr;
-            node.impCastExpr = null;
+        if (node.impConversionExpr != null) {
+            expr = node.impConversionExpr;
+            node.impConversionExpr = null;
         }
 
         expr.accept(this);
@@ -1816,11 +1815,14 @@ public class Desugar extends BLangNodeVisitor {
             // Create a type cast expression
             BLangExpression patternVarExpr;
             if (types.isValueType(patternClause.variable.type)) {
-                BLangTypeCastExpr castExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
+                //TODO unbox_int instruction
+                BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
                 castExpr.expr = matchExprVarRef;
-                castExpr.castSymbol = (BCastOperatorSymbol) this.symResolver.resolveExplicitCastOperator(
-                        symTable.anyType, patternClause.variable.type);
-                castExpr.types = Lists.of(castExpr.castSymbol.type.getReturnTypes().get(0));
+//                castExpr.conversionSymbol = (BConversionOperatorSymbol) this.symResolver.resolveConversionOperator(
+//                        symTable.anyType, patternClause.variable.type);
+                castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType,
+                        patternClause.variable.type);
+                castExpr.type = patternClause.variable.type;
                 patternVarExpr = castExpr;
             } else {
                 patternVarExpr = matchExprVarRef;
