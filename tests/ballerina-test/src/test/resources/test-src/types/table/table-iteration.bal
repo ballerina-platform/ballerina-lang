@@ -27,8 +27,9 @@ function testForEachInTableWithStmt () returns (int, int, float, string) {
         options: {maximumPoolSize:1}
     };
 
-    var x = testDB -> select("SELECT * from Person where id = 1", null, typeof Person);
-    //TODO:match
+    table dt1 =? testDB -> select("SELECT * from Person where id = 1", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
+
     int id;
     int age;
     float salary;
@@ -54,9 +55,10 @@ function testForEachInTable () returns (int, int, float, string) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB-> select("SELECT * from Person where id = 1", null, typeof Person);
-    //TODO:match x to to get table<Person> dt
+
+    table dt1 =? testDB-> select("SELECT * from Person where id = 1", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
+
     dt.foreach (function (Person p) {
                     idValue = p.id;
                     ageValue = p.age;
@@ -83,7 +85,8 @@ function testCountInTable () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    var x = testDB -> select("SELECT * from Person where id < 10", null, typeof Person);
+    table dt1 =? testDB -> select("SELECT * from Person where id < 10", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     int count = dt.count();
     _ = testDB -> close();
     return count;
@@ -99,9 +102,9 @@ function testFilterTable () returns (int, int, int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person", null, typeof Person);
-    //TODO
+
+    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     Person[] personBelow35 = dt.filter(isBellow35);
     int count = lengthof personBelow35;
     int id1 = personBelow35[0].id;
@@ -120,9 +123,9 @@ function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person", null, typeof Person);
-//TODO
+
+    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
                                            return p.age < 35;
                                        });
@@ -143,8 +146,9 @@ function testFilterTableWithCount () returns (int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     int count = dt.filter(isBellow35).count();
     _ = testDB -> close();
     return count;
@@ -160,8 +164,9 @@ function testMapTable () returns (string[]) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-   var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     string[] names = dt.map(getName);
     _ = testDB -> close();
     return names;
@@ -177,9 +182,9 @@ function testMapWithFilterTable () returns (string[]) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    //TODO:match
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     string[] names = dt.map(getName).filter(isGeraterThan4String);
     _ = testDB -> close();
     return names;
@@ -195,9 +200,9 @@ function testFilterWithMapTable () returns (string[]) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    //TODO:mactch
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     string[] names = dt.filter(isGeraterThan4).map(getName);
     _ = testDB -> close();
     return names;
@@ -213,9 +218,9 @@ function testFilterWithMapAndCountTable () returns (int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    //TODO:match
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     int count = dt.filter(isGeraterThan4).map(getName).count();
     _ = testDB -> close();
     return count;
@@ -231,10 +236,10 @@ function testAverageWithTable () returns (float) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    //TODO:macth
-float avgSal = dt.map(getSalary).average();
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
+    float avgSal = dt.map(getSalary).average();
     _ = testDB -> close();
     return avgSal;
 }
@@ -249,9 +254,9 @@ function testMinWithTable () returns (float) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    //TODO:
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     float avgSal = dt.map(getSalary).min();
     _= testDB -> close();
     return avgSal;
@@ -267,12 +272,12 @@ function testMaxWithTable () returns (float) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-//TODO:match
-float avgSal = dt.map(getSalary).max();
+
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
+    float avgSal = dt.map(getSalary).max();
     _ =testDB -> close();
-    return;
+    return avgSal;
 }
 
 function testSumWithTable () returns (float) {
@@ -286,8 +291,8 @@ function testSumWithTable () returns (float) {
         options: {maximumPoolSize:1}
     };
 
-    var x = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    //TODO:match
+    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
+    table<Person> dt = dt1; //TODO:remove this
     float avgSal = dt.map(getSalary).sum();
     _ = testDB -> close();
     return avgSal;
@@ -303,10 +308,10 @@ function testCloseConnectionPool () returns (int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-	
-    var x = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+
+    table dt1 =? testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                               typeof ResultCount);
-    //TODO:match x
+    table<Person> dt = dt1; //TODO:remove this
     int count;
     while (dt.hasNext()) {
         var rs, _ = (ResultCount) dt.getNext();
