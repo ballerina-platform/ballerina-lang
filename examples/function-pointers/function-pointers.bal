@@ -14,8 +14,7 @@ function foo (int x, function (int, string) returns (float) bar)
 
 @Description {value:"Function pointer as a return type."}
 function getIt () returns (function (int, string) returns (float)) {
-    var f = test;
-    return f;
+    return test;
 }
 
 function main (string[] args) {
