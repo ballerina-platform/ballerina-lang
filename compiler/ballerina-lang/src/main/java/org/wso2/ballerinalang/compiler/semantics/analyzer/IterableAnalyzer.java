@@ -122,6 +122,12 @@ public class IterableAnalyzer {
             return;
         }
 
+        if (operation.kind == IterableKind.SELECT && operation.collectionType.tag != TypeTags.TABLE) {
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, IterableKind.SELECT.getKind());
+            operation.resultTypes = Lists.of(symTable.errType);
+            return;
+        }
+
         final List<BType> bTypes = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), operation.env);
         if (bTypes.size() != 1 || bTypes.get(0).tag != TypeTags.INVOKABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
@@ -140,6 +146,7 @@ public class IterableAnalyzer {
         final List<BType> supportedRetTypes;    // calculated lambda's return types. (By looking operation type)
         switch (operation.kind) {
             case MAP:
+            case SELECT:
                 supportedRetTypes = givenRetTypes;
                 break;
             case FILTER:
@@ -167,8 +174,11 @@ public class IterableAnalyzer {
             if (givenTypes.get(i).tag == TypeTags.ERROR) {
                 return;
             }
-            types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
+            BType result = types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
                     DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
+            if (result.tag == TypeTags.ERROR && operation.resultTypes == null) {
+                operation.resultTypes = Lists.of(symTable.errType);
+            }
         }
     }
 
@@ -471,6 +481,7 @@ public class IterableAnalyzer {
             dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
             return;
         }
+        // resultTypes holds the return values of the lambda function
         if (resultTypes.get(0).tag == TypeTags.TUPLE_COLLECTION) {
             final BTupleCollectionType tupleType = (BTupleCollectionType) resultTypes.get(0);
             if (expectedTypes.get(0).tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
@@ -481,6 +492,23 @@ public class IterableAnalyzer {
                     && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
                 context.resultType = symTable.mapType;
                 lastOperation.resultTypes = Lists.of(context.resultType);
+                return;
+            } else if (expectedTypes.get(0).tag == TypeTags.TABLE) {
+                // expectedTypes hold the types of expected return values (types of references) of the iterable
+                // function call.
+                // Here we validate,
+                // 1. whether number of return values of the lambda function is 1.
+                // 2. Whether it is a struct that is returned
+                // 3. Whether the returned struct is compatible with the constraint struct of the expected type(table)
+                if (tupleType.getTupleTypes().size() == 1 && tupleType.getTupleTypes().get(0).tag == TypeTags.STRUCT
+                        && types.isAssignable(tupleType.getTupleTypes().get(0), ((BTableType) expectedTypes.get(0))
+                        .constraint)) {
+                    context.resultType = symTable.tableType;
+                    lastOperation.resultTypes = Lists.of(context.resultType);
+                } else {
+                    context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0),
+                            ((BTableType) expectedTypes.get(0)).constraint, DiagnosticCode.INCOMPATIBLE_TYPES);
+                }
                 return;
             } else if (expectedTypes.get(0).tag == TypeTags.ANY) {
                 context.resultType = symTable.errType;
