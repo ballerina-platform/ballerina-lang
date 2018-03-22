@@ -38,14 +38,11 @@ public class URIConverter implements Converter<URI> {
                 uri = url.toURI();
             } catch (URISyntaxException ignore) {
             }
-        }
-
-        if (uri != null) {
             this.pullBalxLocation = uri;
         } else {
-            throw new MissingResourceException("Missing balx artifact for pulling resources",
-                    executor.getClass().toString(),
-                    BALLERINA_PULL_BALX);
+            throw new MissingResourceException("Missing internal modules when building package",
+                                               executor.getClass().toString(),
+                                               BALLERINA_PULL_BALX);
         }
     }
 
@@ -93,14 +90,14 @@ public class URIConverter implements Converter<URI> {
         try {
             String fullPkgPath = orgName + "/" + pkgName;
             executor.execute(pullBalxLocation,
-                    u.toString(),
-                    destDirPath.toString(),
-                    fullPkgPath,
-                    File.separator);
+                             u.toString(),
+                             destDirPath.toString(),
+                             fullPkgPath,
+                             File.separator);
             // TODO Simplify using ZipRepo
             Patten pattern = new Patten(Patten.WILDCARD_DIR,
-                    Patten.path(pkgName + ".zip"),
-                    Patten.path("src"), Patten.WILDCARD_SOURCE);
+                                        Patten.path(pkgName + ".zip"),
+                                        Patten.path("src"), Patten.WILDCARD_SOURCE);
             return pattern.convertToSources(new ZipConverter(destDirPath), packageID);
         } catch (Exception ignore) {
         }

@@ -1,6 +1,7 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -11,8 +12,6 @@ import java.nio.file.Paths;
  * Home repository util methods.
  */
 public class HomeRepoUtils {
-    public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
-    public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina_home";
     public static final String USER_HOME = "user.home";
 
     /**
@@ -22,13 +21,13 @@ public class HomeRepoUtils {
      */
     public static Path createAndGetHomeReposPath() {
         Path homeRepoPath;
-        String homeRepoDir = System.getenv(HOME_REPO_ENV_KEY);
+        String homeRepoDir = System.getenv(ProjectDirConstants.HOME_REPO_ENV_KEY);
         if (homeRepoDir == null || homeRepoDir.isEmpty()) {
             String userHomeDir = System.getProperty(USER_HOME);
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
-            homeRepoPath = Paths.get(userHomeDir, HOME_REPO_DEFAULT_DIRNAME);
+            homeRepoPath = Paths.get(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
         } else {
             // User has specified the home repo path with env variable.
             homeRepoPath = Paths.get(homeRepoDir);

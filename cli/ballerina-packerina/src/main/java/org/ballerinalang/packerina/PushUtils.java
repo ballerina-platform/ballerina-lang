@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.ExecutorUtils;
 import org.wso2.ballerinalang.util.HomeRepoUtils;
 
@@ -73,7 +74,8 @@ public class PushUtils {
         String version = manifest.getVersion();
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
-        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize().resolve(".ballerina");
+        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize().resolve(ProjectDirConstants
+                                                                                      .DOT_BALLERINA_DIR_NAME);
 
         // Get package path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
@@ -132,7 +134,8 @@ public class PushUtils {
      * @return manifest configuration object
      */
     private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
+                (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
         try {
             return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
@@ -146,7 +149,8 @@ public class PushUtils {
      * @return settings object
      */
     private static Settings readSettings() {
-        String tomlFilePath = HomeRepoUtils.createAndGetHomeReposPath().resolve("Settings.toml").toString();
+        String tomlFilePath = HomeRepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
+                                           .toString();
         try {
             return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
