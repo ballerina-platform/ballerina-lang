@@ -30,7 +30,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -229,25 +228,14 @@ public class GeneralFSPackageRepository implements PackageRepository {
         public List<String> getEntryNames() {
             if (this.cachedEntryNames == null) {
                 try {
-                    List<Path> files;
-                    if (this.pkgID.toString().startsWith("ballerina")) {
-                        files = Files.walk(this.pkgPath, 1).filter(Files::isRegularFile).filter(e -> e.getFileName()
-                                .toString().endsWith(BAL_SOURCE_EXT)).
-                                collect(Collectors.toList());
-                        this.cachedEntryNames = new ArrayList<>(files.size());
-                        files.stream().forEach(e -> this.cachedEntryNames.add(e.getFileName().toString()));
-                    } else {
-                        files = Files.walk(this.pkgPath).filter(Files::isRegularFile).filter(e -> e.getFileName()
-                                .toString().endsWith(BAL_SOURCE_EXT)).
-                                collect(Collectors.toList());
-                        this.cachedEntryNames = new ArrayList<>(files.size());
-                        files.stream().forEach(e -> this.cachedEntryNames.add(e.toString()));
-                    }
-
-
+                    List<Path> files = Files.walk(this.pkgPath, 1).filter(
+                            Files::isRegularFile).filter(e -> e.getFileName().toString().endsWith(BAL_SOURCE_EXT)).
+                            collect(Collectors.toList());
+                    this.cachedEntryNames = new ArrayList<>(files.size());
+                    files.stream().forEach(e -> this.cachedEntryNames.add(e.getFileName().toString()));
                 } catch (IOException e) {
-                    throw new RuntimeException("Error in listing packages at '" + this.pkgID + "': " + e.getMessage()
-                            , e);
+                    throw new RuntimeException("Error in listing packages at '" + this.pkgID +
+                            "': " + e.getMessage(), e);
                 }
             }
             return this.cachedEntryNames;
@@ -275,23 +263,13 @@ public class GeneralFSPackageRepository implements PackageRepository {
             private byte[] code;
 
             public FSPackageSourceEntry(String name) {
-                this.name = Paths.get(name).getFileName().toString();
-                Path filePath = basePath.resolve(pkgPath).resolve(this.name);
+                this.name = name;
+                Path filePath = basePath.resolve(name);
                 try {
-                    this.code = Files.readAllBytes(filePath);
+                    this.code = Files.readAllBytes(basePath.resolve(pkgPath).resolve(name));
                 } catch (IOException e) {
-                    try {
-                        filePath = basePath.resolve(name);
-                        this.code = Files.readAllBytes(filePath);
-                    } catch (IOException e1) {
-                        try {
-                            this.code = Files.readAllBytes(Paths.get(name));
-                        } catch (IOException e2) {
-                            //ignore
-                            throw new RuntimeException("Error in loading package source entry '" + filePath + "': " +
-                                    e.getMessage(), e);
-                        }
-                    }
+                    throw new RuntimeException("Error in loading package source entry '" + filePath +
+                            "': " + e.getMessage(), e);
                 }
             }
 
