@@ -41,7 +41,9 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
@@ -70,6 +72,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,7 +122,7 @@ public class ParserUtils {
         options.put(PROJECT_DIR, programDir);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        return getBallerinaFile(compilationUnitName, context);
+        return getBallerinaFile(Paths.get(programDir), compilationUnitName, context);
     }
 
     /**
@@ -130,14 +134,14 @@ public class ParserUtils {
      * @param compilerPhase - This will tell up to which point(compiler phase) we should process the model
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    public static BallerinaFile getBallerinaFileForContent(String fileName, String source,
+    public static BallerinaFile getBallerinaFileForContent(Path filePath, String fileName, String source,
                                                            CompilerPhase compilerPhase) {
         CompilerContext context = prepareCompilerContext(fileName, source);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
 
-        return getBallerinaFile(fileName, context);
+        return getBallerinaFile(filePath, fileName, context);
     }
 
     /**
@@ -165,13 +169,21 @@ public class ParserUtils {
      * @param context  - CompilerContext
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
-    private static BallerinaFile getBallerinaFile(String fileName, CompilerContext context) {
+    private static BallerinaFile getBallerinaFile(Path packagePath, String fileName, CompilerContext context) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         ComposerDiagnosticListener composerDiagnosticListener = new ComposerDiagnosticListener(diagnostics);
         context.put(DiagnosticListener.class, composerDiagnosticListener);
-        Compiler compiler = Compiler.getInstance(context);
+
 
         BallerinaFile ballerinaFile = new BallerinaFile();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, packagePath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.DEFINE.toString());
+        options.put(PRESERVE_WHITESPACE, "true");
+        context.put(SourceDirectory.class, new FileSystemProjectDirectory(packagePath));
+
+        Compiler compiler = Compiler.getInstance(context);
+        // compile
         try {
             ballerinaFile.setBLangPackage(compiler.compile(fileName));
         } catch (Exception ex) {

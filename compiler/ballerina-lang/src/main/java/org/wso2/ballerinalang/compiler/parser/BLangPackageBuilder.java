@@ -2080,8 +2080,9 @@ public class BLangPackageBuilder {
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
     }
 
-    public void addServiceEndpointAttachments(int size) {
+    public void addServiceEndpointAttachments(int size, Set<Whitespace> ws) {
         ServiceNode serviceNode = serviceNodeStack.peek();
+        serviceNode.addWS(ws);
         for (int i = 0; i < size; i++) {
             BLangNameReference nameReference = nameReferenceStack.pop();
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
