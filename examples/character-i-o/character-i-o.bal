@@ -1,6 +1,5 @@
 import ballerina/io;
 
-io:CharacterChannel characterChannel;
 
 @Description {value:"This function returns a CharacterChannel from a given file location according to the specified permissions and encoding."}
 function getFileCharacterChannel (string filePath, string permission, string encoding) returns
@@ -18,7 +17,6 @@ io:CharacterChannel {
             throw err;
         }
     }
-   return characterChannel;
 }
 
 @Description {value:"This function reads characters from channel"}
@@ -35,7 +33,6 @@ function readCharacters (io:CharacterChannel channel, int numberOfChars) returns
             throw err;
         }
     }
- return "";
 }
 
 @Description {value:"This function wrties characters to channel"}
