@@ -1,22 +1,23 @@
 import ballerina/net.http;
 import ballerina/mime;
 import ballerina/file;
+import ballerina/io;
 
-endpoint<http:Service> multipartEP {
+endpoint http:ClientEndpoint clientEP {
+    targets:[{uri:"http://localhost:9093"}]
+};
+
+endpoint http:ServiceEndpoint multipartEP {
     port:9092
-}
+};
 
-endpoint<http:Client> clientEP {
-    serviceUri: "http://localhost:9093"
-}
-
-@http:serviceConfig { endpoints:[multipartEP] }
-service<http:Service> nestedparts {
-      @http:resourceConfig {
+@http:ServiceConfig {basePath:"/nestedparts"}
+service<http:Service> test bind multipartEP {
+      @http:ResourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource nestedPartSender (http:ServerConnector conn, http:Request req) {
+    nestedPartSender (endpoint conn, http:Request req) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
@@ -49,9 +50,16 @@ service<http:Service> nestedparts {
         http:Request request = {};
         request.setMultiparts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
 
-        http:Response resp1 = {};
-        resp1, _ = clientEP -> post("/nestedparts/decoder", request);
-
-        _ = conn -> forward(resp1);
+        var returnResponse = clientEP -> post("/nestedparts/decoder", request);
+        match returnResponse {
+            http:HttpConnectorError err => {
+                http:Response resp1 = {};
+                io:println(err);
+                resp1.setStringPayload("Error occurred while sending multipart request!");
+                resp1.statusCode = 500;
+                _ = conn -> respond(resp1);
+            }
+            http:Response returnResult =>  _ = conn -> forward(returnResult);
+        }
     }
 }

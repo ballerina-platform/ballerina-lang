@@ -4,7 +4,7 @@ import ballerina/io;
 function main (string[] args) {
     //Create an endpoint for the first database named testdb1. Since this endpoint is
     //participated in a distributed transaction, the isXA property should be true.
-    endpoint<sql:Client> testDBEP1 {
+    endpoint sql:Client testDBEP1 {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
@@ -12,12 +12,12 @@ function main (string[] args) {
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
-    }
+    };
 
     //Create an endpoint for the second database named testdb2. Since this endpoint is
     //participated in a distributed transaction, the isXA property of the
     //sql:ClientConnector should be true.
-    endpoint<sql:Client> testDBEP2 {
+    endpoint sql:Client testDBEP2 {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
@@ -25,7 +25,7 @@ function main (string[] args) {
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
-    }
+    };
 
     var testDB1 = testDBEP1.getConnector();
     var testDB2 = testDBEP2.getConnector();
@@ -56,7 +56,7 @@ function main (string[] args) {
         io:println("Inserted count to SALARY table:" + ret);
 
         transactionSuccess = true;
-    } failed {
+    } onretry {
         io:println("Transaction failed");
         transactionSuccess = false;
     }

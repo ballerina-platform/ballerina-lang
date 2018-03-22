@@ -5,13 +5,13 @@ endpoint<mock:NonListeningService> testEP {
     port:9090
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello",
     endpoints:[testEP]
 }
 service<http:Service> negativeTemplateURI {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/echo/{abc}/bar"
     }
@@ -22,7 +22,7 @@ service<http:Service> negativeTemplateURI {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/echo/{xyz}/bar"
     }

@@ -27,8 +27,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -109,7 +108,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
@@ -726,7 +724,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
-        BSymbol structSymbol = structLiteral.type.tsymbol;
+        BStructSymbol structSymbol = (BStructSymbol) structLiteral.type.tsymbol;
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
@@ -736,13 +734,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
-        // Generate code for the struct literal default values.
-        for (BLangRecordKeyValue keyValue : structLiteral.defaultValues) {
-            BLangRecordKey key = keyValue.key;
-            Operand fieldIndex = key.fieldSymbol.varIndex;
-            genNode(keyValue.valueExpr, this.env);
-            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
+        // Invoke the struct default values init function here.
+        if (structSymbol.defaultsValuesInitFunc != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
+            // call funcRefCPIndex 1 structRegIndex 0
+            Operand[] operands = new Operand[5];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = getOperand(false);
+            operands[2] = getOperand(1);
+            operands[3] = structRegIndex;
+            operands[4] = getOperand(0);
+            emit(InstructionCodes.CALL, operands);
         }
 
         // Invoke the struct initializer here.
@@ -899,8 +901,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue);
-                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr),
-                        getRegIndex(TypeTags.STRUCT));
+                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr));
             }
         }
 
@@ -1102,65 +1103,27 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        if (cIExpr.objectInit) {
-            BSymbol structSymbol = cIExpr.type.tsymbol;
-            int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
-            int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
-            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-            Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
+        BSymbol structSymbol = cIExpr.type.tsymbol;
+        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
+        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
+        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+        Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
-            //Emit an instruction to create a new struct.
-            RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
-            emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
+        //Emit an instruction to create a new struct.
+        RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
+        emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
-            // Invoke the struct initializer here.
-            Operand[] operands = getFuncOperands(cIExpr.objectInitInvocation);
+        // Invoke the struct initializer here.
+        Operand[] operands = getFuncOperands(cIExpr.objectInitInvocation);
 
-            Operand[] callOperands = new Operand[operands.length + 1];
-            callOperands[0] = operands[0];
-            callOperands[1] = operands[1];
-            callOperands[2] = getOperand(operands[2].value + 1);
-            callOperands[3] = structRegIndex;
+        Operand[] callOperands = new Operand[operands.length + 1];
+        callOperands[0] = operands[0];
+        callOperands[1] = operands[1];
+        callOperands[2] = getOperand(operands[2].value + 1);
+        callOperands[3] = structRegIndex;
 
-            System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
-            emit(InstructionCodes.CALL, callOperands);
-            return;
-        }
-        BConnectorType connectorType = (BConnectorType) cIExpr.type;
-        BConnectorSymbol connectorSymbol = (BConnectorSymbol) connectorType.tsymbol;
-
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, connectorSymbol.pkgID);
-        int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorSymbol.name.value);
-        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connNameCPIndex);
-        Operand structureRefCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
-
-        //Emit an instruction to create a new connector.
-        RegIndex connectorRegIndex = calcAndGetExprRegIndex(cIExpr);
-        emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-
-        List<BLangExpression> argExprs = cIExpr.argsExpr;
-        for (int i = 0; i < argExprs.size(); i++) {
-            BLangExpression argExpr = argExprs.get(i);
-            genNode(argExpr, this.env);
-            BVarSymbol paramSymbol = connectorSymbol.params.get(i);
-            int opcode = getOpcode(paramSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, connectorRegIndex, paramSymbol.varIndex, argExpr.regIndex);
-        }
-
-        BInvokableSymbol initFunc = connectorSymbol.initFunctionSymbol;
-        int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
-        Operand initFuncRefCPIndex = getOperand(currentPkgInfo.addCPEntry(funcRefCPEntry));
-        Operand[] operands = new Operand[] { initFuncRefCPIndex, getOperand(false), getOperand(1),
-                connectorRegIndex, getOperand(0) };
-        emit(InstructionCodes.CALL, operands);
-
-        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
-        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
-        Operand actionRefCPIndex = getOperand(currentPkgInfo.addCPEntry(actionRefCPEntry));
-        operands = new Operand[] { actionRefCPIndex, getOperand(false), getOperand(1), connectorRegIndex,
-                getOperand(0) };
-        emit(InstructionCodes.ACALL, operands);
+        System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
+        emit(InstructionCodes.CALL, callOperands);
     }
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {
@@ -1194,59 +1157,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.FPCALL, operands);
     }
 
-    public void visit(BLangTypeCastExpr castExpr) {
-        int opcode = castExpr.castSymbol.opcode;
-        RegIndex[] castExprRegIndexes = castExpr.getRegIndexes();
-
-        // Figure out the reg index of the error value
-        RegIndex errorRegIndex = castExprRegIndexes == null ?
-                calcAndGetExprRegIndex(null, TypeTags.STRUCT) :
-                calcAndGetExprRegIndex(castExprRegIndexes[1], TypeTags.STRUCT);
-
-        // Figure out the reg index of the result value
-        BType castExprType = castExpr.types.get(0);
-        RegIndex castExprRegIndex = castExprRegIndexes == null ?
-                calcAndGetExprRegIndex(castExpr.regIndex, castExprType.tag) :
-                calcAndGetExprRegIndex(castExprRegIndexes[0], castExprType.tag);
-
-        castExprRegIndexes = new RegIndex[]{castExprRegIndex, errorRegIndex};
-        castExpr.setRegIndexes(castExprRegIndexes);
-        if (opcode == InstructionCodes.NOP) {
-            castExpr.expr.regIndex = createLHSRegIndex(castExprRegIndex);
-            genNode(castExpr.expr, this.env);
-            return;
-        }
-
-        genNode(castExpr.expr, this.env);
-        if (opcode == InstructionCodes.ANY2T ||
-                opcode == InstructionCodes.ANY2C ||
-                opcode == InstructionCodes.ANY2E ||
-                opcode == InstructionCodes.ANY2M ||
-                opcode == InstructionCodes.CHECKCAST) {
-            Operand typeCPIndex = getTypeCPIndex(castExpr.type);
-            emit(opcode, castExpr.expr.regIndex, typeCPIndex, castExprRegIndex, errorRegIndex);
-        } else {
-            emit(opcode, castExpr.expr.regIndex, castExprRegIndex, errorRegIndex);
-        }
-    }
-
     public void visit(BLangTypeConversionExpr convExpr) {
         int opcode = convExpr.conversionSymbol.opcode;
-        RegIndex[] convExprRegIndexes = convExpr.getRegIndexes();
-
-        // Figure out the reg index of the error value
-        RegIndex errorRegIndex = convExprRegIndexes == null ?
-                calcAndGetExprRegIndex(null, TypeTags.STRUCT) :
-                calcAndGetExprRegIndex(convExprRegIndexes[1], TypeTags.STRUCT);
 
         // Figure out the reg index of the result value
-        BType castExprType = convExpr.types.get(0);
-        RegIndex convExprRegIndex = convExprRegIndexes == null ?
-                calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag) :
-                calcAndGetExprRegIndex(convExprRegIndexes[0], castExprType.tag);
-
-        convExprRegIndexes = new RegIndex[]{convExprRegIndex, errorRegIndex};
-        convExpr.setRegIndexes(convExprRegIndexes);
+        BType castExprType = convExpr.type;
+        RegIndex convExprRegIndex = calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag);
+        convExpr.regIndex = convExprRegIndex;
         if (opcode == InstructionCodes.NOP) {
             convExpr.expr.regIndex = createLHSRegIndex(convExprRegIndex);
             genNode(convExpr.expr, this.env);
@@ -1254,12 +1171,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         genNode(convExpr.expr, this.env);
-        if (opcode == InstructionCodes.MAP2T || opcode == InstructionCodes.JSON2T) {
-            Operand typeCPIndex = getTypeCPIndex(convExpr.type);
-            emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex, errorRegIndex);
-
+        if (opcode == InstructionCodes.MAP2T ||
+                opcode == InstructionCodes.JSON2T ||
+                opcode == InstructionCodes.ANY2T ||
+                opcode == InstructionCodes.ANY2C ||
+                opcode == InstructionCodes.ANY2E ||
+                opcode == InstructionCodes.ANY2M ||
+                opcode == InstructionCodes.CHECKCAST) {
+            Operand typeCPIndex = getTypeCPIndex(convExpr.typeNode.type);
+            emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
         } else {
-            emit(opcode, convExpr.expr.regIndex, convExprRegIndex, errorRegIndex);
+            emit(opcode, convExpr.expr.regIndex, convExprRegIndex);
         }
     }
 
@@ -1584,16 +1506,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         while (i < returnNode.exprs.size()) {
             BLangExpression expr = returnNode.exprs.get(i);
             this.genNode(expr, this.env);
-            if (expr.isMultiReturnExpr()) {
-                MultiReturnExpr invExpr = (MultiReturnExpr) expr;
-                for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
-                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), getOperand(i), invExpr.getRegIndexes()[j]);
-                    i++;
-                }
-            } else {
-                emit(this.typeTagToInstr(expr.type.tag), getOperand(i), expr.regIndex);
-                i++;
-            }
+            emit(this.typeTagToInstr(expr.type.tag), getOperand(i), expr.regIndex);
+            i++;
         }
         generateFinallyInstructions(returnNode);
     }
@@ -1744,9 +1658,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Calculate registers to store return values
         operands[i++] = getOperand(nRetRegs);
         RegIndex[] iExprRegIndexes;
-        if (iExpr.getRegIndexes() != null) {
-            iExprRegIndexes = iExpr.getRegIndexes();
-        } else if (iExpr.regIndex != null) {
+        if (iExpr.regIndex != null) {
             iExprRegIndexes = new RegIndex[nRetRegs];
             iExprRegIndexes[0] = iExpr.regIndex;
         } else {
@@ -1937,7 +1849,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             structFieldInfo.fieldType = structField.type;
 
             // Populate default values
-            if (structField.expr != null) {
+            if (structField.expr != null && structField.expr.getKind() == NodeKind.LITERAL) {
                 DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) structField.expr);
                 structFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
@@ -2631,8 +2543,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Set the reg indexes generated by visiting rhs expression to lhs expression
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
             regIndexes = getTupleDestructureRegIndexs((BLangTupleDestructure) assignNode);
-        } else if (rhsExpr.isMultiReturnExpr()) {
-            regIndexes = ((MultiReturnExpr) rhsExpr).getRegIndexes();
         } else {
             regIndexes[0] = rhsExpr.regIndex;
         }
@@ -2672,7 +2582,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(indexLiteral, this.env);
             RegIndex castExprRegIndex = calcAndGetExprRegIndex(varRef.regIndex, varRef.type.tag);
             // Cast if required.
-            final BCastOperatorSymbol castSymbol = stmt.castOperatorSymbols.get(i);
+            final BConversionOperatorSymbol castSymbol = stmt.convOperatorSymbols.get(i);
             if (castSymbol != null && castSymbol.opcode != InstructionCodes.NOP) {
                 emit(InstructionCodes.RALOAD, varRefRegIndex, indexLiteral.regIndex, tempValueStore);
                 int opcode = castSymbol.opcode;

@@ -1,22 +1,23 @@
 import ballerina/net.http;
 import ballerina/mime;
 import ballerina/file;
+import ballerina/io;
 
-endpoint<http:Service> multipartEP {
+endpoint http:ClientEndpoint clientEP {
+    targets:[{uri:"http://localhost:9090"}]
+};
+
+endpoint http:ServiceEndpoint multipartEP {
     port:9092
-}
+};
 
-endpoint<http:Client> clientEP {
-    serviceUri: "http://localhost:9090"
-}
-
-@http:serviceConfig { endpoints:[multipartEP] }
-service<http:Service> multiparts {
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/multiparts"}
+service<http:Service> test bind multipartEP {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource encodeMultiparts (http:ServerConnector conn, http:Request req) {
+    encodeMultiparts (endpoint conn, http:Request req) {
 
         //Create a json body part.
         mime:Entity jsonBodyPart = {};
@@ -51,15 +52,21 @@ service<http:Service> multiparts {
         //multipart media type. eg:- multipart/mixed, multipart/related etc... Just pass the content type that suit
         //your requirement.
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
-
-        http:Response resp1 = {};
-        resp1, _ = clientEP -> post("/multiparts/decode_in_request", request);
-
-        _ = conn -> forward(resp1);
+            var returnResponse = clientEP -> post("/multiparts/decode_in_request", request);
+            match returnResponse {
+                http:HttpConnectorError err => {
+                    http:Response resp1 = {};
+                    io:println(err);
+                    resp1.setStringPayload("Error occurred while sending multipart request!");
+                    resp1.statusCode = 500;
+                    _ = conn -> respond(resp1);
+                }
+                http:Response returnResult => {_ = conn -> forward(returnResult);}
+            }
     }
 }
 
-function getContentDispositionForFormData(string partName) (mime:ContentDisposition){
+function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
     mime:ContentDisposition contentDisposition = {};
     contentDisposition.name =  partName;
     contentDisposition.disposition = "form-data";
