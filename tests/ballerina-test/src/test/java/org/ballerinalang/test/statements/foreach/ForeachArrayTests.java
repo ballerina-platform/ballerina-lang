@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -258,9 +259,12 @@ public class ForeachArrayTests {
 
     @Test
     public void testThrow1() {
-        BValue[] returns = BRunUtil.invoke(program, "testThrow1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 d1 found");
+        try {
+            BRunUtil.invoke(program, "testThrow1");
+            Assert.fail();
+        } catch (BLangRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("message: d1 found"));
+        }
     }
 
     @Test
