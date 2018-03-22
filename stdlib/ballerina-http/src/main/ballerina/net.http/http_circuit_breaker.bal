@@ -40,19 +40,19 @@ package ballerina.net.http;
 //   time:Time lastErrorTime;
 //}
 //
-//documentation {
-//    Represents Circuit Breaker configuration.
-//
-//    F{{failureThreshold}}  - The threshold for request failures. When this threshold is crossed, the circuit will trip.
-//                             The threshold should be a value between 0 and 1.
-//    F{{resetTimeout}} - The time period to wait before attempting to make another request to the upstream service.
-//    F{{httpStatusCodes}} - Array of http response status codes which considered as failure responses.
-//}
-//public struct CircuitBreakerConfig {
-//    float failureThreshold;
-//    int resetTimeout;
-//    int [] httpStatusCodes;
-//}
+documentation {
+    Represents Circuit Breaker configuration.
+
+    F{{failureThreshold}}  - The threshold for request failures. When this threshold is crossed, the circuit will trip.
+                             The threshold should be a value between 0 and 1.
+    F{{resetTimeout}} - The time period to wait before attempting to make another request to the upstream service.
+    F{{httpStatusCodes}} - Array of http response status codes which considered as failure responses.
+}
+public struct CircuitBreakerConfig {
+    float failureThreshold;
+    int resetTimeout;
+    int [] httpStatusCodes;
+}
 //
 //
 //struct CircuitBreakerInferredConfig {

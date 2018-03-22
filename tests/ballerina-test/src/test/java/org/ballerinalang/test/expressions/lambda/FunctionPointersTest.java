@@ -145,21 +145,6 @@ public class FunctionPointersTest {
     }
 
     @Test
-    public void testGlobalFPNull() {
-        // Invoking null function pointer.
-        BLangRuntimeException exceptionThrown = null;
-        try {
-            BRunUtil.invoke(globalProgram, "test4");
-        } catch (BLangRuntimeException e) {
-            exceptionThrown = e;
-        }
-        if (exceptionThrown == null) {
-            Assert.fail("Exception expected.");
-        }
-        Assert.assertTrue(exceptionThrown.getMessage().contains("NullReferenceException"));
-    }
-
-    @Test
     public void testGlobalFPWithLocalFP() {
         BValue[] returns;
         // Check global and local variable.
