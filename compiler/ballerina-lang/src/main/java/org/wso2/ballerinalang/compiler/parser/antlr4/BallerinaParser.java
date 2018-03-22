@@ -59,10 +59,11 @@ public class BallerinaParser extends Parser {
 		DoubleBackTickInlineCodeEnd=207, DoubleBackTickInlineCode=208, SingleBackTickInlineCodeEnd=209, 
 		SingleBackTickInlineCode=210, DeprecatedTemplateEnd=211, SBDeprecatedInlineCodeStart=212, 
 		DBDeprecatedInlineCodeStart=213, TBDeprecatedInlineCodeStart=214, DeprecatedTemplateText=215, 
-		StringTemplateLiteralEnd=216, StringTemplateExpressionStart=217, StringTemplateText=218;
+		StringTemplateLiteralEnd=216, StringTemplateExpressionStart=217, StringTemplateText=218, 
+		Semvar=219;
 	public static final int
-		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_packageName = 2, 
-		RULE_version = 3, RULE_importDeclaration = 4, RULE_orgName = 5, RULE_definition = 6, 
+		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_importDeclaration = 2, 
+		RULE_packageName = 3, RULE_version = 4, RULE_orgName = 5, RULE_definition = 6, 
 		RULE_serviceDefinition = 7, RULE_serviceEndpointAttachments = 8, RULE_serviceBody = 9, 
 		RULE_resourceDefinition = 10, RULE_resourceParameterList = 11, RULE_callableUnitBody = 12, 
 		RULE_functionDefinition = 13, RULE_lambdaFunction = 14, RULE_callableUnitSignature = 15, 
@@ -129,8 +130,8 @@ public class BallerinaParser extends Parser {
 		RULE_docText = 192, RULE_documentationTemplateInlineCode = 193, RULE_singleBackTickDocInlineCode = 194, 
 		RULE_doubleBackTickDocInlineCode = 195, RULE_tripleBackTickDocInlineCode = 196;
 	public static final String[] ruleNames = {
-		"compilationUnit", "packageDeclaration", "packageName", "version", "importDeclaration", 
-		"orgName", "definition", "serviceDefinition", "serviceEndpointAttachments", 
+		"compilationUnit", "packageDeclaration", "importDeclaration", "packageName", 
+		"version", "orgName", "definition", "serviceDefinition", "serviceEndpointAttachments", 
 		"serviceBody", "resourceDefinition", "resourceParameterList", "callableUnitBody", 
 		"functionDefinition", "lambdaFunction", "callableUnitSignature", "structDefinition", 
 		"structBody", "privateStructBody", "typeDefinition", "objectBody", "publicObjectFields", 
@@ -248,7 +249,7 @@ public class BallerinaParser extends Parser {
 		"SingleBackTickInlineCodeEnd", "SingleBackTickInlineCode", "DeprecatedTemplateEnd", 
 		"SBDeprecatedInlineCodeStart", "DBDeprecatedInlineCodeStart", "TBDeprecatedInlineCodeStart", 
 		"DeprecatedTemplateText", "StringTemplateLiteralEnd", "StringTemplateExpressionStart", 
-		"StringTemplateText"
+		"StringTemplateText", "Semvar"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -407,7 +408,7 @@ public class BallerinaParser extends Parser {
 				setState(407);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -506,121 +507,6 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class PackageNameContext extends ParserRuleContext {
-		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
-		public TerminalNode Identifier(int i) {
-			return getToken(BallerinaParser.Identifier, i);
-		}
-		public List<TerminalNode> DOT() { return getTokens(BallerinaParser.DOT); }
-		public TerminalNode DOT(int i) {
-			return getToken(BallerinaParser.DOT, i);
-		}
-		public VersionContext version() {
-			return getRuleContext(VersionContext.class,0);
-		}
-		public PackageNameContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_packageName; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterPackageName(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPackageName(this);
-		}
-	}
-
-	public final PackageNameContext packageName() throws RecognitionException {
-		PackageNameContext _localctx = new PackageNameContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_packageName);
-		int _la;
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(428);
-			match(Identifier);
-			setState(433);
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while (_la==DOT) {
-				{
-				{
-				setState(429);
-				match(DOT);
-				setState(430);
-				match(Identifier);
-				}
-				}
-				setState(435);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-			}
-			setState(437);
-			_la = _input.LA(1);
-			if (_la==VERSION) {
-				{
-				setState(436);
-				version();
-				}
-			}
-
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	public static class VersionContext extends ParserRuleContext {
-		public TerminalNode VERSION() { return getToken(BallerinaParser.VERSION, 0); }
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public VersionContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_version; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterVersion(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitVersion(this);
-		}
-	}
-
-	public final VersionContext version() throws RecognitionException {
-		VersionContext _localctx = new VersionContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_version);
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			{
-			setState(439);
-			match(VERSION);
-			setState(440);
-			match(Identifier);
-			}
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
 	public static class ImportDeclarationContext extends ParserRuleContext {
 		public TerminalNode IMPORT() { return getToken(BallerinaParser.IMPORT, 0); }
 		public PackageNameContext packageName() {
@@ -631,6 +517,9 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(OrgNameContext.class,0);
 		}
 		public TerminalNode DIV() { return getToken(BallerinaParser.DIV, 0); }
+		public VersionContext version() {
+			return getRuleContext(VersionContext.class,0);
+		}
 		public TerminalNode AS() { return getToken(BallerinaParser.AS, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public ImportDeclarationContext(ParserRuleContext parent, int invokingState) {
@@ -649,40 +538,150 @@ public class BallerinaParser extends Parser {
 
 	public final ImportDeclarationContext importDeclaration() throws RecognitionException {
 		ImportDeclarationContext _localctx = new ImportDeclarationContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_importDeclaration);
+		enterRule(_localctx, 4, RULE_importDeclaration);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(442);
+			setState(428);
 			match(IMPORT);
-			setState(446);
+			setState(432);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,7,_ctx) ) {
 			case 1:
 				{
-				setState(443);
+				setState(429);
 				orgName();
-				setState(444);
+				setState(430);
 				match(DIV);
 				}
 				break;
 			}
-			setState(448);
+			setState(434);
 			packageName();
-			setState(451);
+			setState(436);
+			_la = _input.LA(1);
+			if (_la==VERSION) {
+				{
+				setState(435);
+				version();
+				}
+			}
+
+			setState(440);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
-				setState(449);
+				setState(438);
 				match(AS);
-				setState(450);
+				setState(439);
 				match(Identifier);
 				}
 			}
 
-			setState(453);
+			setState(442);
 			match(SEMICOLON);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class PackageNameContext extends ParserRuleContext {
+		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
+		public TerminalNode Identifier(int i) {
+			return getToken(BallerinaParser.Identifier, i);
+		}
+		public List<TerminalNode> DOT() { return getTokens(BallerinaParser.DOT); }
+		public TerminalNode DOT(int i) {
+			return getToken(BallerinaParser.DOT, i);
+		}
+		public PackageNameContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_packageName; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterPackageName(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPackageName(this);
+		}
+	}
+
+	public final PackageNameContext packageName() throws RecognitionException {
+		PackageNameContext _localctx = new PackageNameContext(_ctx, getState());
+		enterRule(_localctx, 6, RULE_packageName);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(444);
+			match(Identifier);
+			setState(449);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while (_la==DOT) {
+				{
+				{
+				setState(445);
+				match(DOT);
+				setState(446);
+				match(Identifier);
+				}
+				}
+				setState(451);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class VersionContext extends ParserRuleContext {
+		public TerminalNode VERSION() { return getToken(BallerinaParser.VERSION, 0); }
+		public TerminalNode Semvar() { return getToken(BallerinaParser.Semvar, 0); }
+		public VersionContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_version; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterVersion(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitVersion(this);
+		}
+	}
+
+	public final VersionContext version() throws RecognitionException {
+		VersionContext _localctx = new VersionContext(_ctx, getState());
+		enterRule(_localctx, 8, RULE_version);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(452);
+			match(VERSION);
+			setState(453);
+			match(Semvar);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1068,7 +1067,7 @@ public class BallerinaParser extends Parser {
 			setState(496);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -1084,7 +1083,7 @@ public class BallerinaParser extends Parser {
 			setState(502);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,16,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -1373,7 +1372,7 @@ public class BallerinaParser extends Parser {
 				setState(546);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,24,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -2587,7 +2586,7 @@ public class BallerinaParser extends Parser {
 				setState(751);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,63,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -2684,7 +2683,7 @@ public class BallerinaParser extends Parser {
 			setState(764);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,66,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -4035,7 +4034,7 @@ public class BallerinaParser extends Parser {
 			setState(961);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,95,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -4070,7 +4069,7 @@ public class BallerinaParser extends Parser {
 							setState(947); 
 							_errHandler.sync(this);
 							_alt = getInterpreter().adaptivePredict(_input,92,_ctx);
-						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+						} while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER );
 						}
 						break;
 					case 2:
@@ -4112,7 +4111,7 @@ public class BallerinaParser extends Parser {
 							setState(957); 
 							_errHandler.sync(this);
 							_alt = getInterpreter().adaptivePredict(_input,93,_ctx);
-						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+						} while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER );
 						}
 						break;
 					}
@@ -4377,7 +4376,7 @@ public class BallerinaParser extends Parser {
 					setState(986); 
 					_errHandler.sync(this);
 					_alt = getInterpreter().adaptivePredict(_input,98,_ctx);
-				} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+				} while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER );
 				}
 				break;
 			}
@@ -6137,7 +6136,7 @@ public class BallerinaParser extends Parser {
 			setState(1214);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,130,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -6205,7 +6204,7 @@ public class BallerinaParser extends Parser {
 			setState(1221);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,131,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -8192,7 +8191,7 @@ public class BallerinaParser extends Parser {
 			setState(1522);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,170,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -10135,7 +10134,7 @@ public class BallerinaParser extends Parser {
 			setState(1741);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,191,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -10676,7 +10675,7 @@ public class BallerinaParser extends Parser {
 				setState(1777);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,195,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -10837,7 +10836,7 @@ public class BallerinaParser extends Parser {
 			setState(1812);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,199,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -10934,7 +10933,7 @@ public class BallerinaParser extends Parser {
 				setState(1830);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,202,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -13428,7 +13427,7 @@ public class BallerinaParser extends Parser {
 			setState(2143);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,253,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -15600,7 +15599,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u00dc\u0970\4\2\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u00dd\u0970\4\2\t"+
 		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -15632,10 +15631,10 @@ public class BallerinaParser extends Parser {
 		"\t\u00c4\4\u00c5\t\u00c5\4\u00c6\t\u00c6\3\2\5\2\u018e\n\2\3\2\3\2\7\2"+
 		"\u0192\n\2\f\2\16\2\u0195\13\2\3\2\7\2\u0198\n\2\f\2\16\2\u019b\13\2\3"+
 		"\2\5\2\u019e\n\2\3\2\5\2\u01a1\n\2\3\2\7\2\u01a4\n\2\f\2\16\2\u01a7\13"+
-		"\2\3\2\3\2\3\3\3\3\3\3\3\3\3\4\3\4\3\4\7\4\u01b2\n\4\f\4\16\4\u01b5\13"+
-		"\4\3\4\5\4\u01b8\n\4\3\5\3\5\3\5\3\6\3\6\3\6\3\6\5\6\u01c1\n\6\3\6\3\6"+
-		"\3\6\5\6\u01c6\n\6\3\6\3\6\3\7\3\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b"+
-		"\3\b\3\b\5\b\u01d7\n\b\3\t\3\t\3\t\3\t\3\t\5\t\u01de\n\t\3\t\3\t\5\t\u01e2"+
+		"\2\3\2\3\2\3\3\3\3\3\3\3\3\3\4\3\4\3\4\3\4\5\4\u01b3\n\4\3\4\3\4\5\4\u01b7"+
+		"\n\4\3\4\3\4\5\4\u01bb\n\4\3\4\3\4\3\5\3\5\3\5\7\5\u01c2\n\5\f\5\16\5"+
+		"\u01c5\13\5\3\6\3\6\3\6\3\7\3\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3"+
+		"\b\3\b\5\b\u01d7\n\b\3\t\3\t\3\t\3\t\3\t\5\t\u01de\n\t\3\t\3\t\5\t\u01e2"+
 		"\n\t\3\t\3\t\3\n\3\n\3\n\3\n\7\n\u01ea\n\n\f\n\16\n\u01ed\13\n\3\13\3"+
 		"\13\7\13\u01f1\n\13\f\13\16\13\u01f4\13\13\3\13\7\13\u01f7\n\13\f\13\16"+
 		"\13\u01fa\13\13\3\13\7\13\u01fd\n\13\f\13\16\13\u0200\13\13\3\13\3\13"+
@@ -15825,7 +15824,7 @@ public class BallerinaParser extends Parser {
 		"\3\2<@\3\2\u0090\u0093\3\2\u0095\u0096\4\2ssuu\4\2ttvv\6\2deiiyz\177\177"+
 		"\4\2{|~~\3\2yz\3\2\u0082\u0085\3\2\u0080\u0081\3\2\u0097\u009a\4\2AAP"+
 		"P\3\2\u0086\u0087\4\2\62\63WW\u0a30\2\u018d\3\2\2\2\4\u01aa\3\2\2\2\6"+
-		"\u01ae\3\2\2\2\b\u01b9\3\2\2\2\n\u01bc\3\2\2\2\f\u01c9\3\2\2\2\16\u01d6"+
+		"\u01ae\3\2\2\2\b\u01be\3\2\2\2\n\u01c6\3\2\2\2\f\u01c9\3\2\2\2\16\u01d6"+
 		"\3\2\2\2\20\u01d8\3\2\2\2\22\u01e5\3\2\2\2\24\u01ee\3\2\2\2\26\u0206\3"+
 		"\2\2\2\30\u021e\3\2\2\2\32\u023c\3\2\2\2\34\u025c\3\2\2\2\36\u025e\3\2"+
 		"\2\2 \u0269\3\2\2\2\"\u0273\3\2\2\2$\u0279\3\2\2\2&\u0285\3\2\2\2(\u028e"+
@@ -15877,8 +15876,8 @@ public class BallerinaParser extends Parser {
 		"\2\2\u017a\u0929\3\2\2\2\u017c\u092f\3\2\2\2\u017e\u093e\3\2\2\2\u0180"+
 		"\u0940\3\2\2\2\u0182\u0956\3\2\2\2\u0184\u095b\3\2\2\2\u0186\u095d\3\2"+
 		"\2\2\u0188\u0963\3\2\2\2\u018a\u0969\3\2\2\2\u018c\u018e\5\4\3\2\u018d"+
-		"\u018c\3\2\2\2\u018d\u018e\3\2\2\2\u018e\u0193\3\2\2\2\u018f\u0192\5\n"+
-		"\6\2\u0190\u0192\5\u00eex\2\u0191\u018f\3\2\2\2\u0191\u0190\3\2\2\2\u0192"+
+		"\u018c\3\2\2\2\u018d\u018e\3\2\2\2\u018e\u0193\3\2\2\2\u018f\u0192\5\6"+
+		"\4\2\u0190\u0192\5\u00eex\2\u0191\u018f\3\2\2\2\u0191\u0190\3\2\2\2\u0192"+
 		"\u0195\3\2\2\2\u0193\u0191\3\2\2\2\u0193\u0194\3\2\2\2\u0194\u01a5\3\2"+
 		"\2\2\u0195\u0193\3\2\2\2\u0196\u0198\5t;\2\u0197\u0196\3\2\2\2\u0198\u019b"+
 		"\3\2\2\2\u0199\u0197\3\2\2\2\u0199\u019a\3\2\2\2\u019a\u019d\3\2\2\2\u019b"+
@@ -15887,30 +15886,30 @@ public class BallerinaParser extends Parser {
 		"\2\2\2\u01a0\u01a1\3\2\2\2\u01a1\u01a2\3\2\2\2\u01a2\u01a4\5\16\b\2\u01a3"+
 		"\u0199\3\2\2\2\u01a4\u01a7\3\2\2\2\u01a5\u01a3\3\2\2\2\u01a5\u01a6\3\2"+
 		"\2\2\u01a6\u01a8\3\2\2\2\u01a7\u01a5\3\2\2\2\u01a8\u01a9\7\2\2\3\u01a9"+
-		"\3\3\2\2\2\u01aa\u01ab\7\3\2\2\u01ab\u01ac\5\6\4\2\u01ac\u01ad\7l\2\2"+
-		"\u01ad\5\3\2\2\2\u01ae\u01b3\7\u009f\2\2\u01af\u01b0\7o\2\2\u01b0\u01b2"+
-		"\7\u009f\2\2\u01b1\u01af\3\2\2\2\u01b2\u01b5\3\2\2\2\u01b3\u01b1\3\2\2"+
-		"\2\u01b3\u01b4\3\2\2\2\u01b4\u01b7\3\2\2\2\u01b5\u01b3\3\2\2\2\u01b6\u01b8"+
-		"\5\b\5\2\u01b7\u01b6\3\2\2\2\u01b7\u01b8\3\2\2\2\u01b8\7\3\2\2\2\u01b9"+
-		"\u01ba\7\31\2\2\u01ba\u01bb\7\u009f\2\2\u01bb\t\3\2\2\2\u01bc\u01c0\7"+
-		"\4\2\2\u01bd\u01be\5\f\7\2\u01be\u01bf\7|\2\2\u01bf\u01c1\3\2\2\2\u01c0"+
-		"\u01bd\3\2\2\2\u01c0\u01c1\3\2\2\2\u01c1\u01c2\3\2\2\2\u01c2\u01c5\5\6"+
-		"\4\2\u01c3\u01c4\7\5\2\2\u01c4\u01c6\7\u009f\2\2\u01c5\u01c3\3\2\2\2\u01c5"+
-		"\u01c6\3\2\2\2\u01c6\u01c7\3\2\2\2\u01c7\u01c8\7l\2\2\u01c8\13\3\2\2\2"+
-		"\u01c9\u01ca\7\u009f\2\2\u01ca\r\3\2\2\2\u01cb\u01d7\5\20\t\2\u01cc\u01d7"+
-		"\5\34\17\2\u01cd\u01d7\5\"\22\2\u01ce\u01d7\5(\25\2\u01cf\u01d7\5\u013a"+
-		"\u009e\2\u01d0\u01d7\5D#\2\u01d1\u01d7\5N(\2\u01d2\u01d7\5B\"\2\u01d3"+
-		"\u01d7\5H%\2\u01d4\u01d7\5T+\2\u01d5\u01d7\5J&\2\u01d6\u01cb\3\2\2\2\u01d6"+
-		"\u01cc\3\2\2\2\u01d6\u01cd\3\2\2\2\u01d6\u01ce\3\2\2\2\u01d6\u01cf\3\2"+
-		"\2\2\u01d6\u01d0\3\2\2\2\u01d6\u01d1\3\2\2\2\u01d6\u01d2\3\2\2\2\u01d6"+
-		"\u01d3\3\2\2\2\u01d6\u01d4\3\2\2\2\u01d6\u01d5\3\2\2\2\u01d7\17\3\2\2"+
-		"\2\u01d8\u01dd\7\t\2\2\u01d9\u01da\7\u0083\2\2\u01da\u01db\5\u00f4{\2"+
-		"\u01db\u01dc\7\u0082\2\2\u01dc\u01de\3\2\2\2\u01dd\u01d9\3\2\2\2\u01dd"+
-		"\u01de\3\2\2\2\u01de\u01df\3\2\2\2\u01df\u01e1\7\u009f\2\2\u01e0\u01e2"+
-		"\5\22\n\2\u01e1\u01e0\3\2\2\2\u01e1\u01e2\3\2\2\2\u01e2\u01e3\3\2\2\2"+
-		"\u01e3\u01e4\5\24\13\2\u01e4\21\3\2\2\2\u01e5\u01e6\7\26\2\2\u01e6\u01eb"+
-		"\5\u00f4{\2\u01e7\u01e8\7p\2\2\u01e8\u01ea\5\u00f4{\2\u01e9\u01e7\3\2"+
-		"\2\2\u01ea\u01ed\3\2\2\2\u01eb\u01e9\3\2\2\2\u01eb\u01ec\3\2\2\2\u01ec"+
+		"\3\3\2\2\2\u01aa\u01ab\7\3\2\2\u01ab\u01ac\5\b\5\2\u01ac\u01ad\7l\2\2"+
+		"\u01ad\5\3\2\2\2\u01ae\u01b2\7\4\2\2\u01af\u01b0\5\f\7\2\u01b0\u01b1\7"+
+		"|\2\2\u01b1\u01b3\3\2\2\2\u01b2\u01af\3\2\2\2\u01b2\u01b3\3\2\2\2\u01b3"+
+		"\u01b4\3\2\2\2\u01b4\u01b6\5\b\5\2\u01b5\u01b7\5\n\6\2\u01b6\u01b5\3\2"+
+		"\2\2\u01b6\u01b7\3\2\2\2\u01b7\u01ba\3\2\2\2\u01b8\u01b9\7\5\2\2\u01b9"+
+		"\u01bb\7\u009f\2\2\u01ba\u01b8\3\2\2\2\u01ba\u01bb\3\2\2\2\u01bb\u01bc"+
+		"\3\2\2\2\u01bc\u01bd\7l\2\2\u01bd\7\3\2\2\2\u01be\u01c3\7\u009f\2\2\u01bf"+
+		"\u01c0\7o\2\2\u01c0\u01c2\7\u009f\2\2\u01c1\u01bf\3\2\2\2\u01c2\u01c5"+
+		"\3\2\2\2\u01c3\u01c1\3\2\2\2\u01c3\u01c4\3\2\2\2\u01c4\t\3\2\2\2\u01c5"+
+		"\u01c3\3\2\2\2\u01c6\u01c7\7\31\2\2\u01c7\u01c8\7\u00dd\2\2\u01c8\13\3"+
+		"\2\2\2\u01c9\u01ca\7\u009f\2\2\u01ca\r\3\2\2\2\u01cb\u01d7\5\20\t\2\u01cc"+
+		"\u01d7\5\34\17\2\u01cd\u01d7\5\"\22\2\u01ce\u01d7\5(\25\2\u01cf\u01d7"+
+		"\5\u013a\u009e\2\u01d0\u01d7\5D#\2\u01d1\u01d7\5N(\2\u01d2\u01d7\5B\""+
+		"\2\u01d3\u01d7\5H%\2\u01d4\u01d7\5T+\2\u01d5\u01d7\5J&\2\u01d6\u01cb\3"+
+		"\2\2\2\u01d6\u01cc\3\2\2\2\u01d6\u01cd\3\2\2\2\u01d6\u01ce\3\2\2\2\u01d6"+
+		"\u01cf\3\2\2\2\u01d6\u01d0\3\2\2\2\u01d6\u01d1\3\2\2\2\u01d6\u01d2\3\2"+
+		"\2\2\u01d6\u01d3\3\2\2\2\u01d6\u01d4\3\2\2\2\u01d6\u01d5\3\2\2\2\u01d7"+
+		"\17\3\2\2\2\u01d8\u01dd\7\t\2\2\u01d9\u01da\7\u0083\2\2\u01da\u01db\5"+
+		"\u00f4{\2\u01db\u01dc\7\u0082\2\2\u01dc\u01de\3\2\2\2\u01dd\u01d9\3\2"+
+		"\2\2\u01dd\u01de\3\2\2\2\u01de\u01df\3\2\2\2\u01df\u01e1\7\u009f\2\2\u01e0"+
+		"\u01e2\5\22\n\2\u01e1\u01e0\3\2\2\2\u01e1\u01e2\3\2\2\2\u01e2\u01e3\3"+
+		"\2\2\2\u01e3\u01e4\5\24\13\2\u01e4\21\3\2\2\2\u01e5\u01e6\7\26\2\2\u01e6"+
+		"\u01eb\5\u00f4{\2\u01e7\u01e8\7p\2\2\u01e8\u01ea\5\u00f4{\2\u01e9\u01e7"+
+		"\3\2\2\2\u01ea\u01ed\3\2\2\2\u01eb\u01e9\3\2\2\2\u01eb\u01ec\3\2\2\2\u01ec"+
 		"\23\3\2\2\2\u01ed\u01eb\3\2\2\2\u01ee\u01f2\7q\2\2\u01ef\u01f1\5V,\2\u01f0"+
 		"\u01ef\3\2\2\2\u01f1\u01f4\3\2\2\2\u01f2\u01f0\3\2\2\2\u01f2\u01f3\3\2"+
 		"\2\2\u01f3\u01f8\3\2\2\2\u01f4\u01f2\3\2\2\2\u01f5\u01f7\5x=\2\u01f6\u01f5"+
@@ -16579,7 +16578,7 @@ public class BallerinaParser extends Parser {
 		"\u0189\3\2\2\2\u0969\u096b\7\u00cd\2\2\u096a\u096c\7\u00d0\2\2\u096b\u096a"+
 		"\3\2\2\2\u096b\u096c\3\2\2\2\u096c\u096d\3\2\2\2\u096d\u096e\7\u00cf\2"+
 		"\2\u096e\u018b\3\2\2\2\u012c\u018d\u0191\u0193\u0199\u019d\u01a0\u01a5"+
-		"\u01b3\u01b7\u01c0\u01c5\u01d6\u01dd\u01e1\u01eb\u01f2\u01f8\u01fe\u0206"+
+		"\u01b2\u01b6\u01ba\u01c3\u01d6\u01dd\u01e1\u01eb\u01f2\u01f8\u01fe\u0206"+
 		"\u020a\u020d\u0212\u021b\u021e\u0224\u022a\u0232\u0238\u023c\u023f\u0242"+
 		"\u0249\u024e\u0251\u0254\u025c\u0261\u0265\u026c\u0270\u0273\u027d\u0281"+
 		"\u028a\u028e\u0295\u0298\u029b\u029e\u02a5\u02af\u02b7\u02bb\u02be\u02c1"+

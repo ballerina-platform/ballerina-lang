@@ -242,8 +242,8 @@ public class ManifestProcessorTest {
     @Test(description = "Dependencies and patches added together has an effect")
     public void testDependenciesAndPatches() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[dependencies.string-utils] \n " +
-                "version = \"1.1.5\" \n location = \"src/string-utils\" \n [patches] \n jobapi = {version = \"2.23\"} " +
-                "\n [dependencies] \n jquery = {version = \"2.2.3\"} \n react = {version = \"1.6.6\", " +
+                "version = \"1.1.5\" \n location = \"src/string-utils\" \n [patches] \n jobapi = {version =" +
+                "\"2.23\"} \n [dependencies] \n jquery = {version = \"2.2.3\"} \n react = {version = \"1.6.6\", " +
                 "location = \"npm-modules/react\"} \n [patches.toml] \n version = \"0.4.5\" \n");
 
         Assert.assertEquals(manifest.getDependencies().size(), 3);

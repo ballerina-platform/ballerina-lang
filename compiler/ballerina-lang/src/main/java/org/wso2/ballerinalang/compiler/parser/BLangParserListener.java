@@ -185,7 +185,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         if (orgNameContext == null) {
             this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
-                    null, this.pkgNameComps,version, alias);
+                    null, this.pkgNameComps, version, alias);
         } else {
             this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
                     orgNameContext.getText(), this.pkgNameComps, version, alias);
