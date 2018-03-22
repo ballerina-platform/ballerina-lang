@@ -118,7 +118,6 @@ import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
 import org.ballerinalang.plugins.idea.psi.TripleBackTickDeprecatedInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.TripleBackTickInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.TryCatchStatementNode;
-import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.UserDefinedTypeName;
@@ -490,8 +489,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StringTemplateLiteralNode(node);
             case BallerinaParser.RULE_stringTemplateContent:
                 return new StringTemplateContentNode(node);
-            case BallerinaParser.RULE_typeCast:
-                return new TypeCastNode(node);
             case BallerinaParser.RULE_typeConversion:
                 return new TypeConversionNode(node);
             case BallerinaParser.RULE_xmlContent:

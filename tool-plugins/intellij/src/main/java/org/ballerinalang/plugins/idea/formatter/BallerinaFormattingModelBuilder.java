@@ -49,6 +49,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMPOUND_OPERATOR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DELETE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.DIV;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOUBLE_COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE;
@@ -72,6 +73,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.HAVING;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IDENTIFIER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IMPORT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IMPORT_DECLARATION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.INDEX;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.INSERT;
@@ -173,6 +175,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
     private static SpacingBuilder createSpaceBuilder(CodeStyleSettings settings) {
         return new SpacingBuilder(settings, BallerinaLanguage.INSTANCE)
+                .aroundInside(DIV, IMPORT_DECLARATION).spaceIf(false)
                 .around(OPERATORS).spaceIf(true)
                 .between(TYPE_NAME, GT).spaceIf(false)
                 .between(LT, TYPE_NAME).spaceIf(false)
@@ -277,6 +280,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(COMMA).spaceIf(false)
                 .after(COMMA).spaceIf(true)
                 .between(TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .between(IDENTIFIER, TYPE_NAME).spaceIf(true)
                 .around(LBRACK).spaceIf(false)
                 .between(LBRACE, RBRACE).spaceIf(false)
                 .before(RPAREN).spaceIf(false)

@@ -92,9 +92,9 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         doTest();
     }
 
-    public void testStatement() {
-        doTest();
-    }
+    //    public void testStatement() {
+    //        doTest();
+    //    }
 
     public void testStruct() {
         doTest();
@@ -103,11 +103,11 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
     //    public void testTransaction() {
     //        doTest();
     //    }
-
-    public void testTypeName() {
-        doTest();
-    }
-
+    //
+    //    public void testTypeName() {
+    //        doTest();
+    //    }
+    //
     //    public void testWorker() {
     //        doTest();
     //    }

@@ -46,6 +46,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functi
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_ifClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_ifElseStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_importDeclaration;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_index;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_integerLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
@@ -140,6 +141,8 @@ public class BallerinaTypes {
 
     public static final TokenIElementType DEPRECATED_TEMPLATE_START =
             tokenIElementTypes.get(BallerinaLexer.DeprecatedTemplateStart);
+
+    public static final RuleIElementType IMPORT_DECLARATION = ruleIElementTypes.get(RULE_importDeclaration);
 
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
     public static final RuleIElementType INTEGER_LITERAL = ruleIElementTypes.get(RULE_integerLiteral);

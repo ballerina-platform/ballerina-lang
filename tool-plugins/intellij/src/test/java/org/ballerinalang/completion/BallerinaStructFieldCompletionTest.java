@@ -29,27 +29,27 @@ public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestB
     //    public void testStructAsFunctionNamedReturn() {
     //        doTestFile("name", "age");
     //    }
-
+    //
     //    public void testStructAsFunctionNamedReturnVarAssignment() {
     //        doTestFile("name", "age");
     //    }
-
+    //
     //    public void testStructAsFunctionReturnParam() {
     //        doTestFile("name", "age");
     //    }
-
+    //
     //    public void testStructAsFunctionReturnParamVarAssignment() {
     //        doTestFile("name", "age");
     //    }
-
+    //
     //    public void testStructAsNamedReturn() {
     //        doTestFile("name", "age");
     //    }
-
+    //
     //    public void testStructAsNamedReturn2() {
     //        doTestFile("name", "age");
     //    }
-
+    //
     //    public void testStructAsNamedReturnPartialField() {
     //        doTestFile("name", "age");
     //    }
@@ -58,18 +58,18 @@ public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestB
         doTestFile("name", "age");
     }
 
-    public void testStructAsParam2() {
-        doTestFile("name", "age");
-    }
-
-    public void testStructDeclarationReassigningAsVar() {
-        doTestFile("name", "age");
-    }
-
-    public void testStructDeclarationReassigningAsVar2() {
-        doTestFile("name", "age");
-    }
-
+    //    public void testStructAsParam2() {
+    //        doTestFile("name", "age");
+    //    }
+    //
+    //    public void testStructDeclarationReassigningAsVar() {
+    //        doTestFile("name", "age");
+    //    }
+    //
+    //    public void testStructDeclarationReassigningAsVar2() {
+    //        doTestFile("name", "age");
+    //    }
+    //
     //    public void testStructVarReassigningAsVar() {
     //        doTestFile("name", "age");
     //    }
@@ -77,7 +77,7 @@ public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestB
     //    public void testStructVarReassigningAsVar2() {
     //        doTestFile("name", "age");
     //    }
-
+    //
     //    public void testStructWithPrivateField() {
     //        doTestFile("name", "age");
     //    }
