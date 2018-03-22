@@ -45,7 +45,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
     // extract the header value
     string basicAuthHeaderValue = extractBasicAuthHeaderValue(req);
     if (basicAuthHeaderValue.length() == 0) {
-        log:printErrorCause("Error in extracting basic authentication header");
+        log:printError("Error in extracting basic authentication header");
         return false;
     }
     
@@ -57,28 +57,26 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
             return authenticationResult;
         }
         any|null => {
-            return false;
-        }
-    }
-
-    var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
-    match credentials {
-        (string, string) => {
-            var (username, password) = credentials;
-            basic:AuthenticationInfo authInfo = basic:createAuthenticationInfo
-                                                (username, basicAuthenticator.authenticate(username, password));
-            // cache result
-            basicAuthenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
-            if (authInfo.isAuthenticated) {
-                log:printDebug("Successfully authenticated against the userstore");
-            } else {
-                log:printDebug("Authentication failure");
+            var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
+            match credentials {
+                (string, string) creds => {
+                    var (username, password) = creds;
+                    basic:AuthenticationInfo authInfo = basic:createAuthenticationInfo
+                                                        (username, basicAuthenticator.authenticate(username, password));
+                    // cache result
+                    basicAuthenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
+                    if (authInfo.isAuthenticated) {
+                        log:printDebug("Successfully authenticated against the userstore");
+                    } else {
+                        log:printDebug("Authentication failure");
+                    }
+                    return authInfo.isAuthenticated;
+                }
+                error err => {
+                    log:printErrorCause("Error in decoding basic authentication header", err);
+                    return false;
+                }
             }
-            return authInfo.isAuthenticated;
-        }
-        error err => {
-            log:printErrorCause("Error in decoding basic authentication header", err);
-            return false;
         }
     }
 }
@@ -104,9 +102,6 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:Reques
     match basicAuthHeader {
         string basicAuthHeaderStr => {
             return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
-        }
-        any|null => {
-            return false;
         }
     }
 }

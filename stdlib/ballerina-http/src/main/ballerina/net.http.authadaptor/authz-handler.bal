@@ -48,15 +48,16 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
     // extract the header value
     string basicAuthHeaderValue = extractBasicAuthHeaderValue(req);
     if (basicAuthHeaderValue.length() == 0) {
-        log:printErrorCause("Error in extracting basic authentication header");
+        log:printError("Error in extracting basic authentication header");
         return false;
     }
 
     var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
     string username;
     match credentials {
-        (string, string) => {
-            var (username, _) = credentials;
+        (string, string) creds => {
+            var (user, _) = creds;
+            username = user;
         }
         error err => {
             log:printErrorCause("Error in decoding basic authentication header", err);

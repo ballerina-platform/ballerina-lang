@@ -38,9 +38,6 @@ public function extractBasicAuthHeaderValue (http:Request req) returns (string) 
         string basicAuthHeaderVal => {
             return basicAuthHeaderVal == null ? "" : basicAuthHeaderVal;
         }
-        any|null => {
-            return "";
-        }
     }
 }
 
