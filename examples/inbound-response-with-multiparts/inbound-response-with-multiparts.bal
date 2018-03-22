@@ -26,12 +26,12 @@ service<http:Service> test bind multipartEP {
                 res.statusCode = 500;
                 res.setStringPayload(payloadError.message);
             }
-            mime:Entity[] bodyParts => {
+            mime:Entity[] parentParts => {
                 int i = 0;
                 //Loop through body parts.
                 while (i < lengthof parentParts) {
-                    mime:Entity bodyPart = bodyParts[i];
-                    handleNestedParts(bodyPart);
+                    mime:Entity parentPart = parentParts[i];
+                    handleNestedParts(parentPart);
                     i = i + 1;
                 }
                 res.setStringPayload("Body Parts Received!");
@@ -39,6 +39,25 @@ service<http:Service> test bind multipartEP {
         }
         _ = conn -> respond(res);
     }
+}
+
+//Given a parent part, get it's child parts.
+function handleNestedParts (mime:Entity parentPart) {
+
+    match parentPart.getBodyParts() {
+        mime:Entity[] childParts => {
+            int i = 0;
+            io:println("Nested Parts Detected!");
+            while (i < lengthof childParts) {
+                mime:Entity childPart = childParts[i];
+                handleContent(childPart);
+                i = i + 1;
+            }
+        }
+        mime:EntityError err => {
+            io:println("Error retrieving child parts!");
+        }
+     }
 }
 
 @Description {value:"Handling body part content logic varies according to user's requirement.."}
