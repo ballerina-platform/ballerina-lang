@@ -55,6 +55,7 @@ public class HttpService {
     private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
     private static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
+    private static final String TRANSACTION_INFECTABLE_FIELD = "transactionInfectable";
 
     private Service balService;
     private List<HttpResource> resources;
@@ -65,6 +66,7 @@ public class HttpService {
     private Struct webSocketUpgradeConfig;
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
+    private boolean transactionInfectable = true; //default behavior
 
     public Service getBallerinaService() {
         return balService;
@@ -119,10 +121,8 @@ public class HttpService {
     }
 
     public void setBasePath(String basePath) {
-        if (basePath == null) {
+        if (basePath == null || basePath.trim().isEmpty()) {
             this.basePath = HttpConstants.DEFAULT_BASE_PATH.concat(this.getName());
-        } else if (basePath.trim().isEmpty()) {
-            this.basePath = HttpConstants.DEFAULT_BASE_PATH;
         } else {
             String sanitizedPath = sanitizeBasePath(basePath);
             this.basePath = urlDecode(sanitizedPath);
@@ -161,6 +161,14 @@ public class HttpService {
         this.webSocketUpgradeConfig = webSocketUpgradeConfig;
     }
 
+    public boolean isTransactionInfectable() {
+        return transactionInfectable;
+    }
+
+    public void setTransactionInfectable(boolean transactionInfectable) {
+        this.transactionInfectable = transactionInfectable;
+    }
+
     public static HttpService buildHttpService(Service service) {
         HttpService httpService = new HttpService(service);
         Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
@@ -175,6 +183,7 @@ public class HttpService {
             httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
             httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
+            httpService.setTransactionInfectable(serviceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
         }
 
         List<HttpResource> resources = new ArrayList<>();

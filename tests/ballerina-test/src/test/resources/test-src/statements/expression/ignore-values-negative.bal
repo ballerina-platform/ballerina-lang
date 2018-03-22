@@ -1,15 +1,15 @@
-function add (int x, int y) (string) {
+function add (int x, int y) returns string {
     string result = "result is " + (x + y);
     return result;
 }
 
-function checkAndAdd (int x, int y) (string, error) {
+function checkAndAdd (int x, int y) returns (string, error|null) {
     if (x < 0 || y < 0) {
         error err = {message:"can't add negative values."};
-        return "", err;
+        return ("", err);
     }
     string result = "result is " + (x + y);
-    return result, null;
+    return (result, null);
 }
 
 function main(string[] args){

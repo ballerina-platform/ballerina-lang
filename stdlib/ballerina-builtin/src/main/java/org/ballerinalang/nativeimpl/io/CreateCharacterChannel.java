@@ -19,8 +19,8 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
@@ -29,8 +29,6 @@ import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +41,11 @@ import org.slf4j.LoggerFactory;
         orgName = "ballerina", packageName = "io",
         functionName = "createCharacterChannel",
         args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT, structType = "ByteChannel",
-                    structPackage = "ballerina.io"),
+                structPackage = "ballerina.io"),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "CharacterChannel",
-                                  structPackage = "ballerina.io"),
-                      @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                structPackage = "ballerina.io"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateCharacterChannel extends BlockingNativeCallableUnit {
@@ -62,10 +60,6 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
      * Specifies the index of the encoding in ballerina.io#createCharacterChannel.
      */
     private static final int ENCODING_INDEX = 0;
-    /**
-     * represents the information related to the byte channel.
-     */
-    private StructInfo characterChannelStructInfo;
 
     /**
      * The package path of the byte channel.
@@ -78,36 +72,19 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
     private static final String STRUCT_TYPE = "CharacterChannel";
 
     /**
-     * Gets the struct related to AbstractChannel.
-     *
-     * @param context invocation context.
-     * @return the struct related to AbstractChannel.
-     */
-    private StructInfo getCharacterChannelStructInfo(Context context) {
-        StructInfo result = characterChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(CHAR_CHANNEL_PACKAGE);
-            characterChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return characterChannelStructInfo;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context) {
-        BStruct characterChannelInfo;
+        BStruct byteChannelInfo;
         BStruct characterChannel;
         String encoding;
         try {
             //File which holds access to the channel information
-            characterChannelInfo = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            byteChannelInfo = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
             encoding = context.getStringArgument(ENCODING_INDEX);
-            characterChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
-            //Will get the relevant byte channel and will create a character channel
-            Channel byteChannel = (Channel) characterChannelInfo.getNativeData(IOConstants
-                    .BYTE_CHANNEL_NAME);
+            characterChannel = BLangConnectorSPIUtil.createBStruct(context, CHAR_CHANNEL_PACKAGE, STRUCT_TYPE);
+            Channel byteChannel = (Channel) byteChannelInfo.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
             context.setReturnValues(characterChannel);

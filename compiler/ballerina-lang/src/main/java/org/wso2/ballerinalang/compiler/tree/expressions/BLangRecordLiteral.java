@@ -138,13 +138,10 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     public static class BLangStructLiteral extends BLangRecordLiteral {
         public BStructSymbol.BAttachedFunction initializer;
 
-        public List<BLangRecordKeyValue> defaultValues;
-
         public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
             this.type = structType;
             this.initializer = ((BStructSymbol) structType.tsymbol).initializerFunc;
-            this.defaultValues = new ArrayList<>();
         }
 
         @Override
@@ -216,23 +213,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public BLangStreamLiteral(BType streamType, BLangIdentifier name) {
             this.type = streamType;
             this.name = name;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
-     * This class represents a streamlet type literal expression.
-     *
-     * @since 0.965.0
-     */
-    public static class BLangStreamletLiteral extends BLangRecordLiteral {
-
-        public BLangStreamletLiteral(BType streamletType) {
-            this.type = streamletType;
         }
 
         @Override

@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -200,15 +199,13 @@ public class Types {
             return true;
         }
 
+        // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
+        // it to a constrained table reference.
         if (target.tag == TypeTags.TABLE && source.tag == TypeTags.TABLE) {
-            return true;
+           return true;
         }
 
         if (target.tag == TypeTags.STREAM && source.tag == TypeTags.STREAM) {
-            return true;
-        }
-
-        if (target.tag == TypeTags.STREAMLET && source.tag == TypeTags.STREAMLET) {
             return true;
         }
 
@@ -230,7 +227,7 @@ public class Types {
                 return isArrayTypesAssignable(source, target);
             }
         }
-        
+
         if (target.tag == TypeTags.FUTURE && source.tag == TypeTags.FUTURE) {
             if (((BFutureType) target).constraint.tag == TypeTags.NONE) {
                 return true;
@@ -806,17 +803,6 @@ public class Types {
         }
 
         @Override
-        public BSymbol visit(BStreamletType t, BType s) {
-            if (s == symTable.anyType) {
-                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2M);
-            } else if (s.tag == TypeTags.STREAMLET && checkStremletEquivalency(s, t)) {
-                return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
         public BSymbol visit(BEnumType t, BType s) {
             if (s == symTable.anyType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
@@ -994,7 +980,7 @@ public class Types {
             BMapType sType = ((BMapType) s);
             return isSameType(sType.constraint, t.constraint);
         }
-        
+
         @Override
         public Boolean visit(BFutureType t, BType s) {
             return s.tag == TypeTags.FUTURE && t.constraint.tag == ((BFutureType) s).constraint.tag;
@@ -1065,11 +1051,6 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BStreamletType t, BType s) {
-            return t == s;
-        }
-
-        @Override
         public Boolean visit(BEnumType t, BType s) {
             return t == s;
         }
@@ -1111,7 +1092,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
                 continue;
             }
 
@@ -1156,7 +1137,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
                 continue;
             }
 
@@ -1213,7 +1194,7 @@ public class Types {
      * Check whether a given type has a default value.
      * i.e: A variable of the given type can be initialized without a rhs expression.
      * eg: foo x;
-     * 
+     *
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */

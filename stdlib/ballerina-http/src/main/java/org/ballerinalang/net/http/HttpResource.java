@@ -100,15 +100,11 @@ public class HttpResource {
     }
 
     public void setPath(String resourcePath) {
-        if (resourcePath == null) {
+        if (resourcePath == null || resourcePath.isEmpty()) {
             log.debug("Path not specified in the Resource instance, using default sub path");
             path = balResource.getName();
         } else {
             path = resourcePath;
-        }
-
-        if (path.isEmpty()) {
-            path = HttpConstants.DEFAULT_BASE_PATH;
         }
     }
 

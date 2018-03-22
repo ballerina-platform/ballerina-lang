@@ -48,7 +48,6 @@ public enum NodeKind {
     WORKER,
     XMLNS,
     TRANSFORMER,
-    STREAMLET,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -58,7 +57,6 @@ public enum NodeKind {
     BINARY_EXPR,
     BRACED_TUPLE_EXPR,
     Type_INIT_EXPR,
-    STREAMLET_INIT_EXPR,
     FIELD_BASED_ACCESS_EXPR,
     INDEX_BASED_ACCESS_EXPR,
     INT_RANGE_EXPR,
@@ -94,6 +92,7 @@ public enum NodeKind {
 
     /* Statements */
     ABORT,
+    FAIL,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,
     POST_INCREMENT,
@@ -153,4 +152,6 @@ public enum NodeKind {
     STREAMING_QUERY_DECLARATION,
     WITHIN,
     PATTERN_CLAUSE,
+    OUTPUT_RATE_LIMIT,
+    WHENEVER,
 }

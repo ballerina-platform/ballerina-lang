@@ -16,8 +16,18 @@ service<http:Service> passthroughService bind passthroughEP {
         path:"/"
     }
     passthrough (endpoint outboundEP, http:Request clientRequest) {
-        var response, _ = nyseEP -> get("/nyseStock/stocks", clientRequest);
-        _ = outboundEP -> forward(response);
+        var response = nyseEP -> get("/nyseStock/stocks", clientRequest);
+        match response {
+            http:Response httpResponse => {
+                _ = outboundEP -> forward(httpResponse);
+            }
+            http:HttpConnectorError err => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while invoking the service"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = outboundEP -> respond(errorResponse);
+            }
+        }
     }
 }
 
@@ -25,7 +35,8 @@ service<http:Service> passthroughService bind passthroughEP {
 service<http:Service> nyseStockQuote bind passthroughEP {
 
     @http:ResourceConfig {
-        methods:["GET"]
+        methods:["GET"],
+        path:"/stocks"
     }
     stocks (endpoint outboundEP, http:Request clientRequest) {
         http:Response res = {};

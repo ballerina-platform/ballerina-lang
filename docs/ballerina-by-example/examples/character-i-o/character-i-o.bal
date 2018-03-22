@@ -1,40 +1,51 @@
 import ballerina/io;
 
+
 @Description {value:"This function returns a CharacterChannel from a given file location according to the specified permissions and encoding."}
-function getFileCharacterChannel (string filePath, string permission, string encoding)
-(io:CharacterChannel) {
-    io:IOError err;
-    io:CharacterChannel characterChannel;
+function getFileCharacterChannel (string filePath, string permission, string encoding) returns
+io:CharacterChannel {
+
     // First we get the ByteChannel representation of the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     // Then we create a character channel from the byte channel to read content as text.
-    characterChannel, err = io:createCharacterChannel(channel, encoding);
-    if(err != null){
-        throw err.cause;
+    var result = io:createCharacterChannel(channel, encoding);
+    match result {
+        io:CharacterChannel charChannel => {
+            return charChannel;
+        }
+        io:IOError err => {
+            throw err;
+        }
     }
-    return characterChannel;
 }
 
 @Description {value:"This function reads characters from channel"}
-function readCharacters (io:CharacterChannel channel, int numberOfChars) (string) {
-    io:IOError err;
-    string text;
+function readCharacters (io:CharacterChannel channel, int numberOfChars) returns string {
+
     //This is how the characters are read.
-    text, err = channel.readCharacters(numberOfChars);
-    if (err != null) {
-        throw err.cause;
+    var result = channel.readCharacters(numberOfChars);
+
+    match result {
+        string characters => {
+            return characters;
+         }
+        io:IOError err => {
+            throw err;
+        }
     }
-    return text;
 }
 
 @Description {value:"This function wrties characters to channel"}
-function writeCharacters (io:CharacterChannel channel, string chars, int offset) {
-    io:IOError err;
-    int numberOfCharactersWritten;
+function writeCharacters (io:CharacterChannel channel, string content, int startOffset) {
     //This is how the characters are written.
-    numberOfCharactersWritten, err = channel.writeCharacters(chars, offset);
-    if (err != null) {
-        throw err.cause;
+    var result = channel.writeCharacters(content, startOffset);
+    match result {
+      int numberOfCharsWritten =>{
+          io:println(" No of characters written : " + numberOfCharsWritten);
+       }
+      io:IOError err => {
+          throw err;
+      }
     }
 }
 
@@ -62,11 +73,8 @@ function process (io:CharacterChannel sourceChannel,
 }
 
 function main (string[] args) {
-    io:CharacterChannel sourceChannel =
-    getFileCharacterChannel("./files/sample.txt", "r", "UTF-8");
-    io:CharacterChannel destinationChannel =
-    getFileCharacterChannel("./files/sampleResponse.txt", "w", "UTF-8");
-    io:IOError closeError;
+    var sourceChannel = getFileCharacterChannel("./files/sample.txt", "r", "UTF-8");
+    var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt", "w", "UTF-8");
     try {
         io:println("Started to process the file.");
         process(sourceChannel, destinationChannel);
@@ -75,7 +83,7 @@ function main (string[] args) {
         io:println("error occurred while processing chars " + err.message);
     } finally {
         // Close the created connections.
-        closeError = sourceChannel.closeCharacterChannel();
-        closeError = destinationChannel.closeCharacterChannel();
+        _ = sourceChannel.closeCharacterChannel();
+        _ = destinationChannel.closeCharacterChannel();
     }
 }

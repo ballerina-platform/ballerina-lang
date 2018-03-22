@@ -1,140 +1,234 @@
 import ballerina/net.http;
 import ballerina/net.http.mock;
-
+import ballerina/io;
 import ballerina/mime;
 
-endpoint<mock:NonListeningService> mockEP {
-    port:9090
+function setErrorResponse(http:Response response,  mime:EntityError err) {
+    response.statusCode = 500;
+    response.setStringPayload(err.message);
 }
 
-@http:serviceConfig {endpoints:[mockEP]}
-service<http:Service> test {
+endpoint mock:NonListeningServiceEndpoint mockEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/test"}
+service<http:Service> test bind mockEP {
+
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/textbodypart"
     }
-    resource multipart1 (http:ServerConnector conn, http:Request request) {
-        var bodyParts, _ = request.getMultiparts();
-        var textContent, _ = bodyParts[0].getText();
+    multipart1 (endpoint client, http:Request request) {
         http:Response response = {};
-        response.setStringPayload(textContent);
-        _ = conn -> respond(response);
+        match request.getMultiparts() {
+            mime:EntityError err => {
+                setErrorResponse(response, err);
+            }
+            mime:Entity[] bodyParts => {
+                match bodyParts[0].getText() {
+                    mime:EntityError err => {
+                         setErrorResponse(response, err);
+                    }
+                    string textPayload => {
+                            mime:Entity entity = {};
+                            entity.setText(textPayload);
+                            response.setEntity(entity);
+                    }
+                    int | null => {
+                        response.setStringPayload("Text payload is null");
+                    }
+                }
+            }
+        }
+        _ = client -> respond(response);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/jsonbodypart"
     }
-    resource multipart2 (http:ServerConnector conn, http:Request request) {
-        var bodyParts, _ = request.getMultiparts();
-        var jsonContent, _ = bodyParts[0].getJson();
+    multipart2 (endpoint client, http:Request request) {
         http:Response response = {};
-        response.setJsonPayload(jsonContent);
-        _ = conn -> respond(response);
+        match request.getMultiparts() {
+            mime:EntityError err => {
+                setErrorResponse(response, err);
+            }
+            mime:Entity[] bodyParts => {
+                match bodyParts[0].getJson() {
+                    mime:EntityError err => {
+                        setErrorResponse(response, err);
+                    }
+                    json jsonContent => {response.setJsonPayload(jsonContent);}
+                }
+            }
+        }
+        _ = client -> respond(response);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/xmlbodypart"
     }
-    resource multipart3 (http:ServerConnector conn, http:Request request) {
-        var bodyParts, _ = request.getMultiparts();
-        var xmlContent, _ = bodyParts[0].getXml();
+    multipart3 (endpoint client, http:Request request) {
         http:Response response = {};
-        response.setXmlPayload(xmlContent);
-        _ = conn -> respond(response);
+        match request.getMultiparts() {
+              mime:Entity[] bodyParts => {
+                   match bodyParts[0].getXml() {
+                        xml xmlContent => {response.setXmlPayload(xmlContent);}
+                        mime:EntityError err => {
+                            setErrorResponse(response, err);
+                        }
+                   }
+              }
+              mime:EntityError err => {
+                    setErrorResponse(response, err);
+              }
+         }
+         _ = client -> respond(response);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/binarybodypart"
     }
-    resource multipart4 (http:ServerConnector conn, http:Request request) {
-        var bodyParts, _ = request.getMultiparts();
-        var blobContent, _ = bodyParts[0].getBlob();
+    multipart4 (endpoint client, http:Request request) {
         http:Response response = {};
-        response.setBinaryPayload(blobContent);
-        _ = conn -> respond(response);
+        match request.getMultiparts() {
+              mime:Entity[] bodyParts => {
+                match bodyParts[0].getBlob() {
+                      blob blobContent => {response.setBinaryPayload(blobContent);}
+                      mime:EntityError err => {
+                            setErrorResponse(response, err);
+                      }
+                }
+              }
+              mime:EntityError err => {
+                    setErrorResponse(response, err);
+              }
+        }
+        _ = client -> respond(response);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/multipleparts"
     }
-    resource multipart5 (http:ServerConnector conn, http:Request request) {
-        var bodyParts, _ = request.getMultiparts();
-        int i = 0;
-        string content = "";
-        while (i < lengthof bodyParts) {
-            mime:Entity part = bodyParts[i];
-            content = content + " -- " + handleContent(part);
-            i = i + 1;
-        }
+    multipart5 (endpoint client, http:Request request) {
         http:Response response = {};
-        response.setStringPayload(content);
-        _ = conn -> respond(response);
+        match request.getMultiparts() {
+            mime:EntityError err => {
+                setErrorResponse(response, err);
+            }
+            mime:Entity[] bodyParts => {
+                string content = "";
+                int i = 0;
+                while (i < lengthof bodyParts) {
+                    mime:Entity part = bodyParts[i];
+                    content = content + " -- " + handleContent(part);
+                    i = i + 1;
+                }
+                response.setStringPayload(content);
+            }
+        }
+        _ = client -> respond(response);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/emptyparts"
     }
-    resource multipart6 (http:ServerConnector conn, http:Request request) {
-        var entity, entityError = request.getMultiparts();
+    multipart6 (endpoint client, http:Request request) {
         http:Response response = {};
-        response.setStringPayload(entityError.message);
-        _ = conn -> respond(response);
+        match (request.getMultiparts()) {
+            mime:EntityError err => {
+                response.setStringPayload(err.message);
+            }
+            mime:Entity[] entity => {
+                response.setStringPayload("Body parts detected!");
+            }
+        }
+        _ = client -> respond(response);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/nestedparts"
     }
-    resource multipart7 (http:ServerConnector conn, http:Request request) {
-        var parentParts, _ = request.getMultiparts();
-        int i = 0;
-        string content = "";
-        while (i < lengthof parentParts) {
-            mime:Entity parentPart = parentParts[i];
-            content = handleNestedParts(parentPart);
-            i = i + 1;
-        }
+    multipart7 (endpoint client, http:Request request) {
         http:Response response = {};
-        response.setStringPayload(content);
-        _ = conn -> respond(response);
+        match request.getMultiparts() {
+            mime:EntityError err => {
+                setErrorResponse(response, err);
+            }
+            mime:Entity[] bodyParts => {
+                string payload = "";
+                int i = 0;
+                while (i < lengthof bodyParts) {
+                    mime:Entity part = bodyParts[i];
+                    payload = handleNestedParts(part);
+                    i = i + 1;
+                }
+                response.setStringPayload(payload);
+            }
+        }
+        _ = client -> respond(response);
     }
 }
 
-function handleNestedParts (mime:Entity parentPart) (string) {
-    var childParts, _ = parentPart.getBodyParts();
-    int i = 0;
+function handleNestedParts (mime:Entity parentPart) returns (string) {
     string content = "";
-    if (childParts != null) {
-        while (i < lengthof childParts) {
-            mime:Entity childPart = childParts[i];
-            content = content + handleContent(childPart);
-            i = i + 1;
+    match parentPart.getBodyParts() {
+        mime:EntityError err => {
+            return "Error decoding nested parts";
         }
-    }
+        mime:Entity[] bodyParts => {
+            int i = 0;
+            while (i < lengthof bodyParts) {
+                mime:Entity part = bodyParts[i];
+                content = content + handleContent(part);
+                i = i + 1;
+            }
+        }
+     }
     return content;
 }
 
-function handleContent (mime:Entity bodyPart) (string) {
+function handleContent (mime:Entity bodyPart) returns (string) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        var xmlContent, _ = bodyPart.getXml();
-        return xmlContent.getTextValue();
+        var payload = bodyPart.getXml();
+        match payload {
+            mime:EntityError err => return "Error in getting xml payload";
+            xml xmlContent => return xmlContent.getTextValue();
+        }
     } else if (mime:APPLICATION_JSON == contentType) {
-        var jsonContent, _ = bodyPart.getJson();
-        var jsonValue, _ = (string)jsonContent.bodyPart;
-        return jsonValue;
+        var payload = bodyPart.getJson();
+        match payload {
+            mime:EntityError err => return "Error in getting json payload";
+            json jsonContent => {
+               var result = <string>jsonContent.bodyPart;
+                match result {
+                    string returnContent => return returnContent;
+                    error err => return "Error";
+                }
+            }
+        }
     } else if (mime:TEXT_PLAIN == contentType) {
-        var textData, _ = bodyPart.getText();
-        return textData;
+        var payload = bodyPart.getText();
+        match payload {
+            mime:EntityError err => return "Error in getting string payload";
+            string textContent => return textContent;
+            int | null => return "null payload";
+        }
     } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
-        var blobContent, _ = bodyPart.getBlob();
-        return blobContent.toString(mime:DEFAULT_CHARSET);
+        //var blobContent, _ = bodyPart.getBlob();
+        //return blobContent.toString(mime:DEFAULT_CHARSET);
+        var payload = bodyPart.getBlob();
+        match payload {
+            mime:EntityError err => return "Error in getting blob payload";
+            blob blobContent => return blobContent.toString(mime:DEFAULT_CHARSET);
+      }
     }
-    return null;
+    return "";
 }
