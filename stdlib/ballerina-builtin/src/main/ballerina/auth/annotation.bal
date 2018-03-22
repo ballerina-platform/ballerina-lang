@@ -30,5 +30,10 @@ public struct Authentication {
     boolean enabled;
 }
 
+public function <AuthConfig authConfig> AuthConfig() {
+    authConfig.authentication = null;
+    authConfig.scope = "";
+}
+
 @Description {value:"Authentication config annotation for a Service"}
 public annotation <service,resource> Config AuthConfig;
