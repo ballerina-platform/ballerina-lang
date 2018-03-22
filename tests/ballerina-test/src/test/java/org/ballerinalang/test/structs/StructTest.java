@@ -169,18 +169,11 @@ public class StructTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
                 "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}}");
-        
+
         returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
-        Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
-                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}}");
-
-        returns = BRunUtil.invoke(compileResult, "testStructLiteral3");
         Assert.assertEquals(returns[0].stringValue(),
                 "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}");
 
-        returns = BRunUtil.invoke(compileResult, "testStructLiteral4");
-        Assert.assertEquals(returns[0].stringValue(),
-                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}");
     }
 
 }

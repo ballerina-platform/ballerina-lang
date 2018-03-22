@@ -152,8 +152,7 @@ public class TextDocumentServiceUtil {
                     for (File file : files) {
                         Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot,
                                 preserveWhitespace, customErrorStrategy);
-                        compiler.compile(file.getName());
-                        packages.add((BLangPackage) compiler.getAST());
+                        packages.add(compiler.compile(file.getName()));
                     }
                 }
             }
@@ -161,12 +160,10 @@ public class TextDocumentServiceUtil {
             Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot, preserveWhitespace,
                     customErrorStrategy);
             if ("".equals(pkgName)) {
-                compiler.compile(fileName);
+                packages.add(compiler.compile(fileName));
             } else {
-                compiler.compile(pkgName);
+                packages.add(compiler.compile(pkgName));
             }
-
-            packages.add((BLangPackage) compiler.getAST());
         }
         return packages;
     }

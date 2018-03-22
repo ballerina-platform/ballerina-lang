@@ -756,7 +756,7 @@ public class ParserUtils {
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         Desugar desugar = Desugar.getInstance(context);
         BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
-                pkgLoader.loadAndDefinePackage(Names.BUILTIN_PACKAGE.value))));
+                pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(), Names.BUILTIN_PACKAGE.getValue()))));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }
