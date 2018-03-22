@@ -970,7 +970,7 @@ public class ProgramFileReader {
                 List<BType> memberTypes = new ArrayList<>();
                 int memberCount = Integer.parseInt(new String(Arrays.copyOfRange(chars, index, nameIndex)));
                 index = nameIndex;
-                for (int i = 0 ; i < memberCount ; i++) {
+                for (int i = 0; i < memberCount; i++) {
                     index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo) - 1;
                     memberTypes.add(typeStack.pop());
                 }
