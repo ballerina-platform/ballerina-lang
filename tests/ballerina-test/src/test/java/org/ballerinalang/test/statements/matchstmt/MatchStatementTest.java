@@ -206,4 +206,5 @@ public class MatchStatementTest {
         BAssertUtil.validateError(compile, 3, "pattern will not be matched",
                 18, 9);
     }
+    
 }
