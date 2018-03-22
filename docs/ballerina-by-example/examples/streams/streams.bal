@@ -14,22 +14,24 @@ struct Teacher {
     string school;
 }
 
-
 stream<StatusCount> filteredStatusCountStream = {};
 stream<Teacher> teacherStream = {};
 
-streamlet aggregationStreamlet () {
-    from teacherStream where age > 18 window lengthBatch(3)
-    select status, count(status) as totalCount
-    group by status
-    having totalCount > 1
-    insert into filteredStatusCountStream
+function testAggregationQuery () {
+    whenever{
+        from teacherStream where age > 18 window lengthBatch(3)
+        select status, count(status) as totalCount
+        group by status
+        having totalCount > 1
+        => (StatusCount [] status) {
+                filteredStatusCountStream.publish(status);
+        }
+    }
 }
-
 
 function main (string[] args) {
 
-    aggregationStreamlet pStreamlet = {};
+    testAggregationQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
@@ -42,7 +44,6 @@ function main (string[] args) {
     teacherStream.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
-    pStreamlet.stop();
 }
 
 function printStatusCount (StatusCount s) {

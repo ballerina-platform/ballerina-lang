@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.8.0
  */
+@Test(enabled = false)
 public class ConnectorInitTest {
 
     CompileResult result;

@@ -43,7 +43,6 @@ import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -53,6 +52,7 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OutputRateLimitNode;
 import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
@@ -77,6 +77,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.WheneverNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -97,7 +98,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
@@ -169,7 +170,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -177,6 +177,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -273,6 +274,7 @@ public class BLangPackageBuilder {
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
     private Stack<List<BLangEndpoint>> endpointListStack = new Stack<>();
+
     private BLangEndpoint lastBuiltEndpoint;
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
@@ -317,7 +319,9 @@ public class BLangPackageBuilder {
 
     private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
 
-    private Stack<StreamletNode> streamletNodeStack = new Stack<>();
+    private Stack<WheneverNode> wheneverNodeStack = new Stack<>();
+
+    private Stack<OutputRateLimitNode> outputRateLimitStack = new Stack<>();
 
     private Stack<WithinClause> withinClauseStack = new Stack<>();
 
@@ -606,10 +610,10 @@ public class BLangPackageBuilder {
     }
 
     public BLangVariable addReturnParam(DiagnosticPos pos,
-                                Set<Whitespace> ws,
-                                String identifier,
-                                boolean exprAvailable,
-                                int annotCount) {
+                                        Set<Whitespace> ws,
+                                        String identifier,
+                                        boolean exprAvailable,
+                                        int annotCount) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var, annotCount);
         var.pos = pos;
@@ -913,7 +917,7 @@ public class BLangPackageBuilder {
     }
 
     public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable,
-            boolean async) {
+                                         boolean async) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
@@ -2769,30 +2773,20 @@ public class BLangPackageBuilder {
         setAssignmentNodeList.add(expr);
     }
 
-    public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, PackageID packageID) {
         StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
+        this.startLambdaFunctionDef(packageID);
     }
 
-    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier, String action,
-                                    boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
+    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
-
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
-
-        if (!exprNodeStack.empty()) {
-            streamActionNode.setExpression(exprNodeStack.pop());
-        }
-
-        if (!setAssignmentListStack.empty()) {
-            streamActionNode.setSetClause(setAssignmentListStack.pop());
-        }
-        streamActionNode.setIdentifier(identifier);
-        streamActionNode.setStreamActionType(action);
-        streamActionNode.setOutputEventType(isAllEvents, isCurrentEvents, isExpiredEvents);
+        this.addLambdaFunctionDef(pos, ws, true, false, false);
+        streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.peek());
     }
 
     public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2802,22 +2796,22 @@ public class BLangPackageBuilder {
         this.patternStreamingEdgeInputStack.push(patternStreamingEdgeInputNode);
     }
 
-    public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                 String alias) {
-
+    public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String alias) {
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = this.patternStreamingEdgeInputStack.peek();
 
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
         patternStreamingEdgeInputNode.addWS(ws);
 
-        if (!exprNodeStack.empty()) {
+        if (exprNodeStack.size() == 2) {
             patternStreamingEdgeInputNode.setExpression(exprNodeStack.pop());
+            patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
+        } else if (exprNodeStack.size() == 1) {
+            patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
         }
 
         if (!whereClauseStack.empty()) {
             patternStreamingEdgeInputNode.setWhereClause(whereClauseStack.pop());
         }
-        patternStreamingEdgeInputNode.setIdentifier(identifier);
         patternStreamingEdgeInputNode.setAliasIdentifier(alias);
     }
 
@@ -2892,48 +2886,32 @@ public class BLangPackageBuilder {
             streamingQueryStatementNode.setOrderByClause(orderByClauseStack.pop());
         }
 
+        if (!outputRateLimitStack.empty()) {
+            streamingQueryStatementNode.setOutputRateLimitNode(outputRateLimitStack.pop());
+        }
+
         streamingQueryStatementNode.setStreamingAction(streamActionNodeStack.pop());
     }
 
-    public void startQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        QueryStatementNode queryStatementNode = TreeBuilder.createQueryStatementNode();
-        ((BLangQueryStatement) queryStatementNode).pos = pos;
-        queryStatementNode.addWS(ws);
-        this.queryStatementStack.push(queryStatementNode);
+    public void startOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        OutputRateLimitNode outputRateLimit = TreeBuilder.createOutputRateLimitNode();
+        ((BLangOutputRateLimit) outputRateLimit).pos = pos;
+        outputRateLimit.addWS(ws);
+        this.outputRateLimitStack.push(outputRateLimit);
     }
 
-    public void endQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+    public void endOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isSnapshotOutputRateLimit,
+                                       boolean isEventBasedOutputRateLimit, boolean isFirst, boolean isLast,
+                                       boolean isAll, String timeScale, String rateLimitValue) {
+        OutputRateLimitNode outputRateLimit = this.outputRateLimitStack.peek();
+        ((BLangOutputRateLimit) outputRateLimit).pos = pos;
+        outputRateLimit.addWS(ws);
 
-        QueryStatementNode queryStatementNode = this.queryStatementStack.peek();
-        ((BLangQueryStatement) queryStatementNode).pos = pos;
-        queryStatementNode.addWS(ws);
-
-        queryStatementNode.setIdentifier(identifier);
-        queryStatementNode.setStreamingQueryStatement(streamingQueryStatementStack.pop());
-    }
-
-    public void endStreamingQueryDeclarationNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        BlockNode blocknode = this.blockNodeStack.peek();
-        if (!streamingQueryStatementStack.empty()) {
-            blocknode.addStatement(streamingQueryStatementStack.pop());
-        }
-
-        ((BLangBlockStmt) blocknode).pos = pos;
-        blocknode.addWS(ws);
-
-        Stack<StatementNode> queryStatementNodeStack = new Stack<>();
-        while (!queryStatementStack.empty()) {
-            StatementNode statementNode = queryStatementStack.pop();
-            if (statementNode instanceof BLangQueryStatement) {
-                queryStatementNodeStack.add(statementNode);
-            } else {
-                blocknode.addStatement(statementNode);
-            }
-        }
-
-        while (!queryStatementNodeStack.isEmpty()) {
-            blocknode.addStatement(queryStatementNodeStack.pop());
-        }
+        outputRateLimit.setSnapshot(isSnapshotOutputRateLimit);
+        outputRateLimit.setEventBasedRateLimit(isEventBasedOutputRateLimit);
+        outputRateLimit.setOutputRateType(isFirst, isLast, isAll);
+        outputRateLimit.setTimeScale(timeScale);
+        outputRateLimit.setRateLimitValue(rateLimitValue);
     }
 
     public void startWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2969,28 +2947,27 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startStreamletNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        StreamletNode streamletNode = TreeBuilder.createStreamletNode();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        streamletNode.addWS(ws);
-        startBlock();
-        this.streamletNodeStack.push(streamletNode);
+    public void startWheneverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WheneverNode wheneverNode = TreeBuilder.createWheneverNode();
+        ((BLangWhenever) wheneverNode).pos = pos;
+        wheneverNode.addWS(ws);
+        this.wheneverNodeStack.push(wheneverNode);
     }
 
-    public void endStreamletNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        StreamletNode streamletNode = this.streamletNodeStack.peek();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        streamletNode.addWS(ws);
-
-        streamletNode.setName(this.createIdentifier(identifier));
-        BlockNode blocknode = this.blockNodeStack.pop();
-        streamletNode.setBody(blocknode);
+    public void endWheneverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WheneverNode wheneverNode = this.wheneverNodeStack.pop();
+        ((BLangWhenever) wheneverNode).pos = pos;
+        wheneverNode.addWS(ws);
 
         if (!this.varListStack.empty()) {
-            this.varListStack.pop().forEach(streamletNode::addParameter);
+            this.varListStack.pop().forEach(wheneverNode::addParameter);
         }
 
-        this.compUnit.addTopLevelNode(streamletNode);
-    }
+        Collections.reverse(streamingQueryStatementStack);
+        while (!streamingQueryStatementStack.empty()) {
+            wheneverNode.addStreamingQueryStatement(streamingQueryStatementStack.pop());
+        }
 
+        addStmtToCurrentBlock(wheneverNode);
+    }
 }

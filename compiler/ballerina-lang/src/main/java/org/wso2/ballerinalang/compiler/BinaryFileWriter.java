@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_EXEC_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
  * Write a compiled executable program(.balx) or a compiled package(balo.) to a file.
@@ -120,7 +122,11 @@ public class BinaryFileWriter {
 
     private String getOutputFileName(BLangPackage packageNode, String suffix) {
         if (packageNode.packageID.isUnnamed) {
-            return packageNode.packageID.sourceFileName.value;
+            String sourceFileName = packageNode.packageID.sourceFileName.value;
+            if (sourceFileName.endsWith(BLANG_SOURCE_EXT)) {
+                sourceFileName = StringUtils.removeEnd(sourceFileName, BLANG_SOURCE_EXT).concat(BLANG_EXEC_FILE_SUFFIX);
+            }
+            return sourceFileName;
         }
 
         return packageNode.packageID.name.value + suffix;

@@ -34,7 +34,7 @@ function testWhileScopeWithIf() returns (int, float) {
         if(i == 0){
             operator = args[0];
         } else {
-            values[i -1], _ = <float>args[i];
+            values[i -1] =? <float>args[i];
         }
         i = i + 1;
     }

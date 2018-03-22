@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
@@ -113,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -164,10 +166,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangStreamlet streamletNode) {
         throw new AssertionError();
     }
 
@@ -410,7 +408,6 @@ public abstract class BLangNodeVisitor {
     }
 
 
-
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
@@ -452,7 +449,7 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangTernaryExpr ternaryExpr) {
         throw new AssertionError();
     }
-    
+
     public void visit(BLangAwaitExpr ternaryExpr) {
         throw new AssertionError();
     }
@@ -549,7 +546,15 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangOutputRateLimit outputRateLimit) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangPatternClause patternClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWhenever wheneverStatement) {
         throw new AssertionError();
     }
 
@@ -631,10 +636,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStructLiteral structLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
         throw new AssertionError();
     }
 

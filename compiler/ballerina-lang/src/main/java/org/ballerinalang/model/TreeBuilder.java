@@ -35,7 +35,6 @@ import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -45,6 +44,7 @@ import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OutputRateLimitNode;
 import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
@@ -112,6 +112,7 @@ import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
 import org.ballerinalang.model.tree.statements.TupleDestructureStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.WheneverNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
 import org.ballerinalang.model.tree.statements.WorkerSendNode;
@@ -143,7 +144,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -154,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
@@ -223,6 +224,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -378,7 +380,7 @@ public class TreeBuilder {
     public static TernaryExpressionNode createTernaryExpressionNode() {
         return new BLangTernaryExpr();
     }
-    
+
     public static BLangAwaitExpr createAwaitExpressionNode() {
         return new BLangAwaitExpr();
     }
@@ -511,7 +513,7 @@ public class TreeBuilder {
     public static MatchStatementPatternNode createMatchStatementPattern() {
         return new BLangMatchStmtPatternClause();
     }
-    
+
     public static ServiceNode createServiceNode() {
         return new BLangService();
     }
@@ -640,6 +642,10 @@ public class TreeBuilder {
         return new BLangJoinStreamingInput();
     }
 
+    public static OutputRateLimitNode createOutputRateLimitNode() {
+        return new BLangOutputRateLimit();
+    }
+
     public static TableQuery createTableQueryNode() {
         return new BLangTableQuery();
     }
@@ -680,8 +686,8 @@ public class TreeBuilder {
         return new BLangQueryStatement();
     }
 
-    public static StreamletNode createStreamletNode() {
-        return new BLangStreamlet();
+    public static WheneverNode createWheneverNode() {
+        return new BLangWhenever();
     }
 
     public static WithinClause createWithinClause() {
