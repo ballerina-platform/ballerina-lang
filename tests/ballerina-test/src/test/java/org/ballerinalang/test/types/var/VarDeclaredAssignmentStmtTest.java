@@ -188,7 +188,7 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "redeclared symbol 'age'", 2, 15);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testVarDeclarationWithArrayInit() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declaration-with-array-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
