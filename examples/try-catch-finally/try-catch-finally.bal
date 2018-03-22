@@ -1,5 +1,6 @@
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/io;
 
 function main (string[] args) {
     int result;
