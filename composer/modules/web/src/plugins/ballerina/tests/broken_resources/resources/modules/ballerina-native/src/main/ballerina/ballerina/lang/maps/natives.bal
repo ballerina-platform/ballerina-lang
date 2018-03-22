@@ -1,6 +1,6 @@
 package ballerina.lang.maps;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Removes the specified element from the map"}
 @doc:Param { value:"m: The map object" }

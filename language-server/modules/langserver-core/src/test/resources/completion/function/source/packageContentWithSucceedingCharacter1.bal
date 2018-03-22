@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.config;
+import ballerina/io;
+import ballerina/config;
 
 function testFunction () {
     string a = config:("property");

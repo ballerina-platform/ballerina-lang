@@ -27,9 +27,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.config:getAsString.
+ * Native function ballerina.config:setConfig.
  *
- * @since 0.965.0
+ * @since 0.966.0
  */
 @BallerinaFunction(
         packageName = "ballerina.config",

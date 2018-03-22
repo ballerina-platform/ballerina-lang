@@ -1,5 +1,5 @@
-import ballerina.lang.messages;
-import ballerina.net.http;
+import ballerina/lang.messages;
+import ballerina/net.http;
 
 @http:BasePath {value:"/hello"}
 service<http> hello<TYPO descr="Typo: In word 'Wrld'">Wrld</TYPO> {

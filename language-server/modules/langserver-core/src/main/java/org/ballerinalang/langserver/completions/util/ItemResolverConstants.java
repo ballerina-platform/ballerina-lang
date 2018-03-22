@@ -60,6 +60,7 @@ public class ItemResolverConstants {
     public static final String PACKAGE = "package";
     public static final String IMPORT = "import";
     public static final String CONST = "const";
+    public static final String TYPE = "type ";
     // End of Package Name Context Constants
 
     // Symbol Types Constants
@@ -77,6 +78,9 @@ public class ItemResolverConstants {
     public static final String FIELD_TYPE = "Field";
     public static final String NONE = "none";
     public static final String BOOLEAN_TYPE = "boolean";
+    public static final String OBJECT_TYPE = "type <Name> object";
+    public static final String TYPE_TYPE = "type";
+    public static final String NEW_OBJECT_CONSTRUCTOR_TYPE = "new object constructor";
     // End Symbol Types Constants
     
     // Keyword constants

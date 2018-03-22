@@ -64,7 +64,7 @@ public class PermissionStoreTest {
     public void testReadGroupsForNonExistingScope() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForNonExistingScope");
         Assert.assertTrue(returns != null);
-        Assert.assertNull(returns[0].stringValue());
+        Assert.assertTrue(returns[0].stringValue().isEmpty());
     }
 
     @Test(description = "Test case for reading groups of a scope")
@@ -81,7 +81,7 @@ public class PermissionStoreTest {
     public void testReadGroupsForNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForNonExistingUser");
         Assert.assertTrue(returns != null);
-        Assert.assertNull(returns[0].stringValue());
+        Assert.assertTrue(returns[0].stringValue().isEmpty());
     }
 
     @Test(description = "Test case for reading groups of a user")

@@ -32,7 +32,7 @@ import java.io.PrintStream;
  * @since 0.85
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "println",
         args = {@Argument(name = "a", type = TypeKind.ANY)},
         isPublic = true

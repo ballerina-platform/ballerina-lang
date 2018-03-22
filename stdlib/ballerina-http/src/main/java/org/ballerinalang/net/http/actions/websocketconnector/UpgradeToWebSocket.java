@@ -37,7 +37,7 @@ import java.util.Set;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "upgradeToWebSocket",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina.net.http"),

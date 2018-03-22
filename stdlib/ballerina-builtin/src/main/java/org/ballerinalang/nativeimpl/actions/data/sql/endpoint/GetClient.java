@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.965
  */
 
-@BallerinaFunction(packageName = "ballerina.data.sql",
+@BallerinaFunction(orgName = "ballerina", packageName = "data.sql",
                    functionName = "getClient",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "Client",

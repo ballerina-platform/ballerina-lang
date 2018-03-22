@@ -1,8 +1,8 @@
-import ballerina.io;
-import ballerina.net.ftp;
-import ballerina.lang.messages;
-import ballerina.lang.files;
-import ballerina.lang.blobs;
+import ballerina/io;
+import ballerina/net.ftp;
+import ballerina/lang.messages;
+import ballerina/lang.files;
+import ballerina/lang.blobs;
 
 @ftp:configuration {
     dirURI:"ftp://127.0.0.1/observed-dir/",
