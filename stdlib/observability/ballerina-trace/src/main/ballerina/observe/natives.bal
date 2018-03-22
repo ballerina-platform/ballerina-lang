@@ -117,9 +117,7 @@ public function <Span span> injectTraceContextToHttpHeader (http:Request req, st
     map headers = span.injectTraceContext(traceGroup);
     foreach key, v in headers {
         var value = <string>v;
-        match value {
-            string sVal => req.addHeader(key, value);
-        }
+        req.addHeader(key, value);
     }
     return req;
 }
