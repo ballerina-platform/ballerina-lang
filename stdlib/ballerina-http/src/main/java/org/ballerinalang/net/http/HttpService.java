@@ -121,10 +121,8 @@ public class HttpService {
     }
 
     public void setBasePath(String basePath) {
-        if (basePath == null) {
+        if (basePath == null || basePath.trim().isEmpty()) {
             this.basePath = HttpConstants.DEFAULT_BASE_PATH.concat(this.getName());
-        } else if (basePath.trim().isEmpty()) {
-            this.basePath = HttpConstants.DEFAULT_BASE_PATH;
         } else {
             String sanitizedPath = sanitizeBasePath(basePath);
             this.basePath = urlDecode(sanitizedPath);

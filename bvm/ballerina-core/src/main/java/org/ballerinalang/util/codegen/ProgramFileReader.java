@@ -423,6 +423,8 @@ public class ProgramFileReader {
                 readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
             }
 
+            String defaultInit = structName + INIT_FUNCTION_SUFFIX;
+
             // Read attached function info entries
             int attachedFuncCount = dataInStream.readShort();
             for (int j = 0; j < attachedFuncCount; j++) {
@@ -443,6 +445,10 @@ public class ProgramFileReader {
                 // Setting the initializer function info, if any.
                 if (structName.equals(attachedFuncName)) {
                     structInfo.initializer = functionInfo;
+                }
+                // Setting the default initializer function info
+                if (defaultInit.equals(attachedFuncName)) {
+                    structInfo.defaultsValuesInitFunc = functionInfo;
                 }
             }
 
@@ -1346,12 +1352,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BGLOAD:
                 case InstructionCodes.LGLOAD:
                 case InstructionCodes.RGLOAD:
-                case InstructionCodes.ISTORE:
-                case InstructionCodes.FSTORE:
-                case InstructionCodes.SSTORE:
-                case InstructionCodes.BSTORE:
-                case InstructionCodes.LSTORE:
-                case InstructionCodes.RSTORE:
                 case InstructionCodes.IGSTORE:
                 case InstructionCodes.FGSTORE:
                 case InstructionCodes.SGSTORE:
@@ -1711,6 +1711,8 @@ public class ProgramFileReader {
                 attachedFunctions[count++] = attachedFunction;
                 if (structInfo.initializer == attachedFuncInfo) {
                     structType.initializer = attachedFunction;
+                } else if (structInfo.defaultsValuesInitFunc == attachedFuncInfo) {
+                    structType.defaultsValuesInitFunc = attachedFunction;
                 }
             }
             structType.setAttachedFunctions(attachedFunctions);

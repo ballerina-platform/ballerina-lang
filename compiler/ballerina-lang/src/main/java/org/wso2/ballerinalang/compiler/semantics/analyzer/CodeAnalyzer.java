@@ -25,6 +25,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -137,6 +138,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.ANON_STRUCT;
+
 /**
  * This represents the code analyzing pass of semantic analysis.
  * <p>
@@ -165,6 +168,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
     private Names names;
+    private SymbolEnv env;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -206,10 +210,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
             return;
         }
-        pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
 
-        pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        pkgNode.imports.forEach(impPkgNode -> analyzeNode(impPkgNode, pkgEnv));
+        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
+    }
+
+    private void analyzeNode(BLangNode node, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        node.accept(this);
+        this.env = prevEnv;
     }
 
     @Override
@@ -729,6 +741,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         recordLiteral.keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
+        checkAccess(recordLiteral);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -896,6 +909,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         node.accept(this);
+        checkAccess(node);
+    }
+
+    private <E extends BLangExpression> void checkAccess(E node) {
+        if (node.type == null || node.type.tsymbol == null) {
+            return;
+        }
+
+        BSymbol symbol = node.type.tsymbol;
+        //skip anonymous struct definitions
+        if (symbol instanceof BStructSymbol && symbol.getName().getValue().startsWith(ANON_STRUCT)) {
+            return;
+        }
+
+        if (!(env.enclPkg.symbol.pkgID == symbol.pkgID || (Symbols.isPublic(symbol)))) {
+            dlog.error(node.pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
+        }
     }
 
     private <E extends BLangExpression> void analyzeExprs(List<E> nodeList) {
