@@ -38,7 +38,7 @@ function testConnectionPoolProperties1 () returns (string) {
 
 
     string firstName;
-    var x= testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
@@ -51,7 +51,7 @@ function testConnectionPoolProperties2 () returns (string) {
         options: properties
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 
     string firstName;
     var j, _ = <json>dt;
@@ -68,7 +68,7 @@ function testConnectionPoolProperties3 () returns (string) {
         username: "SA"
     };
 
-    var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
@@ -87,7 +87,7 @@ function testConnectorWithDefaultPropertiesForListedDB () returns (string) {
         options: {}
     };
 
-    var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 
     string firstName;
     var j, _ = <json>dt;
@@ -110,7 +110,7 @@ function testConnectorWithWorkers () returns (string) {
         int x = 0;
         json y;
 
-	    var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+	    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 	    var j, _ = <json>dt;
 	    string firstName = j.toString();
         _ = testDB -> close();
@@ -128,7 +128,7 @@ function testConnectorWithDirectUrl () returns (string) {
         options: Properties2
     };
 
-    var x= testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
@@ -143,7 +143,7 @@ function testConnectorWithDataSourceClass () returns (string) {
         options: properties3
     };
 
-    var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
@@ -161,11 +161,11 @@ function testConnectorWithDataSourceClassAndProps () returns (string) {
         options: properties4
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -179,7 +179,7 @@ function testConnectorWithDataSourceClassWithoutURL () returns (string) {
         options: properties5
     };
 
-    var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
@@ -197,7 +197,7 @@ function testConnectorWithDataSourceClassURLPriority () returns (string) {
         options: properties6
     };
 
-    var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
     var j, _ = <json>dt;
     firstName = j.toString();
