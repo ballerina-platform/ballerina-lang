@@ -1,23 +1,24 @@
 import ballerina/io;
 
-io:CharacterChannel|null chChannel;
+io:CharacterChannel|null characterChannel;
 
-function initCharacterChannel (string filePath, string permission, string encoding) {
+function initCharacterChannel (string filePath, string permission, string encoding) returns (boolean|io:IOError) {
     io:ByteChannel channel = io:openFile(filePath, permission);
     var result = io:createCharacterChannel(channel, encoding);
     match result {
         io:CharacterChannel charChannel => {
-            chChannel = charChannel;
+            characterChannel = charChannel;
+            return true;
         }
         io:IOError err => {
-            throw err;
+            return err;
         }
     }
 }
 
-function readCharacters (int numberOfCharacters) returns (string) {
+function readCharacters (int numberOfCharacters) returns (string|io:IOError) {
     string empty = "";
-    match chChannel {
+    match characterChannel {
         io:CharacterChannel ch => {
             var result = ch.readCharacters(numberOfCharacters);
             match result {
@@ -25,10 +26,9 @@ function readCharacters (int numberOfCharacters) returns (string) {
                     return characters;
                 }
                 io:IOError err => {
-                    throw err;
+                    return err;
                 }
             }
-            return empty;
         }
         (any|null) => {
             return empty;
@@ -36,9 +36,9 @@ function readCharacters (int numberOfCharacters) returns (string) {
     }
 }
 
-function writeCharacters (string content, int startOffset) returns (int) {
+function writeCharacters (string content, int startOffset) returns (int|io:IOError) {
     int blank = -1;
-    match chChannel {
+    match characterChannel {
         io:CharacterChannel ch => {
             var result = ch.writeCharacters(content, startOffset);
             io:println(result);
@@ -47,10 +47,9 @@ function writeCharacters (string content, int startOffset) returns (int) {
                     return numberOfCharsWritten;
                 }
                 io:IOError err => {
-                    throw err;
+                    return err;
                 }
             }
-            return blank;
         }
         (any|null) => {
             return blank;
@@ -59,7 +58,7 @@ function writeCharacters (string content, int startOffset) returns (int) {
 }
 
 function close () {
-    match chChannel {
+    match characterChannel {
         io:CharacterChannel ch => {
             io:IOError err = ch.closeCharacterChannel();
         }
