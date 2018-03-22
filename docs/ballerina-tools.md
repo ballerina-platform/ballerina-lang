@@ -2,7 +2,7 @@
 
 Ballerina provides several tools to help you create, document, and test your code. These tools can be various editors, IDEs, and a graphical visualization tool for your code called the Ballerina Composer.
 
-This includes the following sections.
+These tools include the following.
 
 - [IDE plug-ins](#ide-plug-ins)
 - [Swagger to Ballerina code generator](#swagger-to-ballerina-code-generator)
