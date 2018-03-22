@@ -104,10 +104,14 @@ public class TestCmd implements BLauncherCmd {
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 
+        BTestRunner testRunner = new BTestRunner();
         if (disableGroupList != null) {
-            new BTestRunner().runTest(sourceRoot, paths, disableGroupList, false);
+            testRunner.runTest(sourceRoot, paths, disableGroupList, false);
         } else {
-            new BTestRunner().runTest(sourceRoot, paths, groupList, true);
+            testRunner.runTest(sourceRoot, paths, groupList, true);
+        }
+        if (testRunner.getTesterinaReport().isFailure()) {
+            Runtime.getRuntime().exit(1);
         }
         Runtime.getRuntime().exit(0);
     }

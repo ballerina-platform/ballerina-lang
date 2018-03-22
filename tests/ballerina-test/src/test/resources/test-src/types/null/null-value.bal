@@ -1,10 +1,11 @@
-function testXmlNull () returns (xml, xml, int) {
+function testXmlNull () returns (xml|null, xml|null, int) {
     xml|null x1 = null;
     xml|null x2 = null;
     int a = 0;
-    if (x2 == null) {
-        a = 5;
+    match (x2){
+        null => a = 5;
     }
+
     return (x1, x2, a);
 }
 
@@ -18,13 +19,14 @@ function testJsonNull () returns (json, json, int) {
     return (j1, j2, a);
 }
 
-function testStructNull () returns (Person, Person, int) {
-    Person p1;
-    Person p2;
+function testStructNull () returns (Person|null, Person|null, int) {
+    Person|null p1 = null;
+    Person|null p2 = null;
     int a = 0;
-    if (p2 == null) {
-        a = 7;
+    match (p1){
+        null => a = 7;
     }
+
     return (p1, p2, a);
 }
 
@@ -69,13 +71,13 @@ function testNullArrayAccess () returns (string) {
 function testNullMapAccess () returns (string) {
     map marks;
     string value;
-    value, _ = (string)marks["maths"];
+    value = <string>marks["maths"];
     return value;
 }
 
 function testCastingNull (any j) returns (xml) {
     xml x;
-    x, _ = (xml)j;
+    x =? <xml>j;
 
     return x;
 }
@@ -134,12 +136,12 @@ function testNullInForkJoin () returns (json, json) {
         }
     } join (all) (map allReplies) {
         any[] temp;
-        temp, _ = (any[])allReplies["foo"];
+        temp =? <any[]>allReplies["foo"];
         json m1;
-        m1, _ = (json)temp[0];
-        temp, _ = (any[])allReplies["bar"];
+        m1 =? <json>temp[0];
+        temp = <any[]>allReplies["bar"];
         json m2;
-        m2, _ = (json)temp[0];
+        m2 =? <json>temp[0];
         return (m1, m2);
     } timeout (30000) (map msgs) {
         return (null, null);

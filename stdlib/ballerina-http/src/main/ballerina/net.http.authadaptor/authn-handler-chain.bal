@@ -42,7 +42,7 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
 @Return {value:"boolean: true if authenticated successfully, else false"}
 public function <AuthnHandlerChain authnHandlerChain> handle (http:Request req) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authnHandlerChain.authnHandlers {
-        var authnHandler = <HttpAuthnHandler> currentAuthHandler;
+        var authnHandler =? <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
             log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);
             return authnHandler.handle(req);

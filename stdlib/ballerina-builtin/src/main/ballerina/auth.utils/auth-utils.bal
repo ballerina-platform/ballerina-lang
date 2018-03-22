@@ -52,7 +52,7 @@ public function createCache (string cacheName) returns (caching:Cache|null) {
         (expiryTime, capacity, evictionFactor) = getCacheConfigurations(cacheName);
         return caching:createCache(cacheName, expiryTime, capacity, evictionFactor);
     }
-    return {};
+    return null;
 }
 
 @Description {value:"Checks if the specified cache is enalbed"}
