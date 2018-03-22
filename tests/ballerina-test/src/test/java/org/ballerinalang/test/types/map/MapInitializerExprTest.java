@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -143,7 +142,10 @@ public class MapInitializerExprTest {
     @Test
     public void testMapInitWithStringTemplateAsKey() {
         CompileResult result = BCompileUtil.compile("test-src/types/map/map-initializer-with-string-template.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input 'string `'. expecting '}'", 3, 14);
+        BValue[] returns = BRunUtil.invoke(result, "testMapInitWithStringTemplateAsKey");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BString> mapValue = (BMap<String, BString>) returns[0];
+        Assert.assertEquals(mapValue.get("firstname").stringValue(), "John");
     }
 
     @Test(description = "Test map initializer expression")

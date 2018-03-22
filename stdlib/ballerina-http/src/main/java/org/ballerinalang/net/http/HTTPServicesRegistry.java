@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,7 @@ public class HTTPServicesRegistry {
      *
      * @param service requested serviceInfo to be registered.
      */
-    public void registerService(Service service) {
+    public void registerService(Service service, Struct endpoint) {
         String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
         if (accessLogConfig != null) {
             try {
@@ -105,7 +106,7 @@ public class HTTPServicesRegistry {
         if (websocketConfig != null) {
             registerWebSocketUpgradePath(
                     WebSocketUtil.getProgramFile(httpService.getBallerinaService().getResources()[0]),
-                    websocketConfig, httpService.getBasePath());
+                    websocketConfig, httpService.getBasePath(), endpoint);
         }
 
     }
@@ -121,13 +122,16 @@ public class HTTPServicesRegistry {
         return basePath;
     }
 
-    private void registerWebSocketUpgradePath(ProgramFile programFile, Struct websocketConfig, String basePath) {
+    private void registerWebSocketUpgradePath(ProgramFile programFile, Struct websocketConfig, String basePath,
+                                              Struct endpoint) {
         String upgradePath = sanitizeBasePath(
                 websocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH));
         Value serviceType = websocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
         String uri = basePath.concat(upgradePath);
-        webSocketServicesRegistry.addUpgradableServiceByName(
-                new WebSocketService(BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType)), uri);
+        WebSocketService service = new WebSocketService(
+                BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType));
+        service.setServiceEndpoint((BStruct) endpoint.getVMValue());
+        webSocketServicesRegistry.addUpgradableServiceByName(service, uri);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {

@@ -1,8 +1,8 @@
-function foo(string param) returns (boolean){
+function foobar(string param) returns (boolean){
 	return true;
 }
 
-function foo(string param) {
+function foobar(string param) {
 	string a;
 	a = param;
 }

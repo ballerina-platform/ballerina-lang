@@ -5,8 +5,7 @@ function main (string[] args) {
     string permission = args[0];
     string chars = args[0];
 
-    int intArg;
-    (intArg, _) = <int> args[0];
+    int intArg =? <int> args[0];
 
     io:ByteChannel bchannel = io:openFile(filePath, permission);
     var channelResult = io:createCharacterChannel(bchannel, "UTF-8");
@@ -25,7 +24,7 @@ function main (string[] args) {
     }
 }
 
-public function testFunction (string sensitiveValue, string anyValue) {
+public function testFunction (@sensitive string sensitiveValue, string anyValue) {
 
 }
 

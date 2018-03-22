@@ -12,7 +12,7 @@ function main (string[] args) {
     map words = {a:"apple", b:"banana", c:"cherry"};
     // For maps: Use 1 variable to get only the value. Use 2 variables to get both key (string) and value.
     foreach k, v in words {
-        var value, _ = (string)v;
+        string value =? <string>v;
         io:println("letter: " + k + ", word: " + value);
     }
 
@@ -25,7 +25,7 @@ function main (string[] args) {
 
     io:println("\nIterating over a json array");
     // To Iterate over JSON array, first cast it into an array of json (json[]).
-    var colors, _ = (json[]) apple.colors;
+    json[] colors =? <json[]> apple.colors;
     foreach i, j in colors{
         io:println("color " + i + " : " + j.toString());
     }
@@ -37,7 +37,8 @@ function main (string[] args) {
                     </book>`;
     // For xml: Use 1 variable to get the xml value. Use 2 variables to get both index (int) and xml value.
     foreach i, x in book.children().elements(){
-        io:println("xml at " + i + " : " + <string> x);
+        io:println("xml at " + i + " : ");
+        io:println(x);
     }
 
     io:println("\nIterating over an integer range");

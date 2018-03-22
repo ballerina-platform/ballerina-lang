@@ -5,10 +5,9 @@ endpoint http:ServiceEndpoint helloWorldEp {
 };
 
 @http:ServiceConfig {
-    basePath:"/hello",
-    endpoints:[helloWorldEp]
+    basePath:"/hello"
 }
-service<http:Service> helloWorld {
+service<http:Service> helloWorld bind helloWorldEp {
 
     @http:ResourceConfig {
         methods:["GET"],

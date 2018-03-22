@@ -21,12 +21,10 @@ function testStringArrayLength(string[] arg) returns (int, int){
 
 function testXMLArrayLength() returns (int){
     xml[] defined;
-    xml v1;
-    xml v2;
-    v1, _ = <xml> "<test>a</test>";
-    v2, _ = <xml> "<test>b</test>";
+    xml v1 = xml `<test>a</test>`;
+    xml v2 = xml `<test>b</test>`;
     defined = [v1, v2];
-    defined[2], _ = <xml> "<test>c</test>";
+    defined[2] = xml `<test>c</test>`;
     return lengthof defined;
 }
 

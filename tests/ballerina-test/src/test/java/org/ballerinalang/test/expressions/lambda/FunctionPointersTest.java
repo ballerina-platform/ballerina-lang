@@ -45,11 +45,7 @@ public class FunctionPointersTest {
 
     @Test
     public void testFunctionPointerAsVariable() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test1");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+        invokeFunctionPointerProgram("test1", 3);
     }
 
     @Test
@@ -63,11 +59,7 @@ public class FunctionPointersTest {
 
     @Test
     public void testFunctionPointerAsParameter() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test3");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+        invokeFunctionPointerProgram("test3", 4);
     }
 
     @Test
@@ -100,11 +92,15 @@ public class FunctionPointersTest {
 
     @Test
     public void testFuncWithArrayParams() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFuncWithArrayParams");
+        invokeFunctionPointerProgram("testFuncWithArrayParams", 0);
+    }
+
+    private void invokeFunctionPointerProgram(String functionName, int valueToAssert) {
+        BValue[] returns = BRunUtil.invoke(fpProgram, functionName);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), valueToAssert);
     }
 
     @Test
