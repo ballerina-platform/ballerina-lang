@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 struct Employee {
     string id;

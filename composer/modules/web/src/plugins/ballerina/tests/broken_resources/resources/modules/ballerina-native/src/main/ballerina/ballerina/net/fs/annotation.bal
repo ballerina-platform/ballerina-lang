@@ -1,6 +1,6 @@
 package ballerina.net.fs;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description {value: "dirURI: A valid file system URI"}
 @doc:Description {value: "fileNamePattern: "}

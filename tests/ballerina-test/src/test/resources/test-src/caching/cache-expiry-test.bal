@@ -1,4 +1,4 @@
-import ballerina.caching;
+import ballerina/caching;
 
 caching:Cache cache;
 

@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,11 +34,14 @@ import java.util.stream.Collectors;
 public class PackageID {
 
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
-    private final Name orgName;
+    public final Name orgName;
+    public Name name;
+    public Name version = Names.DEFAULT_VERSION;
+
+    public boolean isUnnamed = false;
+    public Name sourceFileName = null;
 
     public List<Name> nameComps;
-    public Name name = Names.DEFAULT_PACKAGE;
-    public Name version = Names.DEFAULT_VERSION;
 
     public PackageID(Name orgName, List<Name> nameComps, Name version) {
         this.orgName = orgName;
@@ -46,17 +50,35 @@ public class PackageID {
                 nameComps.stream()
                         .map(Name::getValue)
                         .collect(Collectors.joining(".")));
+        this.version = version;
     }
 
     public PackageID(Name orgName, Name name, Name version) {
         this.orgName = orgName;
         this.name = name;
+        this.version = version;
         if (name == Names.DEFAULT_PACKAGE) {
             this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
         } else {
             this.nameComps = Arrays.stream(name.value.split("\\."))
                     .map(Name::new).collect(Collectors.toList());
         }
+    }
+
+    /**
+     * Creates a {@code PackageID} for an unnamed package.
+     *
+     * @param sourceFileName name of the .bal file
+     */
+    public PackageID(String sourceFileName) {
+        this.orgName = Names.ANON_ORG;
+//        this.name = new Name(Names.DOT + sourceFileName);
+        this.name = Names.DEFAULT_PACKAGE;
+        this.nameComps = new ArrayList<Name>(1) {{
+            add(name);
+        }};
+        this.isUnnamed = true;
+        this.sourceFileName = new Name(sourceFileName);
     }
 
     public Name getName() {
@@ -98,14 +120,28 @@ public class PackageID {
 
     @Override
     public String toString() {
-        if (version == Names.DEFAULT_VERSION) {
-            return this.name.value;
+        String orgName = "";
+        if (this.orgName != null && this.orgName != Names.ANON_ORG) {
+            orgName = this.orgName + "/";
         }
 
-        return this.name + "[" + this.version + "]";
+        if (version == Names.DEFAULT_VERSION || version == Names.EMPTY) {
+            return orgName + this.name.value;
+        }
+
+        return orgName + this.name + "[" + this.version + "]";
     }
 
     public Name getOrgName() {
         return orgName;
+    }
+
+    public String bvmAlias() {
+        // TODO: remove null check, it should never be null
+        if (this.orgName != null && this.orgName == Names.ANON_ORG) {
+            return this.name.toString();
+        } else {
+            return this.orgName + "." + this.getName();
+        }
     }
 }

@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 const int val1 = calculateExp5(15, 10);
 

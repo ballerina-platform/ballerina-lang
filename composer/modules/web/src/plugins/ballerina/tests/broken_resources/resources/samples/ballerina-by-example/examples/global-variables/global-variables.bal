@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 @doc:Description {value:"global variable declaration."}
 int total = 98;
 

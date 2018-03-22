@@ -43,7 +43,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.data.sql",
+        orgName = "ballerina", packageName = "data.sql",
         functionName = "call",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
         args = {@Argument(name = "sqlQuery", type = TypeKind.STRING),

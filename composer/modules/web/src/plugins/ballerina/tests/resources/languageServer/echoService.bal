@@ -1,5 +1,5 @@
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 int globalInt = 0;
 @http:configuration {basePath:"/echo"}

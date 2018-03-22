@@ -1,7 +1,7 @@
-import ballerina.net.fs;
-import ballerina.lang.system;
-import ballerina.lang.messages;
-import ballerina.doc;
+import ballerina/net.fs;
+import ballerina/lang.system;
+import ballerina/lang.messages;
+import ballerina/doc;
 
 @doc:Description {value:"In this particular scenario, the connector is listening to the directory specified by dirURI. "}
 @doc:Description {value:"The connector will be notified of any addition of files to the directory. "}

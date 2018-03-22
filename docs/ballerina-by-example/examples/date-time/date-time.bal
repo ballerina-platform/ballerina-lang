@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.time;
+import ballerina/io;
+import ballerina/time;
 
 function main (string[] args) {
     // Time struct can be created by currentTime, createTime or parse functions.

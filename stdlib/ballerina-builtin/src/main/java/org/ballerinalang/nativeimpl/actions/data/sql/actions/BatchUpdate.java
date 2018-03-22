@@ -42,7 +42,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
  * @since 0.8.6
  */
 @BallerinaFunction(
-        packageName = "ballerina.data.sql",
+        orgName = "ballerina", packageName = "data.sql",
         functionName = "batchUpdate",
         receiver = @Receiver(type = TypeKind.STRUCT,
                              structType = "ClientConnector",

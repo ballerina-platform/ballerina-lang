@@ -1,8 +1,8 @@
-import ballerina.lang.system;
-import ballerina.net.ftp;
-import ballerina.lang.files;
-import ballerina.lang.blobs;
-import ballerina.lang.strings;
+import ballerina/lang.system;
+import ballerina/net.ftp;
+import ballerina/lang.files;
+import ballerina/lang.blobs;
+import ballerina/lang.strings;
 
 function main (string[] args) {
     // Create an FTP Client Connector

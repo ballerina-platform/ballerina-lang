@@ -1,6 +1,6 @@
 package ballerina.lang.math;
 
-import ballerina.doc;
+import ballerina/doc;
 
 
 @doc:Description { value:"Returns Euler's number, that is 'e' raised to the power of exponent"}

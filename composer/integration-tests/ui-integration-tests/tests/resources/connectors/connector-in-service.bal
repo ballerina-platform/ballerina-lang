@@ -1,7 +1,7 @@
 package samples.connectors.test;
 
-import ballerina.lang.messages;
-import ballerina.lang.strings;
+import ballerina/lang.messages;
+import ballerina/lang.strings;
 
 const string myConst = "MyParam1";
 
