@@ -36,6 +36,10 @@
       </dict>
       <dict>
         <key>include</key>
+        <string>#objectDec</string>
+      </dict>
+      <dict>
+        <key>include</key>
         <string>#annotationDec</string>
       </dict>
       <dict>
@@ -71,7 +75,15 @@
               </dict>
             </dict>
             <key>end</key>
-            <string>(?&lt;=\})</string>
+            <string>\b(([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+"))\b</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>entity.name.function.ballerina</string>
+              </dict>
+            </dict>
             <key>patterns</key>
             <array>
               <dict>
@@ -189,10 +201,6 @@
               </dict>
               <dict>
                 <key>include</key>
-                <string>#objectBody</string>
-              </dict>
-              <dict>
-                <key>include</key>
                 <string>#comment</string>
               </dict>
             </array>
@@ -298,11 +306,130 @@
               </dict>
               <dict>
                 <key>include</key>
+                <string>#objectInitDec</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#functionDec</string>
+              </dict>
+              <dict>
+                <key>include</key>
                 <string>#comment</string>
               </dict>
               <dict>
                 <key>include</key>
                 <string>#code</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>objectInitDec</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\b(new)\b</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>(?&lt;=\})</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#objectInitParameters</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#objectInitBody</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>objectInitBody</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\{</string>
+            <key>end</key>
+            <string>\}</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina</string>
+              </dict>
+            </dict>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#code</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>objectInitParameters</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\(</string>
+            <key>end</key>
+            <string>\)</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.parameters.begin.ballerina</string>
+              </dict>
+            </dict>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.parameters.end.ballerina</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>match</key>
+                <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
+                <key>name</key>
+                <string>variable.parameter.ballerina</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#defaultValue</string>
               </dict>
             </array>
           </dict>
@@ -547,7 +674,7 @@
         <array>
           <dict>
             <key>begin</key>
-            <string>=</string>
+            <string>[=:]</string>
             <key>end</key>
             <string>(?=[,)])</string>
             <key>patterns</key>

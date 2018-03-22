@@ -17,6 +17,7 @@ patterns:
 - include: '#serviceDec'
 - include: '#documentationDef'
 - include: '#typeDef'
+- include: '#objectDec'
 - include: '#annotationDec'
 - include: '#code'
 
@@ -30,7 +31,9 @@ repository:
     - begin: '\b(type)\b'
       beginCaptures:
         '1': { name:  keyword.ballerina }
-      end: '(?<=\})'
+      end: '\b({{identifier}})\b'
+      endCaptures:
+        '1': { name: entity.name.function.ballerina }
       patterns:
       - include: '#objectDec'
       - match: '{{identifier}}'
@@ -68,7 +71,6 @@ repository:
       end: '(?<=\})'
       patterns:
       - include: '#objectBody'
-      - include: '#objectBody'
       - include: '#comment'
 
   varDefBlock:
@@ -102,8 +104,45 @@ repository:
         '0': { name: punctuation.definition.block.ballerina }
       patterns:
       - include: '#varDefBlock'
+      - include: '#objectInitDec'
+      - include: '#functionDec'
       - include: '#comment'
       - include: '#code'
+
+  objectInitDec:
+    patterns:
+    - begin: '\b(new)\b'
+      beginCaptures:
+        '1': { name:  keyword.ballerina }
+      end: '(?<=\})'
+      patterns:
+      - include: '#objectInitParameters'
+      - include: '#objectInitBody'
+
+  objectInitBody:
+    patterns:
+    - begin: '\{'
+      end: '\}'
+      beginCaptures:
+        '0': { name: punctuation.definition.block.ballerina }
+      endCaptures:
+        '0': { name: punctuation.definition.block.ballerina }
+      patterns:
+      - include: '#comment'
+      - include: '#code'
+
+  objectInitParameters:
+    patterns:
+    - begin: '\('
+      end: '\)'
+      beginCaptures:
+        '0': { name: punctuation.definition.parameters.begin.ballerina }
+      endCaptures:
+        '0': { name: punctuation.definition.parameters.end.ballerina }
+      patterns:
+      - match: '{{identifier}}'
+        name: variable.parameter.ballerina
+      - include: '#defaultValue'
 
   functionDec:
     patterns:
@@ -181,7 +220,7 @@ repository:
 
   defaultValue:
     patterns:
-    - begin: '='
+    - begin: '[=:]'
       end: (?=[,)])
       patterns:
         - include: '#code'
