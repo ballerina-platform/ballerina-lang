@@ -162,6 +162,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -1923,6 +1924,13 @@ public class BLangPackageBuilder {
         abortNode.pos = pos;
         abortNode.addWS(ws);
         addStmtToCurrentBlock(abortNode);
+    }
+
+    public void addFailStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangFail failNode = (BLangFail) TreeBuilder.createFailNode();
+        failNode.pos = pos;
+        failNode.addWS(ws);
+        addStmtToCurrentBlock(failNode);
     }
 
     public void addRetryCountExpression() {

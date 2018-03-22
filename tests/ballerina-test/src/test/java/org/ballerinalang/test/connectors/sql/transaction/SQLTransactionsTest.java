@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.connectors.sql;
+package org.ballerinalang.test.connectors.sql.transaction;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -39,7 +39,7 @@ public class SQLTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/sql-transactions.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql-transactions.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
@@ -107,7 +107,7 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld "
-                + "inCatch afterTrx");
+                + "afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
@@ -139,7 +139,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
 
-    @Test(groups = "TransactionTest")
+    @Test(groups = "TransactionTest", enabled = false)
     public void testNestedThreeLevelTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);

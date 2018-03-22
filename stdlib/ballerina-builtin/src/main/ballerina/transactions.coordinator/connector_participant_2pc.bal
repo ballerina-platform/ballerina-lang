@@ -32,95 +32,95 @@ public struct Participant2pcClientEP {
     Participant2pcClientConfig conf;
 }
 
-public function <Participant2pcClientEP ep> init(Participant2pcClientConfig conf){
+public function <Participant2pcClientEP ep> init (Participant2pcClientConfig conf) {
     endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.participantURL}],
-                                            endpointTimeout:conf.endpointTimeout,
-                                            retry:{count:conf.retryConfig.count,
-                                                            interval:conf.retryConfig.interval}};
+        endpointTimeout:conf.endpointTimeout,
+        retry:{count:conf.retryConfig.count,
+                  interval:conf.retryConfig.interval}};
     ep.httpClient = httpEP;
     ep.conf = conf;
 }
 
-public function <Participant2pcClientEP ep> getClient() returns (Participant2pcClient) {
-    return {clientEP: ep};
+public function <Participant2pcClientEP ep> getClient () returns Participant2pcClient {
+    return {clientEP:ep};
 }
 
 public struct Participant2pcClient {
     Participant2pcClientEP clientEP;
 }
 
-public function<Participant2pcClient client> prepare (string transactionId) returns (string status, error err) {
+public function <Participant2pcClient client> prepare (string transactionId) returns string|error {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     http:Request req = {};
     PrepareRequest prepareReq = {transactionId:transactionId};
-    var j, _ = <json>prepareReq;
+    var j =? <json>prepareReq;
     req.setJsonPayload(j);
-    var res, communicationErr = httpClient -> post("/prepare", req);
-    if (communicationErr == null) {
-        var payload, payloadError = res.getJsonPayload();
-        if (payloadError == null) {
-            var prepareRes, transformErr = <PrepareResponse>payload;
-            if (transformErr == null) {
-                int statusCode = res.statusCode;
-                string msg = prepareRes.message;
-                if (statusCode == 200) {
-                    status = msg;
-                } else if (statusCode == 404 && msg == "Transaction-Unknown") {
-                    err = {message:msg};
-                } else {
-                    err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
-                                   client.clientEP.conf.participantURL};
+    var result = httpClient -> post("/prepare", req);
+    match result {
+        error commErr => {
+            return commErr;
+        }
+        http:Response res => {
+            int statusCode = res.statusCode;
+            if (statusCode == 404) {
+                error err = {message:"Transaction-Unknown"};
+                return err;
+            } else if (statusCode == 200) {
+                var jsonPayloadResult = res.getJsonPayload();
+                match jsonPayloadResult {
+                    error err => return err;
+                    json payload => {
+                        var transformResult = <PrepareResponse>payload;
+                        match transformResult {
+                            error transformErr => return transformErr;
+                            PrepareResponse prepareRes => return prepareRes.message;
+                        }
+                    }
                 }
             } else {
-                err = (error)transformErr;
+                error err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
+                                     client.clientEP.conf.participantURL};
+                return err;
             }
-        } else {
-            err = (error)payloadError;
         }
-    } else {
-        err = (error)communicationErr;
     }
-    return;
+    error err = {message:"Unhandled condition in prepare action"};
+    throw err;
 }
 
-public function<Participant2pcClient client> notify (string transactionId, string message) returns (string status,
-                                                                                             error participantErr,
-                                                                                             error communicationErr) {
+public function <Participant2pcClient client> notify (string transactionId, string message) returns string|error {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     http:Request req = {};
     NotifyRequest notifyReq = {transactionId:transactionId, message:message};
-    var j, _ = <json>notifyReq;
+    var j =? <json>notifyReq;
     req.setJsonPayload(j);
-    var res, commErr = httpClient -> post("/notify", req);
-    if (commErr == null) {
-        var payload, payloadError = res.getJsonPayload();
-        if (payloadError == null) {
-            var notifyRes, transformErr = <NotifyResponse>payload;
-            if (transformErr == null) {
-                int statusCode = res.statusCode;
-                string msg = notifyRes.message;
-                if (statusCode == 200) {
-                    if (transformErr == null) {
-                        status = msg;
-                    } else {
-                        participantErr = (error)transformErr;
-                    }
-                } else if ((statusCode == 400 && msg == "Not-Prepared") ||
-                           (statusCode == 404 && msg == "Transaction-Unknown") ||
-                           (statusCode == 500 && msg == "Failed-EOT")) {
-                    participantErr = {message:msg};
-                } else {
-                    participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
-                                                                               client.clientEP.conf.participantURL};
-                }
-            } else {
-                communicationErr = (error)transformErr;
-            }
-        } else {
-            communicationErr = (error)payloadError;
+    var result = httpClient -> post("/notify", req);
+    match result {
+        error commErr => {
+            return commErr;
         }
-    } else {
-        communicationErr = (error)commErr;
+        http:Response res => {
+            int statusCode = res.statusCode;
+            var payloadResult = res.getJsonPayload();
+            match payloadResult {
+                error payloadErr => return payloadErr;
+                json payload => {
+                    var notifyRes =? <NotifyResponse>payload;
+                    string msg = notifyRes.message;
+                    if (statusCode == 200) {
+                        return msg;
+                    } else if ((statusCode == 400 && msg == "Not-Prepared") ||
+                               (statusCode == 404 && msg == "Transaction-Unknown") ||
+                               (statusCode == 500 && msg == "Failed-EOT")) {
+                        error participantErr = {message:msg};
+                        return participantErr;
+                    } else {
+                        error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
+                                                        client.clientEP.conf.participantURL};
+                        return participantErr;
+                    }
+                }
+            }
+        }
     }
-    return;
 }

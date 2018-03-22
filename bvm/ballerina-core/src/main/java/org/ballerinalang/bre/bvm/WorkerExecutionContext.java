@@ -48,6 +48,8 @@ public class WorkerExecutionContext {
     public Map<String, Object> localProps = new HashMap<>();
     
     public int ip;
+    
+    public boolean stop;
         
     public ProgramFile programFile;
     

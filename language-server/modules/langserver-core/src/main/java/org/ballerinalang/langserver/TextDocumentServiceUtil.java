@@ -111,7 +111,8 @@ public class TextDocumentServiceUtil {
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot,
-                                                         boolean preserveWhitespace) {
+                                                         boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager) {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -120,7 +121,7 @@ public class TextDocumentServiceUtil {
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         try {
             context.put(SourceDirectory.class,
-                    new LangServerFSProjectDirectory(Paths.get(new URI("file://" + sourceRoot))));
+                    new LangServerFSProjectDirectory(Paths.get(new URI("file://" + sourceRoot)), documentManager));
         } catch (URISyntaxException e) {
             // Ignore
         }
@@ -160,14 +161,14 @@ public class TextDocumentServiceUtil {
                 if (files != null) {
                     for (File file : files) {
                         Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot,
-                                preserveWhitespace, customErrorStrategy);
+                                preserveWhitespace, customErrorStrategy, docManager);
                         packages.add(compiler.compile(file.getName()));
                     }
                 }
             }
         } else {
             Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot, preserveWhitespace,
-                    customErrorStrategy);
+                    customErrorStrategy, docManager);
             if ("".equals(pkgName)) {
                 packages.add(compiler.compile(fileName));
             } else {
@@ -190,10 +191,11 @@ public class TextDocumentServiceUtil {
      */
     private static Compiler getCompiler(LanguageServerContext context, String fileName,
                                         PackageRepository packageRepository, String sourceRoot,
-                                        boolean preserveWhitespace, Class customErrorStrategy) {
+                                        boolean preserveWhitespace, Class customErrorStrategy,
+                                        WorkspaceDocumentManager documentManager) {
         CompilerContext compilerContext =
                 TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
-                        preserveWhitespace);
+                        preserveWhitespace, documentManager);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
         context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new TextDocumentServiceContext());

@@ -77,13 +77,14 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public BTable(BType type) {
-        if (((BTableType) type).getConstrainedType() == null) {
-            throw  new BallerinaException("table cannot be created without a constraint");
+        if (((BTableType) type).getConstrainedType() != null) {
+            //TODO: temporoly commented out until vm code generation on sql connector action call is fixed.
+            //throw  new BallerinaException("table cannot be created without a constraint");
+            this.tableProvider = TableProvider.getInstance();
+            this.tableName = tableProvider.createTable(type);
+            this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
+            this.isInMemoryTable = true;
         }
-        this.tableProvider = TableProvider.getInstance();
-        this.tableName = tableProvider.createTable(type);
-        this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
-        this.isInMemoryTable = true;
     }
 
     @Override
