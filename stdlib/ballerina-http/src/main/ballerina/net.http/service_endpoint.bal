@@ -57,6 +57,7 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
     config.httpVersion = "1.1";
+    config.port = 9090;
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
