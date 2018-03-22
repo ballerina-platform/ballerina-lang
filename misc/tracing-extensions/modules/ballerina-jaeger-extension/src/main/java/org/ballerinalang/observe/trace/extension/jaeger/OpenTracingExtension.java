@@ -41,7 +41,6 @@ import static org.ballerinalang.observe.trace.extension.jaeger.Constants.SAMPLER
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.SAMPLER_TYPE_CONFIG;
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.TRACER_NAME;
 
-
 /**
  * This is the open tracing extension class for {@link OpenTracer}.
  */
@@ -68,7 +67,7 @@ public class OpenTracingExtension implements OpenTracer {
                         (Integer) configProperties.get(REPORTER_PORT_CONFIG),
                         (Integer) configProperties.get(REPORTER_FLUSH_INTERVAL_MS_CONFIG),
                         (Integer) configProperties.get(REPORTER_MAX_BUFFER_SPANS_CONFIG))
-        ).getTracerBuilder().build();
+        ).getTracerBuilder().withScopeManager(NoOpScopeManager.INSTANCE).build();
     }
 
     private void validateConfiguration(Properties configuration) {
