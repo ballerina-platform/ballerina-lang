@@ -5,7 +5,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
 
-@test:mock {
+@test:Mock {
     packageName : "functionmocktest2.pkg" ,
     functionName : "intAdd"
 }
@@ -13,7 +13,7 @@ public function mockIntAdd (int a, int b) returns (int) {
     return (a-b);
 }
 
-@test:config{}
+@test:Config{}
 function testAssertIntEquals () {
     int answer = 0;
     answer = intAdd(5, 3);
