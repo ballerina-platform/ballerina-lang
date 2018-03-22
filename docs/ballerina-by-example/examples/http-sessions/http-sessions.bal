@@ -1,4 +1,5 @@
 import ballerina/net.http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint sessionTestEP {
     port:9090
@@ -39,7 +40,7 @@ service<http:Service> sessionTest bind sessionTestEP {
         string attributeValue;
         if (session != null) {
             //Returns the object bound with the specified key.
-            attributeValue =? <string>session.getAttribute(key);
+            attributeValue = <string>session.getAttribute(key);
         } else {
             attributeValue = "Session unavailable";
         }
