@@ -1106,11 +1106,11 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
 
     table dt =? testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
     var x1 =? <xml>dt;
-    //s1 = <string>x;
+    s1 = io:sprintf("%l", [x1]);
 
     dt =? testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
     var x2 =? <xml>dt;
-    //s2 = <string>x;
+    s2 = io:sprintf("%l", [x2]);
 
     dt =? testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
     var j =? <json>dt;
