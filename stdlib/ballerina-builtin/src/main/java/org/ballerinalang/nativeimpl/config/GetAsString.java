@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,26 +28,26 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.config:getInstanceValue.
+ * Native function ballerina.config:getAsString.
  *
- * @since 0.95
+ * @since 0.966.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "config",
-        functionName = "getInstanceValue",
-        args = {@Argument(name = "instance", type = TypeKind.STRING),
-                @Argument(name = "property", type = TypeKind.STRING)},
+        functionName = "getAsString",
+        args = {@Argument(name = "configkey", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetInstanceValue extends BlockingNativeCallableUnit {
+public class GetAsString extends BlockingNativeCallableUnit {
+
+    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
     @Override
     public void execute(Context context) {
-        String instanceId = context.getStringArgument(0);
-        String configKey = context.getStringArgument(1);
-
-        String instanceValue = ConfigRegistry.getInstance().getInstanceConfigValue(instanceId, configKey);
-        context.setReturnValues(new BString(instanceValue));
+        String configKey = context.getStringArgument(0);
+        // TODO: Change the signature of getAsString() once default params are available
+        String globalValue = configRegistry.getConfigOrDefault(configKey, null);
+        context.setReturnValues(globalValue != null ? new BString(globalValue) : null);
     }
 }
