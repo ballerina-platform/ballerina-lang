@@ -163,6 +163,25 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
     }
 
+    @Test(description = "Test GetContentLength function within a service. Enable this once this method is back in " +
+            "http package", enabled = false)
+    public void testServiceGetContentLength() {
+        String key = "lang";
+        String value = "ballerina";
+        String path = "/hello/getContentLength";
+        String jsonString = "{\"" + key + "\":\"" + value + "\"}";
+        int length = jsonString.length();
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST,
+                jsonString);
+        inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
+
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("value").asText(), String.valueOf(length));
+    }
+
     @Test
     public void testGetHeader() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
