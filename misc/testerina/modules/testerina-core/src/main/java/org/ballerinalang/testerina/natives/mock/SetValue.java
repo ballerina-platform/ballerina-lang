@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(packageName = "ballerina.mock", functionName = "setValue", args = {
+@BallerinaFunction(orgName = "ballerina", packageName = "mock", functionName = "setValue", args = {
         @Argument(name = "mockableConnectorPathExpr", type = TypeKind.STRING),
         @Argument(name = "value", type = TypeKind.STRING)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description",

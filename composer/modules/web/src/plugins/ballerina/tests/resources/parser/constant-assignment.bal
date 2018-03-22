@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.lang.strings;
+import ballerina/lang.system;
+import ballerina/lang.strings;
 
 const string envVar = system:getEnv("env_var");
 const string varFunc = dummyStringFunction();

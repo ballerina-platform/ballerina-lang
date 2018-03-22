@@ -1,6 +1,6 @@
-import ballerina.file;
-import ballerina.io;
-import ballerina.time;
+import ballerina/file;
+import ballerina/io;
+import ballerina/time;
 
 function main (string[] args) {
     //Create 'File' struct and open for writing.

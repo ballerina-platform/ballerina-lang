@@ -7,6 +7,10 @@ package ballerina.net.websub;
 @Return {value:"SubscriberServiceConfiguration representing the annotation"}
 native function retrieveAnnotations () (SubscriberServiceConfiguration);
 
+@Description {value:"Function to retrieve annotations specified for the WebSub Subscriber Service"}
+@Return {value:"WebSubSubscriberServiceConfiguration representing the annotation"}
+native function retrieveSecret (typedesc serviceType) (string);
+
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Natives ///////////////////////////
 ///////////////////////////////////////////////////////////////////

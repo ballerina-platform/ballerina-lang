@@ -41,7 +41,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "execute",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),

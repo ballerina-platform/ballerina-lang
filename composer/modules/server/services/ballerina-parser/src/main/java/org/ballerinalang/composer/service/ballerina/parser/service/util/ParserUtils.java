@@ -79,8 +79,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_PACKAGE_VALIDATION;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Parser Utils.
@@ -116,7 +115,7 @@ public class ParserUtils {
     public static BallerinaFile getBallerinaFile(String programDir, String compilationUnitName) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, programDir);
+        options.put(PROJECT_DIR, programDir);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         return getBallerinaFile(compilationUnitName, context);
@@ -137,7 +136,6 @@ public class ParserUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        options.put(SKIP_PACKAGE_VALIDATION, Boolean.TRUE.toString());
 
         return getBallerinaFile(fileName, context);
     }
@@ -175,13 +173,13 @@ public class ParserUtils {
 
         BallerinaFile ballerinaFile = new BallerinaFile();
         try {
-            compiler.compile(fileName);
+            ballerinaFile.setBLangPackage(compiler.compile(fileName));
         } catch (Exception ex) {
             BDiagnostic catastrophic = new BDiagnostic();
             catastrophic.msg = "Failed in the runtime parse/analyze. " + ex.getMessage();
             diagnostics.add(catastrophic);
         }
-        ballerinaFile.setBLangPackage((BLangPackage) compiler.getAST());
+
         ballerinaFile.setDiagnostics(diagnostics);
         return ballerinaFile;
     }
@@ -758,7 +756,7 @@ public class ParserUtils {
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         Desugar desugar = Desugar.getInstance(context);
         BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
-                pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
+                pkgLoader.loadAndDefinePackage(Names.BUILTIN_PACKAGE.value))));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }

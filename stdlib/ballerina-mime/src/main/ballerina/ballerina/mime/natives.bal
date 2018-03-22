@@ -1,7 +1,7 @@
 package ballerina.mime;
 
-import ballerina.file;
-import ballerina.io;
+import ballerina/file;
+import ballerina/io;
 
 @Description {value:"Describes the nature of the data in the body of a MIME entity."}
 @Field {value:"primaryType: Declares the general type of data"}
@@ -274,13 +274,13 @@ public const string CONTENT_TYPE = "content-type";
 @Param {value:"headerName: Represent header name"}
 @Return {value:"Return header value associated with the given header name. If multiple header values are present,
 then the first value will be returned"}
-public native function <Entity entity> getHeader (string headerName) returns string | null;
+public native function <Entity entity> getHeader (string headerName) returns string;
 
 @Description {value:"Get all the header values associated with the given header name"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"headerName: Represent the header name"}
 @Return {value:"Return all the header values associated with the given header name as a string of arrays"}
-public native function <Entity entity> getHeaders (string headerName) returns string[] | null;
+public native function <Entity entity> getHeaders (string headerName) returns string[];
 
 @Description {value:"Get all the headers as a map. Please note that manipulating the returned map has no effect to the original copy of headers"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -308,3 +308,7 @@ public native function <Entity entity> removeHeader (string headerName);
 @Description {value:"Remove all headers associated with the entity"}
 @Param {value:"entity: Represent a MIME entity"}
 public native function <Entity entity> removeAllHeaders ();
+
+@Description {value:"Check the header existence"}
+@Param {value:"entity: Represent a MIME entity"}
+public native function <Entity entity> hasHeader (string headerName) returns boolean;

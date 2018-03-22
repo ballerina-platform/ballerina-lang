@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"Defining Employee struct."}
 struct Employee {

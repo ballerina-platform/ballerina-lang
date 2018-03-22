@@ -46,7 +46,7 @@ public class SwaggerCmd implements BLauncherCmd {
     @Parameter(arity = 1, description = "<action> <swagger specification>. action : connector|skeleton|mock")
     private List<String> argList;
 
-    @Parameter(names = { "-d", "--directory" },
+    @Parameter(names = { "-o", "--output" },
                description = "where to write the generated files (current dir by default)")
     private String output = "";
 
@@ -58,6 +58,9 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
+
+    @Parameter(names = "--java.debug", hidden = true)
+    private String javaDebugPort;
 
     @Override
     public void execute() {
@@ -75,10 +78,10 @@ public class SwaggerCmd implements BLauncherCmd {
         StringBuilder msg = new StringBuilder("successfully generated ballerina ");
 
         switch (action) {
-            case connector:
-                generateFromSwagger(connector);
-                msg.append("connector");
-                break;
+//            case connector:
+//                generateFromSwagger(connector);
+//                msg.append("connector");
+//                break;
             case skeleton:
                 generateFromSwagger(skeleton);
                 msg.append("skeleton");

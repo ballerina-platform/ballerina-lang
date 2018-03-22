@@ -1,5 +1,5 @@
-import ballerina.data.sql;
-import ballerina.io;
+import ballerina/data.sql;
+import ballerina/io;
 
 function main (string[] args) {
     //Create an endpoint for the first database named testdb1. Since this endpoint is

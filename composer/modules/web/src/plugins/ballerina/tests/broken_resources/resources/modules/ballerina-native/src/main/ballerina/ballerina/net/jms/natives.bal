@@ -1,6 +1,6 @@
 package ballerina.net.jms;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Message acknowledgement action implementation for jms connector when using jms client acknowledgement mode"}
 @doc:Param { value:"message: message" }
