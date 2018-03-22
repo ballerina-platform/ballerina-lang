@@ -1,4 +1,4 @@
-# Editors, IDEs and the Ballerina Composer
+# Tools, IDEs and the Ballerina Composer
 
 Ballerina provides several tools to help you create, document, and test your code. These tools can be various editors, IDEs, and a graphical visualization tool for your code called the Ballerina Composer.
 
