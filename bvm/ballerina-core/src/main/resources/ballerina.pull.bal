@@ -14,7 +14,8 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false
+                hostNameVerification:false,
+                sessionCreation: true
              }
         }
         ]
@@ -112,7 +113,7 @@ public function main(string[] args){
 
 
 function getFileChannel (string filePath, string permission) returns (io:ByteChannel) {
-    io:ByteChannel channel = io:openFile(filePath, permission);
+    io:ByteChannel channel = io:openFile(untaint filePath, permission);
     return channel;
 }
 

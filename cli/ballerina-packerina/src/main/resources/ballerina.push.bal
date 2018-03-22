@@ -13,7 +13,8 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false
+                hostNameVerification:false,
+                sessionCreation: true
             }
         }
         ]
@@ -23,7 +24,6 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
     filePart.contentType = contentTypeOfFilePart;
     file:File fileHandler = {path:dirPath};
     filePart.setFileAsEntityBody(fileHandler);
-
     mime:Entity[] bodyParts = [filePart];
 
     http:Request req = {};
