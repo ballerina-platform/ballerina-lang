@@ -42,8 +42,8 @@ function test6 (string s) returns (string) {
 
 function test7 (string s) returns (string, int) {
     map m = {"data" : s == "one" ? <string>1 : 2};
-    var x =? (string)m["data"];
-    var y =? (int)m["data"];
+    var x =? <string>m["data"];
+    var y =? <int>m["data"];
     return (x, y);
 }
 

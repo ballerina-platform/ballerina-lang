@@ -38,19 +38,31 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "data.sql",
         functionName = "call",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
-        args = {@Argument(name = "sqlQuery", type = TypeKind.STRING),
+        args = {
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.TABLE) })
+                          structType = "Parameter")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.TABLE),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class Call extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
-        String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-        BStructType structType = getStructType(context);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-        executeProcedure(context, datasource, query, parameters, structType);
+        try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            String query = context.getStringArgument(0);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            BStructType structType = getStructType(context);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+            executeProcedure(context, datasource, query, parameters, structType);
+        } catch (Throwable e) {
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
     }
 }
