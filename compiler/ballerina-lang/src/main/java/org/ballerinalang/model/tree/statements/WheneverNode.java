@@ -15,36 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.VariableNode;
 
 import java.util.List;
 
 /**
  * @since 0.965.0
  */
-public interface StreamletNode extends AnnotatableNode, TopLevelNode {
+public interface WheneverNode extends ExpressionStatementNode {
 
-    IdentifierNode getName();
 
-    void setName(IdentifierNode name);
+    void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode);
 
-    void setBody(BlockNode body);
-
-    BlockNode getBody();
-
-    List<? extends VariableNode> getParameters();
-
-    void addParameter(VariableNode param);
-
-    void setInitFunction(FunctionNode function);
-
-    FunctionNode getInitFunction();
+    List<StreamingQueryStatementNode> gettreamingQueryStatements();
 
     void addGlobalVariable(VariableNode variable);
 
     List<VariableNode> getGlobalVariables();
+
+    List<? extends VariableNode> getParameters();
+
+    void addParameter(VariableNode param);
 
 }
 

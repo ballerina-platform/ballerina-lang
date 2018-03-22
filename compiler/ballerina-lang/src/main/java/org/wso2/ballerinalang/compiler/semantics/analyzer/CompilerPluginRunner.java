@@ -46,11 +46,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -221,10 +221,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyEndpointProcessors(endpointNode.symbol.type, attachmentList,
                 (processor, list) -> processor.process(endpointNode, list));
     }
-    public void visit(BLangStreamlet streamletNode) {
-        /* Ignore */
-    }
 
+    public void visit(BLangWhenever wheneverStatement) {
+        /* ignore */
+    }
 
     // private methods
 
@@ -270,9 +270,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage) {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
-        PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
 
-        BLangPackage pkgNode = this.packageCache.get(pkdID);
+        BLangPackage pkgNode = this.packageCache.get(annPackage);
         if (pkgNode == null) {
             return annotationSymbols;
         }
