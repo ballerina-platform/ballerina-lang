@@ -1,6 +1,6 @@
 package hover.test;
 
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"Struct for represent person's details"}
 @Field{value:"name: string value name of the person"}

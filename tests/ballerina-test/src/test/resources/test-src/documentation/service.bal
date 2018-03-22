@@ -1,17 +1,21 @@
-import ballerina.net.http;
+import ballerina/net.http;
+
+endpoint http:ServiceEndpoint echoEP { // TODO: Need to replace with http mock endpoint once it's fixed
+    port:9090
+};
 
 documentation {PizzaService HTTP Service}
-service<http> PizzaService {
+service<http:Service> PizzaService bind echoEP {
 
     documentation {Check orderPizza resource. P{{conn}} HTTP connection. P{{req}} In request.}
-    resource orderPizza(http:Connection conn, http:Request req) {
+    orderPizza(endpoint conn, http:Request req) {
         http:Response res = {};
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     documentation {Check status resource. P{{conn}} HTTP connection. P{{req}} In request.}
-    resource checkStatus(http:Connection conn, http:Request req) {
+    checkStatus(endpoint conn, http:Request req) {
         http:Response res = {};
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

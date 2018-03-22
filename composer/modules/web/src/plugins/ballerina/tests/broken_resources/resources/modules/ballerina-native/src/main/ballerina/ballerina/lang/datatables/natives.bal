@@ -1,6 +1,6 @@
 package ballerina.lang.datatables;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Releases the database connection."}
 @doc:Param { value:"dt: The datatable object" }

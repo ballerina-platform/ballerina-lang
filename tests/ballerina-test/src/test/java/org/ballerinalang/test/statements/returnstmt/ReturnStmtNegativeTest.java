@@ -174,6 +174,6 @@ public class ReturnStmtNegativeTest {
     public void testMultiValueInSingleContext() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/multi-value-in-single-context.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "multi-valued 'split()' in single-value context", 2, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found '(string,int)'", 2, 13);
     }
 }

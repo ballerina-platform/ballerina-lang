@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.Receiver;
  * @since 0.8.4
  */
 @BallerinaFunction(
-        packageName = "ballerina.data.sql",
+        orgName = "ballerina", packageName = "data.sql",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"))
 public class Close extends AbstractSQLAction {

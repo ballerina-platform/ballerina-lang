@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description {value:"This function takes a string argument."}
 function print (string value) {

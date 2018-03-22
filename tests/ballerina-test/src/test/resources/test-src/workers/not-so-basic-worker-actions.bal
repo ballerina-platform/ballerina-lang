@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 function forkJoinWithTimeoutTest1() returns map {
     map m = {};

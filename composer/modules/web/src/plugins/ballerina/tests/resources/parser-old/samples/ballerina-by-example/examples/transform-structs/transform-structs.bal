@@ -1,6 +1,6 @@
-import ballerina.lang.strings;
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.strings;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description {value:"Defining Employee struct"}
 struct Employee {

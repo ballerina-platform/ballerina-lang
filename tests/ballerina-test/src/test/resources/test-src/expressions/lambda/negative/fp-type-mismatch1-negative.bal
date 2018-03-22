@@ -1,5 +1,5 @@
 function test1() returns (boolean) {
-     function (string, int)(boolean) foo = test2;
+     function (string, int) returns (boolean) foo = test2;
      return foo("this test fails at line", 2);
 }
 

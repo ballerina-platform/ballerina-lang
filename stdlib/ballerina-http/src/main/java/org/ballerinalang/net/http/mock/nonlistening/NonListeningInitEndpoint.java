@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,12 +31,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http.mock",
+        orgName = "ballerina", packageName = "net.http.mock",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
                 structPackage = "ballerina.net.http.mock"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )

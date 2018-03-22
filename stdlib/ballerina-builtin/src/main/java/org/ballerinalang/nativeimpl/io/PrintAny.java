@@ -31,7 +31,7 @@ import java.io.PrintStream;
  * Native function print.
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "print",
         args = {@Argument(name = "a", type = TypeKind.ANY)},
         isPublic = true

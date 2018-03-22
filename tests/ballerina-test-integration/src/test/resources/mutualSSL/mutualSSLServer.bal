@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
 endpoint http:ServiceEndpoint echo {
     port:9095,
@@ -22,9 +22,10 @@ endpoint http:ServiceEndpoint echo {
 };
 
 @http:ServiceConfig {
-    endpoints:[echo],
-    basePath:"/echo"
+     endpoints:[echo],
+     basePath:"/echo"
 }
+
 service<http:Service> helloWorld bind echo {
 
     @http:ResourceConfig {
@@ -44,18 +45,18 @@ endpoint http:ServiceEndpoint echoDummy {
 };
 
 @http:ServiceConfig {
-    endpoints:[echoDummy],
-    basePath:"/echoDummy"
+      endpoints:[echoDummy],
+      basePath:"/echoDummy"
 }
 service<http:Service> echoDummyService bind echoDummy {
 
-     @http:ResourceConfig {
-         methods:["POST"],
-         path:"/"
-     }
-     sayHello (endpoint conn, http:Request req) {
-         http:Response res = {};
-         res.setStringPayload("hello world");
-         _ = conn -> respond(res);
-     }
+    @http:ResourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
+    sayHello (endpoint conn, http:Request req) {
+        http:Response res = {};
+        res.setStringPayload("hello world");
+        _ = conn -> respond(res);
+    }
 }

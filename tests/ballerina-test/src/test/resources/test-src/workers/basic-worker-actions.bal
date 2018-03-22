@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/io;
+import ballerina/runtime;
 function workerDeclTest() {
    worker wx {
      int a = 20;
@@ -106,9 +106,10 @@ function simpleWorkerMessagePassingTest() {
    }
 }
 
-function forkJoinWithSomeJoin() returns int {
+function forkJoinWithSomeJoin() returns int | error {
     map m = {};
     m["x"] = 25;
+    int ret;
     fork {
 	   worker w1 {
 	     int a = 5;
@@ -128,8 +129,10 @@ function forkJoinWithSomeJoin() returns int {
 	     m["x"] = b;
 	   }
 	} join (some 1) (map results) {  io:println(results);  }
-	var ret, _ = (int) m["x"];
-	return ret;
+	match <int> m["x"] {
+	    int a => return a;
+	    error err => return err;
+	}
 }
 
 function workerReturnTest() returns int {

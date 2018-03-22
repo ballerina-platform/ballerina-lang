@@ -1,10 +1,10 @@
 import <fold text='...'>ballerina.lang.jsons;
-import ballerina.lang.messages;
-import ballerina.lang.strings;
-import ballerina.lang.system;
-import ballerina.net.http;
-import ballerina.net.uri;
-import ballerina.utils;</fold>
+import ballerina/lang.messages;
+import ballerina/lang.strings;
+import ballerina/lang.system;
+import ballerina/net.http;
+import ballerina/net.uri;
+import ballerina/utils;</fold>
 
 connector Twitter (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) <fold text='{...}'>{
     //comment

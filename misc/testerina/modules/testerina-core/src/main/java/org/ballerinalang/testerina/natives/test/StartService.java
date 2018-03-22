@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(packageName = "ballerina.test",
+@BallerinaFunction(orgName = "ballerina", packageName = "test",
                    functionName = "startService", args = {
         @Argument(name = "serviceName", type = TypeKind.STRING)}, returnType = {
         @ReturnType(type = TypeKind.STRING)}, isPublic = true)
