@@ -28,7 +28,7 @@ import org.ballerinalang.model.tree.Node;
  *      FROM streamingInput joinStreamingInput? selectClause? orderByClause?
  *
  * E.g.
- *      from studentTable where age > 4 as tempTable join soccerPlayerTable
+ *      from studentTable where age &gt; 4 as tempTable join soccerPlayerTable
  *              on tempTable.name = soccerPlayerTable.name select name, age, school order by name.
  * </pre>
  */
