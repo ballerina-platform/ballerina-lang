@@ -1,6 +1,6 @@
-import ballerina.io;
-import ballerina.task;
-import ballerina.math;
+import ballerina/io;
+import ballerina/task;
+import ballerina/math;
 
 int count;
 

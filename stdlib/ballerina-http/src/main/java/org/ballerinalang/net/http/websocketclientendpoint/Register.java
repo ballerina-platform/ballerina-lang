@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),

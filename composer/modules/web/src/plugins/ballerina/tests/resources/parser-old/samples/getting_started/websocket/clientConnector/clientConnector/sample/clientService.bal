@@ -1,8 +1,8 @@
 package clientConnector.sample;
 
-import ballerina.net.ws;
-import ballerina.lang.system;
-import ballerina.lang.messages;
+import ballerina/net.ws;
+import ballerina/lang.system;
+import ballerina/lang.messages;
 
 @ws:ClientService {}
 service<ws> clientService {

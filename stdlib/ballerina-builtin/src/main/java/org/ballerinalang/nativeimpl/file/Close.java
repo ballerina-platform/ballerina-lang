@@ -36,7 +36,7 @@ import java.io.IOException;
  * Can be used to close a file object.
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
                              structPackage = "ballerina.file"),

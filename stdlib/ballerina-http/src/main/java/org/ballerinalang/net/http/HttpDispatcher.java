@@ -262,7 +262,8 @@ public class HttpDispatcher {
         return null;
     }
 
-    public static boolean isDiffered(HttpResource httpResource) {
-        return httpResource != null && httpResource.getSignatureParams().getEntityBody() != null;
+    public static boolean shouldDiffer(HttpResource httpResource, boolean hasFilters) {
+        return ((httpResource != null && httpResource.getSignatureParams().getEntityBody() != null) || hasFilters);
     }
+
 }

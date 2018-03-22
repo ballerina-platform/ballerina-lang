@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function testUnionTypeBasics1() returns (int | float | string, int | string){
     int | float | string  aaa = 12330;

@@ -1,62 +1,93 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-endpoint<http:Service> headerServiceEP {
+endpoint http:ServiceEndpoint headerServiceEP {
     port: 9090
-}
+};
 
-endpoint<http:Client> stockqEP {
-    serviceUri: "http://localhost:9090"
-}
+endpoint http:ServiceEndpoint stockServiceEP {
+    port: 9091
+};
 
-@http:serviceConfig {
+endpoint http:ClientEndpoint stockqEP {
+    targets: [{uri: "http://localhost:9091"}]
+};
+
+@http:ServiceConfig {
     basePath:"/product",
     endpoints: [headerServiceEP]
 }
-service<http:Service> headerService {
+service<http:Service> headerService bind headerServiceEP {
 
-    resource value (http:ServerConnector conn, http:Request req) {
-        http:Response clientResponse = {};
+    value (endpoint conn, http:Request req) {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
-        clientResponse, _ = stockqEP -> get("/sample/stocks", req);
-        _ = conn -> forward(clientResponse);
+        var result = stockqEP -> get("/sample/stocks", req);
+        match result {
+            http:Response clientResponse => {
+                _ = conn -> forward(clientResponse);
+            }
+            any|null => { return;}
+        }
     }
 
-    resource id (http:ServerConnector conn, http:Request req) {
-        var clientResponse, _ = stockqEP -> forward("/sample/customers", req);
-        string[] headers = clientResponse.getHeaders("person");
-        json payload = {header1:headers[0] , header2:headers[1]};
-        http:Response res = {};
-        res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+    id (endpoint conn, http:Request req) {
+        http:Response clntResponse = {};
+        var reply = stockqEP -> forward("/sample/customers", req);
+
+        match reply {
+            http:Response clientResponse => {
+                var result = clientResponse.getHeaders("person");
+                match result {
+                    string[] headers => {
+                        json payload = {header1:headers[0] , header2:headers[1]};
+                        http:Response res = {};
+                        res.setJsonPayload(payload);
+                        _ = conn -> respond(res);
+                    }
+                    any|null => {
+                        return;
+                    }
+                }
+            }
+            any|null => {
+                return;
+            }
+        }
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/sample",
-    endpoints: [headerServiceEP]    
+    endpoints: [headerServiceEP]
 }
-service<http:Service> quoteService {
+service<http:Service> quoteService bind stockServiceEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/stocks"
     }
-    resource company (http:ServerConnector conn, http:Request req) {
-        string[] headers = req.getHeaders("core");
-        json payload = {header1:headers[0] , header2:headers[1]};
-
-        http:Response res = {};
-        res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+    company (endpoint conn, http:Request req) {
+        //string[] headers = req.getHeaders("core");
+        var result = req.getHeaders("core");
+        match result {
+            string[] headers => {
+                json payload = {header1:headers[0] , header2:headers[1]};
+                http:Response res = {};
+                res.setJsonPayload(payload);
+                _ = conn -> respond(res);
+            }
+            any|null => {
+                return;
+            }
+        }
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/customers"
     }
-    resource product (http:ServerConnector conn, http:Request req) {
+    product (endpoint conn, http:Request req) {
         http:Response res = {};
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");

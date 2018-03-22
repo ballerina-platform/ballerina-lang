@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.net.ws;
+import ballerina/io;
+import ballerina/net.ws;
 
 @ws:configuration {
     basePath:"/chat/ws",

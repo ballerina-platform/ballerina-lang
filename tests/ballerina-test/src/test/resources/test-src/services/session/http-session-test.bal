@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
 struct Data {
     string name;
