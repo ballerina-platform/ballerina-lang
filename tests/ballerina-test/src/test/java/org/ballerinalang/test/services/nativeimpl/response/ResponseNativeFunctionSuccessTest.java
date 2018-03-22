@@ -128,7 +128,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
-    @Test
+    @Test(description = "Enable this once the method is added back in http package", enabled = false)
     public void testGetContentLength() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
@@ -232,36 +232,6 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertNotNull(responseMsg, "Response message not found");
         Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream()).stringValue(),
                 value);
-    }
-
-    @Test
-    public void testGetProperty() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        inResponseMsg.setProperty(propertyName, propertyValue);
-        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-        BString name = new BString(propertyName);
-        BValue[] inputArg = {inResponse, name};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
-    }
-
-    @Test(description = "Test GetProperty function within a service")
-    public void testServiceGetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        String path = "/hello/GetProperty/" + propertyName + "/" + propertyValue;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), propertyValue);
     }
 
     @Test
@@ -464,21 +434,6 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         BJSON bJson = (BJSON) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
-    }
-
-    @Test
-    public void testSetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        BString name = new BString(propertyName);
-        BString value = new BString(propertyValue);
-        BValue[] inputArg = {name, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(responseMsg.getProperty(propertyName), propertyValue);
     }
 
     @Test

@@ -34,5 +34,5 @@ function funcInvocAsRestArgs() returns (int, float, string, int, string, int[]) 
 }
 
 function getIntArray() returns (int[], string) {
-    return [1,2,3,4], "hello";
+    return ([1,2,3,4], "hello");
 }
