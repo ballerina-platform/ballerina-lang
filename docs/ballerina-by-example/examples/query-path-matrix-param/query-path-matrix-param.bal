@@ -1,18 +1,18 @@
 import ballerina/net.http;
 
-endpoint<http:Service> sampleEP {
+endpoint http:ServiceEndpoint sampleEP {
     port:9090
-}
+};
 
-@http:serviceConfig { endpoints:[sampleEP] }
-service<http:Service> sample {
+@http:ServiceConfig
+service<http:Service> sample bind sampleEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/path/{foo}"
     }
     @Description {value:"PathParam and QueryParam extract values from the request URI."}
-    resource params (http:ServerConnector conn, http:Request req, string foo) {
+    params (endpoint client, http:Request req, string foo) {
         // Get QueryParam.
         var params = req.getQueryParams();
         var bar, _ = (string)params.bar;
@@ -34,6 +34,6 @@ service<http:Service> sample {
         // A util method to set the json payload to the response message.
         res.setJsonPayload(responseJson);
         // Send a response to the client.
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 }
