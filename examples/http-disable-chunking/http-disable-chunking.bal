@@ -1,44 +1,67 @@
 import ballerina/net.http;
 
-endpoint<http:Service> chunkingEP {
+endpoint http:ServiceEndpoint chunkingEP {
     port:9092
-}
+};
 
-//Config client connector chunking behaviour by adding auto (default value), always or never to chunking option.
-endpoint<http:Client> clientEndpoint {
-    serviceUri: "http://localhost:9090",
+endpoint http:ServiceEndpoint echoEP {
+    port:9090
+};
+
+//Config client endpoint chunking behaviour by adding auto (default value), always or never to chunking option.
+endpoint http:ClientEndpoint clientEndpoint {
+    targets: [
+        {
+           uri: "http://localhost:9090"
+        }
+    ],
     chunking: http:Chunking.NEVER
-}
+};
 
-@http:serviceConfig { endpoints:[chunkingEP] }
-service<http:Service> chunkingSample {
+@http:ServiceConfig {
+}
+service<http:Service> chunkingSample bind chunkingEP {
 
     @Description {value:"Server does a backend call using chunking disabled HttpClient"}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource sample (http:ServerConnector conn, http:Request req) {
+    sample (endpoint conn, http:Request req) {
         //Create new outbound request and set payload.
         http:Request newReq = {};
         newReq.setJsonPayload({"hello":"world!"});
-        var clientResponse, _ = clientEndpoint -> post("/echo/", newReq);
-        //Forward the inbound response.
-        _ = conn -> forward(clientResponse);
+        var result = clientEndpoint -> post("/echo/", newReq);
+        match result {
+            http:Response clientResponse => {
+                //Forward the inbound response.
+                _ = conn -> forward(clientResponse);
+            }
+            http:HttpConnectorError err => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while invoking the service"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = conn -> respond(errorResponse);
+            }
+        }
     }
 }
 
 @Description {value:"Sample backend which respond according chunking behaviour."}
-service<http:Service> echo {
-    @http:resourceConfig {
+@http:ServiceConfig {
+}
+service<http:Service> echo bind echoEP {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource echoResource (http:ServerConnector conn, http:Request req) {
+    echoResource (endpoint conn, http:Request req) {
         string value;
         //Set response according to the request headers.
-        if (req.getHeader("content-length") != null) {
+        if (req.hasHeader("content-length")) {
             value = "Lenght-" + req.getHeader("content-length");
-        } else {
+        } else if (req.hasHeader("Transfer-Encoding")) {
             value = req.getHeader("Transfer-Encoding");
+        } else {
+            value = "Neither Transfer-Encoding nor content-length header found";
         }
         http:Response res = {};
         res.setJsonPayload({"Outbound request content":value});
