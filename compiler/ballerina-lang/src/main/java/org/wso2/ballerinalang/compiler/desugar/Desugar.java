@@ -529,8 +529,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangAssignment assignNode) {
         if (assignNode.expr.type.tag == TypeTags.STREAM && assignNode.varRefs.get(0) instanceof BLangSimpleVarRef) {
-            ((BLangRecordLiteral) assignNode.expr).name =
-                    ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
+                ((BLangRecordLiteral) assignNode.expr).name =
+                        ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
         }
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
@@ -922,9 +922,6 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
-            genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
-        } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET ||
-                (ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
@@ -1323,31 +1320,6 @@ public class Desugar extends BLangNodeVisitor {
             keys.add(keyVal.key.fieldSymbol.name.value);
         });
 
-        // TODO: find a better way to get the default value expressions of a struct field
-        BStructType type = (BStructType) structLiteral.type;
-        BLangPackage pkg = this.packageCache.get(type.tsymbol.pkgID);
-        BLangStruct structDef = pkg.structs.stream()
-                .filter(struct -> struct.name.value.equals(type.tsymbol.name.value))
-                .findFirst()
-                .get();
-
-        for (int fieldIndex = 0; fieldIndex < type.fields.size(); fieldIndex++) {
-            BStructField field = type.fields.get(fieldIndex);
-            if (keys.contains(field.name.value)) {
-                continue;
-            }
-
-            BLangExpression expr = getStructFieldInitExpr(field.type, structDef, fieldIndex);
-            if (expr == null) {
-                continue;
-            }
-
-            BLangRecordKeyValue recordKeyVal = new BLangRecordKeyValue();
-            recordKeyVal.key = new BLangRecordKey(null);
-            recordKeyVal.key.fieldSymbol = field.symbol;
-            recordKeyVal.valueExpr = expr;
-            structLiteral.defaultValues.add(recordKeyVal);
-        }
         result = structLiteral;
     }
 
@@ -1394,7 +1366,7 @@ public class Desugar extends BLangNodeVisitor {
         //Order matters, because these are the args for a function invocation.
         args.add(getSQLPreparedStatement(tableQueryExpression));
         args.add(getFromTableVarRef(tableQueryExpression));
-        // BLangTypeofExpr
+       // BLangTypeofExpr
         retTypes.add(tableQueryExpression.type);
         BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
         if (joinTable != null) {
