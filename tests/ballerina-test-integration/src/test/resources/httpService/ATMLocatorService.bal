@@ -1,100 +1,155 @@
 import ballerina/io;
+import ballerina/mime;
 import ballerina/net.http;
 
-endpoint<http:Service> serviceEnpoint {
+endpoint http:ServiceEndpoint serviceEnpoint {
     port:9090
-}
+};
 
-endpoint<http:Client> bankInfoService {
-    serviceUri: "http://localhost:9090/bankinfo/product"
-}
-endpoint<http:Client> branchLocatorService {
-    serviceUri: "http://localhost:9090/branchlocator/product"
-}
+endpoint http:ClientEndpoint bankInfoService {
+    targets: [{uri: "http://localhost:9090/bankinfo/product"}]
 
-@http:serviceConfig {
+};
+
+endpoint http:ClientEndpoint branchLocatorService {
+    targets: [{uri: "http://localhost:9090/branchlocator/product"}]
+};
+
+@http:ServiceConfig {
     basePath:"/ABCBank",
     endpoints:[serviceEnpoint]
 }
-service<http:Service> ATMLocator {
-    @http:resourceConfig {
+service<http:Service> ATMLocator bind serviceEnpoint {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource locator (http:ServerConnector conn, http:Request req) {
+    locator (endpoint outboundEP, http:Request req) {
+
         http:Request backendServiceReq = {};
-        http:HttpConnectorError err;
-        var jsonLocatorReq, _ = req.getJsonPayload();
-        string zipCode;
-        zipCode, _ = (string)jsonLocatorReq["ATMLocator"]["ZipCode"];
-        io:println("Zip Code " + zipCode);
-        json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
-        branchLocatorReq.BranchLocator.ZipCode = zipCode;
-        backendServiceReq.setJsonPayload(branchLocatorReq);
+        var jsonLocatorReq = req.getJsonPayload();
+        match jsonLocatorReq {
+            json zip => {
+                string zipCode;
+                zipCode =? <string>zip["ATMLocator"]["ZipCode"];
+                io:println("Zip Code " + zipCode);
+                json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
+                branchLocatorReq.BranchLocator.ZipCode = zipCode;
+                backendServiceReq.setJsonPayload(branchLocatorReq);
+            }
+            mime:EntityError err => {
+                io:println("Error occurred while reading ATM locator request");
+                return;
+            }
+        }
 
         http:Response locatorResponse = {};
-        locatorResponse, err = branchLocatorService -> post("", backendServiceReq);
-        var branchLocatorRes, _ = locatorResponse.getJsonPayload();
-        string branchCode;
-        branchCode, _ = (string)branchLocatorRes.ABCBank.BranchCode;
-        io:println("Branch Code " + branchCode);
-        json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
-        bankInfoReq.BranchInfo.BranchCode = branchCode;
-        backendServiceReq.setJsonPayload(bankInfoReq);
+        var locatorRes = branchLocatorService -> post("", backendServiceReq);
+        match locatorRes {
+            http:Response locRes => {
+                locatorResponse = locRes;
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while reading locator response");
+                return;
+            }
+        }
 
-        http:Response infoResponse = {};
-        infoResponse, err = bankInfoService -> post("", backendServiceReq);
-        _ = conn -> forward(infoResponse);
+        var branchLocatorRes = locatorResponse.getJsonPayload();
+        match branchLocatorRes {
+            json branch => {
+                string branchCode;
+                branchCode =? <string>branch.ABCBank.BranchCode;
+                io:println("Branch Code " + branchCode);
+                json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
+                bankInfoReq.BranchInfo.BranchCode = branchCode;
+                backendServiceReq.setJsonPayload(bankInfoReq);
+            }
+            mime:EntityError err => {
+                io:println("Error occurred while reading branch locator response");
+                return;
+            }
+        }
+
+        http:Response infomationResponse = {};
+        var infoRes = bankInfoService -> post("", backendServiceReq);
+        match infoRes {
+            http:Response res => {
+                infomationResponse = res;
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while writing info response");
+                return;
+            }
+        }
+        _ = outboundEP -> forward(infomationResponse);
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/bankinfo",
     endpoints:[serviceEnpoint]
 }
-service<http:Service> Bankinfo {
+service<http:Service> Bankinfo bind serviceEnpoint {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource product (http:ServerConnector conn, http:Request req) {
-        var jsonRequest, _ = req.getJsonPayload();
-        string branchCode;
-        branchCode, _ = (string)jsonRequest.BranchInfo.BranchCode;
-        json payload = {};
-        if (branchCode == "123") {
-            payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
-        } else {
-            payload = {"ABC Bank":{"error":"No branches found."}};
+    product (endpoint outboundEP, http:Request req) {
+        http:Response res = {};
+        var jsonRequest = req.getJsonPayload();
+        match jsonRequest {
+            json bankInfo => {
+                string branchCode;
+                branchCode =? <string>bankInfo.BranchInfo.BranchCode;
+                json payload = {};
+                if (branchCode == "123") {
+                    payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
+                } else {
+                    payload = {"ABC Bank":{"error":"No branches found."}};
+                }
+
+                res.setJsonPayload(payload);
+            }
+            mime:EntityError err => {
+                io:println("Error occurred while reading bank info request");
+                return;
+            }
         }
 
-        http:Response res = {};
-        res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/branchlocator",
     endpoints:[serviceEnpoint]
 }
-service<http:Service> Banklocator {
+service<http:Service> Banklocator bind serviceEnpoint {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource product (http:ServerConnector conn, http:Request req) {
-        var jsonRequest, _ = req.getJsonPayload();
-        string zipCode;
-        zipCode, _ = (string)jsonRequest.BranchLocator.ZipCode;
-        json payload = {};
-        if (zipCode == "95999") {
-            payload = {"ABCBank":{"BranchCode":"123"}};
-        } else {
-            payload = {"ABCBank":{"BranchCode":"-1"}};
+    product (endpoint outboundEP, http:Request req) {
+        http:Response res = {};
+        var jsonRequest = req.getJsonPayload();
+        match jsonRequest {
+            json bankLocator => {
+                string zipCode;
+                zipCode =? <string>bankLocator.BranchLocator.ZipCode;
+                json payload = {};
+                if (zipCode == "95999") {
+                    payload = {"ABCBank":{"BranchCode":"123"}};
+                } else {
+                    payload = {"ABCBank":{"BranchCode":"-1"}};
+                }
+                res.setJsonPayload(payload);
+            }
+            mime:EntityError err => {
+                io:println("Error occurred while reading bank locator request");
+                return;
+            }
         }
 
-        http:Response res = {};
-        res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
