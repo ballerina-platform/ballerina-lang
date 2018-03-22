@@ -174,6 +174,10 @@ public class CPU {
         int callersRetRegIndex;
 
         while (ctx.ip >= 0) {
+            if (ctx.stop) {
+                BLangScheduler.workerDone(ctx);
+                return;
+            }
             if (debugEnabled && debug(ctx)) {
                 return;
             }
