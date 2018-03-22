@@ -30,10 +30,10 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
     AuthnHandlerChain authnHandlerChain = {authnHandlers:{}};
     // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
     HttpBasicAuthnHandler httpAuthnHandler = {};
-    HttpJwtAuthnHandler jwtAuthnHandler = {};
+    //HttpJwtAuthnHandler jwtAuthnHandler = {};
     // add to map
     authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
-    authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
+    //authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
     return authnHandlerChain;
 }
 

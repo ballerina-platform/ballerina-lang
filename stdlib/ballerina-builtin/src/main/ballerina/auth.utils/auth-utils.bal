@@ -63,15 +63,14 @@ function isCacheEnabled (string cacheName) returns (boolean) {
     match isCacheEnabled {
         string cacheEnabled => {
         // TODO handle error
-            var cacheEnabledRes =? <boolean>cacheEnabled;
+            var cacheEnabledRes = <boolean>cacheEnabled;
             match cacheEnabledRes {
                 boolean boolIsCacheEnabled => {
                     return boolIsCacheEnabled;
                 }
-            //any|null => {
-            //    // by default we enable the cache
-            //    return CACHE_ENABLED_DEFAULT_VALUE;
-            //}
+                error err => {
+                    return CACHE_ENABLED_DEFAULT_VALUE;
+                }
             }
         }
         any => {
@@ -103,6 +102,9 @@ function getExpiryTime (string cacheName) returns (int) {
                 int intExpiryTime => {
                     return intExpiryTime;
                 }
+                error err => {
+                    return CACHE_EXPIRY_DEFAULT_VALUE;
+                }
             }
         }
         any => {
@@ -124,6 +126,9 @@ function getCapacity (string cacheName) returns (int) {
                 int intCapacity => {
                     return intCapacity;
                 }
+                error err => {
+                    return CACHE_CAPACITY_DEFAULT_VALUE;
+                }
             }
         }
         any => {
@@ -144,6 +149,9 @@ function getEvictionFactor (string cacheName) returns (float) {
             match evictionFac {
                 float floatEvictionFactor => {
                     return floatEvictionFactor;
+                }
+                error err => {
+                    return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
                 }
             }
         }
