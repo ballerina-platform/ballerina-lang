@@ -347,30 +347,6 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-    @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
-            "the original content length")
-    public void testLargePayload() {
-        String path = "/test/largepayload";
-        try {
-            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            Channel channel = new MockByteChannel(byteChannel, 10);
-            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-            String responseValue = characterChannel.readAll();
-            characterChannel.close();
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
-                    responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
-            Assert.assertEquals(outputStream.size(), 2323779);
-        } catch (IOException | URISyntaxException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
-        }
-    }
-
     @Test(description = "An EntityError should be returned in case the byte channel is null")
     public void testGetByteChannelForNull() {
         BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
@@ -395,7 +371,7 @@ public class MimeUtilityFunctionTest {
                 "can be obtain either as xml, json, string or blob type");
     }
 
-   /* @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
     public void testGetTextDataSource() throws IOException {
         try {
@@ -431,12 +407,35 @@ public class MimeUtilityFunctionTest {
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonDataSource", args);
             Assert.assertEquals(returns.length, 1);
-            Assert.assertNull(returns[0]);
-            BStruct errorStruct = (BStruct) returns[1];
-            Assert.assertTrue(errorStruct.getStringField(0).contains("Error occurred while extracting json " +
+            Assert.assertNotNull(returns[0]);
+            Assert.assertTrue(returns[0].stringValue().contains("Error occurred while extracting json " +
                     "data from entity: failed to create json: empty JSON document"));
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
-    }*/
+    }
+
+    @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
+            "the original content length")
+    public void testLargePayload() {
+        String path = "/test/largepayload";
+        try {
+            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
+            Channel channel = new MockByteChannel(byteChannel, 10);
+            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+            String responseValue = characterChannel.readAll();
+            characterChannel.close();
+            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
+                    responseValue);
+            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
+            Assert.assertNotNull(response, "Response message not found");
+            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
+            Assert.assertNotNull(inputStream, "Inputstream is null");
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            Assert.assertEquals(outputStream.size(), 2323779);
+        } catch (IOException | URISyntaxException e) {
+            log.error("Error occurred in testLargePayload", e.getMessage());
+        }
+    }
 }

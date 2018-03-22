@@ -164,7 +164,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
         if (!contentDisposition.isEmpty()) {
             httpHeaders.set(HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
         }
-        if (bodyPart.getStringField(CONTENT_ID_INDEX) != null) {
+        if (bodyPart.getStringField(CONTENT_ID_INDEX) != null && !bodyPart.getStringField(CONTENT_ID_INDEX).isEmpty()) {
             httpHeaders.set(CONTENT_ID, bodyPart.getStringField(CONTENT_ID_INDEX));
         }
         Iterator<Map.Entry<String, String>> iterator = httpHeaders.iteratorAsString();
@@ -172,6 +172,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
             Map.Entry<String, String> entry = iterator.next();
             writer.write(entry.getKey());
             writer.write(COLON);
+            writer.write(SPACE);
             writer.write(entry.getValue());
             writer.write(CRLF);
         }
