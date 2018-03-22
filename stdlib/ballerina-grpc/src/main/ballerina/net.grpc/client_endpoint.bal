@@ -50,7 +50,10 @@ public struct SSL {
     string keyStoreFile;
     string keyStorePassword;
     string sslEnabledProtocols;
+    string sslVerifyClient;
     string ciphers;
+    string certPassword;
+    string tlsStoreType;
     string sslProtocol;
     boolean validateCertEnabled;
     int cacheSize;

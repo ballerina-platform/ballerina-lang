@@ -61,6 +61,7 @@ public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) ret
             return false;
         }
     }
+    return false;
 }
 
 function extractJWTToken (http:Request req) returns (string) {

@@ -50,6 +50,10 @@ public class WriteBytesEvent implements Event {
 
     /**
      * Context of the event which will be called upon completion.
+     *
+     * @param byteChannel byte channel
+     * @param content     content
+     * @param startOffset start offset
      */
     public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset) {
         this.byteChannel = byteChannel;
