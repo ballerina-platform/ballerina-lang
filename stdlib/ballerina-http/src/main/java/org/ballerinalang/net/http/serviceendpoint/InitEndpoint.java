@@ -49,6 +49,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
+
 /**
  * Get the ID of the connection.
  *
@@ -167,6 +169,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
 
+        listenerConfiguration.setServerHeader(getServerName());
+
         return listenerConfiguration;
     }
 
@@ -202,6 +206,17 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                         "Invalid configuration found for maxEntityBodySize : " + maxEntityBodySize);
             }
         }
+    }
+
+    private String getServerName() {
+        String userAgent;
+        String version = System.getProperty(BALLERINA_VERSION);
+        if (version != null) {
+            userAgent = "ballerina/" + version;
+        } else {
+            userAgent = "ballerina";
+        }
+        return userAgent;
     }
 
     private ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
