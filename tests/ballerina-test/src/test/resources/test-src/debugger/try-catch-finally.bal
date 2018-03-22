@@ -19,11 +19,11 @@ function main(string[] args) {
     _ = testTryCatch(11);
     _ = testTryCatch(-1);
     _ = testTryCatch(5);
-    _, _ = testFunctionThrow(6);
+    var thrownError = testFunctionThrow(6);
     _ = testMethodCallInFinally();
 }
 
-function testTryCatch(int value)(string){
+function testTryCatch(int value) returns (string){
     string path = "start ";
     try{
         path = path + "insideTry ";
@@ -61,7 +61,7 @@ function testTryCatch(int value)(string){
     return path;
 }
 
-function testFunctionThrow (int arg)(boolean, string){
+function testFunctionThrow (int arg) returns (boolean, string){
     string a = "0";
     try {
         a = a + "1";
@@ -69,27 +69,27 @@ function testFunctionThrow (int arg)(boolean, string){
         a = a + "2";
     } catch (error b){
         a = a + "3";
-        return true, a;
+        return (true, a);
     }
     a = a + "4";
-    return false, a;
+    return (false, a);
 }
-function testThrow(int a)(int) {
+function testThrow(int a) returns (int) {
     int c = a + 10;
     return testNestedThrow(c);
 }
-function testNestedThrow(int a)(int){
+function testNestedThrow(int a) returns (int){
     error e  = {message : "test message"};
     if (e != null) {
         throw e;
     }
     return 9;
 }
-function mockFunction ()(string) {
+function mockFunction () returns (string) {
     return "done";
 }
 
-function testMethodCallInFinally ()(string) {
+function testMethodCallInFinally () returns (string) {
     string s = "start";
     try {
         error e = {message:"test"};
@@ -100,7 +100,7 @@ function testMethodCallInFinally ()(string) {
     return s;
 }
 
-function scopeIssueTest () (int) {
+function scopeIssueTest () returns (int) {
     int i = 0;
     while (i < 10) {
         try {
