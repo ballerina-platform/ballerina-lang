@@ -84,14 +84,14 @@ function getScopeForResource (http:FilterContext context) returns (string) {
         string scopeVal => {
             return scopeVal;
         }
-        error err => {
+        any|null => {
             // if not found in resource level, check in service level
             scope = getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
             match scope {
                 string scopeVal => {
                     return scopeVal;
                 }
-                error err => {
+                any|null => {
                     // if the scope is still null, means authorization is not needed.
                     return "";
                 }
@@ -105,10 +105,9 @@ function getScopeForResource (http:FilterContext context) returns (string) {
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
 @Return {value:"string: Scope name if defined, else null"}
-function getAuthzAnnotation (internal:annotationData[] annData) returns (string|error) {
+function getAuthzAnnotation (internal:annotationData[] annData) returns (string|null) {
     if (lengthof annData == 0) {
-        error err = {message:"empty annotationData"};
-        return err;
+        return null;
     }
     internal:annotationData authAnn = {};
     foreach ann in annData {
@@ -119,16 +118,8 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string|
     }
     if (lengthof authAnn == 0) {
         // no annotation found for ballerina.auth:config
-        error err = {message:"no annotation for ballerina.auth:Config"};
-        return err;
+        return null;
     }
-    var authConfig = <auth:AuthConfig> authAnn.value;
-    match authConfig {
-        auth:AuthConfig authConfiguration => {
-            return authConfiguration.scope;
-        }
-        error err => {
-            return err;
-        }
-    }
+    var authConfig =? <auth:AuthConfig> authAnn.value;
+    return authConfig.scope;
 }

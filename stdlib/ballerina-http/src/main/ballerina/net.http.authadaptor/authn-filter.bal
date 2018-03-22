@@ -86,14 +86,14 @@ function isResourceSecured (http:FilterContext context) returns (boolean) {
         auth:Authentication authAnnotation => {
             return authAnnotation.enabled;
         }
-        error err => {
+        any|null => {
             // if not found at resource level, check in the service level
             authAnn = getAuthnAnnotation(internal:getServiceAnnotations(context.serviceType));
             match authAnn {
                 auth:Authentication authAnnotation => {
                     return authAnnotation.enabled;
                 }
-                error err => {
+                any|null => {
                     // if still authentication annotation is null, means the user has not specified that the service
                     // should be secured. However since the authn filter has been engaged, need to authenticate.
                     return true;
@@ -109,10 +109,9 @@ level
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
 @Return {value:"Authentication: Authentication instance if its defined, else null"}
-function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Authentication|error) {
+function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Authentication|null) {
     if (lengthof annData == 0) {
-        error err = {message:"empty annotationData"};
-        return err;
+        return null;
     }
     internal:annotationData authAnn = {};
     foreach ann in annData {
@@ -122,19 +121,10 @@ function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Au
         }
     }
     if (lengthof authAnn == 0) {
-        // no annotation found for ballerina.auth:config
-        error err = {message:"no annotation for ballerina.auth:Config"};
-        return err;
+        return null;
     }
-    var authConfig = <auth:AuthConfig> authAnn.value;
-    match authConfig {
-        auth:AuthConfig authConfiguration => {
-            return authConfiguration.authentication;
-        }
-        error err => {
-            return err;
-        }
-    }
+    var authConfig =? <auth:AuthConfig> authAnn.value;
+    return authConfig.authentication;
 }
 
 @Description {value:"Filter function implementation for the response flow"}
