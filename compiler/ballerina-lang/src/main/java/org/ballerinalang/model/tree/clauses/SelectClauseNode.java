@@ -30,8 +30,8 @@ import java.util.List;
  *      SELECT (MUL| ( selectExpression (COMMA selectExpression)* ) ) groupByClause? havingClause?
  *
  * E.g.
- *      select * having age > 20 AND score > 10;
- *      select name, school group by name, school having age > 20 AND score > 10;
+ *      select * having age &gt; 20 AND score &gt; 10;
+ *      select name, school group by name, school having age &gt; 20 AND score &gt; 10;
  * </pre>
  *
  */

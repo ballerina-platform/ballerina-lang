@@ -30,8 +30,8 @@ function main (string[] args) {
 
     map words = {a:"apple",b:"banana", c:"cherry"};
     foreach k,v in words {
-        var value,_ = (string)v;
-        io:println(string `words {{k}} : {{value}}`);
+        //var value =? (string)v;
+        //io:println(string `words {{k}} : {{value}}`);
     }
 
     Employee employee = {};

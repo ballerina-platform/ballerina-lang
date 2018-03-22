@@ -180,6 +180,7 @@ public enum DiagnosticCode {
     // match statement related errors
     MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("match.stmt.cannot.guarantee.a.matching.pattern"),
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
+    MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),

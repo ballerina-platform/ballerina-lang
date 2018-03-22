@@ -1,14 +1,18 @@
 import ballerina/net.http;
 
-documentation { Documentation for Test annotation
+documentation { Documentation for Tst struct
 F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
-annotation Test {
+struct Tst {
     string a;
     string b;
     string c;
 }
+
+documentation { Documentation for Test annotation
+}
+annotation Test Tst;
 
 documentation { Documentation for state enum
 F{{foo}} enum `field foo` documentation
@@ -53,18 +57,20 @@ transformer <Person p, Employee e> Foo(any defaultAddress) {
 }
 
 documentation {PizzaService HTTP Service}
-service<http> PizzaService {
+service<http:Service> PizzaService {
 
-    documentation {Check orderPizza resource. P{{conn}} HTTP connection. P{{req}} In request.}
-    resource orderPizza(http:Connection conn, http:Request req) {
+    //Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
+    //documentation {Check orderPizza resource. P{{conn}} HTTP connection. P{{req}} In request.}
+    orderPizza(endpoint conn, http:Request req) {
         http:Response res = {};
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    documentation {Check status resource. P{{conn}} HTTP connection. P{{req}} In request.}
-    resource checkStatus(http:Connection conn, http:Request req) {
+    //Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
+    //documentation {Check status resource. P{{conn}} HTTP connection. P{{req}} In request.}
+    checkStatus(endpoint conn, http:Request req) {
         http:Response res = {};
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 

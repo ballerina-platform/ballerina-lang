@@ -42,6 +42,8 @@ public class ItemResolverConstants {
     public static final String WORKER_REPLY = "wrply   Worker Reply Statement";
     public static final String ATTACH = "attach";
     public static final String FOREACH = "foreach";
+    public static final String PUBLIC = "public";
+    public static final String PRIVATE = "private";
 
     public static final String FUNCTION = "function";
     public static final String MAIN_FUNCTION = "main function";

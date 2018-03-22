@@ -129,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -619,7 +618,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
         /* ignore */
     }
-    
+
     public void visit(BLangForeach foreach) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         // Propagate the tainted status of collection to foreach variables.
@@ -1039,10 +1038,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangQueryStatement queryStatement) {
-        /* ignore */
-    }
-
     public void visit(BLangWithinClause withinClause) {
         /* ignore */
     }
@@ -1381,7 +1376,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (returnTaintedStatusList != null) {
             for (int paramIndex = 0; paramIndex < retParams.size(); paramIndex++) {
                 BLangVariable param = retParams.get(paramIndex);
-                boolean observedReturnTaintedStatus = returnTaintedStatusList.get(paramIndex);
+                // Analyzing a function that does not have any return statement and instead have a throw statement.
+                boolean observedReturnTaintedStatus = false;
+                if (returnTaintedStatusList.size() > paramIndex) {
+                    observedReturnTaintedStatus = returnTaintedStatusList.get(paramIndex);
+                }
                 if (observedReturnTaintedStatus) {
                     // If return is tainted, but return is marked as untainted, overwrite the value.
                     if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {

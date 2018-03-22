@@ -1,4 +1,3 @@
-
 import org.foo;
 
 public struct employee01 {
@@ -58,7 +57,7 @@ public function testCompileTimeStructEqWithPrivateFields() returns (string, stri
     e.id = 458;
 
     // This is a safe cast
-    person p = (person) e;
+    person p = <person> e;
     return (p.name, p.zipcode, p.ssn, p.id);
 }
 
@@ -67,7 +66,7 @@ public function testCompileTimeStructEqWithPrivateFieldsTwoPackages() returns  (
     e.id = 458;
 
     // This is a safe cast
-    foo:user u = (foo:user) e;
+    foo:user u = <foo:user> e;
     return (u.age, u.name, u.zipcode);
 }
 
@@ -76,10 +75,10 @@ public function testRuntimeStructEqWithPrivateFields() returns (string, string, 
     e.id = 458;
 
     // This is a safe cast
-    person p = (person) e;
+    person p = <person> e;
 
     // Now I want cat p back to be an employee instance.
-    var e1, err = (employee) p;
+    var e1 =? <employee> p;
 
 
     return (e1.name, e1.zipcode, e1.ssn, e1.id, e1.employeeId);
@@ -90,10 +89,10 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages1() returns (stri
     e.id = 458;
 
     // This is a safe cast
-    foo:user u = (foo:user) e;
+    foo:user u = <foo:user> e;
 
     // Now I want cat u back to be an employee instance.
-    var p, err = (person) u;
+    var p =? <person> u;
 
 
     return (p.name, p.zipcode, p.ssn, p.id);
@@ -103,9 +102,9 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages2() returns (stri
     foo:user u = foo:newUser();
 
     // This is a safe cast
-    var uA = (userA) u;
+    var uA = <userA> u;
 
     // This is a unsafe cast
-    var uB, err = (userB) uA;
+    var uB  =? <userB> uA;
     return (uB.name,  uB.age);
 }

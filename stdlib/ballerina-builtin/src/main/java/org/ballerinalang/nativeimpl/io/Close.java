@@ -65,8 +65,6 @@ public class Close implements NativeCallableUnit {
 
     /**
      * Closes the byte channel.
-     * <p>
-     * <p>
      * {@inheritDoc}
      */
     @Override

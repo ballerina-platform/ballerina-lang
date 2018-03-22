@@ -62,7 +62,7 @@ public struct TargetService {
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
     int endpointTimeout;
-    boolean keepAlive = true;
+    boolean keepAlive;
     TransferEncoding transferEncoding;
     Chunking chunking;
     string httpVersion;
@@ -72,7 +72,8 @@ public struct ClientEndpointConfiguration {
     Proxy|null proxy;
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
-    (function (LoadBalancer, HttpClient[]) returns (HttpClient))|null algorithm;
+    function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
+    boolean enableLoadBalancing;
     //FailoverConfig failoverConfig;
 }
 
@@ -84,6 +85,9 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.httpVersion = "1.1";
     config.forwarded = "disable";
     config.endpointTimeout = 60000;
+    config.keepAlive = true;
+    config.algorithm = roundRobin;
+    config.enableLoadBalancing = false;
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
@@ -112,31 +116,16 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
         }
     }
 
-    var lbAlgorithm = config.algorithm;
-    match lbAlgorithm {
-        function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm => {
-            if (lengthof config.targets > 1) {
-                ep.httpClient = createLoadBalancerClient(config);
-            } else {
-                if (uri.hasSuffix("/")) {
-                    int lastIndex = uri.length() - 1;
-                    uri = uri.subString(0, lastIndex);
-                }
-                ep.config = config;
-                ep.httpClient = createHttpClient(uri, config);
-            }
+    if (config.enableLoadBalancing && lengthof config.targets > 1) {
+        ep.httpClient = createLoadBalancerClient(config);
+    } else {
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
         }
-
-        int | null => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
-            }
-            ep.config = config;
-            ep.httpClient = createHttpClient(uri, config);
-        }
+        ep.config = config;
+        ep.httpClient = createHttpClient(uri, config);
     }
-                                 
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -183,16 +172,30 @@ public struct SecureSocket {
     Protocols|null protocols;
     ValidateCert|null validateCert;
     string ciphers;
-    boolean hostNameVerification = true;
-    boolean sessionCreation = true;
+    boolean hostNameVerification;
+    boolean sessionCreation;
+}
+
+@Description {value:"Initializes the SecureSocket struct with default values."}
+@Param {value:"config: The SecureSocket struct to be initialized"}
+public function <SecureSocket config> SecureSocket() {
+    config.hostNameVerification = true;
+    config.sessionCreation = true;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
 @Field {value:"enabled: Enable redirect"}
 @Field {value:"maxCount: Maximun number of redirects to follow"}
 public struct FollowRedirects {
-    boolean enabled = false;
-    int maxCount = 5;
+    boolean enabled;
+    int maxCount;
+}
+
+@Description {value:"Initializes the FollowRedirects struct with default values."}
+@Param {value:"config: The FollowRedirects struct to be initialized"}
+public function <FollowRedirects config> FollowRedirects() {
+    config.enabled = false;
+    config.maxCount = 5;
 }
 
 @Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
@@ -211,30 +214,40 @@ public struct Proxy {
 @Field {value:"maxActiveConnections: Number of maximum active connections for connection throttling. Default value -1, indicates the number of connections are not restricted"}
 @Field {value:"waitTime: Maximum waiting time for a request to grab an idle connection from the client connector"}
 public struct ConnectionThrottling {
-    int maxActiveConnections = -1;
-    int waitTime = 60000;
+    int maxActiveConnections;
+    int waitTime;
+}
+
+@Description {value:"Initializes the ConnectionThrottling struct with default values."}
+@Param {value:"config: The ConnectionThrottling struct to be initialized"}
+public function <ConnectionThrottling config> ConnectionThrottling() {
+    config.maxActiveConnections = -1;
+    config.waitTime = 60000;
 }
 
 public function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
-                                    validateCircuitBreakerConfiguration(cb);
-                                    boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
-                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
-                                                                            { failureThreshold:cb.failureThreshold,
-                                                                                resetTimeout:cb.resetTimeout, httpStatusCodes:httpStatusCodes };
-                                    HttpClient cbHttpClient = createHttpClient(uri, configuration);
-                                    CircuitBreakerClient cbClient = {
-                                        serviceUri:uri, config:configuration,
-                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                                        httpClient:cbHttpClient,
-                                        circuitHealth:{},
-                                        currentCircuitState:CircuitState.CLOSED
-                                    };
-                                    var httpClient =? <HttpClient> cbClient;
-                                    return httpClient;
-                                }
+                    validateCircuitBreakerConfiguration(cb);
+                    boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
+                    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
+                                                            { failureThreshold:cb.failureThreshold,
+                                                                resetTimeout:cb.resetTimeout,
+                                                                httpStatusCodes:httpStatusCodes
+                                                            };
+                    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+                    CircuitBreakerClient cbClient =
+                    {
+                        serviceUri:uri, config:configuration,
+                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+                        httpClient:cbHttpClient,
+                        circuitHealth:{},
+                        currentCircuitState:CircuitState.CLOSED
+                    };
+                    HttpClient httpClient =  cbClient;
+                    return httpClient;
+                }
         int | null => {
                         //remove following once we can ignore
                         io:println("CB CONFIG IS NULL");
@@ -261,7 +274,7 @@ public function createCircuitBreakerClient (string uri, ClientEndpointConfigurat
 function createLoadBalancerClient(ClientEndpointConfiguration config) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
     LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
-                          algorithm:config.algorithm};
+                        algorithm:config.algorithm};
     HttpClient lbClient = lb;
     return lbClient;
 }
