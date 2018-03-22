@@ -99,6 +99,11 @@
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
+                            },
+                            "debugServerTimeout": {
+                                "type": "integer",
+                                "default": 5000,
+                                "description": "How long to wait for the debug server to start up in miliseconds"
                             }
                         }
                     }
