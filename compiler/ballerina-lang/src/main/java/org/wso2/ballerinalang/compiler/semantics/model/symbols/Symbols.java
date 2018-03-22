@@ -43,6 +43,8 @@ import java.util.Set;
  */
 public class Symbols {
 
+    public static final String ANON_STRUCT = "$anonStruct$";
+
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,
                                                  PackageID pkgID,
