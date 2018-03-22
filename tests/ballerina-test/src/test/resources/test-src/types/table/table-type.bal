@@ -128,7 +128,7 @@ function testToJson () returns (json | null) {
         table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", parameters, null);
 
-        var result, _ = <json>dt;
+        var resul =? <json>dt;
         return result;
     } finally {
         _ = testDB -> close();
@@ -150,7 +150,7 @@ function testToXml () returns (xml | null) {
     try {
         table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
-        var result, _ = <xml>dt;
+        var result =? <xml>dt;
         return result;
     } finally {
         _ = testDB -> close();
@@ -172,7 +172,7 @@ function testToXmlMultipleConsume () returns (xml | null) {
     try {
         table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
-        var result, _ = <xml>dt;
+        var result =? <xml>dt;
         io:println(result);
         return result;
     } finally {
@@ -194,10 +194,10 @@ function testToXmlWithAdd () returns (xml | null) {
 
     try {
         table dt1 =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
-        var result1, _ = <xml>dt1;
+        var result1 =? <xml>dt1;
 
         table dt2 =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
-        var result2, _ = <xml>dt2;
+        var result2 =? <xml>dt2;
 
         xml result = result1 + result2;
 
@@ -223,7 +223,7 @@ function testToJsonMultipleConsume () returns (json | null) {
     try {
         table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
-        var result, _ = <json>dt;
+        var result =? <json>dt;
         io:println(result);
         return result;
     } finally {
@@ -248,7 +248,7 @@ function toXmlComplex () returns (xml | null) {
         table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, null);
-        var result, _ = <xml>dt;
+        var result =? <xml>dt;
         return result;
     } finally {
         _ = testDB -> close();
@@ -271,7 +271,7 @@ function testToXmlComplexWithStructDef () returns (xml | null) {
         table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, typeof TestTypeData);
-        var result, _ = <xml>dt;
+        var result =? <xml>dt;
         return result;
     } finally {
         _ = testDB -> close();
@@ -295,7 +295,7 @@ function testToJsonComplex () returns (json | null) {
         table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, null);
-        var result, _ = <json>dt;
+        var result =? <json>dt;
         return result;
     } finally {
         _ = testDB -> close();
@@ -319,7 +319,7 @@ function testToJsonComplexWithStructDef () returns (json | null) {
         table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, typeof TestTypeData);
-        var result, _ = <json>dt;
+        var result =? <json>dt;
         return result;
     } finally {
         _ = testDB -> close();
@@ -341,7 +341,7 @@ function testJsonWithNull () returns (json | null) {
     try {
         table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", null, null);
-        var result, _ = <json>dt;
+        var result =? <json>dt;
         return result;
     }  finally {
         _ = testDB -> close();
@@ -363,7 +363,7 @@ function testXmlWithNull () returns (xml | null) {
     try {
         table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 2", null, null);
-        var result, _ = <xml>dt;
+        var result =? <xml>dt;
         return result;
     } finally {
         _ = testDB -> close();
@@ -387,7 +387,7 @@ function testXmlWithNull () returns (xml | null) {
 //    try {
 //        transaction {
 //            table dt =? testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
-//            var xmlResult, _ = <xml>dt;
+//            var xmlResult =? <xml>dt;
 //            result = <string> xmlResult;
 //        }
 //        return (result, returnValue);
@@ -413,7 +413,7 @@ function testXmlWithNull () returns (xml | null) {
 //    try {
 //        transaction {
 //            table dt =? testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
-//            var jsonResult, _ = <json>dt;
+//            var jsonResult =? <json>dt;
 //            result = jsonResult.toString();
 //        }
 //        return (result, returnValue);
@@ -443,7 +443,7 @@ function testGetPrimitiveTypes () returns (int, int, float, float , boolean, str
     boolean b;
     string s;
     while (dt.hasNext()) {
-        var rs, _ = (ResultPrimitive)dt.getNext();
+        var rs =? (ResultPrimitive)dt.getNext();
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
         f = rs.FLOAT_TYPE;
@@ -472,7 +472,7 @@ function testGetComplexTypes () returns (string, string, string) {
     string clob;
     string binary;
     while (dt.hasNext()) {
-        var rs, _ = (ResultObject)dt.getNext();
+        var rs =? <ResultObject>dt.getNext();
         blob blobData = rs.BLOB_TYPE;
         blobValue = blobData.toString("UTF-8");
         clob = rs.CLOB_TYPE;
@@ -503,7 +503,7 @@ function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
     boolean[] boolean_arr;
 
     while (dt.hasNext()) {
-        var rs, _ = (ResultMap)dt.getNext();
+        var rs =? <ResultMap>dt.getNext();
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
         float_arr = rs.FLOAT_ARRAY;
@@ -550,7 +550,7 @@ function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
     table dt =? testDB -> select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", null, typeof ResultMap);
     while (dt.hasNext()) {
-        var rs, _ = (ResultMap)dt.getNext();
+        var rs =? <ResultMap>dt.getNext();
         io:println(rs.INT_ARRAY);
         intArrLen = lengthof rs.INT_ARRAY;
         io:println(rs.LONG_ARRAY);
@@ -593,7 +593,7 @@ function testDateTime (int datein, int timein, int timestampin) returns (string,
     table dt =? testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 1", null, typeof ResultDates);
     while (dt.hasNext()) {
-        var rs, _ = (ResultDates)dt.getNext();
+        var rs =? <ResultDates>dt.getNext();
         time = rs.TIME_TYPE;
         date = rs.DATE_TYPE;
         timestamp = rs.TIMESTAMP_TYPE;
@@ -646,7 +646,7 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
     table dt =? testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 31", null, typeof ResultDatesStruct);
     while (dt.hasNext()) {
-        var rs, _ = (ResultDatesStruct)dt.getNext();
+        var rs =? <ResultDatesStruct>dt.getNext();
         dateRetrieved = rs.DATE_TYPE.time;
         timeRetrieved = rs.TIME_TYPE.time;
         timestampRetrieved = rs.TIMESTAMP_TYPE.time;
@@ -686,7 +686,7 @@ function testDateTimeInt (int datein, int timein, int timestampin) returns (int,
                 from DateTimeTypes where row_id = 32", null, typeof ResultDatesInt);
 
     while (dt.hasNext()) {
-        var rs, _ = (ResultDatesInt)dt.getNext();
+        var rs = <ResultDatesInt>dt.getNext();
         time = rs.TIME_TYPE;
         date = rs.DATE_TYPE;
         timestamp = rs.TIMESTAMP_TYPE;
@@ -711,7 +711,7 @@ function testBlobData () returns (string) {
     table dt =? testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", null, typeof ResultBlob);
     blob blobData;
     while (dt.hasNext()) {
-        var rs, _ = (ResultBlob)dt.getNext();
+        var rs =? <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
     blobStringData = blobData.toString("UTF-8");
@@ -745,7 +745,7 @@ function testColumnAlias () returns (int, int, float, float, boolean, string, in
     int i2;
 
     while (dt.hasNext()) {
-        var rs, _ = (ResultSetTestAlias)dt.getNext();
+        var rs =? <ResultSetTestAlias>dt.getNext();
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
         f = rs.FLOAT_TYPE;
@@ -773,7 +773,7 @@ function testBlobInsert () returns (int) {
     table dt =? testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", params, typeof ResultBlob);
     blob blobData;
     while (dt.hasNext()) {
-        var rs, _ = (ResultBlob)dt.getNext();
+        var rs =? <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
     sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:10};
@@ -800,13 +800,13 @@ function testTableAutoClose () returns (int, string) {
     int i;
     string test;
     while (dt.hasNext()) {
-        var rs, _ = (ResultPrimitiveInt)dt.getNext();
+        var rs =? <ResultPrimitiveInt>dt.getNext();
         i = rs.INT_TYPE;
     }
 
     table dt2 =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
-    var jsonstring,err = <json> dt2;
+    var jsonstring = <json> dt2;
     test = jsonstring.toString();
 
     _ = testDB -> select("SELECT int_type, long_type, float_type, double_type,
@@ -830,7 +830,7 @@ function testTableManualClose () returns (int) {
     table dt =? testDB -> select("SELECT int_type from DataTable", null, typeof ResultPrimitiveInt);
     int i = 0;
     while (dt.hasNext()) {
-        var rs, _ = (ResultPrimitiveInt)dt.getNext();
+        var rs =? <ResultPrimitiveInt>dt.getNext();
         int ret = rs.INT_TYPE;
         i = i + 1;
         if (i == 1) {
@@ -842,7 +842,7 @@ function testTableManualClose () returns (int) {
     int data;
     table dt2 =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitiveInt);
     while (dt2.hasNext()) {
-        var rs2, _ = (ResultPrimitiveInt)dt2.getNext();
+        var rs2 =? <ResultPrimitiveInt>dt2.getNext();
         data = rs2.INT_TYPE;
     }
     dt2.close();
@@ -865,7 +865,7 @@ function testCloseConnectionPool () returns (int) {
                                   typeof ResultCount);
     int count;
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount) dt.getNext();
+        var rs =? <ResultCount> dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
