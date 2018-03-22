@@ -109,23 +109,4 @@ public class StreamingRuntimeManager {
             }
         });
     }
-
-
-    public void removeSiddhiAppRuntime(SiddhiAppRuntime siddhiAppRuntime) {
-        siddhiAppRuntimeList.remove(siddhiAppRuntime);
-    }
-
-    public List<SiddhiAppRuntime> getStreamSpecificSiddhiAppRuntimes(String streamId) {
-        List<SiddhiAppRuntime> siddhiAppRuntimeList = new ArrayList<>();
-        for (SiddhiAppRuntime siddhiAppRuntime : this.siddhiAppRuntimeList) {
-            if (siddhiAppRuntime != null && siddhiAppRuntime.getStreamDefinitionMap().get(streamId) != null) {
-                siddhiAppRuntimeList.add(siddhiAppRuntime);
-            }
-        }
-        return siddhiAppRuntimeList;
-    }
-
-    public BStream getStreamReference(String streamId) {
-        return streamMap.get(streamId);
-    }
 }

@@ -68,7 +68,6 @@ public class StartWhenever extends BlockingNativeCallableUnit {
         }
 
         BRefValueArray inputStreamReferenceArray = (BRefValueArray) context.getRefArgument(0);
-
         BRefValueArray functionPointerArray = (BRefValueArray) context.getRefArgument(4);
 
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
@@ -82,7 +81,6 @@ public class StartWhenever extends BlockingNativeCallableUnit {
             String functionName = functionPointer.value().getFunctionName();
             String streamId = "stream" + functionName.replaceAll("\\$", "_");
             StreamingRuntimeManager.getInstance().addCallback(streamId, functionPointer, siddhiAppRuntime);
-
         }
     }
 }
