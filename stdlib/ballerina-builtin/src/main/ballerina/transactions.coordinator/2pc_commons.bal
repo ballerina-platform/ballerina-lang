@@ -151,16 +151,16 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns string|error {
         Protocol[] protocols = participant.participantProtocols;
         foreach proto in protocols {
             match proto.protocolFn {
-                (function (string,int,string) returns boolean) protocolFn => {
-                    // if the participant is a local participant, i.e. protoFn is set, then call that fn
+                (function (string, int, string) returns boolean) protocolFn => {
+                // if the participant is a local participant, i.e. protoFn is set, then call that fn
                     log:printInfo("Notify(abort) local participant: " + participant.participantId);
                     boolean successful = protocolFn(txn.transactionId, proto.transactionBlockId, "notifyabort");
                     if (!successful) {
                         error e = {message:"Hazard-Outcome"}; //TODO: Must set this for the entire transaction and not override during loop execution
                         ret = e;
-                    }   
+                    }
                 }
-                any x => { 
+                any x => {
                     var result = notifyRemoteParticipant(txn, participant, "abort");
                     match result {
                         string status => {
@@ -173,7 +173,7 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns string|error {
                             error e = {message:"Hazard-Outcome"}; //TODO: Must set this for the entire transaction and not override during loop execution
                             ret = e;
                         }
-                    }    
+                    }
                 }
             }
         }
@@ -188,14 +188,14 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
         foreach proto in protocols {
             if (proto.name == protocol) {
                 match proto.protocolFn {
-                    (function (string,int,string) returns boolean) protocolFn => {
-                        // if the participant is a local participant, i.e. protoFn is set, then call that fn
+                    (function (string, int, string) returns boolean) protocolFn => {
+                    // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Preparing local participant: " + participant.participantId);
                         if (!protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
                             successful = false;
-                        }  
+                        }
                     }
-                    any x => { 
+                    any x => {
                         if (!prepareRemoteParticipant(txn, participant, proto.url)) {
                             successful = false;
                         }
@@ -207,13 +207,13 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
     return successful;
 }
 
-function getParticipant2pcClientEP(string participantURL) returns Participant2pcClientEP {
-    if(httpClientCache.hasKey(participantURL)) {
+function getParticipant2pcClientEP (string participantURL) returns Participant2pcClientEP {
+    if (httpClientCache.hasKey(participantURL)) {
         var participantEP =? <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
         Participant2pcClientEP participantEP = {};
-        Participant2pcClientConfig config = {participantURL: participantURL,
+        Participant2pcClientConfig config = {participantURL:participantURL,
                                                 endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
         participantEP.init(config);
         httpClientCache.put(participantURL, participantEP);
@@ -225,7 +225,7 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
                                    Participant participant, string protocolUrl) returns boolean {
     endpoint Participant2pcClientEP participantEP;
     participantEP = getParticipant2pcClientEP(protocolUrl);
-    
+
     string transactionId = txn.transactionId;
     // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
     // to prepare a participant
@@ -239,8 +239,9 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
         error err => {
             log:printErrorCause("Remote participant: " + participantId + " failed", err);
             boolean participantRemoved = txn.participants.remove(participantId);
-            if(!participantRemoved) {
-                log:printError("Could not remove failed participant: " + participantId + " from transaction: " + transactionId);
+            if (!participantRemoved) {
+                log:printError("Could not remove failed participant: " +
+                               participantId + " from transaction: " + transactionId);
             }
             successful = false;
         }
@@ -250,8 +251,9 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
                 // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
                 // participant
                 boolean participantRemoved = txn.participants.remove(participantId);
-                if(!participantRemoved) {
-                    log:printError("Could not remove aborted participant: " + participantId + " from transaction: " + transactionId);
+                if (!participantRemoved) {
+                    log:printError("Could not remove aborted participant: " +
+                                   participantId + " from transaction: " + transactionId);
                 }
                 successful = false;
             } else if (status == "committed") {
@@ -261,15 +263,17 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
                 txn.possibleMixedOutcome = true;
                 // Don't send notify to this participant because it is has already committed. We can forget about this participant.
                 boolean participantRemoved = txn.participants.remove(participantId);
-                if(!participantRemoved) {
-                    log:printError("Could not remove committed participant: " + participantId + " from transaction: " + transactionId);
+                if (!participantRemoved) {
+                    log:printError("Could not remove committed participant: " +
+                                   participantId + " from transaction: " + transactionId);
                 }
             } else if (status == "read-only") {
                 log:printInfo("Remote participant: " + participantId + " read-only");
                 // Don't send notify to this participant because it is read-only. We can forget about this participant.
                 boolean participantRemoved = txn.participants.remove(participantId);
-                if(!participantRemoved) {
-                    log:printError("Could not remove read-only participant: " + participantId + " from transaction: " + transactionId);
+                if (!participantRemoved) {
+                    log:printError("Could not remove read-only participant: " +
+                                   participantId + " from transaction: " + transactionId);
                 }
             } else if (status == "prepared") {
                 log:printInfo("Remote participant: " + participantId + " prepared");
@@ -288,14 +292,14 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns boolean 
         Protocol[] protocols = participant.participantProtocols;
         foreach proto in protocols {
             match proto.protocolFn {
-                (function (string,int,string) returns boolean) protocolFn => {
-                    // if the participant is a local participant, i.e. protoFn is set, then call that fn
+                (function (string, int, string) returns boolean) protocolFn => {
+                // if the participant is a local participant, i.e. protoFn is set, then call that fn
                     log:printInfo("Notify(" + message + ") local participant: " + participant.participantId);
-                    if(!protocolFn(txn.transactionId, proto.transactionBlockId, "notify" + message)) {
+                    if (!protocolFn(txn.transactionId, proto.transactionBlockId, "notify" + message)) {
                         successful = false;
-                    }  
+                    }
                 }
-                any x => { 
+                any x => {
                     var result = notifyRemoteParticipant(txn, participant, message);
                     match result {
                         error err => successful = false;
@@ -324,7 +328,7 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
         match result {
             error err => {
                 log:printErrorCause("Remote participant: " + participantId + " replied with an error", err);
-                ret = err; 
+                ret = err;
             }
             string notificationStatus => {
                 if (notificationStatus == "aborted") {
@@ -332,7 +336,7 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
                 } else if (notificationStatus == "committed") {
                     log:printInfo("Remote participant: " + participantId + " committed");
                 }
-                ret = notificationStatus;  
+                ret = notificationStatus;
             }
         }
     }
@@ -371,7 +375,7 @@ function abortInitiatorTransaction (string transactionId, int transactionBlockId
             error err => ret = err;
             string msg => {
                 ret = msg;
-                txn.state = TransactionState.ABORTED; 
+                txn.state = TransactionState.ABORTED;
             }
         }
         boolean localAbortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
@@ -408,7 +412,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
             string msg = "Aborting local resource managers failed for transaction:" + participatedTxnId;
             log:printError(msg);
             ret = {message:msg};
-        } 
+        }
     }
     return ret;
 }

@@ -16,7 +16,6 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina/config;
 import ballerina/net.http;
 
 struct InitiatorClientConfig {
@@ -32,26 +31,26 @@ struct InitiatorClientEP {
     http:ClientEndpoint httpClient;
 }
 
-function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
+function <InitiatorClientEP ep> init (InitiatorClientConfig conf) {
     endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.registerAtURL}],
-                                            endpointTimeout:conf.endpointTimeout,
-                                            retry:{count:conf.retryConfig.count,
-                                                            interval:conf.retryConfig.interval}};
+        endpointTimeout:conf.endpointTimeout,
+        retry:{count:conf.retryConfig.count,
+                  interval:conf.retryConfig.interval}};
     ep.httpClient = httpEP;
 }
 
-function <InitiatorClientEP ep> getClient() returns InitiatorClient {
-    return {clientEP: ep};
+function <InitiatorClientEP ep> getClient () returns InitiatorClient {
+    return {clientEP:ep};
 }
 
 struct InitiatorClient {
     InitiatorClientEP clientEP;
 }
 
-function<InitiatorClient client> register (string transactionId,
-                                                  int transactionBlockId,
-                                                  Protocol[] participantProtocols) 
-                                                  returns RegistrationResponse|error {
+function <InitiatorClient client> register (string transactionId,
+                                            int transactionBlockId,
+                                            Protocol[] participantProtocols)
+returns RegistrationResponse|error {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     string participantId = getParticipantId(transactionBlockId);
     RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
@@ -67,8 +66,8 @@ function<InitiatorClient client> register (string transactionId,
         }
         http:Response res => {
             int statusCode = res.statusCode;
-            if(statusCode != 200) {
-                error err = {message: "Registration for transaction: " + transactionId + " failed"};
+            if (statusCode != 200) {
+                error err = {message:"Registration for transaction: " + transactionId + " failed"};
                 return err;
             }
             var jsonPayloadResult = res.getJsonPayload();
@@ -80,6 +79,6 @@ function<InitiatorClient client> register (string transactionId,
             }
         }
     }
-    error err = {message: "Invalid execution path in register request"};
+    error err = {message:"Invalid execution path in register request"};
     throw err;
 }

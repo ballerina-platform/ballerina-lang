@@ -50,7 +50,7 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
         any x => {
             return createTransactionContext(coordinationType, transactionBlockId);
         }
-    } 
+    }
 }
 
 documentation {
@@ -62,13 +62,13 @@ documentation {
 function markForAbortion (string transactionId, int transactionBlockId) {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        var txn =? <TwoPhaseCommitTransaction> participatedTransactions[transactionId];
+        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else if (initiatedTransactions.hasKey(transactionId)) {
         var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else {
-        error err = {message: "Transaction: " + participatedTxnId + " not found"};
+        error err = {message:"Transaction: " + participatedTxnId + " not found"};
         throw err;
     }
 }
@@ -104,7 +104,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
             return ret;
         }
     }
-     // Nothing to do on endTransaction if you are a participant
+    // Nothing to do on endTransaction if you are a participant
     return ""; //TODO: check what will happen if nothing is returned
 }
 
@@ -119,7 +119,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function abortTransaction (string transactionId, int transactionBlockId) returns string|error{
+function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
     log:printInfo("########### abort called");
 
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -138,8 +138,8 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
             }
             string participantId = getParticipantId(transactionBlockId);
             boolean removed = txn.participants.remove(participantId);
-            if(!removed) {
-                error err = {message: "Participant: " + participantId + " removal failed"};
+            if (!removed) {
+                error err = {message:"Participant: " + participantId + " removal failed"};
                 throw err;
             }
             string|error ret = abortInitiatorTransaction(transactionId, transactionBlockId);
@@ -152,7 +152,6 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
             return abortInitiatorTransaction(transactionId, transactionBlockId);
         }
     } else {
-        //msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId); // TODO: we can move the core logic here from the function
         var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
         boolean successful = abortResourceManagers(transactionId, transactionBlockId);
         if (!successful) {

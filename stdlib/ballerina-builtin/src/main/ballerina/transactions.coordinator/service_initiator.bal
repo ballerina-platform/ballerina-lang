@@ -85,49 +85,52 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
             http:Response res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
             var connErr = conn -> respond(res);
             match connErr {
-                error err => log:printErrorCause("Sending response for register request for unknown transaction:" + txnId + " failed", 
-                                                    err);
+                error err => log:printErrorCause("Sending response for register request for unknown transaction:" +
+                                                 txnId + " failed", err);
             }
         } else {
             var txn =? <Transaction>initiatedTransactions[txnId];
             if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
-                http:Response res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
+                http:Response res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" +
+                                                        participantId);
                 var connErr = conn -> respond(res);
                 match connErr {
-                    error err => log:printErrorCause("Sending response for register request by already registered participant
-                                        for transaction " + txnId + " failed", err);
+                    error err => log:printErrorCause("Sending response for register request by already registered
+                                                        participant for transaction " + txnId + " failed", err);
                 }
             } else if (!protocolCompatible(txn.coordinationType,
-                                        regReq.participantProtocols)) { // Invalid-Protocol
-                http:Response res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
+                                           regReq.participantProtocols)) { // Invalid-Protocol
+                http:Response res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" +
+                                                        participantId);
                 var connErr = conn -> respond(res);
                 match connErr {
-                    error err => log:printErrorCause("Sending response for register request by participant with invalid protocol
-                                        for transaction " + txnId + " failed", err);
+                    error err => log:printErrorCause("Sending response for register request by participant with invalid
+                                                        protocol for transaction " + txnId + " failed", err);
                 }
             } else {
                 Participant participant = {participantId:participantId,
-                                            participantProtocols:regReq.participantProtocols};
+                                              participantProtocols:regReq.participantProtocols};
                 txn.participants[participantId] = participant;
                 Protocol[] participantProtocols = regReq.participantProtocols;
                 Protocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
                     Protocol coordinatorProtocol = {name:participantProtocol.name,
-                                                    url:getCoordinatorProtocolAt(participantProtocol.name, transactionBlockId)};
+                                                       url:getCoordinatorProtocolAt(participantProtocol.name,
+                                                                                    transactionBlockId)};
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }
 
                 RegistrationResponse regRes = {transactionId:txnId,
-                                                coordinatorProtocols:coordinatorProtocols};
+                                                  coordinatorProtocols:coordinatorProtocols};
                 json resPayload = <json, regResposeToJson()>(regRes);
                 http:Response res = {statusCode:200};
                 res.setJsonPayload(resPayload);
                 var connErr = conn -> respond(res);
                 match connErr {
                     error err => log:printErrorCause("Sending response for register request for transaction " + txnId +
-                                        " failed", err);
+                                                     " failed", err);
                 }
                 log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
             }

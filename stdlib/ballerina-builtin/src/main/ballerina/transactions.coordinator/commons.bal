@@ -17,7 +17,6 @@
 package ballerina.transactions.coordinator;
 
 import ballerina/caching;
-import ballerina/io;
 import ballerina/log;
 import ballerina/net.http;
 import ballerina/util;
@@ -77,8 +76,8 @@ public struct Protocol {
     string url;
     int transactionBlockId;
     (function (string transactionId,
-              int transactionBlockId,
-              string protocolAction) returns boolean)|null protocolFn;
+               int transactionBlockId,
+               string protocolAction) returns boolean)|null protocolFn;
 }
 
 public struct RegistrationRequest {
@@ -199,13 +198,13 @@ function createNewTransaction (string coordinationType) returns Transaction {
 }
 
 function getCoordinatorProtocolAt (string protocol, int transactionBlockId) returns string {
-    return
-    "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" + transactionBlockId;
+    return "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" +
+           transactionBlockId;
 }
 
 function getParticipantProtocolAt (string protocol, int transactionBlockId) returns string {
-    return
-    "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath + "/" + transactionBlockId;
+    return "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath + "/" +
+           transactionBlockId;
 }
 
 // The initiator will create a new transaction context by calling this function
@@ -221,10 +220,11 @@ function createTransactionContext (string coordinationType,
         string txnId = txn.transactionId;
         initiatedTransactions[txnId] = txn;
         TransactionContext txnContext = {transactionId:txnId,
-                                        transactionBlockId:transactionBlockId,
-                                        coordinationType:coordinationType,
-                                        registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort +
-                                                    initiatorCoordinatorBasePath + "/" + transactionBlockId + registrationPath};
+                                            transactionBlockId:transactionBlockId,
+                                            coordinationType:coordinationType,
+                                            registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort +
+                                                          initiatorCoordinatorBasePath + "/" + transactionBlockId +
+                                                          registrationPath};
         log:printInfo("Created transaction: " + txnId);
         return txnContext;
     }
@@ -261,7 +261,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
             string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
             participatedTransactions[participatedTxnId] = twopcTxn;
             TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
-                                        coordinationType:"2pc", registerAtURL:registerAtURL};
+                                            coordinationType:"2pc", registerAtURL:registerAtURL};
             log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
             return txnCtx;
         }
@@ -272,7 +272,7 @@ function localParticipantProtocolFn (string transactionId,
                                      int transactionBlockId,
                                      string protocolAction) returns boolean {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    if(!participatedTransactions.hasKey(participatedTxnId)) {
+    if (!participatedTransactions.hasKey(participatedTxnId)) {
         return false;
     }
     var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
@@ -300,36 +300,36 @@ function localParticipantProtocolFn (string transactionId,
             return successful;
         }
     } else {
-        error err = {message: "Invalid protocol action:" + protocolAction};
+        error err = {message:"Invalid protocol action:" + protocolAction};
         throw err;
     }
     return false;
 }
-function removeParticipatedTransaction(string participatedTxnId) {
+function removeParticipatedTransaction (string participatedTxnId) {
     boolean removed = participatedTransactions.remove(participatedTxnId);
-    if(!removed) {
-        error err = {message: "Removing participated transaction: " + participatedTxnId + " failed"};
+    if (!removed) {
+        error err = {message:"Removing participated transaction: " + participatedTxnId + " failed"};
         throw err;
     }
 }
 
-function removeInitiatedTransaction(string transactionId) {
+function removeInitiatedTransaction (string transactionId) {
     boolean removed = initiatedTransactions.remove(transactionId);
-    if(!removed) {
-        error err = {message: "Removing initiated transaction: " + transactionId + " failed"};
+    if (!removed) {
+        error err = {message:"Removing initiated transaction: " + transactionId + " failed"};
         throw err;
     }
 }
 
-function getInitiatorClientEP(string registerAtURL) returns InitiatorClientEP {
-    if(httpClientCache.hasKey(registerAtURL)) {
+function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
+    if (httpClientCache.hasKey(registerAtURL)) {
         var initiatorEP =? <InitiatorClientEP>httpClientCache.get(registerAtURL);
         return initiatorEP;
     } else {
         InitiatorClientEP initiatorEP = {};
-        InitiatorClientConfig config = {registerAtURL: registerAtURL,
-                                           endpointTimeout: 120000, retryConfig:{count:5, interval:5000}};
-        initiatorEP.init (config);
+        InitiatorClientConfig config = {registerAtURL:registerAtURL,
+                                           endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+        initiatorEP.init(config);
         httpClientCache.put(registerAtURL, initiatorEP);
         return initiatorEP;
     }
@@ -354,7 +354,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
     if (participatedTransactions.hasKey(participatedTxnId)) {
         string msg = "Already registered with initiator for transaction:" + participatedTxnId;
         log:printError(msg);
-        error err = {message: msg};
+        error err = {message:msg};
         return err;
     }
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
@@ -373,7 +373,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
             twopcTxn.coordinatorProtocols = coordinatorProtocols;
             participatedTransactions[participatedTxnId] = twopcTxn;
             TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
-                                        coordinationType:"2pc", registerAtURL:registerAtURL};
+                                            coordinationType:"2pc", registerAtURL:registerAtURL};
             log:printInfo("Registered with coordinator for transaction: " + transactionId);
             return txnCtx;
         }
