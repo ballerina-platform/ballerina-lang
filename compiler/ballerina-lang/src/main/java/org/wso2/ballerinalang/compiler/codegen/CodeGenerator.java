@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -1617,9 +1618,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         int i = 0;
         int nArgRegs = iExpr.requiredArgs.size() + iExpr.namedArgs.size() + iExpr.restArgs.size();
         int nRetRegs = iExpr.types.size();
+        int flags = FunctionFlags.NOTHING;
         Operand[] operands = new Operand[nArgRegs + nRetRegs + 4];
         operands[i++] = getOperand(funcRefCPIndex);
-        operands[i++] = getOperand(iExpr.async);
+        if (iExpr.async) {
+            flags = FunctionFlags.markAsync(flags);
+        }
+        operands[i++] = getOperand(flags);
         operands[i++] = getOperand(nArgRegs);
 
         // Write required arguments
