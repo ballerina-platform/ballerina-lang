@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
@@ -110,14 +111,16 @@ public class PackageLoader {
         Repo homeRepo = new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
         Repo projectRepo = new ZipRepo(projectHiddenDir); //new ObjRepo(projectHiddenDir);
+        Repo programingSource = new ProgramingSourceRepo(sourceRoot);
         Repo currentDirRepo = sourceDirectory.getPackageRepository();
 
         RepoHierarchyBuilder.RepoNode homeCacheNode;
         homeCacheNode = node(homeCacheRepo, systemArr);
-        return RepoHierarchyBuilder.build(node(currentDirRepo,
-                                               node(projectRepo,
-                                                    node(projectCacheRepo, homeCacheNode),
-                                                    node(homeRepo, homeCacheNode))));
+        return RepoHierarchyBuilder.build(node(programingSource,
+                                               node(currentDirRepo,
+                                                    node(projectRepo,
+                                                         node(projectCacheRepo, homeCacheNode),
+                                                         node(homeRepo, homeCacheNode)))));
     }
 
     private RepoHierarchyBuilder.RepoNode[] loadSystemRepos() {
