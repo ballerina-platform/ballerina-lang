@@ -647,7 +647,6 @@ public class CPU {
                     typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                     StringCPEntry name = (StringCPEntry) ctx.constPool[operands[2]];
                     BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
-//                    StreamingRuntimeManager.getInstance().addStreamReference(name.getValue(), stream);
                     sf.refRegs[i] = stream;
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
