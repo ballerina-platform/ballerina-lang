@@ -25,6 +25,8 @@ function main (string[] args) {
     };
 
     int count;
+    table dt;
+    int ret;
 
     //Create table named EMPLOYEE and populate sample data.
     var returnValue = testDB -> update("CREATE TABLE EMPLOYEE (id INT,name
@@ -35,7 +37,7 @@ function main (string[] args) {
         int val => {
             count = val;
         }
-        error e => io:println("Error in CREATE TABLE EMPLOYEE");
+        error e => io:println("Error in executing CREATE TABLE EMPLOYEE");
     }
 
     returnValue = testDB -> update("INSERT INTO EMPLOYEE VALUES(1, 'John', 1050.50, false,
@@ -45,7 +47,7 @@ function main (string[] args) {
         int val => {
             count = val;
         }
-        error e => io:println("Error in INSERT INTO EMPLOYEE");}
+        error e => io:println("Error in executing INSERT INTO EMPLOYEE");}
 
     returnValue = testDB -> update("INSERT INTO EMPLOYEE VALUES(2, 'Anne', 4060.50, true,
         '1999-12-31', '13:40:24', '2017-05-23 09:15:28')", null);
@@ -54,11 +56,19 @@ function main (string[] args) {
         int val => {
           count = val;
         }
-        error e => io:println("Error in INSERT INTO EMPLOYEE");}
+        error e => io:println("Error in executing INSERT INTO EMPLOYEE");}
 
     //Query the table using SQL connector select action. Either select or call
     //action can return a table.
-    table dt =? testDB -> select("SELECT * from EMPLOYEE", null, typeof Employee);
+    var returnVal = testDB -> select("SELECT * from EMPLOYEE", null, typeof Employee);
+
+    match returnVal {
+        table val => {
+            dt = val;
+        }
+        error e => io:println("Error in executing SELECT * from EMPLOYEE");}
+
+
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
     while (dt.hasNext()) {
@@ -75,17 +85,35 @@ function main (string[] args) {
     //and returning it. This allows virtually unlimited payload sizes in the result, and
     //the response is instantaneous to the client. <br>
     //Convert a table to JSON.
-    dt =? testDB -> select("SELECT id,name FROM EMPLOYEE", null, null);
+    var returnVal2 = testDB -> select("SELECT id,name FROM EMPLOYEE", null, null);
+    match returnVal2 {
+          table val => {
+            dt = val;
+          }
+        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");}
+
     var jsonRes =? <json>dt;
     io:println(jsonRes);
 
     //Convert a table to XML.
-    dt =? testDB -> select("SELECT id,name FROM EMPLOYEE", null, null);
+    var returnVal3 = testDB -> select("SELECT id,name FROM EMPLOYEE", null, null);
+
+    match returnVal3 {
+      table val => {
+        dt = val;
+       }
+    error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");}
+
     var xmlRes =? <xml>dt;
     io:println(xmlRes);
 
     //Drop the EMPLOYEE table.
-    int ret =? testDB -> update("DROP TABLE EMPLOYEE", null);
+    var returnVal4 = testDB -> update("DROP TABLE EMPLOYEE", null);
+    match returnVal4 {
+      int val => {
+         ret = val;
+      }
+      error e => io:println("Error in executing DROP TABLE EMPLOYEE");}
     io:println("Table drop status:" + ret);
 
     //Finally close the DB connection.
