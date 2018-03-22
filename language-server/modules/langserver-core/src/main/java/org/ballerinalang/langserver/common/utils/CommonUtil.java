@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
@@ -52,7 +53,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -111,13 +111,13 @@ public class CommonUtil {
     /**
      * Common utility to get a Path from the given uri string.
      *
-     * @param uri URI of the file to get as a  Path
+     * @param document LSDocument object of the file
      * @return {@link Path}     Path of the uri
      */
-    public static Path getPath(String uri) {
+    public static Path getPath(LSDocument document) {
         Path path = null;
         try {
-            path = Paths.get(new URL(uri).toURI());
+            path = document.getPath();
         } catch (URISyntaxException | MalformedURLException e) {
             // Do Nothing
         }
@@ -481,7 +481,8 @@ public class CommonUtil {
         // TODO: Need to support service and resources as well.
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
                 "transformer", "object");
-        String fileContent = docManager.getFileContent(getPath(identifier.getUri()));
+        LSDocument document = new LSDocument(identifier.getUri());
+        String fileContent = docManager.getFileContent(getPath(document));
         String[] splitedFileContent = fileContent.split("\\n|\\r\\n|\\r");
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
@@ -505,7 +506,8 @@ public class CommonUtil {
      * @return {@link BLangPackage} current package
      */
     public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
-        Path filePath = getPath(fileUri);
+        LSDocument document = new LSDocument(fileUri);
+        Path filePath = getPath(document);
         Path fileNamePath = filePath.getFileName();
         BLangPackage currentPackage = null;
         try {
