@@ -97,7 +97,8 @@ function testJsonToStruct () returns (Person | error) {
                  alive:true,
                  children:null
              };
-    var p =? <Person>j;
+    var p, _ = <Person>j;
+    //TODO fix the error handling
     return p;
 }
 
@@ -158,9 +159,8 @@ function testMapWithIncompatibleArrayToStruct () returns (Person) {
                 score:5.67,
                 alive:true
             };
-    Person p;
-    error e;
-    p, e = <Person>m;
+
+    var p, e = <Person>m;
     if (e != null) {
         throw e;
     }
@@ -189,8 +189,8 @@ function testMapWithIncompatibleStructToStruct () returns (Employee) {
                 info:{status:"single"},
                 marks:marks
             };
-    Employee e;
-    e, _ = <Employee>m;
+            
+    var e, _ = <Employee>m;
     return e;
 }
 
@@ -201,9 +201,8 @@ function testJsonToStructWithMissingFields () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -217,9 +216,8 @@ function testIncompatibleJsonToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -241,9 +239,8 @@ function testJsonWithIncompatibleMapToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -265,9 +262,8 @@ function testJsonWithIncompatibleTypeToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -289,9 +285,8 @@ function testJsonWithIncompatibleStructToStruct () returns (Person) {
                  info:{status:"single"},
                  marks:[87, 94, 72]
              };
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -300,9 +295,8 @@ function testJsonWithIncompatibleStructToStruct () returns (Person) {
 
 function testJsonArrayToStruct () returns (Person) {
     json j = [87, 94, 72];
-    Person p;
-    error e;
-    p, e = <Person>j;
+
+    var p, e = <Person>j;
     if (e != null) {
         throw e;
     }
@@ -318,9 +312,7 @@ function testStructWithIncompatibleTypeMapToJson () returns (json) {
     map m = {bar:b};
     Info info = {foo:m};
 
-    json j;
-    error err;
-    j, err = <json>info;
+    var j, err = <json>info;
     if (err != null) {
         throw err;
     }
@@ -381,8 +373,7 @@ struct AnyArray {
 
 function testJsonToAnyArray () returns (AnyArray) {
     json j = {a:[4, "Supun", 5.36, true, {lname:"Setunga"}, [4, 3, 7], null]};
-    AnyArray a;
-    a, _ = <AnyArray>j;
+    var a, _ = <AnyArray>j;
     return a;
 }
 
@@ -392,9 +383,7 @@ struct IntArray {
 
 function testJsonToIntArray () returns (IntArray) {
     json j = {a:[4, 3, 9]};
-    IntArray a;
-    a, _ = <IntArray>j;
+    var a, _ = <IntArray>j;
     return a;
 }
-
 
