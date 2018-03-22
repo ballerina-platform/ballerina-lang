@@ -246,19 +246,12 @@ function testCallProcedureWithResultSet () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    var x = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
+    table[] dts =? testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
     string firstName;
 
-    match x {
-        (table[]) y  =>{
-            while (y[0].hasNext()) {
-                var rs, err = (ResultCustomers)y[0].getNext();
-                firstName = rs.FIRSTNAME;
-            }
-        }
-        sql:SQLConnectorError err1 =>{
-            firstName = err1.message;
-        }
+    while (dts[0].hasNext()) {
+        var rs, err = (ResultCustomers)dts[0].getNext();
+        firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
     return firstName;
@@ -275,24 +268,18 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
         options: {maximumPoolSize:1}
     };
 
-    var x = testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
+    table[] dts =? testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
     string firstName1;
     string firstName2;
-    match x {
-        (table[]) y  =>{
-            while (y[0].hasNext()) {
-                var rs, err = (ResultCustomers)y[0].getNext();
-                firstName1 = rs.FIRSTNAME;
-            }
 
-            while (y[1].hasNext()) {
-                var rs, err = (ResultCustomers)y[1].getNext();
-                firstName2 = rs.FIRSTNAME;
-            }
-        }
-        sql:SQLConnectorError err1 =>{
-            firstName1 = err1.message;
-        }
+    while (dts[0].hasNext()) {
+        var rs, err = (ResultCustomers)dts[0].getNext();
+        firstName1 = rs.FIRSTNAME;
+    }
+
+    while (dts[1].hasNext()) {
+        var rs, err = (ResultCustomers)dts[1].getNext();
+        firstName2 = rs.FIRSTNAME;
     }
 
     _ = testDB -> close();
@@ -1137,25 +1124,25 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
     return (s1, s2, s3, s4);
 }
 
-//function testCloseConnectionPool () returns (int) {
-//    endpoint sql:Client testDB {
-//        database: sql:DB.HSQLDB_FILE,
-//        host: "./target/tempdb/",
-//        port: 0,
-//        name: "TEST_SQL_CONNECTOR",
-//        username: "SA",
-//        password: "",
-//        options: {maximumPoolSize:1}
-//    };
-//
-//
-//    table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
-//    typeof ResultCount);
-//    int count;
-//    while (dt.hasNext()) {
-//        var rs, err = (ResultCount)dt.getNext();
-//        count = rs.COUNTVAL;
-//    }
-//    testDB -> close();
-//    return count;
-//}
+function testCloseConnectionPool () returns (int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+
+    table dt =? testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+    typeof ResultCount);
+    int count;
+    while (dt.hasNext()) {
+        var rs, err = (ResultCount)dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    _ = testDB -> close();
+    return count;
+}

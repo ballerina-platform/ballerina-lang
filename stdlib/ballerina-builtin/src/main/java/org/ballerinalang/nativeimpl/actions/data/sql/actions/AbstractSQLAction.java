@@ -214,7 +214,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private BRefValueArray createBRefValueArray(List<ResultSet> resultSets, TableResourceManager rm, Context context,
             BStructType structType) throws SQLException {
-        BRefValueArray bTableRefArray = new BRefValueArray();
+        BRefValueArray bTableRefArray = new BRefValueArray(new BArrayType(BTypes.typeTable));
         for (int i = 0; i < resultSets.size(); i++) {
             bTableRefArray.add(i, constructTable(rm, context, resultSets.get(i), structType));
         }
