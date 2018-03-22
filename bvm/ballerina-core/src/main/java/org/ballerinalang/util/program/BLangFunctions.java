@@ -39,6 +39,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -161,23 +162,23 @@ public class BLangFunctions {
     
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
-        return invokeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse, false);
+        return invokeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse, FunctionFlags.NOTHING);
     }
 
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse,
-            boolean async) {
+            int flags) {
         BLangScheduler.switchToWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
-            if (async) {
+            if (FunctionFlags.isAsync(flags)) {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
                 resultCtx = parentCtx;
             } else {
                 resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs);
             }
         } else {
-            if (async) {
+            if (FunctionFlags.isAsync(flags)) {
                 invokeNonNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
                 resultCtx = parentCtx;
             } else {
