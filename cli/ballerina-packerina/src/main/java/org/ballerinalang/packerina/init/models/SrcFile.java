@@ -25,26 +25,31 @@ import java.util.Locale;
  */
 public class SrcFile {
     private static final String SERVICE_CONTENT = "package %s;%n" +
-                                                  "import ballerina.net.http;%n" +
+                                                  "import ballerina/net.http;%n" +
                                                   "%n" +
-                                                  "service<http> service1 {%n" +
-                                                  "    @http:resourceConfig {%n" +
+                                                  "%n" +
+                                                  "endpoint http:ServiceEndpoint serviceEndpoint {%n" +
+                                                  "   port:9090%n" +
+                                                  "};%n" +
+                                                  "%n" +
+                                                  "service<http:Service> service1 bind serviceEndpoint {%n" +
+                                                  "    @http:ResourceConfig {%n" +
                                                   "        methods: [\"GET\"],%n" +
                                                   "        path: \"/\"%n" +
                                                   "    }%n" +
-                                                  "    resource echo1 (http:Connection conn, http:InRequest req) {%n" +
-                                                  "        http:OutResponse res = {};%n" +
-                                                  "        res.setStringPayload(\"Hello World!\");%n" +
-                                                  "        _ = conn.respond(res);%n" +
+                                                  "    echo1 (endpoint outboundEP, http:Request req) {%n" +
+                                                  "         http:Response response = {};%n" +
+                                                  "         response.setStringPayload(\"Hello World!\");%n" +
+                                                  "         _ = outboundEP -> respond(response);%n" +
                                                   "    }%n" +
                                                   "}%n";
     
-    private static final String MAIN_FUNCTION_CONTENT = "import ballerina.io;\n" +
+    private static final String MAIN_FUNCTION_CONTENT = "import ballerina/io;\n" +
                                                         "function main(string[] args) {\n" +
                                                         "    io:println(\"Hello World!\");\n" +
                                                         "}\n";
     private SrcFileType srcFileType;
-    private String content = "";
+    private String content;
     private String name;
     public SrcFile(String name, SrcFileType fileType) {
         this.srcFileType = fileType;

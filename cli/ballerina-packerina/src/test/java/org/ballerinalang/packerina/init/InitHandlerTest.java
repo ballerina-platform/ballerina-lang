@@ -54,7 +54,7 @@ public class InitHandlerTest {
         manifest.setName("wso2");
         manifest.setVersion("1.0.0");
     
-        SrcFile packageFile = new SrcFile("wso2-abc", SrcFile.SrcFileType.SERVICE);
+        SrcFile packageFile = new SrcFile("wso2_abc", SrcFile.SrcFileType.SERVICE);
         SrcFile mainFile = new SrcFile("main_runner", SrcFile.SrcFileType.MAIN);
         List<SrcFile> srcFiles = new ArrayList<>();
         srcFiles.add(packageFile);

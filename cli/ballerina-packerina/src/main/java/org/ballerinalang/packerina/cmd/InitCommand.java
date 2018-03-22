@@ -96,14 +96,15 @@ public class InitCommand implements BLauncherCmd {
                 }
     
                 String srcInput;
+                boolean validInput = false;
                 do  {
                     out.print("Ballerina source [package/p, main/m, (empty to finish)]: ");
                     srcInput = scanner.nextLine().trim();
                     
                     if (srcInput.equalsIgnoreCase("package") || srcInput.equalsIgnoreCase("p")) {
-                        out.print("--Package Name: (my-package) ");
+                        out.print("--Package Name: (my_package) ");
                         String packageName = scanner.nextLine().trim();
-                        packageName = packageName.isEmpty() ? "my-package" : packageName;
+                        packageName = packageName.isEmpty() ? "my_package" : packageName;
                         SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.SERVICE);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
@@ -112,11 +113,12 @@ public class InitCommand implements BLauncherCmd {
                         mainBal = mainBal.isEmpty() ? "main" : mainBal;
                         SrcFile srcFile = new SrcFile(mainBal, SrcFile.SrcFileType.MAIN);
                         sourceFiles.add(srcFile);
+                    } else if (srcInput.equalsIgnoreCase("")) {
+                        validInput = true;
+                    } else {
+                        out.println("--Invalid input");
                     }
-                } while ((srcInput.equalsIgnoreCase("package") ||
-                          srcInput.equalsIgnoreCase("p") ||
-                          srcInput.equalsIgnoreCase("main") ||
-                          srcInput.equalsIgnoreCase("m")));
+                } while (!validInput);
     
                 out.print("\n");
             }
