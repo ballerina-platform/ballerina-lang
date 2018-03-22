@@ -62,6 +62,7 @@ public class CertificateValidationHandler extends ChannelInboundHandlerAdapter {
                 ctx.close();
                 throw new SSLException("Certificate Chain Validation failed. Hence closing the channel");
             }
+            ctx.fireUserEventTriggered(evt);
         }
     }
 
