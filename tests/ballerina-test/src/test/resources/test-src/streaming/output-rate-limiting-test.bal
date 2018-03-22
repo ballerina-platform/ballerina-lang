@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 
 struct Employee {
     string name;
@@ -33,33 +33,42 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream2 = {};
-stream<Teacher> teacherStream4 = {};
+stream<Employee> employeeStream1 = {};
+stream<Teacher> teacherStream2 = {};
 
-function testProjectionQuery () {
+function testOutputRateLimitQuery () {
 
     whenever{
-        from teacherStream4
+        from teacherStream2
         select name, age, status
+        output first every 3 events
         => (Employee [] emp) {
-                employeeStream2.publish(emp);
+            employeeStream1.publish(emp);
         }
     }
 }
 
-function startProjectionQuery( ) returns (Employee []) {
+function startOutputRateLimitQuery( ) returns (Employee []) {
 
-    testProjectionQuery();
+    testOutputRateLimitQuery ();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    employeeStream2.subscribe(printEmployeeNumber);
+    Teacher t4 = {name:"Praveen", age:29, status:"single", batch:"LK2013", school:"Hindu College"};
+    Teacher t5 = {name:"Azraar", age:30, status:"married", batch:"LK1989", school:"Thomas College"};
+    Teacher t6 = {name:"Kasun", age:30, status:"married", batch:"LK1987", school:"Ananda College"};
 
-    teacherStream4.publish(t1);
-    teacherStream4.publish(t2);
-    teacherStream4.publish(t3);
+
+    employeeStream1.subscribe(printEmployeeNumber);
+
+    teacherStream2.publish(t1);
+    teacherStream2.publish(t2);
+    teacherStream2.publish(t3);
+    teacherStream2.publish(t4);
+    teacherStream2.publish(t5);
+    teacherStream2.publish(t6);
 
     runtime:sleepCurrentWorker(1000);
 

@@ -42,7 +42,7 @@ public class WindowTest {
 
     @Test(description = "Test window streaming query with groupby and aggregation function.")
     public void testWindowQuery() {
-        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testWindowQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startWindowQuery");
 
         Assert.assertNotNull(outputStatusCountArray);
 

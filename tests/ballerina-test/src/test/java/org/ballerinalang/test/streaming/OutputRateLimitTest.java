@@ -27,31 +27,31 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test pipeline query behaviour of Ballerina Streaming.
+ * This contains methods to test output rate limiting behaviour of Ballerina Streaming.
  *
  * @since 0.965.0
  */
-public class PipelineQueryTest {
+public class OutputRateLimitTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/pipeline-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/output-rate-limiting-test.bal");
     }
 
-    @Test(description = "Test streaming pipeline query.")
-    public void testPipelineQuery() {
-        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startPipelineQuery");
+    @Test(description = "Test output rate limiting query")
+    public void testOutputRateLimitQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOutputRateLimitQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
 
-        Assert.assertNotNull(outputStatusCountArray);
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
 
-        Assert.assertEquals(outputStatusCountArray.length, 1, "Expected events are not received");
+        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
+        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
 
-        BStruct statusCount0 = (BStruct) outputStatusCountArray[0];
-
-        Assert.assertEquals(statusCount0.getStringField(0), "single");
-        Assert.assertEquals(statusCount0.getIntField(0), 2);
+        Assert.assertEquals(employee0.getStringField(0), "Raja");
+        Assert.assertEquals(employee1.getStringField(0), "Praveen");
     }
 
 }
