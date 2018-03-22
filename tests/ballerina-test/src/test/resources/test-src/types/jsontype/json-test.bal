@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
     j.remove("name");
@@ -9,7 +11,7 @@ function toString (json msg) returns (string) {
 }
 
 function testParse (string jsonStr) returns (json | error) {
-    var j =? <json> jsonStr;
+    var j = <json> jsonStr;
     return j;
 }
 
@@ -39,7 +41,7 @@ function testToXMLString (json msg) returns (string) {
     var x = msg.toXML({});
     match(x){
         error e => return "";
-        xml xmlData => return <string> xmlData;
+        xml xmlData => return io:sprintf("%s", [xmlData]);
     }
 }
 
@@ -47,7 +49,7 @@ function testToXMLWithXMLSequence (json msg) returns (string) {
     var x = msg.toXML({});
     match(x){
         error e => return "";
-        xml xmlData => return <string> xmlData;
+        xml xmlData => return io:sprintf("%s", [xmlData]);
     }
 }
 
