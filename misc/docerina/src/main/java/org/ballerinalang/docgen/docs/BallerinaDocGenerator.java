@@ -28,7 +28,6 @@ import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.model.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
