@@ -59,7 +59,7 @@ function test7(){
 
 function test8(){
     json j = ["a" , "b", "c"];
-    var a,_ = <json[]> j;
+    var a =? <json[]> j;
     foreach x,y in a {
         io:print(x);
         io:println(y);
