@@ -19,7 +19,7 @@ import ballerina/net.grpc;
 function main (string[] args) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {
         host: "localhost",
-        port: 9090
+        port: 9098
     };
 
     error|string unionResp = helloWorldBlockingEp -> hello("WSO2");
