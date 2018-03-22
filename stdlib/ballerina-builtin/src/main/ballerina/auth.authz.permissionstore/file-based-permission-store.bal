@@ -23,7 +23,7 @@ import ballerina/log;
 const string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
 
 @Description {value:"Represents the permission store"}
-public struct FileBasedPermissionStore { 
+public struct FileBasedPermissionStore {
 }
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
@@ -33,13 +33,13 @@ public struct FileBasedPermissionStore {
 public function <FileBasedPermissionStore permissionStore> isAuthorized (string username, string scopeName) returns (boolean) {
 
     string[] groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
-    if (groupsForScope == null) {
+    if (lengthof groupsForScope == 0) {
         // no groups found for this scope
         return false;
     }
 
     string[] groupsOfUser = getGroupsArray(permissionStore.readGroupsOfUser(username));
-    if (groupsOfUser == null) {
+    if (lengthof groupsOfUser == 0) {
         // no groups for user, authorization failure
         return false;
     }
@@ -51,7 +51,7 @@ public function <FileBasedPermissionStore permissionStore> isAuthorized (string 
 @Return {value:"string: comma separated groups specified for the scopename"}
 public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string) {
     // reads the groups for the provided scope
-    return config:getInstanceValue(scopeName, PERMISSIONSTORE_GROUPS_ENTRY);
+    return getPermissionStoreConfigValue(scopeName, PERMISSIONSTORE_GROUPS_ENTRY);
 }
 
 @Description {value:"Matches the groups passed"}
@@ -77,7 +77,7 @@ function matchGroups (string[] requiredGroupsForScope, string[] groupsReadFromPe
 function getGroupsArray (string groupString) returns (string[]) {
     if (groupString == null || groupString.length() == 0) {
         log:printDebug("could not extract any groups from groupString: " + groupString);
-        return null;
+        return [];
     }
     return groupString.split(",");
 }
@@ -88,17 +88,26 @@ function getGroupsArray (string groupString) returns (string[]) {
 public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) returns (string) {
     // first read the user id from user->id mapping
     string userid = readUserId(username);
-    if (userid == null) {
+    if (userid == "") {
         log:printDebug("No userid found for username: " + username);
-        return null;
+        return "";
     }
     // reads the groups for the userid
-    return config:getInstanceValue(userid, PERMISSIONSTORE_GROUPS_ENTRY);
+    return getPermissionStoreConfigValue(userid, PERMISSIONSTORE_GROUPS_ENTRY);
 }
 
 @Description {value:"Reads the user id for the given username"}
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
 function readUserId (string username) returns (string) {
-    return config:getInstanceValue(username, "userid");
+    return getPermissionStoreConfigValue(username, "userid");
+}
+
+function getPermissionStoreConfigValue (string instanceId, string property) returns (string) {
+    match config:getInstanceValue(instanceId, property) {
+        string value => {
+            return value == null ? "" : value;
+        }
+        any|null => return "";
+    }
 }
