@@ -1,5 +1,5 @@
 
-function testForkJoinReturnAnyType()(int, string) {
+function testForkJoinReturnAnyType() returns (int, string) {
     int p;
     string q;
     string r;
@@ -26,5 +26,5 @@ function testForkJoinReturnAnyType()(int, string) {
     }
     p = 111;
     q = "eeee";
-    return p, q;
+    return (p, q);
 }

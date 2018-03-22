@@ -1,3 +1,3 @@
 import 
-import ballerina.
-import ballerina.lang.
+import ballerina/
+import ballerina/lang.

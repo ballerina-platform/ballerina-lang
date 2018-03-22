@@ -67,6 +67,7 @@ under the License.
             <!--<package name="org.ballerinalang.test.taintchecking.*"/>-->
             <package name="org.ballerinalang.test.config.*"/>
             <package name="org.ballerinalang.test.streaming.*"/>
+            <package name="org.ballerinalang.test.object.*"/>
         </packages>
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">

@@ -1,4 +1,4 @@
-function test1 ()(string, string){
+function test1 () returns (string, string){
     string data;
     try{
         try {
@@ -10,12 +10,12 @@ function test1 ()(string, string){
             throw err;
         }
     } catch (error e) {
-        return e.message, data;
+        return (e.message, data);
     }
-    return "Function end", data;
+    return ("Function end", data);
 }
 
-function test2(int a)(string){
+function test2(int a) returns (string){
     try{
         try {
             error test = { message: "try block error"};
@@ -31,7 +31,7 @@ function test2(int a)(string){
     return "Function end";
 }
 
-function test3()(string){
+function test3() returns (string){
     string data;
     try{
         try {
@@ -52,7 +52,7 @@ struct Test4Val {
     string value;
 }
 
-function test4()(Test4Val){
+function test4() returns (Test4Val){
     Test4Val data = { value : ""};
     try{
         try {
@@ -70,7 +70,7 @@ function test4()(Test4Val){
     return data;
 }
 
-function test5()(string){
+function test5() returns (string){
     string value = "";
     try{
         try {
@@ -92,7 +92,7 @@ function test5()(string){
 }
 
 
-function test6 () (Test4Val) {
+function test6 () returns (Test4Val) {
     Test4Val data = {value:""};
     try {
         try {
@@ -110,7 +110,7 @@ function test6 () (Test4Val) {
     return data;
 }
 
-function test7 () (Test4Val) {
+function test7 () returns (Test4Val) {
     Test4Val data = {value:""};
     try {
         try {
@@ -131,7 +131,7 @@ function test7 () (Test4Val) {
     return data;
 }
 
-function test8 () (string) {
+function test8 () returns (string) {
     try {
         try {
             return "ok";
@@ -144,7 +144,7 @@ function test8 () (string) {
     return "OK";
 }
 
-function test9 () (Test4Val) {
+function test9 () returns (Test4Val) {
     Test4Val data = {value:""};
     try {
         try {
@@ -167,7 +167,7 @@ function test9 () (Test4Val) {
     return data;
 }
 
-function testBreak1 () (Test4Val) {
+function testBreak1 () returns (Test4Val) {
     int i = 0;
     Test4Val data = {value:"s"};
     while (i < 5) {
@@ -185,7 +185,7 @@ function testBreak1 () (Test4Val) {
     return data;
 }
 
-function testNext1 () (Test4Val) {
+function testNext1 () returns (Test4Val) {
     int i = 0;
     Test4Val data = {value:"s"};
     while (i < 5) {

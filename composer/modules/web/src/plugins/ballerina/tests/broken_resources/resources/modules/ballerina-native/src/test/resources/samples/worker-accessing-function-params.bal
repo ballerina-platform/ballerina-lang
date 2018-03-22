@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function testFunctionArgumentAccessFromWorker(int x)(int q) {
     q = testFunctionArgumentAccessFromWorkerVM(x);

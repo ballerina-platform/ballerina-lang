@@ -51,6 +51,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
@@ -416,11 +418,12 @@ public class Generator {
         String subName =
                 param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            if (annotation.getAttributes().size() > 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
-            String attribVal = annotation.getAttributes().get(0).getValue().getValue()
-                    .toString();
+            BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+            String attribVal = bLangLiteral.toString();
             if ((annotation.getAnnotationName().getValue().equals("Param")) &&
                     attribVal.startsWith(subName + ":")) {
                 return attribVal.split(subName + ":")[1].trim();
@@ -438,12 +441,14 @@ public class Generator {
     private static String returnParamAnnotation(BLangNode node, int returnTypeIndex) {
         int currentReturnAnnotationIndex = 0;
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            if (annotation.getAttributes().size() > 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Return")) {
                 if (currentReturnAnnotationIndex == returnTypeIndex) {
-                    return annotation.getAttributes().get(0).getValue().getValue().toString();
+                    BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+                    return bLangLiteral.toString();
                 }
                 currentReturnAnnotationIndex++;
             }
@@ -469,10 +474,12 @@ public class Generator {
         }
 
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            if (annotation.getAttributes().size() > 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
-            String attribVal = annotation.getAttributes().get(0).getValue().getValue().toString();
+            BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+            String attribVal = bLangLiteral.toString();
             if (annotation.getAnnotationName().getValue().equals("Field") && attribVal.startsWith(subName + ":")) {
                 return attribVal.split(subName + ":")[1].trim();
             }
@@ -480,11 +487,13 @@ public class Generator {
         // if the annotation values cannot be found still, return the first matching
         // annotation's value
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            if (annotation.getAttributes().size() > 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Field")) {
-                return annotation.getAttributes().get(0).getValue().getValue().toString();
+                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+                return bLangLiteral.toString();
             }
         }
         return "";
@@ -501,7 +510,9 @@ public class Generator {
 
         for (AnnotationAttachmentNode annotation : annotationAttachments) {
             if ("Field".equals(annotation.getAnnotationName().getValue())) {
-                String value = annotation.getAttributes().get(0).getValue().getValue().toString();
+                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+                String value = bLangLiteral.toString();
                 if (value.startsWith(annotAttribute.getName().getValue())) {
                     String[] valueParts = value.split(":");
                     return valueParts.length == 2 ? valueParts[1] : valueParts[0];
@@ -521,11 +532,13 @@ public class Generator {
             return null;
         }
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            if (annotation.getAttributes().size() > 1) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Description")) {
-                return annotation.getAttributes().get(0).getValue().getValue().toString();
+                BLangExpression bLangLiteral =  bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+                return bLangLiteral.toString();
             }
         }
         return "";

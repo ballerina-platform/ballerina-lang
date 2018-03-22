@@ -1,5 +1,6 @@
-import ballerina.net.http;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/io;
+import ballerina/mime;
 
 endpoint http:ClientEndpoint clientEP {
     targets: [{
@@ -24,8 +25,15 @@ endpoint http:ClientEndpoint clientEP {
 
 function main (string[] args) {
     http:Request req = {};
-    http:Response resp = {};
-    resp, _ = clientEP -> get("/echo/", req);
-    var payload, _ = resp.getStringPayload();
-    io:println(payload);
+    var resp = clientEP -> get("/echo/", req);
+    match resp {
+        http:HttpConnectorError err => io:println(err.message);
+        http:Response response => {
+             match (response.getStringPayload()) {
+                mime:EntityError payloadError => io:println(payloadError.message);
+                string res => io:println(res);
+                any | null => io:println("Error occured");
+             }
+        }
+    }
 }

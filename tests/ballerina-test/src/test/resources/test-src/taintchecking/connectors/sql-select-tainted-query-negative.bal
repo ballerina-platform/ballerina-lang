@@ -1,4 +1,4 @@
-import ballerina.data.sql;
+import ballerina/data.sql;
 
 public function main (string[] args) {
     testSelectWithTaintedQueryNegative(args);

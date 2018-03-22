@@ -125,15 +125,15 @@ public class RuntimeTest {
     @Test
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[{callableName:\"getCallStack\", " +
-                "packageName:\"ballerina.runtime\", fileName:\"<native>\", lineNumber:0}," +
-                " {callableName:\"level2Function\", packageName:\".\", fileName:\"runtime-error.bal\","
-                + " lineNumber:12}," +
-                " {callableName:\"level1Function\", packageName:\".\", fileName:\"runtime-error.bal\","
-                + " lineNumber:8}," +
-                " {callableName:\"testGetCallStack\", packageName:\".\", fileName:\"runtime-error.bal\","
-                + " lineNumber:4}]");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", packageName:\"ballerina" +
+                ".runtime\", fileName:\"<native>\", lineNumber:0}");
+        Assert.assertEquals(returns[1].stringValue(), "{callableName:\"level2Function\", packageName:\".\", " +
+                "fileName:\"runtime-error.bal\", lineNumber:12}");
+        Assert.assertEquals(returns[2].stringValue(), "{callableName:\"level1Function\", packageName:\".\", " +
+                "fileName:\"runtime-error.bal\", lineNumber:8}");
+        Assert.assertEquals(returns[3].stringValue(), "{callableName:\"testGetCallStack\", packageName:\".\", " +
+                "fileName:\"runtime-error.bal\", lineNumber:4}");
     }
 
     @Test

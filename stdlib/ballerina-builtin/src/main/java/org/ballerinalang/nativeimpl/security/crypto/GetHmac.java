@@ -41,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.security.crypto",
+        orgName = "ballerina", packageName = "security.crypto",
         functionName = "getHmac",
         args = {
                 @Argument(name = "baseString", type = TypeKind.STRING),

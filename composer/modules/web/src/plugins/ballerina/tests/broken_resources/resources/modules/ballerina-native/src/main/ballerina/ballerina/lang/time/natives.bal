@@ -1,6 +1,6 @@
 package ballerina.lang.time;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description {value:"Ballerina Timezone struct represents the timezone information associated with a particular time."}
 @doc:Field {value:"zoneId: Zone short ID or offset string."}

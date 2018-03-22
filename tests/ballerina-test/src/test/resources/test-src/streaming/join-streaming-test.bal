@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/runtime;
 
 struct Stock {
     string symbol;
@@ -50,7 +49,7 @@ streamlet joinStreamlet () {
 }
 
 
-function testJoinQuery () (StockWithPrice []) {
+function testJoinQuery () returns (StockWithPrice []) {
 
     joinStreamlet pStreamlet = {};
 
@@ -73,7 +72,6 @@ function testJoinQuery () (StockWithPrice []) {
 }
 
 function printCompanyStockPrice (StockWithPrice s) {
-    io:println("printCompanyStock function invoked for company:" + s.symbol +" and price:"+s.price);
     addToGlobalEventsArray(s);
 }
 

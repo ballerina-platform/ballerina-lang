@@ -33,13 +33,13 @@ public class NativeElementRepository {
     private Map<String, NativeActionDef> nativeActionEntries = new HashMap<>();
     
     public void registerNativeFunction(NativeFunctionDef nativeFuncDef) {
-        this.nativeFuncEntries.put(functionToKey(nativeFuncDef.getPkgName(), 
-                nativeFuncDef.getCallableName()), nativeFuncDef);
+        this.nativeFuncEntries.put(functionToKey(nativeFuncDef.toBvmAlias(),
+                                                 nativeFuncDef.getCallableName()), nativeFuncDef);
     }
     
     public void registerNativeAction(NativeActionDef nativeActionDef) {
-        this.nativeActionEntries.put(actionToKey(nativeActionDef.getPkgName(), 
-                nativeActionDef.getConnectorName(), nativeActionDef.getCallableName()), nativeActionDef);
+        this.nativeActionEntries.put(actionToKey(nativeActionDef.toBvmAlias(), nativeActionDef.getConnectorName(),
+                                                 nativeActionDef.getCallableName()), nativeActionDef);
     }
     
     public static String functionToKey(String pkgName, String functionName) {
@@ -65,6 +65,8 @@ public class NativeElementRepository {
      */
     public static class NativeFunctionDef {
 
+        private String orgName;
+
         private String pkgName;
         
         private String callableName;
@@ -74,9 +76,10 @@ public class NativeElementRepository {
         private TypeKind[] argTypes;
         
         private TypeKind[] retTypes;
-        
-        public NativeFunctionDef(String pkgName, String callableName, TypeKind[] argTypes, 
-                TypeKind[] retTypes, String className) {
+
+        public NativeFunctionDef(String orgName, String pkgName, String callableName, TypeKind[] argTypes,
+                                 TypeKind[] retTypes, String className) {
+            this.orgName = orgName;
             this.pkgName = pkgName;
             this.callableName = callableName;
             this.argTypes = argTypes;
@@ -84,8 +87,9 @@ public class NativeElementRepository {
             this.className = className;
         }
 
-        public String getPkgName() {
-            return pkgName;
+        public String toBvmAlias() {
+            // assume anon org can't expose natives
+            return orgName + '.' + pkgName;
         }
 
         public String getCallableName() {
@@ -114,10 +118,10 @@ public class NativeElementRepository {
     public static class NativeActionDef extends NativeFunctionDef {
 
         private String connectorName;
-        
-        public NativeActionDef(String pkgName, String connectorName, String actionDef, 
-                TypeKind[] argTypes, TypeKind[] retTypes, String className) {
-            super(pkgName, actionDef, argTypes, retTypes, className);
+
+        public NativeActionDef(String orgName, String pkgName, String connectorName, String actionDef,
+                               TypeKind[] argTypes, TypeKind[] retTypes, String className) {
+            super(orgName, pkgName, actionDef, argTypes, retTypes, className);
             this.connectorName = connectorName;
         }
 

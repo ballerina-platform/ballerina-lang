@@ -6,13 +6,13 @@ function lazyInitThrowArrayIndexOutOfBound () {
     x = arr[0];
 }
 
-function lazyInitSizeZero() (string[]) {
+function lazyInitSizeZero() returns (string[]) {
     string[] names = [];
 
     return names;
 }
 
-function addValueToIntArray() (int[]) {
+function addValueToIntArray() returns (int[]) {
     int[] arr = [];
     int x;
     x = 4;
@@ -26,7 +26,7 @@ function addValueToIntArray() (int[]) {
     return arr;
 }
 
-function addValueToFloatArray() (float[]) {
+function addValueToFloatArray() returns (float[]) {
     float[] arr = [];
     arr[0] = -10.0;
     arr[15] = 2.5 ;
@@ -48,19 +48,19 @@ function commnetFunction() {
 // 5) Array grow and size change test
 }
 
-function testDefaultValueOfIntArrayElement() (int, int, int){
+function testDefaultValueOfIntArrayElement() returns (int, int, int){
     int[] a = [];
     a[5] = 45;
-    return a[0], a[1], a[5];
+    return (a[0], a[1], a[5]);
 }
 
-function testDefaultValueOfJsonArrayElement() (json, json, json) {
+function testDefaultValueOfJsonArrayElement() returns (json, json, json) {
     json[] j = [];
     j[5] = {name:"supun"};
-    return j[0], j[1], j[5];
+    return (j[0], j[1], j[5]);
 }
 
-function testArrayGrowth () (int) {
+function testArrayGrowth () returns (int) {
     float value = 100;
     int[] ar = [];
 

@@ -39,7 +39,7 @@ definition
     :   serviceDefinition
     |   functionDefinition
     |   structDefinition
-    |   objectDefinition
+    |   typeDefinition
     |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
@@ -82,11 +82,11 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
     ;
 
 callableUnitSignature
-    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 structDefinition
@@ -101,8 +101,8 @@ privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
 
-objectDefinition
-    :   TYPE_TYPE Identifier OBJECT LEFT_BRACE objectBody RIGHT_BRACE
+typeDefinition
+    :   (PUBLIC)? TYPE_TYPE Identifier typeName
     ;
 
 objectBody
@@ -131,7 +131,7 @@ objectFunctions
 
 // TODO merge with fieldDefinition later
 objectFieldDefinition
-    :   typeName Identifier (COLON simpleLiteral)? (COMMA | SEMICOLON)
+    :   typeName Identifier (COLON expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -157,7 +157,7 @@ objectFunctionDefinition
 
 //TODO merge with callableUnitSignature later
 objectCallableUnitSignature
-    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 
@@ -226,11 +226,17 @@ endpointInitlization
 
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
+    |   annotatedTypeName                                                   # annotatedTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
+    |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
-    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
+    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
+    ;
+
+annotatedTypeName
+    :   annotationAttachment+ simpleTypeName
     ;
 
 // Temporary production rule name
@@ -284,7 +290,7 @@ builtInReferenceTypeName
     ;
 
 functionTypeName
-    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameters?
+    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameter?
     ;
 
 xmlNamespaceName
@@ -341,7 +347,7 @@ recordKeyValue
 
 recordKey
     :   Identifier
-    |   simpleLiteral
+    |   expression
     ;
 
 arrayLiteral
@@ -349,11 +355,12 @@ arrayLiteral
     ;
 
 typeInitExpr
-    :   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
+    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
     ;
 
 tupleDestructuringStatement
@@ -406,8 +413,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT statement
-    |   typeName Identifier EQUAL_GT statement
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
     ;
 
 foreachStatement
@@ -494,6 +501,7 @@ workerReply
 variableReference
     :   nameReference                                                           # simpleVariableReference
     |   functionInvocation                                                      # functionInvocationReference
+    |   awaitExpression                                                         # awaitExpressionReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
@@ -603,7 +611,6 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
@@ -616,7 +623,11 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   AWAIT expression                                                    # awaitExpression    
+    |   awaitExpression                                                     # awaitExprExpression
+    ;
+
+awaitExpression
+    :   AWAIT expression                                                    # awaitExpr
     ;
 
 //reusable productions
@@ -625,8 +636,8 @@ nameReference
     :   (Identifier COLON)? Identifier
     ;
 
-returnParameters
-    : RETURNS (parameterList | parameterTypeNameList)
+returnParameter
+    : RETURNS typeName
     ;
 
 parameterTypeNameList
@@ -634,7 +645,7 @@ parameterTypeNameList
     ;
 
 parameterTypeName
-    :   annotationAttachment* typeName
+    :   typeName
     ;
 
 parameterList
@@ -660,7 +671,7 @@ formalParameterList
     ;
 
 fieldDefinition
-    :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 simpleLiteral

@@ -1,7 +1,7 @@
 package bal.test.intercept.res1;
 
-import ballerina.lang.system;
-import ballerina.lang.messages;
+import ballerina/lang.system;
+import ballerina/lang.messages;
 
 int i = 0;
 

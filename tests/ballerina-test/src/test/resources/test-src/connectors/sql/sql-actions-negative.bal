@@ -1,6 +1,6 @@
-import ballerina.data.sql;
+import ballerina/data.sql;
 
-function testSelectData () (string firstName) {
+function testSelectData () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -10,7 +10,7 @@ function testSelectData () (string firstName) {
         password: "",
         options: {maximumPoolSize:1}
     };
-
+    string firstName;
     try {
         table dt = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
         var j, _ = <json>dt;
@@ -18,11 +18,11 @@ function testSelectData () (string firstName) {
     } finally {
         testDB -> close();
     }
-    return;
+    return firstName;
 }
 
 
-function testGeneratedKeyOnInsert () (string) {
+function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -37,7 +37,7 @@ function testGeneratedKeyOnInsert () (string) {
     try {
         string[] generatedID;
         int insertCount;
-        insertCount, generatedID = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
+        (insertCount, generatedID) = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
                                                                   null, null);
         id = generatedID[0];
@@ -48,7 +48,7 @@ function testGeneratedKeyOnInsert () (string) {
 }
 
 
-function testCallProcedure () (string firstName) {
+function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -58,7 +58,7 @@ function testCallProcedure () (string firstName) {
         password: "",
         options: {maximumPoolSize:1}
     };
-
+    string firstName;
     try {
         _ = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
         table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null, null);
@@ -67,10 +67,10 @@ function testCallProcedure () (string firstName) {
     } finally {
         testDB -> close();
     }
-    return;
+    return firstName;
 }
 
-function testBatchUpdate () (int[]) {
+function testBatchUpdate () returns (int[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -108,7 +108,7 @@ function testBatchUpdate () (int[]) {
     return updateCount;
 }
 
-function testInvalidArrayofQueryParameters () (string value) {
+function testInvalidArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -118,7 +118,7 @@ function testInvalidArrayofQueryParameters () (string value) {
         password: "",
         options: {maximumPoolSize:1}
     };
-
+    string value;
     try {
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
@@ -131,5 +131,5 @@ function testInvalidArrayofQueryParameters () (string value) {
     } finally {
         testDB -> close();
     }
-    return;
+    return value;
 }

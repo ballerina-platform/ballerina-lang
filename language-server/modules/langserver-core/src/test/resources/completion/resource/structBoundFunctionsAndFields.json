@@ -1,222 +1,30 @@
 {
   "position": {
     "line": 5,
-    "character": 12
+    "character": 11
   },
   "source": "resource/source/structBoundFunctionsAndFields.bal",
   "items": [
     {
-      "label":"statusCode",
+      "label":"a",
       "kind":"Unit",
       "detail":"int",
       "sortText":"110",
-      "insertText":"statusCode"
+      "insertText":"a"
     },
     {
-      "label":"reasonPhrase",
+      "label":"b",
       "kind":"Unit",
       "detail":"string",
       "sortText":"110",
-      "insertText":"reasonPhrase"
+      "insertText":"b"
     },
     {
-      "label":"getHeader(string headerName)(string)",
+      "label":"testFunction()",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"getHeader(${1:headerName})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"addHeader(string headerName, string headerValue)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"addHeader(${1:headerName}, ${2:headerValue})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getHeaders(string headerName)(string[])",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getHeaders(${1:headerName})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setHeader(string headerName, string headerValue)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setHeader(${1:headerName}, ${2:headerValue})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"removeHeader(string key)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"removeHeader(${1:key})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"removeAllHeaders()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"removeAllHeaders()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getContentLength()(int)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getContentLength()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getJsonPayload()(json, ballerina.mime:EntityError)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getJsonPayload()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getXmlPayload()(xml, ballerina.mime:EntityError)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getXmlPayload()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getStringPayload()(string, ballerina.mime:EntityError)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getStringPayload()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getBinaryPayload()(blob, ballerina.mime:EntityError)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getBinaryPayload()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getByteChannel()(ballerina.io:ByteChannel, ballerina.mime:EntityError)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getByteChannel()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getMultiparts()(ballerina.mime:Entity[], ballerina.mime:EntityError)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getMultiparts()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setJsonPayload(json payload)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setJsonPayload(${1:payload})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setXmlPayload(xml payload)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setXmlPayload(${1:payload})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setStringPayload(string payload)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setStringPayload(${1:payload})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setBinaryPayload(blob payload)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setBinaryPayload(${1:payload})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setMultiparts(ballerina.mime:Entity[] bodyParts, string contentType)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setMultiparts(${1:bodyParts}, ${2:contentType})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setFileAsPayload(ballerina.file:File fileHandler, string contentType)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setFileAsPayload(${1:fileHandler}, ${2:contentType})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setByteChannel(ballerina.io:ByteChannel payload)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setByteChannel(${1:payload})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getEntity()(ballerina.mime:Entity, ballerina.mime:EntityError)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getEntity()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getEntityWithoutBody()(ballerina.mime:Entity)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getEntityWithoutBody()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setEntity(ballerina.mime:Entity entity)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setEntity(${1:entity})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"setProperty(string propertyName, string propertyValue)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"setProperty(${1:propertyName}, ${2:propertyValue})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"getProperty(string propertyName)(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"getProperty(${1:propertyName})",
+      "insertText":"testFunction()",
       "insertTextFormat":"Snippet"
     }
   ]

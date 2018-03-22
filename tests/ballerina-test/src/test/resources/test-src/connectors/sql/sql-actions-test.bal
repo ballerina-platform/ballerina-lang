@@ -1,5 +1,5 @@
-import ballerina.data.sql;
-import ballerina.time;
+import ballerina/data.sql;
+import ballerina/time;
 
 struct ResultCustomers {
     string FIRSTNAME;
@@ -40,7 +40,7 @@ struct ResultDates {
     string DATETIME_TYPE;
 }
 
-function testInsertTableData () (int) {
+function testInsertTableData () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -57,7 +57,7 @@ function testInsertTableData () (int) {
     return insertCount;
 }
 
-function testCreateTable () (int) {
+function testCreateTable () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -74,7 +74,7 @@ function testCreateTable () (int) {
     return returnValue;
 }
 
-function testUpdateTableData () (int) {
+function testUpdateTableData () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -91,7 +91,7 @@ function testUpdateTableData () (int) {
     return updateCount;
 }
 
-function testGeneratedKeyOnInsert () (string) {
+function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -102,16 +102,14 @@ function testGeneratedKeyOnInsert () (string) {
         options: {maximumPoolSize:1}
     };
 
-    int insertCount;
-    string[] generatedID;
-    insertCount, generatedID = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
-    registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
-    null, null);
+    var (insertCount, generatedID) = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
+    registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", null, null);
+
     testDB -> close();
     return generatedID[0];
 }
 
-function testGeneratedKeyWithColumn () (string) {
+function testGeneratedKeyWithColumn () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -126,14 +124,14 @@ function testGeneratedKeyWithColumn () (string) {
     string[] generatedID;
     string[] keyColumns;
     keyColumns = ["CUSTOMERID"];
-    insertCount, generatedID = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
+    (insertCount, generatedID) = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
                                registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')",
                                                               null, keyColumns);
     testDB -> close();
     return generatedID[0];
 }
 
-function testSelectData () (string firstName) {
+function testSelectData () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -146,15 +144,18 @@ function testSelectData () (string firstName) {
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null,
                              typeof ResultCustomers);
+
+    string firstName;
+
     while (dt.hasNext()) {
         var rs, err = (ResultCustomers)dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
+function testSelectIntFloatData () returns (int, int, float, float) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -167,6 +168,11 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
 
     table dt = testDB -> select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
         where row_id = 1", null, typeof ResultDataType);
+
+    int int_type;
+    int long_type;
+    float float_type;
+    float double_type;
     while (dt.hasNext()) {
         var rs, err = (ResultDataType)dt.getNext();
         int_type = rs.INT_TYPE;
@@ -175,10 +181,10 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
         double_type = rs.DOUBLE_TYPE;
     }
     testDB -> close();
-    return;
+    return (int_type, long_type, float_type, double_type);
 }
 
-function testCallProcedure () (string firstName) {
+function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
                      host: "./target/tempdb/",
@@ -192,15 +198,16 @@ function testCallProcedure () (string firstName) {
     _ = testDB -> call("{call InsertPersonData(100,'James')}", null, null);
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null,
                              typeof ResultCustomers);
+    string firstName;
     while (dt.hasNext()) {
         var rs, err = (ResultCustomers)dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testCallProcedureWithResultSet () (string firstName) {
+function testCallProcedureWithResultSet () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -212,15 +219,16 @@ function testCallProcedureWithResultSet () (string firstName) {
     };
 
     table[] dtArray = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
+    string firstName;
     while (dtArray[0].hasNext()) {
     var rs, err = (ResultCustomers)dtArray[0].getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testCallProcedureWithMultipleResultSets () (string firstName1, string firstName2) {
+function testCallProcedureWithMultipleResultSets () returns (string, string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -232,6 +240,10 @@ function testCallProcedureWithMultipleResultSets () (string firstName1, string f
     };
 
     table[] dtArray = testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
+
+    string firstName1;
+    string firstName2;
+
     while (dtArray[0].hasNext()) {
         var rs, err = (ResultCustomers)dtArray[0].getNext();
         firstName1 = rs.FIRSTNAME;
@@ -243,10 +255,10 @@ function testCallProcedureWithMultipleResultSets () (string firstName1, string f
     }
 
     testDB -> close();
-    return;
+    return (firstName1, firstName2);
 }
 
-function testQueryParameters () (string firstName) {
+function testQueryParameters () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -261,15 +273,18 @@ function testQueryParameters () (string firstName) {
     sql:Parameter[] parameters = [para1];
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = ?", parameters,
     typeof ResultCustomers);
+
+    string firstName;
+
     while (dt.hasNext()) {
     var rs, err = (ResultCustomers)dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testInsertTableDataWithParameters () (int) {
+function testInsertTableDataWithParameters () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -293,7 +308,7 @@ function testInsertTableDataWithParameters () (int) {
     return insertCount;
 }
 
-function testArrayofQueryParameters () (string firstName) {
+function testArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -317,15 +332,16 @@ function testArrayofQueryParameters () (string firstName) {
         lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters,
         typeof ResultCustomers);
 
+    string firstName;
     while (dt.hasNext()) {
         var rs, err = (ResultCustomers)dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB -> close();
-    return;
+    return firstName;
 }
 
-function testBoolArrayofQueryParameters () (int value) {
+function testBoolArrayofQueryParameters () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -358,16 +374,16 @@ function testBoolArrayofQueryParameters () (int value) {
     table dt = testDB -> select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
         blob_type in (?)", parameters, typeof ResultIntType);
 
+    int value;
     while (dt.hasNext()) {
     var rs, err = (ResultIntType)dt.getNext();
         value = rs.INT_TYPE;
     }
     testDB -> close();
-    return;
+    return value;
 }
 
-function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
-    map boolean_arr, map float_arr) {
+function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -393,6 +409,14 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
     sql:Parameter para7 = {sqlType:sql:Type.ARRAY, value:stringArray};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
 
+    int insertCount;
+    map int_arr;
+    map long_arr;
+    map double_arr;
+    map string_arr;
+    map boolean_arr;
+    map float_arr;
+
     insertCount = testDB -> update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", parameters);
 
@@ -409,10 +433,10 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
         float_arr = rs.FLOAT_ARRAY;
     }
     testDB -> close();
-    return;
+    return (insertCount, int_arr, long_arr, double_arr, string_arr, boolean_arr, float_arr);
 }
 
-function testOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -446,12 +470,12 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
 
     testDB -> close();
 
-    return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
+    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBlob.value, paraBinary.value;
+    paraBlob.value, paraBinary.value);
 }
 
-function testNullOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testNullOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
                  host: "./target/tempdb/",
@@ -482,12 +506,12 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
     _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
     testDB -> close();
-    return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
+    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-           paraBlob.value, paraBinary.value;
+           paraBlob.value, paraBinary.value);
 }
 
-function testINParameters () (int) {
+function testINParameters () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -523,7 +547,7 @@ function testINParameters () (int) {
     return insertCount;
 }
 
-function testNullINParameterValues () (int) {
+function testNullINParameterValues () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -559,29 +583,28 @@ function testNullINParameterValues () (int) {
     return insertCount;
 }
 
-function testNullINParameters () (int) {
-    endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
-        username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
-    };
+//function testNullINParameters () returns (int) {
+//    endpoint sql:Client testDB {
+//        database: sql:DB.HSQLDB_FILE,
+//        host: "./target/tempdb/",
+//        port: 0,
+//        name: "TEST_SQL_CONNECTOR",
+//        username: "SA",
+//        password: "",
+//        options: {maximumPoolSize:1}
+//    };
+//    (sql:Parameter) paraID = {sqlType:sql:Type.INTEGER, value:10};
+//
+//    (sql:Parameter | null)[] parameters = [paraID, null, null, null, null, null, null, null,
+//                                  null, null, null, null, null, null, null];
+//    int insertCount = testDB -> update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
+//                float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
+//                smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+//    testDB -> close();
+//    return insertCount;
+//}
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:10};
-
-    sql:Parameter[] parameters = [paraID, null, null, null, null, null, null, null,
-                                  null, null, null, null, null, null, null];
-    int insertCount = testDB -> update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
-                float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-                smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
-    testDB -> close();
-    return insertCount;
-}
-
-function testINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testINOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -612,12 +635,12 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
     _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
     testDB -> close();
-    return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
+    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-           paraBlob.value, paraBinary.value;
+           paraBlob.value, paraBinary.value);
 }
 
-function testNullINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testNullINOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -648,12 +671,12 @@ function testNullINOutParameters () (any, any, any, any, any, any, any, any, any
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
     _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
     testDB -> close();
-    return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
+    return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-           paraBlob.value, paraBinary.value;
+           paraBlob.value, paraBinary.value);
 }
 
-function testEmptySQLType () (int) {
+function testEmptySQLType () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -671,7 +694,7 @@ function testEmptySQLType () (int) {
     return insertCount;
 }
 
-function testArrayOutParameters () (any, any, any, any, any, any) {
+function testArrayOutParameters () returns (any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -692,10 +715,10 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
     _ = testDB -> call("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters, null);
     testDB -> close();
-    return para1.value, para2.value, para3.value, para4.value, para5.value, para6.value;
+    return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
 }
 
-function testArrayInOutParameters () (any, any, any, any, any, any, any) {
+function testArrayInOutParameters () returns (any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -718,10 +741,10 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
 
     _ = testDB -> call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters, null);
     testDB -> close();
-    return para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value;
+    return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
 
-function testBatchUpdate () (int[]) {
+function testBatchUpdate () returns (int[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -756,7 +779,7 @@ function testBatchUpdate () (int[]) {
     return updateCount;
 }
 
-function testBatchUpdateWithFailure () (int[] updateCount, int count) {
+function testBatchUpdateWithFailure () returns (int[], int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -805,6 +828,9 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
 
     sql:Parameter[][] parameters = [parameters1, parameters2, parameters3, parameters4];
 
+    int[] updateCount;
+    int count;
+
     updateCount = testDB -> batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
         country) values (?,?,?,?,?,?)", parameters);
     table dt = testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", null, typeof ResultCount);
@@ -814,10 +840,10 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
     }
 
     testDB -> close();
-    return updateCount, count;
+    return (updateCount, count);
 }
 
-function testBatchUpdateWithNullParam () (int[]) {
+function testBatchUpdateWithNullParam () returns (int[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -835,7 +861,7 @@ function testBatchUpdateWithNullParam () (int[]) {
     return updateCount;
 }
 
-function testDateTimeInParameters () (int[]) {
+function testDateTimeInParameters () returns (int[]) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -883,7 +909,7 @@ function testDateTimeInParameters () (int[]) {
     return returnValues;
 }
 
-function testDateTimeNullInValues () (string data) {
+function testDateTimeNullInValues () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -906,15 +932,17 @@ function testDateTimeNullInValues () (string data) {
 
     table dt = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 33", null, typeof ResultDates);
+    string data;
+
     var j, _ = <json>dt;
     data = j.toString();
 
     testDB -> close();
-    return;
+    return data;
 }
 
 
-function testDateTimeNullOutValues () (int count) {
+function testDateTimeNullOutValues () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -940,6 +968,8 @@ function testDateTimeNullOutValues () (int count) {
 
     _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, null);
 
+    int count;
+
     table dt = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
@@ -947,10 +977,10 @@ function testDateTimeNullOutValues () (int count) {
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return count;
 }
 
-function testDateTimeNullInOutValues () (any, any, any, any) {
+function testDateTimeNullInOutValues () returns (any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -971,10 +1001,10 @@ function testDateTimeNullInOutValues () (any, any, any, any) {
 
     _ = testDB -> call("{call TestDateINOUTParams(?,?,?,?,?)}", parameters, null);
     testDB -> close();
-    return para2.value, para3.value, para4.value, para5.value;
+    return (para2.value, para3.value, para4.value, para5.value);
 }
 
-function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
+function testDateTimeOutParams (int time, int date, int timestamp) returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -1002,15 +1032,17 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
 
     table dt = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", null,
                              typeof ResultCount);
+
+    int count;
     while (dt.hasNext()) {
         var rs, _ = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return count;
 }
 
-function testStructOutParameters () (any) {
+function testStructOutParameters () returns (any) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -1028,7 +1060,7 @@ function testStructOutParameters () (any) {
     return para1.value;
 }
 
-function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4) {
+function testComplexTypeRetrieval () returns (string, string, string, string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -1038,6 +1070,11 @@ function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4
         password: "",
         options: {maximumPoolSize:1}
     };
+
+    string s1;
+    string s2;
+    string s3;
+    string s4;
 
     table dt = testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
     var x, _ = <xml>dt;
@@ -1056,10 +1093,10 @@ function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4
     s4 = j.toString();
 
     testDB -> close();
-    return;
+    return (s1, s2, s3, s4);
 }
 
-function testCloseConnectionPool () (int count) {
+function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -1073,10 +1110,11 @@ function testCloseConnectionPool () (int count) {
 
     table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
     typeof ResultCount);
+    int count;
     while (dt.hasNext()) {
         var rs, err = (ResultCount)dt.getNext();
         count = rs.COUNTVAL;
     }
     testDB -> close();
-    return;
+    return count;
 }

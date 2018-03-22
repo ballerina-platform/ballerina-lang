@@ -480,14 +480,17 @@ public class CommonUtil {
                                                 WorkspaceDocumentManager docManager) {
         // TODO: Need to support service and resources as well.
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
-                "transformer");
+                "transformer", "object");
         String fileContent = docManager.getFileContent(getPath(identifier.getUri()));
-        String lineContent = fileContent.split("\\n|\\r\\n|\\r")[startPosition.getLine()];
-        List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
+        String[] splitedFileContent = fileContent.split("\\n|\\r\\n|\\r");
+        if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
+            String lineContent = splitedFileContent[startPosition.getLine()];
+            List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
-        for (String topLevelKeyword : topLevelKeywords) {
-            if (alphaNumericTokens.contains(topLevelKeyword)) {
-                return topLevelKeyword;
+            for (String topLevelKeyword : topLevelKeywords) {
+                if (alphaNumericTokens.contains(topLevelKeyword)) {
+                    return topLevelKeyword;
+                }
             }
         }
 
