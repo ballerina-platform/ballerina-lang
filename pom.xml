@@ -196,6 +196,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-websub</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-core</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -223,6 +228,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>swagger-to-ballerina-generator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>protobuf-ballerina</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -670,6 +680,57 @@
                 <artifactId>mimepull</artifactId>
                 <version>${mimepull.version}</version>
             </dependency>
+            <!-- gRPC support for ballerina -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-context</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-core</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf-lite</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opencensus</groupId>
+                <artifactId>opencensus-api</artifactId>
+                <version>${io.opencensus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opencensus</groupId>
+                <artifactId>opencensus-contrib-grpc-metrics</artifactId>
+                <version>${io.opencensus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${com.google.protobuf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-grpc</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
 
             <!-- Siddhi Stream Dependencies -->
             <dependency>
@@ -816,7 +877,9 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -832,7 +895,7 @@
                 <module>misc/swagger-ballerina</module>
                 <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
-
+                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>
@@ -853,7 +916,9 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -867,6 +932,7 @@
                 <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
+                <module>misc/protobuf-ballerina</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -884,7 +950,9 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -901,7 +969,7 @@
                 <module>misc/swagger-ballerina</module>
                 <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
-
+                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>
@@ -1171,6 +1239,11 @@
                     <artifactId>docerina-maven-plugin</artifactId>
                     <version>${ballerina.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.xolstice.maven.plugins</groupId>
+                    <artifactId>protobuf-maven-plugin</artifactId>
+                    <version>${protobuf.maven.plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -1245,7 +1318,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.112</transport.http.version>
+        <transport.http.version>6.0.114</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1340,6 +1413,13 @@
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
+
+        <!-- gRPC support for microservice -->
+        <io.grpc.version>1.10.0</io.grpc.version>
+        <com.google.protobuf.version>3.5.1</com.google.protobuf.version>
+        <protobuf.maven.plugin.version>0.5.0</protobuf.maven.plugin.version>
+        <io.opencensus.version>0.11.0</io.opencensus.version>
+        <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
         <mvel2.version>2.2.1.Final</mvel2.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>

@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.file;
+import ballerina/io;
+import ballerina/file;
 
 function main (string[] args) {
     file:File target = {path:"/tmp/result.txt"};
@@ -7,15 +7,21 @@ function main (string[] args) {
 
     io:ByteChannel bchannel = target.openChannel(args[0]);
     int intArg;
-    intArg, _ = <int> args[0];
-
-    blob data;
-    int len;
-    data, len, _ = bchannel.read(intArg, intArg);
-
-    testFunction(data, data);
+    (intArg, _) = <int> args[0];
+    
+    var readOutput = bchannel.read(intArg);
+    match readOutput {
+        (blob,int) data => {
+            blob readData;
+            int readLen;
+            (readData, readLen) = data;
+            testFunction(readData, readData);
+        }
+        io:IOError ioError => return;
+    }
 }
 
 public function testFunction (@sensitive any sensitiveValue, any anyValue) {
 
 }
+

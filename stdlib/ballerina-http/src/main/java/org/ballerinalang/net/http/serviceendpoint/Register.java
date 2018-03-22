@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -37,11 +38,11 @@ import org.ballerinalang.net.http.WebSocketService;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
 public class Register extends AbstractHttpNativeFunction {
@@ -57,8 +58,10 @@ public class Register extends AbstractHttpNativeFunction {
             getHttpServicesRegistry(connectorEndpoint).registerService(service);
         }
 
-        if (WebSocketConstants.WEBSOCKET_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            getWebSocketServicesRegistry(connectorEndpoint).registerService(new WebSocketService(service));
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+            WebSocketService webSocketService = new WebSocketService(service);
+            webSocketService.setServiceEndpoint((BStruct) connectorEndpoint.getVMValue());
+            getWebSocketServicesRegistry(connectorEndpoint).registerService(webSocketService);
         }
 
         context.setReturnValues();

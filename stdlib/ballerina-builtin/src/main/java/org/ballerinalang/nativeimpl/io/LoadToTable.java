@@ -27,7 +27,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
@@ -59,7 +59,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 0.966.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "loadToTable",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
@@ -82,13 +82,13 @@ public class LoadToTable implements NativeCallableUnit {
             path = Paths.get(filePath);
         } catch (InvalidPathException e) {
             String msg = "Unable to resolve the file path[" + filePath + "]: " + e.getMessage();
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
             callback.notifySuccess();
             return;
         }
         if (Files.notExists(path)) {
             String msg = "Unable to find a file in given path: " + filePath;
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
             callback.notifySuccess();
             return;
         }
@@ -104,7 +104,7 @@ public class LoadToTable implements NativeCallableUnit {
         } catch (IOException e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
         }
     }
 
@@ -121,15 +121,15 @@ public class LoadToTable implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
-            context.setReturnValues(null, errorStruct);
+            context.setReturnValues(errorStruct);
         } else {
             try {
                 List records = result.getResponse();
                 table = getbTable(context, records);
-                context.setReturnValues(table, null);
+                context.setReturnValues(table);
             } catch (Throwable e) {
                 errorStruct = IOUtils.createError(context, e.getMessage());
-                context.setReturnValues(null, errorStruct);
+                context.setReturnValues(errorStruct);
             }
         }
         CallableUnitCallback callback = eventContext.getCallback();
@@ -138,7 +138,7 @@ public class LoadToTable implements NativeCallableUnit {
     }
 
     private static BTable getbTable(Context context, List records) throws BallerinaIOException {
-        BTypeValue type = (BTypeValue) context.getRefArgument(0);
+        BTypeDescValue type = (BTypeDescValue) context.getRefArgument(0);
         BTable table = new BTable(new BTableType(type.value()));
         BStructType structType = (BStructType) type.value();
         boolean skipHeaderLine = context.getBooleanArgument(0);

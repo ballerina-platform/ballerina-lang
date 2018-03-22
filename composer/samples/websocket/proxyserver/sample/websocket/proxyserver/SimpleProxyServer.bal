@@ -1,7 +1,7 @@
 package sample.websocket.proxyserver;
 
-import ballerina.io;
-import ballerina.net.ws;
+import ballerina/io;
+import ballerina/net.ws;
 
 @ws:configuration {
     basePath:"/proxy/ws",

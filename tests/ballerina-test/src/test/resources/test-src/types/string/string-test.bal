@@ -1,116 +1,116 @@
-function contains(string source, string substring) (boolean) {
+function contains(string source, string substring) returns (boolean) {
     return source.contains(substring);
 }
 
-function equalsIgnoreCase(string s1, string s2) (boolean) {
+function equalsIgnoreCase(string s1, string s2) returns (boolean) {
     return s1.equalsIgnoreCase(s2);
 }
 
-function hasPrefix(string s, string prefix) (boolean) {
+function hasPrefix(string s, string prefix) returns (boolean) {
     return s.hasPrefix(prefix);
 }
 
-function hasSuffix(string s, string suffix) (boolean) {
+function hasSuffix(string s, string suffix) returns (boolean) {
     return s.hasSuffix(suffix);
 }
 
-function indexOf(string s, string str) (int) {
+function indexOf(string s, string str) returns (int) {
     return s.indexOf(str);
 }
 
-function lastIndexOf(string s, string str) (int) {
+function lastIndexOf(string s, string str) returns (int) {
     return s.lastIndexOf(str);
 }
 
-function replace(string s, string source, string target) (string) {
+function replace(string s, string source, string target) returns (string) {
     return s.replace(source, target);
 }
 
-function replaceAll(string s, string source, string target) (string) {
+function replaceAll(string s, string source, string target) returns (string) {
     return s.replaceAll(source, target);
 }
 
-function replaceFirst(string s, string source, string target) (string) {
+function replaceFirst(string s, string source, string target) returns (string) {
     return s.replaceFirst(source, target);
 }
 
-function subString(string s, int beginIndex, int endIndex) (string) {
+function subString(string s, int beginIndex, int endIndex) returns (string) {
     return s.subString(beginIndex, endIndex);
 }
 
-function toLowerCase(string s) (string) {
+function toLowerCase(string s) returns (string) {
     return s.toLowerCase();
 }
 
-function toUpperCase(string s) (string) {
+function toUpperCase(string s) returns (string) {
     return s.toUpperCase();
 }
 
-function trim(string s) (string) {
+function trim(string s) returns (string) {
     return s.trim();
 }
 
-function intValueOf(int i) (string) {
+function intValueOf(int i) returns (string) {
     return <string>(i);
 }
 
-function floatValueOf(float f) (string) {
+function floatValueOf(float f) returns (string) {
     return <string>(f);
 }
 
-function booleanValueOf(boolean b) (string) {
+function booleanValueOf(boolean b) returns (string) {
     return <string>(b);
 }
 
-function stringValueOf(string s) (string) {
+function stringValueOf(string s) returns (string) {
     return <string>(s);
 }
 
-function xmlValueOf(xml x) (string) {
+function xmlValueOf(xml x) returns (string) {
     return <string>(x);
 }
 
-function jsonValueOf(json j) (string) {
+function jsonValueOf(json j) returns (string) {
     return j.toString();
 }
 
-function length(string j) (int) {
+function length(string j) returns (int) {
     return j.length();
 }
 
-function unescape(string j) (string) {
+function unescape(string j) returns (string) {
     return j.unescape();
 }
 
-function split(string j, string k) (string[]) {
+function split(string j, string k) returns (string[]) {
     return j.split(k);
 }
 
-function toBlob(string l, string m) (blob) {
+function toBlob(string l, string m) returns (blob) {
     return l.toBlob(m);
 }
 
-function nullInString() (string, string) {
+function nullInString() returns (string, string) {
     string s1;
     string s2 = null;
-    return s1, s2;
+    return (s1, s2);
 }
 
-function concatNullString() (string) {
+function concatNullString() returns (string) {
     string s1;
     string s2 = null;
     return s1 + s2;
 }
 
-function compareNullStringWithNull() (boolean, boolean, boolean, boolean, 
+function compareNullStringWithNull() returns (boolean, boolean, boolean, boolean,
                               boolean, boolean, boolean, boolean) {
     string s1;
     string s2 = null;
-    return s1 == null, null == s1, s1 != null, null != s1, s2 == null, null == s2, s2 != null, null != s2;
+    return (s1 == "", "" == s1, s1 != "", "" != s1, s2 == null, null == s2, s2 != null, null != s2);
 }
 
-function compareNotNullStringWithNull() (boolean, boolean, boolean, boolean) {
+function compareNotNullStringWithNull() returns (boolean, boolean, boolean, boolean) {
     string s1 = "hello";
     string s2 = null;
-    return s1 == null, s1 != null, s1 == s2, s1 != s2;
+    return (s1 == null, s1 != null, s1 == s2, s1 != s2);
 }

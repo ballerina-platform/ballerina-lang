@@ -14,29 +14,56 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/io;
 
-@http:configuration {
-    basePath:"/",
+endpoint http:ServiceEndpoint initiatorEP {
     port:8888
-}
-service<http> InitiatorService {
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {
+    basePath:"/"
+}
+service<http:Service> InitiatorService bind initiatorEP {
+
+    @http:ResourceConfig {
         path:"/"
     }
-    resource member (http:Connection conn, http:Request req) {
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:8889/participant1", {});
-        }
-        http:Request newReq = {};
-        http:Response clientResponse1;
+    member (endpoint conn, http:Request req) {
+        endpoint http:ClientEndpoint ep {
+            targets: [{uri: "http://localhost:8889/participant1"}]
+        };
         transaction {
-            clientResponse1, _ = endPoint.get("/", newReq);
-        } failed {
+            http:Request newReq = {};
+            var getResult = ep -> get("/", newReq);
+            match getResult {
+                error err => {
+                    sendErrorResponseToCaller(conn);
+                    abort;
+                }
+                http:Response participant1Res => {
+                    var fwdResult = conn -> forward(participant1Res); 
+                    match fwdResult {
+                        error err => {
+                            io:print("Could not forward response to caller:");
+                            io:println(err);
+                        }
+                    }
+                }
+            }
+        } onretry {
             io:println("Intiator failed");
         }
-        _ = conn.forward(clientResponse1);
+    }
+}
+
+function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
+    http:Response errRes = {statusCode: 500};
+    var respondResult = conn -> respond(errRes); 
+    match respondResult {
+        error respondErr => {
+            io:print("Could not send error response to caller:");
+            io:println(respondErr);
+        }
     }
 }

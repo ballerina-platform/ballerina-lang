@@ -94,7 +94,7 @@ public class IOTest {
         Assert.assertEquals(expectedBytes, readBytes.blobValue());
 
         //Request for a get, the bytes will be empty
-        expectedBytes = new byte[3];
+        expectedBytes = new byte[0];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BBlob) returns[0];
@@ -111,7 +111,7 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         String expectedCharacters = "aaa";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
@@ -148,7 +148,7 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
                 new BString("\n"), new BString(",")};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
 
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -188,7 +188,7 @@ public class IOTest {
         BValue[] args = {new BString(sourceToWrite), new BString("w")};
         BRunUtil.invoke(bytesInputOutputProgramFile, "initFileChannel", args);
 
-        args = new BValue[]{new BBlob(content), new BInteger(0), new BInteger(content.length)};
+        args = new BValue[]{new BBlob(content), new BInteger(0)};
         BRunUtil.invoke(bytesInputOutputProgramFile, "writeBytes", args);
 
         BRunUtil.invoke(bytesInputOutputProgramFile, "close");
@@ -201,7 +201,7 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         args = new BValue[]{new BString(content), new BInteger(0)};
         BRunUtil.invoke(characterInputOutputProgramFile, "writeCharacters", args);
@@ -218,7 +218,7 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"), new BString("\n"), new
                 BString(",")};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
 
         args = new BValue[]{record};
         BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);

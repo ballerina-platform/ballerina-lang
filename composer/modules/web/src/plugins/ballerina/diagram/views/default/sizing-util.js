@@ -282,8 +282,7 @@ class SizingUtil {
      *
      */
     sizeCompilationUnitNode(node) {
-        // Compilation unit height will be calculated by the postion util.
-        this.sizePackageDeclarationNode(node);
+
     }
 
 
@@ -306,77 +305,7 @@ class SizingUtil {
      *
      */
     sizeEnumNode(node) {
-        const viewState = node.viewState;
-        const enumerators = node.getEnumerators();
-        const components = {};
-        // Initial statement height include panel heading and panel padding and minus 100 as this is a enum.
-        const bodyHeight = this.config.enumPanel.height;
-        // Set the width initial value to the padding left and right
-        const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
-
-        let textWidth = this.getTextWidth(name);
-        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
-            + this.config.panelHeading.iconSize.width;
-        viewState.trimmedTitle = textWidth.text;
-        components.heading = new SimpleBBox();
-        components.body = new SimpleBBox();
-        components.annotation = new SimpleBBox();
-        components.heading.h = this.config.panel.heading.height;
-        if (node.viewState.collapsed) {
-            components.body.h = 0;
-        } else {
-            components.body.h = bodyHeight;
-        }
-
-        if (_.isNil(node.viewState.showAnnotationContainer)) {
-            node.viewState.showAnnotationContainer = true;
-        }
-
-        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
-
-        components.body.w = bodyWidth;
-        components.annotation.w = bodyWidth;
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
-        viewState.components = components;
-        viewState.components.heading.w += viewState.titleWidth + this.config.enumPanel.titleWidthOffset;
-        viewState.bBox.w = this.config.enumPanel.width + (this.config.panel.wrapper.gutter.h * 2);
-        textWidth = this.getTextWidth(node.getName().value);
-        viewState.titleWidth = textWidth.w;
-        viewState.trimmedTitle = textWidth.text;
-        if (!node.viewState.collapsed) {
-            viewState.bBox.h += this.config.panel.body.padding.top;
-        }
-        const enumMaxWidth = viewState.bBox.w - this.config.panel.body.padding.right
-            - this.config.panel.body.padding.left;
-
-        const identifierHeight = viewState.bBox.h - (this.config.panel.body.padding.top
-            + this.config.contentOperations.height + 10 + components.heading.h + components.annotation.h);
-
-        if (enumerators && enumerators.length > 0) {
-            let previousHeight = 25;
-            let previousWidth = 120;
-            enumerators.forEach((enumerator) => {
-                if (TreeUtil.isEnumerator(enumerator)) {
-                    // Adjust the container height as to the enumerator list.
-                    if (previousWidth > enumMaxWidth
-                        || (previousWidth + enumerator.viewState.w) > enumMaxWidth) {
-                        previousHeight += enumerator.viewState.h
-                            + this.config.enumIdentifierStatement.padding.top;
-                        previousWidth = enumerator.viewState.w
-                            + enumerator.viewState.components.deleteIcon.w
-                            + this.config.enumIdentifierStatement.padding.left;
-
-                        if (previousHeight >= identifierHeight && !node.viewState.collapsed) {
-                            node.viewState.bBox.h += enumerator.viewState.h;
-                        }
-                    } else {
-                        previousWidth += enumerator.viewState.w
-                            + enumerator.viewState.components.deleteIcon.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                    }
-                }
-            });
-        }
+        // Do nothing
     }
 
 
@@ -387,16 +316,7 @@ class SizingUtil {
      *
      */
     sizeEnumeratorNode(node) {
-        // For argument parameters and return types in the panel decorator
-        const paramViewState = node.viewState;
-        paramViewState.w = this.getTextWidth(node.getSource(true), 0).w + 15;
-        paramViewState.h = this.config.enumIdentifierStatement.height;
-        paramViewState.components.expression = this.getTextWidth(node.getSource(true), 0);
-
-        // Creating component for delete icon.
-        paramViewState.components.deleteIcon = {};
-        paramViewState.components.deleteIcon.w = 15;
-        paramViewState.components.deleteIcon.h = 15;
+        // Do nothing
     }
 
 
@@ -584,89 +504,8 @@ class SizingUtil {
      *
      */
     sizePackageDeclarationNode(node) {
-        const viewState = node.viewState;
-        const topGutter = 10;
-        const topBarHeight = 25;
-        const importInputHeight = 40;
-        viewState.components.topLevelNodes = new SimpleBBox();
 
-        let height = 0;
-        const astRoot = node;
-
-        if (viewState.importsExpanded) {
-            const imports = astRoot.filterTopLevelNodes({ kind: 'Import' });
-
-            height += topGutter + topBarHeight + importInputHeight +
-                (imports.length * this.config.packageDefinition.importDeclaration.itemHeight);
-        }
-
-        if (viewState.globalsExpanded) {
-            const globals = astRoot.filterTopLevelNodes({ kind: 'Variable' })
-                .concat(astRoot.filterTopLevelNodes({ kind: 'Xmlns' }));
-            globals.forEach((global) => {
-                const text = this.getTextWidth(global.getSource(true), 0, 292).text;
-                global.viewState.globalText = text;
-            });
-            height += topGutter + topBarHeight + importInputHeight +
-                (globals.length * this.config.packageDefinition.importDeclaration.itemHeight);
-        }
-
-        viewState.components.topLevelNodes.h = height;
-        viewState.components.topLevelNodes.w = 0;
-
-        viewState.components = viewState.components || {};
-        viewState.components.importDeclaration = this._getImportDeclarationBadgeViewState(node);
-        viewState.components.importsExpanded = this._getImportDeclarationExpandedViewState(node);
     }
-
-    _getImportDeclarationExpandedViewState() {
-        return {
-            importDeclarationHeight: 30,
-            importInputHeight: 40,
-            topBarHeight: 25,
-        };
-    }
-
-    _getImportDeclarationBadgeViewState(node) {
-        const headerHeight = 35;
-        const leftPadding = 10;
-        const iconSize = 20;
-        const importNoFontSize = 13;
-        const noOfImportsLeftPadding = 12;
-        const iconLeftPadding = 12;
-        const noOfImportsBGHeight = 18;
-        const importLabelWidth = 48.37;
-        const noOfImportsTextPadding = 10;
-        const importDecDecoratorWidth = 3;
-        if (TreeUtil.isPackageDeclaration(node)) {
-            node = node.parent;
-        }
-        const imports = node.filterTopLevelNodes({ kind: 'Import' });
-        const noOfImports = imports.length;
-
-        const noOfImportsTextWidth = this.getOnlyTextWidth(noOfImports, { fontSize: importNoFontSize });
-        const noOfImportsBGWidth = Math.max(noOfImportsTextWidth + noOfImportsTextPadding, noOfImportsBGHeight);
-
-        const badgeWidth = leftPadding + importLabelWidth + noOfImportsLeftPadding + noOfImportsTextWidth +
-            iconLeftPadding + iconSize + leftPadding;
-
-        return {
-            headerHeight,
-            leftPadding,
-            iconSize,
-            importNoFontSize,
-            noOfImportsLeftPadding,
-            iconLeftPadding,
-            noOfImportsBGHeight,
-            importLabelWidth,
-            noOfImportsTextPadding,
-            noOfImportsTextWidth,
-            noOfImportsBGWidth,
-            badgeWidth,
-            importDecDecoratorWidth,
-        };
-    }
-
 
     /**
      * Calculate dimention of RecordLiteralKeyValue nodes.
@@ -850,18 +689,6 @@ class SizingUtil {
         });
     }
 
-    _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
-        let newTotalStructH = this.config.panel.body.padding.top + this.config.panel.body.padding.top;
-        children.forEach(() => {
-            newTotalStructH += this.config.structDefinitionStatement.height;
-        });
-
-        if (!collapsed && newTotalStructH > components.body.h) {
-            components.body.h = newTotalStructH;
-            bBox.h += (newTotalStructH - components.body.h);
-        }
-    }
-
     /**
      * Calculate dimention of Struct nodes.
      *
@@ -869,46 +696,7 @@ class SizingUtil {
      *
      */
     sizeStructNode(node) {
-        const viewState = node.viewState;
-        const components = {};
-        // Initial statement height include panel heading and panel padding.
-        const bodyHeight = this.config.innerPanel.body.height;
-        // Set the width initial value to the padding left and right
-        const bodyWidth = this.config.panel.body.padding.left + this.config.panel.body.padding.right;
 
-        let textWidth = this.getTextWidth(name);
-        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
-            + this.config.panelHeading.iconSize.width;
-        viewState.trimmedTitle = textWidth.text;
-        components.heading = new SimpleBBox();
-        components.body = new SimpleBBox();
-        components.annotation = new SimpleBBox();
-        components.heading.h = this.config.panel.heading.height;
-        if (node.viewState.collapsed) {
-            components.body.h = 0;
-        } else {
-            components.body.h = bodyHeight;
-        }
-
-        if (_.isNil(node.viewState.showAnnotationContainer)) {
-            node.viewState.showAnnotationContainer = true;
-        }
-
-        components.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
-
-        components.body.w = bodyWidth;
-        components.annotation.w = bodyWidth;
-        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
-        viewState.components = components;
-        viewState.components.heading.w += viewState.titleWidth + 100;
-        viewState.bBox.w = 600 + (this.config.panel.wrapper.gutter.h * 2);
-        textWidth = this.getTextWidth(node.getName().value);
-        viewState.titleWidth = textWidth.w;
-        viewState.trimmedTitle = textWidth.text;
-        if (!node.viewState.collapsed) {
-            viewState.bBox.h += this.config.panel.body.padding.top;
-        }
-        this._calculateChildrenDimensions(node.getFields(), components, viewState.bBox, node.viewState.collapsed);
     }
 
 
@@ -1852,6 +1640,15 @@ class SizingUtil {
             }
             if (TreeUtil.isVariableDef(node)) {
                 const exp = node.variable.getInitialExpression();
+                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                    return arg.getSource();
+                }).join(', ');
+                const displayText = this.getTextWidth(argExpSource, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
+            if (TreeUtil.isExpressionStatement(node)) {
+                const exp = node.getExpression();
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
                     return arg.getSource();
                 }).join(', ');

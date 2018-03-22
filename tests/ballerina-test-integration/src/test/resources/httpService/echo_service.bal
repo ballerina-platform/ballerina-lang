@@ -1,23 +1,30 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/io;
 
-endpoint<http:Service> echoEP {
+endpoint http:ServiceEndpoint echoEP {
     port:9090
-}
+};
 
-@http:serviceConfig {
-    basePath:"/echo",
-    endpoints:[echoEP]
+@http:ServiceConfig {
+    basePath:"/echo"
 }
-service<http:Service> echo {
+service<http:Service> echo bind echoEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:ServerConnector conn, http:Request req) {
-        http:Response resp = {};
-        var payload, _ = req.getStringPayload();
-        resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+    echo (endpoint outboundEP, http:Request req) {
+        var payload = req.getStringPayload();
+        match payload {
+            string payloadValue => {
+                http:Response resp = {};
+                resp.setStringPayload(payloadValue);
+                _ = outboundEP -> respond(resp);
+            }
+            any | null => {
+                io:println("Error while fetching string payload");
+            }
+        }
     }
 }

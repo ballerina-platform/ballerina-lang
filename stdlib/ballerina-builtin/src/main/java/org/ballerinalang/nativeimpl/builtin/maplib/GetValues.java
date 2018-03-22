@@ -37,7 +37,7 @@ import java.util.Set;
  * ballerina.model.map:values()
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "map.values",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},

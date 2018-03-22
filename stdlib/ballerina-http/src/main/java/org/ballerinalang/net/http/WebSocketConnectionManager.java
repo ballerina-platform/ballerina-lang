@@ -29,7 +29,7 @@ public class WebSocketConnectionManager {
     private static final WebSocketConnectionManager CONNECTION_MANAGER = new WebSocketConnectionManager();
 
     // Map <sessionId, WebSocketConnectionStruct>
-    private final Map<String, WebSocketOpenConnectionInfo> wsConnectionsMap = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketService> wsConnectionsMap = new ConcurrentHashMap<>();
 
     private WebSocketConnectionManager() {
     }
@@ -38,15 +38,15 @@ public class WebSocketConnectionManager {
         return CONNECTION_MANAGER;
     }
 
-    public WebSocketOpenConnectionInfo getConnectionInfo(String connectionID) {
+    public WebSocketService getWebSocketService(String connectionID) {
         return wsConnectionsMap.get(connectionID);
     }
 
-    public void addConnection(String connectionID, WebSocketOpenConnectionInfo wsConnection) {
+    public void addService(String connectionID, WebSocketService wsConnection) {
         wsConnectionsMap.put(connectionID, wsConnection);
     }
 
-    public WebSocketOpenConnectionInfo removeConnection(String connectionID) {
+    public WebSocketService removeConnection(String connectionID) {
         return wsConnectionsMap.remove(connectionID);
     }
 }

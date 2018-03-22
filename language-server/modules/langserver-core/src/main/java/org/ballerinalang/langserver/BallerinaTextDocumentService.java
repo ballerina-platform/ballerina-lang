@@ -307,6 +307,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             if (topLevelNodeType != null) {
                 commands.add(CommandUtil.getDocGenerationCommand(topLevelNodeType,
                         params.getTextDocument().getUri(), params.getRange().getStart().getLine()));
+                commands.add(CommandUtil.getAllDocGenerationCommand(params.getTextDocument().getUri()));
             } else if (!params.getContext().getDiagnostics().isEmpty()) {
                 params.getContext().getDiagnostics().forEach(diagnostic -> {
                     commands.addAll(CommandUtil
@@ -448,7 +449,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
-                false);
+                false, documentManager);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);

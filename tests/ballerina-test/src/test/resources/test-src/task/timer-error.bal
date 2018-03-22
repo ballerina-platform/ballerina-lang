@@ -1,28 +1,28 @@
-import ballerina.task;
+import ballerina/task;
 
 error err;
 string origErrMsg;
 
-function scheduleTimerWithError(int delay, int interval, string errMsg) returns (string taskId, error e) {
+function scheduleTimerWithError (int delay, int interval, string errMsg) returns (string|error) {
     origErrMsg = errMsg;
-    function() returns (error) onTriggerFunction = triggerWithError;
-    function(error e) onErrorFunction = onError;
-    taskId, e = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:delay, interval:interval});
-    return;
+    function () returns (error|null) onTriggerFunction = triggerWithError;
+    function (error) onErrorFunction = onError;
+    return task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:delay, interval:interval});
 }
 
-function triggerWithError() returns (error e) {
-    e = {message: origErrMsg};
-    return;
+function triggerWithError () returns (error) {
+    error e = {message:origErrMsg};
+    return e;
 }
 
-function onError(error e) {
+function onError (error e) {
     err = e;
 }
 
-function getError() returns (string msg) {
-    if(err != null) {
-       msg = err.message;
+function getError () returns (string) {
+    string msg;
+    if (err != null) {
+        msg = err.message;
     }
-    return;
+    return msg;
 }

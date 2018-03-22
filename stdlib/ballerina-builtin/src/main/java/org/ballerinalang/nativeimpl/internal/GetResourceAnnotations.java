@@ -18,7 +18,7 @@ package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BServiceType;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -28,14 +28,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.internal",
+        orgName = "ballerina", packageName = "internal",
         functionName = "getResourceAnnotations"
 )
 public class GetResourceAnnotations extends AbstractAnnotationReader {
 
     @Override
     public void execute(Context context) {
-        BTypeValue bTypeValue = (BTypeValue) context.getRefArgument(0);
+        BTypeDescValue bTypeValue = (BTypeDescValue) context.getRefArgument(0);
         if (!(bTypeValue.value() instanceof BServiceType)) {
             context.setReturnValues((BValue) null);
         }

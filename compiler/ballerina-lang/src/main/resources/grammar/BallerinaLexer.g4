@@ -7,6 +7,8 @@ lexer grammar BallerinaLexer;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
     boolean inSiddhiInsertQuery = false;
+    boolean inSiddhiTimeScaleQuery = false;
+    boolean inSiddhiOutputRateLimit = false;
 }
 
 // Reserved words
@@ -15,15 +17,13 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
-PRIVATE      : 'private' ;
+PRIVATE     : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STREAMLET    : 'streamlet' { inSiddhi = true; } ;
-CONNECTOR   : 'connector' ;
-ACTION      : 'action' ;
 STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
@@ -31,13 +31,14 @@ CONST       : 'const' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
+BIND        : 'bind' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  } ;
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -59,16 +60,24 @@ CURRENT     : 'current' ;
 EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
 EVERY       : 'every' ;
 WITHIN      : 'within' ;
-LAST        : {inSiddhi}? 'last' { inSiddhi = false; } ;
-FIRST       : {inSiddhi}? 'first' { inSiddhi = false; } ;
+LAST        : {inSiddhiOutputRateLimit}? 'last' { inSiddhiOutputRateLimit = false; } ;
+FIRST       : {inSiddhiOutputRateLimit}? 'first' { inSiddhiOutputRateLimit = false; } ;
 SNAPSHOT    : 'snapshot' ;
-OUTPUT      : {inSiddhi}? 'output' { inSiddhi = false; } ;
+OUTPUT      : {inSiddhiOutputRateLimit}? 'output' { inSiddhiTimeScaleQuery = true; } ;
 INNER       : 'inner' ;
 OUTER       : 'outer' ;
 RIGHT       : 'right' ;
 LEFT        : 'left' ;
 FULL        : 'full' ;
 UNIDIRECTIONAL  : 'unidirectional' ;
+REDUCE      : 'reduce' ;
+SECOND      : {inSiddhiTimeScaleQuery}? 'second' { inSiddhiTimeScaleQuery = false; } ;
+MINUTE      : {inSiddhiTimeScaleQuery}? 'minute' { inSiddhiTimeScaleQuery = false; } ;
+HOUR        : {inSiddhiTimeScaleQuery}? 'hour' { inSiddhiTimeScaleQuery = false; } ;
+DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; } ;
+MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
+YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
+WHENEVER     : 'whenever' ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -80,14 +89,15 @@ TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
-TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
+TYPE_DESC       : 'typedesc' ;
 TYPE_TYPE       : 'type' ;
 TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
 IF          : 'if' ;
+MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
@@ -105,12 +115,14 @@ THROW       : 'throw' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-FAILED      : 'failed' ;
+FAIL        : 'fail' ;
+ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
+ONABORT     : 'onabort' ;
+ONCOMMIT    : 'oncommit' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
-BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
@@ -121,6 +133,7 @@ AWAIT       : 'await' ;
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
@@ -161,6 +174,9 @@ AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
+PIPE        : '|' ;
+EQUAL_GT    : '=>' ;
+
 
 // Compound Assignment operators.
 
@@ -168,6 +184,10 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
+
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
 
 // Post Arithmetic operators.
 
@@ -468,11 +488,11 @@ LINE_COMMENT
 
 fragment
 IdentifierLiteral
-    : '|' IdentifierLiteralChar+ '|' ;
+    : '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|\\\b\f\n\r\t]
+    : ~[|"\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
@@ -482,6 +502,7 @@ IdentifierLiteralEscapeSequence
     | '\\\\' [btnfr]
     | UnicodeEscape
     ;
+
 
 // XML lexer rules
 

@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function divideBy10 (int d) (int, int) {
     return d / 10, d % 10;

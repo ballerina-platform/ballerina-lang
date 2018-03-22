@@ -51,20 +51,18 @@ public class WriteBytesEvent implements Event {
     /**
      * Context of the event which will be called upon completion.
      */
-    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size) {
+    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset) {
         this.byteChannel = byteChannel;
         writeBuffer = ByteBuffer.wrap(content);
         //If a larger position is set, the position would be disregarded
         writeBuffer.position(startOffset);
-        writeBuffer.limit(size);
     }
 
-    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size, EventContext context) {
+    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, EventContext context) {
         this.byteChannel = byteChannel;
         writeBuffer = ByteBuffer.wrap(content);
         //If a larger position is set, the position would be disregarded
         writeBuffer.position(startOffset);
-        writeBuffer.limit(size);
         this.context = context;
     }
 

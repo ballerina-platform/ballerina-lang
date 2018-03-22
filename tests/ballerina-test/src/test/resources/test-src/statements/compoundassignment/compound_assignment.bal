@@ -1,63 +1,63 @@
 xmlns "http://sample.com/wso2/a1" as ns0;
 
-function testCompoundAssignmentAddition()(int){
+function testCompoundAssignmentAddition() returns (int){
     int x = 5;
     x += 10;
     return x;
 }
 
-function testCompoundAssignmentSubtraction()(int){
+function testCompoundAssignmentSubtraction()  returns (int){
     int x = 5;
     x -= 10;
     return x;
 }
 
-function testCompoundAssignmentMultiplication()(int){
+function testCompoundAssignmentMultiplication() returns (int){
     int x = 5;
     x *= 10;
     return x;
 }
 
-function testCompoundAssignmentDivision()(int){
+function testCompoundAssignmentDivision() returns (int){
     int x = 100;
     x /= 10;
     return x;
 }
 
-function testIncrementOperator()(int){
+function testIncrementOperator() returns (int){
     int x = 100;
     x++;
     return x;
 }
 
-function testDecrementOperator()(int){
+function testDecrementOperator() returns (int){
     int x = 100;
     x--;
     return x;
 }
 
-function testCompoundAssignmentAdditionArrayElement()(int){
+function testCompoundAssignmentAdditionArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
     x[0] += 10;
     return x[0];
 }
 
-function testCompoundAssignmentSubtractionArrayElement()(int){
+function testCompoundAssignmentSubtractionArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
     x[0] -= 10;
     return x[0];
 }
 
-function testCompoundAssignmentMultiplicationArrayElement()(int){
+function testCompoundAssignmentMultiplicationArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
     x[0] *= 10;
     return x[0];
 }
 
-function testCompoundAssignmentDivisionArrayElement()(int){
+function testCompoundAssignmentDivisionArrayElement() returns (int){
      int[] x = [];
      x[0] = 100;
      x[0] /= 10;
@@ -69,109 +69,109 @@ struct Company {
    int count2;
 }
 
-function testCompoundAssignmentAdditionStructElement()(int){
+function testCompoundAssignmentAdditionStructElement() returns (int){
     Company ibm = {};
     ibm.count = 100;
     ibm.count += 10;
     return ibm.count;
 }
 
-function testCompoundAssignmentSubtractionStructElement()(int){
+function testCompoundAssignmentSubtractionStructElement() returns (int){
     Company ibm = {};
     ibm.count = 100;
     ibm.count -= 10;
     return ibm.count;
 }
 
-function testCompoundAssignmentMultiplicationStructElement()(int){
+function testCompoundAssignmentMultiplicationStructElement() returns (int){
     Company ibm = {};
     ibm.count = 100;
     ibm.count *= 10;
     return ibm.count;
 }
 
-function testCompoundAssignmentDivisionStructElement()(int){
+function testCompoundAssignmentDivisionStructElement() returns (int){
     Company ibm = {};
     ibm.count = 100;
     ibm.count /= 10;
     return ibm.count;
 }
 
-function testIncrementOperatorArrayElement()(int){
+function testIncrementOperatorArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
     x[0]++;
     return x[0];
 }
 
-function testDecrementOperatorArrayElement()(int){
+function testDecrementOperatorArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
     x[0]--;
     return x[0];
 }
 
-function testIncrementOperatorStructElement()(int){
+function testIncrementOperatorStructElement() returns (int){
     Company ibm = {};
     ibm.count = 888;
     ibm.count++;
     return ibm.count;
 }
 
-function testDecrementOperatorStructElement()(int){
+function testDecrementOperatorStructElement() returns (int){
     Company ibm = {};
     ibm.count = 888;
     ibm.count--;
     return ibm.count;
 }
 
-function testStringIntCompoundAssignmentAddition()(string){
+function testStringIntCompoundAssignmentAddition() returns (string){
     int x = 5;
     string a = "test";
     a += x;
     return a;
 }
 
-function testIncrementOperatorFloat()(float){
+function testIncrementOperatorFloat() returns (float){
     float x = 100;
     x++;
     return x;
 }
 
-function testDecrementOperatorFloat()(float){
+function testDecrementOperatorFloat() returns (float){
     float x = 100;
     x--;
     return x;
 }
 
-function testIntFloatCompoundAssignmentAddition()(float){
+function testIntFloatCompoundAssignmentAddition() returns (float){
     int x = 5;
     float d = 2.5;
     d += x;
     return d;
 }
 
-function testXMLAttributeWithCompoundAssignment()(string){
+function testXMLAttributeWithCompoundAssignment() returns (string){
     var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
     x1@[ns0:foo1] = "bar1";
     x1@[ns0:foo1] += "bar2";
     return x1@[ns0:foo1];
 }
 
-function testCompoundAssignmentAdditionRecursive()(int){
+function testCompoundAssignmentAdditionRecursive() returns (int){
     int x = 5;
     x += x;
     return x;
 }
 
-function testCompoundAssignmentAdditionStructElementRecursive()(int){
+function testCompoundAssignmentAdditionStructElementRecursive() returns (int){
     Company ibm = {};
     ibm["count"] = 100;
     ibm["count"] += ibm["count"];
     return ibm["count"];
 }
 
-function testCompoundAssignmentAdditionStructElements()(int){
+function testCompoundAssignmentAdditionStructElements() returns (int){
     Company ibm = {};
     ibm["count"] = 100;
     ibm["count2"] = 400;
@@ -179,13 +179,13 @@ function testCompoundAssignmentAdditionStructElements()(int){
     return ibm["count"];
 }
 
-function testCompoundAssignmentAdditionWithExpression()(int){
+function testCompoundAssignmentAdditionWithExpression() returns (int){
     int x = 5;
     x += (2+3+4+5);
     return x;
 }
 
-function testCompoundAssignmentAdditionMultiple()(int){
+function testCompoundAssignmentAdditionMultiple() returns (int){
     int x = 5;
     x += 5;
     x += 5;
@@ -193,7 +193,7 @@ function testCompoundAssignmentAdditionMultiple()(int){
     return x;
 }
 
-function testCompoundAssignmentAdditionMultipleWithIncrement()(int){
+function testCompoundAssignmentAdditionMultipleWithIncrement() returns (int){
     int x = 5;
     x += 5;
     x++;
@@ -206,7 +206,7 @@ function testCompoundAssignmentAdditionMultipleWithIncrement()(int){
     return x;
 }
 
-function testCompoundAssignmentAdditionWithStructAccess()(int){
+function testCompoundAssignmentAdditionWithStructAccess() returns (int){
     Company ibm = {};
     ibm["count"] = 100;
     int[] arr = [];
@@ -216,13 +216,13 @@ function testCompoundAssignmentAdditionWithStructAccess()(int){
     return x;
 }
 
-function testCompoundAssignmentAdditionWithFunctionInvocation()(int){
+function testCompoundAssignmentAdditionWithFunctionInvocation() returns (int){
     int x = 5;
     x += getIncrement();
     return x;
 }
 
 
-function getIncrement()(int) {
+function getIncrement() returns (int) {
    return 200;
 }

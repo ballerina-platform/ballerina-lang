@@ -1,24 +1,18 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-endpoint<mock:NonListeningService> testEP {
-    port:9090
-}
+endpoint mock:NonListeningService testEP {
+    host: "localhost",
+    port: 9090
+};
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello1",
-    endpoints:[testEP],
-    cors: {
-        allowOrigins :["http://www.m3.com", "http://www.hello.com"],
-        allowCredentials : true,
-        allowHeaders :["CORELATION_ID"],
-        exposeHeaders :["CORELATION_ID"],
-        maxAge : 1
-    }
+    endpoints:[testEP]
 }
 service<http:Service> echo1 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path : "/test1",
         cors: {
@@ -27,25 +21,25 @@ service<http:Service> echo1 {
             allowHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
         }
     }
-    resource info1 (http:ServerConnector conn, http:Request req) {
+    info1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"resCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
          methods:["GET"],
          path : "/test2"
     }
-    resource info2 (http:ServerConnector conn, http:Request req) {
+    info2 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"serCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path : "/test3",
         cors:{
@@ -53,7 +47,7 @@ service<http:Service> echo1 {
             allowCredentials:true
         }
     }
-    resource info3 (http:ServerConnector conn, http:Request req) {
+    info3 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"moreOrigins"};
         res.setJsonPayload(responseJson);
@@ -61,12 +55,12 @@ service<http:Service> echo1 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> hello2 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
          methods:["POST"],
          path : "/test1",
          cors: {
@@ -74,14 +68,14 @@ service<http:Service> hello2 {
             exposeHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
         }
     }
-    resource info1 (http:ServerConnector conn, http:Request req) {
+    info1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"resOnlyCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PUT"],
         path : "/test2",
         cors:{
@@ -90,7 +84,7 @@ service<http:Service> hello2 {
             exposeHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
         }
     }
-    resource info2 (http:ServerConnector conn, http:Request req) {
+    info2 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"optionsOnly"};
         res.setJsonPayload(responseJson);
@@ -98,7 +92,7 @@ service<http:Service> hello2 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello3",
     endpoints:[testEP],
     cors:{
@@ -111,10 +105,10 @@ service<http:Service> hello2 {
 }
 service<http:Service> echo3 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST", "PUT"]
     }
-    resource info1 (http:ServerConnector conn, http:Request req) {
+    info1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"cors"};
         res.setJsonPayload(responseJson);
@@ -122,24 +116,24 @@ service<http:Service> echo3 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo4 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource info1 (http:ServerConnector conn, http:Request req) {
+    info1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"noCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["OPTIONS"]
     }
-    resource info2 (http:ServerConnector conn, http:Request req) {
+    info2 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo":"noCorsOPTIONS"};
         res.setJsonPayload(responseJson);

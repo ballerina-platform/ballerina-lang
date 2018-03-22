@@ -36,7 +36,7 @@ public class TransformerTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "statements/transform/transform-stmt.bal");
+        result = BCompileUtil.compile("test-src/statements/transform/transform-stmt.bal");
     }
 
     @Test(description = "Test empty transformation")
@@ -45,7 +45,7 @@ public class TransformerTest {
         Assert.assertEquals(result.getErrorCount(), 0);
         BValue[] values = BRunUtil.invoke(result, "emptyTransform");
         Assert.assertNotEquals(values[0], null);
-        Assert.assertEquals(values[0].stringValue(), "{name:\"null\", age:0, address:\"null\"}");
+        Assert.assertEquals(values[0].stringValue(), "{name:\"\", age:0, address:\"\"}");
     }
 
     @Test(description = "Test simple unnamed transformer")
@@ -227,7 +227,7 @@ public class TransformerTest {
                 "cannot be updated inside transformer block", 26, 5);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAllExpressionsAsRHSInTransformer() {
         CompileResult resNegative =
                 BCompileUtil.compile("test-src/statements/transform/transform-all-rhs-expressions-negative.bal");
@@ -270,7 +270,7 @@ public class TransformerTest {
                 "expressions inside transformer block", 100, 33);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTransformerNegative() {
         int i = 0;
         CompileResult resNegative =
@@ -332,8 +332,7 @@ public class TransformerTest {
     @Test(description = "Test iterable operations inside transformer")
     public void testTransformIterableOperations() {
         BValue[] args = {};
-        CompileResult result = BCompileUtil.compile(this, "test-src",
-                "statements/transform/transform-iterable-operations.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/transform/transform-iterable-operations.bal");
         BValue[] returns = BRunUtil.invoke(result, "testTransformerIterableOperations", args);
         Assert.assertEquals(returns.length, 3);
 

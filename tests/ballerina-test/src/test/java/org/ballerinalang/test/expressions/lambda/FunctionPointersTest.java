@@ -95,16 +95,6 @@ public class FunctionPointersTest {
         invokeFunctionPointerProgram("testFuncWithArrayParams", 0);
     }
 
-    @Test
-    public void testFunctionPointerAccess1() {
-        invokeFunctionPointerProgram("test7", 3);
-    }
-
-    @Test
-    public void testFunctionPointerAccess2() {
-        invokeFunctionPointerProgram("test8", 3);
-    }
-
     private void invokeFunctionPointerProgram(String functionName, int valueToAssert) {
         BValue[] returns = BRunUtil.invoke(fpProgram, functionName);
         Assert.assertNotNull(returns);
@@ -148,21 +138,6 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[1].stringValue(), "test3");
         Assert.assertNotNull(returns[2]);
         Assert.assertEquals(returns[2].stringValue(), "3test");
-    }
-
-    @Test
-    public void testGlobalFPNull() {
-        // Invoking null function pointer.
-        BLangRuntimeException exceptionThrown = null;
-        try {
-            BRunUtil.invoke(globalProgram, "test4");
-        } catch (BLangRuntimeException e) {
-            exceptionThrown = e;
-        }
-        if (exceptionThrown == null) {
-            Assert.fail("Exception expected.");
-        }
-        Assert.assertTrue(exceptionThrown.getMessage().contains("NullReferenceException"));
     }
 
     @Test
