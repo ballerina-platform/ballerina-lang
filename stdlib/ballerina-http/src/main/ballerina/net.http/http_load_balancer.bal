@@ -215,7 +215,7 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
 
     match lb.algorithm {
         function (LoadBalancer, HttpClient[]) returns (HttpClient) lbAlgo => loadBalanceClient = lbAlgo(lb, lb.loadBalanceClientsArray);
-        int | null => { 
+        int | null => {
             LoadBalanceConnectorError err = {message: "Load balance client not found"};
             throw err;
         }
