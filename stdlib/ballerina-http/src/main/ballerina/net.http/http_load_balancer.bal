@@ -256,6 +256,12 @@ function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loa
     loadBalanceConnectorError.statusCode = 500;
     loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
                                         + loadBalanceConnectorError.httpConnectorError[nErrs - 1].message;
-    return (HttpConnectorError) loadBalanceConnectorError;
+    HttpConnectorError httpConnectorError = {};
+    error conversionErr = {};
+    match <HttpConnectorError> loadBalanceConnectorError {
+        HttpConnectorError conError => httpConnectorError = conError;
+        error err => conversionErr = err;
+    }
+    return httpConnectorError;
 }
 

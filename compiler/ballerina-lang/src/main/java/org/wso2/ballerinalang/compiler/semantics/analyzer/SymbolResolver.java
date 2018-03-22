@@ -604,6 +604,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             // Update error type to actual type.
             symbol.type = symTable.errStructType;
             symbol.scope = symbol.type.tsymbol.scope;
+            symbol.type.tsymbol = (BTypeSymbol) symbol;
             return true;
         }
         return false;
