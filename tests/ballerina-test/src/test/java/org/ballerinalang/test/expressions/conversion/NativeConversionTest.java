@@ -212,7 +212,7 @@ public class NativeConversionTest {
     @Test(description = "Test converting a struct to a struct")
     public void testStructToStruct() {
         BAssertUtil.validateError(negativeResult, 0,
-                "incompatible types: 'Person' cannot be convert to 'Student', use cast expression", 26, 17);
+                "incompatible types: expected 'Student', found 'Student|error'", 26, 17);
     }
 
     @Test(description = "Test converting a map to json")

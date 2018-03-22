@@ -42,8 +42,7 @@ public class FilterTest {
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "testFilterQuery");
-
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

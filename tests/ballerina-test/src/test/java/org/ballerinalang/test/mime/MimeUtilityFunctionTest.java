@@ -20,6 +20,7 @@ package org.ballerinalang.test.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -34,11 +35,19 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
+import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +55,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.channels.ByteChannel;
+import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -72,7 +84,7 @@ public class MimeUtilityFunctionTest {
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-       // serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "Test 'getMediaType' function in ballerina.mime package")
@@ -335,31 +347,6 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-   /* @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
-            "the original content length", enabled = false)
-    public void testLargePayload() {
-        String path = "/test/largepayload";
-        try {
-            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            Channel channel = new MockByteChannel(byteChannel, 10);
-            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-            String responseValue = characterChannel.readAll();
-            characterChannel.close();
-            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
-                    responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
-            Assert.assertNotNull(response, "Response message not found");
-            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
-            Assert.assertNotNull(inputStream, "Inputstream is null");
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
-            Assert.assertEquals(outputStream.size(), 2323779);
-        } catch (IOException | URISyntaxException e) {
-            log.error("Error occurred in testLargePayload", e.getMessage());
-        }
-    }*/
-
-
     @Test(description = "An EntityError should be returned in case the byte channel is null")
     public void testGetByteChannelForNull() {
         BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
@@ -384,7 +371,7 @@ public class MimeUtilityFunctionTest {
                 "can be obtain either as xml, json, string or blob type");
     }
 
-  /*  @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
     public void testGetTextDataSource() throws IOException {
         try {
@@ -403,8 +390,8 @@ public class MimeUtilityFunctionTest {
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
-    }*/
- /*
+    }
+
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a json data source return an error")
     public void testGetJsonDataSource() throws IOException {
@@ -419,13 +406,36 @@ public class MimeUtilityFunctionTest {
                     (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonDataSource", args);
-            Assert.assertEquals(returns.length, 2);
-            Assert.assertNull(returns[0]);
-            BStruct errorStruct = (BStruct) returns[1];
-            Assert.assertTrue(errorStruct.getStringField(0).contains("Error occurred while extracting json " +
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertNotNull(returns[0]);
+            Assert.assertTrue(returns[0].stringValue().contains("Error occurred while extracting json " +
                     "data from entity: failed to create json: empty JSON document"));
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
-    }*/
+    }
+
+    @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
+            "the original content length")
+    public void testLargePayload() {
+        String path = "/test/largepayload";
+        try {
+            ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
+            Channel channel = new MockByteChannel(byteChannel, 10);
+            CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+            String responseValue = characterChannel.readAll();
+            characterChannel.close();
+            HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
+                    responseValue);
+            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
+            Assert.assertNotNull(response, "Response message not found");
+            InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
+            Assert.assertNotNull(inputStream, "Inputstream is null");
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MimeUtil.writeInputToOutputStream(inputStream, outputStream);
+            Assert.assertEquals(outputStream.size(), 2323779);
+        } catch (IOException | URISyntaxException e) {
+            log.error("Error occurred in testLargePayload", e.getMessage());
+        }
+    }
 }

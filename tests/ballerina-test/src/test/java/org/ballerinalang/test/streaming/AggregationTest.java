@@ -42,7 +42,7 @@ public class AggregationTest {
 
     @Test(description = "Test streaming aggregation query.")
     public void testAggregationQuery() {
-        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testAggregationQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startAggregationQuery");
 
         Assert.assertNotNull(outputStatusCountArray);
 
