@@ -48,7 +48,7 @@ function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int) {
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":lengthof arr};
     int length;
-    length, _ = (int) tempMap["length"];
+    length =? <int> tempMap["length"];
     return length;
 }
 
@@ -111,8 +111,8 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) returns (int) 
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    Person jack;
-    jack = {name:"Jack", days:arr};
+
+    Person jack = {name:"Jack", days:arr};
 
     if ( lengthof jack.days == 3 ) {
         return 3;

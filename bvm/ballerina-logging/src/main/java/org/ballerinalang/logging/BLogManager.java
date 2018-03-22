@@ -84,24 +84,24 @@ public class BLogManager extends LogManager {
     public void loadUserProvidedLogConfiguration() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
-        String instancesVal = configRegistry.getGlobalConfigValue(BALLERINA_LOG_INSTANCES);
+        String instancesVal = configRegistry.getConfiguration(BALLERINA_LOG_INSTANCES);
         if (instancesVal != null) {
             String[] loggerInstances = instancesVal.split(",");
 
             for (String instanceId : loggerInstances) {
                 loggerLevels.put(instanceId,
-                                 BLogLevel.toBLogLevel(configRegistry.getInstanceConfigValue(instanceId, LOG_LEVEL)));
+                                 BLogLevel.toBLogLevel(configRegistry.getConfiguration(instanceId, LOG_LEVEL)));
             }
         }
 
         // setup Ballerina user-level log level configuration
-        String userLogLevel = configRegistry.getInstanceConfigValue(BALLERINA_USER_LOG, LOG_LEVEL);
+        String userLogLevel = configRegistry.getConfiguration(BALLERINA_USER_LOG, LOG_LEVEL);
         if (userLogLevel != null) {
             ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
         }
 
         // setup HTTP trace log level configuration
-        String traceLogLevel = configRegistry.getInstanceConfigValue(HTTP_TRACE_LOG, LOG_LEVEL);
+        String traceLogLevel = configRegistry.getConfiguration(HTTP_TRACE_LOG, LOG_LEVEL);
         if (traceLogLevel != null) {
             loggerLevels.put(HTTP_TRACE_LOG, BLogLevel.toBLogLevel(traceLogLevel));
         }

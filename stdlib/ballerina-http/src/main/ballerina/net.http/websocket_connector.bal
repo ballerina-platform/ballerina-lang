@@ -13,12 +13,13 @@ package ballerina.net.http;
 @Field {value: "upgradeHeaders: a map of all the upgrade headers of the connection"}
 public struct WebSocketConnector {
     //TODO:Make these read only
+    //TODO:Move these to endpoint
     map attributes;
     string id;
     string negotiatedSubProtocol;
     boolean isSecure;
     boolean isOpen;
-    map upgradeHeaders;
+    map<string> upgradeHeaders;
 }
 
 //@Description {value:"Gets the ID of the WebSocket connection"}

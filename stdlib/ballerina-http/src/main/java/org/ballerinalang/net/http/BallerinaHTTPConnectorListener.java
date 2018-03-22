@@ -83,8 +83,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     }
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
-                                                            HttpResource httpResource) {
-        Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
+                                                              HttpResource httpResource) {
+        boolean isTransactionInfectable = httpResource.getParentService().isTransactionInfectable();
+        Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
@@ -110,13 +111,13 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage) {
+    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
             properties.put(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        if (httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID) == null ||
+        if (!isInfectable || httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID) == null ||
                 httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL) == null) {
             return properties;
         }

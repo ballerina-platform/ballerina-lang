@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test the functionality of composite connectors.
  */
+@Test(enabled = false)
 public class CompositeConnectorTest {
 
     private CompileResult result;
