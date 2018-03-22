@@ -74,7 +74,7 @@ public struct SocketProperties {
 @Param {value:"path: path to the file location"}
 @Param {value:"accessMode: whether the file should be opened for read,write or append"}
 @Return {value:"Channel which will allow to source/sink"}
-public native function openFile (string path, string accessMode) returns (ByteChannel);
+public native function openFile (@sensitive string path, @sensitive string accessMode) returns (ByteChannel);
 
 @Description {value:"Opens a socket from a specified network location"}
 @Param {value:"host: Remote server domain/IP"}
@@ -82,7 +82,7 @@ public native function openFile (string path, string accessMode) returns (ByteCh
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
 @Return {value:"Returns an IOError if unable to open the socket connection"}
-public native function openSocket (string host, int port,
+public native function openSocket (@sensitive string host, @sensitive int port,
                                    SocketProperties options) returns (Socket | IOError);
 
 @Description {value:"Function to create a CharacterChannel from ByteChannel"}
@@ -173,7 +173,7 @@ public native function <CharacterChannel channel> closeCharacterChannel () retur
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
 @Return {value:"Returns an IOError if unable to open the socket connection"}
-public native function openSecureSocket (string host, @sensitive int port, SocketProperties options) returns
+public native function openSecureSocket (@sensitive string host, @sensitive int port, SocketProperties options) returns
 (Socket | IOError);
 
 @Description {value:"Close the socket connection with the remote server"}
