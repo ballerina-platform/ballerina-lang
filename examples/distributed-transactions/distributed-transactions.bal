@@ -8,7 +8,7 @@ function main (string[] args) {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
-        name: "testdb",
+        name: "testdb1",
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
@@ -21,7 +21,7 @@ function main (string[] args) {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
-        name: "testdss",
+        name: "testdb2",
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
