@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
 endpoint<http:Service> helloWorldEP {

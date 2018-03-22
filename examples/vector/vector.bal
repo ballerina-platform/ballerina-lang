@@ -1,5 +1,5 @@
-import ballerina.collections;
-import ballerina.io;
+import ballerina/collections;
+import ballerina/io;
 
 function main (string[] args) {
     // Initialize the vector with a new array.

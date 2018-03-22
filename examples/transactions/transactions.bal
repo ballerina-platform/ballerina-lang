@@ -1,5 +1,5 @@
-import ballerina.data.sql;
-import ballerina.io;
+import ballerina/data.sql;
+import ballerina/io;
 
 function main (string[] args) {
 

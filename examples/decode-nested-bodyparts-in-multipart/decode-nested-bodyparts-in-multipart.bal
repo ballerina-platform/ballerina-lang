@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/mime;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint mockEP {
     port:9090
