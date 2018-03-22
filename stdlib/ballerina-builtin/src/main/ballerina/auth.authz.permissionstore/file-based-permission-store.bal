@@ -33,19 +33,16 @@ public struct FileBasedPermissionStore {
 @Param {value:"scopeName: name of the scope"}
 @Return {value:"boolean: true if authorized, else false"}
 public function <FileBasedPermissionStore permissionStore> isAuthorized (string username, string scopeName) returns (boolean) {
-    boolean noGroupsForScope;
     string[] groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
     if (lengthof groupsForScope == 0) {
-        // no groups for scope
-        noGroupsForScope = true;
+        // no groups for scope, no need to authorize
+        return true;
+        
     }
     string[] groupsForUser = getGroupsArray(permissionStore.readGroupsOfUser(username));
     if (lengthof groupsForUser == 0) {
         // no groups for user
-        if (noGroupsForScope) {
-            // no groups for scope and user, authorized!
-            return true;
-        }
+        return false;
     }
     return matchGroups(groupsForScope, groupsForUser);
 }

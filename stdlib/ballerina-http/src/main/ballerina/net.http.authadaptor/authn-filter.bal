@@ -66,7 +66,7 @@ public function authnRequestFilterFunc (http:Request request, http:FilterContext
 @Param {value:"authorized: authorization status for the request"}
 @Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
 function createAuthnResult (boolean authenticated) returns (http:FilterResult) {
-    http:FilterResult requestFilterResult;
+    http:FilterResult requestFilterResult = {};
     if (authenticated) {
         requestFilterResult = {canProceed:true, statusCode:200, message:"Successfully authenticated"};
     } else {
@@ -80,20 +80,21 @@ function createAuthnResult (boolean authenticated) returns (http:FilterResult) {
 @Return {value:"boolean: true if the resource is secured, else false"}
 function isResourceSecured (http:FilterContext context) returns (boolean) {
     // get authn details from the resource level
-    auth:Authentication authAnn = getAuthnAnnotation(
+    auth:Authentication|null authAnn = getAuthnAnnotation(
                                   internal:getResourceAnnotations(context.serviceType, context.resourceName));
     match authAnn {
         auth:Authentication authAnnotation => {
             return authAnnotation.enabled;
         }
-        any|null => {
+        any => {
             // if not found at resource level, check in the service level
-            authAnn = getAuthnAnnotation(internal:getServiceAnnotations(context.serviceType));
-            match authAnn {
+            auth:Authentication|null serviceLevelAuthAnn = getAuthnAnnotation(internal:getServiceAnnotations(context
+                                                                                                   .serviceType));
+            match serviceLevelAuthAnn {
                 auth:Authentication authAnnotation => {
                     return authAnnotation.enabled;
                 }
-                any|null => {
+                any => {
                     // if still authentication annotation is null, means the user has not specified that the service
                     // should be secured. However since the authn filter has been engaged, need to authenticate.
                     return true;
@@ -101,7 +102,6 @@ function isResourceSecured (http:FilterContext context) returns (boolean) {
             }
         }
     }
-    return false;
 }
 
 @Description {value:"Tries to retrieve the annotation value for authentication hierarchically - first from the resource
@@ -113,18 +113,22 @@ function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Au
     if (lengthof annData == 0) {
         return null;
     }
-    internal:annotationData authAnn = {};
+    internal:annotationData|null authAnn;
     foreach ann in annData {
         if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
             authAnn = ann;
             break;
         }
     }
-    if (lengthof authAnn == 0) {
-        return null;
+    match authAnn {
+        internal:annotationData annData1 => {
+            var authConfig =? <auth:AuthConfig> annData1.value;
+            return authConfig.authentication;
+        }
+        any|null => {
+            return null;
+        }
     }
-    var authConfig =? <auth:AuthConfig> authAnn.value;
-    return authConfig.authentication;
 }
 
 @Description {value:"Filter function implementation for the response flow"}

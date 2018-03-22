@@ -31,15 +31,12 @@ const string AUTH_ANN_NAME = "Config";
 @Param {value:"req: Request instance"}
 @Return {value:"string: value of the basic authentication header"}
 @Return {value:"error: any error occurred while extracting the basic authentication header"}
-public function extractBasicAuthHeaderValue (http:Request req) returns (string|error) {
+public function extractBasicAuthHeaderValue (http:Request req) returns (string) {
     // extract authorization header
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     match basicAuthHeader {
         string basicAuthHeaderVal => {
-            return basicAuthHeaderVal;
-        }
-        any|null => {
-            handleError("Basic authentication header not sent with the request");
+            return basicAuthHeaderVal == null ? "" : basicAuthHeaderVal;
         }
     }
 }
