@@ -27,13 +27,17 @@ const string AUTH_SCHEME_BEARER = "Bearer";
 @Param {value:"req: Request instance"}
 @Return {value:"string: value of the basic authentication header"}
 @Return {value:"error: any error occurred while extracting the basic authentication header"}
-public function extractBasicAuthHeaderValue (http:Request req) returns (string, error) {
+public function extractBasicAuthHeaderValue (http:Request req) returns (string|error) {
     // extract authorization header
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
-    if (basicAuthHeader == null || !basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
-        return null, handleError("Basic authentication header not sent with the request");
+    match basicAuthHeader {
+        string basicAuthHeaderVal => {
+            return basicAuthHeaderVal;
+        }
+        any|null => {
+            handleError("Basic authentication header not sent with the request");
+        }
     }
-    return basicAuthHeader, null;
 }
 
 @Description {value:"Error handler"}

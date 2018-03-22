@@ -28,13 +28,12 @@ public struct UserStore {
 public function <UserStore userStore> authenticate (string username, string password) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
-    return false;
 }
 
 @Description {value:"Reads the group(s) for the user with the given username"}
 @Param {value:"username: user name"}
 @Return {value:"string: relevant group(s) for the user, null if not found"}
-public function <UserStore userstore> readGroupsOfUser (string username) {
+public function <UserStore userstore> readGroupsOfUser (string username) returns (string) {
     error e = {message:"Not implemented"};
     throw e;
 }
