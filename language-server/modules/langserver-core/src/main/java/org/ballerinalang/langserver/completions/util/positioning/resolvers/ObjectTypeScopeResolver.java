@@ -69,7 +69,7 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         
         if ((line < zeroBasedPos.getStartLine()
                 || (line == zeroBasedPos.getStartLine() && col < zeroBasedPos.getStartColumn()))
-                || (isLastField && (blockOwnerPos.getEndLine() > line
+                || (isLastField && ((blockOwnerPos.getEndLine() > line && zeroBasedPos.getEndLine() < line)
                 || (blockOwnerPos.getEndLine() == line && blockOwnerPos.getEndColumn() > col)))) {
             
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
