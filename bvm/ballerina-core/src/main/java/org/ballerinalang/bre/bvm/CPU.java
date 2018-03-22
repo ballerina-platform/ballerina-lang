@@ -528,6 +528,7 @@ public class CPU {
                 case InstructionCodes.JSON2S:
                 case InstructionCodes.JSON2B:
                 case InstructionCodes.NULL2S:
+                case InstructionCodes.IS_ASSIGNABLE:
                     execTypeCastOpcodes(ctx, sf, opcode, operands);
                     break;
 
@@ -2558,7 +2559,7 @@ public class CPU {
     }
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
-            int startOfNoThrowEndIP) {
+                                         int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
             if (ctx.getError() == null) {
@@ -2830,6 +2831,58 @@ public class CPU {
     }
 
     private static boolean isAssignable(BValue rhsValue, BType lhsType) {
+        if (rhsValue == null) {
+            return false;
+        }
+
+        BType rhsType = rhsValue.getType();
+        if (rhsType.equals(lhsType)) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.INT_TAG &&
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        }
+
+        // if lhs type is JSON
+        if (lhsType.getTag() == TypeTags.JSON_TAG && getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
+        }
+
+        if (rhsType.getTag() == TypeTags.STRUCT_TAG && lhsType.getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
+
+        // Array casting
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayCast(rhsType, lhsType);
+        }
+
+        // Check MAP casting
+        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(rhsType, lhsType);
+        }
+
+        // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
+        // it to a constrained table reference.
+        if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
+            return true;
+        }
+
+        // TODO Union types, tuple types
         return false;
     }
 
