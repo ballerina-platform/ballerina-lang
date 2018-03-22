@@ -978,6 +978,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.TABLE:
             case TypeTags.STREAM:
             case TypeTags.STREAMLET:
+            case TypeTags.FUTURE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);

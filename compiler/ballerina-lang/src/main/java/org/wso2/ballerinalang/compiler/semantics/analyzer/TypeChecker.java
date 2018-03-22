@@ -536,6 +536,9 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAMLET:
                 checkFunctionInvocationExpr(iExpr, symTable.streamletType);
                 break;
+            case TypeTags.FUTURE:
+                checkFunctionInvocationExpr(iExpr, symTable.futureType);
+                break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;

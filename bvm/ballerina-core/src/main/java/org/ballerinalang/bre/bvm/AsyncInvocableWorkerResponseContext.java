@@ -139,13 +139,11 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
         }
         /* only non-native workers can be cancelled */
         if (this.workerExecutionContexts != null) {
-            this.cancelled = true;
             for (WorkerExecutionContext ctx: this.workerExecutionContexts) {
                 BLangScheduler.stopWorker(ctx);
             }
-        }
-        if (this.cancelled) {
             this.sendAsyncCancelErrorSignal();
+            this.cancelled = true;
         }
         return this.cancelled;
     }

@@ -242,6 +242,8 @@ public class BLangScheduler {
                 BStruct error = BLangVMErrors.createError(this.nativeCtx.getCallableUnitInfo(), e.getMessage());
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
+            } finally {
+                workerCountDown();
             }
             executeNow(runInCaller);
         }
@@ -270,6 +272,7 @@ public class BLangScheduler {
             BType[] retTypes = cui.getRetParamTypes();
             BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
             WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
+            workerCountDown();
             BLangScheduler.resume(ctx);
         }
 
@@ -281,6 +284,7 @@ public class BLangScheduler {
             BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
             WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(
                     new WorkerExecutionContext(error), SignalType.ERROR, result));
+            workerCountDown();
             BLangScheduler.resume(ctx);
         }
 
