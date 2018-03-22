@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
+import org.ballerinalang.langserver.workspace.repository.NullSourceDirectory;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -27,8 +27,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.net.URI;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -87,8 +85,7 @@ public class BallerinaPackageLoader {
         options.put(PROJECT_DIR, "");
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        context.put(SourceDirectory.class, new LangServerFSProjectDirectory(Paths
-                .get(URI.create(""))));
+        context.put(SourceDirectory.class, new NullSourceDirectory());
         
         return context;
     }
@@ -99,7 +96,7 @@ public class BallerinaPackageLoader {
      * @param maxDepth      Max depth to be searched
      * @return              {@link Set} set of packages
      */
-    public static Set<PackageID> getPackageList(CompilerContext context, int maxDepth) {
+    static Set<PackageID> getPackageList(CompilerContext context, int maxDepth) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         return pkgLoader.listPackages(Math.max(MAX_DEPTH, maxDepth));
     }
