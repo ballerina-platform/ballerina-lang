@@ -33,7 +33,12 @@ public struct HttpJwtAuthnHandler {
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) returns (boolean) {
-    string authHeader = req.getHeader(AUTH_HEADER);
+    string authHeader;
+    try {
+        authHeader = req.getHeader(AUTH_HEADER);
+    } catch (error e) {
+        return false;
+    }
     if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
         if (lengthof authHeaderComponents == 2) {
@@ -61,7 +66,6 @@ public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) ret
             return false;
         }
     }
-    return false;
 }
 
 function extractJWTToken (http:Request req) returns (string) {
