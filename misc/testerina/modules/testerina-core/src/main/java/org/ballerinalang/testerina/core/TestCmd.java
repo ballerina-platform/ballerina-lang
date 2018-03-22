@@ -17,18 +17,28 @@
  */
 package org.ballerinalang.testerina.core;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.logging.BLogManager;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.LogManager;
+import java.util.stream.Collectors;
 
 /**
  * Test command for ballerina launcher.
@@ -36,19 +46,14 @@ import java.util.List;
 @Parameters(commandNames = "test", commandDescription = "test Ballerina program")
 public class TestCmd implements BLauncherCmd {
 
-    private static final PrintStream outStream = System.err;
+    private static final PrintStream errStream = System.err;
+    private static final PrintStream outStream = System.out;
 
 
     private JCommander parentCmdParser;
 
-    @Parameter(names = "--mock", hidden = true, description = "Is mock enabled")
-    private boolean mock = true;
-
-    @Parameter(arity = 1, description = "arguments")
+    @Parameter(arity = 1, description = "ballerina package/s to be tested")
     private List<String> sourceFileList;
-
-    @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
-    private String serviceRootPath;
 
     @Parameter(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
@@ -59,22 +64,59 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
     private String ballerinaDebugPort;
 
+    @Parameter(names = "--groups", description = "test groups to be executed")
+    private List<String> groupList;
+
+    @Parameter(names = "--disable-groups", description = "test groups to be disabled")
+    private List<String> disableGroupList;
+
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
+    @DynamicParameter(names = "-B", description = "collects dynamic parameters")
+    private Map<String, String> configRuntimeParams = new HashMap<>();
+
     public void execute() {
         if (helpFlag) {
             printCommandUsageInfo(parentCmdParser, "test");
             return;
         }
 
-        if (sourceFileList == null || sourceFileList.size() == 0) {
-            throw LauncherUtils.createUsageException("no ballerina program or directory given to run tests");
+        if (sourceFileList == null || sourceFileList.isEmpty()) {
+            sourceFileList = new ArrayList<>();
+            // TODO this should be properly fixed once the Packering V4 is done
+            Path userDir = Paths.get(System.getProperty("user.dir"));
+            try {
+                sourceFileList = Files.walk(userDir, 1).filter(Files::isDirectory).filter(file -> file != userDir)
+                        .map(path -> path.getFileName().toString()).collect(Collectors.toList());
+            } catch (IOException e) {
+                throw LauncherUtils.createUsageException("Failed to load the ballerina package/s from " + userDir);
+            }
         }
 
-        if (mock) {
-            TesterinaUtils.setMockEnabled(mock);
+        if (groupList != null && disableGroupList != null) {
+            throw LauncherUtils
+                    .createUsageException("Cannot specify both --groups and --disable-groups flags at the same time");
+        }
+
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
+        try {
+            ConfigRegistry.getInstance().initRegistry(configRuntimeParams, null, ballerinaConfPath);
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+        } catch (IOException e) {
+            throw new RuntimeException("failed to read the specified configuration file: " + ballerinaConfPath
+                    .toString(), e);
         }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
-        BTestRunner.runTest(paths);
+
+        if (disableGroupList != null) {
+            new BTestRunner().runTest(sourceRoot, paths, disableGroupList, false);
+        } else {
+            new BTestRunner().runTest(sourceRoot, paths, groupList, true);
+        }
+        Runtime.getRuntime().exit(0);
     }
 
     @Override
@@ -113,7 +155,7 @@ public class TestCmd implements BLauncherCmd {
         }
 
         printFlags(jCommander.getParameters(), out);
-        outStream.println(out.toString());
+        errStream.println(out.toString());
     }
 
     private static void printCommandList(JCommander cmdParser, StringBuilder out) {
@@ -178,7 +220,6 @@ public class TestCmd implements BLauncherCmd {
             out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
         }
     }
-
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {

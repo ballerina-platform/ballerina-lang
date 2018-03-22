@@ -66,7 +66,13 @@ public struct ServiceSecureSocket {
     ValidateCert|null validateCert;
     string ciphers;
     string sslVerifyClient;
-    boolean sessionCreation = true;
+    boolean sessionCreation;
+}
+
+@Description {value:"Initializes the ServiceSecureSocket struct with default values."}
+@Param {value:"config: The ServiceSecureSocket struct to be initialized"}
+public function <ServiceSecureSocket config> ServiceSecureSocket() {
+    config.sessionCreation = true;
 }
 
 public enum KeepAlive {

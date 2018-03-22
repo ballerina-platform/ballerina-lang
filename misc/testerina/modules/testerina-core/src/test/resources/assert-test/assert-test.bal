@@ -3,50 +3,54 @@ import ballerina/test;
 function testAssertIntEquals (int a, int b) {
     int answer = 0;
     answer = intAdd(a, b);
-    test:assertIntEquals(answer, 8, "intAdd function failed");
+    test:assertEquals(answer, 8, msg = "intAdd function failed");
 }
 
 function testAssertFloatEquals (float a, float b) {
     float float1 = 10.000;
     float float2 = 20.050;
     float answer = floatAdd(a, b);
-    test:assertFloatEquals(answer, 30.050, "floatAdd function failed");
+    test:assertEquals(answer, 30.050);
 }
 
 function testAssertStringEquals (string a, string b) {
     string concatenated = stringConcat(a, b);
-    test:assertStringEquals(concatenated, "JohnDoe", "string concatenation failed");
+    test:assertEquals(concatenated, "JohnDoe");
 }
 
-function intAdd (int a, int b) (int) {
+function testAssertJsonEquals (json a, json b) {
+    test:assertEquals(a, b);
+}
+
+function intAdd (int a, int b) returns (int) {
     return a + b;
 }
 
-function floatAdd (float a, float b) (float) {
+function floatAdd (float a, float b) returns (float) {
     return a + b;
 }
 
-function stringConcat (string a, string b) (string) {
+function stringConcat (string a, string b) returns (string) {
     return a + b;
 }
 
 function testAssertTrue (boolean value) {
-    test:assertTrue(value, "assertTrue failed");
+    test:assertTrue(value, msg = "assertTrue failed");
 }
 
 function testAssertFalse (boolean value) {
-    test:assertFalse(value, "assertFalse failed");
+    test:assertFalse(value, msg = "assertFalse failed");
 }
 
 function testAssertBooleanEquals (boolean x, boolean y) {
-    test:assertBooleanEquals(x, y, "assertBooleanEquals failed");
+    test:assertEquals(x, y, msg = "assertBooleanEquals failed");
 }
 
 function testAssertFail (boolean value) {
     if (value) {
         return;
     }
-    test:assertFail("assertFailed");
+    test:assertFail(msg = "assertFailed");
 }
 
 function testAssertStringArrayEquals (int case) {
@@ -58,9 +62,9 @@ function testAssertStringArrayEquals (int case) {
         y[1] = "b";
     } else if (case == 3) {
         y[1] = "b";
-        test:assertStringArrayEquals(x, y, "");
+        test:assertEquals(x, y);
     }
-    test:assertStringArrayEquals(x, y, "failed");
+    test:assertEquals(x, y);
 }
 
 function testAssertIntArrayEquals (int case) {
@@ -71,7 +75,7 @@ function testAssertIntArrayEquals (int case) {
     } else if (case == 2) {
         y[1] = 5;
     }
-    test:assertIntArrayEquals(x, y, "failed");
+    test:assertEquals(x, y, msg = "failed");
 }
 
 function testAssertFloatArrayEquals (int case) {
@@ -82,5 +86,24 @@ function testAssertFloatArrayEquals (int case) {
     } else if (case == 2) {
         y[1] = 2.22;
     }
-    test:assertFloatArrayEquals(x, y, "failed");
+    test:assertEquals(x, y, msg = "failed");
 }
+
+function testAssertNotEquals (int case) {
+    if (case == 1) {
+        string s1 = "abc";
+        string s2 = "def";
+        test:assertNotEquals(s1, s2, msg = "failed");
+    } else if (case == 2) {
+        int s1 = 1;
+        int s2 = 33;
+        test:assertNotEquals(s1, s2, msg = "failed");
+    }
+}
+
+function testAssertNotEquals2 () {
+    json s1 = {"a":"b"};
+    json s2 = {"a":"b"};
+    test:assertNotEquals(s1, s2, msg = "failed");
+}
+
