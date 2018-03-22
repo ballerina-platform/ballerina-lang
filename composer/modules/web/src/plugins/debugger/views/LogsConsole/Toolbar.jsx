@@ -25,13 +25,34 @@ import { Dropdown, Menu, Button } from 'semantic-ui-react';
  */
 class ToolBar extends React.Component {
 
+    constructor(props) {
+        super(props);
+        _.forEach(props.filters, (label, filter) => {
+            this.state = {
+                filterValue: {},
+            };
+            this.state.filterValue[filter] = 'all';
+        });
+    }
+
     onChangeFilter(key, filterBy) {
-        console.log(key, filterBy);
+        this.setState({
+            filterValue: {
+                ...this.state.filterValue,
+                [key]: filterBy,
+            },
+        });
+
         const filtered = this.props.messages.filter((item) => {
-            if (filterBy === 'all') {
-                return true;
-            }
-            return item[key] === filterBy;
+            let isIncluded = true;
+            _.forEach(this.state.filterValue, (value, k) => {
+                if (value === 'all') {
+                    isIncluded = isIncluded && true;
+                } else {
+                    isIncluded = isIncluded && (item[k] === value);
+                }
+            });
+            return isIncluded;
         });
         this.props.onFilteredMessages(filtered);
     }
@@ -41,7 +62,6 @@ class ToolBar extends React.Component {
      */
     render() {
         const { filters, messages } = this.props;
-        console.log(filters)
         const keys = _.keys(filters);
         const groupedMessages = {};
         messages.forEach((message) => {
@@ -62,7 +82,7 @@ class ToolBar extends React.Component {
                                 key: option,
                                 text: option,
                                 value: option,
-                            }
+                            };
                         });
                         options.unshift({
                             key: 'all',
@@ -71,14 +91,13 @@ class ToolBar extends React.Component {
                         });
                         return (
                             <div className={`filter-${key} pull-right`}>
-                                <label>{filters[key]}</label>
-                                <Button size='tiny' >
-                                    <Dropdown
-                                        placeholder='All'
-                                        options={options}
-                                        onChange={(e, data) => this.onChangeFilter(key, data.value)}
-                                    />
-                                </Button>
+                                <label htmlFor='dropdown'>{filters[key]}</label>
+                                <Dropdown
+                                    direction='left'
+                                    value={this.state.filterValue[key]}
+                                    options={options}
+                                    onChange={(e, data) => this.onChangeFilter(key, data.value)}
+                                />
                             </div>);
                     })
                 }

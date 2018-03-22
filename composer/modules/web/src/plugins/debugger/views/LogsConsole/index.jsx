@@ -19,7 +19,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { Table, Rail, Sticky, Grid } from 'semantic-ui-react';
+import { Table, Rail, Sticky, Grid, Portal, Segment } from 'semantic-ui-react';
 import ToolBar from './Toolbar';
 import './index.scss';
 
@@ -49,85 +49,85 @@ class LogsConsole extends React.Component {
      * @memberof LogsConsole
      */
     componentDidMount() {
-        const messages = [
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.upstream", "headers": ""
-            }, {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.upstream", "headers": ""
-            }
-            ,
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.upstream", "headers": ""
-            }, {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.upstream", "headers": ""
-            }
-            ,
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            },
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.upstream", "headers": ""
-            }, {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.upstream", "headers": ""
-            }
-            ,
-            {
-                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
-                "stream": "tracelog.http.downstream", "headers": ""
-            }
-        ];
-        
-        this.setState({
-            messages,
-            filteredMessages: messages,
-        });
+        // const messages = [
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+        //         "stream": "tracelog.http.upstream", "headers": ""
+        //     }, {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+        //         "stream": "tracelog.http.upstream", "headers": ""
+        //     }
+        //     ,
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7ab", "direction": "OutBound",
+        //         "stream": "tracelog.http.upstream", "headers": ""
+        //     }, {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.upstream", "headers": ""
+        //     }
+        //     ,
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     },
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+        //         "stream": "tracelog.http.upstream", "headers": ""
+        //     }, {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+        //         "stream": "tracelog.http.upstream", "headers": ""
+        //     }
+        //     ,
+        //     {
+        //         "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7ab", "direction": "OutBound",
+        //         "stream": "tracelog.http.downstream", "headers": ""
+        //     }
+        // ];
+
+        // this.setState({
+        //     messages,
+        //     filteredMessages: messages,
+        // });
         let messageCache = [];
         this.props.LaunchManager.on('execution-started', () => {
             messageCache = [];
@@ -161,7 +161,7 @@ class LogsConsole extends React.Component {
     render() {
         const { height } = this.props;
         return (
-            <div id='logs-console' ref={(stickyContext) => { this.stickyContext = stickyContext; }}>
+            <div id='logs-console' ref={(stickyContext) => { this.stickyContext = stickyContext; }} style={{ height }}>
                 {
                     this.state.messages.length > 0 &&
                     <div>
@@ -171,10 +171,13 @@ class LogsConsole extends React.Component {
                             onFilteredMessages={this.onFilteredMessages}
                         />
                         <div >
-                            <Grid columns={3} stretched style={{ width: '100%', margin: 0 }}>
+                            <Grid columns={4} stretched style={{ width: '100%', margin: 0 }}>
                                 <Grid.Row className='table-heading'>
                                     <Grid.Column>
                                         Activity Id
+                                    </Grid.Column>
+                                    <Grid.Column>
+                                        Timestamp
                                     </Grid.Column>
                                     <Grid.Column>
                                         Stream
@@ -185,15 +188,29 @@ class LogsConsole extends React.Component {
                                 </Grid.Row>
                             </Grid>
                             <Grid
-                                columns={3}
+                                columns={4}
                                 className='table-content'
-                                style={{ maxHeight: height }} 
+                                style={{ maxHeight: height }}
                             >
+                                {/* <Portal
+                                    closeOnTriggerClick
+                                    openOnTriggerClick
+                                    open
+                                    onOpen={this.handleOpen}
+                                    onClose={this.handleClose}
+                                >
+                                    <Segment style={{ left: '40%', position: 'absolute', top: '50%', zIndex: 1000 }}>
+                                        <p>Portals have tons of great callback functions to hook into.</p>
+                                        <p>To close, simply click the close button or click away</p>
+                                    </Segment>
+                                </Portal> */}
                                 {this.state.filteredMessages.map((message) => {
                                     return (
                                         <Grid.Row
+                                            key={message.timestamp}
                                         >
                                             <Grid.Column>{message.id}</Grid.Column>
+                                            <Grid.Column>{message.timestamp}</Grid.Column>
                                             <Grid.Column>{message.stream}</Grid.Column>
                                             <Grid.Column>{message.headers}</Grid.Column>
                                         </Grid.Row>

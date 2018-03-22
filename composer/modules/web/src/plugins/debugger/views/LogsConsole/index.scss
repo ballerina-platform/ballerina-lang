@@ -4,6 +4,10 @@
         height: 25px;
         border-bottom: 1px solid #555;
         border-top: 1px solid #555;
+        .dropdown {
+            margin: 0 10px;
+            line-height: 24px;
+        }
     }
     label{
         margin-right: 5px;
@@ -16,13 +20,11 @@
         padding: 5px;
         border-bottom: 1px #5a5a5a solid;
     }
-    .table-heading {
+    .table-heading.row{
         width: 100%;
         margin: 0;
-        .row{
-            border-bottom: 1px solid #eee;
-            padding: 5px;
-        }
+        border-bottom: 2px solid #717171;
+        padding: 5px;
     }
     .table-content{
         width: 100%;
