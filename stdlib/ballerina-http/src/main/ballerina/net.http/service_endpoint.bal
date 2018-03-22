@@ -113,13 +113,6 @@ public native function <ServiceEndpoint ep> stop();
 //////////////////////////////////
 public struct WebSocketEndpoint{
     WebSocketConnector conn;
-    //TODO:Make these read only
-    map attributes;
-    string id;
-    string negotiatedSubProtocol;
-    boolean isSecure;
-    boolean isOpen;
-    map upgradeHeaders;
     ServiceEndpointConfiguration config;
     ServiceEndpoint httpEndpoint;
 }

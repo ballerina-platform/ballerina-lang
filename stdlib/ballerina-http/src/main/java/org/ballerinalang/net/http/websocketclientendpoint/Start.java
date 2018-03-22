@@ -99,7 +99,7 @@ public class Start extends BlockingNativeCallableUnit {
             wsService.setServiceEndpoint(endpoint);
             BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
             wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            WebSocketUtil.populateEndpoint(session, endpoint);
+            WebSocketUtil.populateEndpoint(session, wsConnection);
             clientConnectorListener.setWebSocketService(wsService);
             endpoint.setRefField(0, wsConnection);
             context.setReturnValues();

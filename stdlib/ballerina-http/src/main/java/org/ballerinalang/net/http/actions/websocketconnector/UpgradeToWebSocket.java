@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.Set;
 

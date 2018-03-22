@@ -91,7 +91,7 @@ public abstract class WebSocketUtil {
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                populateEndpoint(session, wsService.getServiceEndpoint(), initMessage);
+                populateEndpoint(session, wsConnection);
                 wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketConnectionManager.getInstance().addService(session.getId(), wsService);
 
@@ -118,14 +118,6 @@ public abstract class WebSocketUtil {
         endpoint.setStringField(0, session.getId());
         endpoint.setStringField(1, session.getNegotiatedSubprotocol());
         endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
-        endpoint.setBooleanField(0, session.isOpen() ? 1 : 0);
-    }
-
-    public static void populateEndpoint(Session session, BStruct endpoint, WebSocketInitMessage initMessage) {
-        populateEndpoint(session, endpoint);
-        Map<String, String> upgradeHeaders = initMessage.getHeaders();
-        BMap<String, BString> bUpgradeHeaders = new BMap<>();
-        upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
-        endpoint.setRefField(2, bUpgradeHeaders);
+        endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
     }
 }

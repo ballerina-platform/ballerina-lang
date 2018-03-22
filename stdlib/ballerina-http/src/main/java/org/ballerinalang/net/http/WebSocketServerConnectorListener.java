@@ -76,7 +76,10 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, serverConnector);
-
+        Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
+        BMap<String, BString> bUpgradeHeaders = new BMap<>();
+        upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
+        serverConnector.setRefField(1, bUpgradeHeaders);
         Resource onUpgradeResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_UPGRADE);
         if (onUpgradeResource != null) {
             Semaphore semaphore = new Semaphore(0);
@@ -94,11 +97,6 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
             HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, msg);
 
-            // Creating map
-            Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
-            BMap<String, BString> bUpgradeHeaders = new BMap<>();
-            upgradeHeaders.forEach((headerKey, headerVal) -> bUpgradeHeaders.put(headerKey, new BString(headerVal)));
-            serverConnector.setRefField(0, bUpgradeHeaders);
             List<ParamDetail> paramDetails = onUpgradeResource.getParamDetails();
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = serviceEndpoint;
