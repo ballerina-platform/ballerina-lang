@@ -6,7 +6,7 @@ function main (string[] args) {
             host: "localhost",
             port: 9090,
   	        ssl:{
-                 trustStoreFile:"/home/yasara/Desktop/Hackerthon/ballerina/distribution/zip/ballerina/resources/security/ballerinaTruststore.p12",
+                 trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                  trustStorePassword:"ballerina"
   	        }
         };

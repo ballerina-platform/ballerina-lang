@@ -5,7 +5,7 @@ endpoint grpc:Service ep {
   host:"localhost",
   port:9090,
   ssl:{
-    keyStoreFile:"/home/yasara/Desktop/Hackerthon/ballerina/distribution/zip/ballerina/resources/security/ballerinaKeystore.p12",
+    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
     keyStorePassword:"ballerina",
     certPassword:"ballerina"
   }
