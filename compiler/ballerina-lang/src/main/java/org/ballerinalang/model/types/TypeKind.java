@@ -58,10 +58,10 @@ public enum TypeKind {
     FUTURE("future"),
     PACKAGE("package"),
     STRUCT("struct"),
+    OBJECT("object"),
     ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
-    STREAMLET("streamlet"),
     ENDPOINT("endpoint"),
     FUNCTION("function"),
     ANNOTATION("annotation"),
@@ -74,6 +74,7 @@ public enum TypeKind {
     MESSAGE("message"),
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
+    TUPLE("tuple"),
     ;
 
     private String name;

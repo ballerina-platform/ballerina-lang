@@ -4,12 +4,12 @@ struct Person {
 }
 
 
-function test()(string){
+function test() returns string {
    Person human = {};
    var human.name = getHumanName();
    return human.name;
 }
 
-function getHumanName()(string){
+function getHumanName() returns string {
    return "Human Name";
 }

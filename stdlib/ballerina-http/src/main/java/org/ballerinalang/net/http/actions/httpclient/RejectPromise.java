@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code RejectPromise} action can be used to reject a push promise.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "rejectPromise",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),

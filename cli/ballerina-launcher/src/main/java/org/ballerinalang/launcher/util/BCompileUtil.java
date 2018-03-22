@@ -19,7 +19,6 @@ package org.ballerinalang.launcher.util;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -28,11 +27,15 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,7 +55,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -135,10 +138,12 @@ public class BCompileUtil {
                 // TODO: orgName is anon, fix it.
                 PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
                 effectiveSource = pkgId.getName().getValue();
+                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
             } else {
                 effectiveSource = packageName;
+                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+                        new FileSystemProjectDirectory(rootPath));
             }
-            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }
@@ -194,7 +199,7 @@ public class BCompileUtil {
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRoot);
+        options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -206,15 +211,47 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-        if (programFile != null) {
-            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+        BLangPackage packageNode = compiler.compile(packageName);
+        comResult.setAST(packageNode);
+        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+            return comResult;
         }
 
-        PackageNode pkgNode = compiler.getAST();
-        if (pkgNode != null) {
-            comResult.setAST(compiler.getAST());
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
+        if (programFile != null) {
+            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
+            comResult.setProgFile(pFile);
+            if (pFile != null) {
+                boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
+                pFile.setDistributedTransactionEnabled(distributedTxEnabled);
+            }
+        }
+
+        return comResult;
+    }
+
+    public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
+                                        SourceDirectory sourceDirectory) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        context.put(SourceDirectory.class, sourceDirectory);
+
+        CompileResult comResult = new CompileResult();
+
+        // catch errors
+        DiagnosticListener listener = comResult::addDiagnostic;
+        context.put(DiagnosticListener.class, listener);
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName);
+        comResult.setAST(packageNode);
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
+        if (programFile != null) {
+            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
 
         return comResult;
@@ -232,7 +269,7 @@ public class BCompileUtil {
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+        options.put(PROJECT_DIR, resourceDir.resolve(sourceRoot).toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -244,10 +281,7 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        BLangPackage compiledPkg = (BLangPackage) compiler.getAST();
-
-        return compiledPkg;
+        return compiler.compile(packageName);
     }
 
     /**
@@ -272,7 +306,7 @@ public class BCompileUtil {
         }
     }
 
-    public static String readFileAsString(String path) {
+    public static String readFileAsString(String path) throws IOException {
         InputStream is = ClassLoader.getSystemResourceAsStream(path);
         InputStreamReader inputStreamREader = null;
         BufferedReader br = null;
@@ -288,9 +322,8 @@ public class BCompileUtil {
             sb.append(content);
 
             while ((content = br.readLine()) != null) {
-                sb.append("\n" + content);
+                sb.append('\n').append(content);
             }
-        } catch (IOException ignore) {
         } finally {
             if (inputStreamREader != null) {
                 try {
@@ -330,7 +363,7 @@ public class BCompileUtil {
         Thread.currentThread().setContextClassLoader(classLoader);
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRoot);
+        options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -342,8 +375,8 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(fileName);
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
+        BLangPackage entryPackageNode = compiler.compile(fileName);
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPackageNode);
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }

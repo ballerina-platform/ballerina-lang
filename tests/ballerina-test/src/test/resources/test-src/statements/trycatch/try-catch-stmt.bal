@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 public struct testError {
     string message;
@@ -18,7 +18,7 @@ public struct testInputError {
     string input;
 }
 
-function testTryCatch (int value) (string) {
+function testTryCatch (int value) returns (string) {
     string path = "start ";
     try {
         path = path + "insideTry ";
@@ -56,7 +56,7 @@ function testTryCatch (int value) (string) {
     return path;
 }
 
-function testFunctionThrow (int arg) (boolean, string) {
+function testFunctionThrow (int arg) returns (boolean, string) {
     string a = "0";
     try {
         a = a + "1";
@@ -64,18 +64,18 @@ function testFunctionThrow (int arg) (boolean, string) {
         a = a + "2";
     } catch (error b) {
         a = a + "3";
-        return true, a;
+        return (true, a);
     }
     a = a + "4";
-    return false, a;
+    return (false, a);
 }
 
-function testThrow (int a) (int) {
+function testThrow (int a) returns (int) {
     int c = a + 10;
     return testNestedThrow(c);
 }
 
-function testNestedThrow (int a) (int) {
+function testNestedThrow (int a) returns (int) {
     error e = {message:"test message"};
     int i = 10;
     if (i == 10) {
@@ -88,7 +88,7 @@ function testUncaughtException () {
     _ = testNestedThrow(1);
 }
 
-function testErrorCallStackFrame () (runtime:CallStackElement, runtime:CallStackElement) {
+function testErrorCallStackFrame () returns (runtime:CallStackElement, runtime:CallStackElement) {
     runtime:CallStackElement trace1; 
     runtime:CallStackElement trace2;
     try {
@@ -97,14 +97,14 @@ function testErrorCallStackFrame () (runtime:CallStackElement, runtime:CallStack
         trace1 = runtime:getErrorCallStackFrame(e); 
         trace2 = runtime:getErrorCallStackFrame(e.cause[0]);
     }
-    return trace1, trace2;
+    return (trace1, trace2);
 }
 
-function mockFunction () (string) {
+function mockFunction () returns (string) {
     return "done";
 }
 
-function testMethodCallInFinally () (string) {
+function testMethodCallInFinally () returns (string) {
     string s = "start";
     try {
         error e = {message:"test"};
@@ -115,7 +115,7 @@ function testMethodCallInFinally () (string) {
     return s;
 }
 
-function scopeIssueTest () (int) {
+function scopeIssueTest () returns (int) {
     int i = 0;
     while (i < 10) {
         try {
@@ -132,7 +132,7 @@ function scopeIssueTest () (int) {
     return j6;
 }
 
-function testTryWithinWhile () (int) {
+function testTryWithinWhile () returns (int) {
     int i = 0;
     while (i < 3) {
         try {

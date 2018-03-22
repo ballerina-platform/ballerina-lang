@@ -1,15 +1,17 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 documentation { Documentation for Test annotation
 F{{a}} annotation `field a` documentation
 F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
-annotation Test {
+struct Tst {
     string a;
     string b;
     string cd;
 }
+
+annotation Test Tst;
 
 documentation { Documentation for testConst constant
 V{{testConst}} abc description}
@@ -44,7 +46,8 @@ T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 P{{accessMode}} read or write mode
 R{{successfuls}} boolean `true` or `false`
 }
-public function <File file> open (string accessMode) (boolean successful) {
+public function <File file> open (string accessMode) returns (boolean) {
+    boolean successful;
     return successful;
 }
 
@@ -82,34 +85,35 @@ struct Employee {
 
 documentation {
 Test Connector
-P{{url}} url for endpoint
-P{{url}} url for endpoint
+F{{url}} url for endpoint
+F{{url}} url for endpoint
 P{{urls}} urls for endpoint}
-connector TestConnector (string url) {
-
-    documentation {Test Connector action testAction
-    R{{s}} which represent successful or not
-    R{{s}} which represent successful or not
-    R{{ssss}} which represent successful or not}
-    action testAction() (boolean s) {
-       boolean value;
-       return value;
-    }
+struct TestConnector {
+  string url;
 }
+
+//documentation {Test Connector action testAction
+//    R{{s}} which represent successful or not
+//    R{{ssss}} which represent successful or not}
+//public function <TestConnector t> testAction(string url) returns (boolean) {
+//    boolean value;
+//return value;
+//}
 
 documentation { PizzaService HTTP Service
 P{{conn}} HTTP connection.}
-service<http> PizzaService {
+service<http:Service> PizzaService {
 
     documentation {
     Check orderPizza resource.
-    P{{conn}} HTTP connection.
     P{{req}} In request.
     P{{req}} In request.
     P{{reqest}} In request.}
-    resource orderPizza(http:Connection conn, http:Request req) {
+//  P{{conn}} HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
+
+    orderPizza(endpoint conn, http:Request req) {
         http:Response res = {};
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 

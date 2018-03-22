@@ -23,7 +23,7 @@ package org.wso2.ballerinalang.programfile;
 public class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 16;
+    public static final short VERSION_NUMBER = 17;
 
     // int, float, string, boolean, blob, reference type
     public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;

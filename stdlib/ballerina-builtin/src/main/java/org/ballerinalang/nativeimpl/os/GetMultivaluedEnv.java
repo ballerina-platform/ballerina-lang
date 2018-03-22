@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.os",
+        orgName = "ballerina", packageName = "os",
         functionName = "getMultivaluedEnv",
         args = {@Argument(name = "name", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},

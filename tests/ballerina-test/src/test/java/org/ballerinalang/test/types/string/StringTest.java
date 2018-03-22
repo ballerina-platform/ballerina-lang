@@ -45,7 +45,7 @@ public class StringTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "types/string/string-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/string-test.bal");
     }
 
     @Test
@@ -506,7 +506,7 @@ public class StringTest {
     public void nullInString() {
         BValue[] returns = BRunUtil.invoke(result, "nullInString");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[0].stringValue());
+        Assert.assertEquals(returns[0].stringValue(), "");
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertNull(returns[1].stringValue());
     }
@@ -515,7 +515,7 @@ public class StringTest {
     public void concatNullString() {
         BValue[] returns = BRunUtil.invoke(result, "concatNullString");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "nullnull");
+        Assert.assertEquals(returns[0].stringValue(), "null");
     }
 
     @Test

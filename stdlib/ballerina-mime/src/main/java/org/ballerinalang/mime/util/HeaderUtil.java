@@ -31,6 +31,7 @@ import org.jvnet.mimepull.Header;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -255,5 +256,19 @@ public class HeaderUtil {
             httpHeaders = new DefaultHttpHeaders();
         }
         httpHeaders.set(key, value);
+    }
+
+    public static BMap<String, BValue> getAllHeadersAsBMap(HttpHeaders headers) {
+        BMap<String, BValue> headerMap = new BMap<>();
+        for (Map.Entry<String, String> header : headers.entries()) {
+            if (headerMap.keySet().contains(header.getKey())) {
+                BStringArray valueArray = (BStringArray) headerMap.get(header.getKey());
+                valueArray.add(valueArray.size(), header.getValue());
+            } else {
+                BStringArray valueArray = new BStringArray(new String[]{header.getValue()});
+                headerMap.put(header.getKey(), valueArray);
+            }
+        }
+        return headerMap;
     }
 }

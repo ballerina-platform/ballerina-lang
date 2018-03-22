@@ -45,6 +45,9 @@ public class WebSocketServicesRegistry {
 
     public void registerService(WebSocketService service) {
         String basePath = findFullWebSocketUpgradePath(service);
+        if (basePath == null) {
+            basePath = "/";
+        }
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         // TODO: Add websocket services to the service registry when service creation get available.

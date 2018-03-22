@@ -1,6 +1,6 @@
 package ballerina.user;
 
-import ballerina.util;
+import ballerina/util;
 
 @Description {value:"Returns the current user's country."}
 @Return { value:"Current user's country if it can be determined, an empty string otherwise"}

@@ -35,7 +35,7 @@ public class UtilTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src", "nativeimpl/functions/util-test.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/util-test.bal");
     }
 
     @Test

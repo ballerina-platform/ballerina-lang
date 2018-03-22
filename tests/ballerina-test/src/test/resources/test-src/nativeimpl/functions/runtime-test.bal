@@ -1,11 +1,11 @@
-import ballerina.runtime;
-import ballerina.time;
+import ballerina/runtime;
+import ballerina/time;
 
 function testSleepCurrentThread () {
     runtime:sleepCurrentWorker(1000);
 }
 
-function testConcurrentSleep () (int[]) {
+function testConcurrentSleep () returns (int[]) {
     worker w1 {
         int[] result = [];
         int start = time:currentTime().time;
@@ -58,18 +58,18 @@ function testSetProperty (string name, string value) {
     runtime:setProperty(name, value);
 }
 
-function testGetProperty (string name) (string) {
+function testGetProperty (string name) returns (string) {
     return runtime:getProperty(name);
 }
 
-function testGetProperties () (map) {
+function testGetProperties () returns (map) {
     return runtime:getProperties();
 }
 
-function testGetCurrentDirectory () (string) {
+function testGetCurrentDirectory () returns (string) {
     return runtime:getCurrentDirectory();
 }
 
-function testGetFileEncoding () (string) {
+function testGetFileEncoding () returns (string) {
     return runtime:getFileEncoding();
 }

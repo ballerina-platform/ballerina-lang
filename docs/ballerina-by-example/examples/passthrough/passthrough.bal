@@ -1,54 +1,62 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-endpoint<http:Service> passthroughEP {
+endpoint http:ServiceEndpoint passthroughEP {
     port:9092
-}
+};
 
-endpoint<http:Client> clientEP {
-    serviceUri: "http://localhost:9090/echo"
-}
+endpoint http:ClientEndpoint clientEP {
+    targets: [{uri: "http://localhost:9090/echo"}]
+};
 
-@http:serviceConfig { endpoints:[passthroughEP] }
-service<http:Service> passthrough {
+@http:ServiceConfig
+service<http:Service> passthrough bind passthroughEP {
 
     @Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource passthrough (http:ServerConnector conn, http:Request req) {
+    passthrough (endpoint outboundEP, http:Request req) {
         //Extract HTTP method from the inbound request.
         string method = req.method;
         http:Response clientResponse = {};
-        http:HttpConnectorError err;
+        http:HttpConnectorError err = {};
         //Action forward() does a backend client call and returns the response. It includes endPoint, resource path and inbound request as parameters.
-        clientResponse, err = clientEP -> forward("/", req);
+        var clientRes = clientEP -> forward("/", req);
+        match clientRes {
+            http:Response res => {
+                clientResponse = res    ;
+            }
+            http:HttpConnectorError connErr => {
+                err = connErr;
+            }
+        }
         //Native function "forward" sends back the clientResponse to the caller if no any error is found.
         http:Response res = {};
         if (err != null) {
             res.statusCode = 500;
             res.setStringPayload(err.message);
-            _ = conn -> respond(res);
+            _ = outboundEP -> respond(res);
         } else {
-            _ = conn -> forward(clientResponse);
+            _ = outboundEP -> forward(clientResponse);
         }
     }
 }
 
-endpoint<http:Service> echoEP {
+endpoint http:ServiceEndpoint echoEP {
     port:9090
-}
+};
 
 @Description {value:"Sample backend echo service."}
-@http:serviceConfig { endpoints:[echoEP] }
-service<http:Service> echo {
+@http:ServiceConfig
+service<http:Service> echo bind echoEP {
     @Description {value:"A common resource for POST, PUT and GET methods."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:ServerConnector conn, http:Request req) {
+    echoResource (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Resource is invoked");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }

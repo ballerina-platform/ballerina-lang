@@ -23,25 +23,19 @@ import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
-import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
-import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.util.BrokerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The {@code BStream} represents a stream in Ballerina.
@@ -69,6 +63,10 @@ public class BStream implements BRefType<Object> {
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
                 + name;
         this.streamId = name;
+    }
+
+    public String getStreamId() {
+        return streamId;
     }
 
     @Override
@@ -120,45 +118,11 @@ public class BStream implements BRefType<Object> {
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
-
-        //TODO - remove with subscription related improvements
-        List<SiddhiAppRuntime> siddhiAppRuntimeList = StreamingRuntimeManager.getInstance().
-                getStreamSpecificSiddhiAppRuntimes(streamId);
-        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {
-            addCallback(siddhiAppRuntime);
-        }
     }
 
     public void subscribe(InputHandler inputHandler) {
         String queueName = String.valueOf(UUID.randomUUID());
         BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
-    }
-
-    public void addCallback(SiddhiAppRuntime siddhiAppRuntime) {
-        siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                for (Event event : events) {
-                    AtomicInteger intVarIndex = new AtomicInteger(-1);
-                    AtomicInteger floatVarIndex = new AtomicInteger(-1);
-                    AtomicInteger boolVarIndex = new AtomicInteger(-1);
-                    AtomicInteger stringVarIndex = new AtomicInteger(-1);
-                    BStruct output = new BStruct(constraintType);
-                    for (Object field : event.getData()) {
-                        if (field instanceof Long) {
-                            output.setIntField(intVarIndex.incrementAndGet(), (Long) field);
-                        } else if (field instanceof Double) {
-                            output.setFloatField(floatVarIndex.incrementAndGet(), (Double) field);
-                        } else if (field instanceof Boolean) {
-                            output.setBooleanField(boolVarIndex.incrementAndGet(), (Integer) field);
-                        } else if (field instanceof String) {
-                            output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
-                        }
-                    }
-                    publish(output);
-                }
-            }
-        });
     }
 
     private class StreamSubscriber extends Consumer {

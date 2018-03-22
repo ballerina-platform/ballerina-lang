@@ -217,15 +217,6 @@ public class HttpConnectionManager {
 //                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
 //    }
 
-    /**
-     * Gets the access logto value if available.
-     * @return the access logto value from the ConfigRegistry
-     */
-    public String getHttpAccessLoggerConfig() {
-        return ConfigRegistry.getInstance().getInstanceConfigValue(HTTP_ACCESS_LOG, LOG_TO);
-    }
-
-
     private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
         int noOfExceptions = startupSyncer.getNoOfFailedConnectors();
         if (noOfExceptions <= 0) {
@@ -250,6 +241,14 @@ public class HttpConnectionManager {
         // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
         return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
                 org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
+    }
+
+    /**
+     * Gets the access logto value if available.
+     * @return the access logto value from the ConfigRegistry
+     */
+    public String getHttpAccessLoggerConfig() {
+        return ConfigRegistry.getInstance().getConfiguration(HTTP_ACCESS_LOG, LOG_TO);
     }
 
     private String makeFirstLetterLowerCase(String str) {

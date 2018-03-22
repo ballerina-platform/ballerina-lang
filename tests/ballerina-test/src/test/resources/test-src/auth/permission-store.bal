@@ -1,26 +1,26 @@
-import ballerina.auth.authz.permissionstore;
+import ballerina/auth.authz.permissionstore;
 
-function testCreatePermissionstore () (permissionstore:FileBasedPermissionStore) {
+function testCreatePermissionstore () returns (permissionstore:FileBasedPermissionStore) {
     permissionstore:FileBasedPermissionStore permissionStore = {};
     return permissionStore;
 }
 
-function testReadGroupsForNonExistingScope () (string) {
+function testReadGroupsForNonExistingScope () returns (string) {
     permissionstore:FileBasedPermissionStore permissionStore = {};
     return permissionStore.readGroupsOfScope("scope-x");
 }
 
-function testReadGroupsForScope () (string) {
+function testReadGroupsForScope () returns (string) {
     permissionstore:FileBasedPermissionStore permissionStore = {};
     return permissionStore.readGroupsOfScope("scope1");
 }
 
-function testReadGroupsForNonExistingUser () (string) {
+function testReadGroupsForNonExistingUser () returns (string) {
     permissionstore:FileBasedPermissionStore permissionStore = {};
     return permissionStore.readGroupsOfUser("lahiru");
 }
 
-function testReadGroupsForUser () (string) {
+function testReadGroupsForUser () returns (string) {
     permissionstore:FileBasedPermissionStore permissionStore = {};
     return permissionStore.readGroupsOfUser("isuru");
 }

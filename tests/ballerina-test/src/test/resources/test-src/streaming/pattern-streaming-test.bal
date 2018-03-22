@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/runtime;
+import ballerina/io;
 
 struct RoomTempInfo {
     int deviceID;
@@ -32,7 +32,8 @@ struct RegulatorInfo {
 
 struct TempDiffInfo {
     int roomNo;
-    float tempDifference;
+    float temp1;
+    float temp2;
 }
 
 TempDiffInfo [] tempDiffInfoArray = [];
@@ -42,17 +43,21 @@ stream<RoomTempInfo> tempStream = {};
 stream<RegulatorInfo> regulatorStream = {};
 stream<TempDiffInfo> tempDiffStream = {};
 
-streamlet TempPatternStreamlet () {
-    from  every regulatorStream as e1 followed by tempStream where e1.roomNo==roomNo [1..2) as e2
-            followed by regulatorStream where e1.roomNo==roomNo as e3
-            select e1.roomNo, e2[1].temp - e2[0].temp  as tempDifference
-            insert into tempDiffStream
+function testPatternQuery () {
+
+    whenever{
+        from  every regulatorStream as e1 followed by tempStream where e1.roomNo==roomNo [1..2) as e2
+        followed by regulatorStream where e1.roomNo==roomNo as e3
+        select e1.roomNo, e2[1].temp - e2[0].temp  as tempDifference
+        => (TempDiffInfo [] emp) {
+            tempDiffStream.publish(emp);
+        }
+    }
 }
 
+function runtPatternQuery () returns (TempDiffInfo []) {
 
-function testPatternQuery () (TempDiffInfo []) {
-
-    TempPatternStreamlet pStreamlet = {};
+    testPatternQuery();
 
     RoomTempInfo t1 = {deviceID: 1, roomNo: 23, temp: 23.0};
     RoomTempInfo t2 = {deviceID: 8, roomNo: 23, temp: 30.0};
@@ -73,15 +78,13 @@ function testPatternQuery () (TempDiffInfo []) {
     regulatorStream.publish(r2);
     runtime:sleepCurrentWorker(1000);
 
-
-    pStreamlet.stop();
     return tempDiffInfoArray;
 }
 
-function printTempDifference (TempDiffInfo tempDiffInfo) {
-    io:println("printTemoDifference function invoked for Room:" + tempDiffInfo.roomNo +" and temp difference :" +
-               tempDiffInfo.tempDifference);
-    addToGlobalTempDiffArray(tempDiffInfo);
+function printTempDifference (TempDiffInfo tempDiff) {
+    io:println("printTemoDifference function invoked for Room:" + tempDiff.roomNo +" and temp difference :" +
+               tempDiff.temp1 + ",,," + tempDiff.temp2);
+    addToGlobalTempDiffArray(tempDiff);
 }
 
 function addToGlobalTempDiffArray (TempDiffInfo s) {

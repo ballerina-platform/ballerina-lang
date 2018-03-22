@@ -1,6 +1,6 @@
-import ballerina.lang.messages;
-import ballerina.lang.system;
-import ballerina.lang.jsonutils;
+import ballerina/lang.messages;
+import ballerina/lang.system;
+import ballerina/lang.jsonutils;
 
 @http:BasePath ("/ecommerceservice")
 service Ecommerce {

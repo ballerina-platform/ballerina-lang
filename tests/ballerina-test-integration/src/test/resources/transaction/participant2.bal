@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 endpoint http:ServiceEndpoint participant2EP {
     port:8890
@@ -26,7 +26,13 @@ service<http:Service> participant2 bind participant2EP {
     task1 (endpoint conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Resource is invoked");
-        _ = conn -> respond(res);
+        var forwardRes = conn -> respond(res);  
+        match forwardRes {
+            error err => {
+                io:print("Could not forward response to caller:");
+                io:println(err);
+            }
+        }
     }
 
     task2 (endpoint conn, http:Request req) {
@@ -38,6 +44,12 @@ service<http:Service> participant2 bind participant2EP {
             }
         }
         res.setStringPayload(result);
-        _ = conn -> respond(res);
+        var forwardRes = conn -> respond(res);  
+        match forwardRes {
+            error err => {
+                io:print("Could not forward response to caller:");
+                io:println(err);
+            }
+        }
     }
 }

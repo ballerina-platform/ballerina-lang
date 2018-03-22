@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/runtime;
+import ballerina/io;
 
 struct Stock {
     string symbol;
@@ -41,18 +41,22 @@ stream<Stock> stockStream = {};
 stream<Twitter> twitterStream = {};
 stream<StockWithPrice> stockWithPriceStream = {};
 
-streamlet joinStreamlet () {
-    from stockStream window time(1000)
-    join twitterStream window time(1000)
+function testJoinQuery () {
+
+    whenever{
+        from stockStream window time(1000)
+        join twitterStream window time(1000)
         on stockStream.symbol == twitterStream.company
-    select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
-    insert all events into stockWithPriceStream
+        select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
+        => (StockWithPrice [] emp) {
+                stockWithPriceStream.publish(emp);
+        }
+    }
 }
 
+function startJoinQuery( ) returns (StockWithPrice []) {
 
-function testJoinQuery () (StockWithPrice []) {
-
-    joinStreamlet pStreamlet = {};
+    testJoinQuery();
 
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};
@@ -68,7 +72,6 @@ function testJoinQuery () (StockWithPrice []) {
     stockStream.publish(s3);
 
     runtime:sleepCurrentWorker(3000);
-    pStreamlet.stop();
     return globalEventsArray;
 }
 

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.BLangConstants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -68,6 +69,8 @@ public final class BStruct implements BRefType, LockableStructureType {
         intFields = new int[fieldCount[3]];
         byteFields = new byte[fieldCount[4]][];
         refFields = new BRefType[fieldCount[5]];
+
+        Arrays.fill(stringFields, BLangConstants.STRING_EMPTY_VALUE);
     }
 
     /**

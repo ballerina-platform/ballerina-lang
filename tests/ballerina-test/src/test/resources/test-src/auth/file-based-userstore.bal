@@ -1,31 +1,31 @@
-import ballerina.auth.userstore;
+import ballerina/auth.userstore;
 
-function testCreateFileBasedUserstore () (userstore:FilebasedUserstore) {
+function testCreateFileBasedUserstore () returns (userstore:FilebasedUserstore) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore;
 }
 
-function testAuthenticationOfNonExistingUser () (boolean) {
+function testAuthenticationOfNonExistingUser () returns (boolean) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.authenticate("amila", "abc");
 }
 
-function testAuthenticationOfNonExistingPassword () (boolean) {
+function testAuthenticationOfNonExistingPassword () returns (boolean) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.authenticate("isuru", "xxy");
 }
 
-function testAuthentication () (boolean) {
+function testAuthentication () returns (boolean) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.authenticate("isuru", "xxx");
 }
 
-function testReadGroupsOfNonExistingUser () (string) {
+function testReadGroupsOfNonExistingUser () returns (string) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.readGroupsOfUser("amila");
 }
 
-function testReadGroupsOfUser () (string) {
+function testReadGroupsOfUser () returns (string) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.readGroupsOfUser("ishara");
 }

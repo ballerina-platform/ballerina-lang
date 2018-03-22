@@ -38,7 +38,7 @@ public class RegexTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "regex/regex-test.bal");
+        result = BCompileUtil.compile("test-src/regex/regex-test.bal");
     }
 
     @Test(description = "Test for executing on matches regex method")
@@ -47,7 +47,6 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test for executing on matches regex method -  negative case")
@@ -56,7 +55,6 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test for executing on find all regex method")
@@ -67,7 +65,6 @@ public class RegexTest {
         BStringArray bStringArray = (BStringArray) returns[0];
         Assert.assertEquals(bStringArray.get(0), "This");
         Assert.assertEquals(bStringArray.get(1), "is");
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test for executing on replace all regex method")
@@ -77,7 +74,6 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "replaceAllRgx", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "xyz is not xyz as xyz anymore");
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test for executing on replace first regex method")
@@ -87,16 +83,15 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "replaceFirstRgx", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "xyz is not abc as abc anymore");
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test for executing on invalid regex pattern")
     public void testInvalidPattern() {
         BValue[] args = {new BString("[")};
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "Unclosed character class near index 0\n" +
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
                 "[\n" +
                 "^");
     }
@@ -106,10 +101,8 @@ public class RegexTest {
         BValue[] args = {new BString(s1), new BString("[")};
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0], BBoolean.FALSE);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "Unclosed character class near index 0\n" +
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
                 "[\n" +
                 "^");
     }

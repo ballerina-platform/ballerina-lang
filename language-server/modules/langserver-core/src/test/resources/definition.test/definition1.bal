@@ -1,6 +1,6 @@
 package definition.test;
 
-import ballerina.io;
+import ballerina/io;
 
 string lastName;
 

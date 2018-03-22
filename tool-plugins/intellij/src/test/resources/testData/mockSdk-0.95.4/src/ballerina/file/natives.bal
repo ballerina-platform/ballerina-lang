@@ -1,6 +1,6 @@
 package ballerina.file;
 
-import ballerina.io;
+import ballerina/io;
 
 @Description { value:"The Read access mode"}
 public const string R = "R";

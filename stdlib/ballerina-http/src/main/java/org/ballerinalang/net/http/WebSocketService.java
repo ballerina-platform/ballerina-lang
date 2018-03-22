@@ -18,11 +18,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
@@ -49,9 +50,15 @@ public class WebSocketService implements Service {
         }
 
         Annotation configAnnotation =
-                HttpUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
-        negotiableSubProtocols = findNegotiableSubProtocols(configAnnotation);
-        idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotation);
+                WebSocketUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        Struct val;
+        if (configAnnotation != null && (val = configAnnotation.getValue()) != null) {
+            negotiableSubProtocols = findNegotiableSubProtocols(val);
+            idleTimeoutInSeconds = findIdleTimeoutInSeconds(val);
+        } else {
+            negotiableSubProtocols = null;
+            idleTimeoutInSeconds = 0;
+        }
     }
 
     @Override
@@ -126,17 +133,17 @@ public class WebSocketService implements Service {
                                                    WebSocketConstants.STRUCT_WEBSOCKET_PONG_FRAME);
     }
 
-    private String[] findNegotiableSubProtocols(Annotation configAnnotation) {
-        if (configAnnotation == null) {
-            return null;
-        }
-        AnnAttrValue annAttrSubProtocols = configAnnotation.getAnnAttrValue(
-                WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
+    private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
         if (annAttrSubProtocols == null) {
             return null;
         }
+        Value[] subProtocolsInAnnotation = annAttrSubProtocols.getArrayField(
+                WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
 
-        AnnAttrValue[] subProtocolsInAnnotation = annAttrSubProtocols.getAnnAttrValueArray();
+        if (subProtocolsInAnnotation == null) {
+            return null;
+        }
+
         String[] negotiableSubProtocols = new String[subProtocolsInAnnotation.length];
         for (int i = 0; i < subProtocolsInAnnotation.length; i++) {
             negotiableSubProtocols[i] = subProtocolsInAnnotation[i].getStringValue();
@@ -144,16 +151,11 @@ public class WebSocketService implements Service {
         return negotiableSubProtocols;
     }
 
-    private int findIdleTimeoutInSeconds(Annotation configAnnotation) {
-        if (configAnnotation == null) {
-            return 0;
-        }
-        AnnAttrValue annAttrIdleTimeout = configAnnotation.getAnnAttrValue(
-                WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT);
+    private int findIdleTimeoutInSeconds(Struct annAttrIdleTimeout) {
         if (annAttrIdleTimeout == null) {
             return 0;
         }
-        return new Long(annAttrIdleTimeout.getIntValue()).intValue();
+        return (int) annAttrIdleTimeout.getIntField(WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT);
     }
 
     public String getBasePath() {

@@ -17,18 +17,56 @@
 */
 package org.ballerinalang.testerina.core;
 
+import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Keep a registry of {@code {@link ProgramFile}} instances.
  * This is required to modify the runtime behavior.
  */
 public class TesterinaRegistry {
+
+    public Map<String, TestSuite> getTestSuites() {
+        return testSuites;
+    }
+
+    private List<String> groups = new ArrayList<>();
+
+    public List<String> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<String> groups) {
+        this.groups = groups;
+    }
+
+    public boolean shouldIncludeGroups() {
+        return shouldIncludeGroups;
+    }
+
+    public void setShouldIncludeGroups(boolean shouldIncludeGroups) {
+        this.shouldIncludeGroups = shouldIncludeGroups;
+    }
+
+    private boolean shouldIncludeGroups;
+
+    public void setTestSuites(Map<String, TestSuite> testSuites) {
+        this.testSuites = testSuites;
+    }
+
+    private Map<String, TestSuite> testSuites = new HashMap<>();
+
+    public static void setProgramFiles(List<ProgramFile> programFiles) {
+        TesterinaRegistry.programFiles = programFiles;
+    }
+
     private static List<ProgramFile> programFiles = new ArrayList<>();
     private static final TesterinaRegistry instance = new TesterinaRegistry();
 

@@ -120,6 +120,6 @@ function <testEP ep> stop() {
 function <testEP ep> register(type t) {
 }
 
-function <testEP ep> getConnector() (TestConnector) {
+function <testEP ep> getConnector() returns (TestConnector | null) {
     return null;
 }
