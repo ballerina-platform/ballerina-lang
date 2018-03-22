@@ -1432,6 +1432,11 @@ public class CPU {
                 } else if (mapType.getConstrainedType() == BTypes.typeAny ||
                         mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
+                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
+                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
+                        (BStructType) mapType.getConstrainedType())) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
