@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "table.getNext",
         args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.ANY)},

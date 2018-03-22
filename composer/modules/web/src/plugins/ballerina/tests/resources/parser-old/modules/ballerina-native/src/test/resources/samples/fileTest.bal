@@ -1,4 +1,4 @@
-import ballerina.lang.files;
+import ballerina/lang.files;
 
 function testCopy(string sourcePath, string destPath) {
     files:File source = {path : sourcePath};

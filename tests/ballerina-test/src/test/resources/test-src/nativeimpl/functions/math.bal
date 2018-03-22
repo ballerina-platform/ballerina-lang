@@ -1,4 +1,4 @@
-import ballerina.math;
+import ballerina/math;
 
 function expTest (float value) returns (float) {
     return math:exp(value);

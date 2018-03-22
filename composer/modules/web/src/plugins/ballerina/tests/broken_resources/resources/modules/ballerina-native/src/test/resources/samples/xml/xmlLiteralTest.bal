@@ -1,4 +1,4 @@
-import ballerina.lang.xmls;
+import ballerina/lang.xmls;
 
 function testXMLTextLiteral() (xml, xml, xml, xml, xml, xml) {
     string v1 = "11";

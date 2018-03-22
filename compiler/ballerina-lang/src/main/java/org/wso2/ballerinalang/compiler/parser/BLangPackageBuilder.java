@@ -1905,7 +1905,8 @@ public class BLangPackageBuilder {
 
             compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
             List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.ANON_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value,
+                                        nameComps, Names.DEFAULT_VERSION.value,
                     Names.DOT.value + nameComps.get(nameComps.size() - 1));
         }
     }

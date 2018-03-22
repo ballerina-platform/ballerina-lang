@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.net.http.resiliency;
-import ballerina.runtime;
+import ballerina/net.http;
+import ballerina/net.http.resiliency;
+import ballerina/runtime;
 
 service<http> failoverService {
 

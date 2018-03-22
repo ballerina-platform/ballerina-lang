@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"In scope variables can be accessed within workers of fork-join statement."}
 function main (string[] args) {

@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -184,6 +185,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String CREATE_WHENEVER = "startWhenever";
 
     private SymbolTable symTable;
+    private final PackageCache packageCache;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
@@ -222,6 +224,7 @@ public class Desugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
         this.names = Names.getInstance(context);
     }
 
@@ -1323,8 +1326,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // TODO: find a better way to get the default value expressions of a struct field
         BStructType type = (BStructType) structLiteral.type;
-        BPackageSymbol pkgSymbol = symTable.pkgSymbolMap.get(type.tsymbol.pkgID);
-        BLangPackage pkg = symTable.pkgEnvMap.get(pkgSymbol).enclPkg;
+        BLangPackage pkg = this.packageCache.get(type.tsymbol.pkgID);
         BLangStruct structDef = pkg.structs.stream()
                 .filter(struct -> struct.name.value.equals(type.tsymbol.name.value))
                 .findFirst()

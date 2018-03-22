@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function testPrintAndPrintlnString(string s1, string s2){
     io:println(s1);

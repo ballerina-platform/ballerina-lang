@@ -1,6 +1,6 @@
-import ballerina.lang.system;
-import ballerina.lang.maps;
-import ballerina.net.ws;
+import ballerina/lang.system;
+import ballerina/lang.maps;
+import ballerina/net.ws;
 
 @ws:configuration {
     basePath:"/chat/ws",

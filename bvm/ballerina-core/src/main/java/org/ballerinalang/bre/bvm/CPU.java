@@ -43,6 +43,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
@@ -738,11 +739,8 @@ public class CPU {
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
                     handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
                     break;
-                case InstructionCodes.ASYNC:
-                    execAsync(ctx);
-                    break;
                 case InstructionCodes.AWAIT:
-                    ctx = execAwait(ctx);
+                    ctx = execAwait(ctx, operands);
                     if (ctx == null) {
                         return;
                     }
@@ -2530,7 +2528,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
-                                               BType targetType) {
+            BType targetType) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -2561,13 +2559,13 @@ public class CPU {
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-                                                  String sourceTypeName, String targetTypeName) {
+            String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
-                                                  int errorRegIndex, String errorMessage) {
+            int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         if (errorRegIndex == -1) {
@@ -2731,7 +2729,7 @@ public class CPU {
     }
 
     private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
-                                                   int transactionBlockId, String protocol, boolean isInitiator) {
+                                            int transactionBlockId, String protocol, boolean isInitiator) {
         BValue[] args = {
                 new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)
@@ -2748,7 +2746,7 @@ public class CPU {
 
     private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
                                              int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
+        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         if (returns[1] != null) {
             throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
@@ -2756,8 +2754,8 @@ public class CPU {
     }
 
     private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
-                                               int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
+                                        int transactionBlockId) {
+        BValue[] args = { new BString(globalTransactionId), new BInteger(transactionBlockId) };
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 
@@ -2801,7 +2799,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-                                         BType[] types, int[] regs) {
+            BType[] types, int[] regs) {
         BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
         dataChannel.putData(vals);
@@ -2848,7 +2846,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-                                               BType[] types, int[] regs) {
+            BType[] types, int[] regs) {
         BRefType[] passedInValues = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValues != null) {
@@ -2867,23 +2865,23 @@ public class CPU {
             int regIndex = argRegs[i];
             BType paramType = paramTypes[i];
             switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
-                    break;
-                case TypeTags.BLOB_TAG:
-                    currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
-                    break;
-                default:
-                    currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
+            case TypeTags.INT_TAG:
+                currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
+                break;
+            case TypeTags.STRING_TAG:
+                currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                break;
+            case TypeTags.BLOB_TAG:
+                currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
+                break;
+            default:
+                currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
             }
         }
     }
@@ -3450,7 +3448,7 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3654,12 +3652,17 @@ public class CPU {
         sf.longRegs[j] = newArray.size();
         return;
     }
-
-    private static void execAsync(WorkerExecutionContext ctx) {
-    }
-
-    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx) {
-        return null;
+    
+    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx, int[] operands) {
+        int futureReg = operands[0];
+        int retValReg = operands[1];
+        BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
+        WorkerResponseContext respCtx = future.value();
+        if (retValReg != -1) {
+            return respCtx.joinTargetContextInfo(ctx, new int[] { retValReg });
+        } else {
+            return respCtx.joinTargetContextInfo(ctx, new int[0]);
+        }
     }
 
     /**

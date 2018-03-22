@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/runtime;
+import ballerina/io;
 
 struct Employee {
     string name;
@@ -33,8 +33,8 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Teacher> teacherStream = {};
 stream<Employee> employeeStream = {};
+stream<Teacher> teacherStream = {};
 
 function testFilterQuery () {
     whenever{

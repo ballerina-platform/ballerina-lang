@@ -68,7 +68,9 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID BUILTIN = new PackageID(Names.ANON_ORG, Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
+    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_ORG,
+                                                          Names.BUILTIN_PACKAGE,
+                                                          Names.DEFAULT_VERSION);
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -102,10 +104,7 @@ public class SymbolTable {
     public BStructType errStructType;
 
     public BPackageSymbol builtInPackageSymbol;
-
     private Names names;
-
-    public Map<PackageID, BPackageSymbol> pkgSymbolMap = new HashMap<>();
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {

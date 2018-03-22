@@ -32,7 +32,7 @@ import org.ballerinalang.util.codegen.StructInfo;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.user",
+        orgName = "ballerina", packageName = "user",
         functionName = "getLocale",
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Locale",
                                   structPackage = "ballerina.utils")},

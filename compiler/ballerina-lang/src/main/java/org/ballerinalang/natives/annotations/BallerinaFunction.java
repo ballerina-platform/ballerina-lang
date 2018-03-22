@@ -33,6 +33,13 @@ import java.lang.annotation.Target;
 public @interface BallerinaFunction {
 
     /**
+     * Org name of the {@code AbstractNativeFunction}. Default is "".
+     *
+     * @return org name of the function.
+     */
+    String orgName() default "";
+
+    /**
      * Package name of the {@code AbstractNativeFunction}. Default is "".
      *
      * @return package name of the function.

@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 @http:BasePath ("/echo")
 service echo {
     

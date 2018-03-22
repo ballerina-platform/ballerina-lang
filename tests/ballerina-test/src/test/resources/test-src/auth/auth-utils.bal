@@ -1,7 +1,7 @@
-import ballerina.auth.utils;
-import ballerina.caching;
-import ballerina.net.http;
-import ballerina.mime;
+import ballerina/auth.utils;
+import ballerina/caching;
+import ballerina/net.http;
+import ballerina/mime;
 
 function testCreateDisabledBasicAuthCache () returns (caching:Cache) {
     return utils:createCache("basic_auth_cache");

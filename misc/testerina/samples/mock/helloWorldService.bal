@@ -1,7 +1,7 @@
 package mock;
 
-import ballerina.lang.messages;
-import ballerina.net.http;
+import ballerina/lang.messages;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/hello"}
 service<http> helloWorld {

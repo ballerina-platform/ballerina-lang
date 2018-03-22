@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.log;
+import ballerina/net.http;
+import ballerina/log;
 
 public struct Filter1 {
     function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
@@ -14,13 +14,13 @@ public function <Filter1 filter> terminate () {
     log:printInfo("Stopping filter 1");
 }
 
-public function interceptRequest1 (http:Request request, http:FilterContext context) (http:FilterResult) {
+public function interceptRequest1 (http:Request request, http:FilterContext context) returns (http:FilterResult) {
     log:printInfo("Intercepting request for filter 1");
     http:FilterResult filterResponse = {canProceed:false, statusCode:401, message:"Authentication failure"};
     return filterResponse;
 }
 
-public function interceptResponse1 (http:Response response, http:FilterContext context) (http:FilterResult) {
+public function interceptResponse1 (http:Response response, http:FilterContext context) returns (http:FilterResult) {
     log:printInfo("Intercepting response for filter 1");
     http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
     return filterResponse;
