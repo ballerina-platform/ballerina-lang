@@ -23,21 +23,20 @@ service<http:Service> helloWorld bind helloWorldEP{
 
         // The client will start sending the payload once it receives the 100-continue response. Get this payload sent by the client.
         http:Response res = {};
-
         match request.getStringPayload() {
             string payload => {
-                                io:println(payload);
-                                res.statusCode =200;
-                                res.setStringPayload("Hello World!\n");
-                                _ = outboundEP -> respond(res);
+                io:println(payload);
+                res.statusCode =200;
+                res.setStringPayload("Hello World!\n");
+                _ = outboundEP -> respond(res);
             }
             error payloadError =>  {
-                                        res.statusCode = 500;
-                                        res.setStringPayload(payloadError.message);
-                                        _ = outboundEP -> respond(res);
+                res.statusCode = 500;
+                res.setStringPayload(payloadError.message);
+                _ = outboundEP -> respond(res);
             }
             any | null => {
-                            io:println("Error occured");
+                io:println("Error occured");
             }
         }
     }
