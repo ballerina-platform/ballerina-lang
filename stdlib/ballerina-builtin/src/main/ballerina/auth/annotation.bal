@@ -20,7 +20,7 @@ package ballerina.auth;
 @Field {value:"authentication: Authentication struct instance"}
 @Field {value:"scope: scope name"}
 public struct AuthConfig {
-    Authentication authentication;
+    Authentication|null authentication;
     string scope;
 }
 
