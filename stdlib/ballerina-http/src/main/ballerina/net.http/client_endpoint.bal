@@ -93,13 +93,17 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     var cbConfig = config.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
-                ep.config = config;
-                ep.httpClient = createCircuitBreakerClient(uri, config);
+            if (uri.hasSuffix("/")) {
+                int lastIndex = uri.length() - 1;
+                uri = uri.subString(0, lastIndex);
+            }
+            ep.config = config;
+            ep.httpClient = createCircuitBreakerClient(uri, config);
         }
         int | null => {
             if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
+                int lastIndex = uri.length() - 1;
+                uri = uri.subString(0, lastIndex);
             }
             ep.config = config;
             ep.httpClient = createHttpClient(uri, config);
@@ -230,8 +234,13 @@ function createLoadBalancerClient(ClientEndpointConfiguration config) returns Ht
     HttpClient[] lbClients = createHttpClientArray(config);
     LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
                           algorithm:config.algorithm};
-    var httpClient = <HttpClient> lb;
-    return httpClient;
+    HttpClient lbClient = {};
+    error conversionErr = {};
+    match <HttpClient>lb {
+        HttpClient client => lbClient = client;
+        error err => conversionErr = err;
+    }
+    return lbClient;
 }
 
 //function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {

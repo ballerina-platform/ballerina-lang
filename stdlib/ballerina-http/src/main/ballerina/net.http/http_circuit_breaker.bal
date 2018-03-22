@@ -34,7 +34,7 @@ public enum CircuitState {
    OPEN, CLOSED, HALF_OPEN
 }
 
-struct CircuitHealth {
+public struct CircuitHealth {
    int requestCount;
    int errorCount;
    time:Time lastErrorTime;
@@ -55,7 +55,7 @@ public struct CircuitBreakerConfig {
 }
 
 
-struct CircuitBreakerInferredConfig {
+public struct CircuitBreakerInferredConfig {
    float failureThreshold;
    int resetTimeout;
    boolean [] httpStatusCodes;
