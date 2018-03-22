@@ -57,8 +57,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
 
-    private Map<String, StreamletInfo> streamletInfoMap = new HashMap<>();
-
     private Map<String, EnumInfo> enumInfoMap = new HashMap<>();
 
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
@@ -146,19 +144,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public void addStructInfo(String structName, StructInfo structInfo) {
         structInfoMap.put(structName, structInfo);
         structureTypeInfoMap.put(structName, structInfo);
-    }
-
-    public StreamletInfo[] getStreamletInfoEntries() {
-        return streamletInfoMap.values().toArray(new StreamletInfo[0]);
-    }
-
-    public StreamletInfo getStreamletInfo(String streamletName) {
-        return streamletInfoMap.get(streamletName);
-    }
-
-    public void addStreamletInfo(String streamletName, StreamletInfo streamletInfo) {
-        streamletInfoMap.put(streamletName, streamletInfo);
-        streamletInfoMap.put(streamletName, streamletInfo);
     }
 
     public StructInfo[] getStructInfoEntries() {

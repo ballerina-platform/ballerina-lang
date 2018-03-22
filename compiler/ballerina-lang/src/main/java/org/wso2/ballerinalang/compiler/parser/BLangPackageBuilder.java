@@ -43,7 +43,6 @@ import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -99,7 +98,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -320,8 +318,6 @@ public class BLangPackageBuilder {
     private Stack<StreamingQueryStatementNode> streamingQueryStatementStack = new Stack<>();
 
     private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
-
-    private Stack<StreamletNode> streamletNodeStack = new Stack<>();
 
     private Stack<WheneverNode> wheneverNodeStack = new Stack<>();
 
@@ -2950,31 +2946,6 @@ public class BLangPackageBuilder {
             patternClause.setWithinClause(this.withinClauseStack.pop());
         }
     }
-
-    public void startStreamletNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        StreamletNode streamletNode = TreeBuilder.createStreamletNode();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        streamletNode.addWS(ws);
-        startBlock();
-        this.streamletNodeStack.push(streamletNode);
-    }
-
-    public void endStreamletNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        StreamletNode streamletNode = this.streamletNodeStack.peek();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        streamletNode.addWS(ws);
-
-        streamletNode.setName(this.createIdentifier(identifier));
-        BlockNode blocknode = this.blockNodeStack.pop();
-        streamletNode.setBody(blocknode);
-
-        if (!this.varListStack.empty()) {
-            this.varListStack.pop().forEach(streamletNode::addParameter);
-        }
-
-        this.compUnit.addTopLevelNode(streamletNode);
-    }
-
 
     public void startWheneverNode(DiagnosticPos pos, Set<Whitespace> ws) {
         WheneverNode wheneverNode = TreeBuilder.createWheneverNode();

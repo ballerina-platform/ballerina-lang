@@ -22,7 +22,6 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STREAMLET   : 'streamlet' { inSiddhi = true; } ;
 STRUCT      : 'struct' ;
 OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;

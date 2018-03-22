@@ -77,7 +77,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -430,8 +429,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         int ownerSymTag = env.scope.owner.tag;
-        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
-                (ownerSymTag & SymTag.STREAMLET) == SymTag.STREAMLET) {
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // This is a variable declared in a function, an action or a resource
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
@@ -1216,29 +1214,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (((variable).type.tsymbol) != null) {
                     if ("stream".equals((((variable).type.tsymbol)).name.value)) {
                         wheneverStatement.addGlobalVariable(variable);
-                    }
-                }
-            }
-        }
-    }
-
-    public void visit(BLangStreamlet streamletNode) {
-
-        BSymbol streamletSymbol = streamletNode.symbol;
-        SymbolEnv streamletEnv = SymbolEnv.createStreamletEnv(streamletNode, streamletSymbol.scope, env);
-
-        List<? extends StatementNode> statementNodes = streamletNode.getBody().getStatements();
-        statementNodes.forEach(statementNode -> {
-            this.analyzeDef((BLangStatement) statementNode, streamletEnv);
-            ((BLangStatement) statementNode).accept(this);
-        });
-
-        List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
-        if (globalVariableList != null) {
-            for (BLangVariable variable : globalVariableList) {
-                if (((variable).type.tsymbol) != null) {
-                    if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                        streamletNode.addGlobalVariable(variable);
                     }
                 }
             }

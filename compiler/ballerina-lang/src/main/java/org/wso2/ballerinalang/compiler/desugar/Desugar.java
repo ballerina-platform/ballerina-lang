@@ -60,7 +60,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -263,7 +262,6 @@ public class Desugar extends BLangNodeVisitor {
         endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
         endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.transformers = rewrite(pkgNode.transformers, env);
-        pkgNode.streamlets = rewrite(pkgNode.streamlets, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
         pkgNode.connectors = rewrite(pkgNode.connectors, env);
         pkgNode.services = rewrite(pkgNode.services, env);
@@ -333,11 +331,6 @@ public class Desugar extends BLangNodeVisitor {
         stmt.pos = wheneverStatement.pos;
         stmt.addWS(wheneverStatement.getWS());
         result = rewrite(stmt, env);
-    }
-
-    public void visit(BLangStreamlet streamletNode) {
-        siddhiQueryBuilder.visit(streamletNode);
-        result = streamletNode;
     }
 
     private BLangStruct rewriteObjectToStruct(BLangObject objectNode, SymbolEnv env) {
@@ -837,8 +830,6 @@ public class Desugar extends BLangNodeVisitor {
             expr = new BLangTableLiteral(recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
             expr = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
-        } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
-            expr = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
         } else {
             expr = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
@@ -849,19 +840,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
         result = tableLiteral;
-    }
-
-    private BLangInvocation createInvocationForStreamletCreation(BLangExpression expression) {
-        List<BLangExpression> args = new ArrayList<>();
-        List<BType> retTypes = new ArrayList<>();
-        retTypes.add(expression.type);
-        args.add(expression);
-
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
-        return createInvocationNode(CREATE_WHENEVER, args, retTypes);
     }
 
     private BLangInvocation createInvocationForWheneverBlock(BLangWhenever whenever) {
@@ -921,8 +899,6 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
-            genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
-        } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
@@ -1033,7 +1009,6 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.STREAM:
-            case TypeTags.STREAMLET:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
@@ -1309,10 +1284,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
         result = mapLiteral;
-    }
-
-    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
-        result = streamletLiteral;
     }
 
     public void visit(BLangStreamLiteral streamLiteral) {
@@ -1690,7 +1661,6 @@ public class Desugar extends BLangNodeVisitor {
                 return;
             case TypeTags.TABLE:
             case TypeTags.STREAM:
-            case TypeTags.STREAMLET:
                 // TODO: add this once the able initializing is supported.
                 return;
             default:

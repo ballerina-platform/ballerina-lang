@@ -31,7 +31,6 @@ public class TypeSignature {
     public static final String SIG_TABLE = "D";
     public static final String SIG_FUTURE = "X";
     public static final String SIG_STREAM = "H";
-    public static final String SIG_STREAMLET = "M";
     public static final String SIG_MAP = "N";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";

@@ -35,7 +35,6 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
@@ -361,46 +360,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         varRef = invocationExpr.toString();
-    }
-
-    @Override
-    public void visit(BLangStreamlet streamletNode) {
-        siddhiQuery = new StringBuilder();
-        streamDefinitionQuery = new StringBuilder();
-        streamIds = new HashSet<>();
-        inStreamRefs = new ArrayList<>();
-        outStreamRefs = new ArrayList<>();
-        inTableRefs = new ArrayList<>();
-        outTableRefs = new ArrayList<>();
-        binaryExpr = null;
-        setExpr = null;
-        orderByClause = null;
-        whereClause = null;
-        windowClause = null;
-        joinStreamingInputClause = null;
-        streamingInputClause = null;
-        selectExprClause = null;
-        selectExpr = null;
-        setAssignmentClause = null;
-        groupByClause = null;
-        havingClause = null;
-        patternStreamingClause = null;
-        streamActionClause = null;
-        intRangeExpr = null;
-
-        List<VariableNode> globalVariables = streamletNode.getGlobalVariables();
-        if (globalVariables != null) {
-            for (VariableNode variable : globalVariables) {
-                ((BLangVariable) variable).accept(this);
-            }
-        }
-
-        List<? extends StatementNode> statementNodes = streamletNode.getBody().getStatements();
-        for (StatementNode statementNode : statementNodes) {
-            ((BLangStatement) statementNode).accept(this);
-        }
-        streamletNode.setSiddhiQuery(this.getSiddhiQuery());
-        streamletNode.setStreamIdsAsString(String.join(",", streamIds));
     }
 
     public void visit(BLangWhenever wheneverStatement) {

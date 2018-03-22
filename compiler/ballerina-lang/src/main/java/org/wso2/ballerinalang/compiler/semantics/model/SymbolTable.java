@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -95,7 +94,6 @@ public class SymbolTable {
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType connectorType = new BConnectorType(null, null);
     public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
-    public final BType streamletType = new BStreamletType(null, null);
     public final BType arrayType = new BArrayType(noType);
 
     public final BTypeSymbol errSymbol;
@@ -140,7 +138,6 @@ public class SymbolTable {
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
         initializeType(streamType, TypeKind.STREAM.typeName());
-        initializeType(streamletType, TypeKind.STREAMLET.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
@@ -183,8 +180,6 @@ public class SymbolTable {
                 return tableType;
             case TypeTags.STREAM:
                 return streamType;
-            case TypeTags.STREAMLET:
-                return streamletType;
             case TypeTags.NULL:
                 return nullType;
             default:
@@ -258,8 +253,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, nullType, mapType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, connectorType, nullType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, connectorType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, streamletType, nullType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nullType, streamletType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, arrayType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, arrayType, nullType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, nullType, booleanType, InstructionCodes.REQ);
@@ -284,8 +277,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, mapType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, connectorType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, connectorType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, streamletType, nullType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, streamletType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, arrayType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, arrayType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, nullType, booleanType, InstructionCodes.RNE);
@@ -376,7 +367,6 @@ public class SymbolTable {
         defineExplicitCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
         defineExplicitCastOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
         defineExplicitCastOperator(anyType, streamType, false, InstructionCodes.ANY2STM);
-        defineExplicitCastOperator(anyType, streamletType, false, InstructionCodes.ANY2M);
 
         defineExplicitCastOperator(jsonType, intType, false, InstructionCodes.JSON2I);
         defineExplicitCastOperator(jsonType, floatType, false, InstructionCodes.JSON2F);

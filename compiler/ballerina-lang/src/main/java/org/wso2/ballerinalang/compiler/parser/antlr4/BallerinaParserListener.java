@@ -2062,46 +2062,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAggregationQuery(BallerinaParser.AggregationQueryContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamletDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamletDefinition(BallerinaParser.StreamletDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamletDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamletDefinition(BallerinaParser.StreamletDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamletBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamletBody(BallerinaParser.StreamletBodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamletBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamletBody(BallerinaParser.StreamletBodyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamingQueryDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamingQueryDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#queryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterQueryStatement(BallerinaParser.QueryStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#queryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitQueryStatement(BallerinaParser.QueryStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#wheneverStatement}.
 	 * @param ctx the parse tree
 	 */

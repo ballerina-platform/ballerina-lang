@@ -169,10 +169,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangStreamlet streamletNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangAction actionNode) {
         throw new AssertionError();
     }
@@ -640,10 +636,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStructLiteral structLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
         throw new AssertionError();
     }
 

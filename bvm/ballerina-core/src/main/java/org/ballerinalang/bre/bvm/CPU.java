@@ -650,9 +650,6 @@ public class CPU {
 //                    StreamingRuntimeManager.getInstance().addStreamReference(name.getValue(), stream);
                     sf.refRegs[i] = stream;
                     break;
-                case InstructionCodes.NEWSTREAMLET:
-                    //createNewStreamlet(ctx, operands, sf);
-                    break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
                     break;
@@ -2599,17 +2596,6 @@ public class CPU {
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
         sf.refRegs[i] = new BStruct(structInfo.getType());
     }
-
-//    private static void createNewStreamlet(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-//        int cpIndex = operands[0];
-//        int i = operands[1];
-//        StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) ctx.constPool[cpIndex];
-//        StreamletInfo streamletInfo = streamletRefCPEntry.getStreamletInfo();
-//        BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
-//        streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
-//        streamlet.setStreamIdsAsString(streamletInfo.getStreamIdsAsString());
-//        sf.refRegs[i] = streamlet;
-//    }
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
                                          int committedFuncIndex, int abortedFuncIndex) {

@@ -40,7 +40,6 @@ definition
     |   functionDefinition
     |   structDefinition
     |   typeDefinition
-    |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -186,7 +185,6 @@ attachmentPoint
      | RESOURCE
      | FUNCTION
      | STRUCT
-     | STREAMLET
      | ENUM
      | ENDPOINT
      | CONST
@@ -284,7 +282,6 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
-    |   STREAMLET
     |   functionTypeName
     ;
 
@@ -801,22 +798,6 @@ aggregationQuery
         selectClause?
         orderByClause?
 
-    ;
-
-streamletDefinition
-    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
-    ;
-
-streamletBody
-    :   LEFT_BRACE streamingQueryDeclaration    RIGHT_BRACE
-    ;
-
-streamingQueryDeclaration
-    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
-    ;
-
-queryStatement
-    :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
     ;
 
 wheneverStatement
