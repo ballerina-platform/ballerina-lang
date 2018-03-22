@@ -93,18 +93,18 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     var cbConfig = config.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
-    ep.config = config;
-    ep.httpClient = createCircuitBreakerClient(uri, config);
-}
-int | null => {
-if (uri.hasSuffix("/")) {
-int lastIndex = uri.length() - 1;
-uri = uri.subString(0, lastIndex);
-                       }
-                       ep.config = config;
-ep.httpClient = createHttpClient(uri, config);
-}
-}
+                ep.config = config;
+                ep.httpClient = createCircuitBreakerClient(uri, config);
+        }
+        int | null => {
+            if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+            }
+        ep.config = config;
+        ep.httpClient = createHttpClient(uri, config);
+        }
+    }
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -200,18 +200,17 @@ match cbConfig {
                                     circuitHealth:{},
                                     currentCircuitState:CircuitState.CLOSED
                                 };
-                                var httpClient =? (HttpClient) cbClient;
+                                var httpClient =? <HttpClient> cbClient;
                                 return httpClient;
                             }
     int | null => {
                         //remove following once we can ignore
                 io:println("CB CONFIG IS NULL");
-                return createHttpClient(uri, configuration);
+                 return createHttpClient(uri, configuration);
                 }
-
-//                       ep.config = config;
-//ep.httpClient = createHttpClient(uri, config);
             }
+}
+
     //validateCircuitBreakerConfiguration(configuration.circuitBreaker);
     //boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
     //CircuitBreakerInferredConfig circuitBreakerInferredConfig =
@@ -225,14 +224,15 @@ match cbConfig {
     //                                    currentCircuitState:CircuitState.CLOSED};
     //var httpClient, _ = (HttpClient) cbClient;
     //return httpClient;
-}
-                                                                           function createLoadBalancerClient(ClientEndpointConfiguration config) returns HttpClient {
-HttpClient[] lbClients = createHttpClientArray(config);
-LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
+
+
+function createLoadBalancerClient(ClientEndpointConfiguration config) returns HttpClient {
+    HttpClient[] lbClients = createHttpClientArray(config);
+    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
                       algorithm:config.algorithm};
-var httpClient, _ = (HttpClient) lb;
-return httpClient;
-       }
+    var httpClient =? <HttpClient> lb;
+    return httpClient;
+}
 //
 //function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
 //    HttpClient[] clients = createHttpClientArray(config);

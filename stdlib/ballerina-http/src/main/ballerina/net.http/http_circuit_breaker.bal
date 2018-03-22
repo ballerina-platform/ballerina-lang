@@ -408,7 +408,7 @@ public struct CircuitBreakerClient {
        return false;
    }
 
-function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
+public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
 
    lock {
 
@@ -437,7 +437,7 @@ function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentSt
            float currentFailureRate = 0;
 
            if (circuitHealth.requestCount > 0) {
-               currentFailureRate = ((float)circuitHealth.errorCount / circuitHealth.requestCount);
+               currentFailureRate = (<float>circuitHealth.errorCount / circuitHealth.requestCount);
            }
 
            if (currentFailureRate > circuitBreakerInferredConfig.failureThreshold) {
