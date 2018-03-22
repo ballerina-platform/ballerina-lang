@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 public class BUnionType extends BType {
 
     private List<BType> memberTypes;
+    private boolean nullable;
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -46,6 +47,15 @@ public class BUnionType extends BType {
     public BUnionType(List<BType> memberTypes) {
         super(null, null, BValue.class);
         this.memberTypes = memberTypes;
+        this.nullable = memberTypes.contains(BTypes.typeNull);
+    }
+
+    public List<BType> getMemberTypes() {
+        return memberTypes;
+    }
+
+    public boolean isNullable() {
+        return nullable;
     }
 
     @Override

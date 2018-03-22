@@ -1056,7 +1056,6 @@ public class ProgramFileReader {
                 // TODO : Fix this for type casting.
                 return new BFunctionType();
             case 'O':
-                System.out.println(desc);
                 Stack<BType> typeStack = new Stack<BType>();
                 createBTypeFromSig(desc.toCharArray(), 0, typeStack, null);
                 return typeStack.pop();

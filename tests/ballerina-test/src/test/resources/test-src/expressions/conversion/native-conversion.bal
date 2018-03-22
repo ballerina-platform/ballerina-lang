@@ -8,7 +8,7 @@ struct Person {
     any a;
     float score;
     boolean alive;
-    Person[] children;
+    Person[]|null children;
 }
 
 struct Student {
