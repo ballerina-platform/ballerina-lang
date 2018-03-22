@@ -44,6 +44,7 @@ public class TreeUtils {
         stringTypeKindMap.put("future", TypeKind.FUTURE);
         stringTypeKindMap.put("typedesc", TypeKind.TYPEDESC);
         stringTypeKindMap.put("message", TypeKind.MESSAGE);
+        stringTypeKindMap.put("null", TypeKind.NULL);
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

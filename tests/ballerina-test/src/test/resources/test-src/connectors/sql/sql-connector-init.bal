@@ -39,7 +39,7 @@ function testConnectionPoolProperties1 () returns (string) {
 
     string firstName;
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -54,7 +54,7 @@ function testConnectionPoolProperties2 () returns (string) {
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -70,7 +70,7 @@ function testConnectionPoolProperties3 () returns (string) {
 
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -90,7 +90,7 @@ function testConnectorWithDefaultPropertiesForListedDB () returns (string) {
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -111,7 +111,7 @@ function testConnectorWithWorkers () returns (string) {
         json y;
 
 	    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-	    var j, _ = <json>dt;
+	    var j =? <json>dt;
 	    string firstName = j.toString();
         _ = testDB -> close();
 	    return firstName;
@@ -130,7 +130,7 @@ function testConnectorWithDirectUrl () returns (string) {
 
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -145,7 +145,7 @@ function testConnectorWithDataSourceClass () returns (string) {
 
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -163,7 +163,7 @@ function testConnectorWithDataSourceClassAndProps () returns (string) {
 
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -181,7 +181,7 @@ function testConnectorWithDataSourceClassWithoutURL () returns (string) {
 
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
@@ -199,7 +199,7 @@ function testConnectorWithDataSourceClassURLPriority () returns (string) {
 
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
     _ = testDB -> close();
     return firstName;
