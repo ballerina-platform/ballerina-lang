@@ -1,118 +1,155 @@
 {{#apiPackage}}package {{apiPackage}};
 
-import {{apiPackage}}.model;{{/apiPackage}}
-import ballerina.net.http;
+{{/apiPackage}}{{#modelPackage}}import {{modelPackage}};{{/modelPackage}}
+import ballerina/io;
+import ballerina/mime;
+import ballerina/net.http;
 
-public connector {{cut info.title " "}} () {
-
-    endpoint <http:HttpClient> ep {
-        create http:HttpClient("{{url}}", {});
-    }
-    http:HttpConnectorError httpError;
-{{#paths}}{{#value}}{{#get}}
-    action {{operationId}} () (http:InResponse, error ) {
-        http:OutRequest request = {};
-        http:InResponse response = {};
-        error outError;
-
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.get("{{@key}}", request);
-        if (httpError != null) {
-            outError = {message:httpError.message, cause:httpError.cause};
-        }
-
-        return response, outError;
-    }
-{{/get}}{{#post}}
-    action {{operationId}} () (http:InResponse, error ) {
-        http:OutRequest request = {};
-        http:InResponse response = {};
-        error outError;
-
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.post("{{@key}}", request);
-        if (httpError != null) {
-            outError = {message:httpError.message, cause:httpError.cause};
-        }
-
-        return response, outError;
-    }
-{{/post}}{{#put}}
-    action {{operationId}} () (http:InResponse, error ) {
-        http:OutRequest request = {};
-        http:InResponse response = {};
-        error outError;
-
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.put("{{@key}}", request);
-        if (httpError != null) {
-            outError = {message:httpError.message, cause:httpError.cause};
-        }
-
-        return response, outError;
-    }
-{{/put}}{{#delete}}
-    action {{operationId}} () (http:InResponse, error ) {
-        http:OutRequest request = {};
-        http:InResponse response = {};
-        error outError;
-
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.delete("{{@key}}", request);
-        if (httpError != null) {
-            outError = {message:httpError.message, cause:httpError.cause};
-        }
-
-        return response, outError;
-    }
-{{/delete}}{{#options}}
-    action {{operationId}} () (http:InResponse, error ) {
-        http:OutRequest request = {};
-        http:InResponse response = {};
-        error outError;
-
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.options("{{@key}}", request);
-        if (httpError != null) {
-            outError = {message:httpError.message, cause:httpError.cause};
-        }
-
-        return response, outError;
-    }
-{{/options}}{{#head}}
-    action {{operationId}} () (http:InResponse, error ) {
-        http:OutRequest request = {};
-        http:InResponse response = {};
-        error outError;
-
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.head("{{@key}}", request);
-        if (httpError != null) {
-            outError = {message:httpError.message, cause:httpError.cause};
-        }
-
-        return response, outError;
-    }
-{{/head}}{{#patch}}
-    action {{operationId}} () (http:InResponse, error ) {
-        http:OutRequest request = {};
-        http:InResponse response = {};
-        error outError;
-
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.patch("{{@key}}", request);
-        if (httpError != null) {
-            outError = {message:httpError.message, cause:httpError.cause};
-        }
-
-        return response, outError;
-    }
-{{/patch}}{{/value}}{{/paths}}
+//=====================================
+//============Client Config============
+//=====================================
+struct {{cut info.title " "}}ClientConfig {
+    string serviceUrl;
 }
+
+//=======================================
+//============Client Endpoint============
+//=======================================
+struct {{cut info.title " "}}ClientEp {
+    http:ClientEndpoint client;
+    {{cut info.title " "}}ClientConfig config;
+}
+
+function <{{cut info.title " "}}ClientEp ep> init({{cut info.title " "}}ClientConfig config) {
+    endpoint http:ClientEndpoint httpEp {
+        targets: [{uri: config.serviceUrl}]
+    };
+
+    ep.client = httpEp;
+    ep.config = config;
+}
+
+function <{{cut info.title " "}}ClientEp ep> getClient() returns ({{cut info.title " "}}Client) {
+    return {clientEp: ep};
+}
+
+//==============================
+//============Client============
+//==============================
+struct {{cut info.title " "}}Client {
+    {{cut info.title " "}}ClientEp clientEp;
+}
+
+{{#paths}}{{#value}}{{#get}}
+function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    http:Request request = {};
+
+    //Create the required request as needed
+    var res = ep -> get("{{@key}}", request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/get}}{{#post}}
+function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    http:Request request = {};
+
+    //Create the required request as needed
+    var res = ep -> post("{{@key}}", request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/post}}{{#put}}
+function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    http:Request request = {};
+
+    //Create the required request as needed
+    var res = ep -> put("{{@key}}", request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/put}}{{#delete}}
+function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    http:Request request = {};
+
+    //Create the required request as needed
+    var res = ep -> delete("{{@key}}", request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/delete}}{{#options}}
+function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    http:Request request = {};
+
+    //Create the required request as needed
+    var res = ep -> options("{{@key}}", request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/options}}{{#head}}
+function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    http:Request request = {};
+
+    //Create the required request as needed
+    var res = ep -> head("{{@key}}", request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/head}}{{#patch}}
+function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    http:Request request = {};
+
+    //Create the required request as needed
+    var res = ep -> patch("{{@key}}", request);
+
+    match res {
+        http:HttpConnectorError httpError => {
+            error err = {message: httpError.message};
+            return err;
+        }
+        http:Response resp => return resp;
+    }
+}
+{{/patch}}{{/value}}{{/paths}}
