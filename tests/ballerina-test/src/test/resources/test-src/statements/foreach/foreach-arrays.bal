@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 int[] data = [1, -3, 5, -30, 4, 11, 25, 10];
 int sum = 0;

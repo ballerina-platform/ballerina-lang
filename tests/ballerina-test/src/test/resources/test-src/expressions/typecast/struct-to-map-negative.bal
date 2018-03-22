@@ -11,7 +11,7 @@ struct Person {
 }
 
 
-function testStructToMap() (map) {
+function testStructToMap() returns (map) {
     Person p = { name:"Child", 
                  age:25, 
                  parent:{name:"Parent", age:50}, 

@@ -53,6 +53,8 @@ public enum Snippet {
     XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
     VAR_KEYWORD_SNIPPET("var "),
     CREATE_KEYWORD_SNIPPET("create "),
+    OBJECT_SNIPPET("type ${1:ObjectTypeName} object {\n\t${2}\n}"),
+    NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {\n\t${2}\n}"),
     
     // Constants for the Iterable operators
     ITR_FOREACH("foreach(function (%params%) {\n\t${1}\n});"),

@@ -17,18 +17,18 @@ struct Family {
     string[] children;
 }
 
-function testCreateStruct () (string, map, int) {
+function testCreateStruct () returns (string, map, int) {
     map address1;
     map address = {"country":"USA", "state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
-    return emp["name"], emp["adrs"], emp["age"];
+    return (emp["name"], emp["adrs"], emp["age"]);
 }
 
-function testStructOfStruct () (string) {
+function testStructOfStruct () returns (string) {
 
     map address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25};
-    Person emp2;
+    Person emp2 = {};
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
 
@@ -37,12 +37,12 @@ function testStructOfStruct () (string) {
     return country;
 }
 
-function testReturnStructAttributes () (string) {
+function testReturnStructAttributes () returns (string) {
     map address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
     Family fmly = {children:chldrn};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
-    Person emp2;
+    Person emp2 = {};
     Person[] employees = [emp1, emp2];
     Department dpt = {employees:employees};
 
@@ -51,7 +51,7 @@ function testReturnStructAttributes () (string) {
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testExpressionAsIndex () (string) {
+function testExpressionAsIndex () returns (string) {
     Family family = {spouse:"Kate"};
     int a = 2;
     int b = 5;
@@ -59,12 +59,12 @@ function testExpressionAsIndex () (string) {
     return family.children[a * b - 8];
 }
 
-function testStructExpressionAsIndex () (string) {
+function testStructExpressionAsIndex () returns (string) {
     string country;
     Department dpt = {};
     Family fmly = {};
     fmly.children = [];
-    Person emp2;
+    Person emp2 = {};
     map address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
 
@@ -78,33 +78,33 @@ function testStructExpressionAsIndex () (string) {
     return dpt["employees"][0]["family"]["children"][dpt["employees"][0]["family"]["noOfChildren"] - 1];
 }
 
-function testDefaultVal () (string, string, int) {
+function testDefaultVal () returns (string, string, int) {
     Person p = {};
-    return p["name"], p["lname"], p["age"];
+    return (p["name"], p["lname"], p["age"]);
 }
 
-function testNestedFieldDefaultVal () (string, string, int) {
+function testNestedFieldDefaultVal () returns (string, string, int) {
     Department dpt = {};
     dpt["employees"] = [];
     dpt["employees"][0] = {lname:"Smith"};
-    return dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"];
+    return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
 }
 
-function testGetNonInitAttribute () (string) {
-    Person emp1;
-    Person emp2;
+function testGetNonInitAttribute () returns (string) {
+    Person emp1 = {};
+    Person emp2 = {};
     Person[] emps = [emp1, emp2];
     Department dpt = {dptName:"HR", employees:emps};
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testGetNonInitArrayAttribute () (string) {
+function testGetNonInitArrayAttribute () returns (string) {
     Department dpt = {dptName:"HR"};
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testGetNonInitLastAttribute () (Person) {
-    Department dpt;
+function testGetNonInitLastAttribute () returns (Person) {
+    Department dpt = {};
     return dpt["employees"][0];
 }
 
@@ -114,6 +114,6 @@ function testSetFieldOfNonInitChildStruct () {
 }
 
 function testSetFieldOfNonInitStruct () {
-    Department dpt;
+    Department dpt = {};
     dpt.dptName = "HR";
 }

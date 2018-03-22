@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function openFileSuccess(string path) returns (boolean | error) {
     return true;

@@ -40,7 +40,7 @@ import java.nio.channels.ByteChannel;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "closeSocket",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
         returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},

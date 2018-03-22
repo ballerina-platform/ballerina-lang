@@ -28,7 +28,7 @@ import org.ballerinalang.util.BuiltInUtils;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.user",
+        orgName = "ballerina", packageName = "user",
         functionName = "getHome",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

@@ -1,4 +1,4 @@
-import ballerina.time;
+import ballerina/time;
 
 function test1() returns (int){
     function (string, string) returns (time:Time) parseFunction = time:parse;

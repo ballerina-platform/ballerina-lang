@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function successfulXmlCasting()(xml) {
   any abc = jsonReturnFunction();

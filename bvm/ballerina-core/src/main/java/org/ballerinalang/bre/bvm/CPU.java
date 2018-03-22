@@ -43,6 +43,7 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
@@ -741,11 +742,8 @@ public class CPU {
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
                     handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
                     break;
-                case InstructionCodes.ASYNC:
-                    execAsync(ctx);
-                    break;
                 case InstructionCodes.AWAIT:
-                    ctx = execAwait(ctx);
+                    ctx = execAwait(ctx, operands);
                     if (ctx == null) {
                         return;
                     }
@@ -3661,11 +3659,16 @@ public class CPU {
         return;
     }
     
-    private static void execAsync(WorkerExecutionContext ctx) {        
-    }
-    
-    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx) {
-        return null;
+    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx, int[] operands) {
+        int futureReg = operands[0];
+        int retValReg = operands[1];
+        BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
+        WorkerResponseContext respCtx = future.value();
+        if (retValReg != -1) {
+            return respCtx.joinTargetContextInfo(ctx, new int[] { retValReg });
+        } else {
+            return respCtx.joinTargetContextInfo(ctx, new int[0]);
+        }
     }
 
     /**

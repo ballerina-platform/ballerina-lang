@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function main (string[] args) {
     //A 'float' to 'int' conversion is considered as a type conversion in Ballerina

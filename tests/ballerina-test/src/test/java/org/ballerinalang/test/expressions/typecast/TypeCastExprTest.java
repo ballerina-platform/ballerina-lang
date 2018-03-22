@@ -500,14 +500,15 @@ public class TypeCastExprTest {
     public void testMapToStruct() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/map-to-struct-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "incompatible types: 'map' cannot be" +
-                " cast to 'Person', use conversion expression", 36, 16);    }
+        BAssertUtil.validateError(res, 0, "unsafe conversion from 'map' to 'Person', " +
+                "use multi-return conversion expression", 36, 16);
+    }
 
     @Test
     public void testJsonToMap() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/json-to-map-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "incompatible types: 'json' cannot be cast to 'map'", 9, 13);
+        BAssertUtil.validateError(res, 0, "incompatible types: 'json' cannot be convert to 'map'", 9, 13);
     }
 
     @Test(description = "Test casting a json to struct")
@@ -522,7 +523,7 @@ public class TypeCastExprTest {
     public void testMapToJsonCastingError() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/map-to-json-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "incompatible types: 'map' cannot be cast to 'json'", 7, 15);
+        BAssertUtil.validateError(res, 0, "incompatible types: 'map' cannot be convert to 'json'", 7, 15);
     }
 
     @Test(description = "Test casting struct stored as any to struct")
@@ -614,7 +615,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
-        CompileResult res = BCompileUtil.compile(this, "test-src", "expressions/typecast/foo");
+        CompileResult res = BCompileUtil.compile(this, "test-src", "expressions.typecast.foo");
         BValue[] returns = BRunUtil.invoke(res, "testCastToStructInDifferentPkg", new BValue[]{});
     }
 

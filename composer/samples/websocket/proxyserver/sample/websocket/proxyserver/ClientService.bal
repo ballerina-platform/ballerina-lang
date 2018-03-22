@@ -1,6 +1,6 @@
 package sample.websocket.proxyserver;
 
-import ballerina.net.ws;
+import ballerina/net.ws;
 
 @ws:clientService {}
 service<ws> ClientService {
