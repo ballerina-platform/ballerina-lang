@@ -232,6 +232,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-codegen</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>protobuf-ballerina</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -887,6 +892,9 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
 
                 <module>language-server</module>
@@ -895,7 +903,6 @@
                 <module>misc/swagger-ballerina</module>
                 <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>
@@ -926,13 +933,15 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
                 <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -960,6 +969,9 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
@@ -969,7 +981,6 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>
@@ -1057,6 +1068,7 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
+                                <skip>true</skip>
                                 <configLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/checkstyle.xml
                                 </configLocation>

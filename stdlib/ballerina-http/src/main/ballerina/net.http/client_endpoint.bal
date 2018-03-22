@@ -37,7 +37,7 @@ public enum Algorithm {
 }
 
 @Description {value:"Represents the configurations applied to a particular service."}
-@Field {value:"uri: Target service url"}
+@Field {value:"uri: Target service URI"}
 @Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
     string uri;

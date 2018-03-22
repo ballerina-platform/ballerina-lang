@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -44,5 +44,5 @@ public interface SourceDirectory {
 
     void saveCompiledPackage(InputStream source, String fileName);
 
-    Repo getPackageRepository();
+    Converter<Path> getConverter();
 }

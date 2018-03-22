@@ -244,11 +244,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return dent() + w() + 'deprecated' + a(' ') + w() + '{' + indent() + w()
                  + node.documentationText + outdent() + w() + '}';
         case 'Endpoint':
-            return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
-                 + w() + 'endpoint' + w() + '<'
-                 + getSourceOf(node.endPointType, pretty, l, replaceLambda) + w() + '>' + w()
-                 + node.name.valueWithBar
-                 + getSourceOf(node.configurationExpression, pretty, l, replaceLambda);
+            return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w(' ') + 'endpoint'
+                 + getSourceOf(node.endPointType, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar
+                 + b(' ')
+                 + getSourceOf(node.configurationExpression, pretty, l, replaceLambda) + w() + ';';
         case 'EndpointType':
             return w() + '<'
                  + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
@@ -498,9 +498,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Resource':
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'resource' + w(' ')
-                 + node.name.valueWithBar + w(' ') + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w(' ') + '{' + indent()
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w(' ') + node.name.valueWithBar + w(' ')
+                 + '(' + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + w() + ')' + w(' ') + '{' + indent()
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
         case 'Return':
@@ -510,10 +510,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + w() + '<'
-                 + getSourceOf(node.endpointType, pretty, l, replaceLambda) + w() + '>' + w(' ')
-                 + node.name.valueWithBar + w(' ') + '{' + indent()
-                 + join(node.variables, pretty, replaceLambda, l, w, '')
-                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+                 + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w() + '>'
+                 + w(' ') + node.name.valueWithBar + w() + 'bind'
+                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{'
+                 + indent() + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent()
+                 + w() + '}';
         case 'SimpleVariableRef':
             if (node.inTemplateLiteral && node.packageAlias.valueWithBar
                          && node.variableName.valueWithBar) {
@@ -661,6 +663,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return dent() + w() + 'endpoint'
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + w() + '{'
                  + indent() + outdent() + w() + '}';
+            } else if (node.serviceEndpoint && node.name.valueWithBar) {
+                return w() + 'endpoint' + w(' ') + node.name.valueWithBar;
             } else if (node.global && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.typeNode
                          && node.name.valueWithBar && node.initialExpression) {

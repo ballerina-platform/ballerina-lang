@@ -21,12 +21,14 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.961.1-SNAPSHOT</version>
+        <version>0.964.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>ballerina-codegen</artifactId>
+    <packaging>jar</packaging>
+    <name>Ballerina - Swagger Tooling - Client Generator</name>
+
     <dependencies>
         <dependency>
             <groupId>com.github.jknack</groupId>

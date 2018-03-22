@@ -57,7 +57,9 @@ public class SignatureParams {
 
     private void validatePathParam(List<ParamDetail> paramDetails) {
         for (ParamDetail param : paramDetails) {
-            if (param.getVarType().getTag() != TypeTags.STRING_TAG) {
+            int varTag = param.getVarType().getTag();
+            if (varTag != TypeTags.STRING_TAG && varTag != TypeTags.INT_TAG && varTag != TypeTags.BOOLEAN_TAG &&
+                    varTag != TypeTags.FLOAT_TAG) {
                 throw new BallerinaConnectorException("incompatible resource signature parameter type");
             }
             paramCount++;
