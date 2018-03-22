@@ -5,16 +5,19 @@ import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIConverter;
 
+import java.net.URI;
+
 /**
  * Calculate url pattens of package.
  */
-public class RemoteRepo extends NonSysRepo<StringBuilder> {
-    public RemoteRepo(Converter<StringBuilder> converter) {
+public class RemoteRepo extends NonSysRepo<URI> {
+
+    public RemoteRepo(Converter<URI> converter) {
         super(converter);
     }
 
-    public RemoteRepo(String baseURL) {
-        this(new URIConverter());
+    public RemoteRepo(URI base) {
+        this(new URIConverter(base));
     }
 
     @Override
@@ -23,8 +26,7 @@ public class RemoteRepo extends NonSysRepo<StringBuilder> {
         String pkgName = pkg.getName().value;
         String pkgVersion = pkg.version.value;
 
-        return new Patten(Patten.path("repo", orgName, pkgName, pkgVersion, "src"),
-                          Patten.WILDCARD_SOURCE);
+        return new Patten(Patten.path(orgName, pkgName, pkgVersion));
     }
 
 }

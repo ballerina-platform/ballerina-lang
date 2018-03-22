@@ -64,7 +64,7 @@ public class BConfigLangListener extends TomlBaseListener {
 
     @Override
     public void enterBasicString(TomlParser.BasicStringContext context) {
-        currentValue = context.basicChar().stream().map(x -> x.getText()).collect(Collectors.joining());
+        currentValue = context.basicStringValue().getText();
         if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
             hasEncryptedFields = true;
         } else {

@@ -28,6 +28,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#importDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#importDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#packageName}.
 	 * @param ctx the parse tree
 	 */
@@ -47,16 +57,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVersion(BallerinaParser.VersionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#importDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#importDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#orgName}.
 	 * @param ctx the parse tree

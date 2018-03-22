@@ -82,4 +82,7 @@
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol"/>
     </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.packaging.converters.URIConverter"/>
+    </Match>
 </FindBugsFilter>
