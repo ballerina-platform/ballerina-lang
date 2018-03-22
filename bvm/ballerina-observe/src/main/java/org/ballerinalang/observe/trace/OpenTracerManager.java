@@ -112,7 +112,7 @@ public class OpenTracerManager implements TraceManager {
                     spanBuilder = spanBuilder.asChildOf((Span) spanContextEntry.getValue());
                 }
             }
-            Span span = spanBuilder.start();
+            Span span = spanBuilder.ignoreActiveSpan().start();
             span.setBaggageItem(Constants.INVOCATION_ID_PROPERTY, String.valueOf(invocationId));
             if (makeActive) {
                 tracer.scopeManager().activate(span, false);

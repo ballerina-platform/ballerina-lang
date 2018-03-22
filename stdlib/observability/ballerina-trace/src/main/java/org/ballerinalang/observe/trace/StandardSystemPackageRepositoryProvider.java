@@ -19,9 +19,9 @@
 package org.ballerinalang.observe.trace;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.repository.PackageRepository;
-import org.ballerinalang.repository.fs.ClasspathPackageRepository;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
+import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 /**
  * This is the class which registers the functions defined with the ballerina.
@@ -32,8 +32,8 @@ public class StandardSystemPackageRepositoryProvider implements SystemPackageRep
     private static final String SYSTEM_ORG_NAME = "natives";
 
     @Override
-    public PackageRepository loadRepository() {
-        return new ClasspathPackageRepository(this.getClass(), SYSTEM_ORG_NAME);
+    public Repo loadRepository() {
+        return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
     }
 
 }

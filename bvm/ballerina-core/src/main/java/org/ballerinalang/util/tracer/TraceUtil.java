@@ -57,12 +57,12 @@ public class TraceUtil {
 
     public static Tracer getParentTracer(WorkerExecutionContext ctx) {
         WorkerExecutionContext parent = ctx;
-        while (parent.parent != null) {
-            parent = parent.parent;
+        do {
             if (getTracer(parent).getInvocationID() != null) {
                 return getTracer(parent);
             }
-        }
+            parent = parent.parent;
+        } while (parent != null);
         return NoOpTracer.getInstance();
     }
 
