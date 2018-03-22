@@ -69,7 +69,6 @@ function main (string[] args) {
 
     }
 
-
     //The table to json/xml conversion is resulted in streamed data. With the data
     //streaming functionality, when a service client makes a request, the result is
     //streamed to the service client rather than building the full result in the server
@@ -91,6 +90,4 @@ function main (string[] args) {
 
     //Finally close the DB connection.
     _ = testDB -> close();
-
-
 }
