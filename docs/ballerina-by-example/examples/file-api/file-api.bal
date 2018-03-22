@@ -34,7 +34,7 @@ function main (string[] args) {
 
     //Create a directory, along with the parent directories.
     file:File dirs = {path:"/tmp/dir/abc/def"};
-    var dirCreated, _, _ = dirs.mkdirs();
+    _ = dirs.mkdirs();
 
     //Check if a file is a directory.
     file:File possibleDir = {path:"/tmp/dir/abc"};
@@ -42,16 +42,16 @@ function main (string[] args) {
 
     //Create new files inside a directory (ignoring all 3 possible return values).
     file:File newFile1 = {path:"/tmp/dir/abc/file1.txt"};
-    _,_,_ = newFile1.createNewFile();
+    _ = newFile1.createNewFile();
 
     file:File newFile2 = {path:"/tmp/dir/abc/file2.txt"};
-    _,_,_ = newFile2.createNewFile();
+    _ = newFile2.createNewFile();
 
     file:File newFile3 = {path:"/tmp/dir/abc/file3.txt"};
-    _,_,_ = newFile3.createNewFile();
+    _ = newFile3.createNewFile();
 
     //Get the list of files in a directory.
-    var filesList, _, _ = possibleDir.list();
+    var filesList =? possibleDir.list();
 
     //Print the list of files in directory "/tmp/dir/abc".
     int i=0;
@@ -62,8 +62,7 @@ function main (string[] args) {
 
     //Get file meta data.
     string name = newFile1.getName();
-    time:Time lastModifiedTime;
-    lastModifiedTime, _, _ = newFile1.getModifiedTime();
+    time:Time lastModifiedTime =? newFile1.getModifiedTime();
     io:println(name + " modified at: " + lastModifiedTime.time);
     io:println(name + " is readable: " + newFile1.isReadable());
     io:println(name + " is writable: " + newFile1.isWritable());
