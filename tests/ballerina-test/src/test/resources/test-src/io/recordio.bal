@@ -6,18 +6,17 @@ struct Employee {
     float salary;
 }
 
-io:DelimitedRecordChannel|null delimitedRecordChannel;
+io:DelimitedRecordChannel|null txtChannel;
 
-function initFileChannel (string filePath, string permission, string encoding, string rs, string fs) {
-    io:ByteChannel channel = io:openFile(filePath, permission);
-    var characterChannelResult = io:createCharacterChannel(channel, encoding);
+function initDelimitedRecordChannel (string filePath, string permission, string encoding, string rs, string fs) {
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
+    var characterChannelResult = io:createCharacterChannel(byteChannel, encoding);
     match characterChannelResult {
-        io:CharacterChannel charChannel => {
-            var characterChannel = charChannel;
-            var delimitedRecordChannelResult = io:createDelimitedRecordChannel(characterChannel, rs, fs);
+        io:CharacterChannel ch => {
+            var delimitedRecordChannelResult = io:createDelimitedRecordChannel(ch, rs, fs);
             match delimitedRecordChannelResult {
                 io:DelimitedRecordChannel recordChannel => {
-                    delimitedRecordChannel = recordChannel;
+                    txtChannel = recordChannel;
                 }
                 io:IOError err => {
                     throw err;
@@ -25,43 +24,70 @@ function initFileChannel (string filePath, string permission, string encoding, s
             }
         }
         io:IOError err => {
+            io:println("Error occurred in record channel");
             throw err;
         }
     }
 }
 
 function nextRecord () returns (string[]) {
-    //string[] empty = [];
-    //match delimitedRecordChannel {
-    //    io:DelimitedRecordChannel delimChannel => {
-    //        var result = delimChannel.nextTextRecord();
-    //        match result {
-    //            string[] fields => {
-    //                return fields;
-    //            }
-    //            io:IOError err => {
-    //                throw err;
-    //            }
-    //        }
-    //        return empty;
-    //    }
-    //    (any|null) => {
-    //        return empty;
-    //    }
-    //
-    //}
+    string[] empty = [];
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel => {
+            var result = delimChannel.nextTextRecord();
+            match result {
+                string[] fields => {
+                    return fields;
+                }
+                io:IOError err => {
+                    throw err;
+                }
+            }
+            return empty;
+        }
+        (any|null) => {
+            return empty;
+        }
+
+    }
 }
 
 function writeRecord (string[] fields) {
-    var result = delimitedRecordChannel.writeTextRecord(fields);
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel => {
+            var result = delimChannel.writeTextRecord(fields);
+        }
+        (any|null) => {
+            io:println("Feilds cannot be written");
+        }
+    }
 }
 
 function close () {
-    var err = delimitedRecordChannel.closeDelimitedRecordChannel();
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel => {
+            var err = delimChannel.closeDelimitedRecordChannel();
+        }
+        (any|null) => {
+            io:println("Channel cannot be closed");
+        }
+    }
 }
 
+
 function hasNextRecord () returns (boolean) {
-    return delimitedRecordChannel.hasNextTextRecord();
+    boolean hasNext;
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel => {
+            hasNext = delimChannel.hasNextTextRecord();
+            return hasNext;
+        }
+        (any|null) => {
+            io:println("Channel cannot be closed");
+            return hasNext;
+        }
+    }
+
 }
 
 function loadToTable (string filePath) returns (float) {
