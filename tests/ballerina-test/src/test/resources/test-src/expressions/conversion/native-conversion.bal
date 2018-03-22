@@ -95,7 +95,12 @@ function testJsonToStruct () returns (Person | error) {
                  alive:true,
                  children:null
              };
+<<<<<<< HEAD
     var p = <Person>j;
+=======
+    var p =? <Person>j;
+    //TODO fix the error handling
+>>>>>>> b2512a76656f000a82f0a8e8da6e60990328e33c
     return p;
 }
 
@@ -107,11 +112,8 @@ function testIncompatibleMapToStruct () returns (Person) {
                 info:{status:"single"},
                 marks:marks
             };
-    Person| error r = <Person> m;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    Person p =? <Person>m;
+    return p;
 }
 
 function testMapWithMissingFieldsToStruct () returns (Person) {
@@ -121,11 +123,8 @@ function testMapWithMissingFieldsToStruct () returns (Person) {
                 address:{"city":"Colombo", "country":"SriLanka"},
                 marks:marks
             };
-    Person| error r = <Person> m;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    Person p =? <Person>m;
+    return p;
 }
 
 function testMapWithIncompatibleArrayToStruct () returns (Person) {
@@ -153,11 +152,8 @@ function testMapWithIncompatibleArrayToStruct () returns (Person) {
                 alive:true
             };
 
-    Person| error r = <Person> m;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    var p =? <Person>m;
+    return p;
 }
 
 struct Employee {
@@ -183,11 +179,8 @@ function testMapWithIncompatibleStructToStruct () returns (Employee) {
                 marks:marks
             };
             
-	Employee|error p = <Employee> m;
-    match p {
-        error e => throw e;
-        Employee emp => return emp;
-    }
+    var e =? <Employee>m;
+    return e;
 }
 
 function testJsonToStructWithMissingFields () returns (Person) {
@@ -198,11 +191,8 @@ function testJsonToStructWithMissingFields () returns (Person) {
                  marks:[87, 94, 72]
              };
 
-    Person| error r = <Person> j;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    var p =? <Person>j;
+    return p;
 }
 
 function testIncompatibleJsonToStruct () returns (Person) {
@@ -213,11 +203,8 @@ function testIncompatibleJsonToStruct () returns (Person) {
                  marks:[87, 94, 72]
              };
 
-    Person| error r = <Person> j;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    var p =? <Person>j;
+    return p;
 }
 
 function testJsonWithIncompatibleMapToStruct () returns (Person) {
@@ -236,11 +223,8 @@ function testJsonWithIncompatibleMapToStruct () returns (Person) {
                  marks:[87, 94, 72]
              };
 
-    Person| error r = <Person> j;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    var p =? <Person>j;
+    return p;
 }
 
 function testJsonWithIncompatibleTypeToStruct () returns (Person) {
@@ -259,11 +243,8 @@ function testJsonWithIncompatibleTypeToStruct () returns (Person) {
                  marks:[87, 94, 72]
              };
 
-    Person| error r = <Person> j;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    var p =? <Person>j;
+    return p;
 }
 
 function testJsonWithIncompatibleStructToStruct () returns (Person) {
@@ -282,21 +263,15 @@ function testJsonWithIncompatibleStructToStruct () returns (Person) {
                  marks:[87, 94, 72]
              };
 
-    Person| error r = <Person> j;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    var p =? <Person>j;
+    return p;
 }
 
 function testJsonArrayToStruct () returns (Person) {
     json j = [87, 94, 72];
 
-    Person| error r = <Person> j;
-    match r {
-        error e => throw e;
-        Person p => return p;
-    }
+    var p =? <Person>j;
+    return p;
 }
 
 struct Info {
@@ -307,12 +282,9 @@ function testStructWithIncompatibleTypeMapToJson () returns (json) {
     blob b;
     map m = {bar:b};
     Info info = {foo:m};
-    
-	json|error r = <json> info;
-    match r {
-        error e => throw e;
-        json j => return j;
-    }
+
+    var j =? <json>info;
+    return j;
 }
 
 function testJsonIntToString () returns (string) {

@@ -6,12 +6,12 @@ endpoint<mock:NonListeningService> testEP {
     port:9090
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/ecommerceservice",
     endpoints:[testEP]
 }
 service<http:Service> Ecommerce {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{productId}/{regId}"
     }
@@ -28,7 +28,7 @@ service<http:Service> Ecommerce {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products2/{productId}/{regId}/item"
     }
@@ -44,7 +44,7 @@ service<http:Service> Ecommerce {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products3/{productId}/{regId}/*"
     }
@@ -60,7 +60,7 @@ service<http:Service> Ecommerce {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{productId}"
     }
@@ -79,7 +79,7 @@ service<http:Service> Ecommerce {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products"
     }
@@ -100,7 +100,7 @@ service<http:Service> Ecommerce {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products5/{productId}/reg"
     }
@@ -119,7 +119,7 @@ service<http:Service> Ecommerce {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:""
     }
     resource echo1 (http:ServerConnector conn, http:Request req) {
@@ -130,13 +130,13 @@ service<http:Service> Ecommerce {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/options",
     endpoints:[testEP]
 }
 service<http:Service> echo111 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST", "UPDATE"],
         path : "/test"
     }
@@ -145,7 +145,7 @@ service<http:Service> echo111 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["OPTIONS"],
         path : "/hi"
     }
@@ -156,7 +156,7 @@ service<http:Service> echo111 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET", "PUT"],
         path : "/test"
     }
@@ -166,7 +166,7 @@ service<http:Service> echo111 {
 
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path : "/getme"
     }
@@ -177,7 +177,7 @@ service<http:Service> echo111 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path : "/post"
     }
@@ -188,7 +188,7 @@ service<http:Service> echo111 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PUT"],
         path : "/put"
     }
@@ -200,20 +200,20 @@ service<http:Service> echo111 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/noResource",
     endpoints:[testEP]
 }
 service<http:Service> echo112 {
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"hello/",
     endpoints:[testEP]
 }
 service<http:Service> serviceHello {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test/"
     }
@@ -225,13 +225,13 @@ service<http:Service> serviceHello {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/ech[o",
     endpoints:[testEP]
 }
 service<http:Service> echo113 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/ech[o/{foo}"
     }
@@ -243,13 +243,13 @@ service<http:Service> echo113 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/ech%5Bo14",
     endpoints:[testEP]
 }
 service<http:Service> echo114 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/ech%5Bo14/{foo}"
     }
