@@ -53,7 +53,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
 
     @Override
     public Path getPath() {
-        return null;
+        return programDirPath;
     }
 
     @Override
