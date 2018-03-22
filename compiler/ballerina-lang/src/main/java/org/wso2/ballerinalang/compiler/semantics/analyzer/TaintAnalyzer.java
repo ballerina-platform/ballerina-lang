@@ -1381,7 +1381,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (returnTaintedStatusList != null) {
             for (int paramIndex = 0; paramIndex < retParams.size(); paramIndex++) {
                 BLangVariable param = retParams.get(paramIndex);
-                boolean observedReturnTaintedStatus = returnTaintedStatusList.get(paramIndex);
+                boolean observedReturnTaintedStatus = false;
+                if (returnTaintedStatusList.size() > paramIndex) {
+                    returnTaintedStatusList.get(paramIndex);
+                }
                 if (observedReturnTaintedStatus) {
                     // If return is tainted, but return is marked as untainted, overwrite the value.
                     if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
