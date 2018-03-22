@@ -21,8 +21,8 @@ public class RepoHierarchy {
 
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
-    private final boolean verbose = false;
-    private final PrintStream out = System.out;
+    private static final boolean verbose = false;
+    private static final PrintStream out = System.out;
 
     RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
         this.repos = repos;
