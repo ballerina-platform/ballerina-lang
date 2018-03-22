@@ -10,7 +10,7 @@ function main (string[] args) {
         name:"testdb",
         username:"root",
         password:"root",
-        options:{maximumPoolSize:5, validationTimeout:250}
+        options:{maximumPoolSize:5}
     };
 
     int updatedRows;
@@ -22,7 +22,7 @@ function main (string[] args) {
             updatedRows = rows;
         }
         sql:SQLConnectorError err => {
-            io:println("CUSTOMER table Creation failed" + err.message);
+            io:println("CUSTOMER table Creation failed:" + err.message);
             return;
         }
     }
@@ -33,7 +33,7 @@ function main (string[] args) {
             updatedRows = rows;
         }
         sql:SQLConnectorError err => {
-            io:println("SALARY table Creation failed" + err.message);
+            io:println("SALARY table Creation failed:" + err.message);
             return;
         }
     }
@@ -43,7 +43,7 @@ function main (string[] args) {
     //is tried three times before aborting. Only integer literals or constants are
     //allowed for retry count.
     boolean transactionSuccess = false;
-    transaction with retries(4) {
+    transaction with retries=4 {
         //This is the first action participate in the transaction.
         var result = testDBEP -> update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
         //This is the second action participate in the transaction.

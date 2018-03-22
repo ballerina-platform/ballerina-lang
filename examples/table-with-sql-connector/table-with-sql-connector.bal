@@ -128,9 +128,9 @@ function main (string[] args) {
     //Finally close the DB connection.
     var onConnectionClose = testDB -> close();
     match onConnectionClose {
-        error e => io:println("Error in Connection close");
+        error e => io:println("Error in DB Connection close");
         any | null => {
-            io:println("This cannot happen.");
+            io:println("DB Connection closed successfully.");
         }
     }
 }
