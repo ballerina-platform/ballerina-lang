@@ -24,7 +24,11 @@ version
     ;
 
 importDeclaration
-    :   IMPORT fullyQualifiedPackageName version? (AS packageAlias)? SEMICOLON
+    :   IMPORT (orgName DIV)? fullyQualifiedPackageName version? (AS packageAlias)? SEMICOLON
+    ;
+
+orgName
+    :   Identifier
     ;
 
 fullyQualifiedPackageName

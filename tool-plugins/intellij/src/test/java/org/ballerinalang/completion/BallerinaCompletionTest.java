@@ -56,20 +56,19 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     /**
      * Test import declaration level lookups.
      */
-    public void testFirstLevelImportLookups() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
-        doTest("import <caret>", "org");
-    }
-
+    //    public void testFirstLevelImportLookups() {
+    //        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+    //        doTest("import <caret>", "org");
+    //    }
     public void testLastLevelImportLookups() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
         doTest("import org.<caret>", "test");
     }
 
-    public void testFirstLevelImportAutoCompletion() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
-        doCheckResult("test.bal", "import o<caret>", "import org.", null);
-    }
+    //    public void testFirstLevelImportAutoCompletion() {
+    //        myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
+    //        doCheckResult("test.bal", "import o<caret>", "import org.", null);
+    //    }
 
     public void testLastLevelImportAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; function A(){}");
@@ -857,81 +856,83 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         doTest("service S { resource R(string <caret>)");
     }
 
-//    public void testResourceParamWithoutImports() {
-//        List<String> expectedLookups = new LinkedList<>();
-//        expectedLookups.addAll(DATA_TYPES);
-//        expectedLookups.addAll(OTHER_TYPES);
-//        expectedLookups.addAll(XMLNS_TYPE);
-//        expectedLookups.addAll(REFERENCE_TYPES);
-//        doTest("service<http> S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
-//    }
+    //    public void testResourceParamWithoutImports() {
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        doTest("service<http> S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size
+    // ()]));
+    //    }
 
-//    public void testResourceParamWithImports() {
-//        List<String> expectedLookups = new LinkedList<>();
-//        expectedLookups.addAll(DATA_TYPES);
-//        expectedLookups.addAll(OTHER_TYPES);
-//        expectedLookups.addAll(XMLNS_TYPE);
-//        expectedLookups.addAll(REFERENCE_TYPES);
-//        expectedLookups.add("test");
-//        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-//        doTest("import org.test; service<http> S { resource R(<caret>)",
-//                expectedLookups.toArray(new String[expectedLookups.size()]));
-//    }
+    //    public void testResourceParamWithImports() {
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        expectedLookups.add("test");
+    //        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
+    //        doTest("import org.test; service<http> S { resource R(<caret>)",
+    //                expectedLookups.toArray(new String[expectedLookups.size()]));
+    //    }
 
-//    public void testResourceParamWithoutImportsAutoCompletion() {
-//        doCheckResult("test.bal", "service<http> S { resource R(st<caret>)", "service<http> S { resource R(string )",
-//                null);
-//    }
-//
-//    public void testResourceParamWithImportsAutoCompletion() {
-//        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-//        doCheckResult("test.bal", "import org.test; service<http> S { resource R(te<caret>)",
-//                "import org.test; service<http> S { resource R(test:)", null);
-//    }
+    //    public void testResourceParamWithoutImportsAutoCompletion() {
+    //        doCheckResult("test.bal", "service<http> S { resource R(st<caret>)", "service<http> S { resource R
+    // (string )",
+    //                null);
+    //    }
+    //
+    //    public void testResourceParamWithImportsAutoCompletion() {
+    //        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
+    //        doCheckResult("test.bal", "import org.test; service<http> S { resource R(te<caret>)",
+    //                "import org.test; service<http> S { resource R(test:)", null);
+    //    }
 
-//    public void testCaretAfterResourceParamWithoutImports() {
-//        List<String> expectedLookups = new LinkedList<>();
-//        expectedLookups.addAll(DATA_TYPES);
-//        expectedLookups.addAll(OTHER_TYPES);
-//        expectedLookups.addAll(XMLNS_TYPE);
-//        expectedLookups.addAll(REFERENCE_TYPES);
-//        doTest("service<http> S { resource R(string s,<caret>)",
-//                expectedLookups.toArray(new String[expectedLookups.size()]));
-//    }
+    //    public void testCaretAfterResourceParamWithoutImports() {
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        doTest("service<http> S { resource R(string s,<caret>)",
+    //                expectedLookups.toArray(new String[expectedLookups.size()]));
+    //    }
 
-//    public void testCaretBeforeResourceParamWithoutImports() {
-//        List<String> expectedLookups = new LinkedList<>();
-//        expectedLookups.addAll(DATA_TYPES);
-//        expectedLookups.addAll(OTHER_TYPES);
-//        expectedLookups.addAll(XMLNS_TYPE);
-//        expectedLookups.addAll(REFERENCE_TYPES);
-//        doTest("service<http> S { resource R(<caret>string s)",
-//                expectedLookups.toArray(new String[expectedLookups.size()]));
-//    }
+    //    public void testCaretBeforeResourceParamWithoutImports() {
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        doTest("service<http> S { resource R(<caret>string s)",
+    //                expectedLookups.toArray(new String[expectedLookups.size()]));
+    //    }
 
-//    public void testCaretAfterResourceParamWithImports() {
-//        List<String> expectedLookups = new LinkedList<>();
-//        expectedLookups.addAll(DATA_TYPES);
-//        expectedLookups.addAll(OTHER_TYPES);
-//        expectedLookups.addAll(XMLNS_TYPE);
-//        expectedLookups.addAll(REFERENCE_TYPES);
-//        expectedLookups.add("test");
-//        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-//        doTest("import org.test; service<http> S { resource R(string s,<caret>)",
-//                expectedLookups.toArray(new String[expectedLookups.size()]));
-//    }
+    //    public void testCaretAfterResourceParamWithImports() {
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        expectedLookups.add("test");
+    //        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
+    //        doTest("import org.test; service<http> S { resource R(string s,<caret>)",
+    //                expectedLookups.toArray(new String[expectedLookups.size()]));
+    //    }
 
-//    public void testCaretBeforeResourceParamWithImports() {
-//        List<String> expectedLookups = new LinkedList<>();
-//        expectedLookups.addAll(DATA_TYPES);
-//        expectedLookups.addAll(OTHER_TYPES);
-//        expectedLookups.addAll(XMLNS_TYPE);
-//        expectedLookups.addAll(REFERENCE_TYPES);
-//        expectedLookups.add("test");
-//        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
-//        doTest("import org.test; service<http> S { resource R(<caret>string s)",
-//                expectedLookups.toArray(new String[expectedLookups.size()]));
-//    }
+    //    public void testCaretBeforeResourceParamWithImports() {
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        expectedLookups.add("test");
+    //        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
+    //        doTest("import org.test; service<http> S { resource R(<caret>string s)",
+    //                expectedLookups.toArray(new String[expectedLookups.size()]));
+    //    }
 
     /**
      * Test connector level lookups.

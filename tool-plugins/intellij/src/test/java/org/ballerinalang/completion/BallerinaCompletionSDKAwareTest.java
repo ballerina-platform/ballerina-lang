@@ -44,9 +44,9 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
         }
     }
 
-    public void testImportFromSDKFirstLevel() {
-        doTest("import <caret>", "ballerina");
-    }
+    //    public void testImportFromSDKFirstLevel() {
+    //        doTest("import <caret>", "ballerina");
+    //    }
 
     public void testImportFromSDKSecondLevel() {
         doTest("import ballerina.<caret>", "builtin", "caching", "config", "data", "file", "io", "log", "math",
@@ -57,21 +57,21 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
         doTest("import ballerina.net.<caret>", "http", "uri", "ws");
     }
 
-    public void testImportFromSDKAfterPackage() {
-        doTest("package test; import <caret>", "ballerina");
-    }
+    //    public void testImportFromSDKAfterPackage() {
+    //        doTest("package test; import <caret>", "ballerina");
+    //    }
 
-    public void testImportFromSDKAfterImport() {
-        doTest("package test; import ballerina.lang.system; import <caret>", "ballerina");
-    }
+    //    public void testImportFromSDKAfterImport() {
+    //        doTest("package test; import ballerina.lang.system; import <caret>", "ballerina");
+    //    }
 
-    public void testImportFromSDKBeforeImport() {
-        doTest("package test; import <caret> import ballerina.lang.system;", "ballerina");
-    }
+    //    public void testImportFromSDKBeforeImport() {
+    //        doTest("package test; import <caret> import ballerina.lang.system;", "ballerina");
+    //    }
 
-    public void testImportFromSDKBetweenImports() {
-        doTest("package test; import ballerina.lang.system; import <caret> import ballerina.utils;", "ballerina");
-    }
+    //    public void testImportFromSDKBetweenImports() {
+    //        doTest("package test; import ballerina.lang.system; import <caret> import ballerina.utils;", "ballerina");
+    //    }
 
     //    public void testPackageInvocationAutoCompletion() {
     //        doCheckResult("test.bal", "import ballerina.net.http; function test() {ht<caret>}",

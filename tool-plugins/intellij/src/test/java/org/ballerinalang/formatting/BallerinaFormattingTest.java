@@ -35,9 +35,9 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
     //        doTest();
     //    }
 
-    public void testHelloWorld() {
-        doTest();
-    }
+    //    public void testHelloWorld() {
+    //        doTest();
+    //    }
 
     //    public void testHelloWorldService() {
     //        doTest();
@@ -108,9 +108,9 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         doTest();
     }
 
-    public void testWorker() {
-        doTest();
-    }
+    //    public void testWorker() {
+    //        doTest();
+    //    }
 
     private void doTest() {
         doTest(null);
