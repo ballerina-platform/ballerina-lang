@@ -179,9 +179,6 @@ public class StructTest {
     @Test
     public void testStructLiteralInitFunc() {
         CompileResult result = BCompileUtil.compile("test-src/structs/nested-struct-inline-init.bal");
-        for (Diagnostic diag : result.getDiagnostics()) {
-            System.out.println(diag.getPosition() + diag.getMessage());
-        }
         BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns[0].stringValue(),
                 "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
