@@ -16,8 +16,8 @@
 
 package ballerina.net.http.authadaptor;
 
-import ballerina.internal;
-import ballerina.auth;
+import ballerina/internal;
+import ballerina/auth;
 
 @Description {value:"Authn handler chain instance"}
 AuthnHandlerChain authnHandlerChain;
@@ -49,7 +49,7 @@ public function <AuthnFilter filter> terminate () {
 @Param {value:"request: Request instance"}
 @Param {value:"context: FilterContext instance"}
 @Return {value:"FilterResult: Authentication result to indicate if the request can proceed or not"}
-public function authnRequestFilterFunc (http:Request request, http:FilterContext context) (http:FilterResult) {
+public function authnRequestFilterFunc (http:Request request, http:FilterContext context) returns (http:FilterResult) {
     // check if this resource is secured
     boolean authenticated;
     if (isResourceSecured(context)) {
@@ -65,7 +65,7 @@ public function authnRequestFilterFunc (http:Request request, http:FilterContext
 @Description {value:"Creates an instance of FilterResult"}
 @Param {value:"authorized: authorization status for the request"}
 @Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
-function createAuthnResult (boolean authenticated) (http:FilterResult) {
+function createAuthnResult (boolean authenticated) returns (http:FilterResult) {
     http:FilterResult requestFilterResult;
     if (authenticated) {
         requestFilterResult = {canProceed:true, statusCode:200, message:"Successfully authenticated"};
@@ -78,23 +78,28 @@ function createAuthnResult (boolean authenticated) (http:FilterResult) {
 @Description {value:"Checks if the resource is secured"}
 @Param {value:"context: FilterContext object"}
 @Return {value:"boolean: true if the resource is secured, else false"}
-function isResourceSecured (http:FilterContext context) (boolean) {
+function isResourceSecured (http:FilterContext context) returns (boolean) {
     // get authn details from the resource level
-    auth:Authentication authAnn = getAuthnAnnotation(internal:getResourceAnnotations(context.serviceType,
-                                                                                    context.resourceName));
-    if (authAnn != null) {
-        return authAnn.enabled;
-    }
-    // if not found at resource level, check in the service level
-    authAnn = getAuthnAnnotation(internal:getServiceAnnotations(context.serviceType));
-    if (authAnn != null) {
-        return authAnn.enabled;
-    }
-
-    // if still authentication annotation is null, means the user has not specified that the service should be secured.
-    // However since the authn filter has been engaged, need to authenticate.
-    if (authAnn == null) {
-        return true;
+    auth:Authentication authAnn = getAuthnAnnotation(
+                                  internal:getResourceAnnotations(context.serviceType, context.resourceName));
+    match authAnn {
+        auth:Authentication authAnnotation => {
+            return authAnnotation.enabled;
+        }
+        error err => {
+            // if not found at resource level, check in the service level
+            authAnn = getAuthnAnnotation(internal:getServiceAnnotations(context.serviceType));
+            match authAnn {
+                auth:Authentication authAnnotation => {
+                    return authAnnotation.enabled;
+                }
+                error err => {
+                    // if still authentication annotation is null, means the user has not specified that the service
+                    // should be secured. However since the authn filter has been engaged, need to authenticate.
+                    return true;
+                }
+            }
+        }
     }
     return false;
 }
@@ -104,33 +109,39 @@ level
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
 @Return {value:"Authentication: Authentication instance if its defined, else null"}
-function getAuthnAnnotation (internal:annotationData[] annData) (auth:Authentication) {
-    if (annData == null) {
-        return null;
+function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Authentication|error) {
+    if (lengthof annData == 0) {
+        error err = {message:"empty annotationData"};
+        return err;
     }
-    internal:annotationData authAnn;
+    internal:annotationData authAnn = {};
     foreach ann in annData {
         if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
             authAnn = ann;
             break;
         }
     }
-    if (authAnn == null) {
+    if (lengthof authAnn == 0) {
         // no annotation found for ballerina.auth:config
-        return null;
+        error err = {message:"no annotation for ballerina.auth:Config"};
+        return err;
     }
-    var authConfig, err = (auth:AuthConfig) authAnn.value;
-    if (err == null && authConfig != null) {
-        return authConfig.authentication;
+    var authConfig = <auth:AuthConfig> authAnn.value;
+    match authConfig {
+        auth:AuthConfig authConfiguration => {
+            return authConfiguration.authentication;
+        }
+        error err => {
+            return err;
+        }
     }
-    return null;
 }
 
 @Description {value:"Filter function implementation for the response flow"}
 @Param {value:"request: Request instance"}
 @Param {value:"context: FilterContext instance"}
 @Return {value:"FilterResult: returns a FilterResult instance with a hard coded successful message"}
-public function responseFilterFunc (http:Response response, http:FilterContext context) (http:FilterResult) {
+public function responseFilterFunc (http:Response response, http:FilterContext context) returns (http:FilterResult) {
     http:FilterResult responseFilterResult = {canProceed:true, statusCode:200, message:"Successful"};
     return responseFilterResult;
 }

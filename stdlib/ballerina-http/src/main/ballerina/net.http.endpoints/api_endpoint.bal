@@ -16,8 +16,8 @@
 
 package ballerina.net.http.endpoints;
 
-import ballerina.net.http;
-import ballerina.net.http.authadaptor;
+import ballerina/net.http;
+import ballerina/net.http.authadaptor;
 
 @Description {value:"Representation of an API Endpoint"}
 @Field {value:"config: ServiceEndpointConfiguration instance"}
@@ -49,7 +49,7 @@ function addAuthFilters (http:ServiceEndpointConfiguration config) {
 
 @Description {value:"Create an array of auth and authz filters"}
 @Return {value:"Array of Filters comprising of authn and authz Filters"}
-function createAuthFilters () (http:Filter[]) {
+function createAuthFilters () returns (http:Filter[]) {
     // TODO: currently hard coded. fix it.
     http:Filter[] authFilters = [];
     authadaptor:AuthnFilter authnFilter = {};
@@ -68,7 +68,7 @@ public function <ApiEndpoint ep> init (http:ServiceEndpointConfiguration config)
     ep.httpEndpoint.init(config);
 }
 
-public function <ApiEndpoint ep> register (type serviceType) {
+public function <ApiEndpoint ep> register (typedesc serviceType) {
     ep.httpEndpoint.register(serviceType);
 }
 

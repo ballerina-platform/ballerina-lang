@@ -16,7 +16,7 @@
 
 package ballerina.net.http.authadaptor;
 
-import ballerina.internal;
+import ballerina/internal;
 
 @Description {value:"Authz handler chain instance"}
 AuthzHandlerChain authzHandlerChain;
@@ -48,11 +48,11 @@ public function <AuthzFilter filter> terminate () {
 @Param {value:"request: Request instance"}
 @Param {value:"context: FilterContext instance"}
 @Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
-public function authzRequestFilterFunc (http:Request request, http:FilterContext context) (http:FilterResult) {
+public function authzRequestFilterFunc (http:Request request, http:FilterContext context) returns (http:FilterResult) {
     // check if this resource is protected
     string scope = getScopeForResource(context);
     boolean authorized;
-    if (scope != null) {
+    if (scope != "") {
         authorized = authzHandlerChain.handle(request, scope, context.resourceName);
     } else {
         // if scopes are not defined, no need to authorize
@@ -64,7 +64,7 @@ public function authzRequestFilterFunc (http:Request request, http:FilterContext
 @Description {value:"Creates an instance of FilterResult"}
 @Param {value:"authorized: authorization status for the request"}
 @Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
-function createAuthzResult (boolean authorized) (http:FilterResult) {
+function createAuthzResult (boolean authorized) returns (http:FilterResult) {
     http:FilterResult requestFilterResult;
     if (authorized) {
         requestFilterResult = {canProceed:true, statusCode:200, message:"Successfully authorized"};
@@ -77,41 +77,59 @@ function createAuthzResult (boolean authorized) (http:FilterResult) {
 @Description {value:"Retrieves the scope for the resource, if any"}
 @Param {value:"context: FilterContext object"}
 @Return {value:"string: Scope name if defined, else null"}
-function getScopeForResource (http:FilterContext context) (string) {
+function getScopeForResource (http:FilterContext context) returns (string) {
     string scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
                                                                       context.resourceName));
-    if (scope != null) {
-        return scope;
+    match scope {
+        string scopeVal => {
+            return scopeVal;
+        }
+        error err => {
+            // if not found in resource level, check in service level
+            scope = getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
+            match scope {
+                string scopeVal => {
+                    return scopeVal;
+                }
+                error err => {
+                    // if the scope is still null, means authorization is not needed.
+                    return "";
+                }
+            }
+        }
     }
-    // if not found in resource level, check in service level
-    scope = getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
-    // if the scope is still null, means authorization is not needed.
-    return scope;
+    return "";
 }
 
 @Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
 @Return {value:"string: Scope name if defined, else null"}
-function getAuthzAnnotation (internal:annotationData[] annData) (string) {
-    if (annData == null) {
-        return null;
+function getAuthzAnnotation (internal:annotationData[] annData) returns (string|error) {
+    if (lengthof annData == 0) {
+        error err = {message:"empty annotationData"};
+        return err;
     }
-    internal:annotationData authAnn;
+    internal:annotationData authAnn = {};
     foreach ann in annData {
         if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
             authAnn = ann;
             break;
         }
     }
-    if (authAnn == null) {
+    if (lengthof authAnn == 0) {
         // no annotation found for ballerina.auth:config
-        return null;
+        error err = {message:"no annotation for ballerina.auth:Config"};
+        return err;
     }
-    var authConfig, err = (auth:AuthConfig)authAnn.value;
-    if (err == null && authConfig != null) {
-        return authConfig.scope;
+    var authConfig = <auth:AuthConfig> authAnn.value;
+    match authConfig {
+        auth:AuthConfig authConfiguration => {
+            return authConfiguration.scope;
+        }
+        error err => {
+            return err;
+        }
     }
-    return null;
 }
 
