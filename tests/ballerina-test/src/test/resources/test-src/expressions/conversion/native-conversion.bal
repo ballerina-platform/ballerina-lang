@@ -61,7 +61,7 @@ function testMapToStruct () returns (Person | error) {
 }
 
 function testStructToJson () returns (json) {
-    Person p = {name:"Child",
+    Person | null p = {name:"Child",
                    age:25,
                    parent:{name:"Parent", age:50},
                    address:{"city":"Colombo", "country":"SriLanka"},
@@ -70,7 +70,11 @@ function testStructToJson () returns (json) {
                };
 
     json j;
-    j =? <json>p;
+    match p {
+                Person p1 => j =? <json>p;
+     any | null => io.println("error");
+}
+
     return j;
 }
 
