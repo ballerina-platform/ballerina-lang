@@ -125,12 +125,13 @@ function testToJson () returns (json | null) {
 
     sql:Parameter[] parameters = [];
     try {
-        table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", parameters, null);
+
         var result, _ = <json>dt;
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -147,12 +148,12 @@ function testToXml () returns (xml | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         var result, _ = <xml>dt;
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -169,13 +170,13 @@ function testToXmlMultipleConsume () returns (xml | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         var result, _ = <xml>dt;
         io:println(result);
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -192,18 +193,18 @@ function testToXmlWithAdd () returns (xml | null) {
     };
 
     try {
-        table dt1 = testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        table dt1 =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
         var result1, _ = <xml>dt1;
 
-        table dt2 = testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        table dt2 =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
         var result2, _ = <xml>dt2;
 
         xml result = result1 + result2;
 
-        table dt3 = testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
+        table dt3 =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, null);
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -220,13 +221,13 @@ function testToJsonMultipleConsume () returns (json | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
         var result, _ = <json>dt;
         io:println(result);
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -244,13 +245,13 @@ function toXmlComplex () returns (xml | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
+        table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, null);
         var result, _ = <xml>dt;
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -267,13 +268,13 @@ function testToXmlComplexWithStructDef () returns (xml | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
+        table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, typeof TestTypeData);
         var result, _ = <xml>dt;
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -291,13 +292,13 @@ function testToJsonComplex () returns (json | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
+        table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, null);
         var result, _ = <json>dt;
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -315,13 +316,13 @@ function testToJsonComplexWithStructDef () returns (json | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
+        table dt =? testDB -> select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", null, typeof TestTypeData);
         var result, _ = <json>dt;
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -338,12 +339,12 @@ function testJsonWithNull () returns (json | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", null, null);
         var result, _ = <json>dt;
         return result;
     }  finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
@@ -360,17 +361,17 @@ function testXmlWithNull () returns (xml | null) {
     };
 
     try {
-        table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 2", null, null);
         var result, _ = <xml>dt;
         return result;
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return null;
 }
 
-//function testToXmlWithinTransaction () (string, int) {
+//function testToXmlWithinTransaction () returns (string, int) {
 //    endpoint sql:Client testDB {
 //        database: sql:DB.HSQLDB_FILE,
 //        host: "./target/tempdb/",
@@ -379,51 +380,47 @@ function testXmlWithNull () returns (xml | null) {
 //        username: "SA",
 //        password: "",
 //        options: {maximumPoolSize:1}
-//    }
-//
-//
-//                                  int returnValue = 0;
-//    string result;
-//    try {
-//        transaction {
-//            table dt = testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
-//            xml xmlResult;
-//            xmlResult, _ = <xml>dt;
-//            result = <string> xmlResult;
-//        }
-//        return result, returnValue;
-//    } finally {
-//        testDB -> close();
-//    }
-//    return "", -1;
-//}
-//
-//function testToJsonWithinTransaction () (string, int) {
-//    endpoint sql:Client testDB {
-//        database: sql:DB.HSQLDB_FILE,
-//        host: "./target/tempdb/",
-//        port: 0,
-//        name: "TEST_DATA_TABLE_DB",
-//        username: "SA",
-//        password: "",
-//        options: {maximumPoolSize:1}
-//    }
-//
+//    };
 //
 //    int returnValue = 0;
 //    string result;
 //    try {
 //        transaction {
-//            table dt = testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
-//            json jsonResult;
-//            jsonResult, _ = <json>dt;
+//            table dt =? testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
+//            var xmlResult, _ = <xml>dt;
+//            result = <string> xmlResult;
+//        }
+//        return (result, returnValue);
+//    } finally {
+//        _ = testDB -> close();
+//    }
+//    return ("", -1);
+//}
+//
+//function testToJsonWithinTransaction () returns (string, int) {
+//    endpoint sql:Client testDB {
+//        database: sql:DB.HSQLDB_FILE,
+//        host: "./target/tempdb/",
+//        port: 0,
+//        name: "TEST_DATA_TABLE_DB",
+//        username: "SA",
+//        password: "",
+//        options: {maximumPoolSize:1}
+//    };
+//
+//    int returnValue = 0;
+//    string result;
+//    try {
+//        transaction {
+//            table dt =? testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
+//            var jsonResult, _ = <json>dt;
 //            result = jsonResult.toString();
 //        }
-//        return result, returnValue;
+//        return (result, returnValue);
 //    } finally {
-//        testDB -> close();
+//        _ = testDB -> close();
 //    }
-//    return "", -2;
+//    return ("", -2);
 //}
 
 function testGetPrimitiveTypes () returns (int, int, float, float , boolean, string) {
@@ -437,7 +434,7 @@ function testGetPrimitiveTypes () returns (int, int, float, float , boolean, str
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+    table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitive);
     int i;
     int l;
@@ -454,7 +451,7 @@ function testGetPrimitiveTypes () returns (int, int, float, float , boolean, str
         b = rs.BOOLEAN_TYPE;
         s = rs.STRING_TYPE;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (i, l, f, d, b, s);
 }
 
@@ -469,7 +466,7 @@ function testGetComplexTypes () returns (string, string, string) {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",null,
+    table dt =? testDB -> select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",null,
                          typeof ResultObject);
     string blobValue;
     string clob;
@@ -482,7 +479,7 @@ function testGetComplexTypes () returns (string, string, string) {
         blob binaryData = rs.BINARY_TYPE;
         binary = binaryData.toString("UTF-8");
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (blobValue, clob, binary);
 }
 
@@ -497,7 +494,7 @@ function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT int_array, long_array, float_array, boolean_array,
+    table dt =? testDB -> select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 1", null, typeof ResultMap);
     int[] int_arr;
     int[] long_arr;
@@ -513,7 +510,7 @@ function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
         boolean_arr = rs.BOOLEAN_ARRAY;
         string_arr = rs.STRING_ARRAY;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -542,16 +539,15 @@ function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraString, paraBool];
 
 
-   int updateRet;
    int intArrLen;
    int longArrLen;
    int floatArrLen;
    int boolArrLen;
    int strArrLen;
 
-    updateRet = testDB -> update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
+    int updateRet =? testDB -> update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
                                 string_array, boolean_array) values (?,?,?,?,?,?)", parameters);
-    table dt = testDB -> select("SELECT int_array, long_array, float_array, boolean_array, string_array
+    table dt =? testDB -> select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", null, typeof ResultMap);
     while (dt.hasNext()) {
         var rs, _ = (ResultMap)dt.getNext();
@@ -566,7 +562,7 @@ function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
         io:println(rs.STRING_ARRAY);
         strArrLen = lengthof rs.STRING_ARRAY;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (updateRet, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
 }
 
@@ -592,10 +588,9 @@ function testDateTime (int datein, int timein, int timestampin) returns (string,
     sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:timestampin};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
-    int insertCount = testDB -> update("Insert into DateTimeTypes
+    int count =? testDB -> update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
-
-    table dt = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
+    table dt =? testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 1", null, typeof ResultDates);
     while (dt.hasNext()) {
         var rs, _ = (ResultDates)dt.getNext();
@@ -604,7 +599,7 @@ function testDateTime (int datein, int timein, int timestampin) returns (string,
         timestamp = rs.TIMESTAMP_TYPE;
         datetime = rs.DATETIME_TYPE;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (date, time, timestamp, datetime);
 }
 
@@ -645,10 +640,10 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
     sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:datetimeStruct};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
-    _ = testDB -> update("Insert into DateTimeTypes
+    int count =? testDB -> update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
 
-    table dt = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
+    table dt =? testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 31", null, typeof ResultDatesStruct);
     while (dt.hasNext()) {
         var rs, _ = (ResultDatesStruct)dt.getNext();
@@ -657,9 +652,9 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
         timestampRetrieved = rs.TIMESTAMP_TYPE.time;
         datetimeRetrieved = rs.DATETIME_TYPE.time;
     }
-    testDB -> close();
+     _ = testDB -> close();
     return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
-datetimeInserted, datetimeRetrieved);
+        datetimeInserted, datetimeRetrieved);
 }
 
 function testDateTimeInt (int datein, int timein, int timestampin) returns (int, int, int, int) {
@@ -685,11 +680,11 @@ function testDateTimeInt (int datein, int timein, int timestampin) returns (int,
     int timestamp;
     int datetime;
 
-    int insertCount = testDB -> update("Insert into DateTimeTypes
+    int count =? testDB -> update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
-
-    table dt = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
+    table dt =? testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 32", null, typeof ResultDatesInt);
+
     while (dt.hasNext()) {
         var rs, _ = (ResultDatesInt)dt.getNext();
         time = rs.TIME_TYPE;
@@ -697,7 +692,7 @@ function testDateTimeInt (int datein, int timein, int timestampin) returns (int,
         timestamp = rs.TIMESTAMP_TYPE;
         datetime = rs.DATETIME_TYPE;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (date, time, timestamp, datetime);
 }
 
@@ -713,7 +708,7 @@ function testBlobData () returns (string) {
     };
 
     string blobStringData;
-    table dt = testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", null, typeof ResultBlob);
+    table dt =? testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", null, typeof ResultBlob);
     blob blobData;
     while (dt.hasNext()) {
         var rs, _ = (ResultBlob)dt.getNext();
@@ -721,7 +716,7 @@ function testBlobData () returns (string) {
     }
     blobStringData = blobData.toString("UTF-8");
 
-    testDB -> close();
+    _ = testDB -> close();
     return blobStringData;
 }
 
@@ -736,7 +731,7 @@ function testColumnAlias () returns (int, int, float, float, boolean, string, in
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
+    table dt =? testDB -> select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
            dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
            left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", null,
                                  typeof ResultSetTestAlias);
@@ -759,7 +754,7 @@ function testColumnAlias () returns (int, int, float, float, boolean, string, in
         s = rs.STRING_TYPE;
         i2 = rs.DT2INT_TYPE;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (i, l, f, d, b, s, i2);
 }
 
@@ -775,7 +770,7 @@ function testBlobInsert () returns (int) {
     };
 
     sql:Parameter[] params = [];
-    table dt = testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", params, typeof ResultBlob);
+    table dt =? testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", params, typeof ResultBlob);
     blob blobData;
     while (dt.hasNext()) {
         var rs, _ = (ResultBlob)dt.getNext();
@@ -784,8 +779,8 @@ function testBlobInsert () returns (int) {
     sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:10};
     sql:Parameter para1 = {sqlType:sql:Type.BLOB, value:blobData};
     params = [para0, para1];
-    int insertCount = testDB -> update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", params);
-    testDB -> close();
+    int insertCount  =? testDB -> update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", params);
+    _ = testDB -> close();
     return insertCount;
 }
 
@@ -801,8 +796,7 @@ function testTableAutoClose () returns (int, string) {
         options: {maximumPoolSize:1}
     };
 
-    table dt =testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitiveInt);
-
+    table dt =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitiveInt);
     int i;
     string test;
     while (dt.hasNext()) {
@@ -810,14 +804,15 @@ function testTableAutoClose () returns (int, string) {
         i = rs.INT_TYPE;
     }
 
-    table dt2 = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+    table dt2 =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
     var jsonstring,err = <json> dt2;
     test = jsonstring.toString();
 
-    table dt3 = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+    _ = testDB -> select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
-    testDB -> close();
+
+    _ = testDB -> close();
     return (i, test);
 }
 
@@ -832,7 +827,7 @@ function testTableManualClose () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT int_type from DataTable", null, typeof ResultPrimitiveInt);
+    table dt =? testDB -> select("SELECT int_type from DataTable", null, typeof ResultPrimitiveInt);
     int i = 0;
     while (dt.hasNext()) {
         var rs, _ = (ResultPrimitiveInt)dt.getNext();
@@ -845,13 +840,13 @@ function testTableManualClose () returns (int) {
     dt.close();
 
     int data;
-    table dt2 = testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitiveInt);
+    table dt2 =? testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitiveInt);
     while (dt2.hasNext()) {
         var rs2, _ = (ResultPrimitiveInt)dt2.getNext();
         data = rs2.INT_TYPE;
     }
     dt2.close();
-    testDB -> close();
+    _ = testDB -> close();
     return data;
 }
 
@@ -866,15 +861,14 @@ function testCloseConnectionPool () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+    table dt =? testDB -> select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                                   typeof ResultCount);
-
     int count;
     while (dt.hasNext()) {
         var rs, _ = (ResultCount) dt.getNext();
         count = rs.COUNTVAL;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return count;
 }
 
@@ -889,12 +883,11 @@ function testTablePrintAndPrintln() {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
-
+    table dt =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
     io:println(dt);
     io:print(dt);
-    testDB -> close();
+    _ = testDB -> close();
 }
 
 function testMutltipleRows () returns (int, int) {
@@ -908,7 +901,8 @@ function testMutltipleRows () returns (int, int) {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table dt =? testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+
     ResultPrimitiveInt rs1 = {INT_TYPE:-1};
     ResultPrimitiveInt rs2 = {INT_TYPE:-1};
     int i = 0;
@@ -920,7 +914,7 @@ function testMutltipleRows () returns (int, int) {
         }
         i = i + 1;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
@@ -936,7 +930,7 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
     };
 
     //Iterate the whole result
-    table dt = testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null,
+    table dt =? testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null,
                                  typeof ResultPrimitiveInt);
     int i1;
     int i2;
@@ -950,7 +944,7 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
     }
 
     //Pick the first row only
-    dt = testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    dt =? testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
     if (dt.hasNext()) {
         var rs, _ = (ResultPrimitiveInt)dt.getNext();
         i2 = rs.INT_TYPE;
@@ -958,7 +952,7 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
     dt.close();
 
     //Pick all the rows without checking
-    dt = testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    dt =? testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
     var rs1, _ = (ResultPrimitiveInt)dt.getNext();
     i3 = rs1.INT_TYPE;
 
@@ -968,7 +962,7 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
 
     //Pick the first row by checking and next row without checking
     string s1 = "";
-    dt = testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    dt =? testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
     if (dt.hasNext()) {
         var rs, _ = (ResultPrimitiveInt)dt.getNext();
         int i = rs.INT_TYPE;
@@ -987,7 +981,7 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
 
     //Pick the first row without checking, then check and no fetch, and finally fetch row by checking
     string s2 = "";
-    dt = testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
+    dt =? testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null, typeof ResultPrimitiveInt);
     rs, _ = (ResultPrimitiveInt)dt.getNext();
     i = rs.INT_TYPE;
     s2 = s2 + i;
@@ -1016,7 +1010,7 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
     } else {
         s2 = s2 + "_" + "NO";
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (i1, i2, i3, i4, s1, s2);
 }
 
@@ -1031,7 +1025,7 @@ function testHasNextWithoutConsume () returns (boolean, boolean, boolean) {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null,
+    table dt =? testDB -> select("SELECT int_type from DataTableRep order by int_type desc", null,
                                  typeof ResultPrimitiveInt);
     boolean b1 = false;
     boolean b2 = false;
@@ -1046,7 +1040,7 @@ function testHasNextWithoutConsume () returns (boolean, boolean, boolean) {
     if (dt.hasNext()) {
         b3 = true;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (b1, b2, b3);
 }
 
@@ -1061,7 +1055,7 @@ function testGetFloatTypes () returns (float, float, float, float) {
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT float_type, double_type,
+    table dt =? testDB -> select("SELECT float_type, double_type,
                   numeric_type, decimal_type from FloatTable WHERE row_id = 1", null, typeof ResultSetFloat);
     float f;
     float d;
@@ -1075,7 +1069,7 @@ function testGetFloatTypes () returns (float, float, float, float) {
         num = rs.NUMERIC_TYPE;
         dec = rs.DECIMAL_TYPE;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (f, d, num, dec);
 }
 
@@ -1107,7 +1101,7 @@ function testSignedIntMaxMinValues () returns (int, int, int, string, string, st
     sql:Parameter para4 = {sqlType:sql:Type.INTEGER, value:2147483647};
     sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:9223372036854775807};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
-    maxInsert = testDB -> update(insertSQL, parameters);
+    maxInsert =? testDB -> update(insertSQL, parameters);
 
     //Insert signed min
     para1 = {sqlType:sql:Type.INTEGER, value:2};
@@ -1116,7 +1110,7 @@ function testSignedIntMaxMinValues () returns (int, int, int, string, string, st
     para4 = {sqlType:sql:Type.INTEGER, value:-2147483648};
     para5 = {sqlType:sql:Type.BIGINT, value:-9223372036854775808};
     parameters = [para1, para2, para3, para4, para5];
-    minInsert = testDB -> update(insertSQL, parameters);
+    minInsert =?  testDB -> update(insertSQL, parameters);
 
     //Insert null
     para1 = {sqlType:sql:Type.INTEGER, value:3};
@@ -1125,24 +1119,24 @@ function testSignedIntMaxMinValues () returns (int, int, int, string, string, st
     para4 = {sqlType:sql:Type.INTEGER, value:null};
     para5 = {sqlType:sql:Type.BIGINT, value:null};
     parameters = [para1, para2, para3, para4, para5];
-    nullInsert = testDB -> update(insertSQL, parameters);
+    nullInsert =? testDB -> update(insertSQL, parameters);
 
-    table dt = testDB -> select(selectSQL, null, null);
+    table dt =? testDB -> select(selectSQL, null, null);
     var j, _ = <json>dt;
     jsonStr = j.toString();
 
-    dt = testDB -> select(selectSQL, null, null);
+     dt =? testDB -> select(selectSQL, null, null);
     var x, _ = <xml>dt;
     xmlStr = <string>x;
 
-    dt = testDB -> select(selectSQL, null, typeof ResultSignedInt);
+    dt =? testDB -> select(selectSQL, null, typeof ResultSignedInt);
     str = "";
     while (dt.hasNext()) {
         var result, _ = (ResultSignedInt)dt.getNext();
         str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
               result.BIGINTDATA + "#";
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
 }
 
@@ -1174,7 +1168,7 @@ function testComplexTypeInsertAndRetrieval () returns (int, int, string, string,
     sql:Parameter para3 = {sqlType:sql:Type.CLOB, value:text};
     sql:Parameter para4 = {sqlType:sql:Type.BINARY, value:content};
     sql:Parameter[] parameters = [para1, para2, para3, para4];
-    retDataInsert = testDB -> update(insertSQL, parameters);
+    retDataInsert =? testDB -> update(insertSQL, parameters);
 
     //Insert null values
     para1 = {sqlType:sql:Type.INTEGER, value:200};
@@ -1182,23 +1176,23 @@ function testComplexTypeInsertAndRetrieval () returns (int, int, string, string,
     para3 = {sqlType:sql:Type.CLOB, value:null};
     para4 = {sqlType:sql:Type.BINARY, value:null};
     parameters = [para1, para2, para3, para4];
-    retNullInsert = testDB -> update(insertSQL, parameters);
+    retNullInsert =? testDB -> update(insertSQL, parameters);
 
-    table dt = testDB -> select(selectSQL, null, null);
+    table dt =? testDB -> select(selectSQL, null, null);
     var j, _ = <json>dt;
     jsonStr = j.toString();
 
-    dt = testDB -> select(selectSQL, null, null);
+    dt =? testDB -> select(selectSQL, null, null);
     var x, _ = <xml>dt;
     xmlStr = <string>x;
 
-    dt = testDB -> select(selectSQL, null, typeof ResultComplexTypes);
+    dt =? testDB -> select(selectSQL, null, typeof ResultComplexTypes);
     str = "";
     while (dt.hasNext()) {
         var result, _ = (ResultComplexTypes)dt.getNext();
         str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str);
 }
 
@@ -1213,17 +1207,17 @@ function testJsonXMLConversionwithDuplicateColumnNames () returns (string, strin
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+    table dt =? testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, null);
     var j , _ = <json> dt;
     string jsonStr = j.toString();
 
-    table dt2 = testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+    table dt2 =? testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, null);
     var x, _ = <xml> dt2;
     string xmlStr = <string> x;
 
-    testDB -> close();
+    _ = testDB -> close();
     return (jsonStr, xmlStr);
 }
 
@@ -1238,7 +1232,7 @@ function testStructFieldNotMatchingColumnName () returns (int, int, int, int, in
         options: {maximumPoolSize:1}
     };
 
-    table dt = testDB -> select("SELECT count(*) from DataTable WHERE row_id = 1", null, typeof ResultCount);
+    table dt =? testDB -> select("SELECT count(*) from DataTable WHERE row_id = 1", null, typeof ResultCount);
     int countAll;
     int i1;
     int i2;
@@ -1249,7 +1243,7 @@ function testStructFieldNotMatchingColumnName () returns (int, int, int, int, in
         countAll = rs.COUNTVAL;
     }
 
-    table dt2 = testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+    table dt2 =? testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, typeof ResultTest);
     while (dt2.hasNext()) {
         var rs, _ = (ResultTest)dt2.getNext();
@@ -1258,7 +1252,7 @@ function testStructFieldNotMatchingColumnName () returns (int, int, int, int, in
         i3 = rs.t2Row;
         i4 = rs.t2Int;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (countAll, i1, i2, i3, i4);
 }
 
@@ -1273,8 +1267,10 @@ function testGetPrimitiveTypesWithForEach () returns (int, int, float, float, bo
         options: {maximumPoolSize:1}
     };
 
-    table<ResultPrimitive> dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
+    table dt1 =? testDB -> select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitive);
+
+    table<ResultPrimitive> dt = dt1; //TODO:Remove this
     int i;
     int l;
     float f;
@@ -1289,7 +1285,7 @@ function testGetPrimitiveTypesWithForEach () returns (int, int, float, float, bo
         b = x.BOOLEAN_TYPE;
         s = x.STRING_TYPE;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (i, l, f, d, b, s);
 }
 
@@ -1304,7 +1300,9 @@ function testMutltipleRowsWithForEach () returns (int, int) {
         options: {maximumPoolSize:1}
     };
 
-    table<ResultPrimitiveInt> dt = testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table dt1 =? testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table<ResultPrimitiveInt> dt = dt1; //TODO:Remove this
+
     ResultPrimitiveInt rs1 = {INT_TYPE: -1};
     ResultPrimitiveInt rs2 = {INT_TYPE: -1};
     int i = 0;
@@ -1316,7 +1314,7 @@ function testMutltipleRowsWithForEach () returns (int, int) {
         }
         i = i + 1;
     }
-    testDB -> close();
+    _ = testDB -> close();
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
@@ -1331,12 +1329,12 @@ function testTableAddInvalid () {
         options: {maximumPoolSize:1}
     };
 
-    table<ResultPrimitiveInt> dt = testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table dt =? testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
         dt.add(row);
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
 }
 
@@ -1351,12 +1349,12 @@ function testTableRemoveInvalid () {
         options: {maximumPoolSize:1}
     };
 
-    table<ResultPrimitiveInt> dt = testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table dt =? testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
         _ = dt.remove(isDelete);
     } finally {
-        testDB -> close();
+       _ = testDB -> close();
     }
 }
 

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.workspace.repository;
 
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceEntry;
@@ -29,18 +30,20 @@ import java.util.stream.Stream;
 /**
  * Language Server Path Converter.
  */
-public class LSPathConverter extends PathConverter {
-    public LSPathConverter(Path root) {
+class LSPathConverter extends PathConverter {
+    private WorkspaceDocumentManager documentManager;
+    
+    LSPathConverter(Path root, WorkspaceDocumentManager documentManager) {
         super(root);
+        this.documentManager = documentManager;
     }
 
     @Override
     public Stream<PackageSourceEntry> finalize(Path path, PackageID id) {
-        // TODO: Inject unsaved/in-memory file content
-        if (Files.isRegularFile(path)) {
-            return Stream.of(new FileSystemSourceEntry(path, id));
+        if (documentManager.isFileOpen(path) || !Files.isRegularFile(path)) {
+            return Stream.of(new LSInMemorySourceEntry(path, id, documentManager));
         } else {
-            return Stream.of(new LSInMemorySourceEntry("testEntryName", null));
+            return Stream.of(new FileSystemSourceEntry(path, id));
         }
     }
 }

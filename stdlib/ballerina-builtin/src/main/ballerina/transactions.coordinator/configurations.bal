@@ -30,7 +30,6 @@ const string coordinatorHost = getCoordinatorHost();
 const int coordinatorPort = getCoordinatorPort();
 
 function getCoordinatorHost () returns string {
-    io:println("###### getCoordinatorHost");
     string host;
     var result = config:getAsString("http.coordinator.host");
     match result {
@@ -41,7 +40,6 @@ function getCoordinatorHost () returns string {
 }
 
 function getCoordinatorPort () returns int {
-    io:println("###### getCoordinatorPort");
     int port;
     var result = config:getAsString("http.coordinator.port");
     match result {
