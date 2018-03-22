@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"Workers interact with each other by sending and receiving messages. Ballerina checks the send/receive signatures of every pair of workers and validate in order to avoid deadlocks."}
 function main (string[] args) {
