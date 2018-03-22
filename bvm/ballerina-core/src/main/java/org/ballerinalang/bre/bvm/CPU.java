@@ -296,12 +296,6 @@ public class CPU {
                     execLoadOpcodes(ctx, sf, opcode, operands);
                     break;
 
-                case InstructionCodes.ISTORE:
-                case InstructionCodes.FSTORE:
-                case InstructionCodes.SSTORE:
-                case InstructionCodes.BSTORE:
-                case InstructionCodes.LSTORE:
-                case InstructionCodes.RSTORE:
                 case InstructionCodes.IASTORE:
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
@@ -407,7 +401,7 @@ public class CPU {
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
-                            callIns.retRegs, false, callIns.async);
+                            callIns.retRegs, false, callIns.flags);
                     if (ctx == null) {
                         return;
                     }
@@ -415,14 +409,14 @@ public class CPU {
                 case InstructionCodes.VCALL:
                     InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                     ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
-                            vcallIns.argRegs, vcallIns.retRegs, vcallIns.async);
+                            vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
                     if (ctx == null) {
                         return;
                     }
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
-                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs, acallIns.async);
+                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs, acallIns.flags);
                     if (ctx == null) {
                         return;
                     }
@@ -430,7 +424,7 @@ public class CPU {
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                            tcallIns.retRegs, false, tcallIns.async);
+                            tcallIns.retRegs, false, tcallIns.flags);
                     if (ctx == null) {
                         return;
                     }
@@ -1198,36 +1192,6 @@ public class CPU {
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
         switch (opcode) {
-            case InstructionCodes.ISTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.longRegs[lvIndex] = sf.longRegs[i];
-                break;
-            case InstructionCodes.FSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.doubleRegs[lvIndex] = sf.doubleRegs[i];
-                break;
-            case InstructionCodes.SSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.stringRegs[lvIndex] = sf.stringRegs[i];
-                break;
-            case InstructionCodes.BSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.intRegs[lvIndex] = sf.intRegs[i];
-                break;
-            case InstructionCodes.LSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.byteRegs[lvIndex] = sf.byteRegs[i];
-                break;
-            case InstructionCodes.RSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.refRegs[lvIndex] = sf.refRegs[i];
-                break;
             case InstructionCodes.IASTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1467,6 +1431,11 @@ public class CPU {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else if (mapType.getConstrainedType() == BTypes.typeAny ||
                         mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
+                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
+                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
+                        (BStructType) mapType.getConstrainedType())) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
@@ -2680,7 +2649,7 @@ public class CPU {
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
-                                                                int[] retRegs, boolean async) {
+                                                                int[] retRegs, int flags) {
         BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
         if (structVal == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2691,11 +2660,11 @@ public class CPU {
         StructInfo structInfo = structVal.getType().structInfo;
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
-        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, async);
+        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
     }
 
     private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
-                                                       int[] retRegs, boolean async) {
+                                                       int[] retRegs, int flags) {
         BConnector connector = (BConnector) ctx.workerLocal.refRegs[argRegs[0]];
         if (connector == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2707,7 +2676,7 @@ public class CPU {
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
-        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, async);
+        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, flags);
     }
 
     @SuppressWarnings("rawtypes")
@@ -2971,7 +2940,7 @@ public class CPU {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer) {
+            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
 
@@ -3011,7 +2980,7 @@ public class CPU {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsType.initializer) {
+            if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
 

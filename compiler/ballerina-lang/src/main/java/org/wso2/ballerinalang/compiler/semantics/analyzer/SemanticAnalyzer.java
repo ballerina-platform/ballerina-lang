@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
@@ -258,10 +259,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
-        if (funcNode.objectInitFunction) {
-            funcNode.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
-        }
-
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
@@ -325,6 +322,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
 
         analyzeDef(objectNode.initFunction, objectEnv);
+
+        //Visit temporary init statements in the init function
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
+                objectNode.initFunction.symbol.scope, objectEnv);
+        objectNode.initFunction.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
+
         objectNode.functions.forEach(f -> analyzeDef(f, objectEnv));
     }
 
@@ -1191,6 +1194,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         wheneverStatement.addGlobalVariable(variable);
                     }
                 }
+            }
+        }
+
+        List<BVarSymbol> functionParameterList = ((BInvokableSymbol) this.env.scope.owner).getParameters();
+        for (BVarSymbol varSymbol : functionParameterList) {
+            if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
+                wheneverStatement.addFunctionVariable(varSymbol);
             }
         }
     }

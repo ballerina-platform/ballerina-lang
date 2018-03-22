@@ -50,13 +50,11 @@ public class EndpointTest {
         Assert.assertEquals(returns[0].stringValue(), "<test3>init:DummyEndpoint;start:DummyEndpoint;" +
                 "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
 
-        String errMsg = "";
         try {
             BRunUtil.invoke(testEndpointsInFunction, "test4");
         } catch (BLangRuntimeException e) {
-            errMsg = e.getMessage();
+            Assert.fail("NullReferenceException was thrown at test4 of EndpointTest.");
         }
-        Assert.assertTrue(errMsg.contains("NullReferenceException"));
     }
 
     @Test(description = "Test endpoint testEndpoint with Service")

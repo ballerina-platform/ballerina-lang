@@ -210,13 +210,13 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
         }
     }
 
-    // Tracks at which point failover within the load balancing should be terminated.
-    HttpClient loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
-    int loadBalanceTermination = 0;
+    int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     LoadBalanceConnectorError loadBalanceConnectorError = {};
     loadBalanceConnectorError.httpConnectorError = [];
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
+        HttpClient loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
+
         match invokeEndpoint(path, outRequest, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
 
@@ -256,12 +256,7 @@ function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loa
     loadBalanceConnectorError.statusCode = 500;
     loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
                                         + loadBalanceConnectorError.httpConnectorError[nErrs - 1].message;
-    HttpConnectorError httpConnectorError = {};
-    error conversionErr = {};
-    match <HttpConnectorError> loadBalanceConnectorError {
-        HttpConnectorError conError => httpConnectorError = conError;
-        error err => conversionErr = err;
-    }
+    HttpConnectorError httpConnectorError = loadBalanceConnectorError;
     return httpConnectorError;
 }
 

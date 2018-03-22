@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/net.http;
 
-endpoint http:ServiceEndpoint ep {
+endpoint http:ServiceEndpoint servicEp {
 port:9090
 };
 
@@ -13,15 +13,15 @@ port:9090
             upgradeService: typeof wsService
         }
 }
-service<http:Service> httpService bind ep {
+service<http:Service> httpService bind servicEp {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/world",
         methods:["POST","GET","PUT","My"]
     }
     testResource(endpoint conn, http:Request req) {
         http:Response resp = {};
-        var (payload, _) = req.getStringPayload();
+        var payload =? req.getStringPayload();
         io:println(payload);
         resp.setStringPayload("I received");
         _ = conn->respond(resp);
@@ -34,7 +34,8 @@ service<http:Service> httpService bind ep {
     idleTimeoutInSeconds:5
 }
 service<http: WebSocketService > wsService{
-    onOpen(endpoint conn) {
+    onOpen(endpoint ep) {
+        var conn = ep.getClient();
         io:println("New WebSocket connection: " + conn.id);
     }
 

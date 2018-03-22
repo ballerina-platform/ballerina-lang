@@ -143,6 +143,7 @@ public class SymbolTable {
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
+        initializeType(nullType, TypeKind.NULL.typeName());
 
         // Initialize error type;
         this.errType = new BErrorType(null);
@@ -375,7 +376,7 @@ public class SymbolTable {
         defineConversionOperator(jsonType, booleanType, false, InstructionCodes.JSON2B);
 
         // Define conversion operators
-//        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
+        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
 //        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);

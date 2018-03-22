@@ -5,7 +5,9 @@ endpoint mock:NonListeningServiceEndpoint testEP {
     port:9090
 };
 
-@http:ServiceConfig
+@http:ServiceConfig {
+    basePath:"/hello"
+}
 service<http:Service> negativeTemplateURI bind testEP {
 
     @http:ResourceConfig {

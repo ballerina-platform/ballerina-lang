@@ -30,7 +30,7 @@ function testLocalTransacton () returns (int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 200", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -66,7 +66,7 @@ function testTransactonRollback () returns (int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 210", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -104,7 +104,7 @@ function testTransactonAbort () returns (int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 220", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -144,7 +144,7 @@ function testTransactonErrorThrow () returns (int, int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 260", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -184,7 +184,7 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 250", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -216,7 +216,7 @@ function testTransactonCommitted () returns (int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 300", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -258,7 +258,7 @@ function testTwoTransactons () returns (int, int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 400", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -288,7 +288,7 @@ function testTransactonWithoutHandlers () returns (int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where
                                       registrationID = 350", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -327,7 +327,7 @@ function testLocalTransactionFailed () returns (string, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 111", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -371,7 +371,7 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 222", null,
                                  typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _= testDB -> close();
@@ -416,7 +416,7 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
     table dt =? testDB2 -> select("Select COUNT(*) as countval from Customers where registrationID = 12343", null,
                                   typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         i = rs.COUNTVAL;
     }
     _ = testDB2 -> close();
@@ -450,7 +450,7 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 333", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -488,7 +488,7 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 444", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -530,7 +530,7 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 555", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -588,7 +588,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 666", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -611,7 +611,7 @@ function testCloseConnectionPool () returns (int) {
     table dt =? testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();

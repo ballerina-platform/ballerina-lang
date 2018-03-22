@@ -967,7 +967,7 @@
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
-                <!--<module>misc/testerina</module>-->
+                <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
