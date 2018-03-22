@@ -104,9 +104,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
         }
    }
@@ -135,9 +135,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
          }
    }
@@ -165,9 +165,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
          }
    }
@@ -196,9 +196,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
         }
    }
@@ -226,9 +226,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
         }
    }
@@ -256,9 +256,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
         }
    }
@@ -286,9 +286,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
         }
     }
@@ -316,9 +316,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
         }
    }
@@ -346,9 +346,9 @@ public struct CircuitBreakerClient {
                                         return service_response;
                                     }
                 HttpConnectorError serviceError => {
-                                                            updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
-                                                            return httpConnectorError;
-                                                    }
+                                        updateCircuitHealthFailure(client.circuitHealth, serviceError, client.circuitBreakerInferredConfig);
+                                        return httpConnectorError;
+                                    }
             }
        }
    }

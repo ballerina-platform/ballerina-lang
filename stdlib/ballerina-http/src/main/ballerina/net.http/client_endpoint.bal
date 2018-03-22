@@ -16,6 +16,7 @@
 
 package ballerina.net.http;
 
+import ballerina/io;
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
 ////////////////////////////////
@@ -71,7 +72,7 @@ public struct ClientEndpointConfiguration {
     Proxy|null proxy;
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
-    (function (LoadBalancer, HttpClient[]) returns (HttpClient))|null algorithm;
+    function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
     //FailoverConfig failoverConfig;
 }
 
@@ -110,32 +111,6 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
             ep.httpClient = createHttpClient(uri, config);
         }
     }
-
-    var lbAlgorithm = config.algorithm;
-    match lbAlgorithm {
-        function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm => {
-            if (lengthof config.targets > 1) {
-                ep.httpClient = createLoadBalancerClient(config);
-            } else {
-                if (uri.hasSuffix("/")) {
-                    int lastIndex = uri.length() - 1;
-                    uri = uri.subString(0, lastIndex);
-                }
-                ep.config = config;
-                ep.httpClient = createHttpClient(uri, config);
-            }
-        }
-
-        int | null => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
-            }
-            ep.config = config;
-            ep.httpClient = createHttpClient(uri, config);
-        }
-    }
-                                 
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -218,22 +193,25 @@ public function createCircuitBreakerClient (string uri, ClientEndpointConfigurat
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
-                        validateCircuitBreakerConfiguration(cb);
-                        boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
-                        CircuitBreakerInferredConfig circuitBreakerInferredConfig =
-                                                                { failureThreshold:cb.failureThreshold,
-                                                                    resetTimeout:cb.resetTimeout, httpStatusCodes:httpStatusCodes };
-                        HttpClient cbHttpClient = createHttpClient(uri, configuration);
-                        CircuitBreakerClient cbClient = {
-                            serviceUri:uri, config:configuration,
-                            circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                            httpClient:cbHttpClient,
-                            circuitHealth:{},
-                            currentCircuitState:CircuitState.CLOSED
-                        };
-                        HttpClient httpClient = cbClient;
-                        return httpClient;
-                    }
+                    validateCircuitBreakerConfiguration(cb);
+                    boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
+                    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
+                                                            { failureThreshold:cb.failureThreshold,
+                                                                resetTimeout:cb.resetTimeout, 
+                                                                httpStatusCodes:httpStatusCodes 
+                                                            };
+                    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+                    CircuitBreakerClient cbClient = 
+                    {
+                        serviceUri:uri, config:configuration,
+                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+                        httpClient:cbHttpClient,
+                        circuitHealth:{},
+                        currentCircuitState:CircuitState.CLOSED
+                    };
+                    HttpClient httpClient =  cbClient;
+                    return httpClient;
+                }
         int | null => {
                         //remove following once we can ignore
                         io:println("CB CONFIG IS NULL");
