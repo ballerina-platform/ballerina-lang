@@ -37,18 +37,11 @@ service<http:Service> headerService bind headerServiceEP {
 
         match reply {
             http:Response clientResponse => {
-                var result = clientResponse.getHeaders("person");
-                match result {
-                    string[] headers => {
-                        json payload = {header1:headers[0] , header2:headers[1]};
-                        http:Response res = {};
-                        res.setJsonPayload(payload);
-                        _ = conn -> respond(res);
-                    }
-                    any|null => {
-                        return;
-                    }
-                }
+                string[] headers = clientResponse.getHeaders("person");
+                json payload = {header1:headers[0] , header2:headers[1]};
+                http:Response res = {};
+                res.setJsonPayload(payload);
+                _ = conn -> respond(res);
             }
             any|null => {
                 return;
@@ -68,19 +61,11 @@ service<http:Service> quoteService bind stockServiceEP {
         path:"/stocks"
     }
     company (endpoint conn, http:Request req) {
-        //string[] headers = req.getHeaders("core");
-        var result = req.getHeaders("core");
-        match result {
-            string[] headers => {
-                json payload = {header1:headers[0] , header2:headers[1]};
-                http:Response res = {};
-                res.setJsonPayload(payload);
-                _ = conn -> respond(res);
-            }
-            any|null => {
-                return;
-            }
-        }
+        string[] headers = req.getHeaders("core");
+        json payload = {header1:headers[0] , header2:headers[1]};
+        http:Response res = {};
+        res.setJsonPayload(payload);
+        _ = conn -> respond(res);
     }
 
     @http:ResourceConfig {
