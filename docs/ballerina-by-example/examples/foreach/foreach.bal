@@ -12,8 +12,15 @@ function main (string[] args) {
     map words = {a:"apple", b:"banana", c:"cherry"};
     // For maps: Use 1 variable to get only the value. Use 2 variables to get both key (string) and value.
     foreach k, v in words {
-        string value =? <string>v;
-        io:println("letter: " + k + ", word: " + value);
+        string|error result = <string>v;
+        match result {
+            string value =>{
+                io:println("letter: " + k + ", word: " + value);
+            }
+            error err =>{
+                io:println("Error: " + err.message);
+            }
+        }
     }
 
     io:println("\nIterating over a json object");

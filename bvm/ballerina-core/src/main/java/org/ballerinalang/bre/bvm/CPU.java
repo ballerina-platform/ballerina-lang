@@ -529,6 +529,7 @@ public class CPU {
                 case InstructionCodes.JSON2B:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.IS_ASSIGNABLE:
+                case InstructionCodes.CHECK_CONVERSION:
                     execTypeCastOpcodes(ctx, sf, opcode, operands);
                     break;
 
@@ -1928,6 +1929,12 @@ public class CPU {
             case InstructionCodes.NULL2S:
                 j = operands[1];
                 sf.stringRegs[j] = null;
+                break;
+            case InstructionCodes.CHECK_CONVERSION:
+                i = operands[0];
+                j = operands[1];
+                bRefTypeValue = sf.refRegs[i];
+                sf.refRegs[j] = JSONUtils.convertUnionTypeToJSON(bRefTypeValue);
                 break;
             default:
                 throw new UnsupportedOperationException();

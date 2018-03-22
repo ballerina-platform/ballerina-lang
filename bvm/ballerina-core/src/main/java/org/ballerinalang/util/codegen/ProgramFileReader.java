@@ -1470,6 +1470,7 @@ public class ProgramFileReader {
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
+                case InstructionCodes.CHECK_CONVERSION:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));

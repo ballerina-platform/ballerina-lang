@@ -65,7 +65,7 @@ public function authzRequestFilterFunc (http:Request request, http:FilterContext
 @Param {value:"authorized: authorization status for the request"}
 @Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
 function createAuthzResult (boolean authorized) returns (http:FilterResult) {
-    http:FilterResult requestFilterResult;
+    http:FilterResult requestFilterResult = {};
     if (authorized) {
         requestFilterResult = {canProceed:true, statusCode:200, message:"Successfully authorized"};
     } else {
@@ -78,27 +78,26 @@ function createAuthzResult (boolean authorized) returns (http:FilterResult) {
 @Param {value:"context: FilterContext object"}
 @Return {value:"string: Scope name if defined, else null"}
 function getScopeForResource (http:FilterContext context) returns (string) {
-    string scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
+    string|null scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
                                                                       context.resourceName));
     match scope {
         string scopeVal => {
             return scopeVal;
         }
-        any|null => {
+        any => {
             // if not found in resource level, check in service level
-            scope = getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
-            match scope {
+            string|null serviceLevelScope = getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
+            match serviceLevelScope {
                 string scopeVal => {
                     return scopeVal;
                 }
-                any|null => {
+                any => {
                     // if the scope is still null, means authorization is not needed.
                     return "";
                 }
             }
         }
     }
-    return "";
 }
 
 @Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
@@ -109,17 +108,20 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string|
     if (lengthof annData == 0) {
         return null;
     }
-    internal:annotationData authAnn = {};
+    internal:annotationData|null authAnn;
     foreach ann in annData {
         if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
             authAnn = ann;
             break;
         }
     }
-    if (lengthof authAnn == 0) {
-        // no annotation found for ballerina.auth:config
-        return null;
+    match authAnn {
+        internal:annotationData annData1 => {
+            var authConfig =? <auth:AuthConfig> annData1.value;
+            return authConfig.scope;
+        }
+        any|null => {
+            return null;
+        }
     }
-    var authConfig =? <auth:AuthConfig> authAnn.value;
-    return authConfig.scope;
 }

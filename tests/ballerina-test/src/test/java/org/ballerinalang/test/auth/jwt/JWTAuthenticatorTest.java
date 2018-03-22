@@ -128,7 +128,6 @@ public class JWTAuthenticatorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess", inputBValues);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertNull(returns[1]);
     }
 
     @AfterClass

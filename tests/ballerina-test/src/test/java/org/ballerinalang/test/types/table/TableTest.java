@@ -356,7 +356,7 @@ public class TableTest {
                         + "</result></results>");
     }
 
-    @Test(groups = "TableTest", description = "Check xml conversion within transaction.", enabled = false)
+    @Test(groups = "TableTest", description = "Check xml conversion within transaction.")
     public void testToXmlWithinTransaction() {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlWithinTransaction");
         Assert.assertEquals(returns.length, 2);
@@ -488,7 +488,7 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 2);
     }
 
-    @Test(groups = "TableTest", description = "Check get float and double min and max types.", enabled = false)
+    @Test(groups = "TableTest", description = "Check get float and double min and max types.")
     public void testSignedIntMaxMinValues() {
         BValue[] returns = BRunUtil.invoke(result, "testSignedIntMaxMinValues");
         Assert.assertEquals(returns.length, 6);
@@ -511,7 +511,7 @@ public class TableTest {
                 + "-2147483648|-9223372036854775808#3|0|0|0|0#");
     }
 
-    @Test(groups = "TableTest", description = "Check blob binary and clob types types.", enabled = false)
+    @Test(groups = "TableTest", description = "Check blob binary and clob types types.")
     public void testComplexTypeInsertAndRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval");
         Assert.assertEquals(returns.length, 5);

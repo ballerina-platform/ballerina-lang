@@ -33,7 +33,8 @@ function main (string[] args) {
     match ret {
         int retInt =>  io:println("CUSTOMER table create status in first DB:" + retInt);
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            io:println("CUSTOMER table Creation failed:" + err.message);
+            return;
         }
     }
     //Create the table named SALARY in the second database.
@@ -43,7 +44,8 @@ function main (string[] args) {
             io:println("SALARY table create status in second DB:" + retInt);
         }
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
         }
     }
 
