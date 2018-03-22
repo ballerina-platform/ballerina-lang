@@ -49,7 +49,7 @@ function getCoordinatorPort () returns int {
             var result2 = <int>p;
             match result2 {
                 error e => port = getAvailablePort();
-                int p2 => port = p2;   
+                int p2 => port = p2;
             }
         }
         any x => port = getAvailablePort(); //TODO: change this to null

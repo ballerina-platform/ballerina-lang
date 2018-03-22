@@ -48,7 +48,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         log:printInfo("Prepare received for transaction: " + participatedTxnId);
         PrepareResponse prepareRes = {};
-        
+
         if (!participatedTransactions.hasKey(participatedTxnId)) {
             res.statusCode = 404;
             prepareRes.message = "Transaction-Unknown";
@@ -81,7 +81,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         var connErr = conn -> respond(res);
         match connErr {
             error err => log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
-                                " failed", err);
+                                             " failed", err);
         }
     }
 
@@ -148,7 +148,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         var connErr = conn -> respond(res);
         match connErr {
             error err => log:printErrorCause("Sending response for notify request for transaction " + transactionId +
-                                " failed", err);
+                                             " failed", err);
         }
     }
 }
