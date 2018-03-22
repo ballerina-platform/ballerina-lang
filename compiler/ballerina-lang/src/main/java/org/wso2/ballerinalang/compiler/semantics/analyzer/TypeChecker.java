@@ -629,7 +629,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangElvisExpr elvisExpr) {
         BType lhsType = checkExpr(elvisExpr.lhsExpr, env).get(0);
-        BType rhsType = checkExpr(elvisExpr.rhsExpr, env).get(0);
         BType actualType = symTable.errType;
         if (lhsType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) lhsType;
@@ -654,8 +653,20 @@ public class TypeChecker extends BLangNodeVisitor {
                         OperatorKind.ELVIS, lhsType);
             }
         }
-        types.checkTypes(elvisExpr.rhsExpr, Lists.of(rhsType), expTypes);
-        resultTypes = types.checkTypes(elvisExpr, Lists.of(actualType), expTypes);
+        BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, env, expTypes).get(0);
+        BType lhsReturnType = types.checkTypes(elvisExpr, Lists.of(actualType), expTypes).get(0);
+        if (rhsReturnType == symTable.errType || lhsReturnType == symTable.errType) {
+            resultTypes = Lists.of(symTable.errType);
+        } else if (expTypes.get(0) == symTable.noType) {
+            if (rhsReturnType == lhsReturnType) {
+                resultTypes = Lists.of(lhsReturnType);
+            } else {
+                dlog.error(elvisExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsReturnType, rhsReturnType);
+                resultTypes = Lists.of(symTable.errType);
+            }
+        } else {
+            resultTypes = expTypes;
+        }
     }
 
     @Override
