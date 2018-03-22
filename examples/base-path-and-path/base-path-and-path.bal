@@ -18,7 +18,7 @@ service<http:Service> echo bind echoEP {
     }
     echo (endpoint conn, http:Request req) {
         // A util method that can get the request payload.
-        json | mime:EntityError result = req.getJsonPayload();
+        json|mime:EntityError result = req.getJsonPayload();
         http:Response res = {};
         match result {
             json value =>{
