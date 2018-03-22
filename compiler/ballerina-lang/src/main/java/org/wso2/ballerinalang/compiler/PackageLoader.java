@@ -30,9 +30,9 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
@@ -60,6 +60,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
 
@@ -74,6 +75,7 @@ public class PackageLoader {
     private static final CompilerContext.Key<PackageLoader> PACKAGE_LOADER_KEY =
             new CompilerContext.Key<>();
     private final RepoHierarchy repos;
+    private final boolean offline;
 
     private CompilerOptions options;
     private Parser parser;
@@ -105,27 +107,29 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
+        this.offline = Boolean.parseBoolean(options.get(OFFLINE));
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
+        Converter<Path> converter = sourceDirectory.getConverter();
 
         Repo remote = new RemoteRepo(URI.create("https://staging.central.ballerina.io:9090/"));
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
         Repo homeRepo = new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
-        Repo projectRepo = new ZipRepo(projectHiddenDir); //new ObjRepo(projectHiddenDir);
-        Repo currentDirRepo = sourceDirectory.getPackageRepository();
+        Repo projectRepo = new ZipRepo(projectHiddenDir);
+
 
         RepoHierarchyBuilder.RepoNode homeCacheNode;
-        homeCacheNode =  node(homeCacheRepo, node(remote, systemArr));
-        return RepoHierarchyBuilder.build(node(currentDirRepo,
-                                               node(projectRepo,
-                                                    node(projectCacheRepo, homeCacheNode),
-                                                    node(homeRepo, homeCacheNode))));
-        homeCacheNode = node(homeCacheRepo, systemArr);
+
+        if (offline) {
+            homeCacheNode = node(homeCacheRepo, systemArr);
+        } else {
+            homeCacheNode = node(homeCacheRepo, node(remote, systemArr));
+        }
         RepoHierarchyBuilder.RepoNode nonLocalRepos = node(projectRepo,
                                                            node(projectCacheRepo, homeCacheNode),
                                                            node(homeRepo, homeCacheNode));
