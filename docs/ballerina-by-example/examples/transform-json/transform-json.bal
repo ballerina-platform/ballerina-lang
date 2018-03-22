@@ -16,7 +16,7 @@ transformer <Person p, json<Person> j> updateCity(string city) {
 
 
 function main (string[] args) {
-    json j = {"name":"Ann", "age": 30 ,"city":"New York"};
+    json j = {"name":"Ann", "age":30, "city":"New York"};
 
     // Declare a Person variable.
     Person p = {};
@@ -25,9 +25,9 @@ function main (string[] args) {
     var value = <Person>j;
 
     match value {
-        Person pe => p=pe;
+        Person pe => p = pe;
         error err => {
-            // Print if an error is thrown.
+        // Print if an error is thrown.
             io:println(err);
         }
     }
@@ -36,7 +36,7 @@ function main (string[] args) {
     string city = "London";
 
     // Convert p of type Person to the response JSON, using the transformer defined earlier.
-    json<Person> response =? <json<Person>, updateCity(city)> p;
+    json<Person> response =? <json<Person>, updateCity(city)>p;
 
     io:println(response);
 }
