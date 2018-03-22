@@ -8,7 +8,7 @@ This includes the following sections.
 - Swagger to Ballerina code generator
 - API documentation generator
 - Test framework
-- Flexible composer
+- [Flexible composer](#flexible-composer)
 
 ## IDE plug-ins
 
