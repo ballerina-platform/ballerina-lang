@@ -1,41 +1,40 @@
 import ballerina/net.http;
 import ballerina/net.http.mock;
 
-endpoint<mock:NonListeningService> mockEP {
+endpoint mock:NonListeningServiceEndpoint mockEP {
     port:9090
-}
+};
 
-@http:serviceConfig {endpoints:[mockEP]}
-service<http:Service> hello {
+service<http:Service> hello bind mockEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/10"
     }
-    resource echo10 (http:ServerConnector conn, http:Request req) {
+    echo10 (endpoint conn, http:Request req) {
         http:Response resp = {};
         _ = conn -> respond(null);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/11"
     }
-    resource echo11 (http:ServerConnector conn, http:Request req) {
+    echo11 (endpoint conn, http:Request req) {
         http:Response resp = {};
         http:ServerConnector connn = new http:ServerConnector();
         _ = connn -> respond(resp);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/20"
     }
-    resource echo20 (http:ServerConnector conn, http:Request req) {
+    echo20 (endpoint conn, http:Request req) {
         _ = conn -> forward(null);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/21"
     }
-    resource echo21 (http:ServerConnector conn, http:Request req) {
+    echo21 (endpoint conn, http:Request req) {
         http:Response resp = {};
         http:ServerConnector connn = new http:ServerConnector();
         _ = connn -> forward(resp);
