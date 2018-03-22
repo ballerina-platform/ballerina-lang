@@ -516,7 +516,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             varName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
 
-            env.enclObject.initFunction.initFunctionStmts.remove(fieldVar);
             env.enclObject.initFunction.initFunctionStmts.put(fieldVar,
                     (BLangStatement) createAssignmentStmt(varNode, varSymbol, fieldVar));
             varSymbol.docTag = varNode.docTag;
@@ -910,7 +909,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             initFunction = createInitFunction(object.pos, "", Names.OBJECT_INIT_SUFFIX);
         }
 
-        initFunction.objectInitFunction = true;
         initFunction.attachedFunction = true;
 
         //Set cached receiver to the init function
@@ -934,7 +932,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         struct.initFunction.receiver = createReceiver(struct);
-        struct.initFunction.objectInitFunction = true;
         struct.initFunction.attachedFunction = true;
         struct.initFunction.flagSet.add(Flag.ATTACHED);
 

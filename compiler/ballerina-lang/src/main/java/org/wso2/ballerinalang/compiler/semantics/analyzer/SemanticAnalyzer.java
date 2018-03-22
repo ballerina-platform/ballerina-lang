@@ -258,10 +258,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
-        if (funcNode.objectInitFunction) {
-            funcNode.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
-        }
-
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
@@ -325,6 +321,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
 
         analyzeDef(objectNode.initFunction, objectEnv);
+
+        //Visit temporary init statements in the init function
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
+                objectNode.initFunction.symbol.scope, objectEnv);
+        objectNode.initFunction.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
+
         objectNode.functions.forEach(f -> analyzeDef(f, objectEnv));
     }
 
