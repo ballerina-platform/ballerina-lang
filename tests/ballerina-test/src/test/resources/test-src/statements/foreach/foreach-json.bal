@@ -83,16 +83,16 @@ struct Protocol {
 
 function testJSONToStructCast () returns (string) | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    Protocols protocolsData = {};
-    match <Protocols>j {
-        Protocols p => protocolsData = p;
+    match <Protocols> j {
+        Protocols p => {
+                output = "";
+                foreach protocol in p.plist {
+                    concatString(protocol.name + "-" + protocol.url);
+                }
+                return output;
+        }
         error err => return err;
     }
-    output = "";
-    foreach protocol in protocolsData.plist {
-        concatString(protocol.name + "-" + protocol.url);
-    }
-    return output;
 }
 
 function testAddWhileIteration () returns (string) {
