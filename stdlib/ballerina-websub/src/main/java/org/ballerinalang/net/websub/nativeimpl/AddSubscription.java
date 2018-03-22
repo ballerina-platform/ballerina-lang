@@ -16,33 +16,35 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.websub.hub.nativeimpl;
+package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to remove a subscription from the default Ballerina Hub's underlying broker.
+ * Native function to add a subscription to the default Ballerina Hub's underlying broker.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub.hub",
-        functionName = "removeSubscription",
-        args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "callback", type = TypeKind.STRING)}
+        orgName = "ballerina", packageName = "net.websub",
+        functionName = "addSubscription",
+        args = {@Argument(name = "subscriptionDetails", type = TypeKind.STRUCT)},
+        isPublic = true
 )
-public class RemoveSubscription extends BlockingNativeCallableUnit {
+public class AddSubscription extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String topic = context.getStringArgument(0);
-        String callback = context.getStringArgument(1);
-        Hub.getInstance().unregisterSubscription(topic, callback);
+        BStruct subscriptionDetails = (BStruct) context.getRefArgument(0);
+        String topic = subscriptionDetails.getStringField(0);
+        String callback = subscriptionDetails.getStringField(1);
+        Hub.getInstance().registerSubscription(topic, callback, subscriptionDetails);
         context.setReturnValues();
     }
 

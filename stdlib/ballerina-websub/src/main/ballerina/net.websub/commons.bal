@@ -59,17 +59,18 @@ public function buildUnsubscriptionVerificationResponse(http:Request request) re
 function buildIntentVerificationResponse(http:Request request, string mode,
                         SubscriberServiceConfiguration webSubSubscriberAnnotations) returns (http:Response|null) {
     http:Response response = {};
-    if (webSubSubscriberAnnotations.topic == null) {
+    string topic = webSubSubscriberAnnotations.topic;
+    if (topic == "") {
         log:printError("Unable to verify intent since the topic is not specified");
         return null;
     }
 
-    string topic = webSubSubscriberAnnotations.topic;
     map params = request.getQueryParams();
-    var reqMode, _ = (string) params[HUB_MODE];
-    var challenge, _ = (string) params[HUB_CHALLENGE];
-    var reqTopic, _ = (string) params[HUB_TOPIC];
-    var reqLeaseSeconds, _ = (string) params[HUB_LEASE_SECONDS];
+    string reqMode = <string> params[HUB_MODE];
+    string challenge = <string> params[HUB_CHALLENGE];
+    string reqTopic = <string> params[HUB_TOPIC];
+
+    string reqLeaseSeconds = <string> params[HUB_LEASE_SECONDS];
 
     if (reqMode == mode && reqTopic == topic) {
         response = { statusCode:202 };
@@ -239,4 +240,18 @@ public function <WebSubHub ballerinaWebSubHub> publishUpdate (string topic, json
         }
     }
     return null;
+}
+
+@Description {value:"Struct to represent Subscription Details retrieved from the database"}
+@Field {value:"topic: The topic for which the subscription is added"}
+@Field {value:"callback: The callback specified for the particular subscription"}
+@Field {value:"secret: The secret to be used for authenticated content distribution"}
+@Field {value:"leaseSeconds: The lease second period specified for the particular subscription"}
+@Field {value:"createdAt: The time at which the subscription was created"}
+public struct SubscriptionDetails {
+    string topic;
+    string callback;
+    string secret;
+    int leaseSeconds;
+    int createdAt;
 }

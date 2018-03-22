@@ -22,7 +22,8 @@ public struct SubscriberServiceEndpointConfiguration {
 
 public function <SubscriberServiceEndpointConfiguration config> SubscriberServiceEndpointConfiguration() {
     SignatureValidationFilter webSubRequestValidationFilter = { filterRequest:interceptWebSubRequest };
-    config.filters = [webSubRequestValidationFilter];
+    http:Filter wsrHttpFilter = <http:Filter> webSubRequestValidationFilter;
+    config.filters = [wsrHttpFilter];
 }
 
 public function <SubscriberServiceEndpoint ep> SubscriberServiceEndpoint() {
@@ -61,10 +62,15 @@ native function <SubscriberServiceEndpoint ep> startWebSubSubscriberServiceEndpo
 @Description {value:"Sends a subscription request to the specified hub if specified to subscribe on startup"}
 function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
     map subscriptionDetails = ep.retrieveAnnotationsAndCallback();
-    var strSubscribeOnStartUp, _ = (string) subscriptionDetails["subscribeOnStartUp"];
-    var subscribeOnStartUp, _ = <boolean> strSubscribeOnStartUp;
-    if (subscriptionDetails != null && subscribeOnStartUp) {
-        var hub, _ = (string) subscriptionDetails["hub"];
+    if (lengthof subscriptionDetails.keys() == 0) {
+        return;
+    }
+
+    string strSubscribeOnStartUp = <string> subscriptionDetails["subscribeOnStartUp"];
+    boolean subscribeOnStartUp = <boolean> strSubscribeOnStartUp;
+
+    if (subscribeOnStartUp) {
+        string hub = <string> subscriptionDetails["hub"];
         invokeClientConnectorForSubscription(hub, subscriptionDetails);
     }
 }
@@ -127,16 +133,27 @@ public function interceptWebSubRequest (http:Request request, http:FilterContext
 @Param {value:"subscriptionDetails: Map containing subscription details"}
 function invokeClientConnectorForSubscription (string hub, map subscriptionDetails) {
     endpoint HubClientEndpoint websubHubClientEP { uri:hub };
-    var topic, _ = (string) subscriptionDetails["topic"];
-    var callback, _ = (string) subscriptionDetails["callback"];
-    if (hub == null || topic == null || callback == null) {
+
+    string topic = <string> subscriptionDetails["topic"];
+    string callback = <string> subscriptionDetails["callback"];
+
+    if (hub == "" || topic == "" || callback == "") {
         log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
         return;
     }
 
-    var strLeaseSeconds, _ = (string) subscriptionDetails["leaseSeconds"];
-    var leaseSeconds, _ = <int> strLeaseSeconds;
-    var secret, _ = (string) subscriptionDetails["secret"];
+    int leaseSeconds;
+
+    string strLeaseSeconds = <string> subscriptionDetails["leaseSeconds"];
+    match (<int> strLeaseSeconds) {
+        int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
+        error convError => {
+            log:printError("Error retreiving specified lease seconds value: " + convError.message);
+            return;
+        }
+    }
+
+    string secret = <string> subscriptionDetails["secret"];
 
     SubscriptionChangeRequest subscriptionChangeRequest = {topic:topic, callback:callback, leaseSeconds:leaseSeconds,
                                                               secret:secret};

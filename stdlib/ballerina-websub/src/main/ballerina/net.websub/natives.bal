@@ -1,4 +1,4 @@
-package ballerina.net.websub;
+package net.websub;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Natives ////////////////////
@@ -23,6 +23,20 @@ native function startUpHubService () returns (string);
 @Return {value:"True if the Ballerina Hub had been started up and was stopped now, false if the Hub had not been started
                 up"}
 native function stopHubService (string hubUrl) returns (boolean);
+
+@Description {value:"Adds a new subscription for the specified topic in the Ballerina Hub"}
+@Param {value:"subscriptionDetails: The details of the subscription including WebSub specifics"}
+public native function addSubscription (SubscriptionDetails subscriptionDetails);
+
+@Description {value:"Publishes an update against the topic in the Ballerina Hub"}
+@Param {value:"topic: The topic for which the update should happen"}
+@Param {value:"payload: The update payload"}
+public native function publishToInternalHub (string topic, json payload);
+
+@Description {value:"Removes a subscription added for the specified topic in the Ballerina Hub"}
+@Param {value:"topic: The topic for which the subscription was added"}
+@Param {value:"callback: The callback registered for this subscription"}
+public native function removeSubscription (string topic, string callback);
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Natives /////////////////////
