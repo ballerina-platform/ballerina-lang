@@ -62,7 +62,7 @@ public struct TargetService {
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
     int endpointTimeout;
-    boolean keepAlive = true;
+    boolean keepAlive;
     TransferEncoding transferEncoding;
     Chunking chunking;
     string httpVersion;
@@ -84,6 +84,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.httpVersion = "1.1";
     config.forwarded = "disable";
     config.endpointTimeout = 60000;
+    config.keepAlive = true;
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
@@ -198,8 +199,15 @@ public function <SecureSocket config> SecureSocket() {
 @Field {value:"enabled: Enable redirect"}
 @Field {value:"maxCount: Maximun number of redirects to follow"}
 public struct FollowRedirects {
-    boolean enabled = false;
-    int maxCount = 5;
+    boolean enabled;
+    int maxCount;
+}
+
+@Description {value:"Initializes the FollowRedirects struct with default values."}
+@Param {value:"config: The FollowRedirects struct to be initialized"}
+public function <FollowRedirects config> FollowRedirects() {
+    config.enabled = false;
+    config.maxCount = 5;
 }
 
 @Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
@@ -218,8 +226,15 @@ public struct Proxy {
 @Field {value:"maxActiveConnections: Number of maximum active connections for connection throttling. Default value -1, indicates the number of connections are not restricted"}
 @Field {value:"waitTime: Maximum waiting time for a request to grab an idle connection from the client connector"}
 public struct ConnectionThrottling {
-    int maxActiveConnections = -1;
-    int waitTime = 60000;
+    int maxActiveConnections;
+    int waitTime;
+}
+
+@Description {value:"Initializes the ConnectionThrottling struct with default values."}
+@Param {value:"config: The ConnectionThrottling struct to be initialized"}
+public function <ConnectionThrottling config> ConnectionThrottling() {
+    config.maxActiveConnections = -1;
+    config.waitTime = 60000;
 }
 
 public function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
