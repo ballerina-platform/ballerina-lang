@@ -52,30 +52,17 @@ public function createCache (string cacheName) returns (caching:Cache|null) {
         (expiryTime, capacity, evictionFactor) = getCacheConfigurations(cacheName);
         return caching:createCache(cacheName, expiryTime, capacity, evictionFactor);
     }
-    return null;
+    return {};
 }
 
 @Description {value:"Checks if the specified cache is enalbed"}
 @Param {value:"cacheName: cache name"}
 @Return {value:"boolean: true of the cache is enabled, else false"}
 function isCacheEnabled (string cacheName) returns (boolean) {
-    string|null isCacheEnabled = config:getInstanceValue(cacheName, CACHE_ENABLED);
-    match isCacheEnabled {
-        string cacheEnabled => {
-        // TODO handle error
-            var cacheEnabledRes = <boolean>cacheEnabled;
-            match cacheEnabledRes {
-                boolean boolIsCacheEnabled => {
-                    return boolIsCacheEnabled;
-                }
-                error err => {
-                    return CACHE_ENABLED_DEFAULT_VALUE;
-                }
-            }
-        }
-        any => {
-            return CACHE_ENABLED_DEFAULT_VALUE;
-        }
+    // by default we enable the cache
+    match config:getAsString(cacheName + "." + CACHE_ENABLED) {
+        string value => return value == "true" ? true : false;
+        int|null => return CACHE_ENABLED_DEFAULT_VALUE;
     }
 }
 
@@ -93,23 +80,14 @@ function getCacheConfigurations (string cacheName) returns (int, int, float) {
 @Return {value:"int: cache expiry time read from ballerina.conf, default value if no configuration entry found"}
 function getExpiryTime (string cacheName) returns (int) {
     // expiry time
-    string|null expiryTime = config:getInstanceValue(cacheName, CACHE_EXPIRY_TIME);
-    match expiryTime {
-        string expiryTimeStr => {
-        // TODO handle error
-            var expiry = <int>expiryTimeStr;
-            match expiry {
-                int intExpiryTime => {
-                    return intExpiryTime;
-                }
-                error err => {
-                    return CACHE_EXPIRY_DEFAULT_VALUE;
-                }
+    match config:getAsString(cacheName + "." + CACHE_EXPIRY_TIME) {
+        string value => {
+            match <int>value {
+                int intExpiryTime => return intExpiryTime;
+                error typeConversionErr => return CACHE_EXPIRY_DEFAULT_VALUE;
             }
         }
-        any => {
-            return CACHE_EXPIRY_DEFAULT_VALUE;
-        }
+        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -117,23 +95,14 @@ function getExpiryTime (string cacheName) returns (int) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"int: cache capacity read from ballerina.conf, default value if no configuration entry found"}
 function getCapacity (string cacheName) returns (int) {
-    string|null capacity = config:getInstanceValue(cacheName, CACHE_CAPACITY);
-    match capacity {
-        string cacityStr => {
-        // TODO handle error
-            var capacityVal = <int>cacityStr;
-            match capacityVal {
-                int intCapacity => {
-                    return intCapacity;
-                }
-                error err => {
-                    return CACHE_CAPACITY_DEFAULT_VALUE;
-                }
+    match config:getAsString(cacheName + "." + CACHE_CAPACITY) {
+        string value => {
+            match <int>value {
+                int intCapacity => return intCapacity;
+                error typeConversionErr => return CACHE_CAPACITY_DEFAULT_VALUE;
             }
         }
-        any => {
-            return CACHE_CAPACITY_DEFAULT_VALUE;
-        }
+        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -141,23 +110,14 @@ function getCapacity (string cacheName) returns (int) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"float: cache eviction factor read from ballerina.conf, default value if no configuration entry found"}
 function getEvictionFactor (string cacheName) returns (float) {
-    string|null evictionFactor = config:getInstanceValue(cacheName, CACHE_EVICTION_FACTOR);
-    match evictionFactor {
-        string evictionFactorStr => {
-        // TODO handle errors
-            var evictionFac = <float>evictionFactorStr;
-            match evictionFac {
-                float floatEvictionFactor => {
-                    return floatEvictionFactor;
-                }
-                error err => {
-                    return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
-                }
+    match config:getAsString(cacheName + "." + CACHE_EVICTION_FACTOR) {
+        string value => {
+            match <float>value {
+                float floatEvictionFactor => return floatEvictionFactor;
+                error typeConversionErr => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
             }
         }
-        any => {
-            return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
-        }
+        any|null => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
     }
 }
 
