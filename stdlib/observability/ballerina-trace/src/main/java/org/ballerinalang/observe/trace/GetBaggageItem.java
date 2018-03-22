@@ -32,7 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * This function adds baggage items to a span.
  */
 @BallerinaFunction(
-        packageName = "ballerina.observe",
+        orgName = "ballerina",
+        packageName = "observe",
         functionName = "getBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         args = {@Argument(name = "baggageKey", type = TypeKind.STRING),

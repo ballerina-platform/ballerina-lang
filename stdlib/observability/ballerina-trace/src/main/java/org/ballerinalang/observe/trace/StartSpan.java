@@ -31,7 +31,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * This function which implements the startSpan method for tracing.
  */
 @BallerinaFunction(
-        packageName = "ballerina.observe",
+        orgName = "ballerina",
+        packageName = "observe",
         functionName = "init",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

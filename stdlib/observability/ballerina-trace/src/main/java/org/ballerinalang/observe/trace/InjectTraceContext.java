@@ -36,7 +36,8 @@ import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
  * This function returns the span context of a given span.
  */
 @BallerinaFunction(
-        packageName = "ballerina.observe",
+        orgName = "ballerina",
+        packageName = "observe",
         functionName = "injectTraceContext",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         returnType = {@ReturnType(type = TypeKind.MAP)},

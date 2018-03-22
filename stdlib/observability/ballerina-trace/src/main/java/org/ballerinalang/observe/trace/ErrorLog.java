@@ -40,8 +40,8 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_STR_TRUE;
  * This function adds logs to a span.
  */
 @BallerinaFunction(
-        packageName = "ballerina.observe",
-        functionName = "logError",
+        orgName = "ballerina",
+        packageName = "observe",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         args = {@Argument(name = "errorKind", type = TypeKind.STRING),
                 @Argument(name = "message", type = TypeKind.STRING)},

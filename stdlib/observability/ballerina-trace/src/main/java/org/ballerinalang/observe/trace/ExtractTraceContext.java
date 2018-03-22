@@ -37,7 +37,8 @@ import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
  * This function injects a span context and returns the spans Id.
  */
 @BallerinaFunction(
-        packageName = "ballerina.observe",
+        orgName = "ballerina",
+        packageName = "observe",
         functionName = "extractTraceContext",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
