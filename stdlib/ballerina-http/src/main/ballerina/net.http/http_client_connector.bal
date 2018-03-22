@@ -133,3 +133,13 @@ public struct HttpConnectorError {
     error[] cause;
     int statusCode;
 }
+
+@Description {value:"HttpTimeoutError struct represents an timeout error occured during the service invocation."}
+@Field {value:"message: An error message explaining about the error."}
+@Field {value:"cause: The error that caused TimeoutError to get thrown."}
+@Field {value:"statusCode: HTTP status code."}
+public struct HttpTimeoutError {
+    string message;
+    error[] cause;
+    int statusCode;
+}
