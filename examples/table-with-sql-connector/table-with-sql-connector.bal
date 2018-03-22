@@ -47,7 +47,8 @@ function main (string[] args) {
         int val => {
             count = val;
         }
-        error e => io:println("Error in executing INSERT INTO EMPLOYEE");}
+        error e => io:println("Error in executing INSERT INTO EMPLOYEE");
+    }
 
     returnValue = testDB -> update("INSERT INTO EMPLOYEE VALUES(2, 'Anne', 4060.50, true,
         '1999-12-31', '13:40:24', '2017-05-23 09:15:28')", null);
@@ -56,7 +57,8 @@ function main (string[] args) {
         int val => {
           count = val;
         }
-        error e => io:println("Error in executing INSERT INTO EMPLOYEE");}
+        error e => io:println("Error in executing INSERT INTO EMPLOYEE");
+    }
 
     //Query the table using SQL connector select action. Either select or call
     //action can return a table.
@@ -66,17 +68,21 @@ function main (string[] args) {
         table val => {
             dt = val;
         }
-        error e => io:println("Error in executing SELECT * from EMPLOYEE");}
-
+        error e => io:println("Error in executing SELECT * from EMPLOYEE");
+    }
 
     //Iterate through the result until hasNext() become false and retrieve
     //the data struct corresponding to each row.
     while (dt.hasNext()) {
-        var rs =? <Employee>dt.getNext();
-        io:println("Employee:"+ rs.id + "|" + rs.name +  "|" + rs.salary +
-                   "|" + rs.status + "|" + rs.birthdate + "|"
-                   + rs.birthtime + "|" + rs.updated);
-
+        var returnedNextRec = <Employee>dt.getNext();
+        match returnedNextRec {
+            Employee rs => {
+                io:println("Employee:"+ rs.id + "|" + rs.name +  "|" + rs.salary +
+                "|" + rs.status + "|" + rs.birthdate + "|"
+                 + rs.birthtime + "|" + rs.updated);
+            }
+            error e => io:println("Error in retrieving next record");
+        }
     }
 
     //The table to json/xml conversion is resulted in streamed data. With the data
@@ -87,10 +93,11 @@ function main (string[] args) {
     //Convert a table to JSON.
     var returnVal2 = testDB -> select("SELECT id,name FROM EMPLOYEE", null, null);
     match returnVal2 {
-          table val => {
+        table val => {
             dt = val;
-          }
-        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");}
+        }
+        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
+    }
 
     var jsonRes =? <json>dt;
     io:println(jsonRes);
@@ -99,10 +106,11 @@ function main (string[] args) {
     var returnVal3 = testDB -> select("SELECT id,name FROM EMPLOYEE", null, null);
 
     match returnVal3 {
-      table val => {
-        dt = val;
-       }
-    error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");}
+        table val => {
+            dt = val;
+        }
+        error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
+    }
 
     var xmlRes =? <xml>dt;
     io:println(xmlRes);
@@ -110,12 +118,19 @@ function main (string[] args) {
     //Drop the EMPLOYEE table.
     var returnVal4 = testDB -> update("DROP TABLE EMPLOYEE", null);
     match returnVal4 {
-      int val => {
-         ret = val;
-      }
-      error e => io:println("Error in executing DROP TABLE EMPLOYEE");}
+        int val => {
+            ret = val;
+        }
+        error e => io:println("Error in executing DROP TABLE EMPLOYEE");
+    }
     io:println("Table drop status:" + ret);
 
     //Finally close the DB connection.
-    _ = testDB -> close();
+    var onConnectionClose = testDB -> close();
+    match onConnectionClose {
+        error e => io:println("Error in Connection close");
+        any | null => {
+            io:println("This cannot happen.");
+        }
+    }
 }
