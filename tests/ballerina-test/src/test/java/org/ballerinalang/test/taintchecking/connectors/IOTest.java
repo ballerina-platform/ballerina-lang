@@ -29,14 +29,14 @@ import org.testng.annotations.Test;
  */
 public class IOTest {
 
-    @Test
+    @Test (enabled = false)
     public void testCharacterIO() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/character-io.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testCharacterIONegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/character-io-negative.bal");
@@ -47,7 +47,7 @@ public class IOTest {
         BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 22, 18);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testFileIONegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/file-read-negative.bal");

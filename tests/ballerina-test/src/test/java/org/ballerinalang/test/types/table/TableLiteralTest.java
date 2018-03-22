@@ -318,7 +318,8 @@ public class TableLiteralTest {
     @Test(priority = 1,
           description = "Test invalid empty table create",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*")
+          expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*",
+          enabled = false)
     public void testFailedGeneratedKeyOnInsert() {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }

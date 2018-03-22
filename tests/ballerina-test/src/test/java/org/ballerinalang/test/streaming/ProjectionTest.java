@@ -42,7 +42,7 @@ public class ProjectionTest {
 
     @Test(description = "Test projection streaming query")
     public void testProjectionQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "testProjectionQuery");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startProjectionQuery");
 
         Assert.assertNotNull(outputEmployeeEvents);
 

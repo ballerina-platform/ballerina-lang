@@ -7,7 +7,7 @@ function testUnionTypeBasics1() returns (int | float | string, int | string){
     aaa = 12.0;
     bbb = "sameera";
 
-    return aaa, bbb;
+    return (aaa, bbb);
 }
 
 function testUnionTypeBasics2() returns ( int | float | string | boolean) {
@@ -21,8 +21,8 @@ function getUnion (string | int | float si) returns (int | float | string) {
 }
 
 
-function testNullableTypeBasics1() returns ((int | json | string | float | map | boolean)?) {
- (int? | string?) | (((float? | (json?| map)) )?| boolean)?  k = 5;
+function testNullableTypeBasics1() returns (int | json | string | float | map | boolean | null) {
+    int | string | float | json| map | boolean | null  k = 5;
 
     k = "sss";
     k = 1.0;
@@ -41,21 +41,21 @@ function testNullableTypeBasics1() returns ((int | json | string | float | map |
 }
 
 
-function testNullableTypeBasics2() returns (int| boolean?) {
+function testNullableTypeBasics2() returns (int | boolean | null) {
 
-   int | float? x = null;
+   int | float | null x;
 
   match x {
       float | int s => io:println("int");
-      int? s => io:println("null");
+      int | null s => io:println("null");
   }
 
-  (int | boolean)? i = null;
+  int | boolean | null i;
 
   match i {
           int => io:println("int");
           boolean => io:println("boolean");
-          any? a => io:println(a);
+          any | null a => io:println(a);
   }
 
   return i;

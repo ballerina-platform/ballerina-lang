@@ -54,8 +54,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Map<String, ConnectorInfo> connectorInfoMap = new HashMap<>();
 
-    public Map<String, StreamletInfo> streamletInfoMap = new HashMap<>();
-
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
 
     public Map<String, EnumInfo> enumInfoMap = new HashMap<>();
@@ -129,19 +127,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public ConnectorInfo[] getConnectorInfoEntries() {
         return connectorInfoMap.values().toArray(new ConnectorInfo[0]);
-    }
-
-    public StreamletInfo getStreamletInfo(String streamletName) {
-        return streamletInfoMap.get(streamletName);
-    }
-
-    public void addStreamletInfo(String streamletName, StreamletInfo streamletInfo) {
-        streamletInfoMap.put(streamletName, streamletInfo);
-        structureTypeInfoMap.put(streamletName, streamletInfo);
-    }
-
-    public StreamletInfo[] getStreamletInfoEntries() {
-        return streamletInfoMap.values().toArray(new StreamletInfo[0]);
     }
 
     public ServiceInfo[] getServiceInfoEntries() {

@@ -44,7 +44,9 @@ import static org.ballerinalang.net.grpc.MessageConstants.CHANNEL_KEY;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.MessageConstants.DEFAULT_HOSTNAME;
 import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 
 /**
@@ -53,10 +55,11 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
  * @since 1.0.0
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
-                structPackage = PROTOCOL_PACKAGE_GRPC),
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )

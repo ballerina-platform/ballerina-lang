@@ -105,7 +105,7 @@ public class CommandUtil {
             LSDocument sourceDocument = new LSDocument(sourceRoot);
             PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
             CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
-                    false);
+                    false, documentManager);
             ArrayList<PackageID> sdkPackages = pkgContext.getSDKPackages(context);
             sdkPackages.stream()
                     .filter(packageID -> packageID.getName().toString().endsWith("." + packageAlias))
