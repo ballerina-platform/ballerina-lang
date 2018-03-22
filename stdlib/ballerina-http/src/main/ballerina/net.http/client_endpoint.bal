@@ -61,12 +61,12 @@ public struct TargetService {
 @Field {value:"failoverConfig: Failover configuration"}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
-    int endpointTimeout = 60000;
+    int endpointTimeout;
     boolean keepAlive = true;
     TransferEncoding transferEncoding;
     Chunking chunking;
     string httpVersion;
-    string forwarded = "disable";
+    string forwarded;
     FollowRedirects|null followRedirects;
     Retry|null retry;
     Proxy|null proxy;
@@ -82,6 +82,8 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
     config.httpVersion = "1.1";
+    config.forwarded = "disable";
+    config.endpointTimeout = 60000;
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}

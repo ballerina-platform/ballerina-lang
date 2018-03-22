@@ -42,6 +42,12 @@ public enum IterableKind {
     FILTER("filter", true, false),
 
     /**
+     * This applies the given function to each item of a table and returns a new table of less than or equal size of
+     * the original table.
+     */
+    SELECT("select", true, false),
+
+    /**
      * Return the number of items in the iterable collection.
      */
     COUNT("count", false, true),

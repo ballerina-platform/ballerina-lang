@@ -449,7 +449,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
-                false);
+                false, documentManager);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
