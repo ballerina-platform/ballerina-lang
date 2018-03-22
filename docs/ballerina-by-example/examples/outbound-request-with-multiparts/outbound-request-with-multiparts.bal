@@ -1,6 +1,7 @@
 import ballerina/net.http;
 import ballerina/mime;
 import ballerina/file;
+import ballerina/io;
 
 endpoint http:ClientEndpoint clientEP {
     targets:[{uri:"http://localhost:9090"}]
@@ -65,7 +66,7 @@ service<http:Service> test bind multipartEP {
     }
 }
 
-function getContentDispositionForFormData(string partName) (mime:ContentDisposition){
+function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
     mime:ContentDisposition contentDisposition = {};
     contentDisposition.name =  partName;
     contentDisposition.disposition = "form-data";

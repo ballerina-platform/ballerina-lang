@@ -21,7 +21,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -60,7 +59,7 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
 
     public boolean isMultiReturnExpr() {
         // Unsafe casts are multi return expressions
-        return castSymbol == null || !((BCastOperatorSymbol) castSymbol).safe;
+        return castSymbol == null;
     }
 
     @Override

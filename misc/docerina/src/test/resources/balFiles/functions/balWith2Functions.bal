@@ -1,7 +1,7 @@
 @Description{value:"test method"}
 @Param{value:"args: a string argument"}
 @Return{value:"response: an integer"}
-function abc (string[] args) (int response) {
+function abc (string[] args) returns (int) {
     //system:println("Hello, World! " + args[0]);
     return 5;
 }

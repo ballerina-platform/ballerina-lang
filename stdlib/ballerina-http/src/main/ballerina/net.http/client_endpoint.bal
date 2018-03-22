@@ -72,7 +72,7 @@ public struct ClientEndpointConfiguration {
     Proxy|null proxy;
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
-    //function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
+    function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
     //FailoverConfig failoverConfig;
 }
 
@@ -90,41 +90,21 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     string uri = config.targets[0].uri;
-    //if (config.circuitBreaker != null) {
-    //    ep.config = config;
-    //    ep.httpClient = createCircuitBreakerClient(uri, config);
-    //} else if (config.algorithm != null && lengthof config.targets > 1) {
-    //    ep.httpClient = createLoadBalancerClient(config);
-    //} else if (config.failoverConfig != null) {
-    //    ep.config = config;
-    //    ep.httpClient = createFailOverClient(config);
-    //
     var cbConfig = config.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
-            ep.config = config;
-            ep.httpClient = createCircuitBreakerClient(uri, config);
-        }
-        int | null => {
-            if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-                                }
-                                ep.config = config;
-            ep.httpClient = createHttpClient(uri, config);
-        }
-    }
-    //if (config.circuitBreaker != null) {
-    //        ep.config = config;
-    //        ep.httpClient = createCircuitBreakerClient(uri, config);
-    //    } else {
-    //    if (uri.hasSuffix("/")) {
-    //        int lastIndex = uri.length() - 1;
-    //        uri = uri.subString(0, lastIndex);
-    //    }
-    //    ep.config = config;
-    //    ep.httpClient = createHttpClient(uri, config);
-    //}
+    ep.config = config;
+    ep.httpClient = createCircuitBreakerClient(uri, config);
+}
+int | null => {
+if (uri.hasSuffix("/")) {
+int lastIndex = uri.length() - 1;
+uri = uri.subString(0, lastIndex);
+                       }
+                       ep.config = config;
+ep.httpClient = createHttpClient(uri, config);
+}
+}
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -246,14 +226,13 @@ match cbConfig {
     //var httpClient, _ = (HttpClient) cbClient;
     //return httpClient;
 }
-//
-//function createLoadBalancerClient(ClientEndpointConfiguration config) returns HttpClient {
-//    HttpClient[] lbClients = createHttpClientArray(config);
-//    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
-//                          algorithm:config.algorithm};
-//    var httpClient, _ = (HttpClient) lb;
-//    return httpClient;
-//}
+                                                                           function createLoadBalancerClient(ClientEndpointConfiguration config) returns HttpClient {
+HttpClient[] lbClients = createHttpClientArray(config);
+LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
+                      algorithm:config.algorithm};
+var httpClient, _ = (HttpClient) lb;
+return httpClient;
+       }
 //
 //function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
 //    HttpClient[] clients = createHttpClientArray(config);
