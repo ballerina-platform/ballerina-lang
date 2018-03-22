@@ -238,8 +238,6 @@ public class Desugar extends BLangNodeVisitor {
 
         //Adding object functions to package level.
         pkgNode.objects.forEach(o -> {
-            pkgNode.functions.add(o.initFunction);
-            pkgNode.topLevelNodes.add(o.initFunction);
             o.functions.forEach(f -> {
                 pkgNode.functions.add(f);
                 pkgNode.topLevelNodes.add(f);
@@ -296,8 +294,19 @@ public class Desugar extends BLangNodeVisitor {
                     return field;
                 })
             .filter(field -> field.expr != null)
-            .forEachOrdered(field -> structNode.initFunction.initFunctionStmts.put(field.symbol,
-                    (BLangStatement) createAssignmentStmt(field)));
+            .forEachOrdered(field -> {
+                if (!structNode.initFunction.initFunctionStmts.containsKey(field.symbol)) {
+                    structNode.initFunction.initFunctionStmts.put(field.symbol,
+                            (BLangStatement) createAssignmentStmt(field));
+                }
+            });
+
+        //Adding init statements to the init function.
+        BLangStatement[] initStmts = structNode.initFunction.initFunctionStmts.values().toArray(new BLangStatement[0]);
+        for (int i = 0; i < structNode.initFunction.initFunctionStmts.size(); i++) {
+            structNode.initFunction.body.stmts.add(i, initStmts[i]);
+        }
+
         result = structNode;
     }
 
@@ -310,14 +319,6 @@ public class Desugar extends BLangNodeVisitor {
 
         Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
-
-        //Adding init statements to the init function.
-        if (funcNode.objectInitFunction) {
-            BLangStatement[] initStmts = funcNode.initFunctionStmts.values().toArray(new BLangStatement[0]);
-            for (int i = 0; i < funcNode.initFunctionStmts.size(); i++) {
-                funcNode.body.stmts.add(i, initStmts[i]);
-            }
-        }
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
@@ -355,7 +356,7 @@ public class Desugar extends BLangNodeVisitor {
         bLangStruct.name = objectNode.name;
         bLangStruct.fields = objectNode.fields;
 //        bLangStruct.functions = rewrite(objectNode.functions, env);
-//        bLangStruct.initFunction = rewrite(objectNode.initFunction, env);
+        bLangStruct.initFunction = objectNode.initFunction;
         bLangStruct.annAttachments = rewrite(objectNode.annAttachments, env);
         bLangStruct.docAttachments = rewrite(objectNode.docAttachments, env);
         bLangStruct.deprecatedAttachments = rewrite(objectNode.deprecatedAttachments, env);
