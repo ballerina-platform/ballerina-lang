@@ -69,7 +69,8 @@ public class StructNegativeTest {
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         // test struct init with invalid field name
-        BAssertUtil.validateError(result, 0, "missing token ':' before '['", 8, 30);
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for struct literal keys", 12,
+                23);
     }
 
     @Test

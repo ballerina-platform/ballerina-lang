@@ -66,7 +66,7 @@ service<http:Service> GlobalVar bind echoEP {
 }
 
 @http:ServiceConfig {basePath:"/globalvar-second"}
-service<http:Service> GlobalVarSecond {
+service<http:Service> GlobalVarSecond bind echoEP {
 
     @http:ResourceConfig {
         methods:["GET"],

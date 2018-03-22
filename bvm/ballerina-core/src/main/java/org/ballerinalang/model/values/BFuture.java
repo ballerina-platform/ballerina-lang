@@ -17,20 +17,20 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 /**
  * Ballerina value for the "future" type.
  */
-public class BFuture implements BRefType<WorkerResponseContext> {
+public class BFuture implements BRefType<AsyncInvocableWorkerResponseContext> {
 
     private String callableName;
     
-    private WorkerResponseContext respCtx;
+    private AsyncInvocableWorkerResponseContext respCtx;
     
-    public BFuture(String callableName, WorkerResponseContext respCtx) {
+    public BFuture(String callableName, AsyncInvocableWorkerResponseContext respCtx) {
         this.callableName = callableName;
         this.respCtx = respCtx;
     }
@@ -51,7 +51,7 @@ public class BFuture implements BRefType<WorkerResponseContext> {
     }
 
     @Override
-    public WorkerResponseContext value() {
+    public AsyncInvocableWorkerResponseContext value() {
         return this.respCtx;
     }
 

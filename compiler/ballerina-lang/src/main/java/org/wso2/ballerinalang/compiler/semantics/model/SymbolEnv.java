@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -53,8 +52,6 @@ public class SymbolEnv {
 
     public BLangStruct enclStruct;
 
-    public BLangStreamlet enclStreamlet;
-
     public BLangAnnotation enclAnnotation;
 
     public BLangService enclService;
@@ -74,7 +71,6 @@ public class SymbolEnv {
         this.enclConnector = null;
         this.enclObject = null;
         this.enclStruct = null;
-        this.enclStreamlet = null;
         this.enclAnnotation = null;
         this.enclService = null;
         this.enclInvokable = null;
@@ -88,7 +84,6 @@ public class SymbolEnv {
         target.enclConnector = this.enclConnector;
         target.enclObject = this.enclObject;
         target.enclStruct = this.enclStruct;
-        target.enclStreamlet = this.enclStreamlet;
         target.enclAnnotation = this.enclAnnotation;
         target.enclService = this.enclService;
         target.enclInvokable = this.enclInvokable;
@@ -133,12 +128,6 @@ public class SymbolEnv {
         SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
         objectEnv.enclStruct = node;
         return objectEnv;
-    }
-
-    public static SymbolEnv createStreamletEnv(BLangStreamlet node, Scope scope, SymbolEnv env) {
-        SymbolEnv streamletEnv = createPkgLevelSymbolEnv(node, scope, env);
-        streamletEnv.enclStreamlet = node;
-        return streamletEnv;
     }
 
     public static SymbolEnv createAnnotationEnv(BLangAnnotation node, Scope scope, SymbolEnv env) {

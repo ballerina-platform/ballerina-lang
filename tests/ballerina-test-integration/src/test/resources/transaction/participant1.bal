@@ -36,11 +36,44 @@ service<http:Service> participant1 bind participant1EP {
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
         http:Response clientResponse2;
         transaction {
-            var clientResponse1, _ = ep -> forward("/task1", req);
-            clientResponse2, _ = ep -> get("/task2", newReq);
+            var forwardResult = ep -> forward("/task1", req);
+            match forwardResult {
+                error err => {
+                    sendErrorResponseToCaller(conn);
+                    abort;
+                }
+                http:Response forwardRes => {
+                    var getResult = ep -> get("/task2", newReq);
+                    match getResult {
+                        error err => {
+                            sendErrorResponseToCaller(conn);
+                            abort;
+                        }
+                        http:Response getRes => {
+                            var forwardRes = conn -> forward(getRes);  
+                            match forwardRes {
+                                error err => {
+                                    io:print("Could not forward response to caller:");
+                                    io:println(err);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         } onretry {
             io:println("Participant1 failed");
         }
-        _ = conn -> forward(clientResponse2);
+    }
+}
+
+function sendErrorResponseToCaller(endpoint http:ServiceEndpoint conn) {
+    http:Response errRes = {statusCode: 500};
+    var respondResult = conn -> respond(errRes); 
+    match respondResult {
+        error respondErr => {
+            io:print("Could not send error response to caller:");
+            io:println(respondErr);
+        }
     }
 }

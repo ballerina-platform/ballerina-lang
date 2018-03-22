@@ -1,7 +1,7 @@
 package ballerina.net.http;
 
 public struct WebSocketClient {
-    string epName;
+    WebSocketConnector conn;
     WebSocketClientEndpointConfig config;
 }
 
@@ -64,7 +64,9 @@ public native function <WebSocketClient h> start();
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> getClient() returns (WebSocketConnector);
+public function <WebSocketClient h> getClient() returns (WebSocketConnector){
+    return h.conn;
+}
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }

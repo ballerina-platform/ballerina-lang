@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test the functionality of filter connectors.
  */
+@Test (enabled = false)
 public class FilterConnectorTest {
 
     private CompileResult result;
