@@ -38,7 +38,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.websub",
+        orgName = "ballerina", packageName = "net.websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
                 structPackage = "ballerina.net.websub"),
@@ -55,8 +55,6 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
 
         WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
         serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
-
-        //setFilters(serviceEndpointConfig, serviceEndpoint);  // set filters
 
         context.setReturnValues();
     }

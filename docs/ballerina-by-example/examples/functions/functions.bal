@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"This function takes a string argument."}
 function printValue (string value) {

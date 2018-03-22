@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "table.close",
         args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         isPublic = true

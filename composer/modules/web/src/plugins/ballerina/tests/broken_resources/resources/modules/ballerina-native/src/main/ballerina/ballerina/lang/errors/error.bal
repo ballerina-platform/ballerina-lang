@@ -1,6 +1,6 @@
 package ballerina.lang.errors;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description {value:"Ballerina Error struct represents an Error in a Ballerina program. Error struct is the root struct for all errors in Ballerina Language and any other error should structurally equivalent to this. Only Error struct or equivalent can be thrown using throw statement or caught using catch clause in Ballerina."}
 @doc:Field {value:"msg: An error message explaining about the error."}

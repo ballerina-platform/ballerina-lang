@@ -1,4 +1,4 @@
-import ballerina.test;
+import ballerina/test;
 
 function testAssertIntEquals (int a, int b) {
     int answer = 0;

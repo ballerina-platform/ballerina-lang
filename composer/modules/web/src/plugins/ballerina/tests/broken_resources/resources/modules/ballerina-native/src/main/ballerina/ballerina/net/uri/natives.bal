@@ -1,6 +1,6 @@
 package ballerina.net.uri;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Gets a query parameter value for a given key"}
 @doc:Param { value:"m: The message object " }

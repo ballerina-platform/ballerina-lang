@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function main (string[] args) {
     //The vertical bar (|) character is used to demarcate the identifier name.

@@ -19,4 +19,8 @@
     <Match>
         <Package name="org.ballerinalang.launcher.util" />
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.launcher.LauncherUtils"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
 </FindBugsFilter>

@@ -1,5 +1,5 @@
-import ballerina.lang.errors;
-import ballerina.lang.system;
+import ballerina/lang.errors;
+import ballerina/lang.system;
 
 connector XManagementConnector () {
 

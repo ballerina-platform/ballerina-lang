@@ -45,7 +45,7 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createFileStruct
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "list",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRUCT),

@@ -45,7 +45,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
-    private static final String HTTP_RESOURCE = "httpResource";
+    protected static final String HTTP_RESOURCE = "httpResource";
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
@@ -67,7 +67,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 return;
             }
             httpResource = HttpDispatcher.findResource(httpServicesRegistry, httpCarbonMessage);
-            if (HttpDispatcher.isDiffered(httpResource)) {
+            if (HttpDispatcher.shouldDiffer(httpResource, hasFilters())) {
                 httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
             }
@@ -106,7 +106,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return filterCtxtStruct;
     }
 
-    private boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
+    protected boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
@@ -135,7 +135,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      */
     private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt) {
 
-        if (filterHolders == null || filterHolders.isEmpty()) {
+        if (!hasFilters()) {
             // no filters, return
             return;
         }
@@ -158,4 +158,12 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             // filter has returned true, can continue
         }
     }
+
+    /**
+     * Method to retrive if filters have been specified.
+     */
+    protected boolean hasFilters() {
+        return filterHolders != null && !filterHolders.isEmpty();
+    }
+
 }

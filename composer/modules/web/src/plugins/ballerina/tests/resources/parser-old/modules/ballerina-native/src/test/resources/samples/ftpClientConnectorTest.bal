@@ -1,5 +1,5 @@
-import ballerina.net.ftp;
-import ballerina.lang.files;
+import ballerina/net.ftp;
+import ballerina/lang.files;
 
 function testCopy(string sourcePath, string destPath) {
     ftp:ClientConnector ftpConnector = create ftp:ClientConnector();

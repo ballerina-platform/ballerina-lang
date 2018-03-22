@@ -1,4 +1,4 @@
-import ballerina.task;
+import ballerina/task;
 
 error err;
 string origErrMsg;

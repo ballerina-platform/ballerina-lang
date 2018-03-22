@@ -29,7 +29,7 @@ import org.ballerinalang.util.BuiltInUtils;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.runtime",
+        orgName = "ballerina", packageName = "runtime",
         functionName = "getProperty",
         args = {@Argument(name = "name", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

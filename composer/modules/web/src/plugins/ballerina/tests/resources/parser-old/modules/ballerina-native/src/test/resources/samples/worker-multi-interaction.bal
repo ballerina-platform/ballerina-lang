@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 
 function testWorkerInVM()(boolean c) {

@@ -1,5 +1,5 @@
-import ballerina.runtime;
-import ballerina.time;
+import ballerina/runtime;
+import ballerina/time;
 
 function testSleepCurrentThread () {
     runtime:sleepCurrentWorker(1000);

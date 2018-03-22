@@ -184,7 +184,7 @@ public class AnnotationDesugar {
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = target.pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.stringType,
-                attachment.annotationSymbol + "$" + index);
+                attachment.annotationSymbol.bvmAlias() + "$" + index);
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationMapEntryVar.symbol);
         indexAccessNode.type = annotationMapEntryVar.symbol.type;
         assignmentStmt.varRefs.add(indexAccessNode);
