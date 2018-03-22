@@ -64,7 +64,7 @@ public class TableLiteralTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(priority = 1)
+    @Test(priority = 1, enabled = false)
     public void testAddData() {
         BValue[] returns = BRunUtil.invoke(result, "testAddData");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
@@ -115,7 +115,7 @@ public class TableLiteralTest {
         }
     }
 
-    @Test(priority = 1)
+    @Test(priority = 1, enabled = false)
     public void testMultipleAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testMultipleAccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);

@@ -78,6 +78,8 @@ public struct ConnectionProperties {
 @Description {value:"Initialize the ConnectionProperties with default values"}
 public function <ConnectionProperties c> ConnectionProperties () {
 	c.datasourceProperties = {};
+    c.validationTimeout = 250;
+    c.autoCommit = true;
 }
 
 @Description {value:"The Databases which has direct parameter support."}
