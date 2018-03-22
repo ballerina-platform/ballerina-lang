@@ -91,12 +91,12 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
     HttpClient[] httpClients = [];
     int i=0;
     foreach target in config.targets {
-        string url = target.url;
-        if (url.hasSuffix("/")) {
-            int lastIndex = url.length() - 1;
-            url = url.subString(0, lastIndex);
+        string uri = target.uri;
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
         }
-        httpClients[i] = createHttpClient(url, config);
+        httpClients[i] = createHttpClient(uri, config);
         httpClients[i].config = config;
         i = i+1;
     }
