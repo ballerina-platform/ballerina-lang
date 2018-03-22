@@ -136,6 +136,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
     }
 
@@ -176,6 +177,10 @@ public class CPU {
         int callersRetRegIndex;
 
         while (ctx.ip >= 0) {
+            if (ctx.stop) {
+                BLangScheduler.workerDone(ctx);
+                return;
+            }
             if (debugEnabled && debug(ctx)) {
                 return;
             }
@@ -2936,6 +2941,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleReturn(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
@@ -3594,6 +3600,7 @@ public class CPU {
         if (match != null) {
             ctx.ip = match.getIpTarget();
         } else {
+            BLangScheduler.workerExcepted(ctx);
             throw new HandleErrorException(
                     ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult)));
         }

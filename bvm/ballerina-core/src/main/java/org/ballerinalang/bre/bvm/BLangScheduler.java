@@ -125,8 +125,7 @@ public class BLangScheduler {
     }
     
     public static void stopWorker(WorkerExecutionContext ctx) {
-        ctx.ip = -1;
-        workerDone(ctx);
+        ctx.stop = true;
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
