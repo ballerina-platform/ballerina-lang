@@ -1,52 +1,50 @@
 import ballerina/io;
 import ballerina/net.ws;
 
-@ws:configuration {
-    basePath: "/proxy/ws",
-    port:9090
+endpoint http:ServiceEndpoint ep {
+    port: 9090
+};
+@http:WebSocketServiceConfig {
+    basePath: "/proxy/ws"
 }
-service<ws> SimpleProxyServer {
+service<http: WebSocketService > SimpleProxyServer bind ep{
 
-    map clientConnMap = {};
+    map<http:WebSocketConnector> clientConnMap = {};
     string remoteUrl = "wss://echo.websocket.org";
-    string remoteServerCallbackService = "ClientService";
 
     @Description {value:"Create a client connection to remote server from ballerina when new client connects to this service endpoint."}
-    resource onHandshake(ws:HandshakeConnection con) {
-        endpoint<ws:WsClient> wsEndpoint {
-            create ws:WsClient(remoteUrl, remoteServerCallbackService);
+    onUpgrade(endpoint con) {
+    endpoint http:WebSocketClient wsEndpoint {
+        url:"wss://echo.websocket.org",
+        callbackService: typeof ClientService;
         }
-        var clientConn, err = wsEndpoint.connect({parentConnectionID:con.connectionID});
-        if (err != null) {
-            io:println(err.message);
-            con.cancelHandshake(1001, "Cannot connect to remote server");
-        } else {
-            clientConnMap[con.connectionID] = clientConn;
-        }
+        var clientConn = wsEndpoint.getClient();
+        clientConnMap[con.getClient().id] = clientConn;
     }
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        var clientCon, _ = (ws:Connection)clientConnMap[conn.getID()];
+    onTextMessage(endpoint conn, http:TextFrame frame) {
+        var clientCon = clientConnMap[conn.getClient().id];
         clientCon.pushText(frame.text);
     }
 
-    resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
-        var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
+    onBinaryMessage(endpoint conn, http:BinaryFrame frame) {
+        var clientCon = clientConnMap[conn.getClient().id];
         clientConn.pushBinary(frame.data);
     }
 
-    resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
+    resource onClose(endpoint ep, http:CloseFrame frame) {
+		var conn = ep.getClient();
+        var clientCon = clientConnMap[conn.id];
         clientConn.closeConnection(frame.statusCode, frame.reason);
-        clientConnMap.remove(conn.getID());
+        clientConnMap.remove(conn.id);
     }
 }
 
 @Description {value:"Client service to receive frames from remote server"}
-@ws:clientService {}
-service<ws> ClientService {
+@http:WebSocketServiceConfig {}
+service<http: WebSocketService> ClientService {
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+    onTextMessage(endpoint conn, http:TextFrame frame) {
         ws:Connection parentConn = conn.getParentConnection();
         parentConn.pushText(frame.text);
     }
