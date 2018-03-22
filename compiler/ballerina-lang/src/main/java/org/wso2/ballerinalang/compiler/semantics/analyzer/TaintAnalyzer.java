@@ -130,7 +130,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -1041,10 +1040,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        /* ignore */
-    }
-
-    public void visit(BLangQueryStatement queryStatement) {
         /* ignore */
     }
 

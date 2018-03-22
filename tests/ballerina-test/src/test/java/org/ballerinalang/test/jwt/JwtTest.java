@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -64,8 +65,8 @@ public class JwtTest {
         configRegistry.addConfiguration(KEY_STORE_CONFIG, KEY_STORE_TYPE, "pkcs12");
 
         configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION,
-                                        getClass().getClassLoader().getResource(
-                                                "datafiles/security/keyStore/ballerinaTruststore.p12").getPath());
+                getClass().getClassLoader().getResource(
+                        "datafiles/security/keyStore/ballerinaTruststore.p12").getPath());
         configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_PASSWORD, "ballerina");
         configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_TYPE, "pkcs12");
 
@@ -78,7 +79,6 @@ public class JwtTest {
     public void testIssueJwt() throws Exception {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwt");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[1]);
         jwtToken = returns[0].stringValue();
     }
 
@@ -86,8 +86,7 @@ public class JwtTest {
     public void testValidateJwt() throws Exception {
         BValue[] inputBValues = {new BString(jwtToken)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertNull(returns[1]);
+        Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
     @AfterClass
@@ -102,5 +101,4 @@ public class JwtTest {
         modifiersField.setAccessible(false);
         field.setAccessible(false);
     }
-
 }

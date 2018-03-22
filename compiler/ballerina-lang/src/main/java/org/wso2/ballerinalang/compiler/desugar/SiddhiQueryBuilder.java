@@ -62,7 +62,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
@@ -420,7 +419,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamDefinitionQuery.append(streamDefinition).append("\n");
     }
 
-
     private void getStreamDefintionForFuntionVariable(BVarSymbol varSymbol) {
         StringBuilder streamDefinition = new StringBuilder("define stream ");
         streamDefinition.append(varSymbol.name).append("( ");
@@ -429,13 +427,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         generateStreamDefinition(structFieldList, streamDefinition);
 
         streamDefinitionQuery.append(streamDefinition).append("\n");
-    }
-
-    @Override
-    public void visit(BLangQueryStatement queryStatement) {
-        BLangStreamingQueryStatement streamingQueryStatement = (BLangStreamingQueryStatement) queryStatement.
-                getStreamingQueryStatement();
-        streamingQueryStatement.accept(this);
     }
 
     @Override

@@ -15,7 +15,7 @@ public struct HttpServiceConfig {
     HttpServiceLifeTime lifetime;
     string basePath;
     Compression compression;
-    CorsConfig|null cors;
+    CorsConfig cors;
     WebSocketUpgradeConfig|null webSocketUpgrade;
     boolean transactionInfectable;
 }

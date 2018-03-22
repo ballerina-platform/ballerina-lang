@@ -72,7 +72,6 @@ import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
-import org.ballerinalang.model.tree.statements.QueryStatementNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
@@ -318,8 +317,6 @@ public class BLangPackageBuilder {
     private Stack<PatternStreamingInputNode> patternStreamingInputStack = new Stack<>();
 
     private Stack<StreamingQueryStatementNode> streamingQueryStatementStack = new Stack<>();
-
-    private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
 
     private Stack<WheneverNode> wheneverNodeStack = new Stack<>();
 
@@ -1373,7 +1370,6 @@ public class BLangPackageBuilder {
     }
 
 
-
     void endObjectInitParamList(Set<Whitespace> ws, boolean paramsAvail, boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
         invNode.addWS(ws);
@@ -1924,7 +1920,7 @@ public class BLangPackageBuilder {
             compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
             List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
             addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value,
-                                        nameComps, Names.DEFAULT_VERSION.value,
+                    nameComps, Names.DEFAULT_VERSION.value,
                     Names.DOT.value + nameComps.get(nameComps.size() - 1));
         }
     }
