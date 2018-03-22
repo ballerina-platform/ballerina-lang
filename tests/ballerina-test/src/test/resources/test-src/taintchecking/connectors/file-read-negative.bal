@@ -6,8 +6,7 @@ function main (string[] args) {
     target.open(args[0]);
 
     io:ByteChannel bchannel = target.openChannel(args[0]);
-    int intArg;
-    (intArg, _) = <int> args[0];
+    int intArg =? <int> args[0];
     
     var readOutput = bchannel.read(intArg);
     match readOutput {
