@@ -108,13 +108,31 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
     ct1.add(c1);
 
     int count1 = dt1.count();
-    int[] dt1data = dt1.map(getPersonId);
+    int[] dt1data;
+    int i = 0;
+    while (dt1.hasNext()) {
+        var p =? <Person> dt1.getNext();
+        dt1data[i] = p.id;
+        i = i + 1;
+    }
 
     int count2 = dt2.count();
-    int[] dt2data = dt2.map(getPersonId);
+    int[] dt2data;
+    i = 0;
+    while (dt2.hasNext()) {
+        var p =? <Person> dt2.getNext();
+        dt2data[i] = p.id;
+        i = i + 1;
+    }
 
     int count3 = ct1.count();
-    int[] ct1data = ct1.map(getCompanyId);
+    int[] ct1data;
+    i = 0;
+    while (ct1.hasNext()) {
+        var p =? <Company> ct1.getNext();
+        ct1data[i] = p.id;
+        i = i + 1;
+    }
     return (count1, count2, count3, dt1data, dt2data, ct1data);
 }
 
@@ -135,10 +153,22 @@ function testMultipleAccess () returns (int, int, int[], int[]) {
     dt1.add(p3);
 
     int count1 = dt1.count();
-    int[] dtdata1 = dt1.map(getPersonId);
+    int[] dtdata1;
+    int i = 0;
+    while (dt1.hasNext()) {
+        var p =? <Person> dt1.getNext();
+        dtdata1[i] = p.id;
+        i = i + 1;
+    }
 
     int count2 = dt1.count();
-    int[] dtdata2 = dt1.map(getPersonId);
+    int[] dtdata2;
+    i = 0;
+    while (dt1.hasNext()) {
+        var p =? <Person> dt1.getNext();
+        dtdata2[i] = p.id;
+        i = i + 1;
+    }
     return (count1, count2, dtdata1, dtdata2);
 }
 

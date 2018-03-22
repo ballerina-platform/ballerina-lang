@@ -157,4 +157,34 @@ function testMatchStatementBasics14(json a) returns (string | int | boolean) {
 }
 
 
+struct Human {
+    string name;
+    function (int, string) returns string | null foo;
+}
+
+struct Man {
+    string name;
+    function (int, string) returns string | null foo;
+    int age;
+}
+
+struct Woman {
+    string name;
+    function (int, string) returns string | null foo;
+    int age;
+    string color;
+}
+
+
+function testMatchStatementBasics16() returns (string | int | boolean) {
+
+     Human m = {name:"Piyal"};
+
+    match m {
+        Man r => return r.name;
+        Human h => return h.name;
+    }
+}
+
+
 
