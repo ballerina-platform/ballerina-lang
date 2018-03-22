@@ -124,7 +124,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -1205,13 +1204,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangQueryStatement queryStatement) {
-        StreamingQueryStatementNode streamingQueryStatementNode = queryStatement.getStreamingQueryStatement();
-        if (streamingQueryStatementNode != null) {
-            ((BLangStreamingQueryStatement) streamingQueryStatementNode).accept(this);
-        }
-    }
-
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
@@ -1595,6 +1587,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType handleSafeAssignmentWithVarDeclaration(DiagnosticPos pos, BType rhsType) {
         if (rhsType.tag != TypeTags.UNION && types.isAssignable(symTable.errStructType, rhsType)) {
             dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+            return symTable.errType;
         } else if (rhsType.tag != TypeTags.UNION) {
             return rhsType;
         }
@@ -1603,7 +1596,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BUnionType unionType = (BUnionType) rhsType;
         List<BType> rhsTypeList = new ArrayList<>(unionType.memberTypes);
         for (BType type : rhsTypeList) {
-            if (types.isAssignable(symTable.errStructType, type)) {
+            if (types.isAssignable(type, symTable.errStructType)) {
                 unionType.memberTypes.remove(type);
             }
         }

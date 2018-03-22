@@ -118,9 +118,9 @@ function testNestedTransaction (int i) returns (string) {
 function testNestedTransactionWithFailed (int i) returns (string) {
     string a = "start";
     try {
-        transaction with retries(3) {
+        transaction with retries=3 {
             a = a + " inOuterTrx";
-            transaction with retries(2) {
+            transaction with retries=2 {
                 a = a + " inInnerTrx";
                 try {
                     if (i == -1) {
@@ -155,7 +155,7 @@ function testNestedTransactionWithFailed (int i) returns (string) {
 function testTransactionStmtWithFailedAndNonDefaultRetries (int i) returns (string) {
     string a = "start";
     try {
-        transaction with retries(4) {
+        transaction with retries=4 {
             a = a + " inTrx";
             try {
                 if (i == -1) {
@@ -187,7 +187,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetries (int i) returns (stri
 function testTransactionStmtWithRetryOff (int i) returns (string) {
     string a = "start";
     try {
-        transaction with retries(0) {
+        transaction with retries=0 {
             a = a + " inTrx";
             try {
                 if (i == -1) {
@@ -245,7 +245,7 @@ function testTransactionStmtWithRetryOff (int i) returns (string) {
 function testTransactionStmtWithConstRetrySuccess () returns (string) {
     string a = "start";
     try {
-        transaction with retries(RETRYCOUNT) {
+        transaction with retries=RETRYCOUNT {
             a = a + " inTrx";
         } onretry {
             a = a + " inFailed";
@@ -368,7 +368,7 @@ function testTransactionStmtWithFail () returns (string) {
     string a = "start ";
     int i = 0;
 
-    transaction with retries(4) {
+    transaction with retries=4 {
         a = a + " inTrx";
         if (i == 0) {
             fail;

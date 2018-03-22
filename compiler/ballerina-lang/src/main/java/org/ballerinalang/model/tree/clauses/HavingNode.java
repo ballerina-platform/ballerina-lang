@@ -29,7 +29,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *      HAVING expression
  *
  * E.g.
- *     having age > 40
+ *     having age &gt; 40
  * </pre>
  */
 public interface HavingNode extends Node {

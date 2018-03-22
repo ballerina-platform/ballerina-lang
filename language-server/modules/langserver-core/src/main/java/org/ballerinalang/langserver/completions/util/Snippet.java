@@ -27,7 +27,7 @@ public enum Snippet {
     BREAK("break;"),
     CONNECTOR_ACTION("action ${1:name} (${2}) (${3}) {\n\t${4}\n}"),
     CONNECTOR_DEFINITION("connector ${1:name} (${2}) {\n\t${3}\n}"),
-    ENDPOINT("endpoint ${1:EndpointType} ${2:__endpoint} {\n\t${3}\n}"),
+    ENDPOINT("endpoint ${1:http:ServiceEndpoint} ${2:_endpoint} {\n\t${3}\n};"),
     ENUM("enum ${1:name} {\n\t\n}"),
     FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
@@ -37,10 +37,10 @@ public enum Snippet {
     MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
     NEXT("next;"),
-    RESOURCE("${1:newResource} () {\n\t${2}\n}"),
+    RESOURCE("${1:newResource} (endpoint ${2:epReference}, ${3:http:Request request}) {\n\t${4}\n}"),
     RETURN("return;"),
-    SERVICE("service<${1:ServiceType}> ${2:serviceName}{\n\t${3:newResource}" +
-            " () {\n\t}\n}"),
+    SERVICE("service<${1:http:Service}> ${2:serviceName}{\n\t${3:newResource} (endpoint ${4:epReference}, " +
+            "${5:http:Request request}) {\n\t}\n}"),
     STRUCT_DEFINITION("struct ${1:name}{\n\t${2}\n}"),
     TRANSACTION("transaction with retries(${1}), oncommit(${2:foo}), onabort(${3:bar}) " +
             "{\n\t${4}\n} onretry {\n\t${5}\n}"),
@@ -55,6 +55,8 @@ public enum Snippet {
     CREATE_KEYWORD_SNIPPET("create "),
     OBJECT_SNIPPET("type ${1:ObjectTypeName} object {\n\t${2}\n}"),
     NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {\n\t${2}\n}"),
+    PUBLIC_BLOCK("public {\n\t${1}\n}"),
+    PRIVATE_BLOCK("private {\n\t${1}\n}"),
     
     // Constants for the Iterable operators
     ITR_FOREACH("foreach(function (%params%) {\n\t${1}\n});"),

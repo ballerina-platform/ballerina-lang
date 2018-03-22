@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.workspace.repository;
 
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
 import java.nio.file.Path;
 
@@ -27,14 +27,16 @@ import java.nio.file.Path;
  * Lang Server File System Project Directory.
  */
 public class LangServerFSProjectDirectory extends FileSystemProjectDirectory {
+    private Path projectDirPath;
     private WorkspaceDocumentManager documentManager;
     public LangServerFSProjectDirectory(Path projectDirPath, WorkspaceDocumentManager documentManager) {
         super(projectDirPath);
+        this.projectDirPath = projectDirPath;
         this.documentManager = documentManager;
     }
 
     @Override
-    public Repo getPackageRepository() {
-        return new LSProjectSourceRepo(this.getPath(), documentManager);
+    public Converter<Path> getConverter() {
+        return new LSPathConverter(projectDirPath, documentManager);
     }
 }

@@ -56,7 +56,7 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
-            fitToScreen: this.props.diagramFitToWidth,
+            fitToWidth: this.props.fitToWidth,
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
@@ -192,6 +192,7 @@ class DesignView extends React.Component {
                                             width={this.props.width}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
+                                            fitToWidth={this.props.fitToWidth}
                                         />
                                     </DesignViewErrorBoundary>
                                 }
@@ -227,6 +228,7 @@ DesignView.propTypes = {
     disabled: PropTypes.bool.isRequired,
     zoomLevel: PropTypes.number,
     setZoom: PropTypes.func.isRequired,
+    fitToWidth: PropTypes.bool,
 };
 
 DesignView.defaultProps = {
@@ -234,7 +236,7 @@ DesignView.defaultProps = {
     model: undefined,
     disabled: false,
     zoomLevel: 1,
-
+    fitToWidth: true,
 };
 
 DesignView.contextTypes = {
@@ -243,10 +245,10 @@ DesignView.contextTypes = {
 };
 
 DesignView.childContextTypes = {
-    fitToScreen: PropTypes.bool,
     designView: PropTypes.instanceOf(DesignView).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    fitToWidth: PropTypes.bool,
 };
 
 export default DesignView;

@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.workspace.repository.WorkspacePackageReposit
 import org.ballerinalang.repository.PackageRepository;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -52,7 +51,7 @@ public class WorkspacePackageRepositoryTest {
         packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
     }
 
-    @Test
+    //@Test
     public void testCompilePackageWithDirtyContent() {
         Compiler compiler = Compiler.getInstance(prepareCompilerContext());
         BLangPackage packageNode = compiler.compile(pkg);
