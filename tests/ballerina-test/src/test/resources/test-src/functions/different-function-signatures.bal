@@ -40,7 +40,7 @@ function testInvokeFunctionWithRequiredAndRestArgs() returns (int, float, string
 }
 
 function funcInvocAsRestArgs() returns (int, float, string, int, string, int[]) {
-    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", getIntArray());
+    return functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...getIntArray());
 }
 
 function getIntArray() returns (int[]) {
