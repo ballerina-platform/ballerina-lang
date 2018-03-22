@@ -324,6 +324,7 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
+    |   failStatement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   wheneverStatement
@@ -574,6 +575,10 @@ onretryClause
     ;
 abortStatement
     :   ABORT SEMICOLON
+    ;
+
+failStatement
+    :   FAIL SEMICOLON
     ;
 
 retriesStatement

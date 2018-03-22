@@ -363,3 +363,19 @@ function transactionWithNext () returns (string) {
     }
     return "done";
 }
+
+function testTransactionStmtWithFail () returns (string) {
+    string a = "start ";
+    int i = 0;
+
+    transaction with retries(4) {
+        a = a + " inTrx";
+        if (i == 0) {
+            fail;
+        }
+    } onretry {
+        a = a + " inFailed";
+    }
+    a = a + " end";
+    return a;
+}
