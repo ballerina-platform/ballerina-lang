@@ -26,7 +26,7 @@ public struct LoadBalancer {
     string serviceUri;
     ClientEndpointConfiguration config;
     HttpClient[] loadBalanceClientsArray;
-    (function (LoadBalancer, HttpClient[]) returns (HttpClient))|null algorithm;
+    function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
     int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
 }
 
@@ -210,35 +210,19 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
         }
     }
 
-    // Tracks at which point failover within the load balancing should be terminated.
-    HttpClient loadBalanceClient = {};
-
-    match lb.algorithm {
-        function (LoadBalancer, HttpClient[]) returns (HttpClient) lbAlgo => loadBalanceClient = lbAlgo(lb, lb.loadBalanceClientsArray);
-        int | null => { 
-            LoadBalanceConnectorError err = {message: "Load balance client not found"};
-            throw err;
-        }
-    }
-
-    int loadBalanceTermination = 0;
+    int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     LoadBalanceConnectorError loadBalanceConnectorError = {};
     loadBalanceConnectorError.httpConnectorError = [];
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
+        HttpClient loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
+
         match invokeEndpoint(path, outRequest, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
 
             HttpConnectorError httpConnectorError => {
                 loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
-                //loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
-                match lb.algorithm {
-                    function (LoadBalancer, HttpClient[]) returns (HttpClient) lbAlgo => loadBalanceClient = lbAlgo(lb, lb.loadBalanceClientsArray);
-                    int | null => {
-                        LoadBalanceConnectorError err = {message: "Load balance client not found"};
-                        throw err;
-                    }
-                }
+                loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
                 loadBalanceTermination = loadBalanceTermination + 1;
             }
         }
