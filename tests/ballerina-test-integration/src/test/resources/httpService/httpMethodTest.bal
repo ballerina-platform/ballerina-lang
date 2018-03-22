@@ -5,7 +5,11 @@ endpoint http:ServiceEndpoint serviceEnpoint {
 };
 
 endpoint http:ClientEndpoint endPoint {
-    serviceUri : "http://localhost:9090"
+    targets: [
+        {
+            uri: "http://localhost:9090"
+        }
+    ]
 };
 
 @http:ServiceConfig {
@@ -17,40 +21,40 @@ service<http:Service> headQuoteService {
     @http:ResourceConfig {
         path:"/default"
     }
-    defaultResource (http:ServerConnector conn, http:Request req) {
+    defaultResource (endpoint client, http:Request req) {
         string method = req.method;
         http:Request clientRequest = {};
         http:Response clientResponse = {};
-        clientResponse, _ = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
-        _ = conn -> forward(clientResponse);
+        clientResponse =? endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        _ = client -> forward(clientResponse);
     }
 
     @http:ResourceConfig {
         path:"/forward11"
     }
-    forwardRes11 (http:ServerConnector conn, http:Request req) {
+    forwardRes11 (endpoint client, http:Request req) {
         http:Response clientResponse = {};
-        clientResponse, _ = endPoint -> forward("/getQuote/stocks", req);
-        _ = conn -> forward(clientResponse);
+        clientResponse =? endPoint -> forward("/getQuote/stocks", req);
+        _ = client -> forward(clientResponse);
     }
 
     @http:ResourceConfig {
         path:"/forward22"
     }
-    forwardRes22 (http:ServerConnector conn, http:Request req) {
+    forwardRes22 (endpoint client, http:Request req) {
         http:Response clientResponse = {};
-        clientResponse, _ = endPoint -> forward("/getQuote/stocks", req);
-        _ = conn -> forward(clientResponse);
+        clientResponse =? endPoint -> forward("/getQuote/stocks", req);
+        _ = client -> forward(clientResponse);
     }
 
     @http:ResourceConfig {
         path:"/getStock/{method}"
     }
-    commonResource (http:ServerConnector conn, http:Request req, string method) {
+    commonResource (endpoint client, http:Request req, string method) {
         http:Request clientRequest = {};
         http:Response clientResponse = {};
-        clientResponse, _ = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
-        _ = conn -> forward(clientResponse);
+        clientResponse =? endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        _ = client -> forward(clientResponse);
     }
 }
 
@@ -64,11 +68,11 @@ service<http:Service> testClientConHEAD {
         methods:["HEAD"],
         path:"/"
     }
-    passthrough (http:ServerConnector conn, http:Request req) {
+    passthrough (endpoint client, http:Request req) {
         http:Request clientRequest = {};
         http:Response clientResponse = {};
-        clientResponse, _ = endPoint -> get("/getQuote/stocks", clientRequest);
-        _ = conn -> forward(clientResponse);
+        clientResponse =? endPoint -> get("/getQuote/stocks", clientRequest);
+        _ = client -> forward(clientResponse);
     }
 }
 
@@ -82,39 +86,39 @@ service<http:Service> quoteService {
         methods:["GET"],
         path:"/stocks"
     }
-    company (http:ServerConnector conn, http:Request req) {
+    company (endpoint client, http:Request req) {
         http:Response res = {};
         res.setStringPayload("wso2");
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/stocks"
     }
-    product (http:ServerConnector conn, http:Request req) {
+    product (endpoint client, http:Request req) {
         http:Response res = {};
         res.setStringPayload("ballerina");
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 
     @http:ResourceConfig {
         path:"/stocks"
     }
-    defaultStock (http:ServerConnector conn, http:Request req) {
+    defaultStock (endpoint client, http:Request req) {
         http:Response res = {};
         res.setHeader("Method", "any");
         res.setStringPayload("default");
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         body:"person"
     }
-    employee (http:ServerConnector conn, http:Request req, json person) {
+    employee (endpoint client, http:Request req, json person) {
         http:Response res = {};
         res.setJsonPayload(person);
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 }
