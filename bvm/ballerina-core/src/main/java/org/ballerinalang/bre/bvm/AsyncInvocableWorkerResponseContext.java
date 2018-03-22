@@ -126,7 +126,11 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     }
     
     public boolean isDone() {
-        return this.isFulfilled() || this.errored || this.cancelled;
+        return this.isFulfilled() || this.errored || this.isCancelled();
+    }
+    
+    public boolean isCancelled() {
+        return cancelled;
     }
     
     public synchronized boolean cancel() {
@@ -135,8 +139,10 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
         }
         /* only non-native workers can be cancelled */
         if (this.workerExecutionContexts != null) {
-            //TODO
             this.cancelled = true;
+            for (WorkerExecutionContext ctx: this.workerExecutionContexts) {
+                BLangScheduler.stopWorker(ctx);
+            }
         }
         if (this.cancelled) {
             this.sendAsyncCancelErrorSignal();
