@@ -72,7 +72,7 @@ public class MessageConstants {
     public static final String CLIENT_ERROR = "ClientError";
     public static final String CLIENT = "Client";
     public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
-    public static final String EMPTY_STRING= "";
+    public static final String EMPTY_STRING = "";
     public static final String TRUST_FILE = "trustStoreFile";
     public static final String KEY_FILE = "keyStoreFile";
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";

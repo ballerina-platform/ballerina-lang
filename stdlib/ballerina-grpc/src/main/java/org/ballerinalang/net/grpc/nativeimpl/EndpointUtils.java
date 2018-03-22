@@ -61,7 +61,7 @@ public class EndpointUtils {
         }
         endpointConfiguration.setPort(Math.toIntExact(port));
         
-        if (sslConfig!= null &&(!EMPTY_STRING.equals(sslConfig.getStringField(TRUST_FILE)) ||
+        if (sslConfig != null && (!EMPTY_STRING.equals(sslConfig.getStringField(TRUST_FILE)) ||
                 !EMPTY_STRING.equals(sslConfig.getStringField(KEY_FILE)))) {
             endpointConfiguration.setScheme(EndpointConstants.PROTOCOL_HTTPS);
             endpointConfiguration.setSslConfig(getSslConfig(sslConfig));
