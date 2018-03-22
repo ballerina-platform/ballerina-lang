@@ -37,6 +37,7 @@ service<http:Service> headerBasedRouting bind hbrEP {
         // Checks whether 'type' header exists in the request.
         if (!req.hasHeader("type")) {
             http:Response errorResponse = {};
+            errorResponse.statusCode = 500;
             json errMsg = {"error":"'type' header not found"};
             errorResponse.setJsonPayload(errMsg);
             _ = conn -> respond(errorResponse);
