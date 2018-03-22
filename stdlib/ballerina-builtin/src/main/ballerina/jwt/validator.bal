@@ -33,29 +33,29 @@ public struct JWTValidatorConfig {
 @Return {value:"boolean: If JWT token is valied true , else false"}
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns ((boolean, Payload|null) | error) {
+public function validate (string jwtToken, JWTValidatorConfig config) returns (Payload|boolean|error) {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
         error e => return e;
     }
 
-    Header header;
-    Payload payload;
+    Header header = {};
+    Payload payload = {};
     match parseJWT(encodedJWTComponents) {
         error e => return e;
         (Header, Payload) result => {
-            var (header,payload) = result;
+            (header, payload) = result;
         }
     }
 
     match validateJWT(encodedJWTComponents, header, payload, config) {
         error e => return e;
-        boolean isValid => return (isValid ? (true, payload) : (false, null));
+        boolean isValid => return isValid ? payload : false;
     }
 }
 
-function getJWTComponents (string jwtToken) returns (string[] | null | error) {
+function getJWTComponents (string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (lengthof jwtComponents != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
@@ -65,13 +65,13 @@ function getJWTComponents (string jwtToken) returns (string[] | null | error) {
     return jwtComponents;
 }
 
-function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload) | error) {
+function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|error) {
     json headerJson = {};
     json payloadJson = {};
     match getDecodedJWTComponents(encodedJWTComponents) {
         error e => return e;
         (json, json) result => {
-            var (headerJson,payloadJson) = result;
+            (headerJson, payloadJson) = result;
         }
     }
 
@@ -80,26 +80,29 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload) | e
     return (jwtHeader, jwtPayload);
 }
 
-function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json) | error) {
+function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
     string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
     string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
 
-    json jwtHeaderJson = {};
-    match <json>jwtHeader {
-        json headerJson => jwtHeaderJson = headerJson;
-        error e1 => {
-            error err = {message:"Invalid JWT payload"};
-            return err;
-        }
-    }
-    json jwtPayloadJson = {};
-    match <json>jwtPayload {
-        json payloadJson => jwtPayloadJson = payloadJson;
-        error e2 => {
-            error err = {message:"Invalid JWT payload"};
-            return err;
-        }
-    }
+    json jwtHeaderJson = <json>jwtHeader;
+    json jwtPayloadJson = <json>jwtPayload;
+    // TODO remove safe casting.
+    //json jwtHeaderJson = {};
+    //match <json>jwtHeader {
+    //    json headerJson => jwtHeaderJson = headerJson;
+    //    error e1 => {
+    //        error err = {message:"Invalid JWT payload"};
+    //        return err;
+    //    }
+    //}
+    //json jwtPayloadJson = {};
+    //match <json>jwtPayload {
+    //    json payloadJson => jwtPayloadJson = payloadJson;
+    //    error e2 => {
+    //        error err = {message:"Invalid JWT payload"};
+    //        return err;
+    //    }
+    //}
     return (jwtHeaderJson, jwtPayloadJson);
 }
 
@@ -142,29 +145,15 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             var value = jwtPayloadJson[key].toString();
-            int intVal = 0;
-            match <int>value {
-                error e => {}
-                int value => intVal = value;
-            }
-            jwtPayload.exp = intVal;
+            jwtPayload.exp =? <int>value;
         } else if (key == NBF) {
             var value = jwtPayloadJson[key].toString();
-            int intVal = 0;
-            match <int>value {
-                error e => {}
-                int value => intVal = value;
-            }
-            jwtPayload.nbf = intVal;
+            jwtPayload.nbf =? <int>value;
         } else if (key == IAT) {
             var value = jwtPayloadJson[key].toString();
-            int intVal = 0;
-            match <int>value {
-                error e => {}
-                int value => intVal = value;
-            }
-            jwtPayload.iat = intVal;
-        } else {
+            jwtPayload.iat =? <int>value;
+        }
+        else {
             if (lengthof jwtPayloadJson[key] > 0) {
                 customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
             } else {
@@ -176,7 +165,7 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
     return jwtPayload;
 }
 
-function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean | error) {
+function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean|error) {
     if (!validateMandatoryFields(jwtPayload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
         return err;
@@ -207,7 +196,7 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
 }
 
 function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
-    if ( jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || jwtPayload.aud == "") {
+    if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || lengthof jwtPayload.aud == 0) {
         return false;
     }
     return true;
