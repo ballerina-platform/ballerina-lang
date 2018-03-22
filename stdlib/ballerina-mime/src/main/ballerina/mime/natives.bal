@@ -141,12 +141,12 @@ public function <MediaType mediaType> toString () returns (string) {
 @Return {value:"Return the Content-Type with parameters as a string"}
 public function <MediaType mediaType> toStringWithParameters () returns (string) {
     string contentType = mediaType.toString() + "; ";
-    map parameters = mediaType.parameters;
+    map<string> parameters = mediaType.parameters;
     string[] arrKeys = mediaType.parameters.keys();
     int size = lengthof arrKeys;
     int index = 0;
     while (index < size) {
-        var value, _ = (string)parameters[arrKeys[index]];
+        string value = parameters[arrKeys[index]];
         if (index == size - 1) {
             contentType = contentType + arrKeys[index] + "=" + value;
             break;
