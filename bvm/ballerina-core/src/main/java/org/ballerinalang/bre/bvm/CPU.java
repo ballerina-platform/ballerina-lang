@@ -174,6 +174,10 @@ public class CPU {
         int callersRetRegIndex;
 
         while (ctx.ip >= 0) {
+            if (ctx.stop) {
+                BLangScheduler.workerDone(ctx);
+                return;
+            }
             if (debugEnabled && debug(ctx)) {
                 return;
             }
@@ -397,7 +401,8 @@ public class CPU {
                 case InstructionCodes.TR_RETRY:
                     i = operands[0];
                     j = operands[1];
-                    retryTransaction(ctx, i, j);
+                    int l = operands[2];
+                    retryTransaction(ctx, i, j, l);
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
@@ -2571,10 +2576,19 @@ public class CPU {
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP) {
+    private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
+            int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
-            ctx.ip = startOfAbortIP;
+        if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
+            if (ctx.getError() == null) {
+                ctx.ip = startOfNoThrowEndIP;
+            } else {
+                if (BLangVMErrors.TRANSACTION_ERROR.equals(ctx.getError().getStringField(0))) {
+                    ctx.ip = startOfNoThrowEndIP;
+                } else {
+                    ctx.ip = startOfAbortIP;
+                }
+            }
         }
         localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
     }

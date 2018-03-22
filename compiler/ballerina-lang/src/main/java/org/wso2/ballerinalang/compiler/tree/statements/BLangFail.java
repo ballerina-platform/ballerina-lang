@@ -15,23 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.util;
+package org.wso2.ballerinalang.compiler.tree.statements;
+
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.FailNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * A util class for handling common functions across compiler.
+ * {@code BLangFail} represents a fail statement within a transaction in Ballerina.
  *
  * @since 0.965.0
  */
-public class CompilerUtils {
+public class BLangFail extends BLangStatement implements FailNode {
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 
-    private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.FAIL;
+    }
 
-    public static boolean isDistributedTransactionsEnabled() {
-        boolean distributedTransactionEnabled = false; //TODO:Default will be true. Read from new VMOptions
-        String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTIONS);
-        if (distributedTxEnabledProp != null) {
-            distributedTransactionEnabled = Boolean.valueOf(distributedTxEnabledProp);
-        }
-        return distributedTransactionEnabled;
+    @Override
+    public String toString() {
+        return "Fail";
     }
 }

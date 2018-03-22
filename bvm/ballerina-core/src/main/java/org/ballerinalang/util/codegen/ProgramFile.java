@@ -63,7 +63,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private boolean servicesAvailable = false;
 
     private Debugger debugger;
-    private boolean distributedTransactionEnabled = false; //TODO:Default will be true. Read from new VMOptions
+    private boolean distributedTransactionEnabled = false;
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting

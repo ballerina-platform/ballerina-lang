@@ -128,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -616,6 +617,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFail failNode) {
+        result = failNode;
+    }
+
+    @Override
     public void visit(BLangNext nextNode) {
         result = nextNode;
     }
@@ -1032,6 +1038,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.STREAM:
+            case TypeTags.FUTURE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
@@ -1529,7 +1536,7 @@ public class Desugar extends BLangNodeVisitor {
         if (node.desugared) {
             return node;
         }
-        
+
         BLangExpression expr = node;
         if (node.impConversionExpr != null) {
             expr = node.impConversionExpr;

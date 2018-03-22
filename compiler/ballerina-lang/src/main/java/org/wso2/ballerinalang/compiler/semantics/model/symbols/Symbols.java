@@ -58,8 +58,9 @@ public class Symbols {
                                                  PackageID pkgID,
                                                  BType type,
                                                  BSymbol owner) {
-        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+        BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
+        typeSymbol.isObject = true;
         return typeSymbol;
     }
 

@@ -15,23 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.util;
+package org.ballerinalang.model.tree.statements;
 
 /**
- * A util class for handling common functions across compiler.
+ * {@code FailNode} represents a fail statement within a transaction in Ballerina.
  *
  * @since 0.965.0
  */
-public class CompilerUtils {
-
-    private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
-
-    public static boolean isDistributedTransactionsEnabled() {
-        boolean distributedTransactionEnabled = false; //TODO:Default will be true. Read from new VMOptions
-        String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTIONS);
-        if (distributedTxEnabledProp != null) {
-            distributedTransactionEnabled = Boolean.valueOf(distributedTxEnabledProp);
-        }
-        return distributedTransactionEnabled;
-    }
+public interface FailNode extends StatementNode {
 }
