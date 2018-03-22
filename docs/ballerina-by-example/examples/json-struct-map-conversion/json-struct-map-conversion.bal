@@ -34,6 +34,6 @@ function main (string[] args) {
                           released:"16 Jul 2010",
                           writer:{fname:"Christopher",
                                      lname:"Nolan", age:30}};
-    var inception = <movie>inceptionJ;
+    var inception =? <movie>inceptionJ;
     io:println(inceptionJ);
 }
