@@ -32,14 +32,14 @@ public class CustomFunctionTest {
     public void testDuplicateFunction() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/duplicate-function.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, "redeclared symbol 'foo'", 5, 1);
+        BAssertUtil.validateError(compile, 0, "redeclared symbol 'foobar'", 5, 1);
     }
 
     @Test(description = "Test defining ballerina function with duplicate parameters")
     public void testDuplicateParameters() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/duplicate-parameters.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 28);
+        BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 31);
     }
 
 }
