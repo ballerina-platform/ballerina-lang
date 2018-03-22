@@ -31,6 +31,7 @@ public class TesterinaReport {
 
     private static PrintStream outStream = System.err;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
+    private boolean failure;
 
     public void printTestSuiteSummary(String packageName) {
         TestSummary testSummary = testReportOfPackage.get(packageName);
@@ -105,10 +106,12 @@ public class TesterinaReport {
         testReportOfPackage.computeIfAbsent(packageName, summary -> new TestSummary());
         TestSummary testSummary = testReportOfPackage.get(packageName);
         if (result.isSkipped()) {
+            failure = true;
             testSummary.skippedTests.add(result);
         } else if (result.isPassed()) {
             testSummary.passedTests.add(result);
         } else {
+            failure = true;
             testSummary.failedTests.add(result);
         }
     }
@@ -132,6 +135,14 @@ public class TesterinaReport {
         return -1;
     }
 
+    /**
+     * Was there at least one test failure or skip.
+     *
+     * @return whether there's a test failure or not
+     */
+    public boolean isFailure() {
+        return failure;
+    }
 
     /**
      * Summary results of a test package.

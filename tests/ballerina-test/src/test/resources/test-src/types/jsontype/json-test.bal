@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
     j.remove("name");
@@ -8,9 +10,9 @@ function toString (json msg) returns (string) {
     return msg.toString();
 }
 
-function testParse (string jsonStr) returns (json, error) {
-    var j, e = <json> jsonStr;
-    return (j, e);
+function testParse (string jsonStr) returns (json | error) {
+    var j = <json> jsonStr;
+    return j;
 }
 
 function testGetKeys () returns (string[], string[], string[], string[]) {
@@ -39,7 +41,7 @@ function testToXMLString (json msg) returns (string) {
     var x = msg.toXML({});
     match(x){
         error e => return "";
-        xml xmlData => return <string> xmlData;
+        xml xmlData => return io:sprintf("%s", [xmlData]);
     }
 }
 
@@ -47,7 +49,7 @@ function testToXMLWithXMLSequence (json msg) returns (string) {
     var x = msg.toXML({});
     match(x){
         error e => return "";
-        xml xmlData => return <string> xmlData;
+        xml xmlData => return io:sprintf("%s", [xmlData]);
     }
 }
 
@@ -55,10 +57,10 @@ function testToXMLWithOptions (json msg) returns (xml | error) {
     return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
 }
 
-function testStringToJSONConversion() returns (json, error) {
+function testStringToJSONConversion() returns (json | error) {
     string s = "{\"foo\": \"bar\"}";
-    var j, e = <json> s;
-    return (j, e);
+    var j = <json> s;
+    return j;
 }
 
 function testJSONArrayToJsonAssignment() returns (json) {

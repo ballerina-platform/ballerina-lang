@@ -583,15 +583,15 @@ failStatement
     ;
 
 retriesStatement
-    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    :   RETRIES ASSIGN expression
     ;
 
 oncommitStatement
-    :   ONCOMMIT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    :   ONCOMMIT ASSIGN expression
     ;
 
 onabortStatement
-    :   ONABORT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    :   ONABORT ASSIGN expression
     ;
 
 namespaceDeclarationStatement

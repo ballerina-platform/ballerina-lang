@@ -371,7 +371,7 @@ function testXmlWithNull () returns (xml | null) {
     return null;
 }
 
-//function testToXmlWithinTransaction () returns (string, int) {
+//function testToXmlWithinTransaction () returns (xml, int) {
 //    endpoint sql:Client testDB {
 //        database: sql:DB.HSQLDB_FILE,
 //        host: "./target/tempdb/",
@@ -383,45 +383,44 @@ function testXmlWithNull () returns (xml | null) {
 //    };
 //
 //    int returnValue = 0;
-//    string result;
+//    xml result;
 //    try {
 //        transaction {
 //            table dt =? testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
-//            var xmlResult =? <xml>dt;
-//            result = <string> xmlResult;
+//            var result =? <xml>dt;
 //        }
 //        return (result, returnValue);
 //    } finally {
 //        _ = testDB -> close();
 //    }
-//    return ("", -1);
+//    return ("<fail></fail>", -1);
 //}
-//
-//function testToJsonWithinTransaction () returns (string, int) {
-//    endpoint sql:Client testDB {
-//        database: sql:DB.HSQLDB_FILE,
-//        host: "./target/tempdb/",
-//        port: 0,
-//        name: "TEST_DATA_TABLE_DB",
-//        username: "SA",
-//        password: "",
-//        options: {maximumPoolSize:1}
-//    };
-//
-//    int returnValue = 0;
-//    string result;
-//    try {
-//        transaction {
-//            table dt =? testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
-//            var jsonResult =? <json>dt;
-//            result = jsonResult.toString();
-//        }
-//        return (result, returnValue);
-//    } finally {
-//        _ = testDB -> close();
-//    }
-//    return ("", -2);
-//}
+
+function testToJsonWithinTransaction () returns (string, int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_DATA_TABLE_DB",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int returnValue = 0;
+    string result;
+    try {
+        transaction {
+            table dt =? testDB -> select("SELECT int_type, long_type from DataTable WHERE row_id = 1", null, null);
+            var jsonResult =? <json>dt;
+            result = jsonResult.toString();
+        }
+        return (result, returnValue);
+    } finally {
+        _ = testDB -> close();
+    }
+    return ("", -2);
+}
 
 function testGetPrimitiveTypes () returns (int, int, float, float , boolean, string) {
     endpoint sql:Client testDB {

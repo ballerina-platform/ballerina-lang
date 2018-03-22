@@ -459,7 +459,7 @@ struct Middleware {
 
 function getTypePreserveWhenCast() returns (int){
     Software s = {name:"WSO2", des:"ESB"};
-    Middleware m =? <Middleware>s;
+    Middleware m = <Middleware>s;
     if (typeof s == typeof m){
         return 1;
     } else {

@@ -15,12 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
@@ -61,5 +60,19 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         constructorItem.setInsertTextFormat(InsertTextFormat.Snippet);
         constructorItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         completionItems.add(constructorItem);
+
+        CompletionItem publicBlockItem = new CompletionItem();
+        publicBlockItem.setLabel(ItemResolverConstants.PUBLIC);
+        publicBlockItem.setInsertText(Snippet.PUBLIC_BLOCK.toString());
+        publicBlockItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        publicBlockItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        completionItems.add(publicBlockItem);
+
+        CompletionItem privateBlockItem = new CompletionItem();
+        privateBlockItem.setLabel(ItemResolverConstants.PRIVATE);
+        privateBlockItem.setInsertText(Snippet.PRIVATE_BLOCK.toString());
+        privateBlockItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        privateBlockItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        completionItems.add(privateBlockItem);
     }
 }

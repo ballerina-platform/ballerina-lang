@@ -42,8 +42,8 @@ public function createAuthzHandlerChain () returns (AuthzHandlerChain) {
 public function <AuthzHandlerChain authzHandlerChain> handle (http:Request req, string scopeName,
                                                               string resourceName) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authzHandlerChain.authzHandlers {
-        var authzHandler, err = (HttpAuthzHandler)currentAuthHandler;
-        if (err == null && authzHandler.canHandle(req)) {
+        var authzHandler =? <HttpAuthzHandler> currentAuthHandler;
+        if (authzHandler.canHandle(req)) {
             log:printDebug("trying to authorize with the authz handler: " + currentAuthHandlerType);
             return authzHandler.handle(req, scopeName, resourceName);
         }

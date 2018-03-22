@@ -82,31 +82,14 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
         string txnId = regReq.transactionId;
 
         if (!initiatedTransactions.hasKey(txnId)) {
-            http:Response res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
-            var connErr = conn -> respond(res);
-            match connErr {
-                error err => log:printErrorCause("Sending response for register request for unknown transaction:" +
-                                                 txnId + " failed", err);
-            }
+            respondToBadRequest(conn, "Transaction-Unknown. Invalid TID:" + txnId);
         } else {
             var txn =? <Transaction>initiatedTransactions[txnId];
             if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
-                http:Response res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" +
-                                                        participantId);
-                var connErr = conn -> respond(res);
-                match connErr {
-                    error err => log:printErrorCause("Sending response for register request by already registered
-                                                        participant for transaction " + txnId + " failed", err);
-                }
+                respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
             } else if (!protocolCompatible(txn.coordinationType,
                                            regReq.participantProtocols)) { // Invalid-Protocol
-                http:Response res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" +
-                                                        participantId);
-                var connErr = conn -> respond(res);
-                match connErr {
-                    error err => log:printErrorCause("Sending response for register request by participant with invalid
-                                                        protocol for transaction " + txnId + " failed", err);
-                }
+                respondToBadRequest(conn, "Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
             } else {
                 Participant participant = {participantId:participantId,
                                               participantProtocols:regReq.participantProtocols};

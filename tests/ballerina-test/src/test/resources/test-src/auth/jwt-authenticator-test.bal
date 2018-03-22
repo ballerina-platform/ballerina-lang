@@ -1,10 +1,10 @@
 import ballerina/auth.jwtAuth;
 
-function testJwtAuthenticatorCreationWithCache () (jwtAuth:JWTAuthenticator) {
+function testJwtAuthenticatorCreationWithCache () returns (jwtAuth:JWTAuthenticator) {
     return jwtAuth:createAuthenticator();
 }
 
-function testAuthenticationSuccess (string jwtToken) (boolean, error) {
+function testAuthenticationSuccess (string jwtToken) returns (boolean|error) {
     jwtAuth:JWTAuthenticator authenticator = jwtAuth:createAuthenticator();
     return authenticator.authenticate(jwtToken);
 }
