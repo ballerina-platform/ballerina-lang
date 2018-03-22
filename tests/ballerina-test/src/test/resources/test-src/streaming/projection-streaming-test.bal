@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
+import ballerina/io;
 
 struct Employee {
     string name;
@@ -32,38 +33,41 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream = {};
-stream<Teacher> teacherStream = {};
+stream<Employee> employeeStream2 = {};
+stream<Teacher> teacherStream4 = {};
 
-streamlet projectionStreamlet () {
-    query q1 {
-        from teacherStream
+function testProjectionQuery () {
+
+    whenever{
+        from teacherStream4
         select name, age, status
-        insert into employeeStream
+        => (Employee [] emp) {
+                employeeStream2.publish(emp);
+        }
     }
 }
 
+function startProjectionQuery( ) returns (Employee []) {
 
-function testProjectionQuery () returns (Employee []) {
-
-    projectionStreamlet pStreamlet = {};
+    testProjectionQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    employeeStream.subscribe(printEmployeeNumber);
+    employeeStream2.subscribe(printEmployeeNumber);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
+    teacherStream4.publish(t1);
+    teacherStream4.publish(t2);
+    teacherStream4.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
-    pStreamlet.stop();
+
     return globalEmployeeArray;
 }
 
 function printEmployeeNumber (Employee e) {
+    io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 

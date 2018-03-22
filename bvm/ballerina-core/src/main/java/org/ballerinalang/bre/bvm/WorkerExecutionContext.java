@@ -50,6 +50,8 @@ public class WorkerExecutionContext {
     public Map<String, Object> localProps;
     
     public int ip;
+    
+    public boolean stop;
         
     public ProgramFile programFile;
     

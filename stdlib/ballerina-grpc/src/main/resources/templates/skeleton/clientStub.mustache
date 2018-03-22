@@ -77,7 +77,7 @@ public function <{{connectorId}}{{stubTypeName}}Client ep> getClient() returns (
 {{#struct}}
 struct {{structId}} {
 {{#attribute}}
-{{typedesc}} {{name}};{{/attribute}}
+{{type}} {{name}};{{/attribute}}
 }
 {{/struct}}
 const string descriptorKey = "{{rootDescriptorKey}}";

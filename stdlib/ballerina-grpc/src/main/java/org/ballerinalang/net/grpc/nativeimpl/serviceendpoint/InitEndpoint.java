@@ -34,7 +34,9 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_BUILDER;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 
@@ -44,12 +46,13 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
  * @since 1.0.0
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
-                structPackage = PROTOCOL_PACKAGE_GRPC),
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration",
-                        structPackage = PROTOCOL_PACKAGE_GRPC)},
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {

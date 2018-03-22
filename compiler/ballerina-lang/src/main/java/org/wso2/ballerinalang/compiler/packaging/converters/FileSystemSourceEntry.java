@@ -28,7 +28,8 @@ public class FileSystemSourceEntry implements PackageSourceEntry {
 
     @Override
     public String getEntryName() {
-        return path.getFileName().toString();
+        Path fileName = path.getFileName();
+        return fileName == null ? path.toString() : fileName.toString();
     }
 
     @Override
@@ -42,5 +43,9 @@ public class FileSystemSourceEntry implements PackageSourceEntry {
 
     public void setPkgId(PackageID pkgId) {
         this.pkgId = pkgId;
+    }
+    
+    public Path getPath() {
+        return this.path;
     }
 }

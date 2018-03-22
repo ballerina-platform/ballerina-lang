@@ -46,25 +46,37 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
         orgName = "ballerina", packageName = "data.sql",
         functionName = "call",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
-        args = {@Argument(name = "sqlQuery", type = TypeKind.STRING),
+        args = {
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.TABLE) })
+                          structType = "Parameter")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.TABLE),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class Call extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
-        String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-        BStructType structType = getStructType(context);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+        try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            String query = context.getStringArgument(0);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            BStructType structType = getStructType(context);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
 
-        Map<String, String> tags = new HashMap<>();
-        tags.put(TAG_KEY_DB_STATEMENT, query);
-        tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
-        TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
+            Map<String, String> tags = new HashMap<>();
+            tags.put(TAG_KEY_DB_STATEMENT, query);
+            tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+            TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
 
-        executeProcedure(context, datasource, query, parameters, structType);
+            executeProcedure(context, datasource, query, parameters, structType);
+        } catch (Throwable e) {
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
     }
 }

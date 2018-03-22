@@ -26,9 +26,9 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
-import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
@@ -77,7 +77,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -87,6 +86,9 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
@@ -100,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -111,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -128,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -253,10 +258,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
-        if (funcNode.objectInitFunction) {
-            funcNode.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
-        }
-
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
@@ -302,6 +303,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
             annotationAttachment.accept(this);
         });
+
+        analyzeDef(structNode.initFunction, structEnv);
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 
@@ -318,6 +321,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
 
         analyzeDef(objectNode.initFunction, objectEnv);
+
+        //Visit temporary init statements in the init function
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
+                objectNode.initFunction.symbol.scope, objectEnv);
+        objectNode.initFunction.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
+
         objectNode.functions.forEach(f -> analyzeDef(f, objectEnv));
     }
 
@@ -425,8 +434,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         int ownerSymTag = env.scope.owner.tag;
-        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
-                (ownerSymTag & SymTag.STREAMLET) == SymTag.STREAMLET) {
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // This is a variable declared in a function, an action or a resource
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
@@ -473,40 +481,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         handleSafeAssignment(varNode.pos, lhsType, rhsExpr, varInitEnv);
-    }
-
-    private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
-        // Collect all the lhs types
-        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
-                ((BUnionType) lhsType).memberTypes :
-                new HashSet<BType>() {{
-                    add(lhsType);
-                }};
-
-        // If there is at least one lhs type which assignable to the error type, then report an error.
-        for (BType type : lhsTypes) {
-            if (types.isAssignable(symTable.errStructType, type)) {
-                dlog.error(lhsPos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-                typeChecker.checkExpr(rhsExpr, env, Lists.of(symTable.errType));
-                return;
-            }
-        }
-
-        // Create a new union type with the error type and continue the type checking process.
-        lhsTypes.add(symTable.errStructType);
-        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nullType));
-        typeChecker.checkExpr(rhsExpr, env, Lists.of(lhsUnionType));
-
-        if (rhsExpr.type.tag == TypeTags.UNION) {
-            BUnionType rhsUnionType = (BUnionType) rhsExpr.type;
-            for (BType type : rhsUnionType.memberTypes) {
-                if (types.isAssignable(symTable.errStructType, type)) {
-                    return;
-                }
-            }
-        } else if (rhsExpr.type.tag != TypeTags.ERROR) {
-            dlog.error(rhsExpr.pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-        }
     }
 
 
@@ -941,6 +915,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        /* ignore */
     }
 
     private boolean isJoinResultType(BLangVariable var) {
@@ -1200,15 +1180,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     //Streaming related methods.
 
-    public void visit(BLangStreamlet streamletNode) {
-
-        BSymbol streamletSymbol = streamletNode.symbol;
-        SymbolEnv streamletEnv = SymbolEnv.createStreamletEnv(streamletNode, streamletSymbol.scope, env);
-
-        List<? extends StatementNode> statementNodes = streamletNode.getBody().getStatements();
-        for (StatementNode statementNode : statementNodes) {
-            this.analyzeDef((BLangStatement) statementNode, streamletEnv);
-            ((BLangStatement) statementNode).accept(this);
+    public void visit(BLangWhenever wheneverStatement) {
+        for (StreamingQueryStatementNode streamingQueryStatement : wheneverStatement.gettreamingQueryStatements()) {
+            analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
         List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
@@ -1216,7 +1190,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (BLangVariable variable : globalVariableList) {
                 if (((variable).type.tsymbol) != null) {
                     if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                        ((BLangStreamlet) streamletNode).addGlobalVariable(variable);
+                        wheneverStatement.addGlobalVariable(variable);
                     }
                 }
             }
@@ -1256,10 +1230,50 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangStreamAction) streamActionNode).accept(this);
         }
 
-        //TODO - Add pattern query
+        BLangPatternClause patternClause = (BLangPatternClause) streamingQueryStatement.getPatternClause();
+        if (patternClause != null) {
+            patternClause.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangPatternClause patternClause) {
+        BLangPatternStreamingInput patternStreamingInput = (BLangPatternStreamingInput) patternClause
+                .getPatternStreamingNode();
+        patternStreamingInput.accept(this);
+    }
+
+    @Override
+    public void visit(BLangPatternStreamingInput patternStreamingInput) {
+        List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs = patternStreamingInput
+                .getPatternStreamingEdgeInputs();
+        for (PatternStreamingEdgeInputNode inputNode : patternStreamingEdgeInputs) {
+            BLangPatternStreamingEdgeInput streamingInput = (BLangPatternStreamingEdgeInput) inputNode;
+            streamingInput.accept(this);
+        }
+
+        BLangPatternStreamingInput nestedPatternStreamingInput = (BLangPatternStreamingInput) patternStreamingInput
+                .getPatternStreamingInput();
+        if (nestedPatternStreamingInput != null) {
+            nestedPatternStreamingInput.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
+        BLangVariableReference streamRef = (BLangVariableReference) patternStreamingEdgeInput.getStreamReference();
+        typeChecker.checkExpr(streamRef, env);
+
+        BLangWhere where = (BLangWhere) patternStreamingEdgeInput.getWhereClause();
+        if (where != null) {
+            where.accept(this);
+        }
     }
 
     public void visit(BLangStreamingInput streamingInput) {
+        BLangExpression streamRef = (BLangExpression) streamingInput.getStreamReference();
+        typeChecker.checkExpr(streamRef, env);
+
         WhereNode beforeWhereNode = streamingInput.getBeforeStreamingCondition();
         if (beforeWhereNode != null) {
             ((BLangWhere) beforeWhereNode).accept(this);
@@ -1340,17 +1354,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamAction streamAction) {
-        ExpressionNode expressionNode = streamAction.getExpression();
-        if (expressionNode != null) {
-            ((BLangExpression) expressionNode).accept(this);
-        }
-
-        List<SetAssignmentNode> setAssignmentNodeList = streamAction.getSetClause();
-        if (setAssignmentNodeList != null) {
-            for (SetAssignmentNode setAssignmentNode : setAssignmentNodeList) {
-                ((BLangSetAssignment) setAssignmentNode).accept(this);
-            }
-        }
+        BLangLambdaFunction function = (BLangLambdaFunction) streamAction.getInvokableBody();
+        typeChecker.checkExpr(function, env);
     }
 
     public void visit(BLangJoinStreamingInput joinStreamingInput) {
@@ -1466,6 +1471,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes = Lists.of(symTable.noType);
         }
         List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        if (assignNode.safeAssignment) {
+            rhsTypes = Lists.of(handleSafeAssignmentWithVarDeclaration(assignNode.pos, rhsTypes.get(0)));
+        }
+
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
             if (rhsTypes.get(0) != symTable.errType) {
                 BTupleType tupleType = (BTupleType) rhsTypes.get(0);
@@ -1474,6 +1483,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
             }
         }
+
         // visit all lhs expressions
         for (int i = 0; i < assignNode.varRefs.size(); i++) {
             BLangExpression varRef = assignNode.varRefs.get(i);
@@ -1538,5 +1548,65 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             binaryExpressionNode.type = symTable.errType;
         }
         return binaryExpressionNode;
+    }
+
+    private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
+        // Collect all the lhs types
+        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
+                ((BUnionType) lhsType).memberTypes :
+                new HashSet<BType>() {{
+                    add(lhsType);
+                }};
+
+        // If there is at least one lhs type which assignable to the error type, then report an error.
+        for (BType type : lhsTypes) {
+            if (types.isAssignable(symTable.errStructType, type)) {
+                dlog.error(lhsPos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+                typeChecker.checkExpr(rhsExpr, env, Lists.of(symTable.errType));
+                return;
+            }
+        }
+
+        // Create a new union type with the error type and continue the type checking process.
+        lhsTypes.add(symTable.errStructType);
+        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nullType));
+        typeChecker.checkExpr(rhsExpr, env, Lists.of(lhsUnionType));
+
+        if (rhsExpr.type.tag == TypeTags.UNION) {
+            BUnionType rhsUnionType = (BUnionType) rhsExpr.type;
+            for (BType type : rhsUnionType.memberTypes) {
+                if (types.isAssignable(symTable.errStructType, type)) {
+                    return;
+                }
+            }
+        } else if (rhsExpr.type.tag != TypeTags.ERROR) {
+            dlog.error(rhsExpr.pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+        }
+    }
+
+    private BType handleSafeAssignmentWithVarDeclaration(DiagnosticPos pos, BType rhsType) {
+        if (rhsType.tag != TypeTags.UNION && types.isAssignable(symTable.errStructType, rhsType)) {
+            dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+        } else if (rhsType.tag != TypeTags.UNION) {
+            return rhsType;
+        }
+
+        // Collect all the rhs types from the union type
+        BUnionType unionType = (BUnionType) rhsType;
+        List<BType> rhsTypeList = new ArrayList<>(unionType.memberTypes);
+        for (BType type : rhsTypeList) {
+            if (types.isAssignable(symTable.errStructType, type)) {
+                unionType.memberTypes.remove(type);
+            }
+        }
+
+        if (unionType.memberTypes.isEmpty()) {
+            dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+            return symTable.noType;
+        } else if (unionType.memberTypes.size() == 1) {
+            return unionType.memberTypes.toArray(new BType[0])[0];
+        }
+
+        return unionType;
     }
 }

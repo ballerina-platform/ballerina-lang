@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.command;
 
 import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
@@ -97,13 +98,14 @@ public class CommandUtil {
         if (isUndefinedPackage(diagnosticMessage)) {
             String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                     diagnosticMessage.lastIndexOf("'"));
-
-            Path openedPath = CommonUtil.getPath(params.getTextDocument().getUri());
+            LSDocument document = new LSDocument(params.getTextDocument().getUri());
+            Path openedPath = CommonUtil.getPath(document);
             String pkgName = TextDocumentServiceUtil.getPackageFromContent(documentManager.getFileContent(openedPath));
             String sourceRoot = TextDocumentServiceUtil.getSourceRoot(openedPath, pkgName);
+            LSDocument sourceDocument = new LSDocument(sourceRoot);
             PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-            CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
-                    false);
+            CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
+                    false, documentManager);
             ArrayList<PackageID> sdkPackages = pkgContext.getSDKPackages(context);
             sdkPackages.stream()
                     .filter(packageID -> packageID.getName().toString().endsWith("." + packageAlias))

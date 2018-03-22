@@ -32,6 +32,7 @@ import org.ballerinalang.net.grpc.MessageUtils;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
 
 /**
@@ -40,6 +41,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
  * @since 1.0.0
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "errorResponse",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,

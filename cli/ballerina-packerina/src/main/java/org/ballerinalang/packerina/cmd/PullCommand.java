@@ -36,7 +36,6 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 @Parameters(commandNames = "pull", commandDescription = " downloads the package source and binaries from a " +
         "remote repository,")
 public class PullCommand implements BLauncherCmd {
-    private static final String BALLERINA_CENTRAL_REPO_URL = "http://staging.central.ballerina.io:9090/";
     private static PrintStream outStream = System.err;
     private JCommander parentCmdParser;
     @Parameter(arity = 1)
@@ -71,10 +70,6 @@ public class PullCommand implements BLauncherCmd {
         if (null != debugPort) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
-
-        String resourceName = argList.get(0);
-//        NetworkUtils.pullPackages(resourceName, BALLERINA_CENTRAL_REPO_URL);
-
     }
 
     @Override

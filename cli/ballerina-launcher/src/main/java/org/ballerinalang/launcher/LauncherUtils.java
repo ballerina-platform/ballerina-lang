@@ -21,7 +21,6 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -51,12 +50,14 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_DIR_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -65,17 +66,22 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  */
 public class LauncherUtils {
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String[] args) {
+    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
+                                  Map<String, String> runtimeParams, String configFilePath, String[] args) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
+        Path fullPath = sourceRootPath.resolve(sourcePath);
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-        } else if (Files.isDirectory(sourceRootPath.resolve(sourcePath))
-                || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        } else if (Files.isRegularFile(fullPath) &&
+                srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                !Files.isDirectory(sourceRootPath.resolve(DOT_BALLERINA_DIR_NAME))) {
+            programFile = compile(fullPath.getParent(), fullPath.getFileName());
+        } else if (Files.isDirectory(sourceRootPath)) {
             programFile = compile(sourceRootPath, sourcePath);
         } else {
             throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +
-                    "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
+                                                 "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
         }
 
         // If there is no main or service entry point, throw an error
@@ -83,11 +89,13 @@ public class LauncherUtils {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
+        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().loadConfigurations();
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (ConfigFileParserException e) {
-            throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
         }
 
         if (runServices || !programFile.isMainEPAvailable()) {

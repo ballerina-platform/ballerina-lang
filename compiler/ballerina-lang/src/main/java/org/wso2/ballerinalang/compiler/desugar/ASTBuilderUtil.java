@@ -34,11 +34,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -251,18 +251,14 @@ class ASTBuilderUtil {
         return typeofExpr;
     }
 
-    static BLangExpression generateCastExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
-            return varRef;
-        }
-        // Box value using cast expression.
-        final BLangTypeCastExpr implicitCastExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
-        implicitCastExpr.pos = varRef.pos;
-        implicitCastExpr.expr = varRef;
-        implicitCastExpr.type = target;
-        implicitCastExpr.types = Lists.of(target);
-        implicitCastExpr.castSymbol = (BOperatorSymbol) symResolver.resolveImplicitCastOperator(varRef.type, target);
-        return implicitCastExpr;
+    static BLangIndexBasedAccess createIndexBasesAccessExpr(DiagnosticPos pos, BType type, BVarSymbol varSymbol,
+                                                            BLangExpression indexExpr) {
+        final BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        arrayAccess.pos = pos;
+        arrayAccess.expr = createVariableRef(pos, varSymbol);
+        arrayAccess.indexExpr = indexExpr;
+        arrayAccess.type = type;
+        return arrayAccess;
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {

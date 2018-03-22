@@ -12,6 +12,6 @@ function <DummyEndpoint s> init (struct {} conf)  {
 struct DummyService {}
 
 function <DummyService s> getEndpoint() returns (DummyEndpoint) {
-    DummyEndpoint ep;
+    DummyEndpoint ep = {};
     return ep;
 }
