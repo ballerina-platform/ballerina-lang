@@ -2,12 +2,12 @@ import ballerina/net.http;
 import ballerina/mime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint mockEP {
+endpoint http:ServiceEndpoint multipartEP {
     port:9090
 };
 
 @http:ServiceConfig {basePath:"/nestedparts"}
-service<http:Service> test bind mockEP {
+service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
       methods:["POST"],
       path:"/decoder"
@@ -25,7 +25,7 @@ service<http:Service> test bind mockEP {
                 res.setStringPayload("Nested Parts Received!");
             }
             mime:EntityError err => {
-                res.setStringPayload("Error!");
+                res.setStringPayload("Error occurred while decoding parent parts!");
                 res.statusCode = 500;
             }
         }
@@ -47,7 +47,7 @@ function handleNestedParts (mime:Entity parentPart) {
             }
         }
         mime:EntityError err => {
-            io:println("Error in child part!");
+            io:println("Error retrieving child parts!");
         }
     }
 }

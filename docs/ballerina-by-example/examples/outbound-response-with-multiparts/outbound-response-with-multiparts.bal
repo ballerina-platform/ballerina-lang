@@ -7,7 +7,7 @@ endpoint http:ServiceEndpoint multipartEP {
 };
 
 @http:ServiceConfig {basePath:"/multiparts"}
-service<http:Service> test bind mockEP {
+service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/encode_out_response"

@@ -2,12 +2,12 @@ import ballerina/net.http;
 import ballerina/mime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint mockEP {
+endpoint http:ServiceEndpoint multipartEP {
     port:9090
 };
 
 @http:ServiceConfig {basePath:"/multiparts"}
-service<http:Service> test bind mockEP {
+service<http:Service> test bind multipartEP {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/decode_in_request"
@@ -17,7 +17,7 @@ service<http:Service> test bind mockEP {
         match request.getMultiparts() {
             mime:EntityError err => {
                 io:println(err);
-                response.setStringPayload("Error!");
+                response.setStringPayload("Error in decoding multiparts!");
                 response.statusCode = 500;
             }
             mime:Entity[] bodyParts => {

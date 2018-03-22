@@ -6,12 +6,12 @@ endpoint http:ClientEndpoint clientEP {
     targets:[{uri:"http://localhost:9092"}]
 };
 
-endpoint http:ServiceEndpoint mockEP {
+endpoint http:ServiceEndpoint multipartEP {
     port:9090
 };
 
 @http:ServiceConfig {basePath:"/multiparts"}
-service<http:Service> test bind mockEP {
+service<http:Service> test bind multipartEP {
 @http:ResourceConfig {
         methods:["GET"],
         path:"/decode_in_response"
