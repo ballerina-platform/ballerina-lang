@@ -70,7 +70,7 @@ function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
 }
 
 @Description {value:"Retrieves the annotations specified and the callback URL to which notification should happen"}
-native function <SubscriberServiceEndpoint ep> retrieveAnnotationsAndCallback () (map);
+native function <SubscriberServiceEndpoint ep> retrieveAnnotationsAndCallback () returns (map);
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
@@ -103,19 +103,23 @@ public function <SignatureValidationFilter filter> terminate () {
 @Param {value:"request: The request being intercepted"}
 @Param {value:"context: The filter context"}
 @Return {value:"The result of the filter indicating whether or not proceeding can be allowed"}
-public function interceptWebSubRequest (http:Request request, http:FilterContext context)
-(http:FilterResult filterResult) {
+public function interceptWebSubRequest (http:Request request, http:FilterContext context) returns (http:FilterResult) {
+    http:FilterResult filterResult = {};
     if (request.method == "POST") {
-        WebSubError webSubError = processWebSubNotification(request, context.serviceType);
-        if (webSubError == null) {
-            filterResult = {canProceed:true, statusCode:200, message:"validation successful for notification"};
-        } else {
-            filterResult = {canProceed:false, statusCode:200, message:"validation failed for notification"};
+        var processedNotification = processWebSubNotification(request, context.serviceType);
+        match (processedNotification) {
+            WebSubError webSubError => { filterResult =
+                             {canProceed:false, statusCode:200, message:"validation failed for notification"};
+            }
+            //temp --> becomes null
+            int | null => { filterResult =
+                            {canProceed:true, statusCode:200, message:"validation successful for notification"};
+            }
         }
     } else {
         filterResult = {canProceed:true, statusCode:200, message:"allow intent verification"};
     }
-    return;
+    return filterResult;
 }
 
 @Description {value:"Function to invoke the WebSubSubscriberConnector's actions for subscription"}
@@ -136,14 +140,15 @@ function invokeClientConnectorForSubscription (string hub, map subscriptionDetai
 
     SubscriptionChangeRequest subscriptionChangeRequest = {topic:topic, callback:callback, leaseSeconds:leaseSeconds,
                                                               secret:secret};
-    SubscriptionChangeResponse subscriptionChangeResponse;
-    WebSubError webSubError;
-    subscriptionChangeResponse, webSubError = websubHubClientEP -> subscribe(subscriptionChangeRequest);
-    if (webSubError == null) {
-        log:printInfo("Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +"], for Topic["
-                      + subscriptionChangeResponse.topic + "]");
-    } else {
-        log:printError("Subscription Request failed at Hub[" + hub +"], for Topic[" + topic + "]: "
-                       + webSubError.errorMessage);
+
+    var subscriptionResponse = websubHubClientEP -> subscribe(subscriptionChangeRequest);
+    match (subscriptionResponse) {
+        SubscriptionChangeResponse subscriptionChangeResponse => { log:printInfo(
+                   "Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +"], for Topic["
+                                                             + subscriptionChangeResponse.topic + "]");
+        }
+        WebSubError webSubError => { log:printError("Subscription Request failed at Hub[" + hub +"], for Topic[" + topic
+                                                    + "]: " + webSubError.errorMessage);
+        }
     }
 }

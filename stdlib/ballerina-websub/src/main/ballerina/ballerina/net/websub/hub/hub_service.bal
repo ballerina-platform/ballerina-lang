@@ -37,53 +37,59 @@ service<http:Service> hubService bind hubServiceEP {
         path:HUB_PATH
     }
     hub (endpoint client, http:Request request) {
-        http:Response response;
-        map params;
-        mime:EntityError entityError;
-        params, entityError = request.getFormParams();
-        if (entityError == null) {
-            var mode, _ = (string) params[websub:HUB_MODE];
-            var topic, _ = (string) params[websub:HUB_TOPIC];
-            boolean validSubscriptionRequest = false;
-            if (mode != null) {
-                string errorMessage;
-                validSubscriptionRequest, errorMessage = validateSubscriptionChangeRequest(params);
-                if (!validSubscriptionRequest) {
-                    response = { statusCode:400 };
-                    response.setStringPayload(errorMessage);
+        http:Response response = {};
+
+        var reqFormParams = request.getFormParams();
+        match (reqFormParams) {
+            map params => {
+                var mode, _ = (string) params[websub:HUB_MODE];
+                var topic, _ = (string) params[websub:HUB_TOPIC];
+                boolean validSubscriptionRequest = false;
+                if (mode != null) {
+                    match (validateSubscriptionChangeRequest(params)) {
+                        string errorMessage => {
+                            response = { statusCode:400 };
+                            response.setStringPayload(errorMessage);
+                        }
+                        boolean =>  { validSubscriptionRequest = true;
+                        response = { statusCode:202 }; }
+                    }
+                    _ = client -> respond(response);
                 } else {
-                    response = { statusCode:202 };
-                }
-                _ = client -> respond(response);
-            } else {
-                params = request.getQueryParams();
-                mode, _ = (string) params[websub:HUB_MODE];
-                if (mode == websub:MODE_PUBLISH) {
-                    topic, _ = (string) params[websub:HUB_TOPIC];
-                    json payload;
-                    payload, entityError = request.getJsonPayload(); //TODO: allow others
-                    if (entityError != null) {
+                    params = request.getQueryParams();
+                    mode, _ = (string) params[websub:HUB_MODE];
+                    if (mode == websub:MODE_PUBLISH) {
+                        topic, _ = (string) params[websub:HUB_TOPIC];
+
+                        var reqJsonPayload = request.getJsonPayload(); //TODO: allow others
+                        match (reqJsonPayload) {
+                            json payload => {
+                                response = { statusCode:202 };
+                                 _ = client -> respond(response);
+                                publishToInternalHub(topic, payload);
+                                log:printInfo("Event notification done for Topic [" + topic + "]");
+                            }
+                            mime:EntityError => {
+                                response = { statusCode:400 };
+                                _ = client -> respond(response);
+                            }
+                        }
+                    } else {
                         response = { statusCode:400 };
                         _ = client -> respond(response);
-                    } else {
-                        response = { statusCode:202 };
-                        _ = client -> respond(response);
-                        publishToInternalHub(topic, payload);
-                        log:printInfo("Event notification done for Topic [" + topic + "]");
                     }
-                } else {
-                    response = { statusCode:400 };
-                    _ = client -> respond(response);
                 }
-            }
 
-            if (validSubscriptionRequest) {
-                var callback, _ = (string) params[websub:HUB_CALLBACK];
-                verifyIntent(callback, params);
+                if (validSubscriptionRequest) {
+                    var callback, _ = (string) params[websub:HUB_CALLBACK];
+                    verifyIntent(callback, params);
+                }
+
             }
-        } else {
-            response = { statusCode:400 };
-            _ = client -> respond(response);
+            mime:EntityError => {
+                response = { statusCode:400 };
+                _ = client -> respond(response);
+            }
         }
     }
 }
@@ -93,12 +99,11 @@ service<http:Service> hubService bind hubServiceEP {
 @Param {value:"params: Form params specifying subscription request parameters"}
 @Return {value:"Whether the subscription/unsubscription request is valid"}
 @Return {value:"If invalid, the error with the subscription/unsubscription request"}
-function validateSubscriptionChangeRequest(map params) (boolean, string) {
+function validateSubscriptionChangeRequest(map params) returns (boolean|string) {
     var mode, _ = (string) params[websub:HUB_MODE];
     var topic, _ = (string) params[websub:HUB_TOPIC];
     var callback, _ = (string) params[websub:HUB_CALLBACK];
 
-    boolean valid = false;
     string errorMessage;
     if (topic != null && callback != null) {
         PendingSubscriptionChangeRequest pendingRequest = {topic:topic, callback:callback};
@@ -106,14 +111,14 @@ function validateSubscriptionChangeRequest(map params) (boolean, string) {
             pendingRequest.mode = mode;
             pendingRequests.registerPendingRequest(pendingRequest);
             //TODO: Check if topic is valid, further validation of callback (check if a valid URL)
-            valid = true;
+            return true;
         } else {
             errorMessage = "Invalide mode. [subscribe|unsubscribe] required.";
         }
     } else {
         errorMessage = "Topic/Callback cannot be null for subscription/unsubscription request";
     }
-    return valid, errorMessage;
+    return errorMessage;
 }
 
 @Description {value:"Function to initiate intent verification for a valid subscription/unsubscription request received."}
@@ -138,40 +143,52 @@ function verifyIntent(string callback, map params) {
     string challenge = util:uuid();
 
     http:Request request = {};
-    http:Response response = {};
-    http:HttpConnectorError err;
+
     string queryParams = websub:HUB_MODE + "=" + mode
                          + "&" + websub:HUB_TOPIC + "=" + topic
                          + "&" + websub:HUB_CHALLENGE + "=" + challenge
                          + "&" + websub:HUB_LEASE_SECONDS + "=" + leaseSeconds;
 
-    response, err = callbackEp -> get("?" + queryParams, request);
+    var subscriberResponse = callbackEp -> get("?" + queryParams, request);
 
-    string payload;
-    mime:EntityError entityError;
-    if (err == null) {
-        payload, entityError = response.getStringPayload();
-    }
-    if (entityError != null) {
-        log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-            + "]: Error retrieving response payload: " + entityError.message);
-    } else if (payload != challenge) {
-        log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-            + "]: Challenge not echoed correctly.");
-    } else {
-        SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback, secret:secret,
+    match (subscriberResponse) {
+        http:Response response => {
+            var respStringPayload = response.getStringPayload();
+            match (respStringPayload) {
+                string payload => {
+                    if (payload != challenge) {
+                        log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
+                                                     + callback + "]: Challenge not echoed correctly.");
+                    } else {
+                        SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback, secret:secret,
                                               leaseSeconds:leaseSeconds, createdAt:createdAt};
-        if (mode == websub:MODE_SUBSCRIBE) {
-            addSubscription(subscriptionDetails);
-        } else {
-            removeSubscription(topic, callback);
-        }
+                        if (mode == websub:MODE_SUBSCRIBE) {
+                            addSubscription(subscriptionDetails);
+                        } else {
+                            removeSubscription(topic, callback);
+                        }
 
-        if (hubPersistenceEnabled) {
-            changeSubscriptionInDatabase(mode, subscriptionDetails);
+                        if (hubPersistenceEnabled) {
+                            changeSubscriptionInDatabase(mode, subscriptionDetails);
+                        }
+                        log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
+                                                             + callback + "]");
+                    }
+                }
+                mime:EntityError entityError => {
+                    log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
+                                  + "]: Error retrieving response payload: " + entityError.message);
+                }
+                (any | null ) => {
+                    log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
+                                  + "]: Payload cannot be null");
+                }
+            }
         }
-        log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
-            + callback + "]");
+        http:HttpConnectorError httpConnectorError => {
+            log:printInfo("Error sending intent verification request for callback URL: [" + callback
+                     + "]: " + httpConnectorError.message);
+        }
     }
     PendingSubscriptionChangeRequest  pendingSubscriptionChangeRequest = {topic:topic, callback:callback, mode:mode};
     pendingRequests.removePendingRequest(pendingSubscriptionChangeRequest);
@@ -255,10 +272,8 @@ public function distributeContent(string callback, SubscriptionDetails subscript
     endpoint http:ClientEndpoint callbackEp {
         targets:[{ uri:callback }]
     };
-                   
+
     http:Request request = {};
-    http:Response response = {};
-    http:HttpConnectorError err = {};
     int currentTime = time:currentTime().time;
     int createdAt = subscriptionDetails.createdAt;
     int leaseSeconds = subscriptionDetails.leaseSeconds;
@@ -274,9 +289,9 @@ public function distributeContent(string callback, SubscriptionDetails subscript
         request.setJsonPayload(payload);
         request.setHeader(websub:CONTENT_TYPE, mime:APPLICATION_JSON);
 
-        if (subscriptionDetails.secret != "null") {
+        if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
-            string generatedSignature = null;
+            string generatedSignature = "";
             if (websub:SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
                 generatedSignature = crypto:getHmac(stringPayload, subscriptionDetails.secret, crypto:Algorithm.SHA1);
             } else if (websub:SHA256.equalsIgnoreCase(hubSignatureMethod)) {
@@ -290,9 +305,10 @@ public function distributeContent(string callback, SubscriptionDetails subscript
 
         request.setHeader(websub:X_HUB_UUID, util:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
-        response, err = callbackEp -> post("/", request);
-        if (err != null) {
-            log:printError("Error delievering content to: " + callback);
+        var contentDistributionRequest = callbackEp -> post("/", request);
+        match (contentDistributionRequest) {
+            http:Response response => { return; }
+            http:HttpConnectorError err => { log:printError("Error delievering content to: " + callback); }
         }
     }
 }
@@ -331,7 +347,7 @@ function <PendingRequests pendingRequests> removePendingRequest
     collections:Vector vector = pendingRequests.pendingRequestVector;
     int vectorSize = vector.size();
     int removeIndex = vectorSize;
-    PendingSubscriptionChangeRequest  tempSubscriptionChangeRequest;
+    PendingSubscriptionChangeRequest tempSubscriptionChangeRequest = {};
     while (index < vectorSize) {
         tempSubscriptionChangeRequest, _ = (PendingSubscriptionChangeRequest) vector.get(index);
         if (pendingSubscriptionChangeRequest.equals(tempSubscriptionChangeRequest)) {
@@ -348,7 +364,7 @@ function <PendingRequests pendingRequests> removePendingRequest
 @Description {value:"Function to check if two pending subscription change requests are equal."}
 @Param {value:"pendingRequestTwo: The pending subscription change request to check against"}
 function <PendingSubscriptionChangeRequest pendingRequestOne> equals
-(PendingSubscriptionChangeRequest pendingRequestTwo) (boolean) {
+(PendingSubscriptionChangeRequest pendingRequestTwo) returns (boolean) {
     return pendingRequestOne.topic == pendingRequestTwo.topic
            && pendingRequestOne.callback == pendingRequestTwo.callback
            && pendingRequestOne.mode == pendingRequestTwo.mode;

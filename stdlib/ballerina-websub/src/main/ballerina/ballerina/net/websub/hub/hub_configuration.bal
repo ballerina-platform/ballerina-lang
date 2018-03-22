@@ -39,40 +39,51 @@ function getHubUrl () returns (string) {
 @Description {value:"Function to retrieve if hub persistence is enabled, from a config file, or set to false by default
                     if not specified."}
 @Return {value:"Whether persistence of hub subscriptions is expected"}
-function isHubPersistenceEnabled (string property) returns (boolean configuration) {
-    string stringConfiguration = config:getGlobalValue(property);
-    if (stringConfiguration == null) {
-        configuration = false;
-    } else {
-        stringConfiguration = stringConfiguration.trim();
-        configuration, _ = <boolean> stringConfiguration;
-        if (configuration != true) {
-            configuration = false;
-        }
-    }
-    return;
+function isHubPersistenceEnabled (string property) returns (boolean) {
+    return false; //TODO - read from config once casting is available
+    //boolean configuration;
+    //match (config:getGlobalValue(property)) {
+    //    string stringConfigFromFile => {
+    //        var booleanConfigFromFile = <boolean>stringConfigFromFile;
+    //        match (booleanConfigFromFile) {
+    //            boolean configFromFile => { configuration = configFromFile; }
+    //            TypeCastError => { configuration=false; }
+    //        }
+    //    }
+    //    any | null => { configuration = false; }
+    //}
+    //return configuration;
 }
 
 @Description {value:"Function to retrieve a configuration set as a string, from a config file, or set a default value
                     if not specified."}
 @Return {value:"The string configuration"}
-function getStringConfig (string property, string defaultIfNotSet) returns (string configuration) {
-    configuration = config:getGlobalValue(property);
-    if (configuration == null || configuration == "") {
-        configuration = defaultIfNotSet;
-    }
-    return;
+function getStringConfig (string property, string defaultIfNotSet) returns (string) {
+    return defaultIfNotSet; //TODO - read from config once casting is available
+    //string configuration;
+    //match (config:getGlobalValue(property)) {
+    //    string stringConfigFromFile => { configuration = stringConfigFromFile == "" ? defaultIfNotSet
+    //                                                     : stringConfigFromFile; }
+    //    any | null => configuration = defaultIfNotSet;
+    //}
+    //return configuration;
 }
 
 @Description{value:"Function to retrieve a configuration set as an integer, from a config file, or set a default value
                     if not specified."}
 @Return{value:"The integer configuration"}
-function getIntConfig (string property, int defaultIfNotSet) returns (int configuration) {
-    var portConfigFromFile, err = <int>config:getGlobalValue(property);
-    if (err != null) {
-        configuration = defaultIfNotSet;
-    } else {
-        configuration = portConfigFromFile;
-    }
-    return;
+function getIntConfig (string property, int defaultIfNotSet) returns (int) {
+    return defaultIfNotSet; //TODO - read from config once casting is available
+    //int configuration;
+    //match (config:getGlobalValue(property)) {
+    //    string stringConfigFromFile => {
+    //        var intConfigFromFile = <int>stringConfigFromFile;
+    //        match (intConfigFromFile) {
+    //            int portConfigFromFile => configuration = portConfigFromFile;
+    //            error => configuration = defaultIfNotSet;
+    //        }
+    //    }
+    //    any | null => configuration = defaultIfNotSet;
+    //}
+    //return configuration;
 }

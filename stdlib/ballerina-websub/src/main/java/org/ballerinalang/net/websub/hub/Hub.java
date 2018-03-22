@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.websub.hub;
 
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -79,6 +80,11 @@ public class Hub {
             unregisterSubscription(topic, callback);
         }
         String queue = UUID.randomUUID().toString();
+
+        //Temporary workaround - expected secret to be "" if not specified but got null
+        if (BLangConnectorSPIUtil.toStruct(subscriptionDetails).getStringField("secret") == null) {
+            subscriptionDetails.setStringField(2, "");
+        }
         HubSubscriber subscriberToAdd = new HubSubscriber(queue, topic, callback, subscriptionDetails);
         BrokerUtils.addSubscription(topic, subscriberToAdd);
         subscribers.add(subscriberToAdd);
