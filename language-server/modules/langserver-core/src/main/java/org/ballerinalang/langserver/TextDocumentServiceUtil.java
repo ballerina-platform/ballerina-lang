@@ -161,9 +161,11 @@ public class TextDocumentServiceUtil {
                 File[] files = projectDir.listFiles();
                 if (files != null) {
                     for (File file : files) {
-                        Compiler compiler = getCompiler(context, fileName, packageRepository, sourceDocument,
-                                preserveWhitespace, customErrorStrategy, docManager);
-                        packages.add(compiler.compile(file.getName()));
+                        if (!file.getName().equals(".ballerina")) {
+                            Compiler compiler = getCompiler(context, fileName, packageRepository, sourceDocument,
+                                    preserveWhitespace, customErrorStrategy, docManager);
+                            packages.add(compiler.compile(file.getName()));
+                        }
                     }
                 }
             }
