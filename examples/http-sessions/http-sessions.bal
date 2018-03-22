@@ -14,7 +14,7 @@ service<http:Service> sessionTest bind sessionTestEP {
     }
     sayHello (endpoint outboundEP, http:Request req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
-        http:Session session = outboundEP -> createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         string result;
         //Session status(new or already existing) is informed by isNew() as boolean value.
         if (session.isNew()) {
@@ -35,7 +35,7 @@ service<http:Service> sessionTest bind sessionTestEP {
     }
     doTask (endpoint outboundEP, http:Request req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
-        http:Session session = outboundEP -> getSession();
+        http:Session session = req.getSession();
         string attributeValue;
         if (session != null) {
             //Returns the object bound with the specified key.
@@ -53,7 +53,7 @@ service<http:Service> sessionTest bind sessionTestEP {
         path:"/sayBye"
     }
     sayBye (endpoint outboundEP, http:Request req) {
-        http:Session session = outboundEP -> getSession();
+        http:Session session = req.getSession();
         http:Response res = {};
         if (session != null) {
             //Returns session id.
