@@ -198,15 +198,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#objectDefinition}.
+	 * Enter a parse tree produced by {@link BallerinaParser#typeDefinition}.
 	 * @param ctx the parse tree
 	 */
-	void enterObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx);
+	void enterTypeDefinition(BallerinaParser.TypeDefinitionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#objectDefinition}.
+	 * Exit a parse tree produced by {@link BallerinaParser#typeDefinition}.
 	 * @param ctx the parse tree
 	 */
-	void exitObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx);
+	void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#objectBody}.
 	 * @param ctx the parse tree
@@ -505,6 +505,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code objectTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code objectTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code groupTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.

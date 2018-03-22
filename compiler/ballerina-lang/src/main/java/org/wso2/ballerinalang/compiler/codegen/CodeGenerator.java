@@ -28,7 +28,6 @@ import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -1102,65 +1101,27 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        if (cIExpr.objectInit) {
-            BSymbol structSymbol = cIExpr.type.tsymbol;
-            int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
-            int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
-            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-            Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
+        BSymbol structSymbol = cIExpr.type.tsymbol;
+        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
+        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
+        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+        Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
-            //Emit an instruction to create a new struct.
-            RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
-            emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
+        //Emit an instruction to create a new struct.
+        RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
+        emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
-            // Invoke the struct initializer here.
-            Operand[] operands = getFuncOperands(cIExpr.objectInitInvocation);
+        // Invoke the struct initializer here.
+        Operand[] operands = getFuncOperands(cIExpr.objectInitInvocation);
 
-            Operand[] callOperands = new Operand[operands.length + 1];
-            callOperands[0] = operands[0];
-            callOperands[1] = operands[1];
-            callOperands[2] = getOperand(operands[2].value + 1);
-            callOperands[3] = structRegIndex;
+        Operand[] callOperands = new Operand[operands.length + 1];
+        callOperands[0] = operands[0];
+        callOperands[1] = operands[1];
+        callOperands[2] = getOperand(operands[2].value + 1);
+        callOperands[3] = structRegIndex;
 
-            System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
-            emit(InstructionCodes.CALL, callOperands);
-            return;
-        }
-        BConnectorType connectorType = (BConnectorType) cIExpr.type;
-        BConnectorSymbol connectorSymbol = (BConnectorSymbol) connectorType.tsymbol;
-
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, connectorSymbol.pkgID);
-        int connNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorSymbol.name.value);
-        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgRefCPIndex, connNameCPIndex);
-        Operand structureRefCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
-
-        //Emit an instruction to create a new connector.
-        RegIndex connectorRegIndex = calcAndGetExprRegIndex(cIExpr);
-        emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-
-        List<BLangExpression> argExprs = cIExpr.argsExpr;
-        for (int i = 0; i < argExprs.size(); i++) {
-            BLangExpression argExpr = argExprs.get(i);
-            genNode(argExpr, this.env);
-            BVarSymbol paramSymbol = connectorSymbol.params.get(i);
-            int opcode = getOpcode(paramSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, connectorRegIndex, paramSymbol.varIndex, argExpr.regIndex);
-        }
-
-        BInvokableSymbol initFunc = connectorSymbol.initFunctionSymbol;
-        int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
-        Operand initFuncRefCPIndex = getOperand(currentPkgInfo.addCPEntry(funcRefCPEntry));
-        Operand[] operands = new Operand[] { initFuncRefCPIndex, getOperand(false), getOperand(1),
-                connectorRegIndex, getOperand(0) };
-        emit(InstructionCodes.CALL, operands);
-
-        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
-        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
-        Operand actionRefCPIndex = getOperand(currentPkgInfo.addCPEntry(actionRefCPEntry));
-        operands = new Operand[] { actionRefCPIndex, getOperand(false), getOperand(1), connectorRegIndex,
-                getOperand(0) };
-        emit(InstructionCodes.ACALL, operands);
+        System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
+        emit(InstructionCodes.CALL, callOperands);
     }
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {

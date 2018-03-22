@@ -244,13 +244,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx) { }
+	@Override public void enterTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx) { }
+	@Override public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -599,6 +599,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
