@@ -138,6 +138,8 @@
         <!-- Path to the generated natives ballerina files temp directory -->
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>
+            **/protobuf/java/org/ballerinalang/test/util/grpc/**,
+            **/protobuf/grpc-java/org/ballerinalang/test/util/grpc/**,
             **/generated/**,
             **/generated-sources/**
         </maven.checkstyleplugin.excludes>

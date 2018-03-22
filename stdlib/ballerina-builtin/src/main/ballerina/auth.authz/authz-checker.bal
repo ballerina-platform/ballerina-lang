@@ -49,14 +49,19 @@ public function <AuthzChecker authzChecker> check (string username, string scope
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Return {value:"any: cached entry, or null in a cache miss"}
 public function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCacheKey) returns (any) {
-    match authzChecker.authzCache {
-        caching:Cache cache => {
-            return cache.get(authzCacheKey);
+    try {
+        match authzChecker.authzCache {
+            caching:Cache cache => {
+                return cache.get(authzCacheKey);
+            }
+            null => {
+                return null;
+            }
         }
-        null => {
-            return null;
-        }
+    } catch (error e) {
+        // do nothing
     }
+    return null;
 }
 
 @Description {value:"Caches the authorization result"}

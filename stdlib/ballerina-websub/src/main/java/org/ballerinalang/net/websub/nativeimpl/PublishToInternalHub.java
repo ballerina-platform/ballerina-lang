@@ -16,34 +16,36 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.websub.hub.nativeimpl;
+package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to add a subscription to the default Ballerina Hub's underlying broker.
+ * Native function to publish against a topic in the default Ballerina Hub's underlying broker.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub.hub",
-        functionName = "addSubscription",
-        args = {@Argument(name = "subscriptionDetails", type = TypeKind.STRUCT)}
+        orgName = "ballerina", packageName = "net.websub",
+        functionName = "publishToInternalHub",
+        args = {@Argument(name = "topic", type = TypeKind.STRING),
+                @Argument(name = "payload", type = TypeKind.JSON)},
+        isPublic = true
 )
-public class AddSubscription extends BlockingNativeCallableUnit {
+public class PublishToInternalHub extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct subscriptionDetails = (BStruct) context.getRefArgument(0);
-        String topic = subscriptionDetails.getStringField(0);
-        String callback = subscriptionDetails.getStringField(1);
-        Hub.getInstance().registerSubscription(topic, callback, subscriptionDetails);
+        String topic = context.getStringArgument(0);
+        BJSON jsonPayload = (BJSON) context.getRefArgument(0);
+        String payload = jsonPayload.stringValue();
+        Hub.getInstance().publish(topic, payload);
         context.setReturnValues();
     }
 

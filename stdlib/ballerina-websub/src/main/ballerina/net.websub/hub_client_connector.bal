@@ -14,50 +14,49 @@ public struct HubClientConnector {
 @Param {value:"subscriptionRequest: The SubscriptionChangeRequest containing subscription details"}
 @Return {value:"SubscriptionChangeResponse indicating subscription details, if the request was successful"}
 @Return {value:"WebSubError if an error occurred with the subscription request"}
-public function <HubClientConnector client> subscribe (SubscriptionChangeRequest subscriptionRequest)
-(SubscriptionChangeResponse, WebSubError) {
+public function <HubClientConnector client> subscribe (SubscriptionChangeRequest subscriptionRequest) returns
+(SubscriptionChangeResponse | WebSubError) {
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeOutRequest(MODE_SUBSCRIBE, subscriptionRequest);
-    http:Response response;
-    http:HttpConnectorError httpConnectorError;
-    response, httpConnectorError = httpClientEndpoint -> post("/", builtSubscriptionRequest);
-    return processHubResponse(client.hubUri, MODE_SUBSCRIBE, subscriptionRequest.topic, response, httpConnectorError);
+    http:Response|null httpResponse;
+    http:HttpConnectorError|null httpConnectorError;
+    var response = httpClientEndpoint -> post("/", builtSubscriptionRequest);
+    return processHubResponse(client.hubUri, MODE_SUBSCRIBE, subscriptionRequest.topic, response);
 }
 
 @Description {value:"Function to send an unsubscription request to a WebSub Hub"}
 @Param {value:"unsubscriptionRequest: The SubscriptionChangeRequest containing unsubscription details"}
 @Return {value:"SubscriptionChangeResponse indicating unsubscription details, if the request was successful"}
 @Return {value:"WebSubError if an error occurred with the unsubscription request"}
-public function <HubClientConnector client> unsubscribe (SubscriptionChangeRequest unsubscriptionRequest)
-(SubscriptionChangeResponse, WebSubError) {
+public function <HubClientConnector client> unsubscribe (SubscriptionChangeRequest unsubscriptionRequest) returns
+(SubscriptionChangeResponse | WebSubError) {
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeOutRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
-    http:Response response;
-    http:HttpConnectorError httpConnectorError;
-    response, httpConnectorError = httpClientEndpoint -> post("/", builtSubscriptionRequest);
-    return processHubResponse(client.hubUri, MODE_UNSUBSCRIBE, unsubscriptionRequest.topic, response,
-                              httpConnectorError);
+
+    http:Response|null httpResponse;
+    http:HttpConnectorError|null httpConnectorError;
+    var response = httpClientEndpoint -> post("/", builtSubscriptionRequest);
+    return processHubResponse(client.hubUri, MODE_UNSUBSCRIBE, unsubscriptionRequest.topic, response);
 }
 
 @Description {value:"Function to publish an update to a remote Ballerina WebSub Hub"}
 @Param {value:"topic: The topic for which the update occurred"}
 @Param {value:"payload: The update payload"}
 @Return {value:"WebSubError if an error occurred with the update"}
-public function <HubClientConnector client> publishUpdateToRemoteHub (string topic, json payload)
-(WebSubError webSubError) {
+public function <HubClientConnector client> publishUpdateToRemoteHub (string topic, json payload) returns
+(WebSubError | null) {
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request request = {};
-    http:Response response;
-    http:HttpConnectorError httpConnectorError;
 
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
     request.setJsonPayload(payload);
-    response, httpConnectorError = httpClientEndpoint -> post("?" + queryParams, request);
-    if (httpConnectorError != null) {
-        webSubError = { errorMessage:"Notification failed for topic [" + topic + "]",
-                            connectorError:httpConnectorError };
+    var response = httpClientEndpoint -> post("?" + queryParams, request);
+    match (response) {
+        http:Response => return null;
+        http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
+                      errorMessage:"Notification failed for topic [" + topic + "]", connectorError:httpConnectorError };
+                                                        return webSubError; }
     }
-    return;
 }
 
 @Description {value:"Function to build the subscription request to subscribe at the hub"}
@@ -65,7 +64,7 @@ public function <HubClientConnector client> publishUpdateToRemoteHub (string top
 @Param {value:"subscriptionChangeRequest: The SubscriptionChangeRequest specifying the topic to subscribe to and the
                                         parameters to use"}
 @Return {value:"The Request to send to the hub to subscribe/unsubscribe"}
-function buildSubscriptionChangeOutRequest(string mode, SubscriptionChangeRequest subscriptionChangeRequest)
+function buildSubscriptionChangeOutRequest(string mode, SubscriptionChangeRequest subscriptionChangeRequest) returns
 (http:Request) {
     http:Request request = {};
     string body = HUB_MODE + "=" + mode
@@ -91,29 +90,31 @@ function buildSubscriptionChangeOutRequest(string mode, SubscriptionChangeReques
 @Return {value:"SubscriptionChangeResponse including details of subscription/unsubscription,
                 if the request was successful"}
 @Return { value : "WebSubErrror indicating any errors that occurred, if the request was unsuccessful"}
-function processHubResponse(string hub, string mode, string topic, http:Response response,
-                            http:HttpConnectorError httpConnectorError) (SubscriptionChangeResponse, WebSubError) {
-    SubscriptionChangeResponse subscriptionChangeResponse;
-    WebSubError webSubError;
-    if (httpConnectorError != null) {
-        string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub +"] - "
-                              + httpConnectorError.message;
-        webSubError = {errorMessage:errorMessage, connectorError:httpConnectorError};
-    }
-    else if (response.statusCode != 202) {
-        string responsePayload;
-        mime:EntityError entityError;
-        string errorMessage;
-        responsePayload, entityError = response.getStringPayload();
-        if (entityError != null) {
-            errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub +"], "
-                           + "Error occurred identifying cause: " + entityError.message;
-        } else {
-            errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub +"] - " + responsePayload;
+function processHubResponse(string hub, string mode, string topic, http:Response|http:HttpConnectorError response)
+                                                                  returns (SubscriptionChangeResponse | WebSubError) {
+    match response {
+        http:HttpConnectorError httpConnectorError => {
+            string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub +"] - "
+            + httpConnectorError.message;
+            WebSubError webSubError = {errorMessage:errorMessage, connectorError:httpConnectorError};
+            return webSubError;
         }
-        webSubError = {errorMessage:errorMessage};
-    } else {
-        subscriptionChangeResponse = {hub:hub, topic:topic, response:response};
+        http:Response httpResponse => {
+            if (httpResponse.statusCode != 202) {
+                var responsePayload = httpResponse.getStringPayload();
+                string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub +"]";
+                match (responsePayload) {
+                    mime:EntityError entityError => { errorMessage = errorMessage + " - " + "Error occurred identifying"
+                                                                     + "cause: " + entityError.message; }
+                    string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }
+                    any | null => { errorMessage = errorMessage + ", Cause Unknown"; }
+                }
+                WebSubError webSubError = {errorMessage:errorMessage};
+                return webSubError;
+            } else {
+                SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:httpResponse};
+                return subscriptionChangeResponse;
+            }
+        }
     }
-    return subscriptionChangeResponse, webSubError;
 }

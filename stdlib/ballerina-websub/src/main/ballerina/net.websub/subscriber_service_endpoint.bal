@@ -22,7 +22,8 @@ public struct SubscriberServiceEndpointConfiguration {
 
 public function <SubscriberServiceEndpointConfiguration config> SubscriberServiceEndpointConfiguration() {
     SignatureValidationFilter webSubRequestValidationFilter = { filterRequest:interceptWebSubRequest };
-    config.filters = [webSubRequestValidationFilter];
+    http:Filter wsrHttpFilter = <http:Filter> webSubRequestValidationFilter;
+    config.filters = [wsrHttpFilter];
 }
 
 public function <SubscriberServiceEndpoint ep> SubscriberServiceEndpoint() {
@@ -61,16 +62,21 @@ native function <SubscriberServiceEndpoint ep> startWebSubSubscriberServiceEndpo
 @Description {value:"Sends a subscription request to the specified hub if specified to subscribe on startup"}
 function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
     map subscriptionDetails = ep.retrieveAnnotationsAndCallback();
-    var strSubscribeOnStartUp, _ = (string) subscriptionDetails["subscribeOnStartUp"];
-    var subscribeOnStartUp, _ = <boolean> strSubscribeOnStartUp;
-    if (subscriptionDetails != null && subscribeOnStartUp) {
-        var hub, _ = (string) subscriptionDetails["hub"];
+    if (lengthof subscriptionDetails.keys() == 0) {
+        return;
+    }
+
+    string strSubscribeOnStartUp = <string> subscriptionDetails["subscribeOnStartUp"];
+    boolean subscribeOnStartUp = <boolean> strSubscribeOnStartUp;
+
+    if (subscribeOnStartUp) {
+        string hub = <string> subscriptionDetails["hub"];
         invokeClientConnectorForSubscription(hub, subscriptionDetails);
     }
 }
 
 @Description {value:"Retrieves the annotations specified and the callback URL to which notification should happen"}
-native function <SubscriberServiceEndpoint ep> retrieveAnnotationsAndCallback () (map);
+native function <SubscriberServiceEndpoint ep> retrieveAnnotationsAndCallback () returns (map);
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
@@ -103,19 +109,23 @@ public function <SignatureValidationFilter filter> terminate () {
 @Param {value:"request: The request being intercepted"}
 @Param {value:"context: The filter context"}
 @Return {value:"The result of the filter indicating whether or not proceeding can be allowed"}
-public function interceptWebSubRequest (http:Request request, http:FilterContext context)
-(http:FilterResult filterResult) {
+public function interceptWebSubRequest (http:Request request, http:FilterContext context) returns (http:FilterResult) {
+    http:FilterResult filterResult = {};
     if (request.method == "POST") {
-        WebSubError webSubError = processWebSubNotification(request, context.serviceType);
-        if (webSubError == null) {
-            filterResult = {canProceed:true, statusCode:200, message:"validation successful for notification"};
-        } else {
-            filterResult = {canProceed:false, statusCode:200, message:"validation failed for notification"};
+        var processedNotification = processWebSubNotification(request, context.serviceType);
+        match (processedNotification) {
+            WebSubError webSubError => { filterResult =
+                             {canProceed:false, statusCode:200, message:"validation failed for notification"};
+            }
+            //temp --> becomes null
+            int | null => { filterResult =
+                            {canProceed:true, statusCode:200, message:"validation successful for notification"};
+            }
         }
     } else {
         filterResult = {canProceed:true, statusCode:200, message:"allow intent verification"};
     }
-    return;
+    return filterResult;
 }
 
 @Description {value:"Function to invoke the WebSubSubscriberConnector's actions for subscription"}
@@ -123,27 +133,39 @@ public function interceptWebSubRequest (http:Request request, http:FilterContext
 @Param {value:"subscriptionDetails: Map containing subscription details"}
 function invokeClientConnectorForSubscription (string hub, map subscriptionDetails) {
     endpoint HubClientEndpoint websubHubClientEP { uri:hub };
-    var topic, _ = (string) subscriptionDetails["topic"];
-    var callback, _ = (string) subscriptionDetails["callback"];
-    if (hub == null || topic == null || callback == null) {
+
+    string topic = <string> subscriptionDetails["topic"];
+    string callback = <string> subscriptionDetails["callback"];
+
+    if (hub == "" || topic == "" || callback == "") {
         log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
         return;
     }
 
-    var strLeaseSeconds, _ = (string) subscriptionDetails["leaseSeconds"];
-    var leaseSeconds, _ = <int> strLeaseSeconds;
-    var secret, _ = (string) subscriptionDetails["secret"];
+    int leaseSeconds;
+
+    string strLeaseSeconds = <string> subscriptionDetails["leaseSeconds"];
+    match (<int> strLeaseSeconds) {
+        int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
+        error convError => {
+            log:printError("Error retreiving specified lease seconds value: " + convError.message);
+            return;
+        }
+    }
+
+    string secret = <string> subscriptionDetails["secret"];
 
     SubscriptionChangeRequest subscriptionChangeRequest = {topic:topic, callback:callback, leaseSeconds:leaseSeconds,
                                                               secret:secret};
-    SubscriptionChangeResponse subscriptionChangeResponse;
-    WebSubError webSubError;
-    subscriptionChangeResponse, webSubError = websubHubClientEP -> subscribe(subscriptionChangeRequest);
-    if (webSubError == null) {
-        log:printInfo("Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +"], for Topic["
-                      + subscriptionChangeResponse.topic + "]");
-    } else {
-        log:printError("Subscription Request failed at Hub[" + hub +"], for Topic[" + topic + "]: "
-                       + webSubError.errorMessage);
+
+    var subscriptionResponse = websubHubClientEP -> subscribe(subscriptionChangeRequest);
+    match (subscriptionResponse) {
+        SubscriptionChangeResponse subscriptionChangeResponse => { log:printInfo(
+                   "Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +"], for Topic["
+                                                             + subscriptionChangeResponse.topic + "]");
+        }
+        WebSubError webSubError => { log:printError("Subscription Request failed at Hub[" + hub +"], for Topic[" + topic
+                                                    + "]: " + webSubError.errorMessage);
+        }
     }
 }
