@@ -45,25 +45,32 @@ service<http:Service> headerBasedRouting bind hbrEP {
         //Native function getHeader() returns header value of a specified header name.
         string nameString = req.getHeader("type");
 
-        (http:Response|http:HttpConnectorError) result;
+        (http:Response|http:HttpConnectorError|null) response;
         if (nameString == "location") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service.
-            result = locationEP -> post("/v2/594e12271100001f13d6d3a6", newRequest);
+            response = locationEP -> post("/v2/594e12271100001f13d6d3a6", newRequest);
         } else {
             //"get" action can be used to make http GET call.
-            result = weatherEP -> get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
+            response = weatherEP -> get("/data/2.5/weather?lat=35&lon=139&appid=b1b1", newRequest);
         }
 
-        match result {
+        match response {
             http:Response clientResponse => {
             //Native function "forward" sends back the inbound clientResponse to the caller if no any error is found.
                 _ = conn -> forward(clientResponse);
             }
             http:HttpConnectorError err => {
-                http:Response res = {};
-                res.statusCode = 500;
-                res.setStringPayload(err.message);
-                _ = conn -> respond(res);
+                http:Response errorResponse = {};
+                errorResponse.statusCode = 500;
+                errorResponse.setStringPayload(err.message);
+                _ = conn -> respond(errorResponse);
+            }
+            any => {
+                http:Response errorResponse = {};
+                errorResponse.statusCode = 500;
+                json errMsg = {"error":"unexpected response received"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = conn -> respond(errorResponse);
             }
         }
     }
