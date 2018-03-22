@@ -18,4 +18,4 @@ package ballerina.testing;
 
 @Description {value:"Get the number of finished spans"}
 @Return {value:"Total number of spans finished"}
-public native function getFinishedSpansCount () (string);
+public native function getFinishedSpansCount () returns (string);

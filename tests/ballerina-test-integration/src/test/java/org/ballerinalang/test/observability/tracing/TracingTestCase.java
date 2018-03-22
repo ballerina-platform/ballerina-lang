@@ -49,7 +49,7 @@ public class TracingTestCase {
     private void setup() throws Exception {
         serverInstance = ServerInstance.initBallerinaServer();
         String balFile = new File(RESOURCE_LOCATION + "trace-test.bal").getAbsolutePath();
-        serverInstance.setArguments(new String[]{balFile, "-Bballerina.conf=bin/ballerina.conf"});
+        serverInstance.setArguments(new String[]{balFile, "--config", "bin/ballerina.conf"});
 
         copyFile(new File(SOURCE_BAL_CONF), new File(serverInstance.getServerHome() + DEST_BAL_CONF));
         copyFile(new File(SOURCE_CONFIG_FILE), new File(serverInstance.getServerHome() + DEST_CONFIG_FILE));
@@ -63,7 +63,7 @@ public class TracingTestCase {
     public void testSpanWithTwoResources() throws IOException {
         HttpClientRequest.doGet("http://localhost:9090/echoService/resourceOne");
         Assert.assertEquals(HttpClientRequest.doGet(
-                "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "2");
+                "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "5");
     }
 
     private static void copyFile(File source, File dest) throws IOException {

@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina.net.http;
-import ballerina.testing;
+import ballerina/net.http;
+import ballerina/testing;
 
 endpoint http:ServiceEndpoint ep1 {
     port : 9090
@@ -46,12 +46,15 @@ service<http:Service> echoService bind ep1 {
     }
 }
 
-function callNextResource() (http:Response) {
+function callNextResource() returns (http:Response) {
     endpoint http:ClientEndpoint httpEndpoint {
         targets : [{uri : "http://localhost:9090/echoService"}]
     };
 
     http:Request request = {};
-    var response, _ = httpEndpoint -> get("/resourceTwo", request);
-    return response;
+    var resp = httpEndpoint -> get("/resourceTwo", request);
+    match resp {
+        http:HttpConnectorError err => return {};
+        http:Response response => return response;
+    }
 }
