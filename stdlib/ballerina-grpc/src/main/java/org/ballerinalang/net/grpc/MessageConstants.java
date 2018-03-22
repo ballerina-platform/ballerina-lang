@@ -37,8 +37,9 @@ public class MessageConstants {
             ASCII_STRING_MARSHALLER);
 
     //gRPC package name.
-    public static final String PROTOCOL_PACKAGE_GRPC = "ballerina.net.grpc";
-
+    public static final String PROTOCOL_PACKAGE_GRPC = "net.grpc";
+    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina.net.grpc";
+    public static final String ORG_NAME = "ballerina";
     //server side endpoint constants.
     public static final String SERVICE_BUILDER = "SERVICE_BUILDER";
     public static final String GRPC_SERVER = "SERVER";

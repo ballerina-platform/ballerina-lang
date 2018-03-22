@@ -41,7 +41,9 @@ import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINITION;
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
@@ -53,19 +55,20 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX
  * @since 1.0.0
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "streamingExecute",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
-                structPackage = PROTOCOL_PACKAGE_GRPC),
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "listenerService", type = TypeKind.TYPEDESC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT,structType = CLIENT,
-                        structPackage = PROTOCOL_PACKAGE_GRPC),
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
                 @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_PACKAGE_GRPC),
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         },
         isPublic = true
 )
