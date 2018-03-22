@@ -70,9 +70,14 @@ public class ResourceContextHolder {
 
         // We don't expect multiple http methods to be supported by single action
         // We only consider first content type for a single resource
-        context.method = attrs.get("methods") != null ? attrs.get("methods")[0] : null;
-        context.contentType = attrs.get("consumes") != null ? attrs.get("consumes")[0] : null;
-        String path = attrs.get("path") != null ? attrs.get("path")[0] : null;
+        context.method = attrs.get(GeneratorConstants.ATTR_METHODS) != null ?
+                attrs.get(GeneratorConstants.ATTR_METHODS)[0] :
+                null;
+        context.contentType = attrs.get(GeneratorConstants.ATTR_CONSUMES) != null ?
+                attrs.get(GeneratorConstants.ATTR_CONSUMES)[0] :
+                null;
+        String path =
+                attrs.get(GeneratorConstants.ATTR_PATH) != null ? attrs.get(GeneratorConstants.ATTR_PATH)[0] : null;
         context.path = context.getTemplatePath(path);
 
         return context;

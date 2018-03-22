@@ -69,31 +69,38 @@ public class EndpointContextHolder {
         List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
         Map<String, String[]> configs = GeneratorUtils.getKeyValuePairAsMap(list);
 
-        String httpsPort = configs.get("httpsPort") != null ? configs.get("httpsPort")[0] : null;
-        this.host = configs.get("host") != null ? configs.get("host")[0] : null;
-        this.port = configs.get("port") != null ? configs.get("port")[0] : null;
+        String httpsPort = configs.get(GeneratorConstants.ATTR_HTTPS_PORT) != null ?
+                configs.get(GeneratorConstants.ATTR_HTTPS_PORT)[0] :
+                null;
+        this.host =
+                configs.get(GeneratorConstants.ATTR_HOST) != null ? configs.get(GeneratorConstants.ATTR_HOST)[0] : null;
+        this.port = configs.get(GeneratorConstants.ATTR_HTTP_PORT) != null ?
+                configs.get(GeneratorConstants.ATTR_HTTP_PORT)[0] :
+                null;
 
-        bLiteral = ((BLangRecordLiteral)((BLangAnnotationAttachment) ann).getExpression());
+        bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression());
         List<BLangRecordLiteral.BLangRecordKeyValue> attrList = bLiteral.getKeyValuePairs();
         Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(attrList);
 
-        this.basePath = attrs.get("basePath") != null ? attrs.get("basePath")[0] : null;
+        this.basePath = attrs.get(GeneratorConstants.ATTR_BASE_PATH) != null ?
+                attrs.get(GeneratorConstants.ATTR_BASE_PATH)[0] :
+                null;
         StringBuffer sb = new StringBuffer();
 
         // Select protocol according to given ports. HTTPS is given the priority
         if (httpsPort != null) {
-            sb.append("https://");
+            sb.append(GeneratorConstants.ATTR_HTTPS);
             port = httpsPort;
         } else {
-            sb.append("http://");
+            sb.append(GeneratorConstants.ATTR_HTTP);
         }
 
         // Set default values to host and port if values are not defined
         if (host == null) {
-            host = "localhost";
+            host = GeneratorConstants.ATTR_DEF_HOST;
         }
         if (port == null) {
-            port = "80";
+            port = GeneratorConstants.ATTR_DEF_PORT;
         }
 
         this.url = sb.append(host).append(':').append(port).append(basePath).toString();
