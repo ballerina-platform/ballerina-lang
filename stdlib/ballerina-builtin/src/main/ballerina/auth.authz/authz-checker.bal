@@ -30,7 +30,7 @@ public struct AuthzChecker {
 @Param {value:"permissionstore: PermissionStore instance"}
 @Param {value:"cache: Cache instance"}
 @Return {value:"AuthzChecker: AuthzChecker instance"}
-public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache|null cache)
+public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache cache)
                                                                                         returns (AuthzChecker) {
     AuthzChecker authzChecker = {permissionstore:permissionstore, authzCache:cache};
     return authzChecker;
