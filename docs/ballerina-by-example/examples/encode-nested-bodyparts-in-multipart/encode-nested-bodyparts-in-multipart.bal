@@ -1,6 +1,7 @@
 import ballerina/net.http;
 import ballerina/mime;
 import ballerina/file;
+import ballerina/io;
 
 endpoint http:ClientEndpoint clientEP {
     targets:[{uri:"http://localhost:9093"}]
