@@ -19,14 +19,14 @@ package ballerina.net.http;
 //import ballerina.mime;
 //import ballerina.runtime;
 //
-//@Description {value:"Represents Failover connector retry configuration."}
-//@Field {value:"failoverCodes: Array of http response status codes which required failover the requests."}
-//@Field {value:"interval: Failover delay interval in millisecond."}
-//public struct FailoverConfig {
-//    int[] failoverCodes;
-//    int interval;
-//}
-//
+@Description {value:"Represents Failover connector retry configuration."}
+@Field {value:"failoverCodes: Array of http response status codes which required failover the requests."}
+@Field {value:"interval: Failover delay interval in millisecond."}
+public struct FailoverConfig {
+    int[] failoverCodes;
+    int interval;
+}
+
 //@Description {value:"Represents an error occurred in an function of the Failover connector."}
 //@Field {value:"message: An error message explaining about the error."}
 //@Field {value:"cause: The error that caused HttpConnectorError to get thrown."}
