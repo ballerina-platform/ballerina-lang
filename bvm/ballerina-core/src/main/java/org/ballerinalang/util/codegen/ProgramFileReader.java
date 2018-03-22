@@ -1474,6 +1474,54 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWTABLE:
                 case InstructionCodes.NEWSTREAMLET:
+                case InstructionCodes.I2ANY:
+                case InstructionCodes.F2ANY:
+                case InstructionCodes.S2ANY:
+                case InstructionCodes.B2ANY:
+                case InstructionCodes.L2ANY:
+                case InstructionCodes.ANY2I:
+                case InstructionCodes.ANY2F:
+                case InstructionCodes.ANY2S:
+                case InstructionCodes.ANY2B:
+                case InstructionCodes.ANY2L:
+                case InstructionCodes.ANY2JSON:
+                case InstructionCodes.ANY2XML:
+                case InstructionCodes.ANY2MAP:
+                case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2DT:
+                case InstructionCodes.NULL2JSON:
+                case InstructionCodes.I2F:
+                case InstructionCodes.I2S:
+                case InstructionCodes.I2B:
+                case InstructionCodes.I2JSON:
+                case InstructionCodes.F2I:
+                case InstructionCodes.F2S:
+                case InstructionCodes.F2B:
+                case InstructionCodes.F2JSON:
+                case InstructionCodes.S2I:
+                case InstructionCodes.S2F:
+                case InstructionCodes.S2B:
+                case InstructionCodes.S2JSON:
+                case InstructionCodes.B2I:
+                case InstructionCodes.B2F:
+                case InstructionCodes.B2S:
+                case InstructionCodes.B2JSON:
+                case InstructionCodes.JSON2I:
+                case InstructionCodes.JSON2F:
+                case InstructionCodes.JSON2S:
+                case InstructionCodes.JSON2B:
+                case InstructionCodes.DT2XML:
+                case InstructionCodes.DT2JSON:
+                case InstructionCodes.T2MAP:
+                case InstructionCodes.T2JSON:
+                case InstructionCodes.XML2JSON:
+                case InstructionCodes.JSON2XML:
+                case InstructionCodes.XMLATTRS2MAP:
+                case InstructionCodes.ANY2SCONV:
+                case InstructionCodes.S2XML:
+                case InstructionCodes.XML2S:
+                case InstructionCodes.S2JSONX:
+                case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
@@ -1541,49 +1589,6 @@ public class ProgramFileReader {
                 case InstructionCodes.FLT:
                 case InstructionCodes.ILE:
                 case InstructionCodes.FLE:
-                case InstructionCodes.I2ANY:
-                case InstructionCodes.F2ANY:
-                case InstructionCodes.S2ANY:
-                case InstructionCodes.B2ANY:
-                case InstructionCodes.L2ANY:
-                case InstructionCodes.ANY2I:
-                case InstructionCodes.ANY2F:
-                case InstructionCodes.ANY2S:
-                case InstructionCodes.ANY2B:
-                case InstructionCodes.ANY2L:
-                case InstructionCodes.ANY2JSON:
-                case InstructionCodes.ANY2XML:
-                case InstructionCodes.ANY2MAP:
-                case InstructionCodes.ANY2TYPE:
-                case InstructionCodes.ANY2DT:
-                case InstructionCodes.NULL2JSON:
-                case InstructionCodes.I2F:
-                case InstructionCodes.I2S:
-                case InstructionCodes.I2B:
-                case InstructionCodes.I2JSON:
-                case InstructionCodes.F2I:
-                case InstructionCodes.F2S:
-                case InstructionCodes.F2B:
-                case InstructionCodes.F2JSON:
-                case InstructionCodes.S2I:
-                case InstructionCodes.S2F:
-                case InstructionCodes.S2B:
-                case InstructionCodes.S2JSON:
-                case InstructionCodes.B2I:
-                case InstructionCodes.B2F:
-                case InstructionCodes.B2S:
-                case InstructionCodes.B2JSON:
-                case InstructionCodes.JSON2I:
-                case InstructionCodes.JSON2F:
-                case InstructionCodes.JSON2S:
-                case InstructionCodes.JSON2B:
-                case InstructionCodes.DT2XML:
-                case InstructionCodes.DT2JSON:
-                case InstructionCodes.T2MAP:
-                case InstructionCodes.T2JSON:
-                case InstructionCodes.XML2JSON:
-                case InstructionCodes.JSON2XML:
-                case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
@@ -1591,25 +1596,20 @@ public class ProgramFileReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.S2XML:
-                case InstructionCodes.XML2S:
-                case InstructionCodes.S2JSONX:
-                case InstructionCodes.NULL2S:
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
-                case InstructionCodes.ANY2SCONV:
                 case InstructionCodes.NEWSTREAM:
+                case InstructionCodes.CHECKCAST:
+                case InstructionCodes.MAP2T:
+                case InstructionCodes.JSON2T:
+                case InstructionCodes.ANY2T:
+                case InstructionCodes.ANY2C:
+                case InstructionCodes.ANY2E:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k));
                     break;
-                case InstructionCodes.ANY2E:
-                case InstructionCodes.ANY2T:
-                case InstructionCodes.ANY2C:
-                case InstructionCodes.CHECKCAST:
-                case InstructionCodes.MAP2T:
-                case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
