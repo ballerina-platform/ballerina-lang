@@ -43,6 +43,8 @@ import java.util.Set;
  */
 public class Symbols {
 
+    public static final String ANON_STRUCT = "$anonStruct$";
+
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,
                                                  PackageID pkgID,
@@ -58,8 +60,9 @@ public class Symbols {
                                                  PackageID pkgID,
                                                  BType type,
                                                  BSymbol owner) {
-        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+        BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
+        typeSymbol.isObject = true;
         return typeSymbol;
     }
 

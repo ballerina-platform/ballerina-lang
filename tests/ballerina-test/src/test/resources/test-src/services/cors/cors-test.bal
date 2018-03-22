@@ -2,23 +2,17 @@ import ballerina/net.http;
 import ballerina/net.http.mock;
 
 endpoint mock:NonListeningService testEP {
-    port:9090
+    host: "localhost",
+    port: 9090
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello1",
-    endpoints:[testEP],
-    cors: {
-        allowOrigins :["http://www.m3.com", "http://www.hello.com"],
-        allowCredentials : true,
-        allowHeaders :["CORELATION_ID"],
-        exposeHeaders :["CORELATION_ID"],
-        maxAge : 1
-    }
+    endpoints:[testEP]
 }
 service<http:Service> echo1 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path : "/test1",
         cors: {
@@ -34,7 +28,7 @@ service<http:Service> echo1 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
          methods:["GET"],
          path : "/test2"
     }
@@ -45,7 +39,7 @@ service<http:Service> echo1 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path : "/test3",
         cors:{
@@ -61,12 +55,12 @@ service<http:Service> echo1 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> hello2 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
          methods:["POST"],
          path : "/test1",
          cors: {
@@ -81,7 +75,7 @@ service<http:Service> hello2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PUT"],
         path : "/test2",
         cors:{
@@ -98,7 +92,7 @@ service<http:Service> hello2 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/hello3",
     endpoints:[testEP],
     cors:{
@@ -111,7 +105,7 @@ service<http:Service> hello2 {
 }
 service<http:Service> echo3 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST", "PUT"]
     }
     info1 (http:ServerConnector conn, http:Request req) {
@@ -122,11 +116,11 @@ service<http:Service> echo3 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo4 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
     info1 (http:ServerConnector conn, http:Request req) {
@@ -136,7 +130,7 @@ service<http:Service> echo4 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["OPTIONS"]
     }
     info2 (http:ServerConnector conn, http:Request req) {

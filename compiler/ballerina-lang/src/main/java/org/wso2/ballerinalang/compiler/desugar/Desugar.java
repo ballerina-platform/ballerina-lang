@@ -128,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -241,8 +242,6 @@ public class Desugar extends BLangNodeVisitor {
 
         //Adding object functions to package level.
         pkgNode.objects.forEach(o -> {
-            pkgNode.functions.add(o.initFunction);
-            pkgNode.topLevelNodes.add(o.initFunction);
             o.functions.forEach(f -> {
                 pkgNode.functions.add(f);
                 pkgNode.topLevelNodes.add(f);
@@ -298,8 +297,19 @@ public class Desugar extends BLangNodeVisitor {
                     return field;
                 })
             .filter(field -> field.expr != null)
-            .forEachOrdered(field -> structNode.initFunction.initFunctionStmts.put(field.symbol,
-                    (BLangStatement) createAssignmentStmt(field)));
+            .forEachOrdered(field -> {
+                if (!structNode.initFunction.initFunctionStmts.containsKey(field.symbol)) {
+                    structNode.initFunction.initFunctionStmts.put(field.symbol,
+                            (BLangStatement) createAssignmentStmt(field));
+                }
+            });
+
+        //Adding init statements to the init function.
+        BLangStatement[] initStmts = structNode.initFunction.initFunctionStmts.values().toArray(new BLangStatement[0]);
+        for (int i = 0; i < structNode.initFunction.initFunctionStmts.size(); i++) {
+            structNode.initFunction.body.stmts.add(i, initStmts[i]);
+        }
+
         result = structNode;
     }
 
@@ -312,14 +322,6 @@ public class Desugar extends BLangNodeVisitor {
 
         Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
-
-        //Adding init statements to the init function.
-        if (funcNode.objectInitFunction) {
-            BLangStatement[] initStmts = funcNode.initFunctionStmts.values().toArray(new BLangStatement[0]);
-            for (int i = 0; i < funcNode.initFunctionStmts.size(); i++) {
-                funcNode.body.stmts.add(i, initStmts[i]);
-            }
-        }
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
@@ -361,7 +363,7 @@ public class Desugar extends BLangNodeVisitor {
         bLangStruct.name = objectNode.name;
         bLangStruct.fields = objectNode.fields;
 //        bLangStruct.functions = rewrite(objectNode.functions, env);
-//        bLangStruct.initFunction = rewrite(objectNode.initFunction, env);
+        bLangStruct.initFunction = objectNode.initFunction;
         bLangStruct.annAttachments = rewrite(objectNode.annAttachments, env);
         bLangStruct.docAttachments = rewrite(objectNode.docAttachments, env);
         bLangStruct.deprecatedAttachments = rewrite(objectNode.deprecatedAttachments, env);
@@ -589,18 +591,43 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        this.visit((BLangAssignment) stmt);
+        // var (a, b) = (tuple)
+        //
+        //  desugar once
+        //  any[] x = (tuple);
+        //  a = x[0];
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(stmt.pos);
 
-        // Resolve Access Expr's cast operator
-        for (int i = 0; i < stmt.varRefs.size(); i++) {
-            BLangExpression varRef = stmt.varRefs.get(i);
-            BSymbol symbol = symResolver.resolveConversionOperator(symTable.anyType, varRef.type);
-            if (symbol == symTable.notFoundSymbol) {
-                stmt.convOperatorSymbols.add(null);
+        BType runTimeType = new BArrayType(symTable.anyType);
+        final BLangVariable tuple = ASTBuilderUtil.createVariable(stmt.pos, "", runTimeType, null,
+                new BVarSymbol(0, names.fromString("tuple"),
+                        this.env.scope.owner.pkgID, runTimeType, this.env.scope.owner));
+        tuple.expr = stmt.expr;
+        final BLangVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(stmt.pos, blockStmt);
+        variableDef.var = tuple;
+
+        for (int index = 0; index < stmt.varRefs.size(); index++) {
+            BLangExpression varRef = stmt.varRefs.get(index);
+            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(stmt.pos, symTable.intType, (long) index);
+            BLangIndexBasedAccess arrayAccess = ASTBuilderUtil.createIndexBasesAccessExpr(stmt.pos, symTable.anyType,
+                    tuple.symbol, indexExpr);
+
+            final BLangExpression assignmentExpr;
+            if (types.isValueType(varRef.type)) {
+                BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+                castExpr.expr = arrayAccess;
+                castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, varRef.type);
+                castExpr.type = varRef.type;
+                assignmentExpr = castExpr;
             } else {
-                stmt.convOperatorSymbols.add((BConversionOperatorSymbol) symbol);
+                assignmentExpr = arrayAccess;
             }
+            final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(stmt.pos, blockStmt);
+            assignmentStmt.declaredWithVar = stmt.declaredWithVar;
+            assignmentStmt.varRefs = Lists.of(varRef);
+            assignmentStmt.expr = assignmentExpr;
         }
+        result = rewrite(blockStmt, env);
     }
 
     @Override
@@ -613,6 +640,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangAbort abortNode) {
         result = abortNode;
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        result = failNode;
     }
 
     @Override
@@ -1032,6 +1064,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.STREAM:
+            case TypeTags.FUTURE:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
@@ -1504,12 +1537,17 @@ public class Desugar extends BLangNodeVisitor {
             return null;
         }
 
+        if (node.desugared) {
+            return node;
+        }
+
         SymbolEnv previousEnv = this.env;
         this.env = env;
 
         node.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
+        resultNode.desugared = true;
 
         this.env = previousEnv;
         return (E) resultNode;
@@ -1521,6 +1559,10 @@ public class Desugar extends BLangNodeVisitor {
             return null;
         }
 
+        if (node.desugared) {
+            return node;
+        }
+
         BLangExpression expr = node;
         if (node.impConversionExpr != null) {
             expr = node.impConversionExpr;
@@ -1530,6 +1572,7 @@ public class Desugar extends BLangNodeVisitor {
         expr.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
+        resultNode.desugared = true;
         return (E) resultNode;
     }
 

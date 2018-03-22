@@ -530,6 +530,9 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAM:
                 checkFunctionInvocationExpr(iExpr, symTable.streamType);
                 break;
+            case TypeTags.FUTURE:
+                checkFunctionInvocationExpr(iExpr, symTable.futureType);
+                break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
@@ -723,6 +726,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> actualTypes;
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
+        conversionExpr.targetType = targetType;
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
         if (conversionExpr.transformerInvocation == null) {
@@ -1109,11 +1113,19 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
             case TypeTags.JSON:
-            case TypeTags.XML:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
             case TypeTags.TUPLE_COLLECTION:
                 return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+            case TypeTags.XML: {
+                // This has been done as there are an iterable operation and a function both named "select"
+                // "select" function is applicable over XML type and select iterable operation is applicable over
+                // Table type. In order to avoid XML.select being confused for iterable function select at
+                // TypeChecker#visit(BLangInvocation iExpr) following condition is checked.
+                // TODO: There should be a proper way to resolve the conflict
+                return IterableKind.getFromString(iExpr.name.value) != IterableKind.SELECT
+                        && IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+            }
         }
         return false;
     }

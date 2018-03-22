@@ -270,9 +270,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage) {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
-        PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
 
-        BLangPackage pkgNode = this.packageCache.get(pkdID);
+        BLangPackage pkgNode = this.packageCache.get(annPackage);
         if (pkgNode == null) {
             return annotationSymbols;
         }

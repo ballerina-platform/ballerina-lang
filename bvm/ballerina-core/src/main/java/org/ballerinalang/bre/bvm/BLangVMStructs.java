@@ -88,6 +88,7 @@ public class BLangVMStructs {
         return bConnector;
     }
 
+    @SuppressWarnings("rawtypes")
     private static void setValue(StructureType structureType, int[] regIndexes, int typeTag, Object value) {
         int index;
         switch (typeTag) {
