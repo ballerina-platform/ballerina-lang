@@ -682,9 +682,10 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.cursorPositionResolver = ObjectTypeScopeResolver.class;
         objectNode.fields.forEach(field -> acceptNode(field, objectEnv));
         // TODO: visit annotation and doc attachments
+        // Here we set the top level node scope since the function related resolving can handle by top level resolver
+        this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
         objectNode.functions.forEach(f -> acceptNode(f, objectEnv));
         blockOwnerStack.pop();
-        this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
     }
 
     /**
