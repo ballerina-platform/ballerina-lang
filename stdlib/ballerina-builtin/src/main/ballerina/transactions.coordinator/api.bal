@@ -62,10 +62,10 @@ documentation {
 function markForAbortion (string transactionId, int transactionBlockId) {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        var txn =? (TwoPhaseCommitTransaction)participatedTransactions[transactionId];
+        var txn =? <TwoPhaseCommitTransaction> participatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else if (initiatedTransactions.hasKey(transactionId)) {
-        var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else {
         error err = {message: "Transaction: " + participatedTxnId + " not found"};
@@ -88,7 +88,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
             return abortTransaction(transactionId, transactionBlockId);
         } else {
@@ -130,7 +130,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
 
             // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
             // and then call abort on the initiator
-            var txn =? (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+            var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
                 error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
@@ -153,7 +153,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
         }
     } else {
         //msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId); // TODO: we can move the core logic here from the function
-        var txn =? (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
         boolean successful = abortResourceManagers(transactionId, transactionBlockId);
         if (!successful) {
             error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
