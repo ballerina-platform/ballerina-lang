@@ -99,14 +99,14 @@ public transformer <RegistrationRequest req, json j> regRequestToJson() {
 }
 
 public transformer <json j, RegistrationRequest req> jsonToRegRequest() {
-    var transactionId =? (string)j.transactionId;
-    var participantId =? (string)j.participantId;
+    var transactionId =? <string>j.transactionId;
+    var participantId =? <string>j.participantId;
     req.transactionId = transactionId;
     req.participantId = participantId;
     Protocol[] protocols = j.participantProtocols.map(
                                                  function (json proto) returns Protocol {
-                                                     var name =? (string)proto.name;
-                                                     var url =? (string)proto.url;
+                                                     var name =? <string>proto.name;
+                                                     var url =? <string>proto.url;
                                                      Protocol p = {name:name, url:url};
                                                      return p;
                                                  });
@@ -129,12 +129,12 @@ public transformer <RegistrationResponse res, json j> regResposeToJson () {
 }
 
 public transformer <json j, RegistrationResponse res> jsonToRegResponse () {
-    var transactionId =? (string)j.transactionId;
+    var transactionId =? <string>j.transactionId;
     res.transactionId = transactionId;
     Protocol[] protocols = j.coordinatorProtocols.map(
                                                  function (json proto) returns Protocol {
-                                                     var name =? (string)proto.name;
-                                                     var url =? (string)proto.url;
+                                                     var name =? <string>proto.name;
+                                                     var url =? <string>proto.url;
                                                      Protocol p = {name:name, url:url};
                                                      return p;
                                                  });
@@ -161,7 +161,7 @@ function isValidCoordinationType (string coordinationType) returns boolean {
 function protocolCompatible (string coordinationType,
                              Protocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
-    var validProtocols =? (string[])coordinationTypeToProtocolsMap[coordinationType];
+    var validProtocols =? coordinationTypeToProtocolsMap[coordinationType];
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
             if (participantProtocol.name == validProtocol) {
@@ -322,7 +322,7 @@ function removeInitiatedTransaction(string transactionId) {
 
 function getInitiatorClientEP(string registerAtURL) returns InitiatorClientEP {
     if(httpClientCache.hasKey(registerAtURL)) {
-        var initiatorEP =? (InitiatorClientEP)httpClientCache.get(registerAtURL);
+        var initiatorEP =? <InitiatorClientEP>httpClientCache.get(registerAtURL);
         return initiatorEP;
     } else {
         InitiatorClientEP initiatorEP = {};
