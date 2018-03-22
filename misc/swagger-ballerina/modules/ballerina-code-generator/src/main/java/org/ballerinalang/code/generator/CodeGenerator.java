@@ -65,8 +65,8 @@ public class CodeGenerator {
      *                    <li>swagger</li>
      *                    </ul>
      * @param context Context details for generating the client
+     * @return generated source is string representation of generated source.
      * @throws CodeGeneratorException when file operations fail
-     * @Return generated source is string representation of generated source.
      */
     public String generateOutput(GeneratorConstants.GenType type, ClientContextHolder context)
             throws CodeGeneratorException {
