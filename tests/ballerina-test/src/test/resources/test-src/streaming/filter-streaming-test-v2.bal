@@ -46,11 +46,9 @@ function testFilterQuery (stream<Teacher> teacherStream1) {
     }
 }
 
-
 function startFilterQuery( ) returns (Employee []) {
 
     stream<Teacher> teacherStream1 = {};
-
     testFilterQuery(teacherStream1);
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -64,7 +62,6 @@ function startFilterQuery( ) returns (Employee []) {
     teacherStream1.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
-
     return globalEmployeeArray;
 }
 
