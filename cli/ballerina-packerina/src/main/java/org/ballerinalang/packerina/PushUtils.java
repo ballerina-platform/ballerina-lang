@@ -27,8 +27,8 @@ import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.ExecutorUtils;
 import org.wso2.ballerinalang.util.HomeRepoUtils;
 
@@ -76,7 +76,8 @@ public class PushUtils {
         Path prjDirPath = Paths.get(".").toAbsolutePath().normalize().resolve(".ballerina");
 
         // Get package path from project directory path
-        Path pkgPathFromPrjtDir = resolvePkgPathInProjectRepo(prjDirPath, packageID);
+        Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
+                                            packageName, Names.DEFAULT_VERSION.getValue(), packageName + ".zip");
         if (installToRepo == null) {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
@@ -103,24 +104,6 @@ public class PushUtils {
                 }
             }
         }
-    }
-
-    /**
-     * Get the path of the project repo.
-     *
-     * @param prjDirPath project directory path
-     * @param packageID  packageID object
-     * @return full path of the package relative to the project dir
-     */
-    private static Path resolvePkgPathInProjectRepo(Path prjDirPath, PackageID packageID) {
-        Repo<Path> projectRepo = new ZipRepo(prjDirPath);
-        Patten patten = projectRepo.calculate(packageID);
-        if (patten == Patten.NULL) {
-            throw new BLangCompilerException("Couldn't find package " + packageID.toString());
-        }
-        Converter<Path> converter = projectRepo.getConverterInstance();
-        List<Path> collect = patten.convert(converter).collect(Collectors.toList());
-        return Paths.get(collect.get(0).getFileSystem().toString());
     }
 
     /**

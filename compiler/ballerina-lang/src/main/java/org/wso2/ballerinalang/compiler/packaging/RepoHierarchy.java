@@ -5,7 +5,6 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

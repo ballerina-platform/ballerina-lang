@@ -19,11 +19,8 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -64,32 +61,16 @@ public class SourceDirectoryManager {
     public Stream<PackageID> listSourceFilesAndPackages() {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
-        Manifest manifest = getManifestObj();
         return Stream.concat(sourceFileNames.stream().map(PackageID::new),
-                packageNames.stream().map(name -> new PackageID(new Name(manifest.getName()),
-                        names.fromString(name), new Name(manifest.getVersion()))));
-    }
-
-    private Manifest getManifestObj() {
-        Manifest manifest;
-        if (sourceDirectory.getManifestContent() == null) {
-            manifest = new Manifest();
-        } else {
-            manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
-        }
-        if (manifest.getName() == null) {
-            manifest.setName(Names.ANON_ORG.getValue());
-        }
-        if (manifest.getVersion() == null) {
-            manifest.setVersion(Names.DEFAULT_VERSION.getValue());
-        }
-        return manifest;
+                             packageNames.stream().map(name -> new PackageID(Names.ANON_ORG,
+                                                                             names.fromString(name),
+                                                                             Names.DEFAULT_VERSION)));
     }
 
     public Stream<PackageID> listPackages() {
         List<String> pkgNames = sourceDirectory.getSourcePackageNames();
         return pkgNames.stream().map(name -> new PackageID(Names.ANON_ORG,
-                names.fromString(name), Names.DEFAULT_VERSION));
+                                                           names.fromString(name), Names.DEFAULT_VERSION));
     }
 
     public PackageID getPackageID(String sourcePackage) {
@@ -100,9 +81,7 @@ public class SourceDirectoryManager {
 
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         if (packageNames.contains(sourcePackage)) {
-            Manifest manifest = getManifestObj();
-            return new PackageID(new Name(manifest.getName()), names.fromString(sourcePackage),
-                    new Name(manifest.getVersion()));
+            return new PackageID(Names.ANON_ORG, names.fromString(sourcePackage), Names.DEFAULT_VERSION);
         }
 
         return null;
@@ -134,9 +113,5 @@ public class SourceDirectoryManager {
 
         context.put(SourceDirectory.class, srcDirectory);
         return srcDirectory;
-    }
-
-    private static String removeQuotesFromValue(String value) {
-        return value.replace("\"", "");
     }
 }
