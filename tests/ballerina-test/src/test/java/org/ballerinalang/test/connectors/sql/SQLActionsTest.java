@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
@@ -83,14 +82,14 @@ public class SQLActionsTest {
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
         BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue())> 0);
+        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
     }
 
     @Test(groups = "ConnectorTest")
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn");
         BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue())> 0);
+        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
     }
 
     @Test(groups = "ConnectorTest")
@@ -131,15 +130,16 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testCallProcedureWithResultSet() {
-        BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithResultSet");
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testCallProcedureWithResultSet", args);
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
+    @Test(groups = "ConnectorTest")
     public void testCallProcedureWithMultipleResultSets() {
         BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithMultipleResultSets");
         BString retValue = (BString) returns[0];
