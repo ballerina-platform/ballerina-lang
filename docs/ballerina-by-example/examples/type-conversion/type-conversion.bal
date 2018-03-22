@@ -15,15 +15,27 @@ function main (string[] args) {
     //The compiler enforces use of the multi-return conversion expression as follows.
     //A TypeConversionError represents an error that occurs during a TypeConversion.
     strVal = "Sri Lanka";
-    var intVal, conversionErr = <int>strVal;
-    if (conversionErr != null) {
-        io:println("error: " + conversionErr.message);
+    var intResult = <int>strVal;
+    match intResult{
+        int value =>{
+            io:println(value);
+        }
+        error err =>{
+            io:println("error: " + err.message);
+        }
     }
 
     //If you know that this conversion will always be successful, you can ignore the error as follows.
     strVal = "5";
-    var val, _ = <int>strVal;
-    io:println(val);
+    var stringResult = <int> strVal;
+    match stringResult{
+        int value =>{
+            io:println(value);
+        }
+        error err =>{
+            io:println("Error occurred while casting" + err.message);
+        }
+    }
 
     //A 'boolean' to 'int' conversion is always safe. You get 0 for a 'false' value and 1 for a 'true' value.
     boolean boolVal = true;
@@ -37,6 +49,6 @@ function main (string[] args) {
 
     //This is a 'string' to 'boolean' conversion.
     strVal = "true";
-    boolVal, _ = <boolean>strVal;
+    boolVal = <boolean>strVal;
     io:println(boolVal);
 }
