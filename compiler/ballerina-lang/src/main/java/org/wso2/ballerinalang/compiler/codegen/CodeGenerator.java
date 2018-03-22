@@ -27,7 +27,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -108,7 +108,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
@@ -1155,59 +1154,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.FPCALL, operands);
     }
 
-    public void visit(BLangTypeCastExpr castExpr) {
-        int opcode = castExpr.castSymbol.opcode;
-        RegIndex[] castExprRegIndexes = castExpr.getRegIndexes();
-
-        // Figure out the reg index of the error value
-        RegIndex errorRegIndex = castExprRegIndexes == null ?
-                calcAndGetExprRegIndex(null, TypeTags.STRUCT) :
-                calcAndGetExprRegIndex(castExprRegIndexes[1], TypeTags.STRUCT);
-
-        // Figure out the reg index of the result value
-        BType castExprType = castExpr.types.get(0);
-        RegIndex castExprRegIndex = castExprRegIndexes == null ?
-                calcAndGetExprRegIndex(castExpr.regIndex, castExprType.tag) :
-                calcAndGetExprRegIndex(castExprRegIndexes[0], castExprType.tag);
-
-        castExprRegIndexes = new RegIndex[]{castExprRegIndex, errorRegIndex};
-        castExpr.setRegIndexes(castExprRegIndexes);
-        if (opcode == InstructionCodes.NOP) {
-            castExpr.expr.regIndex = createLHSRegIndex(castExprRegIndex);
-            genNode(castExpr.expr, this.env);
-            return;
-        }
-
-        genNode(castExpr.expr, this.env);
-        if (opcode == InstructionCodes.ANY2T ||
-                opcode == InstructionCodes.ANY2C ||
-                opcode == InstructionCodes.ANY2E ||
-                opcode == InstructionCodes.ANY2M ||
-                opcode == InstructionCodes.CHECKCAST) {
-            Operand typeCPIndex = getTypeCPIndex(castExpr.type);
-            emit(opcode, castExpr.expr.regIndex, typeCPIndex, castExprRegIndex, errorRegIndex);
-        } else {
-            emit(opcode, castExpr.expr.regIndex, castExprRegIndex, errorRegIndex);
-        }
-    }
-
     public void visit(BLangTypeConversionExpr convExpr) {
         int opcode = convExpr.conversionSymbol.opcode;
-        RegIndex[] convExprRegIndexes = convExpr.getRegIndexes();
-
-        // Figure out the reg index of the error value
-        RegIndex errorRegIndex = convExprRegIndexes == null ?
-                calcAndGetExprRegIndex(null, TypeTags.STRUCT) :
-                calcAndGetExprRegIndex(convExprRegIndexes[1], TypeTags.STRUCT);
 
         // Figure out the reg index of the result value
-        BType castExprType = convExpr.types.get(0);
-        RegIndex convExprRegIndex = convExprRegIndexes == null ?
-                calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag) :
-                calcAndGetExprRegIndex(convExprRegIndexes[0], castExprType.tag);
-
-        convExprRegIndexes = new RegIndex[]{convExprRegIndex, errorRegIndex};
-        convExpr.setRegIndexes(convExprRegIndexes);
+        BType castExprType = convExpr.type;
+        RegIndex convExprRegIndex = calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag);
+        convExpr.regIndex = convExprRegIndex;
         if (opcode == InstructionCodes.NOP) {
             convExpr.expr.regIndex = createLHSRegIndex(convExprRegIndex);
             genNode(convExpr.expr, this.env);
@@ -1215,12 +1168,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         genNode(convExpr.expr, this.env);
-        if (opcode == InstructionCodes.MAP2T || opcode == InstructionCodes.JSON2T) {
-            Operand typeCPIndex = getTypeCPIndex(convExpr.type);
-            emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex, errorRegIndex);
-
+        if (opcode == InstructionCodes.MAP2T ||
+                opcode == InstructionCodes.JSON2T ||
+                opcode == InstructionCodes.ANY2T ||
+                opcode == InstructionCodes.ANY2C ||
+                opcode == InstructionCodes.ANY2E ||
+                opcode == InstructionCodes.ANY2M ||
+                opcode == InstructionCodes.CHECKCAST) {
+            Operand typeCPIndex = getTypeCPIndex(convExpr.typeNode.type);
+            emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
         } else {
-            emit(opcode, convExpr.expr.regIndex, convExprRegIndex, errorRegIndex);
+            emit(opcode, convExpr.expr.regIndex, convExprRegIndex);
         }
     }
 
@@ -1545,16 +1503,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         while (i < returnNode.exprs.size()) {
             BLangExpression expr = returnNode.exprs.get(i);
             this.genNode(expr, this.env);
-            if (expr.isMultiReturnExpr()) {
-                MultiReturnExpr invExpr = (MultiReturnExpr) expr;
-                for (int j = 0; j < invExpr.getRegIndexes().length; j++) {
-                    emit(this.typeTagToInstr(invExpr.getTypes().get(j).tag), getOperand(i), invExpr.getRegIndexes()[j]);
-                    i++;
-                }
-            } else {
-                emit(this.typeTagToInstr(expr.type.tag), getOperand(i), expr.regIndex);
-                i++;
-            }
+            emit(this.typeTagToInstr(expr.type.tag), getOperand(i), expr.regIndex);
+            i++;
         }
         generateFinallyInstructions(returnNode);
     }
@@ -1705,9 +1655,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Calculate registers to store return values
         operands[i++] = getOperand(nRetRegs);
         RegIndex[] iExprRegIndexes;
-        if (iExpr.getRegIndexes() != null) {
-            iExprRegIndexes = iExpr.getRegIndexes();
-        } else if (iExpr.regIndex != null) {
+        if (iExpr.regIndex != null) {
             iExprRegIndexes = new RegIndex[nRetRegs];
             iExprRegIndexes[0] = iExpr.regIndex;
         } else {
@@ -2592,8 +2540,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Set the reg indexes generated by visiting rhs expression to lhs expression
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
             regIndexes = getTupleDestructureRegIndexs((BLangTupleDestructure) assignNode);
-        } else if (rhsExpr.isMultiReturnExpr()) {
-            regIndexes = ((MultiReturnExpr) rhsExpr).getRegIndexes();
         } else {
             regIndexes[0] = rhsExpr.regIndex;
         }
@@ -2633,7 +2579,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(indexLiteral, this.env);
             RegIndex castExprRegIndex = calcAndGetExprRegIndex(varRef.regIndex, varRef.type.tag);
             // Cast if required.
-            final BCastOperatorSymbol castSymbol = stmt.castOperatorSymbols.get(i);
+            final BConversionOperatorSymbol castSymbol = stmt.convOperatorSymbols.get(i);
             if (castSymbol != null && castSymbol.opcode != InstructionCodes.NOP) {
                 emit(InstructionCodes.RALOAD, varRefRegIndex, indexLiteral.regIndex, tempValueStore);
                 int opcode = castSymbol.opcode;
