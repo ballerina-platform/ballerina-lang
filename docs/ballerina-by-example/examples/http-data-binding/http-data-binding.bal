@@ -7,51 +7,51 @@ struct Student {
     map Marks;
 }
 
-endpoint<http:Service> helloEP {
+endpoint http:ServiceEndpoint helloEP {
     port:9090
-}
+};
 
-@http:serviceConfig { endpoints:[helloEP] }
-service<http:Service> hello {
+@http:ServiceConfig
+service<http:Service> hello bind helloEP {
 
     @Description {value:"Body annotation represents the entity body of the inbound request."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"orderDetails"
     }
-    resource bindJson (http:ServerConnector conn, http:Request req, json orderDetails) {
+    bindJson (endpoint outboundEP, http:Request req, json orderDetails) {
         //Access JSON field values
         json details = orderDetails.Details;
         io:println(details);
 
         http:Response res = {};
         res.setJsonPayload(details);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 
     @Description {value:"Bind xml payload of the inbound request to variable store."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"store",
         consumes:["application/xml"]
     }
-    resource bindXML (http:ServerConnector conn, http:Request req, xml store) {
+    bindXML (endpoint outboundEP, http:Request req, xml store) {
         //Access XML content.
         xml city = store.selectChildren("city");
         io:println(city);
 
         http:Response res = {};
         res.setXmlPayload(city);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 
     @Description {value:"Bind JSON payload into a custom struct. Payload content should match with struct."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"student",
         consumes:["application/json"]
     }
-    resource bindStruct (http:ServerConnector conn, http:Request req, Student student) {
+    bindStruct (endpoint outboundEP, http:Request req, Student student) {
         //Access Student struct fields
         string name = student.Name;
         io:println(name);
@@ -64,6 +64,6 @@ service<http:Service> hello {
 
         http:Response res = {};
         res.setJsonPayload({Name:name, Grade:grade});
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
