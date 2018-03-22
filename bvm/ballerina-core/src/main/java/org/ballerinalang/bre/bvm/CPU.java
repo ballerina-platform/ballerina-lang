@@ -2889,6 +2889,11 @@ public class CPU {
             return true;
         }
 
+        if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG &&
+                lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
+            return true;
+        }
+
         // TODO Union types, tuple types
         return false;
     }
