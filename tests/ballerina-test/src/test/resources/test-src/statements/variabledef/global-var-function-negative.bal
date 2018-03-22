@@ -2,7 +2,7 @@ struct s1 {
   float x;
 }
 
-function getGlobalVars() (float) {
+function getGlobalVars() returns (float) {
     s1 v = {};
     float f = v.foo:x;
 }
