@@ -71,7 +71,7 @@ function anyfloattostring() returns (string) {
     any value = 5.5;
     string result;
     //any to string should be a conversion
-    result =? <string>value;
+    result = <string>value;
     return result;
 }
 
@@ -79,7 +79,7 @@ function anyjsontostring() returns (string) {
     any value = {"a":"b"};
     string result;
     //any to string should be a conversion
-    result =? <string>value;
+    result = <string>value;
     return result;
 }
 
@@ -394,24 +394,6 @@ function testInCompatibleStructForceCasting() returns (A | error) {
     return a;
 }
 
-function testAnyToStringWithErrors() returns (string | error) {
-    any a = 5;
-    string s;
-    s =? <string> a;
-    //TODO Handle error
-
-    return s;
-}
-
-function testAnyToStringWithoutErrors() returns (string | error) {
-    any a = "value";
-    string s;
-    s =? <string> a;
-    //TODO Handle error
-
-    return s;
-}
-
 function testAnyToIntWithoutErrors() returns (int | error) {
     any a = 6;
     int s;
@@ -502,12 +484,10 @@ function testAnyToMapWithErrors() returns (map | error) {
     return b;
 }
 
-function testAnyNullToStringWithErrors() returns (string | error) {
+function testAnyNullToString() returns (string) {
     any a = null;
     string s;
-    s =? <string> a;
-    //TODO Handle error
-
+    s = <string> a;
     return s;
 }
 
