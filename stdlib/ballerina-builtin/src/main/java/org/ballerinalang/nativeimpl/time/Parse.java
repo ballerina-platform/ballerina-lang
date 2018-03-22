@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina", packageName = "time",
         functionName = "parse",
         args = {@Argument(name = "dateString", type = TypeKind.STRING),
                 @Argument(name = "patter", type = TypeKind.STRING)},

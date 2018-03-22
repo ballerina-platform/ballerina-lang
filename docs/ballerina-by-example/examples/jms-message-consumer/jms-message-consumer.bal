@@ -1,6 +1,6 @@
-import ballerina.lang.messages;
-import ballerina.io;
-import ballerina.net.jms;
+import ballerina/lang.messages;
+import ballerina/io;
+import ballerina/net.jms;
 
 @Description{value : "Service level annotation to provide connection details. Connection factory type can be either queue or topic depending on the requirement. "}
 @jms:configuration {

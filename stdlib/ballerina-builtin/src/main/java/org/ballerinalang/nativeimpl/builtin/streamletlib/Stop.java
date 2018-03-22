@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  *
  * @since 0.965.0
  */
-@BallerinaFunction(packageName = "ballerina.builtin",
+@BallerinaFunction(orgName = "ballerina", packageName = "builtin",
         functionName = "streamlet.stop",
         args = {
                 @Argument(name = "s", type = TypeKind.STREAMLET)

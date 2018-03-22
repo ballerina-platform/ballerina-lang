@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.lang.time;
+import ballerina/lang.system;
+import ballerina/lang.time;
 
 function main (string[] args) {
     //Time struct can be created by currentTime, createTime or parse functions.

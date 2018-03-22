@@ -38,8 +38,6 @@ public class BLangTypeInit extends BLangExpression implements TypeInitNode {
     public BLangUserDefinedType userDefinedType;
     public List<BLangExpression> argsExpr;
     public BLangInvocation objectInitInvocation;
-    public boolean objectInit;
-
 
     public BLangTypeInit() {
         argsExpr = new ArrayList<>();

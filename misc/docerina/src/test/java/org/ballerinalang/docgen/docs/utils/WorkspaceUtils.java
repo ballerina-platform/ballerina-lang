@@ -52,22 +52,19 @@ public class WorkspaceUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DEFINE.toString());
         options.put(CompilerOptionName.PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        options.put(CompilerOptionName.SKIP_PACKAGE_VALIDATION, Boolean.TRUE.toString());
-
         return getBallerinaPackage(fileName, context);
-
     }
 
     private static BLangPackage getBallerinaPackage(String fileName, CompilerContext context) {
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage balPkg = new BLangPackage();
+        BLangPackage balPkg = null;
         try {
-            compiler.compile(fileName);
+            balPkg = compiler.compile(fileName);
         } catch (Exception ex) {
             BDiagnostic catastrophic = new BDiagnostic();
             catastrophic.msg = "Failed in the runtime parse/analyze. " + ex.getMessage();
         }
-        balPkg = (BLangPackage) compiler.getAST();
+
         return balPkg;
     }
 }

@@ -1,6 +1,6 @@
 package ballerina.lang.arrays;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Copies the specified range of the specified string array "}
 @doc:Param { value:"anyArrayFrom: The any array from which the range will be copied" }

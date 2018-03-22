@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"As a best practice, error will be the last return value. Its type should be 'error', a built-in reference type."}
 function getAccountBalance (int accountID) returns (int) | error {

@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 function main (string[] args) {
     //The vertical bar (|) character is used to demarcate the identifier name.

@@ -1,4 +1,4 @@
-import ballerina.lang.xmls;
+import ballerina/lang.xmls;
 
 function getString(xml msg, string xPath, map namespaces) (string) {
     return xmls:getStringWithNamespace(msg, xPath, namespaces);

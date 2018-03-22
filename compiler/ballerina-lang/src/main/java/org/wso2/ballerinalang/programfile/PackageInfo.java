@@ -19,15 +19,16 @@ package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
-import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * {@code PackageInfo} contains metadata of a Ballerina package entry in the program file.
@@ -39,10 +40,11 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public int nameCPIndex;
     public int versionCPIndex;
 
-    private ConstantPoolEntry[] constPool;
     private List<ConstantPoolEntry> constantPoolEntries = new ArrayList<>();
 
     public List<Instruction> instructionList = new ArrayList<>();
+
+    public Set<ImportPackageInfo> importPkgInfoSet = new HashSet<>();
 
     private Map<String, PackageVarInfo> constantInfoMap = new LinkedHashMap<>();
 
@@ -66,11 +68,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
-    public PackageInfo(int nameCPIndex, int versionCPIndex) {
-        this.nameCPIndex = nameCPIndex;
-        this.versionCPIndex = versionCPIndex;
-    }
-
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {
             return constantPoolEntries.indexOf(cpEntry);
@@ -92,24 +89,12 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return constantPoolEntries.toArray(new ConstantPoolEntry[0]);
     }
 
-    public PackageVarInfo getConstantInfo(String constantName) {
-        return constantInfoMap.get(constantName);
-    }
-
-    public void addConstantInfo(String constantName, PackageVarInfo constantInfo) {
-        constantInfoMap.put(constantName, constantInfo);
-    }
-
     public PackageVarInfo[] getConstantInfoEntries() {
         return constantInfoMap.values().toArray(new PackageVarInfo[0]);
     }
 
     public PackageVarInfo[] getPackageInfoEntries() {
         return pkgVarInfoMap.values().toArray(new PackageVarInfo[0]);
-    }
-
-    public FunctionInfo[] getFunctionInfoEntries() {
-        return functionInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
     public StructInfo getStructInfo(String structName) {
@@ -142,11 +127,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return connectorInfoMap.get(connectorName);
     }
 
-    public void addConnectorInfo(String connectorName, ConnectorInfo connectorInfo) {
-        connectorInfoMap.put(connectorName, connectorInfo);
-        structureTypeInfoMap.put(connectorName, connectorInfo);
-    }
-
     public ConnectorInfo[] getConnectorInfoEntries() {
         return connectorInfoMap.values().toArray(new ConnectorInfo[0]);
     }
@@ -175,44 +155,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
         serviceInfoMap.put(serviceName, serviceInfo);
         structureTypeInfoMap.put(serviceName, serviceInfo);
-    }
-
-    public StructureTypeInfo getStructureTypeInfo(String structureTypeName) {
-        return structureTypeInfoMap.get(structureTypeName);
-    }
-
-    public LineNumberInfo getLineNumberInfo(LineNumberInfo lineNumberInfo) {
-        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) attributeInfoMap
-                .get(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
-        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
-        int index = lineNumberInfos.indexOf(lineNumberInfo);
-        if (index >= 0) {
-            return lineNumberInfos.get(index);
-        }
-        return null;
-    }
-
-    public LineNumberInfo getLineNumberInfo(int currentIP) {
-        LineNumberInfo old = null;
-        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) attributeInfoMap
-                .get(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
-        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
-        for (LineNumberInfo lineNumberInfo : lineNumberInfos) {
-            if (currentIP == lineNumberInfo.getIp()) {
-                // best case.
-                return lineNumberInfo;
-            }
-            if (old != null && currentIP > old.getIp() && currentIP < lineNumberInfo.getIp()) {
-                // TODO : Check condition currentIP > lineNumberInfo.getIP() in different scopes.
-                return old;
-            }
-            old = lineNumberInfo;
-        }
-        return null;
-    }
-
-    public void complete() {
-        this.constPool = constantPoolEntries.toArray(new ConstantPoolEntry[0]);
     }
 
     @Override

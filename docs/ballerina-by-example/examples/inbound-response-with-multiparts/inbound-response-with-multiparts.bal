@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/mime;
+import ballerina/io;
 
 endpoint<http:Client> clientEP {
     serviceUri: "http://localhost:9092"
