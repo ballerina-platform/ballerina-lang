@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina.io;
-import ballerina.net.grpc;
+import ballerina/io;
+import ballerina/net.grpc;
 
 function main (string[] args) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {

@@ -1,6 +1,6 @@
 package ballerina.lang.system;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Prints a 'any' value to the STDOUT"}
 @doc:Param { value:"a: any value to be printed" }

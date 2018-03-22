@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  * {@code HasPromise} action can be used to check whether a push promise is available.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "hasPromise",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),

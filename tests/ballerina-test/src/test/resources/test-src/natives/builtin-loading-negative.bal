@@ -1,5 +1,5 @@
-import ballerina.builtin;
-import ballerina.math;
+import ballerina/builtin;
+import ballerina/math;
 
 function main(string[] args){
     var v = math:pow(2, 2);

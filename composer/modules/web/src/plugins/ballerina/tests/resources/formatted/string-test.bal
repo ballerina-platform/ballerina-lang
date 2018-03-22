@@ -1,4 +1,4 @@
-import ballerina.lang.strings;
+import ballerina/lang.strings;
 
 function contains (string source, string substring) (boolean) {
     return strings:contains(source, substring);

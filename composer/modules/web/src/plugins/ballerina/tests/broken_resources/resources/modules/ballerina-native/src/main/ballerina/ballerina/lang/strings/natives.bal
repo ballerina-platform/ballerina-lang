@@ -1,6 +1,6 @@
 package ballerina.lang.strings;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Returns a string with all the characters converted to uppercase"}
 @doc:Param { value:"s: The original string argument" }

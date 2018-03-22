@@ -1,5 +1,5 @@
 // Year 2017
-import ballerina.io;
+import ballerina/io;
 
 
 function testComments () {

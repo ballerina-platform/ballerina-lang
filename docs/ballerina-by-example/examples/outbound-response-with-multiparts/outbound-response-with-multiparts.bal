@@ -1,14 +1,14 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.file;
+import ballerina/net.http;
+import ballerina/mime;
+import ballerina/file;
 
-endpoint<http:Service> multipartEP {
+endpoint http:ServiceEndpoint multipartEP {
     port:9092
-}
+};
 
-@http:serviceConfig { endpoints:[multipartEP] }
-service<http:Service> multiparts {
-      @http:resourceConfig {
+@http:ServiceConfig {basePath:"/multiparts"}
+service<http:Service> test bind multipartEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/encode_out_response"
     }

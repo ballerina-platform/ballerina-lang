@@ -1,5 +1,5 @@
-import ballerina.net.jms;
-import ballerina.lang.messages;
+import ballerina/net.jms;
+import ballerina/lang.messages;
 
 function jmsClientConnectorTest() (boolean) {
     map properties = {"providerUrl":"jndi.properties",

@@ -20,21 +20,24 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.parser.v3.OpenAPIV3Parser;
+import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.model.BallerinaOpenApi;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
-import org.ballerinalang.swagger.utils.OpenApiWrapper;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * <p>This class generates Ballerina Services/Connectors for a provided OAS definition.</p>
+ * This class generates Ballerina Services/Connectors for a provided OAS definition.
  */
 public class CodeGenerator {
     private String apiPackage;
@@ -51,32 +54,43 @@ public class CodeGenerator {
      *                       </ul>
      * @param definitionPath Input Open Api Definition file path
      * @param outPath        Destination file path to save generated source files. If not provided
-     *                       <code>destinationPath</code> will be used as the default destination path
+     *                       <code>definitionPath</code> will be used as the default destination path
      * @throws IOException when file operations fail
      */
-    public void generate(GenType type, String definitionPath, String outPath) throws IOException {
-
+    public void generate(GenType type, String definitionPath, String outPath) throws IOException,
+            BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
-        OpenApiWrapper context = new OpenApiWrapper().buildFromOpenAPI(api).apiPackage(apiPackage);
+        BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).apiPackage(apiPackage);
+        String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
+        outPath = outPath == null || outPath.isEmpty() ? "." : outPath;
+        String destination =  outPath + File.separator + fileName;
+        String modelDestination = outPath + File.separator + GeneratorConstants.MODELS_FILE_NAME;
 
-        // Write output to the input definition location if no destination directory is provided
-        if (outPath == null || outPath.isEmpty()) {
-            String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
-            outPath = definitionPath.substring(0, definitionPath.lastIndexOf(File.separator) + 1);
-            outPath += fileName;
-        }
         switch (type) {
             case SKELETON:
-                writeBallerina(context, GeneratorConstants.DEFAULT_SKELETON_DIR,
-                        GeneratorConstants.SKELETON_TEMPLATE_NAME, outPath);
+                // Write ballerina definition
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_SKELETON_DIR,
+                        GeneratorConstants.SKELETON_TEMPLATE_NAME, destination);
+
+                // Write ballerina structs
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
                 break;
             case CONNECTOR:
-                writeBallerina(context, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
-                        GeneratorConstants.CONNECTOR_TEMPLATE_NAME, outPath);
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
+                        GeneratorConstants.CONNECTOR_TEMPLATE_NAME, destination);
+
+                // Write ballerina structs
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
                 break;
             case MOCK:
-                writeBallerina(context, GeneratorConstants.DEFAULT_MOCK_DIR, GeneratorConstants.MOCK_TEMPLATE_NAME,
-                        outPath);
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_MOCK_DIR,
+                        GeneratorConstants.MOCK_TEMPLATE_NAME, destination);
+
+                // Write ballerina structs
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
+                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
                 break;
             default:
                 return;
@@ -98,7 +112,10 @@ public class CodeGenerator {
 
         try {
             Template template = compileTemplate(templateDir, templateName);
-            Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
+            Context context = Context.newBuilder(object).resolver(
+                    MapValueResolver.INSTANCE,
+                    JavaBeanValueResolver.INSTANCE,
+                    FieldValueResolver.INSTANCE).build();
             writer = new PrintWriter(outPath, "UTF-8");
             writer.println(template.apply(context));
         } finally {

@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * This class represents the implementation of creating a new table from an existing in memory table. The records
  * which are fetched according to the given sqlQuery is inserted to the new in memory table.
  */
-@BallerinaFunction(packageName = "ballerina.builtin",
+@BallerinaFunction(orgName = "ballerina", packageName = "builtin",
         functionName = "queryTableWithJoinClause",
         args = {
                 @Argument(name = "sqlQuery",
