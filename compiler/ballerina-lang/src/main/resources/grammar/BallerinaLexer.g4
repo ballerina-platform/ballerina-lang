@@ -167,6 +167,7 @@ RANGE       : '..' ;
 ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
+ELVIS       : '?:' ;
 
 
 // Compound Assignment operators.

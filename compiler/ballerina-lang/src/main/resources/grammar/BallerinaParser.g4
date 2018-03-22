@@ -622,7 +622,8 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   AWAIT expression                                                    # awaitExpression    
+    |   AWAIT expression                                                    # awaitExpression
+    |   expression ELVIS expression                                         # elvisExpression
     ;
 
 //reusable productions

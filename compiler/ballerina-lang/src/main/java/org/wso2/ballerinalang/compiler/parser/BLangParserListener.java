@@ -2867,6 +2867,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.markLastExpressionAsAwait();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitElvisExpression(BallerinaParser.ElvisExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createElvisExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine() + 1;

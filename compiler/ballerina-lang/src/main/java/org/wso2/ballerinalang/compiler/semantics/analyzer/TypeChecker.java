@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -110,12 +111,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -651,6 +647,37 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultTypes = types.checkTypes(binaryExpr, Lists.of(actualType), expTypes);
+    }
+
+    public void visit(BLangElvisExpr elvisExpr) {
+        BType lhsType = checkExpr(elvisExpr.lhsExpr, env).get(0);
+        BType rhsType = checkExpr(elvisExpr.rhsExpr, env).get(0);
+        BType actualType = symTable.errType;
+        if (lhsType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) lhsType;
+            if (unionType.isNullable()) {
+                HashSet<BType> memberTypes = new HashSet<BType>();
+                Iterator<BType> iterator = unionType.getMemberTypes().iterator();
+                while (iterator.hasNext()) {
+                    BType memberType = iterator.next();
+                    if (memberType != symTable.nullType) {
+                        memberTypes.add(memberType);
+                    }
+                }
+                if (memberTypes.size() == 1) {
+                    BType[] memberArray = new BType[1];
+                    memberTypes.toArray(memberArray);
+                    actualType = memberArray[0];
+                } else {
+                    actualType = new BUnionType(null, memberTypes, false);
+                }
+            } else {
+                dlog.error(elvisExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
+                        OperatorKind.ELVIS, lhsType);
+            }
+        }
+        types.checkTypes(elvisExpr.rhsExpr, Lists.of(rhsType), expTypes);
+        resultTypes = types.checkTypes(elvisExpr, Lists.of(actualType), expTypes);
     }
 
     @Override
