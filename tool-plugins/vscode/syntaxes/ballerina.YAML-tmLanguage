@@ -126,7 +126,7 @@ repository:
         '1': { name:  keyword.ballerina }
       end: '(?<=\})'
       patterns:
-      - include: '#functionReceiver'
+      - include: '#serviceReceiver'
       - include: '#serviceEndpointAttachments'
       - include: '#serviceName'
       - include: '#serviceBody'
@@ -141,7 +141,20 @@ repository:
       endCaptures:
         '0': { name: punctuation.definition.parameters.end.ballerina }
       patterns:
-      - include: '#parameterDef'
+      - include: '#varDefStatement'
+      - include: '#comment'
+
+  serviceReceiver:
+    patterns:
+    - begin: '<'
+      end: '>'
+      beginCaptures:
+        '0': { name: punctuation.definition.parameters.begin.ballerina }
+      endCaptures:
+        '0': { name: punctuation.definition.parameters.end.ballerina }
+      patterns:
+      - match: '{{identifier}}'
+        name: storage.type.ballerina
       - include: '#comment'
 
   functionName:
@@ -164,6 +177,14 @@ repository:
         '0': { name: punctuation.definition.parameters.end.ballerina }
       patterns:
       - include: '#varDefStatement'
+      - include: '#defaultValue'
+
+  defaultValue:
+    patterns:
+    - begin: '='
+      end: (?=[,)])
+      patterns:
+        - include: '#code'
 
   functionReturns:
     patterns:
@@ -277,9 +298,10 @@ repository:
     - begin: '=>'
       beginCaptures:
         '0': { name:  keyword.ballerina }
-      end: '(?<=\})'
+      end: '((?<=\})|;)'
       patterns:
       - include: '#functionBody'
+      - include: '#code'
 
   continuedType:
     patterns:
@@ -380,6 +402,22 @@ repository:
       - include: '#comment'
       - include: '#code'
 
+  paranthesised:
+    patterns:
+    - begin: \(
+      end: \)
+      patterns:
+      - include: '#comment'
+      - include: '#code'
+
+  paranthesisedBracket:
+    patterns:
+    - begin: \[
+      end: \]
+      patterns:
+      - include: '#comment'
+      - include: '#code'
+
   keywords:
     patterns:
     - name: keyword.control.ballerina
@@ -416,5 +454,7 @@ repository:
     - include: '#identifiers'
     - include: '#strings'
     - include: '#maps'
+    - include: '#paranthesised'
+    - include: '#paranthesisedBracket'
     - include: '#numbers'
     - include: '#comment'
