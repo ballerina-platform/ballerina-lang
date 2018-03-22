@@ -24,7 +24,7 @@ function testHandleAuthz () returns (boolean) {
     return handler.handle(inRequest, "scope2", "/sayHello");
 }
 
-function testExtractInvalidBasicAuthHeaderValue () returns (string, error) {
+function testExtractInvalidBasicAuthHeaderValue () returns (string|error) {
     // create dummy request
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -35,7 +35,7 @@ function testExtractInvalidBasicAuthHeaderValue () returns (string, error) {
     return authadaptor:extractBasicAuthHeaderValue(inRequest);
 }
 
-function testExtractBasicAuthHeaderValue () returns (string, error) {
+function testExtractBasicAuthHeaderValue () returns (string|error) {
     // create dummy request
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};

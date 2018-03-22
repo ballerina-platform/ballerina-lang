@@ -917,6 +917,9 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
 
                 <module>language-server</module>
@@ -925,7 +928,6 @@
                 <module>misc/swagger-ballerina</module>
                 <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
                 <module>misc/tracing-extensions</module>
 
                 <module>composer</module>
@@ -961,13 +963,15 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
                 <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -998,6 +1002,9 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
@@ -1007,7 +1014,6 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <module>misc/protobuf-ballerina</module>
                 <module>misc/tracing-extensions</module>
 
                 <module>composer</module>
@@ -1414,7 +1420,6 @@
         <mimepull.version>1.9.7</mimepull.version>
         <broker.version>0.1.20</broker.version>
         <open.tracing.version>0.31.0</open.tracing.version>
-        <jaeger.version>0.24.0</jaeger.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
