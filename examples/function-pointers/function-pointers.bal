@@ -1,8 +1,8 @@
 import ballerina/io;
 
 function test (int x, string s) returns (float) {
-    var y =? <int>s;
-    var f = x * 1.0 * y;
+    int y =? <int>s;
+    float f = x * 1.0 * y;
     return f;
 }
 
