@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Compilation unit builder is for building ballerina compilation units.
@@ -112,7 +112,7 @@ public class TextDocumentServiceUtil {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRoot);
+        options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         return context;
@@ -152,8 +152,7 @@ public class TextDocumentServiceUtil {
                     for (File file : files) {
                         Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot,
                                 preserveWhitespace, customErrorStrategy);
-                        compiler.compile(file.getName());
-                        packages.add((BLangPackage) compiler.getAST());
+                        packages.add(compiler.compile(file.getName()));
                     }
                 }
             }
@@ -161,12 +160,10 @@ public class TextDocumentServiceUtil {
             Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot, preserveWhitespace,
                     customErrorStrategy);
             if ("".equals(pkgName)) {
-                compiler.compile(fileName);
+                packages.add(compiler.compile(fileName));
             } else {
-                compiler.compile(pkgName);
+                packages.add(compiler.compile(pkgName));
             }
-
-            packages.add((BLangPackage) compiler.getAST());
         }
         return packages;
     }

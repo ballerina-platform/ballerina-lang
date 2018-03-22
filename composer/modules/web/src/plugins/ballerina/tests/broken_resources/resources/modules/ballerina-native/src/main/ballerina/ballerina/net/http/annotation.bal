@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.net.ws;
+import ballerina/net.ws;
 
 annotation GET attach resource {
 }

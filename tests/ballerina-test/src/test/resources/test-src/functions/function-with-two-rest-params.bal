@@ -1,3 +1,3 @@
-function functionWithAllTypesParams(int a, int... b, float... c)  (int[], float[],) {
-    return a, b;
+function functionWithAllTypesParams(int a, int... b, float... c) returns  (int[], float[],) {
+    return (a, b);
 }

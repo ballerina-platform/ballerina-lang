@@ -1,8 +1,8 @@
 package ballerina.net.websub;
 
-import ballerina.log;
-import ballerina.mime;
-import ballerina.net.http;
+import ballerina/log;
+import ballerina/mime;
+import ballerina/net.http;
 
 @Description {value:"HTTP client connector for outbound WebSub Subscription/Unsubscription requests to a Hub"}
 public struct HubClientConnector {

@@ -48,7 +48,7 @@ import java.util.logging.LogManager;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.websub",
+        orgName = "ballerina", packageName = "net.websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
                 structPackage = "ballerina.net.websub"),

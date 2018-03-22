@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function main (string[] args) {
     // Define lambda function in-line to function pointer var.

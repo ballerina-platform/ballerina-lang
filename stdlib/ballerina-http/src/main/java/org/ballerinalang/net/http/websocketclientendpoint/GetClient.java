@@ -34,7 +34,7 @@ import org.ballerinalang.net.http.WebSocketConstants;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "getClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),

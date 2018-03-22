@@ -77,7 +77,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVaria
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableDefStmt;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRefList;
-import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.generateCastExpr;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.generateConversionExpr;
 
 /**
  * Class responsible for desugar an iterable chain into actual Ballerina code.
@@ -136,7 +136,8 @@ public class IterableCodeDesugar {
                 ctx.getLastOperation().expectedTypes.get(0) == symTable.noType) {
             ctx.iteratorCaller = iExpr;
         } else {
-            ctx.iteratorCaller = generateCastExpr(iExpr, ctx.getLastOperation().expectedTypes.get(0), symResolver);
+            ctx.iteratorCaller = generateConversionExpr(iExpr,
+                    ctx.getLastOperation().expectedTypes.get(0), symResolver);
         }
     }
 
@@ -638,8 +639,8 @@ public class IterableCodeDesugar {
         indexAccessNode.type = ctx.streamRetVars.get(2).symbol.type;
         final BLangAssignment valueAssign = createAssignmentStmt(pos, blockStmt);
         valueAssign.varRefs.add(indexAccessNode);
-        valueAssign.expr = generateCastExpr(createVariableRef(pos, ctx.streamRetVars.get(2).symbol), symTable.anyType,
-                symResolver);
+        valueAssign.expr = generateConversionExpr(createVariableRef(pos,
+                ctx.streamRetVars.get(2).symbol), symTable.anyType, symResolver);
     }
 
     /**

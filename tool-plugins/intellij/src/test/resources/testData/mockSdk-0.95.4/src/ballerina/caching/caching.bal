@@ -1,7 +1,7 @@
 package ballerina.caching;
 
-import ballerina.task;
-import ballerina.util;
+import ballerina/task;
+import ballerina/util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
 const int CACHE_CLEANUP_START_DELAY = 0;

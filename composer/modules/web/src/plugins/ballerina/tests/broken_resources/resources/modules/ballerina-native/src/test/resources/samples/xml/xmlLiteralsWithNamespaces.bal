@@ -1,4 +1,4 @@
-import ballerina.lang.xmls;
+import ballerina/lang.xmls;
 
 xmlns "http://ballerina.com/b" as ns1; 
 

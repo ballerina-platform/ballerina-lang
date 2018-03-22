@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.serviceendpoint.GetClient;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http.mock",
+        orgName = "ballerina", packageName = "net.http.mock",
         functionName = "getClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
                 structPackage = "ballerina.net.http.mock"),

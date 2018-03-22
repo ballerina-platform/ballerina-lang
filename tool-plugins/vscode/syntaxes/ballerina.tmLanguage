@@ -240,10 +240,31 @@
         <key>patterns</key>
         <array>
           <dict>
-            <key>match</key>
-            <string>returns</string>
-            <key>name</key>
-            <string>keyword.ballerina</string>
+            <key>begin</key>
+            <string>\breturns\b</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>(?=\{)</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>match</key>
+                <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
+                <key>name</key>
+                <string>storage.type.ballerina</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+            </array>
           </dict>
         </array>
       </dict>
@@ -349,6 +370,10 @@
               <dict>
                 <key>include</key>
                 <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#matchStatement</string>
               </dict>
               <dict>
                 <key>include</key>
@@ -470,6 +495,171 @@
               <dict>
                 <key>include</key>
                 <string>#code</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>matchStatement</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\b(match)\b</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>(?&lt;=\})</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>match</key>
+                <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
+                <key>name</key>
+                <string>variable.parameter.ballerina</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#matchStatementBody</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>matchStatementBody</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\{</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina.documentation</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>\}</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.definition.block.ballerina.documentation</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#varDefStatement</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#matchedStatement</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>varDefStatement</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\b(([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+"))\b</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>storage.type.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>\b(([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+"))\b</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>variable.parameter.ballerina</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#continuedType</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>matchedStatement</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>=&gt;</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.ballerina</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>(?&lt;=\})</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#functionBody</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>continuedType</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>[|,:]</string>
+            <key>end</key>
+            <string>\b(([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+"))\b</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>storage.type.ballerina</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
               </dict>
             </array>
           </dict>
@@ -703,7 +893,7 @@
             <key>name</key>
             <string>keyword.other.ballerina</string>
             <key>match</key>
-            <string>\b(import|version|public|attach|as|native|documentation|lock)\b</string>
+            <string>\b(import|version|public|private|attach|as|native|documentation|lock)\b</string>
           </dict>
           <dict>
             <key>name</key>
@@ -733,7 +923,7 @@
             <key>name</key>
             <string>keyword.other.ballerina</string>
             <key>match</key>
-            <string>\b(annotation|package|type|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b</string>
+            <string>\b(annotation|package|type|typedesc|connector|function|resource|service|action|worker|struct|transformer|endpoint)\b</string>
           </dict>
           <dict>
             <key>name</key>

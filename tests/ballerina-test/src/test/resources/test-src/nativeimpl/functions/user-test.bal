@@ -1,5 +1,5 @@
-import ballerina.user;
-import ballerina.util;
+import ballerina/user;
+import ballerina/util;
 
 function testGetHome () returns (string) {
     return user:getHome();

@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.data.sql;
+import ballerina/lang.system;
+import ballerina/data.sql;
 
 function main (string[] args) {
     //Create a SQL connector by providing the required database connection

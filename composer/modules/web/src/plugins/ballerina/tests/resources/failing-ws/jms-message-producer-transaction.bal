@@ -1,4 +1,4 @@
-import ballerina.net.jms;
+import ballerina/net.jms;
 
 function main (string[] args) {
     jmsTransactedSender();

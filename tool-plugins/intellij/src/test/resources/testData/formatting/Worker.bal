@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.lang.messages;
+import ballerina/lang.system;
+import ballerina/lang.messages;
 
 function main (string[] args) {
           worker      sampleWorker         {
