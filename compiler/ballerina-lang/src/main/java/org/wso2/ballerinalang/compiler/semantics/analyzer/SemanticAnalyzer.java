@@ -124,7 +124,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -1202,13 +1201,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
                 wheneverStatement.addFunctionVariable(varSymbol);
             }
-        }
-    }
-
-    public void visit(BLangQueryStatement queryStatement) {
-        StreamingQueryStatementNode streamingQueryStatementNode = queryStatement.getStreamingQueryStatement();
-        if (streamingQueryStatementNode != null) {
-            ((BLangStreamingQueryStatement) streamingQueryStatementNode).accept(this);
         }
     }
 

@@ -108,7 +108,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -541,10 +540,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangQueryStatement queryStatement) {
         throw new AssertionError();
     }
 
