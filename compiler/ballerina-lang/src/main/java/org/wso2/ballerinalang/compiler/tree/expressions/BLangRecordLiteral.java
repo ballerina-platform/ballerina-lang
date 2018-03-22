@@ -138,13 +138,10 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     public static class BLangStructLiteral extends BLangRecordLiteral {
         public BStructSymbol.BAttachedFunction initializer;
 
-        public List<BLangRecordKeyValue> defaultValues;
-
         public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
             this.type = structType;
             this.initializer = ((BStructSymbol) structType.tsymbol).initializerFunc;
-            this.defaultValues = new ArrayList<>();
         }
 
         @Override

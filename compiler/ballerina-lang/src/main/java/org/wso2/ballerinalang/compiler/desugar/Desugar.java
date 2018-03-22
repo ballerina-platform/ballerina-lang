@@ -23,18 +23,19 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -43,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -93,8 +93,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
@@ -253,6 +251,13 @@ public class Desugar extends BLangNodeVisitor {
         //Rewriting Object to struct
         pkgNode.objects.forEach(o -> pkgNode.structs.add(rewriteObjectToStruct(o, env)));
 
+        pkgNode.structs = rewrite(pkgNode.structs, env);
+        // Adding struct init functions to package level.
+        pkgNode.structs.forEach(struct -> {
+            pkgNode.functions.add(struct.initFunction);
+            pkgNode.topLevelNodes.add(struct.initFunction);
+        });
+
         pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
@@ -278,6 +283,24 @@ public class Desugar extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         rewrite(pkgEnv.node, pkgEnv);
         result = importPkgNode;
+    }
+
+    @Override
+    public void visit(BLangStruct structNode) {
+        // Add struct level variables to the init function.
+        structNode.fields.stream()
+            .map(field -> {
+                    // If the rhs value is not given in-line inside the struct
+                    // then get the default value literal for that particular struct.
+                    if (field.expr == null) {
+                        field.expr = getInitExpr(field.type);
+                    }
+                    return field;
+                })
+            .filter(field -> field.expr != null)
+            .forEachOrdered(field -> structNode.initFunction.initFunctionStmts.put(field.symbol,
+                    (BLangStatement) createAssignmentStmt(field)));
+        result = structNode;
     }
 
     @Override
@@ -571,11 +594,11 @@ public class Desugar extends BLangNodeVisitor {
         // Resolve Access Expr's cast operator
         for (int i = 0; i < stmt.varRefs.size(); i++) {
             BLangExpression varRef = stmt.varRefs.get(i);
-            BSymbol symbol = symResolver.resolveExplicitCastOperator(symTable.anyType, varRef.type);
+            BSymbol symbol = symResolver.resolveConversionOperator(symTable.anyType, varRef.type);
             if (symbol == symTable.notFoundSymbol) {
-                stmt.castOperatorSymbols.add(null);
+                stmt.convOperatorSymbols.add(null);
             } else {
-                stmt.castOperatorSymbols.add((BCastOperatorSymbol) symbol);
+                stmt.convOperatorSymbols.add((BConversionOperatorSymbol) symbol);
             }
         }
     }
@@ -899,6 +922,9 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
+            genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET ||
+                (ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
@@ -1436,7 +1462,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             literal.type = symTable.getTypeFromTag(type);
             types.setImplicitCastExpr(literal, new BType(type, null), symTable.anyType);
-            expr.exprs.add(literal.impCastExpr);
+            expr.exprs.add(literal.impConversionExpr);
         });
         return expr;
     }
@@ -1524,9 +1550,9 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangExpression expr = node;
-        if (node.impCastExpr != null) {
-            expr = node.impCastExpr;
-            node.impCastExpr = null;
+        if (node.impConversionExpr != null) {
+            expr = node.impConversionExpr;
+            node.impConversionExpr = null;
         }
 
         expr.accept(this);
@@ -1838,11 +1864,14 @@ public class Desugar extends BLangNodeVisitor {
             // Create a type cast expression
             BLangExpression patternVarExpr;
             if (types.isValueType(patternClause.variable.type)) {
-                BLangTypeCastExpr castExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
+                //TODO unbox_int instruction
+                BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
                 castExpr.expr = matchExprVarRef;
-                castExpr.castSymbol = (BCastOperatorSymbol) this.symResolver.resolveExplicitCastOperator(
-                        symTable.anyType, patternClause.variable.type);
-                castExpr.types = Lists.of(castExpr.castSymbol.type.getReturnTypes().get(0));
+//                castExpr.conversionSymbol = (BConversionOperatorSymbol) this.symResolver.resolveConversionOperator(
+//                        symTable.anyType, patternClause.variable.type);
+                castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType,
+                        patternClause.variable.type);
+                castExpr.type = patternClause.variable.type;
                 patternVarExpr = castExpr;
             } else {
                 patternVarExpr = matchExprVarRef;
@@ -1964,7 +1993,10 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.STRUCT:
-                return rewriteExpr(new BLangStructLiteral(new ArrayList<>(), type));
+                if (((BStructSymbol) type.tsymbol).isObject) {
+                    return new BLangTypeInit();
+                }
+                return new BLangStructLiteral(new ArrayList<>(), type);
             case TypeTags.ARRAY:
                 BLangArrayLiteral array = new BLangArrayLiteral();
                 array.exprs = new ArrayList<>();
@@ -1976,16 +2008,21 @@ public class Desugar extends BLangNodeVisitor {
         return null;
     }
 
-    private BLangExpression getStructFieldInitExpr(BType type, BLangStruct structNode, int fieldIndex) {
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.BLOB:
-                return structNode.fields.get(fieldIndex).expr;
-            default:
-                return getInitExpr(type);
-        }
+    // TODO: Same function is used in symbol enter. Refactor this to reuse the same function.
+    private StatementNode createAssignmentStmt(BLangVariable variable) {
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
+                .createSimpleVariableReferenceNode();
+        varRef.pos = variable.pos;
+        varRef.variableName = variable.name;
+        varRef.symbol = variable.symbol;
+        varRef.type = variable.type;
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = variable.expr;
+        assignmentStmt.pos = variable.pos;
+        assignmentStmt.addVariable(varRef);
+        return assignmentStmt;
     }
+
 }

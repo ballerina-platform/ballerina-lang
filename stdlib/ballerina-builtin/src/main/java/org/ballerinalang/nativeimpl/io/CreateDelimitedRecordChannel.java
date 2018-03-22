@@ -18,8 +18,8 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
@@ -28,8 +28,6 @@ import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +44,8 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
-                                  structPackage = "ballerina.io"),
-                      @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                structPackage = "ballerina.io"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
@@ -67,10 +65,6 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
      */
     private static final int FIELD_SEPARATOR_INDEX = 1;
     /**
-     * represents the information related to the byte channel.
-     */
-    private StructInfo textRecordChannelStructInfo;
-    /**
      * The package path of the byte channel.
      */
     private static final String RECORD_CHANNEL_PACKAGE = "ballerina.io";
@@ -78,21 +72,6 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
      * The type of the byte channel.
      */
     private static final String STRUCT_TYPE = "DelimitedRecordChannel";
-
-    /**
-     * Gets the struct related to AbstractChannel.
-     *
-     * @param context invocation context.
-     * @return the struct related to AbstractChannel.
-     */
-    private StructInfo getCharacterChannelStructInfo(Context context) {
-        StructInfo result = textRecordChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(RECORD_CHANNEL_PACKAGE);
-            textRecordChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return textRecordChannelStructInfo;
-    }
 
     /**
      * {@inheritDoc}
@@ -105,7 +84,8 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
             String recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
             String fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
 
-            BStruct textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
+            BStruct textRecordChannel = BLangConnectorSPIUtil.createBStruct(context, RECORD_CHANNEL_PACKAGE,
+                    STRUCT_TYPE);
 
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) textRecordChannelInfo.getNativeData(IOConstants

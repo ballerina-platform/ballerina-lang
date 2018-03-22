@@ -16,27 +16,36 @@ service<http:Service> test bind multipartEP {
         methods:["GET"],
         path:"/decode_in_response"
     }
-     receiveMultiparts (http:ServerConnector conn, http:Request request) {
+     receiveMultiparts (endpoint conn, http:Request request) {
         http:Request outRequest = {};
         http:Response inResponse = {};
         var returnResult = clientEP -> get("/multiparts/encode_out_response", outRequest);
         http:Response res = {};
-        match returnResult.getMultiparts() {
-            mime:EntityError err => {
-                res.statusCode = 500;
-                res.setStringPayload(payloadError.message);
-            }
-            mime:Entity[] parentParts => {
-                int i = 0;
-                //Loop through body parts.
-                while (i < lengthof parentParts) {
-                    mime:Entity parentPart = parentParts[i];
-                    handleNestedParts(parentPart);
-                    i = i + 1;
+        match returnResult {
+            http:Response returnResponse => {
+                match returnResponse.getMultiparts() {
+                    mime:EntityError err => {
+                        res.statusCode = 500;
+                        res.setStringPayload(err.message);
+                    }
+                    mime:Entity[] parentParts => {
+                        int i = 0;
+                        //Loop through body parts.
+                        while (i < lengthof parentParts) {
+                            mime:Entity parentPart = parentParts[i];
+                            handleNestedParts(parentPart);
+                            i = i + 1;
+                        }
+                        res.setStringPayload("Body Parts Received!");
+                    }
                 }
-                res.setStringPayload("Body Parts Received!");
+            }
+            http:HttpConnectorError connectionErr => {
+                res.statusCode = 500;
+                res.setStringPayload("Connection error");
             }
         }
+
         _ = conn -> respond(res);
     }
 }
@@ -68,7 +77,7 @@ function handleContent (mime:Entity bodyPart) {
         var payload = bodyPart.getXml();
         match payload {
             mime:EntityError err => io:println("Error in getting xml payload");
-            xml xmlCotnent => io:println(xmlContent);
+            xml xmlContent => io:println(xmlContent);
         }
     } else if (mime:APPLICATION_JSON == contentType) {
         //Extract json data from body part and print.
@@ -83,6 +92,7 @@ function handleContent (mime:Entity bodyPart) {
         match payload {
             mime:EntityError err => io:println("Error in getting string payload");
             string textContent => io:println(textContent);
+            int |  null => io:println("null payload");
         }
     }
 }

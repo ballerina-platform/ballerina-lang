@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -249,20 +248,6 @@ class ASTBuilderUtil {
         typeofExpr.type = type;
         typeofExpr.resolvedType = resolvedType;
         return typeofExpr;
-    }
-
-    static BLangExpression generateCastExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
-            return varRef;
-        }
-        // Box value using cast expression.
-        final BLangTypeCastExpr implicitCastExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
-        implicitCastExpr.pos = varRef.pos;
-        implicitCastExpr.expr = varRef;
-        implicitCastExpr.type = target;
-        implicitCastExpr.types = Lists.of(target);
-        implicitCastExpr.castSymbol = (BOperatorSymbol) symResolver.resolveImplicitCastOperator(varRef.type, target);
-        return implicitCastExpr;
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
