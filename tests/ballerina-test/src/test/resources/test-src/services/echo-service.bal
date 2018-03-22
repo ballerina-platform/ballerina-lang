@@ -11,14 +11,14 @@ endpoint<mock:NonListeningService> echoEP {
     port:9090
 }
 
-@http:serviceConfig {basePath:"/echo", endpoints:[echoEP]}
+@http:ServiceConfig {basePath:"/echo", endpoints:[echoEP]}
 service<http:Service> echo {
 
     string serviceLevelStr;
 
     string serviceLevelStringVar = "sample value";
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/message"
     }
@@ -27,7 +27,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/message_worker"
     }
@@ -42,7 +42,7 @@ service<http:Service> echo {
         }
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/setString"
     }
@@ -55,7 +55,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/getString"
     }
@@ -65,7 +65,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"]
     }
     resource removeHeaders (http:ServerConnector conn, http:Request req) {
@@ -77,7 +77,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
@@ -87,7 +87,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:constPath
     }
@@ -97,14 +97,14 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
     resource testEmptyResourceBody (http:ServerConnector conn, http:Request req) {
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/getFormParams"
     }
@@ -121,7 +121,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PATCH"],
         path:"/modify"
     }

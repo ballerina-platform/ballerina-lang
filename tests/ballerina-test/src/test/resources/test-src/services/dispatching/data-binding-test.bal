@@ -10,12 +10,12 @@ struct Person {
     int age;
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         body:"person"
     }
     resource body1 (http:ServerConnector conn, http:Request req, string person) {
@@ -25,7 +25,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/body2/{key}",
         body:"person"
@@ -37,7 +37,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET","POST"],
         body:"person"
     }
@@ -49,7 +49,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"person"
     }
@@ -61,7 +61,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"person"
     }
@@ -72,7 +72,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"person"
     }
@@ -84,7 +84,7 @@ service<http:Service> echo {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         body:"person"
     }
