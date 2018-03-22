@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStreamletSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -54,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -76,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -107,6 +104,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -197,12 +195,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define connector params and type.
         defineConnectorParams(pkgNode.connectors, pkgEnv);
-
-        // Define streamlet nodes.
-        pkgNode.streamlets.forEach(con -> defineNode(con, pkgEnv));
-
-        // Define streamlet params and type.
-        defineStreamletParams(pkgNode.streamlets, pkgEnv);
 
         // Define transformer nodes.
         pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
@@ -425,14 +417,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(connectorNode.pos, conSymbol);
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
         connectorNode.endpoints.forEach(ep -> defineNode(ep, connectorEnv));
-    }
-
-    @Override
-    public void visit(BLangStreamlet streamletNode) {
-        BStreamletSymbol conSymbol = Symbols.createStreamletSymbol(Flags.asMask(streamletNode.flagSet),
-                names.fromIdNode(streamletNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        streamletNode.symbol = conSymbol;
-        defineSymbol(streamletNode.pos, conSymbol);
     }
 
     @Override
@@ -677,9 +661,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             case CONNECTOR:
                 pkgNode.connectors.add((BLangConnector) node);
                 break;
-            case STREAMLET:
-                pkgNode.streamlets.add((BLangStreamlet) node);
-                break;
             case SERVICE:
                 pkgNode.services.add((BLangService) node);
                 break;
@@ -713,9 +694,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                     .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
                     .collect(Collectors.toList());
         });
+
+        // define init function
+        structNodes.forEach(struct -> {
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(struct, struct.symbol.scope, pkgEnv);
+            defineStructInitFunction(struct, structEnv);
+        });
     }
 
-    private void defineObjectFields(List<BLangObject> objectNodes, SymbolEnv pkgEnv) {
+    private void defineObjectFields(List<? extends BLangObject> objectNodes, SymbolEnv pkgEnv) {
         objectNodes.forEach(object -> {
             // Create object type
             SymbolEnv objectEnv = SymbolEnv.createObjectEnv(object, object.symbol.scope, pkgEnv);
@@ -727,7 +714,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         });
     }
 
-    private void defineObjectMembers(List<BLangObject> objects, SymbolEnv pkgEnv) {
+    private void defineObjectMembers(List<? extends BLangObject> objects, SymbolEnv pkgEnv) {
         objects.forEach(obj -> {
             SymbolEnv objEnv = SymbolEnv.createObjectEnv(obj, obj.symbol.scope, pkgEnv);
             defineObjectInitFunction(obj, objEnv);
@@ -751,13 +738,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         connectors.forEach(connector -> {
             SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
             defineConnectorSymbolParams(connector, connector.symbol, conEnv);
-        });
-    }
-
-    private void defineStreamletParams(List<BLangStreamlet> streamlets, SymbolEnv pkgEnv) {
-        streamlets.forEach(streamlet -> {
-            SymbolEnv conEnv = SymbolEnv.createStreamletEnv(streamlet, streamlet.symbol.scope, pkgEnv);
-            defineStreamletSymbolParams(streamlet, streamlet.symbol, conEnv);
         });
     }
 
@@ -841,24 +821,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         symbol.type = new BConnectorType(paramTypes, symbol);
-    }
-
-    private void defineStreamletSymbolParams(BLangStreamlet streamletNode, BStreamletSymbol symbol,
-                                             SymbolEnv streamletEnv) {
-        List<BVarSymbol> paramSymbols =
-                streamletNode.params.stream()
-                        .peek(varNode -> defineNode(varNode, streamletEnv))
-                        .map(varNode -> varNode.symbol)
-                        .collect(Collectors.toList());
-
-        symbol.setParams(paramSymbols);
-
-        // Create streamlet type
-        List<BType> paramTypes = paramSymbols.stream()
-                .map(paramSym -> paramSym.type)
-                .collect(Collectors.toList());
-
-        symbol.type = new BStreamletType(paramTypes, symbol);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
@@ -966,6 +928,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(object.initFunction, conEnv);
     }
 
+    private void defineStructInitFunction(BLangStruct struct, SymbolEnv conEnv) {
+        if (struct.initFunction == null) {
+            struct.initFunction = createInitFunction(struct.pos, struct.name.value, Names.INIT_FUNCTION_SUFFIX);
+        }
+
+        struct.initFunction.receiver = createReceiver(struct);
+        struct.initFunction.objectInitFunction = true;
+        struct.initFunction.attachedFunction = true;
+        struct.initFunction.flagSet.add(Flag.ATTACHED);
+
+        // Adding struct level variables to the init function is done at desugar phase
+
+        defineNode(struct.initFunction, conEnv);
+    }
+
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);
@@ -1015,6 +992,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
         structSymbol.attachedFuncs.add(attachedFunc);
+
+        if (funcNode.name.value.equals(structType.tsymbol.name.value + Names.INIT_FUNCTION_SUFFIX.value)) {
+            structSymbol.defaultsValuesInitFunc = attachedFunc;
+            return;
+        }
 
         // Check whether this attached function is a struct initializer.
         if (!structType.tsymbol.name.value.equals(funcNode.name.value)) {
@@ -1093,6 +1075,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         assignmentStmt.pos = variable.pos;
         assignmentStmt.addVariable(varRef);
         return assignmentStmt;
+    }
+
+    private BLangVariable createReceiver(BLangStruct struct) {
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = struct.pos;
+        IdentifierNode name = createIdentifier(Names.SELF.getValue());
+        receiver.setName(name);
+        receiver.docTag = DocTag.RECEIVER;
+
+        BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        structTypeNode.pkgAlias = new BLangIdentifier();
+        structTypeNode.typeName = struct.name;
+        receiver.setTypeNode(structTypeNode);
+        return receiver;
     }
 
     private BLangExpressionStmt createInitFuncInvocationStmt(BLangImportPackage importPackage,
@@ -1209,7 +1205,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && varType.tag != TypeTags.MAP
                 && varType.tag != TypeTags.TABLE
                 && varType.tag != TypeTags.STREAM
-                && varType.tag != TypeTags.STREAMLET
                 && varType.tag != TypeTags.STRUCT) {
             dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE,
                     funcNode.name.value, varType.toString());

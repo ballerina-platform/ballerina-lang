@@ -27,7 +27,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Get the client connection instance binds to the client endpoint.
@@ -36,10 +38,11 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
  */
 
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "getClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
-                             structPackage = PROTOCOL_PACKAGE_GRPC),
+                             structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )

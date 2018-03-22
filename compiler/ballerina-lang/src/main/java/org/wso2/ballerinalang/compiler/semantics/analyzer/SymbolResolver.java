@@ -184,7 +184,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 (rhsType.tag == TypeTags.STRUCT ||
                         rhsType.tag == TypeTags.CONNECTOR ||
                         rhsType.tag == TypeTags.ENUM ||
-                        rhsType.tag == TypeTags.STREAMLET ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
             List<BType> retTypes = Lists.of(symTable.booleanType);
@@ -195,7 +194,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         if ((lhsType.tag == TypeTags.STRUCT ||
                 lhsType.tag == TypeTags.CONNECTOR ||
                 lhsType.tag == TypeTags.ENUM ||
-                lhsType.tag == TypeTags.STREAMLET ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NULL) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
@@ -604,6 +602,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             // Update error type to actual type.
             symbol.type = symTable.errStructType;
             symbol.scope = symbol.type.tsymbol.scope;
+            symbol.type.tsymbol = (BTypeSymbol) symbol;
             return true;
         }
         return false;

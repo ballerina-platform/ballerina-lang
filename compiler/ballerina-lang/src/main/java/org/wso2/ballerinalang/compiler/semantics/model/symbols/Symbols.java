@@ -122,16 +122,6 @@ public class Symbols {
         return serviceSymbol;
     }
 
-    public static BStreamletSymbol createStreamletSymbol(int flags,
-                                                    Name name,
-                                                    PackageID pkgID,
-                                                    BType type,
-                                                    BSymbol owner) {
-        BStreamletSymbol typeSymbol = createStreamletSymbol(SymTag.STREAMLET, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.STREAMLET;
-        return typeSymbol;
-    }
-
     public static BInvokableSymbol createFunctionSymbol(int flags,
                                                         Name name,
                                                         PackageID pkgID,
@@ -169,15 +159,6 @@ public class Symbols {
                                                BType type,
                                                BSymbol owner) {
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
-    }
-
-    public static BStreamletSymbol createStreamletSymbol(int symTag,
-                                                         int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        return new BStreamletSymbol(symTag, flags, name, pkgID, type, owner);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,

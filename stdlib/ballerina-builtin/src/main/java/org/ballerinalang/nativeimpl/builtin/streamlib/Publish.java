@@ -30,7 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  *
  * @since 0.964.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "builtin",
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "builtin",
         functionName = "stream.publish",
         args = {
                 @Argument(name = "s", type = TypeKind.STREAM),

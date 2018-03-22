@@ -5,7 +5,7 @@ endpoint<mock:NonListeningService> testEP {
     port:9090
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP],
     cors: {
         allowCredentials: true
@@ -13,7 +13,7 @@ endpoint<mock:NonListeningService> testEP {
 }
 service<http:Service> serviceName {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:""
     }
@@ -25,7 +25,7 @@ service<http:Service> serviceName {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"",
     endpoints:[testEP]
 }
@@ -38,7 +38,7 @@ service<http:Service> serviceEmptyName {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/*"
     }
     resource proxy (http:ServerConnector conn, http:Request req) {
@@ -49,7 +49,7 @@ service<http:Service> serviceEmptyName {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> serviceWithNoAnnotation {

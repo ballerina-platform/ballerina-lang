@@ -58,7 +58,7 @@ public function <FilebasedUserstore userstore> readGroupsOfUser (string username
 }
 
 function getUserstoreConfigValue (string instanceId, string property) returns (string) {
-    match config:getInstanceValue(instanceId, property) {
+    match config:getAsString(instanceId + "." + property) {
         string value => {
             return value == null ? "" : value;
         }
