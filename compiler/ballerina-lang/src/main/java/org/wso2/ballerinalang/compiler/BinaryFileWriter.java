@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
@@ -35,6 +36,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
@@ -109,6 +111,11 @@ public class BinaryFileWriter {
         }
 
         this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS.toByteArray()), fileName);
+        final Path execFilePath = this.sourceDirectory.getPath().resolve(fileName);
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        processorServiceLoader.forEach(plugin -> {
+            plugin.codeGenerated(execFilePath);
+        });
     }
 
     public void writeLibraryPackage(BLangPackage packageNode) {

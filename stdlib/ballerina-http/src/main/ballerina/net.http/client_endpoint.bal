@@ -207,22 +207,25 @@ public function createCircuitBreakerClient (string uri, ClientEndpointConfigurat
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
-                                    validateCircuitBreakerConfiguration(cb);
-                                    boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
-                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
-                                                                            { failureThreshold:cb.failureThreshold,
-                                                                                resetTimeout:cb.resetTimeout, httpStatusCodes:httpStatusCodes };
-                                    HttpClient cbHttpClient = createHttpClient(uri, configuration);
-                                    CircuitBreakerClient cbClient = {
-                                        serviceUri:uri, config:configuration,
-                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                                        httpClient:cbHttpClient,
-                                        circuitHealth:{},
-                                        currentCircuitState:CircuitState.CLOSED
-                                    };
-                                    var httpClient =? <HttpClient> cbClient;
-                                    return httpClient;
-                                }
+                    validateCircuitBreakerConfiguration(cb);
+                    boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
+                    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
+                                                            { failureThreshold:cb.failureThreshold,
+                                                                resetTimeout:cb.resetTimeout,
+                                                                httpStatusCodes:httpStatusCodes
+                                                            };
+                    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+                    CircuitBreakerClient cbClient =
+                    {
+                        serviceUri:uri, config:configuration,
+                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+                        httpClient:cbHttpClient,
+                        circuitHealth:{},
+                        currentCircuitState:CircuitState.CLOSED
+                    };
+                    HttpClient httpClient =  cbClient;
+                    return httpClient;
+                }
         int | null => {
                         //remove following once we can ignore
                         io:println("CB CONFIG IS NULL");

@@ -76,7 +76,7 @@ function checkTableCount(string tablePrefix) returns (int) {
         table dt =? testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
         parameters, typeof ResultCount);
         while (dt.hasNext()) {
-            var rs, _ = (ResultCount) dt.getNext();
+            var rs =? <ResultCount> dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {
@@ -155,7 +155,7 @@ function testLoopingTable () returns (string) {
     string names = "";
 
     while (dt.hasNext()) {
-        var p, _ = (Person)dt.getNext();
+        var p =? <Person>dt.getNext();
         names = names + p.name + "_";
     }
     return names;
@@ -171,7 +171,7 @@ function testToJson () returns (json) {
     dt.add(p2);
     dt.add(p3);
 
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     return j;
 }
 
@@ -185,7 +185,7 @@ function testToXML () returns (xml) {
     dt.add(p2);
     dt.add(p3);
 
-    var x, _ = <xml>dt;
+    var x =? <xml>dt;
     return x;
 }
 
@@ -219,7 +219,7 @@ function testTableWithAllDataToJson () returns (json) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var j, _ = <json>dt1;
+    var j =? <json>dt1;
     return j;
 }
 
@@ -233,7 +233,7 @@ function testTableWithAllDataToXml () returns (xml) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var x, _ = <xml>dt1;
+    var x =? <xml>dt1;
     return x;
 }
 
@@ -249,7 +249,7 @@ function testTableWithAllDataToStruct () returns (json, xml) {
     json jData;
     xml xData;
     while (dt1.hasNext()) {
-        var x, _ = (TypeTest)dt1.getNext();
+        var x =? <TypeTest>dt1.getNext();
         jData = x.jsonData;
         xData = x.xmlData;
     }
@@ -264,7 +264,7 @@ function testTableWithBlobDataToJson () returns (json) {
     table<BlobTypeTest> dt1 = {};
     dt1.add(t1);
 
-    var j, _ = <json>dt1;
+    var j =? <json>dt1;
     return j;
 }
 
@@ -276,7 +276,7 @@ function testTableWithBlobDataToXml () returns (xml) {
     table<BlobTypeTest> dt1 = {};
     dt1.add(t1);
 
-    var x, _ = <xml>dt1;
+    var x =? <xml>dt1;
     return x;
 }
 
@@ -289,7 +289,7 @@ function testTableWithBlobDataToStruct () returns (blob) {
     dt1.add(t1);
     blob bData;
     while (dt1.hasNext()) {
-        var x, _ = (BlobTypeTest)dt1.getNext();
+        var x =? <BlobTypeTest>dt1.getNext();
         bData = x.blobData;
     }
     return bData;
@@ -301,7 +301,7 @@ function testTableWithAnyDataToJson () returns (json) {
     table<AnyTypeTest> dt1 = {};
     dt1.add(t1);
 
-    var j, _ = <json>dt1;
+    var j =? <json>dt1;
     return j;
 }
 
@@ -310,7 +310,7 @@ function testStructWithDefaultDataToJson () returns (json) {
     table<Person> dt1 = {};
     dt1.add(p1);
 
-    var j, _ = <json>dt1;
+    var j =? <json>dt1;
     return j;
 }
 
@@ -319,7 +319,7 @@ function testStructWithDefaultDataToXml () returns (xml) {
     table<Person> dt1 = {};
     dt1.add(p1);
 
-    var x, _ = <xml>dt1;
+    var x =? <xml>dt1;
     return x;
 }
 
@@ -335,7 +335,7 @@ function testStructWithDefaultDataToStruct () returns (int, float, string, boole
     boolean bData;
 
     while (dt1.hasNext()) {
-        var x, _ = (Person)dt1.getNext();
+        var x =? <Person>dt1.getNext();
         iData = x.age;
         fData = x.salary;
         sData = x.name;
@@ -363,7 +363,7 @@ function testTableWithArrayDataToJson () returns (json) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var j, _ = <json>dt1;
+    var j =? <json>dt1;
     return j;
 }
 
@@ -386,7 +386,7 @@ function testTableWithArrayDataToXml () returns (xml) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var x, _ = <xml>dt1;
+    var x =? <xml>dt1;
     return x;
 }
 
@@ -407,7 +407,7 @@ function testTableWithArrayDataToStruct () returns (int[], float[], string[], bo
     boolean[] boolArr;
 
     while (dt1.hasNext()) {
-        var x, _ = (ArraTypeTest)dt1.getNext();
+        var x =? <ArraTypeTest>dt1.getNext();
         intArr = x.intArrData;
         floatArr = x.floatArrData;
         stringArr = x.stringArrData;
@@ -427,7 +427,7 @@ function testTableRemoveSuccess () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isBellow35);
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     return(count, j);
 }
 
@@ -442,7 +442,7 @@ function testTableRemoveSuccessMultipleMatch () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isJohn);
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     return (count, j);
 }
 
@@ -457,7 +457,7 @@ function testTableRemoveFailed () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isBellow35);
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     return (count, j);
 }
 
@@ -470,11 +470,11 @@ function testTableAddAndAccess () returns (string, string) {
     dt.add(p1);
     dt.add(p2);
 
-    var j1, _ = <json>dt;
+    var j1 =? <json>dt;
     string s1 = j1.toString();
 
     dt.add(p3);
-    var j2, _ = <json>dt;
+    var j2 =? <json>dt;
     string s2 = j2.toString();
     return (s1, s2);
 }

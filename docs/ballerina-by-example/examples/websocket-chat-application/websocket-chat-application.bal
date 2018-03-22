@@ -18,7 +18,7 @@ service<http:WebSocketService> ChatApp bind ep {
         var param = <string>params.name;
         match param {
             string val => {
-                name = val;
+                name = untaint val;
                 msg = string `{{name}} connected to chat`;
             }
             error e => {
@@ -31,7 +31,7 @@ service<http:WebSocketService> ChatApp bind ep {
 
         match param {
             string val => {
-                age = val;
+                age = untaint val;
                 msg = string `{{name}} with age {{age}} connected to chat`;
             }
             error e => io:println("You can also enter an error");
@@ -45,7 +45,7 @@ service<http:WebSocketService> ChatApp bind ep {
     }
 
     onTextMessage (endpoint con, http:TextFrame frame) {
-        msg = string `{{name}}: {{frame.text}}`;
+        msg = untaint string `{{name}}: {{frame.text}}`;
         io:println(msg);
         broadcast(consMap, msg);
     }

@@ -39,11 +39,12 @@ public class AuthnHandlerTest {
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
+        //Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
 
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-test.bal").toString());
+        //compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-test.bal").toString());
+        compileResult = BCompileUtil.compileAndSetup("test-src/auth/authn-handler-test.bal");
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
@@ -82,19 +83,15 @@ public class AuthnHandlerTest {
     public void testExtractInvalidBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractInvalidBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);
-        // basic auth header should be null
-        Assert.assertTrue(returns[0].stringValue() == null);
         // an error should be returned
-        Assert.assertTrue(returns[1] != null);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
     }
 
     @Test(description = "Test case for extracting basic auth header value")
     public void testExtractBasicAuthHeaderValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);
-        // basic auth header should not be null
-        Assert.assertTrue(returns[0].stringValue() != null);
         // no error should be returned
-        Assert.assertTrue(returns[1] == null);
+        Assert.assertEquals(returns[0].stringValue(), "Basic aXN1cnU6eHh4");
     }
 }
