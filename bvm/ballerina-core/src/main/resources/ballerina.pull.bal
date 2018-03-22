@@ -2,6 +2,7 @@ import ballerina/io;
 import ballerina/net.http;
 import ballerina/runtime;
 import ballerina/file;
+import ballerina/mime;
 
 function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
     endpoint http:ClientEndpoint httpEndpoint {
@@ -23,14 +24,24 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
     req.addHeader("Accept-Encoding", "identity");
     var httpResponse = httpEndpoint -> get("", req);
     match httpResponse {
-     error errRes => throw errRes;
+     http:HttpConnectorError errRes => {
+         var errorResp = <error> errRes;
+         match errorResp {
+             error err =>  throw err;
+         }
+     }
      http:Response response => res = response;
     }
 
     if (res.statusCode != 200) {
         var jsonResponse = res.getJsonPayload();
         match jsonResponse {
-            error errRes => throw errRes;
+            mime:EntityError errRes => {
+                var errorResp = <error> errRes;
+                match errorResp {
+                    error err =>  throw err;
+                }
+            }
             json jsonObj => io:println(jsonObj.msg.toString());
         }
     } else {
@@ -41,12 +52,21 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
             error err = {message:"Unable to find the Content-Length header"};
             throw err;
         }
-
-        var pkgSize, conversionErr = <int> contentLengthHeader;
+        int pkgSize;
+        var conversion = <int> contentLengthHeader;
+        match conversion{
+            error conversionErr => throw conversionErr;
+            int size => pkgSize = size;
+        }
         io:ByteChannel sourceChannel = {};
         var srcChannel = res.getByteChannel();
         match srcChannel {
-            error errRes => throw errRes;
+            mime:EntityError errRes => {
+                var errorResp = <error> errRes;
+                match errorResp {
+                    error err =>  throw err;
+                }
+            }  
             io:ByteChannel channel => sourceChannel = channel;
         }
 
@@ -103,9 +123,14 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
     var bytesRead = channel.read(numberOfBytes);
     match bytesRead {
         (blob, int) byteResponse => {
-           (bytes, numberOfBytesRead) = byteResponse;
+            (bytes, numberOfBytesRead) = byteResponse;         
         }
-        io:IOError readError => throw readError;
+        io:IOError errRes => {
+                var errorResp = <error> errRes;
+                match errorResp {
+                    error err =>  throw err;
+                }
+        }  
     }
     return (bytes, numberOfBytesRead);
 }
@@ -114,8 +139,13 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset) retu
     int numberOfBytesWritten;
     var bytesWritten = channel.write(content, startOffset);
     match bytesWritten {
+        io:IOError errRes => {
+                var errorResp = <error> errRes;
+                match errorResp {
+                    error err =>  throw err;
+                }
+        }  
         int noOfBytes => numberOfBytesWritten = noOfBytes;
-        io:IOError writeError => throw writeError;
     }
     return numberOfBytesWritten;
 }

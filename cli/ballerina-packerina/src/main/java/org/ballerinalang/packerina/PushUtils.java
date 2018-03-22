@@ -82,8 +82,8 @@ public class PushUtils {
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             URI balxPath = URI.create(String.valueOf(PushUtils.class.getClassLoader().getResource
                     ("ballerina.push.balx")));
-            ExecutorUtils.execute(balxPath, accessToken, resourcePath, pkgPathFromPrjtDir.toString());
-            outStream.println(orgName + "/" + packageName + ":" + version + "[project repo -> central]");
+            String msg = orgName + "/" + packageName + ":" + version + "[project repo -> central]";
+            ExecutorUtils.execute(balxPath, accessToken, resourcePath, pkgPathFromPrjtDir.toString(), msg);
         } else {
             if (!installToRepo.equals("home")) {
                 throw new BLangCompilerException("No repository provided to push the package");
