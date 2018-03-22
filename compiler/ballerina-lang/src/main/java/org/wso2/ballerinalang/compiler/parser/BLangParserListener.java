@@ -1873,18 +1873,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.createTypeCastExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitTypeAccessExpression(BallerinaParser.TypeAccessExpressionContext ctx) {
         if (ctx.exception != null) {
             return;

@@ -17,7 +17,7 @@ function testStructLiteral1 () returns (Department) {
     return p;
 }
 
-function testStructLiteral3 () returns  (Person) {
+function testStructLiteral2 () returns (Person) {
     Person p = {};
     return p;
 }

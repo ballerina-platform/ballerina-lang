@@ -33,7 +33,7 @@ public class InvalidSyntaxParserTest {
      * Test missing expected syntax.
      */
 
-    @Test(enabled = false)
+    @Test
     public void testParseSemicolonMissingSerivce() {
         CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-service-negative.bal");
         BAssertUtil.validateError(result, 0, "missing token ';' before 'return'", 10, 7);
@@ -49,7 +49,7 @@ public class InvalidSyntaxParserTest {
      * Test invalid identifier. i.e: {@link org.antlr.v4.runtime.NoViableAltException}
      */
 
-    @Test(enabled = false)
+    @Test
     public void testParseIdentifierMissingSerivce() {
         CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-service-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token ';'", 10, 10);
@@ -71,18 +71,18 @@ public class InvalidSyntaxParserTest {
      * Test unwanted token.
      */
 
-    @Test(enabled = false)
+    @Test
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting Identifier", 6, 12);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '|', Identifier}", 8, 15);
+        BAssertUtil.validateError(result, 0, "invalid token 'endpoint'", 6, 6);
+        BAssertUtil.validateError(result, 3, "invalid token ';'", 8, 15);
     }
 
     @Test
     public void testParseMainFuncWithoutName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 10);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 3, 10);
+        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 30);
+        BAssertUtil.validateError(result, 2, "invalid token ';'", 3, 10);
     }
 
     /**
@@ -102,7 +102,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 15);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testResourceWithReply() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-reply-negative.bal");
         BAssertUtil.validateError(result, 0, "undefined symbol 'reply'", 6, 5);

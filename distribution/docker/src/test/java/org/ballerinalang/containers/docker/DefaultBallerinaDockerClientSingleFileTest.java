@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -67,9 +68,9 @@ public class DefaultBallerinaDockerClientSingleFileTest {
 
         String serviceName = "TestService1";
         String imageName = serviceName.toLowerCase();
-        Path ballerinaConfig = Paths.get(Thread.currentThread().getContextClassLoader().
-                getResource("ballerina/TestService.bal").getPath());
-
+        URL resource = Thread.currentThread().getContextClassLoader().getResource("ballerina/TestService.bal");
+        Assert.assertNotNull(resource, "Couldn't find the file TestService.bal");
+        Path ballerinaConfig = Paths.get(resource.getPath());
         String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
         createdImages.add(imageName);
 
@@ -100,8 +101,9 @@ public class DefaultBallerinaDockerClientSingleFileTest {
 
         String serviceName = "TestFunction1";
         String imageName = serviceName.toLowerCase();
-        Path ballerinaConfig = Paths.get(Thread.currentThread().getContextClassLoader().
-                getResource("ballerina/TestFunction.bal").getPath());
+        URL resource = Thread.currentThread().getContextClassLoader().getResource("ballerina/TestFunction.bal");
+        Assert.assertNotNull(resource, "Couldn't find the file TestFunction.bal");
+        Path ballerinaConfig = Paths.get(resource.getPath());
 
         String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
         createdImages.add(imageName);
