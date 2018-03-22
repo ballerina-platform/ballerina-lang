@@ -20,18 +20,24 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args
         options: {maximumPoolSize:5}
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-    while (dt.hasNext()) {
-        var rs = <Employee>dt.getNext();
-        match rs {
-            Employee emp => testFunction(emp.name);
-            error => return;
-        }
+    var output = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    match output {
+	table dt => {
+            while (dt.hasNext()) {
+                var rs = <Employee>dt.getNext();
+                match rs {
+                    Employee emp => testFunction(emp.name);
+                    error => return;
+                }
+            }
+	}
+        sql:SQLConnectorError => return;
     }
-    testDB -> close();
+    var closeStatus = testDB -> close();
     return;
 }
 
 public function testFunction (string anyValue) {
 
 }
+

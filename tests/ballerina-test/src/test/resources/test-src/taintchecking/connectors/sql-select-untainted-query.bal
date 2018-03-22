@@ -15,7 +15,7 @@ public function testSelectWithUntaintedQuery(string[] args) {
         options: {maximumPoolSize:5}
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-    testDB -> close();
+    var dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var closeStatus = testDB -> close();
     return;
 }
