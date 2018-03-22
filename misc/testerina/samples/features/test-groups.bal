@@ -3,7 +3,7 @@ import ballerina/test;
 
 // You can add your tests to a particular group
 // After adding to a group the execution can be controlled with runtime flags.
-@test:config {
+@test:Config {
      groups: ["strings"]
 }
 function testAssertFloatEquals () {
@@ -14,7 +14,7 @@ function testAssertFloatEquals () {
 }
 
 // Compare String values
-@test:config {
+@test:Config {
     groups: ["strings"]
 }
 function testAssertStringEquals () {
@@ -26,7 +26,7 @@ function testAssertStringEquals () {
 
 
 // Compare string arrays
-@test:config {
+@test:Config {
     groups: ["arrays"]
 }
 function testAssertStringArrayEquals () {
@@ -39,7 +39,7 @@ function testAssertStringArrayEquals () {
 }
 
 // Compare Integer arrays
-@test:config {
+@test:Config {
     groups: ["arrays"]
 }
 function testAssertIntArrayEquals () {
@@ -51,7 +51,7 @@ function testAssertIntArrayEquals () {
 }
 
 // Compare distinct strings
-@test:config {
+@test:Config {
     groups: ["negative-tests"]
 }
 function testAssertNotEqualsString () {

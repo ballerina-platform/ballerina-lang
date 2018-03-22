@@ -2034,6 +2034,7 @@ public class BLangPackageBuilder {
         var.setTypeNode(this.typeNodeStack.pop());
         patternClause.variable = var;
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
+        patternClause.body.pos = pos;
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 

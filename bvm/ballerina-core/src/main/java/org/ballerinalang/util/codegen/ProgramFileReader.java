@@ -1527,6 +1527,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.ANY2E:
+                case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
