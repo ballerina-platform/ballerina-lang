@@ -48,4 +48,9 @@ public class FileSystemSourceEntry implements PackageSourceEntry {
     public Path getPath() {
         return this.path;
     }
+
+    @Override
+    public String toString() {
+        return this.path.toString();
+    }
 }

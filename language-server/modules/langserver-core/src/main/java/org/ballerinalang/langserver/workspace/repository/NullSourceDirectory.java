@@ -15,11 +15,8 @@
  */
 package org.ballerinalang.langserver.workspace.repository;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -71,17 +68,8 @@ public class NullSourceDirectory implements SourceDirectory {
     }
 
     @Override
-    public Repo getPackageRepository() {
-        return new Repo() {
-            @Override
-            public Patten calculate(PackageID pkg) {
-                return Patten.NULL;
-            }
-
-            @Override
-            public Converter getConverterInstance() {
-                return null;
-            }
-        };
+    public Converter<Path> getConverter() {
+        return null;
     }
+
 }
