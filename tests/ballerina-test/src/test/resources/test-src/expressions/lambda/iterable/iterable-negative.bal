@@ -67,3 +67,4 @@ function test7(){
     s.filter(function(person p){});
     _ = s.filter(function(string s)(person){return null;});
 }
+

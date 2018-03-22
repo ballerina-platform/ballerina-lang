@@ -33,7 +33,7 @@ public class ForeachNegativeTests {
     @Test
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 13);
+        Assert.assertEquals(compile.getErrorCount(), 12);
         BAssertUtil.validateError(compile, 0, "too many variables are defined for iterable type 'string[]'", 4, 24);
         BAssertUtil.validateError(compile, 1, "redeclared symbol 'i'", 13, 13);
         BAssertUtil.validateError(compile, 2, "redeclared symbol 's'", 13, 16);
@@ -43,10 +43,8 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, 6, "too many variables are defined for iterable type 'string[]'", 49, 24);
         BAssertUtil.validateError(compile, 7, "incompatible types: expected 'int', found 'string'", 55, 20);
         BAssertUtil.validateError(compile, 8, "incompatible types: expected 'int', found 'string'", 55, 25);
-        BAssertUtil.validateError(compile, 9,
-                "incompatible types: 'json' cannot be convert to 'json[]', use cast expression", 62, 15);
-        BAssertUtil.validateError(compile, 10, "unreachable code", 74, 9);
-        BAssertUtil.validateError(compile, 11, "unreachable code", 79, 9);
-        BAssertUtil.validateError(compile, 12, "next cannot be used outside of a loop", 81, 5);
+        BAssertUtil.validateError(compile, 9, "unreachable code", 74, 9);
+        BAssertUtil.validateError(compile, 10, "unreachable code", 79, 9);
+        BAssertUtil.validateError(compile, 11, "next cannot be used outside of a loop", 81, 5);
     }
 }
