@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  * @since 0.961.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "getMatrixParams",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
                              structPackage = "ballerina.net.http"),

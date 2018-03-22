@@ -108,7 +108,7 @@ public class FileBasedUserstoreTest {
     public void testReadGroupsOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsOfNonExistingUser");
         Assert.assertTrue(returns != null);
-        Assert.assertNull(returns[0].stringValue());
+        Assert.assertEquals(returns[0].stringValue(), "");
     }
 
     @Test(description = "Test case for reading groups of a user")

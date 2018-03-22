@@ -1,5 +1,5 @@
-import ballerina.lang.jsons;
-import ballerina.lang.xmls;
+import ballerina/lang.jsons;
+import ballerina/lang.xmls;
 
 function remove() (json){
     json j = {"name":{"fname":"Jack","lname":"Taylor"}, "state":"CA", "age":20};

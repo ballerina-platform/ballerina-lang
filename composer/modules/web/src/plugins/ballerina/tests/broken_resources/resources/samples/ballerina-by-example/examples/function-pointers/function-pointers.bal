@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 function test (int x, string s) returns (float f) {
     var y, _ = <int>s;

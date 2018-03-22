@@ -6,8 +6,8 @@ T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 P{{accessMode}} read or write mode
 R{{successful}} boolean `true` or `false`
 }
-public function <File file> open (string accessMode) (boolean successful) {
-    return successful;
+public function <File file> open (string accessMode) returns (boolean) {
+    return true;
 }
 
 documentation { Documentation for File struct

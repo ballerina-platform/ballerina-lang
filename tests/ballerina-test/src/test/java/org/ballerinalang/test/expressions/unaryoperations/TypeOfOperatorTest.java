@@ -39,7 +39,7 @@ public class TypeOfOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions/unaryoperations/typeof-operation.bal");
+        result = BCompileUtil.compile("test-src/expressions/unaryoperations/typeof-operation.bal");
     }
 
     @Test(description = "Test reference type access expression trivial equality positive case")

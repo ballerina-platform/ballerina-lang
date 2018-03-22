@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -55,7 +56,7 @@ import java.util.List;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
@@ -213,11 +214,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (keyStore != null) {
             String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
             String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
-            if (keyStoreFile == null) {
+            if (StringUtils.isBlank(keyStoreFile)) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
             }
-            if (keyStorePassword == null) {
+            if (StringUtils.isBlank(keyStorePassword)) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
             }
@@ -229,35 +230,36 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (trustStore != null) {
             String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
             String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
-            if (trustStoreFile == null && sslVerifyClient != null) {
+            if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
                 //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
             }
-            if (trustStorePassword == null && sslVerifyClient != null) {
+            if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
                 //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
             listenerConfiguration.setTrustStoreFile(trustStoreFile);
             listenerConfiguration.setTrustStorePass(trustStorePassword);
         }
-        List<Parameter> serverParams = new ArrayList<>();
-        Parameter serverCiphers;
+        List<Parameter> serverParamList = new ArrayList<>();
+        Parameter serverParameters;
         if (protocols != null) {
             String sslEnabledProtocols = protocols.getStringField(HttpConstants.ENABLED_PROTOCOLS);
             String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
-            if (sslEnabledProtocols != null) {
-                serverCiphers = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
-                serverParams.add(serverCiphers);
+            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+                serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
+                        sslEnabledProtocols);
+                serverParamList.add(serverParameters);
             }
-            if (sslProtocol != null) {
+            if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
         }
 
         String cipher = sslConfig.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
-        if (cipher != null) {
-            serverCiphers = new Parameter(HttpConstants.ANN_CONFIG_ATTR_CIPHERS, cipher);
-            serverParams.add(serverCiphers);
+        if (StringUtils.isNotBlank(cipher)) {
+            serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_CIPHERS, cipher);
+            serverParamList.add(serverParameters);
         }
         if (validateCert != null) {
             boolean validateCertificateEnabled = validateCert.getBooleanField(HttpConstants.ENABLE);
@@ -278,9 +280,9 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 .getBooleanField(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
         Parameter enableSessionCreationParam = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
                 serverEnableSessionCreation);
-        serverParams.add(enableSessionCreationParam);
-        if (!serverParams.isEmpty()) {
-            listenerConfiguration.setParameters(serverParams);
+        serverParamList.add(enableSessionCreationParam);
+        if (!serverParamList.isEmpty()) {
+            listenerConfiguration.setParameters(serverParamList);
         }
 
         listenerConfiguration

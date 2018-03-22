@@ -1,4 +1,4 @@
-import ballerina.math;
+import ballerina/math;
 
 function testFuncInvocation (int a, int b, int c) returns (int) {
     int x;

@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description {value:"Here's a function which returns 2 int values."}
 function divideBy10 (int d) (int, int) {

@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
 endpoint<http:Client> clientEndoint {
     serviceUri: "http://www.mocky.io",
