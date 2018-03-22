@@ -501,9 +501,9 @@ public class ConstrainedMapTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "kevin");
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "Jack");
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 52);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
     }
 }
