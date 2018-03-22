@@ -104,3 +104,4 @@ grpc Unary Blocking
 gRPC Server Streaming
 gRPC Client Streaming
 gRPC Bidirectional Streaming
+Taint Checking
