@@ -25,7 +25,6 @@ import org.ballerinalang.toml.model.fields.DependencyField;
 import org.ballerinalang.toml.model.fields.ManifestHeader;
 import org.ballerinalang.toml.model.fields.PackageField;
 import org.ballerinalang.toml.util.SingletonStack;
-import org.ballerinalang.toml.util.TomlUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,6 @@ import java.util.List;
 public class ManifestBuildListener extends TomlBaseListener {
     private final Manifest manifest;
     private final SingletonStack<String> currentKey = new SingletonStack<>();
-    private final TomlUtils tomlUtils = new TomlUtils();
     private Dependency dependency;
     private String currentHeader = null;
 
@@ -71,8 +69,8 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param ctx
      */
     @Override
-    public void enterString(TomlParser.StringContext ctx) {
-        setToManifest(tomlUtils.removeQuotationsFromValue(ctx.getText()));
+    public void enterBasicStringValue(TomlParser.BasicStringValueContext ctx) {
+        setToManifest(ctx.getText());
     }
 
     /**
@@ -156,8 +154,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     private void setToManifest(String value) {
         if (currentKey.present() && ManifestHeader.PROJECT.stringEquals(currentHeader)) {
-            String key = currentKey.pop().replaceAll("-" , "_");
-            PackageField packageFieldField = PackageField.valueOfLowerCase(key);
+            PackageField packageFieldField = PackageField.valueOfLowerCase(currentKey.pop());
             if (packageFieldField != null) {
                 packageFieldField.setStringTo(this.manifest, value);
             }
@@ -177,8 +174,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     private void setToManifest(TomlParser.ArrayValuesContext arrayValuesContext) {
         if (currentKey.present() && ManifestHeader.PROJECT.stringEquals(currentHeader)) {
-            String key = currentKey.pop().replaceAll("-" , "_");
-            PackageField packageFieldField = PackageField.valueOfLowerCase(key);
+            PackageField packageFieldField = PackageField.valueOfLowerCase(currentKey.pop());
             if (packageFieldField != null) {
                 List<String> arrayElements = populateList(arrayValuesContext);
                 packageFieldField.setListTo(this.manifest, arrayElements);
@@ -196,7 +192,11 @@ public class ManifestBuildListener extends TomlBaseListener {
         List<String> arrayElements = new ArrayList<>();
         if (arrayValuesContext != null) {
             for (TomlParser.ArrayvalsNonEmptyContext valueContext : arrayValuesContext.arrayvalsNonEmpty()) {
-                arrayElements.add(tomlUtils.removeQuotationsFromValue(valueContext.getText()));
+                String value = valueContext.val().getText();
+                if (valueContext.val().string() != null) {
+                    value = valueContext.val().string().basicString().basicStringValue().getText();
+                }
+                arrayElements.add(value);
             }
         }
         return arrayElements;
@@ -242,8 +242,11 @@ public class ManifestBuildListener extends TomlBaseListener {
             String name = valueContext.key().getText();
             DependencyField dependencyField = DependencyField.valueOfLowerCase(name);
             if (dependencyField != null) {
-                dependencyField.setValueTo(dependency,
-                        tomlUtils.removeQuotationsFromValue(valueContext.val().getText()));
+                String value = valueContext.val().getText();
+                if (valueContext.val().string() != null) {
+                    value = valueContext.val().string().basicString().basicStringValue().getText();
+                }
+                dependencyField.setValueTo(dependency, value);
             }
         }
     }

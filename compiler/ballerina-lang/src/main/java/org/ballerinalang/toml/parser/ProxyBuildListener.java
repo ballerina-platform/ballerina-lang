@@ -23,7 +23,6 @@ import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.fields.ProxyField;
 import org.ballerinalang.toml.model.fields.Section;
 import org.ballerinalang.toml.util.SingletonStack;
-import org.ballerinalang.toml.util.TomlUtils;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
@@ -34,7 +33,6 @@ public class ProxyBuildListener extends TomlBaseListener {
     private final Proxy proxy;
     private final SingletonStack<String> currentKey = new SingletonStack<>();
     private String currentHeader = null;
-    private final TomlUtils tomlUtils = new TomlUtils();
 
     /**
      * Constructor with the proxy object.
@@ -65,8 +63,8 @@ public class ProxyBuildListener extends TomlBaseListener {
      * @param ctx
      */
     @Override
-    public void enterString(TomlParser.StringContext ctx) {
-        setToProxy(tomlUtils.removeQuotationsFromValue(ctx.getText()));
+    public void enterBasicStringValue(TomlParser.BasicStringValueContext ctx) {
+        setToProxy(ctx.getText());
     }
 
     /**

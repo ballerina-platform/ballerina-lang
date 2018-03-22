@@ -40,7 +40,7 @@ public enum ProxyField {
     static {
         Map<String, ProxyField> lookUpMap = new HashMap<>();
         for (ProxyField proxyField : ProxyField.values()) {
-            lookUpMap.put(proxyField.name().toLowerCase(Locale.ENGLISH), proxyField);
+            lookUpMap.put(proxyField.name().toLowerCase(Locale.ENGLISH).replace('_', '-'), proxyField);
         }
         LOOKUP = lookUpMap;
     }

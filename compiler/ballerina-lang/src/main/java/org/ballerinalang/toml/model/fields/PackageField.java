@@ -47,7 +47,8 @@ public enum PackageField {
 
     static {
         for (PackageField packageFieldField : PackageField.values()) {
-            LOOKUP.put(packageFieldField.name().toLowerCase(Locale.ENGLISH), packageFieldField);
+            LOOKUP.put(packageFieldField.name().toLowerCase(Locale.ENGLISH).replace('_', '-'),
+                       packageFieldField);
         }
     }
 

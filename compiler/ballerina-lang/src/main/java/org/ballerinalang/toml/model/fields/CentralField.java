@@ -37,7 +37,7 @@ public enum CentralField {
     static {
         for (CentralField centralField : CentralField.values()) {
 
-            LOOKUP.put(centralField.name().toLowerCase(Locale.ENGLISH), centralField);
+            LOOKUP.put(centralField.name().toLowerCase(Locale.ENGLISH).replace('_', '-'), centralField);
         }
     }
 
