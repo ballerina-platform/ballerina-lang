@@ -34,3 +34,21 @@ function testElvisRefTypeNegative () returns (int|string) {
     return b;
 }
 
+function testElvisRefTypeNested () returns (int|string) {
+    int|string|null x = null;
+    int|string|null y = null;
+    int|string b;
+    int|string c = 4000;
+    b = x ?: (y ?: c);
+    return b;
+}
+
+function testElvisRefTypeCaseTwo () returns (int|string) {
+    int|string|null x = null;
+    int|string|null y = "kevin";
+    int|string b;
+    int|string c = 4000;
+    b = x ?: (y ?: c);
+    return b;
+}
+

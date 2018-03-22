@@ -1004,8 +1004,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (opcode == InstructionCodes.NOP) {
             emit(InstructionCodes.RMOVE, elvisExpr.lhsExpr.regIndex, exprRegIndex);
         } else {
-            emit(opcode, elvisExpr.lhsExpr.regIndex, exprRegIndex,
-                    getRegIndex(TypeTags.STRUCT));
+            emit(opcode, elvisExpr.lhsExpr.regIndex, exprRegIndex);
         }
 
         Operand endJumpAddr = getOperand(-1);

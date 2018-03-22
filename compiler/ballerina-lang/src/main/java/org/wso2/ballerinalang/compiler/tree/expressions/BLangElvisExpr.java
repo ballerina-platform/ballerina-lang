@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * Implementation of {@link org.ballerinalang.model.tree.expressions.ElvisExpressionNode}.
  *
- * @since 0.970.0
+ * @since 0.964.1
  */
 public class BLangElvisExpr extends BLangExpression implements ElvisExpressionNode {
 

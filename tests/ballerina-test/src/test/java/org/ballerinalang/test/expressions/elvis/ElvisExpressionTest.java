@@ -18,10 +18,12 @@
 
 package org.ballerinalang.test.expressions.elvis;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -30,15 +32,17 @@ import org.testng.annotations.Test;
 /**
  * Test cases for elvis expressions.
  *
- * @since @since 0.970.0
+ * @since 0.964.1
  */
 public class ElvisExpressionTest {
 
     private CompileResult compileResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/expressions/elvis/elvis-expr.bal");
+        negativeResult = BCompileUtil.compile("test-src/expressions/elvis/elvis-expr-negative.bal");
     }
 
     @Test
@@ -79,6 +83,30 @@ public class ElvisExpressionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertTrue(results[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) results[0]).intValue(), 111);
+    }
+
+    @Test
+    public void testElvisRefTypeNested() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testElvisRefTypeNested");
+        Assert.assertEquals(results.length, 1);
+        Assert.assertTrue(results[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 4000);
+    }
+
+    @Test
+    public void testElvisRefTypeCaseTwo() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testElvisRefTypeCaseTwo");
+        Assert.assertEquals(results.length, 1);
+        Assert.assertTrue(results[0] instanceof BString);
+        Assert.assertEquals(results[0].stringValue(), "kevin");
+    }
+
+    @Test
+    public void testConstrainedMapNegative() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int|null'", 5, 14);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 12, 14);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'string'", 19, 9);
     }
 
 }

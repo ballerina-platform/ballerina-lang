@@ -107,7 +107,13 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
@@ -630,9 +636,9 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangElvisExpr elvisExpr) {
         BType lhsType = checkExpr(elvisExpr.lhsExpr, env).get(0);
         BType actualType = symTable.errType;
-        if (lhsType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) lhsType;
-            if (unionType.isNullable()) {
+        if (lhsType != symTable.errType) {
+            if (lhsType.tag == TypeTags.UNION && lhsType.isNullable()) {
+                BUnionType unionType = (BUnionType) lhsType;
                 HashSet<BType> memberTypes = new HashSet<BType>();
                 Iterator<BType> iterator = unionType.getMemberTypes().iterator();
                 while (iterator.hasNext()) {
@@ -654,14 +660,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, env, expTypes).get(0);
-        BType lhsReturnType = types.checkTypes(elvisExpr, Lists.of(actualType), expTypes).get(0);
+        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, actualType, expTypes.get(0),
+                DiagnosticCode.INCOMPATIBLE_TYPES);
         if (rhsReturnType == symTable.errType || lhsReturnType == symTable.errType) {
             resultTypes = Lists.of(symTable.errType);
         } else if (expTypes.get(0) == symTable.noType) {
-            if (rhsReturnType == lhsReturnType) {
+            if (types.isAssignable(rhsReturnType, lhsReturnType)) {
                 resultTypes = Lists.of(lhsReturnType);
             } else {
-                dlog.error(elvisExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsReturnType, rhsReturnType);
+                dlog.error(elvisExpr.rhsExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsReturnType, rhsReturnType);
                 resultTypes = Lists.of(symTable.errType);
             }
         } else {

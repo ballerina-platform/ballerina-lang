@@ -19,7 +19,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * @since 0.970.0
+ * @since 0.964.1
  */
 public interface ElvisExpressionNode {
 
