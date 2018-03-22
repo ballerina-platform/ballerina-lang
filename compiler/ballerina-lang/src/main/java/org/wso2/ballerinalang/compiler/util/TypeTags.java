@@ -37,8 +37,7 @@ public class TypeTags {
     public static final int STRUCT = ANY + 1;
     public static final int CONNECTOR = STRUCT + 1;
     public static final int SERVICE = CONNECTOR + 1;
-    public static final int STREAMLET = SERVICE + 1;
-    public static final int ENUM = STREAMLET + 1;
+    public static final int ENUM = SERVICE + 1;
     public static final int ARRAY = ENUM + 1;
     public static final int UNION = ARRAY + 1;
     public static final int NULL = UNION + 1;

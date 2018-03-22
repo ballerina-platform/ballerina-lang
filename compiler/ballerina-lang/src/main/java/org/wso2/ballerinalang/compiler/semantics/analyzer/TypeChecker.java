@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -96,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -297,7 +297,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         type.tag == TypeTags.TABLE || 
                         type.tag == TypeTags.NONE || 
                         type.tag == TypeTags.STREAM ||
-                        type.tag == TypeTags.STREAMLET || 
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
     }
@@ -530,9 +529,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.STREAM:
                 checkFunctionInvocationExpr(iExpr, symTable.streamType);
-                break;
-            case TypeTags.STREAMLET:
-                checkFunctionInvocationExpr(iExpr, symTable.streamletType);
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
@@ -991,7 +987,7 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangNamedArgsExpression.type = bLangNamedArgsExpression.expr.type;
     }
 
-    public void visit(BLangStreamlet streamletNode){
+    public void visit(BLangWhenever wheneverStatement) {
         /* ignore */
     }
 
@@ -1115,7 +1111,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.STREAM:
-            case TypeTags.STREAMLET:
             case TypeTags.TABLE:
             case TypeTags.TUPLE_COLLECTION:
                 return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;

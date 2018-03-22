@@ -37,7 +37,9 @@ import org.slf4j.LoggerFactory;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
 
 /**
@@ -46,16 +48,17 @@ import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_I
  * @since 0.96.1
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "send",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
-                structPackage = PROTOCOL_PACKAGE_GRPC),
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "res", type = TypeKind.ANY)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_PACKAGE_GRPC)
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         isPublic = true
 )

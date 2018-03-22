@@ -47,4 +47,4 @@ public struct ClientError {
     int statusCode;
 }
 
-public native function getHeader (string headerName) (string);
+public native function getHeader (string headerName) returns (string);

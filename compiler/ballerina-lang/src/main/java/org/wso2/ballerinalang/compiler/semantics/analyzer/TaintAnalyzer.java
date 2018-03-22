@@ -54,7 +54,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -115,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -141,18 +141,18 @@ import javax.xml.XMLConstants;
 
 /**
  * Generate taint-table for each invokable node.
- *
+ * <p>
  * Taint-table will contain the tainted status of return values, depending on the tainted status of parameters.
- *
+ * <p>
  * Propagate tainted status of variables across the program.
- *
+ * <p>
  * Evaluate invocations and generate errors if:
  * (*) Tainted value has been passed to a sensitive parameter.
  * (*) Tainted value has been passed to a global variable.
  *
  * @since 0.965.0
  */
-public class TaintAnalyzer  extends BLangNodeVisitor {
+public class TaintAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<TaintAnalyzer> TAINT_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
@@ -244,8 +244,9 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         xmlnsNode.namespaceURI.accept(this);
     }
 
-    public void visit(BLangStreamlet streamletNode) {
-        // TODO Implement
+    public void visit(BLangWhenever wheneverStatement) {
+        /* ignore */
+        //TODO Implement
     }
 
     public void visit(BLangFunction funcNode) {
@@ -316,7 +317,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         int ownerSymTag = env.scope.owner.tag;
         if (varNode.expr != null) {
-             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
+            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
             // If the variable is a package/service/connector level variable, we don't need to check types.
             // It will we done during the init-function of the respective construct is visited.
             if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
@@ -916,7 +917,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
      * status with "untaintd" status. As an example, the "else" section of a "if-else" block, cannot change a value
      * marked "tainted" by the "if" block.
      *
-     * @param varNode Variable node to be updated.
+     * @param varNode       Variable node to be updated.
      * @param taintedStatus Tainted status.
      */
     private void setTaintedStatus(BLangVariable varNode, boolean taintedStatus) {
@@ -932,7 +933,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
      * status with "untaintd" status. As an example, the "else" section of a "if-else" block, cannot change a value
      * marked "tainted" by the "if" block.
      *
-     * @param varNode Variable node to be updated.
+     * @param varNode       Variable node to be updated.
      * @param taintedStatus Tainted status.
      */
     private void setTaintedStatus(BLangVariableReference varNode, boolean taintedStatus) {
@@ -986,7 +987,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             return;
         }
         if (invNode.restParam != null
-                && !isEntryPointParamsValid(Arrays.asList(new BLangVariable[] {invNode.restParam}))) {
+                && !isEntryPointParamsValid(Arrays.asList(new BLangVariable[]{invNode.restParam}))) {
             return;
         }
         // Perform end point analysis.
@@ -1086,8 +1087,8 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     private void analyzeAllParamsUntaintedReturnTaintedStatus(Map<Integer, TaintRecord> taintTable,
-                                                                  BLangInvokableNode invokableNode,
-                                                                  SymbolEnv symbolEnv) {
+                                                              BLangInvokableNode invokableNode,
+                                                              SymbolEnv symbolEnv) {
         analyzeReturnTaintedStatus(taintTable, invokableNode, symbolEnv, ALL_UNTAINTED_TABLE_ENTRY_INDEX, 0, 0);
     }
 

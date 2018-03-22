@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
+import ballerina/io;
 
 struct StatusCount {
     string status;
@@ -31,46 +32,52 @@ struct Teacher {
 
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
-stream<StatusCount> filteredStatusCountStream = {};
-stream<Teacher> teacherStream = {};
+stream<StatusCount> filteredStatusCountStream1 = {};
+stream<Teacher> preProcessedStatusCountStream = {};
+stream<Teacher> teacherStream3 = {};
 
-streamlet pipelineStreamlet () {
-    query q1 {
-        from teacherStream where age > 18
+function testPipelineQuery () {
+
+    whenever{
+        from teacherStream3 where age > 18
         select *
-        insert into preProcessedStatusCountStream
+        => (Teacher [] emp) {
+            preProcessedStatusCountStream.publish(emp);
+        }
     }
 
-    query q2 {
+    whenever{
         from preProcessedStatusCountStream window lengthBatch(3)
         select status, count( status) as totalCount
         group by status
         having totalCount > 1
-        insert into filteredStatusCountStream
+        => (StatusCount [] emp) {
+                filteredStatusCountStream1.publish(emp);
+        }
     }
 }
 
+function startPipelineQuery () returns (StatusCount []) {
 
-function testPipelineQuery () returns (StatusCount []) {
-
-    pipelineStreamlet pStreamlet = {};
+    testPipelineQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    filteredStatusCountStream.subscribe(printStatusCount);
+    filteredStatusCountStream1.subscribe(printStatusCount);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
+    teacherStream3.publish(t1);
+    teacherStream3.publish(t2);
+    teacherStream3.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
-    pStreamlet.stop();
+
     return globalStatusCountArray;
 }
 
 function printStatusCount (StatusCount s) {
+    io:println("printStatusCount function invoked for status:" + s.status +" and total count :"+s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 
