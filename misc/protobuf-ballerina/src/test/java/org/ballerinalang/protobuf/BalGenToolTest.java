@@ -15,13 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.net.grpc;
+package org.ballerinalang.protobuf;
 
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
+import org.ballerinalang.protobuf.util.BTestUtils;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
-import org.ballerinalang.test.net.grpc.util.BTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
