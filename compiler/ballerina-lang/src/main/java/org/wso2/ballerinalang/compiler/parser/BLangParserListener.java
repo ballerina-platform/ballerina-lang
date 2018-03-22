@@ -1790,9 +1790,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
-    /**
+   /* *//**
      * {@inheritDoc}
-     */
+     *//*
     @Override
     public void exitFailStatement(BallerinaParser.FailStatementContext ctx) {
         if (ctx.exception != null) {
@@ -1800,7 +1800,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addFailStatement(getCurrentPos(ctx), getWS(ctx));
-    }
+    }*/
 
     /**
      * {@inheritDoc}
