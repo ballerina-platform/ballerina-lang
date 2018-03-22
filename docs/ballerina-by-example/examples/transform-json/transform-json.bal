@@ -36,8 +36,14 @@ function main (string[] args) {
     string city = "London";
 
     // Convert p of type Person to the response JSON, using the transformer defined earlier.
-    json<Person> response =? <json<Person>, updateCity(city)>p;
+    json<Person>|error response = <json<Person>, updateCity(city)>p;
+    match response {
+        json<Person> => {
+            io:println(response);
+        }
+        error err => {
+            io:println("Error: " + err.message);
+        }
+    }
 
-    io:println(response);
 }
-
