@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,39 +19,53 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * {@code BNullType} represents the type of a {@code NullLiteral}.
+ * {@code BUnionType} represents a union type in Ballerina.
  *
- * @since 0.86
+ * @since 0.956
  */
-public class BNullType extends BType {
+public class BUnionType extends BType {
+
+    private List<BType> memberTypes;
 
     /**
-     * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
-     *
-     * @param typeName string name of the type
-     * @param pkgPath package path
+     * Create a {@code BUnionType} which represents the union type.
      */
-    BNullType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null);
+    public BUnionType() {
+        super(null, null, BValue.class);
     }
 
+    /**
+     * Create a {@code BUnionType} which represents the union type.
+     *
+     * @param memberTypes
+     */
+    public BUnionType(List<BType> memberTypes) {
+        super(null, null, BValue.class);
+        this.memberTypes = memberTypes;
+    }
+
+    @Override
     public <V extends BValue> V getZeroValue() {
-        return (V) null;
+        return null;
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) null;
+        return null;
     }
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_NULL);
+        return new TypeSignature(TypeSignature.SIG_UNION,
+                memberTypes.stream().map(type -> type.getSig()).collect(Collectors.toList()));
     }
 
     @Override
     public int getTag() {
-        return TypeTags.NULL_TAG;
+        return TypeTags.UNION_TAG;
     }
 }

@@ -67,12 +67,7 @@ function testStructToJson () returns (json) {
                    marks:[87, 94, 72]
                };
 
-    json j;
-    match p {
-                Person p1 => j =? <json>p;
-     any | null => io.println("error");
-}
-
+    json j =? <json>p;
     return j;
 }
 
@@ -99,12 +94,7 @@ function testJsonToStruct () returns (Person | error) {
                  alive:true,
                  children:null
              };
-<<<<<<< HEAD
     var p = <Person>j;
-=======
-    var p =? <Person>j;
-    //TODO fix the error handling
->>>>>>> b2512a76656f000a82f0a8e8da6e60990328e33c
     return p;
 }
 

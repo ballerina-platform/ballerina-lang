@@ -627,9 +627,20 @@ public class Types {
         return fieldType.isNullable();
     }
 
-    private boolean isJSONAssignableType(BType type) {
-        int typeTag = getElementType(type).tag;
-        return typeTag <= TypeTags.BOOLEAN || typeTag == TypeTags.JSON;
+    private boolean isAssignableToJSONType(BType source, BJSONType target) {
+        if (source.tag == TypeTags.JSON) {
+            return target.constraint.tag == TypeTags.NONE;
+        }
+        if (source.tag == TypeTags.ARRAY) {
+            return isArrayTypesAssignable(source, target);
+        }
+
+        if (source.tag == TypeTags.UNION) {
+            return ((BUnionType) source).memberTypes
+                            .stream()
+                            .anyMatch(memberType -> !isAssignable(memberType, target));
+        }
+        return false;
     }
 
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {
@@ -652,6 +663,12 @@ public class Types {
 
         return isAssignable(fieldType, symTable.jsonType);
 
+    }
+
+    private boolean checkUnionTypeToJSONConvertibility(BUnionType type, BJSONType target) {
+        // Check whether all the member types are convertible to JSON
+        return type.memberTypes.stream()
+                .anyMatch(memberType -> castVisitor.visit(memberType, target) == symTable.notFoundSymbol);
     }
 
     private BTypeVisitor<BType, BSymbol> castVisitor = new BTypeVisitor<BType, BSymbol>() {
@@ -719,11 +736,13 @@ public class Types {
             if (isSameType(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
             } else if (s.tag == TypeTags.STRUCT) {
-                if (checkStructToJSONConvertibility(s)) {
-                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
-                } else {
-                    return symTable.notFoundSymbol;
-                }
+//                TODO: do type checking and fail for obvious incompatible types
+//                if (checkStructToJSONConvertibility(s)) {
+//                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
+//                } else {
+//                    return symTable.notFoundSymbol;
+//                }
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
             } else if (s.tag == TypeTags.JSON) {
                 if (t.constraint.tag == TypeTags.NONE) {
                     return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
@@ -735,6 +754,11 @@ public class Types {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.ARRAY) {
                 return getExplicitArrayConversionOperator(t, s, t, s);
+            } else if (s.tag == TypeTags.UNION) {
+                if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {
+                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST); 
+                }
+                return symTable.notFoundSymbol;
             } else if (t.constraint.tag != TypeTags.NONE) {
                 return symTable.notFoundSymbol;
             }
