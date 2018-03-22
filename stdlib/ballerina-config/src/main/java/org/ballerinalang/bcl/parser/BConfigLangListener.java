@@ -21,17 +21,21 @@ package org.ballerinalang.bcl.parser;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * A TOML parser listener implementation for parsing Ballerina config files.
  *
- * @since 0.965.0
+ * @since 0.966.0
  */
 public class BConfigLangListener extends TomlBaseListener {
 
     private static final String ENCRYPTED_FIELD_REGEX = "@encrypted:\\{(.*)\\}";
+    private static final String ENV_VARIABLE_REGEX = "@env:\\{([a-zA-Z_]+[a-zA-Z0-9_]*)\\}";
     private static final String CONFIG_KEY_SEPARATOR = ".";
+    private static final Pattern ENV_VAR_PATTERN = Pattern.compile(ENV_VARIABLE_REGEX);
 
     private BConfig configEntries;
     private String currentTableHeader;
@@ -61,26 +65,42 @@ public class BConfigLangListener extends TomlBaseListener {
     @Override
     public void enterBasicString(TomlParser.BasicStringContext context) {
         currentValue = context.basicChar().stream().map(x -> x.getText()).collect(Collectors.joining());
-        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
+        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
+            hasEncryptedFields = true;
+        } else {
+            currentValue = resolveEnvVariables(currentValue);
+        }
     }
 
     @Override
     public void enterLiteralString(TomlParser.LiteralStringContext context) {
         currentValue = context.LITERALCHAR().stream().map(x -> x.getText()).collect(Collectors.joining());
-        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
+        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
+            hasEncryptedFields = true;
+        } else {
+            currentValue = resolveEnvVariables(currentValue);
+        }
     }
 
     @Override
     public void enterMlBasicString(TomlParser.MlBasicStringContext context) {
         currentValue = context.mlBasicBody().mlBasicChar().stream().map(x -> x.getText()).collect(Collectors.joining());
-        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
+        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
+            hasEncryptedFields = true;
+        } else {
+            currentValue = resolveEnvVariables(currentValue);
+        }
     }
 
     @Override
     public void enterMlLiteralString(TomlParser.MlLiteralStringContext context) {
         currentValue = context.mlLiteralBody().MLLITERALCHAR().stream().map(x -> x.getText()).collect(
                 Collectors.joining());
-        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
+        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
+            hasEncryptedFields = true;
+        } else {
+            currentValue = resolveEnvVariables(currentValue);
+        }
     }
 
     @Override
@@ -115,5 +135,17 @@ public class BConfigLangListener extends TomlBaseListener {
     @Override
     public void exitToml(TomlParser.TomlContext context) {
         configEntries.setHasEncryptedValues(hasEncryptedFields);
+    }
+
+    private String resolveEnvVariables(String config) {
+        Matcher envVarMatcher = ENV_VAR_PATTERN.matcher(config);
+
+        if (!envVarMatcher.find()) {
+            return config;
+        }
+
+        String value = System.getenv(envVarMatcher.group(1));
+
+        return value != null ? value : config;
     }
 }

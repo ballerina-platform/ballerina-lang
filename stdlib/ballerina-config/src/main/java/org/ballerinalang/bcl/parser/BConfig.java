@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * A wrapper for config entries map, so that existence of encrypted entries can also be tracked.
  *
- * @since 0.965.0
+ * @since 0.966.0
  */
 public class BConfig {
 
