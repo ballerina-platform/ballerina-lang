@@ -33,15 +33,15 @@ function main (string[] args) {
     if (connErr != null) {
     io:println("Error at LotsOfGreetings : " + connErr.message);
     }
-    _ = ep.complete();
+    //this will hold forever since this is chat application
     while (total ==0) {}
+    _ = ep.complete();
 }
 
 
 service<grpc:Listener> helloWorldMessageListener {
 
     onMessage (string message) {
-        total = 1;
         io:println("Responce received from server: " + message);
     }
 
