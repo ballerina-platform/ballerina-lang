@@ -49,8 +49,7 @@ struct InitiatorClient {
 
 function <InitiatorClient client> register (string transactionId,
                                             int transactionBlockId,
-                                            Protocol[] participantProtocols)
-returns RegistrationResponse|error {
+                                            Protocol[] participantProtocols) returns RegistrationResponse|error {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     string participantId = getParticipantId(transactionBlockId);
     RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
@@ -59,26 +58,12 @@ returns RegistrationResponse|error {
     json j = <json, regRequestToJson()>regReq;
     http:Request req = {};
     req.setJsonPayload(j);
-    var result = httpClient -> post("", req);
-    match result {
-        error err => {
-            return err;
-        }
-        http:Response res => {
-            int statusCode = res.statusCode;
-            if (statusCode != 200) {
-                error err = {message:"Registration for transaction: " + transactionId + " failed"};
-                return err;
-            }
-            var jsonPayloadResult = res.getJsonPayload();
-            match jsonPayloadResult {
-                error err => return err;
-                json payload => {
-                    return <RegistrationResponse, jsonToRegResponse()>(payload);
-                }
-            }
-        }
+    var res =? httpClient -> post("", req);
+    int statusCode = res.statusCode;
+    if (statusCode != 200) {
+        error err = {message:"Registration for transaction: " + transactionId + " failed"};
+        return err;
     }
-    error err = {message:"Invalid execution path in register request"};
-    throw err;
+    var payload =? res.getJsonPayload();
+    return <RegistrationResponse, jsonToRegResponse()>(payload);
 }
