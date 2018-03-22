@@ -7,7 +7,7 @@ public any glbVarAny = 572343;
 
 public float glbVarFloatChange = 23424;
 
-public function getIntValue() (int) {
+public function getIntValue() returns (int) {
     return 8876;
 }
 

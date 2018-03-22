@@ -54,10 +54,6 @@ public interface PackageNode extends Node {
 
     void addConnector(ConnectorNode connector);
 
-    List<? extends StreamletNode> getStreamlets();
-
-    void addStreamlet(StreamletNode streamletNode);
-
     List<? extends FunctionNode> getFunctions();
 
     void addFunction(FunctionNode function);

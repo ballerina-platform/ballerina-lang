@@ -54,7 +54,6 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -86,7 +85,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StreamletInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
@@ -98,7 +96,6 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
-import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -177,6 +174,10 @@ public class CPU {
         int callersRetRegIndex;
 
         while (ctx.ip >= 0) {
+            if (ctx.stop) {
+                BLangScheduler.workerDone(ctx);
+                return;
+            }
             if (debugEnabled && debug(ctx)) {
                 return;
             }
@@ -400,7 +401,8 @@ public class CPU {
                 case InstructionCodes.TR_RETRY:
                     i = operands[0];
                     j = operands[1];
-                    retryTransaction(ctx, i, j);
+                    int l = operands[2];
+                    retryTransaction(ctx, i, j, l);
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
@@ -650,11 +652,7 @@ public class CPU {
                     typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                     StringCPEntry name = (StringCPEntry) ctx.constPool[operands[2]];
                     BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
-                    StreamingRuntimeManager.getInstance().addStreamReference(name.getValue(), stream);
                     sf.refRegs[i] = stream;
-                    break;
-                case InstructionCodes.NEWSTREAMLET:
-                    createNewStreamlet(ctx, operands, sf);
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
@@ -755,7 +753,7 @@ public class CPU {
     }
 
     private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
-            int[] operands) {
+                                                int[] operands) {
         int i;
         int j;
         int k;
@@ -871,7 +869,7 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void execLoadOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1182,7 +1180,7 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void execStoreOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1902,7 +1900,7 @@ public class CPU {
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeTable);
                 break;
-            case InstructionCodes.ANYSTM:
+            case InstructionCodes.ANY2STM:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeStream);
                 break;
             case InstructionCodes.ANY2E:
@@ -1956,7 +1954,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
-            int[] operands) {
+                                                  int[] operands) {
         int i;
         int j;
         int k;
@@ -2240,7 +2238,7 @@ public class CPU {
     }
 
     private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
-            int[] operands) {
+                                               int[] operands) {
         int i;
         int j;
         int k;
@@ -2517,22 +2515,8 @@ public class CPU {
         sf.refRegs[i] = new BStruct(structInfo.getType());
     }
 
-    private static void createNewStreamlet(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-        int cpIndex = operands[0];
-        int i = operands[1];
-        StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) ctx.constPool[cpIndex];
-        StreamletInfo streamletInfo = (StreamletInfo) streamletRefCPEntry.getStreamletInfo();
-        BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
-        streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
-        streamlet.setStreamIdsAsString(streamletInfo.getStreamIdsAsString());
-        StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(streamlet);
-        StreamingRuntimeManager.getInstance().registerSubscriberForTopics(streamlet.getStreamSpecificInputHandlerMap(),
-                                                                          streamletInfo.getStreamIdsAsString());
-        sf.refRegs[i] = streamlet;
-    }
-
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
-            int committedFuncIndex, int abortedFuncIndex) {
+                                         int committedFuncIndex, int abortedFuncIndex) {
         //If global tx enabled, it is managed via transaction coordinator. Otherwise it is managed locally without
         //any interaction with the transaction coordinator.
         boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
@@ -2592,10 +2576,19 @@ public class CPU {
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP) {
+    private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
+            int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
-            ctx.ip = startOfAbortIP;
+        if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
+            if (ctx.getError() == null) {
+                ctx.ip = startOfNoThrowEndIP;
+            } else {
+                if (BLangVMErrors.TRANSACTION_ERROR.equals(ctx.getError().getStringField(0))) {
+                    ctx.ip = startOfNoThrowEndIP;
+                } else {
+                    ctx.ip = startOfAbortIP;
+                }
+            }
         }
         localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
     }
