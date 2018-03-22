@@ -591,18 +591,43 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        this.visit((BLangAssignment) stmt);
+        // var (a, b) = (tuple)
+        //
+        //  desugar once
+        //  any[] x = (tuple);
+        //  a = x[0];
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(stmt.pos);
 
-        // Resolve Access Expr's cast operator
-        for (int i = 0; i < stmt.varRefs.size(); i++) {
-            BLangExpression varRef = stmt.varRefs.get(i);
-            BSymbol symbol = symResolver.resolveConversionOperator(symTable.anyType, varRef.type);
-            if (symbol == symTable.notFoundSymbol) {
-                stmt.convOperatorSymbols.add(null);
+        BType runTimeType = new BArrayType(symTable.anyType);
+        final BLangVariable tuple = ASTBuilderUtil.createVariable(stmt.pos, "", runTimeType, null,
+                new BVarSymbol(0, names.fromString("tuple"),
+                        this.env.scope.owner.pkgID, runTimeType, this.env.scope.owner));
+        tuple.expr = stmt.expr;
+        final BLangVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(stmt.pos, blockStmt);
+        variableDef.var = tuple;
+
+        for (int index = 0; index < stmt.varRefs.size(); index++) {
+            BLangExpression varRef = stmt.varRefs.get(index);
+            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(stmt.pos, symTable.intType, (long) index);
+            BLangIndexBasedAccess arrayAccess = ASTBuilderUtil.createIndexBasesAccessExpr(stmt.pos, symTable.anyType,
+                    tuple.symbol, indexExpr);
+
+            final BLangExpression assignmentExpr;
+            if (types.isValueType(varRef.type)) {
+                BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+                castExpr.expr = arrayAccess;
+                castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, varRef.type);
+                castExpr.type = varRef.type;
+                assignmentExpr = castExpr;
             } else {
-                stmt.convOperatorSymbols.add((BConversionOperatorSymbol) symbol);
+                assignmentExpr = arrayAccess;
             }
+            final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(stmt.pos, blockStmt);
+            assignmentStmt.declaredWithVar = stmt.declaredWithVar;
+            assignmentStmt.varRefs = Lists.of(varRef);
+            assignmentStmt.expr = assignmentExpr;
         }
+        result = rewrite(blockStmt, env);
     }
 
     @Override
