@@ -41,17 +41,25 @@ function main (string[] args) {
     io:println(tb);
 
     //Convert to a json.
-    var j, e = <json> tb;
-    if (e == null) {
-        io:print("JSON:");
-        io:println(j);
+    var j = <json> tb;
+
+    match j {
+        json jsonRes => {
+                       io:print("JSON:");
+                       io:println(j);
+                   }
+        error err =>  io:println("error: " + err.message);
     }
 
     //Convert to a xml.
-    var x, e = <xml> tb;
-    if (e == null) {
-        io:print("XML:");
-        io:println(x);
+    var x = <xml> tb;
+
+    match x {
+        xml xmlRes => {
+                   io:print("XML:");
+                   io:println(x);
+               }
+        error err =>  io:println("error: " + err.message);
     }
 }
 

@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -89,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctio
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -964,6 +966,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 calcAndGetExprRegIndex(enumeratorAccessExpr));
     }
 
+    @Override
     public void visit(BLangBinaryExpr binaryExpr) {
         if (OperatorKind.AND.equals(binaryExpr.opKind)) {
             visitAndExpression(binaryExpr);
@@ -983,6 +986,14 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangIsAssignableExpr assignableExpr) {
+        genNode(assignableExpr.lhsExpr, this.env);
+        RegIndex regIndex = calcAndGetExprRegIndex(assignableExpr);
+        Operand typeCPIndex = getTypeCPIndex(assignableExpr.targetType);
+        emit(assignableExpr.opSymbol.opcode, assignableExpr.lhsExpr.regIndex, typeCPIndex, regIndex);
     }
 
     @Override
@@ -1614,9 +1625,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         int i = 0;
         int nArgRegs = iExpr.requiredArgs.size() + iExpr.namedArgs.size() + iExpr.restArgs.size();
         int nRetRegs = iExpr.types.size();
+        int flags = FunctionFlags.NOTHING;
         Operand[] operands = new Operand[nArgRegs + nRetRegs + 4];
         operands[i++] = getOperand(funcRefCPIndex);
-        operands[i++] = getOperand(iExpr.async);
+        if (iExpr.async) {
+            flags = FunctionFlags.markAsync(flags);
+        }
+        operands[i++] = getOperand(flags);
         operands[i++] = getOperand(nArgRegs);
 
         // Write required arguments

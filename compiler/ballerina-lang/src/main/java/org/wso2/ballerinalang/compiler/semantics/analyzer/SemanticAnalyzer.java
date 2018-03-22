@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
@@ -1193,6 +1194,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         wheneverStatement.addGlobalVariable(variable);
                     }
                 }
+            }
+        }
+
+        List<BVarSymbol> functionParameterList = ((BInvokableSymbol) this.env.scope.owner).getParameters();
+        for (BVarSymbol varSymbol : functionParameterList) {
+            if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
+                wheneverStatement.addFunctionVariable(varSymbol);
             }
         }
     }

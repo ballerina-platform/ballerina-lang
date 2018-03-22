@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
@@ -34,6 +35,7 @@ public class BLangWhenever extends BLangExpressionStmt implements WheneverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     private List<VariableNode> globalVariables = new ArrayList<>();
+    private List<VariableSymbol> functionVariables = new ArrayList<>();
     private String siddhiQuery;
     private String streamIdsAsString;
     public List<BLangVariable> params;
@@ -64,9 +66,20 @@ public class BLangWhenever extends BLangExpressionStmt implements WheneverNode {
     }
 
     @Override
+    public List<VariableSymbol> getFunctionVariables() {
+        return functionVariables;
+    }
+
+    @Override
+    public void addFunctionVariable(VariableSymbol variable) {
+        functionVariables.add(variable);
+    }
+
+    @Override
     public List<VariableNode> getGlobalVariables() {
         return globalVariables;
     }
+
 
     @Override
     public List<BLangVariable> getParameters() {

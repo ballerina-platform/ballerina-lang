@@ -401,7 +401,7 @@ public class CPU {
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
-                            callIns.retRegs, false, callIns.async);
+                            callIns.retRegs, false, callIns.flags);
                     if (ctx == null) {
                         return;
                     }
@@ -409,14 +409,14 @@ public class CPU {
                 case InstructionCodes.VCALL:
                     InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                     ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
-                            vcallIns.argRegs, vcallIns.retRegs, vcallIns.async);
+                            vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
                     if (ctx == null) {
                         return;
                     }
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
-                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs, acallIns.async);
+                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs, acallIns.flags);
                     if (ctx == null) {
                         return;
                     }
@@ -424,7 +424,7 @@ public class CPU {
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                            tcallIns.retRegs, false, tcallIns.async);
+                            tcallIns.retRegs, false, tcallIns.flags);
                     if (ctx == null) {
                         return;
                     }
@@ -528,6 +528,7 @@ public class CPU {
                 case InstructionCodes.JSON2S:
                 case InstructionCodes.JSON2B:
                 case InstructionCodes.NULL2S:
+                case InstructionCodes.IS_ASSIGNABLE:
                     execTypeCastOpcodes(ctx, sf, opcode, operands);
                     break;
 
@@ -1432,6 +1433,11 @@ public class CPU {
                 } else if (mapType.getConstrainedType() == BTypes.typeAny ||
                         mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
+                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
+                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
+                        (BStructType) mapType.getConstrainedType())) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
@@ -1884,6 +1890,18 @@ public class CPU {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
                     handleTypeCastError(ctx, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                }
+                break;
+            case InstructionCodes.IS_ASSIGNABLE:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                bRefTypeValue = sf.refRegs[i];
+                if (isAssignable(bRefTypeValue, typeRefCPEntry.getType())) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
                 }
                 break;
             case InstructionCodes.NULL2JSON:
@@ -2541,7 +2559,7 @@ public class CPU {
     }
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
-            int startOfNoThrowEndIP) {
+                                         int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
             if (ctx.getError() == null) {
@@ -2644,7 +2662,7 @@ public class CPU {
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
-                                                                int[] retRegs, boolean async) {
+                                                                int[] retRegs, int flags) {
         BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
         if (structVal == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2655,11 +2673,11 @@ public class CPU {
         StructInfo structInfo = structVal.getType().structInfo;
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
-        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, async);
+        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
     }
 
     private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
-                                                       int[] retRegs, boolean async) {
+                                                       int[] retRegs, int flags) {
         BConnector connector = (BConnector) ctx.workerLocal.refRegs[argRegs[0]];
         if (connector == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2671,7 +2689,7 @@ public class CPU {
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
-        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, async);
+        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, flags);
     }
 
     @SuppressWarnings("rawtypes")
@@ -2812,35 +2830,90 @@ public class CPU {
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
-    private static boolean checkCast(BValue sourceValue, BType targetType) {
-        BType sourceType = sourceValue.getType();
+    private static boolean isAssignable(BValue rhsValue, BType lhsType) {
+        if (rhsValue == null) {
+            return false;
+        }
 
-        if (sourceType.equals(targetType)) {
+        BType rhsType = rhsValue.getType();
+        if (rhsType.equals(lhsType)) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.INT_TAG &&
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
         }
 
-        if (sourceType.getTag() == TypeTags.STRUCT_TAG && targetType.getTag() == TypeTags.STRUCT_TAG) {
-            return checkStructEquivalency((BStructType) sourceType, (BStructType) targetType);
-
+        // if lhs type is JSON
+        if (lhsType.getTag() == TypeTags.JSON_TAG && getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
         }
 
-        if (targetType.getTag() == TypeTags.ANY_TAG) {
+        if (rhsType.getTag() == TypeTags.STRUCT_TAG && lhsType.getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
+
+        // Array casting
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayCast(rhsType, lhsType);
+        }
+
+        // Check MAP casting
+        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(rhsType, lhsType);
+        }
+
+        // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
+        // it to a constrained table reference.
+        if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
+            return true;
+        }
+
+        // TODO Union types, tuple types
+        return false;
+    }
+
+    private static boolean checkCast(BValue rhsValue, BType lhsType) {
+        BType rhsType = rhsValue.getType();
+
+        if (rhsType.equals(lhsType)) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.STRUCT_TAG && lhsType.getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.ANY_TAG) {
             return true;
         }
 
         // Check JSON casting
-        if (getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(((BJSON) sourceValue).value(), sourceType, targetType);
+        if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
         }
 
         // Array casting
-        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(sourceType, targetType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayCast(rhsType, lhsType);
         }
 
         // Check MAP casting
-        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
-            return checkMapCast(sourceType, targetType);
+        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(rhsType, lhsType);
         }
 
         return false;

@@ -46,12 +46,12 @@ public class DocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.", enabled = false)
+    @Test(description = "Test doc annotation.")
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
@@ -65,6 +65,9 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
                 " annotation `field c` documentation");
+        docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
     }
 
     @Test(description = "Test doc constant.")
@@ -356,16 +359,16 @@ public class DocumentationTest {
                 "    ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```\n");
     }
 
-    @Test(description = "Test doc multiple.", enabled = false)
+    @Test(description = "Test doc multiple.")
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/multiple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
 
-        List<BLangDocumentation> docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for Tst struct\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
@@ -412,6 +415,8 @@ public class DocumentationTest {
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, "PizzaService HTTP Service");
 
+        /*
+        // Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
         dNode = service.getResources().get(0).docAttachments.get(0);
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.documentationText, "Check orderPizza resource. ");
@@ -430,7 +435,7 @@ public class DocumentationTest {
                 " HTTP connection. ");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "req");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " In request.");
+                " In request.");*/
     }
 
     @Test(description = "Test doc deprecated function use.")

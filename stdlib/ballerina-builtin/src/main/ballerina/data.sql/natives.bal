@@ -77,6 +77,26 @@ public struct ConnectionProperties {
 
 @Description {value:"Initialize the ConnectionProperties with default values"}
 public function <ConnectionProperties c> ConnectionProperties () {
+	c.url = "";
+	c.dataSourceClassName = "";
+	c.connectionTestQuery = "";
+	c.poolName = "";
+	c.catalog = "";
+	c.connectionInitSql = "";
+	c.driverClassName = "";
+	c.transactionIsolation = "";
+	c.autoCommit = true;
+	c.isolateInternalQueries = false;
+	c.allowPoolSuspension = false;
+	c.readOnly = false;
+	c.isXA = false;
+	c.maximumPoolSize = -1;
+	c.connectionTimeout = -1;
+	c.idleTimeout = -1;
+	c.minimumIdle = -1;
+	c.maxLifetime = -1;
+	c.validationTimeout = -1;
+	c.leakDetectionThreshold = -1;
 	c.datasourceProperties = {};
 }
 
