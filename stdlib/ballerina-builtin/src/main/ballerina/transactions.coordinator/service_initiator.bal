@@ -89,7 +89,7 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
                                                     err);
             }
         } else {
-            var txn =? (Transaction)initiatedTransactions[txnId];
+            var txn =? <Transaction>initiatedTransactions[txnId];
             if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
                 http:Response res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
                 var connErr = conn -> respond(res);
