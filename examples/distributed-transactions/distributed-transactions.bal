@@ -8,7 +8,7 @@ function main (string[] args) {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
-        name: "testdb1",
+        name: "testdb",
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
@@ -21,7 +21,7 @@ function main (string[] args) {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
-        name: "testdb2",
+        name: "testdss",
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
@@ -33,7 +33,8 @@ function main (string[] args) {
     match ret {
         int retInt =>  io:println("CUSTOMER table create status in first DB:" + retInt);
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            io:println("CUSTOMER table Creation failed:" + err.message);
+            return;
         }
     }
     //Create the table named SALARY in the second database.
@@ -43,7 +44,8 @@ function main (string[] args) {
             io:println("SALARY table create status in second DB:" + retInt);
         }
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
         }
     }
 
