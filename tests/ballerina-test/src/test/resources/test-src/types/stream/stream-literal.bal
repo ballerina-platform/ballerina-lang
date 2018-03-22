@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.time;
+import ballerina/io;
+import ballerina/time;
 
 struct Employee {
     int id;

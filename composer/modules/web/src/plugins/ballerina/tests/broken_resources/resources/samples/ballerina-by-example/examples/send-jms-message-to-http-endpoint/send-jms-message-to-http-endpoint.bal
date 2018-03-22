@@ -1,7 +1,7 @@
 
-import ballerina.lang.messages;
-import ballerina.net.jms;
-import ballerina.net.http;
+import ballerina/lang.messages;
+import ballerina/net.jms;
+import ballerina/net.http;
 
 @jms:configuration {
     initialContextFactory: "wso2mbInitialContextFactory",

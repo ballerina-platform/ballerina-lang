@@ -59,7 +59,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 0.966.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "loadToTable",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),

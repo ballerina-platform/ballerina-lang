@@ -19,13 +19,12 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -44,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -95,8 +93,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
@@ -162,7 +158,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -185,6 +180,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
 
     private SymbolTable symTable;
+    private final PackageCache packageCache;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
@@ -223,6 +219,7 @@ public class Desugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -893,7 +890,9 @@ public class Desugar extends BLangNodeVisitor {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET ||
-                (ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT ) {
+                (ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
+            genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -1272,14 +1271,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
-        jsonLiteral.keyValuePairs.forEach(keyVal -> {
-            keyVal.valueExpr = rewriteExpr(keyVal.valueExpr);
-            if (keyVal.key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                keyVal.key = new BLangRecordKey(createStringLiteral(keyVal.key.pos, keyVal.key.fieldSymbol.name.value));
-            } else {
-                keyVal.key.expr = rewriteExpr(keyVal.key.expr);
-            }
-        });
         result = jsonLiteral;
     }
 

@@ -1,6 +1,6 @@
-import ballerina.io;
-import ballerina.log;
-import ballerina.net.grpc;
+import ballerina/io;
+import ballerina/log;
+import ballerina/net.grpc;
 
 endpoint grpc:Service ep {
   host:"localhost",

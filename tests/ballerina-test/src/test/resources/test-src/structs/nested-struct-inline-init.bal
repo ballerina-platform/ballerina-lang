@@ -2,11 +2,13 @@ import ballerina.io;
 
 struct Person {
     string name = "default first name";
+    string fname;
     string lname;
     map adrs;
     int age = 999;
+    
+    // FIXME: below var is allowed not to be initialize!!!
     Family family = {spouse : "Jane"};
-    //Person|null parent;
 }
 
 struct Family {
@@ -16,7 +18,7 @@ struct Family {
 }
 
 function testCreateStruct () {
-    Person emp = {name:"Jack"};
+    Person emp = {lname:"Doe"};
     io:println(emp);
     //return (emp.name, emp.adrs, emp.age);
 }

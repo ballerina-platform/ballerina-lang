@@ -38,7 +38,7 @@ import java.security.interfaces.RSAPublicKey;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.jwt.signature",
+        orgName = "ballerina", packageName = "jwt.signature",
         functionName = "verify",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),
