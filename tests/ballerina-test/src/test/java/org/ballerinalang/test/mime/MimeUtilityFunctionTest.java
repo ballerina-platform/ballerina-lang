@@ -63,15 +63,16 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
  */
 public class MimeUtilityFunctionTest {
     private static final Logger log = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
+
+    private CompileResult compileResult, serviceResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String mediaTypeStruct = MEDIA_TYPE;
-    private CompileResult compileResult, serviceResult;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-//        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+       // serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "Test 'getMediaType' function in ballerina.mime package")
@@ -334,8 +335,8 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-  /*  @Test(description = "When the payload exceeds 2MB check whether the response received back matches the " +
-            " original content length")
+   /* @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
+            "the original content length", enabled = false)
     public void testLargePayload() {
         String path = "/test/largepayload";
         try {
@@ -383,7 +384,7 @@ public class MimeUtilityFunctionTest {
                 "can be obtain either as xml, json, string or blob type");
     }
 
-   /* @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+  /*  @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
     public void testGetTextDataSource() throws IOException {
         try {

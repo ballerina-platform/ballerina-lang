@@ -118,6 +118,3 @@ function anyArrayWithMapArray() returns (any[]) {
     return a;
 }
 
-function main (string[] args) {
-
-}

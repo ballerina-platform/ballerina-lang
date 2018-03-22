@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -142,20 +142,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
-    public BSymbol resolveExplicitCastOperator(BType sourceType,
+    public BSymbol resolveImplicitConversionOp(BType sourceType,
                                                BType targetType) {
-        return types.getCastOperator(sourceType, targetType);
-    }
-
-    public BSymbol resolveImplicitCastOperator(BType sourceType,
-                                               BType targetType) {
-
-        BSymbol symbol = resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
+        BSymbol symbol = resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         if (symbol == symTable.notFoundSymbol) {
             return symbol;
         }
 
-        BCastOperatorSymbol castSymbol = (BCastOperatorSymbol) symbol;
+        BConversionOperatorSymbol castSymbol = (BConversionOperatorSymbol) symbol;
         if (castSymbol.implicit) {
             return symbol;
         }
@@ -315,12 +309,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.diagCode = preDiagCode;
 
         // If the typeNode.nullable is true then convert the resultType to a union type
-        // if it is not already a union type or a JSON type
+        // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
             unionType.memberTypes.add(symTable.nullType);
             unionType.setNullable(true);
-        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON) {
+        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
             Set<BType> memberTypes = new HashSet<BType>(2) {{
                 add(resultType);
                 add(symTable.nullType);

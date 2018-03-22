@@ -23,11 +23,11 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -180,6 +181,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
 
     private SymbolTable symTable;
+    private final PackageCache packageCache;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
@@ -218,6 +220,7 @@ public class Desugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -404,11 +407,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Return if this assignment is not a safe assignment
-        if (varNode.expr != null) {
-            varNode.expr = rewriteExpr(varNode.expr);
-        } else {
-            varNode.expr = getInitExpr(varNode.type);
-        }
+        varNode.expr = rewriteExpr(varNode.expr);
         result = varNode;
 
     }
@@ -447,6 +446,12 @@ public class Desugar extends BLangNodeVisitor {
 
         varDefNode.var = rewrite(varDefNode.var, env);
         BLangVariable varNode = varDefNode.var;
+
+        // Generate default init expression, if rhs expr is null
+        if (varNode.expr == null) {
+            varNode.expr = getInitExpr(varNode.type);
+        }
+
         if (!varNode.safeAssignment) {
             result = varDefNode;
             return;
@@ -559,11 +564,11 @@ public class Desugar extends BLangNodeVisitor {
         // Resolve Access Expr's cast operator
         for (int i = 0; i < stmt.varRefs.size(); i++) {
             BLangExpression varRef = stmt.varRefs.get(i);
-            BSymbol symbol = symResolver.resolveExplicitCastOperator(symTable.anyType, varRef.type);
+            BSymbol symbol = symResolver.resolveConversionOperator(symTable.anyType, varRef.type);
             if (symbol == symTable.notFoundSymbol) {
-                stmt.castOperatorSymbols.add(null);
+                stmt.convOperatorSymbols.add(null);
             } else {
-                stmt.castOperatorSymbols.add((BCastOperatorSymbol) symbol);
+                stmt.convOperatorSymbols.add((BConversionOperatorSymbol) symbol);
             }
         }
     }
@@ -689,7 +694,6 @@ public class Desugar extends BLangNodeVisitor {
         //      io:println("string value: " + s);
         //  }
 
-        matchStmt.expr = rewriteExpr(matchStmt.expr);
 
         // First create a block statement to hold generated statements
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
@@ -829,6 +833,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableLiteral tableLiteral) {
+        result = tableLiteral;
+    }
+
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
 
@@ -857,6 +866,8 @@ public class Desugar extends BLangNodeVisitor {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET) {
+            genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -993,6 +1004,12 @@ public class Desugar extends BLangNodeVisitor {
         ternaryExpr.thenExpr = rewriteExpr(ternaryExpr.thenExpr);
         ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
         result = ternaryExpr;
+    }
+    
+    @Override
+    public void visit(BLangAwaitExpr awaitExpr) {
+        awaitExpr.expr = rewriteExpr(awaitExpr.expr);
+        result = awaitExpr;
     }
 
     @Override
@@ -1254,8 +1271,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // TODO: find a better way to get the default value expressions of a struct field
         BStructType type = (BStructType) structLiteral.type;
-        BPackageSymbol pkgSymbol = symTable.pkgSymbolMap.get(type.tsymbol.pkgID);
-        BLangPackage pkg = symTable.pkgEnvMap.get(pkgSymbol).enclPkg;
+        BLangPackage pkg = this.packageCache.get(type.tsymbol.pkgID);
         BLangStruct structDef = pkg.structs.stream()
                 .filter(struct -> struct.name.value.equals(type.tsymbol.name.value))
                 .findFirst()
@@ -1392,7 +1408,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             literal.type = symTable.getTypeFromTag(type);
             types.setImplicitCastExpr(literal, new BType(type, null), symTable.anyType);
-            expr.exprs.add(literal.impCastExpr);
+            expr.exprs.add(literal.impConversionExpr);
         });
         return expr;
     }
@@ -1480,9 +1496,9 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangExpression expr = node;
-        if (node.impCastExpr != null) {
-            expr = node.impCastExpr;
-            node.impCastExpr = null;
+        if (node.impConversionExpr != null) {
+            expr = node.impConversionExpr;
+            node.impConversionExpr = null;
         }
 
         expr.accept(this);
@@ -1795,11 +1811,14 @@ public class Desugar extends BLangNodeVisitor {
             // Create a type cast expression
             BLangExpression patternVarExpr;
             if (types.isValueType(patternClause.variable.type)) {
-                BLangTypeCastExpr castExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
+                //TODO unbox_int instruction
+                BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
                 castExpr.expr = matchExprVarRef;
-                castExpr.castSymbol = (BCastOperatorSymbol) this.symResolver.resolveExplicitCastOperator(
-                        symTable.anyType, patternClause.variable.type);
-                castExpr.types = Lists.of(castExpr.castSymbol.type.getReturnTypes().get(0));
+//                castExpr.conversionSymbol = (BConversionOperatorSymbol) this.symResolver.resolveConversionOperator(
+//                        symTable.anyType, patternClause.variable.type);
+                castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType,
+                        patternClause.variable.type);
+                castExpr.type = patternClause.variable.type;
                 patternVarExpr = castExpr;
             } else {
                 patternVarExpr = matchExprVarRef;

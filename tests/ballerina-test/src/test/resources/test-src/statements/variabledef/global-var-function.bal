@@ -11,33 +11,33 @@ json glbVarJson;
 
 float glbVarFloatLater;
 
-function getGlobalVars() (int, string, float, any) {
-    return glbVarInt, glbVarString, glbVarFloat, glbVarAny;
+function getGlobalVars() returns (int, string, float, any) {
+    return (glbVarInt, glbVarString, glbVarFloat, glbVarAny);
 }
 
-function accessGlobalVar() (int) {
+function accessGlobalVar() returns int {
     int value;
     value, _ = (int)glbVarAny;
-    return glbVarInt + value;
+    return (glbVarInt + value);
 }
 
-function changeGlobalVar(int addVal) (float) {
+function changeGlobalVar(int addVal) returns float {
     glbVarFloatChange = 77 + <float> addVal;
     float value = glbVarFloatChange;
     return value;
 }
 
-function getGlobalFloatVar() (float) {
+function getGlobalFloatVar() returns float {
     _ = changeGlobalVar(3);
     return glbVarFloatChange;
 }
 
-function getGlobalVarFloat1()(float) {
+function getGlobalVarFloat1() returns float {
     return glbVarFloat1;
 }
 
-function initializeGlobalVarSeparately()(json, float) {
+function initializeGlobalVarSeparately() returns (json, float) {
     glbVarJson = {"name" : "James", "age": 30};
     glbVarFloatLater = 3432.3423;
-    return glbVarJson, glbVarFloatLater;
+    return (glbVarJson, glbVarFloatLater);
 }

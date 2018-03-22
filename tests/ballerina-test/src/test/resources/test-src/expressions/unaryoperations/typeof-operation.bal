@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 function refTypeAccessTestTrivialEqualityPositiveCase() returns (int) {
     int temp_int = 2;
     int temp_int_1 = 5;

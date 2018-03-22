@@ -1,5 +1,5 @@
 
-function testForkJoinAll()(int[]) {
+function testForkJoinAll() returns int[] {
 
         int[] results = [];
         int x = 100;

@@ -1,8 +1,8 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 int i = getInt();
 
-function getInt() returns (int){
+function getInt() returns int{
     worker w1 {
         return 1;
     }
@@ -11,6 +11,6 @@ function getInt() returns (int){
     }
 }
 
-function test()(int){
+function test() returns int{
     return i;
 }

@@ -1,4 +1,4 @@
-import ballerina.lang.      messages;
+import ballerina/lang.      messages;
 import   ballerina.lang.system;
 
 function    testForkJoinAnyOfSpecific   (    message     m   )   (    message   [    ]   )  {

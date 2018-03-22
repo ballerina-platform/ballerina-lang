@@ -30,8 +30,10 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
 import java.io.BufferedReader;
@@ -54,7 +56,8 @@ import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_DIR_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -66,14 +69,18 @@ public class LauncherUtils {
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String[] args) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
+        Path fullPath = sourceRootPath.resolve(sourcePath);
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-        } else if (Files.isDirectory(sourceRootPath.resolve(sourcePath))
-                || srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        } else if (Files.isRegularFile(fullPath) &&
+                srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                !Files.isDirectory(sourceRootPath.resolve(DOT_BALLERINA_DIR_NAME))) {
+            programFile = compile(fullPath.getParent(), fullPath.getFileName());
+        } else if (Files.isDirectory(sourceRootPath)) {
             programFile = compile(sourceRootPath, sourcePath);
         } else {
             throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +
-                    "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
+                                                 "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
         }
 
         // If there is no main or service entry point, throw an error
@@ -219,18 +226,17 @@ public class LauncherUtils {
      * @param sourcePath Path to the source from the source root
      * @return Executable program
      */
-    private static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
+    public static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRootPath.toString());
+        options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(sourcePath.toString());
-        org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
-
+        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPkgNode);
         if (programFile == null) {
             throw createLauncherException("compilation contains errors");
         }
@@ -242,12 +248,12 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link org.wso2.ballerinalang.programfile.ProgramFile}).
+     * ({@link CompiledBinaryFile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program
      */
-    public static ProgramFile getExecutableProgram(org.wso2.ballerinalang.programfile.ProgramFile programFile) {
+    public static ProgramFile getExecutableProgram(CompiledBinaryFile.ProgramFile programFile) {
         ByteArrayInputStream byteIS = null;
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         try {

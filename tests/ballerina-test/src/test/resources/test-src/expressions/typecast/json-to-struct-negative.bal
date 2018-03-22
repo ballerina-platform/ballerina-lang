@@ -10,7 +10,7 @@ struct Person {
     boolean alive;
 }
 
-function testJsonToStruct() (Person) {
+function testJsonToStruct() returns (Person) {
     json j = { name:"Child", 
                age:25, 
                parent:{

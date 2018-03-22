@@ -28,7 +28,6 @@ import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.model.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -259,7 +258,7 @@ public class BallerinaDocGenerator {
         for (Path path : packagePaths) {
             CompilerContext context = new CompilerContext();
             CompilerOptions options = CompilerOptions.getInstance(context);
-            options.put(CompilerOptionName.SOURCE_ROOT, sourceRoot);
+            options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
             options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
             options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
 
@@ -270,8 +269,7 @@ public class BallerinaDocGenerator {
                 bLangPackage = loadBuiltInPackage(context);
             } else {
                 // compile the given file
-                compiler.compile(getPackageNameFromPath(path));
-                bLangPackage = (BLangPackage) compiler.getAST();
+                bLangPackage = compiler.compile(getPackageNameFromPath(path));
             }
 
             if (bLangPackage == null) {
@@ -310,16 +308,17 @@ public class BallerinaDocGenerator {
     private static BLangPackage loadBuiltInPackage(CompilerContext context) {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(context, Names.BUILTIN_PACKAGE);
+        BLangPackage builtInPkg = getBuiltInPackage(context);
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }
 
-    private static BLangPackage getBuiltInPackage(CompilerContext context, Name name) {
+    private static BLangPackage getBuiltInPackage(CompilerContext context) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
+                Names.BUILTIN_PACKAGE.getValue())));
     }
 
     private static String refinePackagePath(BLangPackage bLangPackage) {

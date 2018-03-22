@@ -32,7 +32,7 @@ function testTransactionAbort5 () {
     }
 }
 
-function testBreakWithinTransaction () (string) {
+function testBreakWithinTransaction () returns (string) {
     int i = 0;
     while (i < 5) {
         i = i + 1;
@@ -45,7 +45,7 @@ function testBreakWithinTransaction () (string) {
     return "done";
 }
 
-function testNextWithinTransaction () (string) {
+function testNextWithinTransaction () returns (string) {
     int i = 0;
     while (i < 5) {
         i = i + 1;

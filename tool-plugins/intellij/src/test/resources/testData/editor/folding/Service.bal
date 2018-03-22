@@ -1,5 +1,5 @@
 import <fold text='...'>ballerina.lang.messages;
-import ballerina.net.http;</fold>
+import ballerina/net.http;</fold>
 
 @http:BasePath {value:"/hello"}
 service<http> helloWorld <fold text='{...}'>{

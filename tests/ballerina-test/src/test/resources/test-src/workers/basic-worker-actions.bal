@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/io;
+import ballerina/runtime;
 function workerDeclTest() {
    worker wx {
      int a = 20;
@@ -16,7 +16,7 @@ function workerDeclTest() {
    worker wy { }
 }
 
-function forkJoinWithMessageParsingTest() (int) {
+function forkJoinWithMessageParsingTest() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -35,7 +35,7 @@ function forkJoinWithMessageParsingTest() (int) {
 	return x;
 }
 
-function forkJoinWithSingleForkMessages() (int) {
+function forkJoinWithSingleForkMessages() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -56,7 +56,7 @@ function forkJoinWithSingleForkMessages() (int) {
 	return x;
 }
 
-function basicForkJoinTest() (int) {
+function basicForkJoinTest() returns int {
     int x = 10;
     fork {
 	   worker w1 {
@@ -71,7 +71,7 @@ function basicForkJoinTest() (int) {
 	return x;
 }
 
-function forkJoinWithMultipleForkMessages() (int) {
+function forkJoinWithMultipleForkMessages() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -106,7 +106,7 @@ function simpleWorkerMessagePassingTest() {
    }
 }
 
-function forkJoinWithSomeJoin() (int) {
+function forkJoinWithSomeJoin() returns int {
     map m = {};
     m["x"] = 25;
     fork {
@@ -132,7 +132,7 @@ function forkJoinWithSomeJoin() (int) {
 	return ret;
 }
 
-function workerReturnTest() (int) {
+function workerReturnTest() returns int {
     worker wx {
 	    int x = 50;
 	    return x + 1;

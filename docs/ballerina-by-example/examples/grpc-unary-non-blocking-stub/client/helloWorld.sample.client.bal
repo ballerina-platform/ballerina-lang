@@ -1,5 +1,5 @@
 package client;
-import ballerina.io;
+import ballerina/io;
 
 int total = 0;
 function main (string[] args) {
@@ -9,11 +9,15 @@ function main (string[] args) {
             port: 9090
         };
 
-    error err = helloWorldEp -> hello("WSO2", typeof helloWorldMessageListener);
-
-    if (err != null) {
-        io:println("Error occured while sending event " + err.message);
-    }
+     error | null result = helloWorldEp -> hello("WSO2", typeof helloWorldMessageListener);
+     match result {
+         error payloadError => {
+            io:println("Error occured while sending event " + payloadError.message);
+         }
+         any | null => {
+            io:println("This cannot happen.");
+         }
+     }
 
     //to hold the programme
     while (total == 0) {}

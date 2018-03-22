@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "createDelimitedRecordChannel",
         args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io"),
@@ -113,12 +113,12 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
             DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
                     fieldSeparator);
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
-            context.setReturnValues(textRecordChannel, null);
+            context.setReturnValues(textRecordChannel);
         } catch (Throwable e) {
             String message =
                     "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
             log.error(message, e);
-            context.setReturnValues(null, IOUtils.createError(context, message));
+            context.setReturnValues(IOUtils.createError(context, message));
         }
     }
 }

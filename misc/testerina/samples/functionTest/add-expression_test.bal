@@ -1,8 +1,8 @@
 package samples.functionTest;
 
 
-import ballerina.test;
-import ballerina.lang.system;
+import ballerina/test;
+import ballerina/lang.system;
 
 function beforeTest(){
 	system:println("Running Test setup in beforeTest function");
