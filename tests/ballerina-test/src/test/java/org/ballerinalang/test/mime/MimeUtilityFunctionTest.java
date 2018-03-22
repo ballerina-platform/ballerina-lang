@@ -395,7 +395,7 @@ public class MimeUtilityFunctionTest {
                 "can be obtain either as xml, json, string or blob type");
     }
 
-    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+   /* @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
     public void testGetTextDataSource() throws IOException {
         try {
@@ -438,5 +438,5 @@ public class MimeUtilityFunctionTest {
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
-    }
+    }*/
 }

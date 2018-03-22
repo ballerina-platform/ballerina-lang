@@ -247,7 +247,7 @@ function consumeChannel (io:ByteChannel channel) {
     //while (numberOfBytesRead != 0) {
     //    var result = channel.read(1000000);
     //}
-    var result = channel.read(1000000);
+    //var result = channel.read(1000000);
 }
 
 endpoint http:ServiceEndpoint mockEP {
