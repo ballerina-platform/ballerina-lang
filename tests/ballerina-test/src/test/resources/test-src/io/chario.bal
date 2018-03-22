@@ -6,11 +6,11 @@ function initCharacterChannel (string filePath, string permission, string encodi
     io:ByteChannel channel = io:openFile(filePath, permission);
     var result = io:createCharacterChannel(channel, encoding);
     match result {
-        io:CharacterChannel charChannel => {
+        io:CharacterChannel charChannel =>{
             characterChannel = charChannel;
             return true;
         }
-        io:IOError err => {
+        io:IOError err =>{
             return err;
         }
     }
@@ -19,18 +19,18 @@ function initCharacterChannel (string filePath, string permission, string encodi
 function readCharacters (int numberOfCharacters) returns (string|io:IOError) {
     string empty = "";
     match characterChannel {
-        io:CharacterChannel ch => {
+        io:CharacterChannel ch =>{
             var result = ch.readCharacters(numberOfCharacters);
             match result {
-                string characters => {
+                string characters =>{
                     return characters;
                 }
-                io:IOError err => {
+                io:IOError err =>{
                     return err;
                 }
             }
         }
-        (any|null) => {
+        (any|null) =>{
             return empty;
         }
     }
@@ -39,19 +39,19 @@ function readCharacters (int numberOfCharacters) returns (string|io:IOError) {
 function writeCharacters (string content, int startOffset) returns (int|io:IOError) {
     int blank = -1;
     match characterChannel {
-        io:CharacterChannel ch => {
+        io:CharacterChannel ch =>{
             var result = ch.writeCharacters(content, startOffset);
             io:println(result);
             match result {
-                int numberOfCharsWritten => {
+                int numberOfCharsWritten =>{
                     return numberOfCharsWritten;
                 }
-                io:IOError err => {
+                io:IOError err =>{
                     return err;
                 }
             }
         }
-        (any|null) => {
+        (any|null) =>{
             return blank;
         }
     }
@@ -59,10 +59,10 @@ function writeCharacters (string content, int startOffset) returns (int|io:IOErr
 
 function close () {
     match characterChannel {
-        io:CharacterChannel ch => {
+        io:CharacterChannel ch =>{
             io:IOError err = ch.closeCharacterChannel();
         }
-        (any|null) => {
+        (any|null) =>{
             io:println("Channel cannot be closed");
         }
     }

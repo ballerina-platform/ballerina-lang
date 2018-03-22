@@ -8,20 +8,20 @@ function initFileChannel (string filePath, string permission) {
 
 function readBytes (int numberOfBytes) returns (blob|io:IOError) {
     blob empty;
-    match channel {
-        io:ByteChannel byteChannel => {
+    match channel{
+        io:ByteChannel byteChannel =>{
             var result = byteChannel.read(numberOfBytes);
             match result {
-                (blob, int) content => {
+                (blob,int) content =>{
                     var (bytes, numberOfBytes) = content;
                     return bytes;
                 }
-                io:IOError err => {
+                io:IOError err =>{
                     return err;
                 }
             }
         }
-        (any|null) => {
+        (any|null)=>{
             return empty;
         }
     }
@@ -30,18 +30,18 @@ function readBytes (int numberOfBytes) returns (blob|io:IOError) {
 function writeBytes (blob content, int startOffset) returns (int|io:IOError) {
     int empty = -1;
     match channel {
-        io:ByteChannel byteChannel => {
+        io:ByteChannel byteChannel =>{
             var result = byteChannel.write(content, startOffset);
             match result {
-                int numberOfBytesWritten => {
+                int numberOfBytesWritten =>{
                     return numberOfBytesWritten;
                 }
-                io:IOError err => {
+                io:IOError err =>{
                     return err;
                 }
             }
         }
-        (any|null) => {
+        (any|null) =>{
             return empty;
         }
     }
@@ -49,10 +49,10 @@ function writeBytes (blob content, int startOffset) returns (int|io:IOError) {
 
 function close () {
     match channel {
-        io:ByteChannel byteChannel => {
+        io:ByteChannel byteChannel =>{
             io:IOError err = byteChannel.close();
         }
-        (any|null) => {
+        (any|null) =>{
             io:println("Bytes stream cannot be closed");
         }
     }
