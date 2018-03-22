@@ -301,10 +301,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         connectorNode.actions.forEach(action -> analyzeNode(action, connectorEnv));
     }
 
-    public void visit(BLangStreamlet streamletNode) {
-        /* ignore */
-    }
-
     public void visit(BLangAction actionNode) {
         BSymbol actionSymbol = actionNode.symbol;
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
@@ -354,7 +350,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangEndpoint endpoint) {
-        endpoint = endpoint;
+        //TODO: Implement support for endpoints
        /* if (endpoint.symbol.attachedConnector != null) {
             if (endpoint.symbol.attachedConnector.taintTable == null) {
                 addToBlockedList(endpoint.symbol.pkgID, endpoint.symbol.name, endpoint.pos);
