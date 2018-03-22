@@ -2,6 +2,14 @@
 
 Ballerina provides several tools to help you create, document, and test your code. These can be various editors, IDEs, and a graphical visualization tool for your code called the Ballerina Composer.
 
+This includes the following sections.
+
+- IDE plug-ins
+- Swagger to Ballerina code generator
+- API documentation generator
+- Test framework
+- Flexible composer
+
 ## IDE plug-ins
 
 You can use plug-ins to write Ballerina code in your favorite IDE. There are several plug-ins available in Github. Click one of the following links to learn how to use that IDE's plug-in. 
@@ -42,7 +50,7 @@ The Ballerina Composer provides three ways to create your integrations:
 
 As you work in one view, the diagrams and code are updated in the other views, allowing you to switch between them seamlessly as needed. 
 
-## Run the Composer
+### Run the Composer
 
 1. At the command prompt, type `composer`.
 
@@ -54,7 +62,7 @@ As you work in one view, the diagrams and code are updated in the other views, a
     
 Let's open a sample and take a look around. 
 
-## Explore the Ballerina Composer
+### Explore the Ballerina Composer
 
 Once you have accessed the composer, you can have a look around using the available samples in the welcome page of the Ballerina Composer.
 
@@ -64,11 +72,11 @@ Once you have accessed the composer, you can have a look around using the availa
     
     ![alt text](images/echoServiceNew1.png "Echo Service program")
 
-    Notice that on the top you have an add button containing the various constructs that you'll use to build your integration. When you select a construct it is drawn in the canvas. This is where you build your sequence diagrams that define your integration logic.
+    Notice that on the top you have an add button containing the various constructs that you'll use to build your integration. When you select a construct it is drawn in the canvas. This is where you build your sequence diagrams that define your integration logic. These constructs are called `definitions`.
         
     ![alt text](images/ConstructsNew1.png "Constructs")
     
-    Some constructs have a **life line** of execution where you program the statements to be executed. This defines the flow of execution. The life line is represented by a vertical line in the default program or any other construct of the **echoService**.
+    Some constructs have a **life line** of execution where you program the statements to be executed. This defines the flow of execution. The life line is represented by a vertical line in the default program or any other construct of the **echoService**. The plus icon that can be seen on the lifeline enables you to add `statements`.
     
     ![alt text](images/LifelineNew1.png "Ballerina construct life line")
     
@@ -99,4 +107,3 @@ Once you have accessed the composer, you can have a look around using the availa
     ![alt text](images/BallerinaRunNew1.png "Run application")
 
 6. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
-
