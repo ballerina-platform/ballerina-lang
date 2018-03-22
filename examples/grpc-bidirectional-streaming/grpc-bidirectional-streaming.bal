@@ -43,7 +43,6 @@ service<grpc:Endpoint> helloWorld bind ep {
         string msg = string `{{client.getClient ().getID()}} left the chat`;
         io:println(msg);
         var v=consMap.remove(<string>client.getClient ().getID());
-
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
         int i = 0;
