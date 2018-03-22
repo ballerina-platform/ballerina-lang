@@ -239,7 +239,8 @@ annotatedTypeName
 
 // Temporary production rule name
 simpleTypeName
-    :   TYPE_ANY
+    :   NullLiteral
+    |   TYPE_ANY
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
