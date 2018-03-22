@@ -32,14 +32,14 @@ struct Teacher {
 
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
-stream<StatusCount> filteredStatusCountStream = {};
+stream<StatusCount> filteredStatusCountStream1 = {};
 stream<Teacher> preProcessedStatusCountStream = {};
-stream<Teacher> teacherStream = {};
+stream<Teacher> teacherStream3 = {};
 
 function testPipelineQuery () {
 
     whenever{
-        from teacherStream where age > 18
+        from teacherStream3 where age > 18
         select *
         => (Teacher [] emp) {
             preProcessedStatusCountStream.publish(emp);
@@ -52,7 +52,7 @@ function testPipelineQuery () {
         group by status
         having totalCount > 1
         => (StatusCount [] emp) {
-            filteredStatusCountStream.publish(emp);
+                filteredStatusCountStream1.publish(emp);
         }
     }
 }
@@ -65,11 +65,11 @@ function startPipelineQuery () returns (StatusCount []) {
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    filteredStatusCountStream.subscribe(printStatusCount);
+    filteredStatusCountStream1.subscribe(printStatusCount);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
+    teacherStream3.publish(t1);
+    teacherStream3.publish(t2);
+    teacherStream3.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 

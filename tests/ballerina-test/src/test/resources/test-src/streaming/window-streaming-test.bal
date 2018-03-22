@@ -32,17 +32,17 @@ struct Teacher {
 
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
-stream<StatusCount> statusCountStream = {};
-stream<Teacher> teacherStream = {};
+stream<StatusCount> statusCountStream1 = {};
+stream<Teacher> teacherStream5 = {};
 
 function testWindowQuery () {
 
     whenever{
-        from teacherStream where age > 18 window lengthBatch(3)
+        from teacherStream5 where age > 18 window lengthBatch(3)
         select status, count(status) as totalCount
         group by status
         => (StatusCount [] emp) {
-                statusCountStream.publish(emp);
+                statusCountStream1.publish(emp);
         }
     }
 }
@@ -55,11 +55,11 @@ function startWindowQuery () returns (StatusCount []) {
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    statusCountStream.subscribe(printStatusCount);
+    statusCountStream1.subscribe(printStatusCount);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
+    teacherStream5.publish(t1);
+    teacherStream5.publish(t2);
+    teacherStream5.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
     return globalStatusCountArray;

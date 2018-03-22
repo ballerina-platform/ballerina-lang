@@ -33,16 +33,16 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream = {};
-stream<Teacher> teacherStream = {};
+stream<Employee> employeeStream2 = {};
+stream<Teacher> teacherStream4 = {};
 
 function testProjectionQuery () {
 
     whenever{
-        from teacherStream
+        from teacherStream4
         select name, age, status
         => (Employee [] emp) {
-                employeeStream.publish(emp);
+                employeeStream2.publish(emp);
         }
     }
 }
@@ -55,11 +55,11 @@ function startProjectionQuery( ) returns (Employee []) {
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    employeeStream.subscribe(printEmployeeNumber);
+    employeeStream2.subscribe(printEmployeeNumber);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
+    teacherStream4.publish(t1);
+    teacherStream4.publish(t2);
+    teacherStream4.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 

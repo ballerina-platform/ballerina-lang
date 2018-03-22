@@ -34,11 +34,11 @@ struct Teacher {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 stream<Employee> employeeStream = {};
-stream<Teacher> teacherStream = {};
+stream<Teacher> teacherStream1 = {};
 
 function testFilterQuery () {
     whenever{
-        from teacherStream
+        from teacherStream1
         where age > 30
         select name, age, status
         => (Employee [] emp) {
@@ -58,9 +58,9 @@ function startFilterQuery( ) returns (Employee []) {
 
     employeeStream.subscribe(printEmployeeNumber);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
+    teacherStream1.publish(t1);
+    teacherStream1.publish(t2);
+    teacherStream1.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 

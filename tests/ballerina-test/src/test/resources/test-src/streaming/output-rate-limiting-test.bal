@@ -33,17 +33,17 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream = {};
-stream<Teacher> teacherStream = {};
+stream<Employee> employeeStream1 = {};
+stream<Teacher> teacherStream2 = {};
 
 function testOutputRateLimitQuery () {
 
     whenever{
-        from teacherStream
+        from teacherStream2
         select name, age, status
         output first every 3 events
         => (Employee [] emp) {
-                employeeStream.publish(emp);
+            employeeStream1.publish(emp);
         }
     }
 }
@@ -61,14 +61,14 @@ function startOutputRateLimitQuery( ) returns (Employee []) {
     Teacher t6 = {name:"Kasun", age:30, status:"married", batch:"LK1987", school:"Ananda College"};
 
 
-    employeeStream.subscribe(printEmployeeNumber);
+    employeeStream1.subscribe(printEmployeeNumber);
 
-    teacherStream.publish(t1);
-    teacherStream.publish(t2);
-    teacherStream.publish(t3);
-    teacherStream.publish(t4);
-    teacherStream.publish(t5);
-    teacherStream.publish(t6);
+    teacherStream2.publish(t1);
+    teacherStream2.publish(t2);
+    teacherStream2.publish(t3);
+    teacherStream2.publish(t4);
+    teacherStream2.publish(t5);
+    teacherStream2.publish(t6);
 
     runtime:sleepCurrentWorker(1000);
 
