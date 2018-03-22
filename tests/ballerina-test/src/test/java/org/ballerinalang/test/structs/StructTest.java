@@ -40,7 +40,7 @@ public class StructTest {
 
     @BeforeClass
     public void setup() {
-//        compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
     }
 
     @Test(description = "Test Basic struct operations")
@@ -179,9 +179,12 @@ public class StructTest {
     @Test
     public void testStructLiteralInitFunc() {
         CompileResult result = BCompileUtil.compile("test-src/structs/nested-struct-inline-init.bal");
-        for (Diagnostic diag: result.getDiagnostics()) {
+        for (Diagnostic diag : result.getDiagnostics()) {
             System.out.println(diag.getPosition() + diag.getMessage());
         }
-        BRunUtil.invoke(result, "testCreateStruct");
+        BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
+                        "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
 }
