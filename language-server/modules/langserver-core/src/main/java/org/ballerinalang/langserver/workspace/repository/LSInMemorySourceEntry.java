@@ -17,35 +17,31 @@
 */
 package org.ballerinalang.langserver.workspace.repository;
 
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceEntry;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 
 /**
  * LSInMemorySourceEntry.
  */
-public class LSInMemorySourceEntry implements PackageSourceEntry {
+class LSInMemorySourceEntry extends FileSystemSourceEntry {
 
-    private String name;
-    private byte[] code;
-
-    public LSInMemorySourceEntry(String name, byte[] code) {
-        this.name = name;
-        this.code = code.clone();
-    }
-
-    @Override
-    public PackageID getPackageID() {
-        // TODO: FIX
-        return null;
-    }
-
-    @Override
-    public String getEntryName() {
-        return name;
+    private WorkspaceDocumentManager documentManager;
+    LSInMemorySourceEntry(Path path, PackageID pkgId, WorkspaceDocumentManager documentManager) {
+        super(path, pkgId);
+        this.documentManager = documentManager;
     }
 
     @Override
     public byte[] getCode() {
-        return code.clone();
+        try {
+            return documentManager.getFileContent(this.getPath()).getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Error in loading package source entry '" + getPath() +
+                    "': " + e.getMessage(), e);
+        }
     }
 }

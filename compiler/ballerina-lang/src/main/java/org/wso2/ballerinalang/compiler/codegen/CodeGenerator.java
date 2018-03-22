@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -64,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -102,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -129,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -142,6 +142,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -174,7 +175,6 @@ import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
-import org.wso2.ballerinalang.programfile.StreamletInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
 import org.wso2.ballerinalang.programfile.TransformerInfo;
@@ -196,7 +196,6 @@ import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.StreamletRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
@@ -289,6 +288,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
+    private Stack<Instruction> failInstructions = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -430,7 +430,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.enums.forEach(this::createEnumInfoEntry);
         pkgNode.connectors.forEach(this::createConnectorInfoEntry);
-        pkgNode.streamlets.forEach(this::createStreamletInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
@@ -773,21 +772,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangStreamletLiteral streamletLiteral) {
-
-        BSymbol streamletSymbol = streamletLiteral.type.tsymbol;
-        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, streamletSymbol.pkgID);
-        int streamletNameCPIndex = addUTF8CPEntry(currentPkgInfo, streamletSymbol.name.value);
-
-        StreamletRefCPEntry streamletRefCPEntry = new StreamletRefCPEntry(pkgCPIndex, streamletNameCPIndex);
-        Operand streamletCPIndex = getOperand(currentPkgInfo.addCPEntry(streamletRefCPEntry));
-
-        //Emit an instruction to create a new streamlet.
-        RegIndex streamletRegIndex = calcAndGetExprRegIndex(streamletLiteral);
-        emit(InstructionCodes.NEWSTREAMLET, streamletCPIndex, streamletRegIndex);
-    }
-
-    @Override
     public void visit(BLangTableLiteral tableLiteral) {
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
@@ -799,7 +783,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         streamLiteral.regIndex = calcAndGetExprRegIndex(streamLiteral);
         Operand typeCPIndex = getTypeCPIndex(streamLiteral.type);
         StringCPEntry nameCPEntry = new StringCPEntry(addUTF8CPEntry(currentPkgInfo, streamLiteral.name.value),
-                                                        streamLiteral.name.value);
+                streamLiteral.name.value);
         Operand nameCPIndex = getOperand(currentPkgInfo.addCPEntry(nameCPEntry));
         emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex, nameCPIndex);
     }
@@ -1291,10 +1275,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private String generateConnectorSig(ConnectorInfo callableUnitInfo) {
         return "(" + generateSig(callableUnitInfo.paramTypes) + ")";
-    }
-
-    private String generateStreamletSig(StreamletInfo streamletInfo) {
-        return "(" + generateSig(streamletInfo.paramTypes) + ")";
     }
 
     private int getNextIndex(int typeTag, VariableIndex indexes) {
@@ -1968,26 +1948,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private void createStreamletInfoEntry(BLangStreamlet streamletNode) {
-        BStreamletType streamletType = (BStreamletType) streamletNode.symbol.type;
-        // Add streamlet name as an UTFCPEntry to the constant pool
-        int streamletNameCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.name.value);
-        //Create streamlet info
-        StreamletInfo streamletInfo = new StreamletInfo(currentPackageRefCPIndex,
-                streamletNameCPIndex, streamletNode.symbol.flags);
-
-        streamletInfo.paramTypes = streamletType.paramTypes.toArray(new BType[0]);
-        streamletInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateStreamletSig(streamletInfo));
-
-        // Add Siddhi Query as an UTFCPEntry to the constant pool
-        streamletInfo.siddhiQueryCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.getSiddhiQuery());
-
-        // Add StreamIds as an UTFCPEntry to the constant pool
-        streamletInfo.streamIdsAsStringCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.getStreamIdsAsString());
-
-        currentPkgInfo.addStreamletInfo(streamletNode.name.value, streamletInfo);
-    }
-
     private void createConnectorInfoEntry(BLangConnector connectorNode) {
         BConnectorType connectorType = (BConnectorType) connectorNode.symbol.type;
         // Add connector name as an UTFCPEntry to the constant pool
@@ -2465,16 +2425,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitInvokableNode(actionNode, currentCallableUnitInfo, actionEnv);
     }
 
+    public void visit(BLangWhenever wheneverStatement) {
+        /* ignore */
+    }
+
+    public void visit(BLangSimpleVarRef varRefExpr) {
+        /* ignore */
+    }
+
     public void visit(BLangStruct structNode) {
     }
 
     public void visit(BLangObject objectNode) {
-    }
-
-    public void visit(BLangStreamlet streamletNode) {
-        StreamletInfo currentStreamletInfo = currentPkgInfo.getStreamletInfo(streamletNode.getName().getValue());
-        currentStreamletInfo.setSiddhiQuery(streamletNode.getSiddhiQuery());
-        currentStreamletInfo.setStreamIdsAsString(streamletNode.getStreamIdsAsString());
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -2756,8 +2718,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
         Operand transStmtAbortEndAddr = getOperand(-1);
-        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
-        abortInstructions.push(gotoFailedTransBlockEnd);
+        Operand transStmtFailEndAddr = getOperand(-1);
+        Instruction gotoAbortTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
+        Instruction gotoFailTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtFailEndAddr);
+
+        abortInstructions.push(gotoAbortTransBlockEnd);
+        failInstructions.push(gotoFailTransBlockEnd);
 
         //start transaction
         this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
@@ -2765,8 +2731,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;
-        Operand retryInsAddr = getOperand(-1);
-        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, retryInsAddr);
+        Operand retryEndWithThrowAddr = getOperand(-1);
+        Operand retryEndWithNoThrowAddr = getOperand(-1);
+        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, retryEndWithThrowAddr, retryEndWithNoThrowAddr);
 
         //process transaction statements
         this.genNode(transactionNode.transactionBody, this.env);
@@ -2776,18 +2743,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
+        failInstructions.pop();
 
         emit(InstructionCodes.GOTO, transStmtEndAddr);
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
+        transStmtFailEndAddr.value = errorTargetIP;
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()));
         if (transactionNode.onRetryBody != null) {
             this.genNode(transactionNode.onRetryBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
-        retryInsAddr.value = nextIP();
+        retryEndWithThrowAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
 
         emit(InstructionCodes.THROW, getOperand(-1));
@@ -2798,13 +2767,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         transStmtAbortEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.ABORTED.value()));
 
-        transStmtEndAddr.value = nextIP();
+        int transactionEndIp = nextIP();
+        transStmtEndAddr.value = transactionEndIp;
+        retryEndWithNoThrowAddr.value = transactionEndIp;
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
+    }
+
+    public void visit(BLangFail failNode) {
+        generateFinallyInstructions(failNode, NodeKind.TRANSACTION);
+        this.emit(failInstructions.peek());
     }
 
     @Override

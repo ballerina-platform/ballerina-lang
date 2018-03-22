@@ -42,7 +42,7 @@ public class PatternTest {
 
     @Test(description = "Test pattern streaming query")
     public void testPatternQuery() {
-        BValue[] tempDifferences = BRunUtil.invoke(result, "testPatternQuery");
+        BValue[] tempDifferences = BRunUtil.invoke(result, "runtPatternQuery");
 
         Assert.assertNotNull(tempDifferences);
 

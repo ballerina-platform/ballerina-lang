@@ -100,11 +100,11 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (str
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
 function readUserId (string username) returns (string|null) {
-    return config:getInstanceValue(username, "userid");
+    return config:getAsString(username + ".userid");
 }
 
 function getPermissionStoreConfigValue (string instanceId, string property) returns (string) {
-    match config:getInstanceValue(instanceId, property) {
+    match config:getAsString(instanceId + "." + property) {
         string value => {
             return value == null ? "" : value;
         }

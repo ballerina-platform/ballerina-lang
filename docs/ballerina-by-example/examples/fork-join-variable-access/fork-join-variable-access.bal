@@ -30,23 +30,21 @@ function main (string[] args) {
         }
     } join (all) (map results) {
         // Declare variables to receive the results from forked workers W1 and W2.
-        any[] r1;
-        any[] r2;
         // The 'results' map contains a map of any type array from each worker
         // defined within the fork-join statement.
         // Values received from worker W1 are assigned to any array of r1.
-        r1, _ = (any[])results["W1"];
+        any[] r1 =? <any[]>results["W1"];
         // Values received from worker W2 are assigned to any array of r2.
-        r2, _ = (any[])results["W2"];
+        any[] r2 =? <any[]>results["W2"];
         // Getting the 0th index of array returned from worker W1.
         int p;
-        p, _ = (int)r1[0];
+        p =? <int>r1[0];
         // Getting the 1th index of array returned from worker W1.
         string l;
-        l, _ = (string)r1[1];
+        l =? <string>r1[1];
         // Getting the 0th index of array returned from worker W2.
         string q;
-        q, _ = (string)r2[0];
+        q =? <string>r2[0];
         // Print values received from workers within join block.
         io:println("[default worker] within join:
         Value of integer from W1 is [" + p + "]");
@@ -63,10 +61,8 @@ function main (string[] args) {
         Value of string variable is [" + s + "]");
     // Reference type variables are changed since they have passed in as a
     // reference to the workers.
-    string name;
-    string era;
-    name, _ = (string)m["name"];
-    era, _ = (string)m["era"];
+    string name =? <string>m["name"];
+    string era =? <string>m["era"];
     io:println("[default worker] after fork-join:
         Value of name is [" + name + "]
         Value of era is [" + era + "]");

@@ -69,7 +69,7 @@ public class WebSocketDispatcher {
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
-            msg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
+            msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             return service;
         } catch (Throwable throwable) {
             ErrorHandlerUtils.printError(throwable);
