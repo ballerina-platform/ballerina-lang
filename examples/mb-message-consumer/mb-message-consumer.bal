@@ -3,7 +3,7 @@ import ballerina/net.mb;
 import ballerina/io;
 
 endpoint mb:ConsumerEndpoint ep1 {
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    brokerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
 };
 
 service<jms:Service> jmsService bind ep1 {
