@@ -4,25 +4,25 @@ import ballerina/reflect;
 
 
 function testNullTruePositive() returns (boolean) {
-    string s1 = null;
-    string s2 = null;
+    string | null s1;
+    string | null s2;
     return reflect:equals(s1,s2);
 }
 
 function testNullTrueNegative() returns (boolean) {
-    string s1 = null;
+    string |null s1;
     string s2 = "b";
     return reflect:equals(s1,s2);
 }
 
 function testNullFalseNegative() returns (boolean) {
-    string s1 = null;
-    string s2 = null;
+    string | null s1;
+    string | null s2;
     return !reflect:equals(s1,s2);
 }
 
 function testNullFalsePositive() returns (boolean) {
-    string s1 = null;
+    string | null s1;
     string s2 = "b";
     return !reflect:equals(s1,s2);
 }
@@ -144,26 +144,26 @@ function testBooleanFalsePositive() returns (boolean) {
 // Start Type
 
 function testTypeTruePositive() returns (boolean) {
-    type t1 = (typeof int);
-    type t2 = (typeof int);
+    typedesc t1 = (typeof int);
+    typedesc t2 = (typeof int);
     return reflect:equals(t1,t2);
 }
 
 function testTypeTrueNegative() returns (boolean) {
-    type t1 = (typeof int);
-    type t2 = (typeof string);
+    typedesc t1 = (typeof int);
+    typedesc t2 = (typeof string);
     return reflect:equals(t1,t2);
 }
 
 function testTypeFalseNegative() returns (boolean) {
-    type t1 = (typeof int);
-    type t2 = (typeof int);
+    typedesc t1 = (typeof int);
+    typedesc t2 = (typeof int);
     return !reflect:equals(t1,t2);
 }
 
 function testTypeFalsePositive() returns (boolean) {
-    type t1 = (typeof int);
-    type t2 = (typeof string);
+    typedesc t1 = (typeof int);
+    typedesc t2 = (typeof string);
     return !reflect:equals(t1,t2);
 }
 
@@ -284,26 +284,26 @@ function testBooleanArrayFalsePositive() returns (boolean) {
 // Start Type Arrays
 
 function testTypeArrayTruePositive() returns (boolean) {
-    type[] t1 = [(typeof int), (typeof string)];
-    type[] t2 = [(typeof int), (typeof string)];
+    typedesc[] t1 = [(typeof int), (typeof string)];
+    typedesc[] t2 = [(typeof int), (typeof string)];
     return reflect:equals(t1,t2);
 }
 
 function testTypeArrayTrueNegative() returns (boolean) {
-    type[] t1 = [(typeof int), (typeof string)];
-    type[] t2 = [(typeof int), (typeof map)];
+    typedesc[] t1 = [(typeof int), (typeof string)];
+    typedesc[] t2 = [(typeof int), (typeof map)];
     return reflect:equals(t1,t2);
 }
 
 function testTypeArrayFalseNegative() returns (boolean) {
-    type[] t1 = [(typeof int), (typeof string)];
-    type[] t2 = [(typeof int), (typeof string)];
+    typedesc[] t1 = [(typeof int), (typeof string)];
+    typedesc[] t2 = [(typeof int), (typeof string)];
     return !reflect:equals(t1,t2);
 }
 
 function testTypeArrayFalsePositive() returns (boolean) {
-    type[] t1 = [(typeof int), (typeof string)];
-    type[] t2 = [(typeof int), (typeof map)];
+    typedesc[] t1 = [(typeof int), (typeof string)];
+    typedesc[] t2 = [(typeof int), (typeof map)];
     return !reflect:equals(t1,t2);
 }
 
