@@ -727,6 +727,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> actualTypes;
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
+        conversionExpr.targetType = targetType;
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
         if (conversionExpr.transformerInvocation == null) {

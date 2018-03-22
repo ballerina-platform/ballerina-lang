@@ -1924,6 +1924,18 @@ public class CPU {
                     handleTypeCastError(ctx, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
                 }
                 break;
+            case InstructionCodes.IS_ASSIGNABLE:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                bRefTypeValue = sf.refRegs[i];
+                if (isAssignable(bRefTypeValue, typeRefCPEntry.getType())) {
+                    sf.intRegs[j] = 1;
+                } else {
+                    sf.intRegs[j] = 0;
+                }
+                break;
             case InstructionCodes.NULL2JSON:
                 j = operands[1];
                 sf.refRegs[j] = new BJSON("null");
@@ -2855,35 +2867,38 @@ public class CPU {
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
-    private static boolean checkCast(BValue sourceValue, BType targetType) {
-        BType sourceType = sourceValue.getType();
+    private static boolean isAssignable(BValue rhsValue, BType lhsType) {
+        return false;
+    }
 
-        if (sourceType.equals(targetType)) {
+    private static boolean checkCast(BValue rhsValue, BType lhsType) {
+        BType rhsType = rhsValue.getType();
+
+        if (rhsType.equals(lhsType)) {
             return true;
         }
 
-        if (sourceType.getTag() == TypeTags.STRUCT_TAG && targetType.getTag() == TypeTags.STRUCT_TAG) {
-            return checkStructEquivalency((BStructType) sourceType, (BStructType) targetType);
-
+        if (rhsType.getTag() == TypeTags.STRUCT_TAG && lhsType.getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
         }
 
-        if (targetType.getTag() == TypeTags.ANY_TAG) {
+        if (lhsType.getTag() == TypeTags.ANY_TAG) {
             return true;
         }
 
         // Check JSON casting
-        if (getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(((BJSON) sourceValue).value(), sourceType, targetType);
+        if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
         }
 
         // Array casting
-        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(sourceType, targetType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayCast(rhsType, lhsType);
         }
 
         // Check MAP casting
-        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
-            return checkMapCast(sourceType, targetType);
+        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(rhsType, lhsType);
         }
 
         return false;

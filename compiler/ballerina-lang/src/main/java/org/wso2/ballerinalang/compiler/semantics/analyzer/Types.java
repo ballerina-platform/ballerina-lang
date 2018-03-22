@@ -165,12 +165,16 @@ public class Types {
         return symTable.errType;
     }
 
-    private boolean isSameType(BType source, BType target) {
+    public boolean isSameType(BType source, BType target) {
         return target.accept(sameTypeVisitor, source);
     }
 
     public boolean isValueType(BType type) {
         return type.tag < TypeTags.TYPEDESC;
+    }
+
+    public boolean isBrandedType(BType type) {
+        return type.tag < TypeTags.ANY;
     }
 
     /**
@@ -482,7 +486,7 @@ public class Types {
         implicitConversionExpr.pos = expr.pos;
         implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
         implicitConversionExpr.type = expType;
-        implicitConversionExpr.types = Lists.of(expType);
+        implicitConversionExpr.targetType = expType;
         implicitConversionExpr.conversionSymbol = conversionSym;
         expr.impConversionExpr = implicitConversionExpr;
     }
