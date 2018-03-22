@@ -1,6 +1,6 @@
 package ballerina.lang.blobs;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Converts BLOB to a string"}
 @doc:Param { value:"b: BLOB value to be converted" }

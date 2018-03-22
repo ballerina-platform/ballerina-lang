@@ -64,14 +64,16 @@ public class Instruction {
 
         public int funcRefCPIndex;
         public FunctionInfo functionInfo;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo,
+        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo, int flags,
                         int[] argRegs, int[] retRegs) {
             super(opcode);
             this.funcRefCPIndex = funcRefCPIndex;
             this.functionInfo = functionInfo;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -99,8 +101,8 @@ public class Instruction {
         public int receiverRegIndex;
 
         InstructionVCALL(int opcode, int receiverRegIndex, int funcRefCPIndex,
-                        FunctionInfo functionInfo, int[] argRegs, int[] retRegs) {
-            super(opcode, funcRefCPIndex, functionInfo, argRegs, retRegs);
+                        FunctionInfo functionInfo, int flags, int[] argRegs, int[] retRegs) {
+            super(opcode, funcRefCPIndex, functionInfo, flags, argRegs, retRegs);
             this.receiverRegIndex = receiverRegIndex;
         }
 
@@ -128,13 +130,16 @@ public class Instruction {
 
         public int actionRefCPIndex;
         public String actionName;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, int[] argRegs, int[] retRegs) {
+        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, int flags, 
+                int[] argRegs, int[] retRegs) {
             super(opcode);
             this.actionRefCPIndex = actionRefCPIndex;
             this.actionName = actionName;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -151,14 +156,16 @@ public class Instruction {
 
         public int transformerRefCPIndex;
         public TransformerInfo transformerInfo;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo,
+        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, int flags,
                          int[] argRegs, int[] retRegs) {
             super(opcode);
             this.transformerRefCPIndex = transformerRefCPIndex;
             this.transformerInfo = transformerInfo;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }

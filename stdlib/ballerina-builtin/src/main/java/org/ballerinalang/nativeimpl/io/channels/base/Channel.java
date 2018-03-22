@@ -18,14 +18,18 @@
 package org.ballerinalang.nativeimpl.io.channels.base;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.nativeimpl.io.channels.base.readers.Reader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.Writer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.util.Arrays;
 
 /**
  * <p>
@@ -39,50 +43,154 @@ import java.util.List;
  * bytes I/O reading/writing APIs.
  * </p>
  */
-public abstract class Channel extends AbstractChannel {
+public abstract class Channel {
+    /**
+     * Will be used to read/write bytes to/from channels.
+     */
+    private ByteChannel channel;
+
+    /**
+     * Specifies how the content should be read from the channel.
+     */
+    private Reader reader;
+
+    /**
+     * Specifies how the content should be written to a channel.
+     */
+    private Writer writer;
+
+    /**
+     * Specifies whether the channel has reached EoF.
+     */
+    private boolean hasReachedToEnd = false;
 
     /**
      * Holds the content belonging to a particular channel.
      */
     private Buffer contentBuffer;
 
-    /**
-     * <p>
-     * Specifies the maximum number of bytes which will be read in each chunk.
-     * </p>
-     * <p>
-     * This value will be used when reading all the bytes from the channel.
-     * </p>
-     *
-     * @see Channel#readAll()
-     */
-    private static final int MAX_BUFFER_CHUNK_SIZE = 1024;
-
     private static final Logger log = LoggerFactory.getLogger(Channel.class);
 
-    public Channel(ByteChannel channel, int size) throws BallerinaIOException {
-        super(channel);
-        contentBuffer = new Buffer(size);
+    /**
+     * <p>
+     * Will read/write bytes from the provided channel
+     * </p>
+     * <p>
+     * This operation will asynchronously read data from the channel.
+     * </p>
+     *
+     * @param channel which will be used to read/write content.
+     * @param reader  will be used for reading content.
+     * @param writer  will be used for writing content.
+     * @throws BallerinaIOException initialization error.
+     */
+    public Channel(ByteChannel channel, Reader reader, Writer writer) throws BallerinaIOException {
+        if (null != channel) {
+            this.channel = channel;
+            this.reader = reader;
+            this.writer = writer;
+            if (log.isDebugEnabled()) {
+                log.debug("Initializing ByteChannel with ref id " + channel.hashCode());
+            }
+        } else {
+            String message = "Provided channel cannot be initialized";
+            throw new BallerinaIOException(message);
+        }
     }
 
     /**
      * <p>
-     * Merge the list of buffers together into one.
+     * Creates a channel which will contain a fixed sized buffer.
      * </p>
      * <p>
-     * <b>Note : </b> This will be used to consolidate buffers read in multiple iterations into one.
+     * This operation will in turn request for excess bytes than required. And buffer the content. Also this will
+     * mostly be used with blocking readers and writers.
      * </p>
      *
-     * @param bufferList the list which contains all bytes read through the buffer.
-     * @param size       the size of all the bytes read.
-     * @return the response buffer which contains all consolidated bytes.
+     * @param channel which will be used to read/write content.
+     * @param reader  will be used for reading content.
+     * @param writer  will be used for writing content.
+     * @param size    the size of the fixed buffer.
+     * @throws BallerinaIOException initialization error.
      */
-    private byte[] merge(List<ByteBuffer> bufferList, int size) {
-        ByteBuffer consolidatedBuffer = ByteBuffer.allocate(size);
-        for (ByteBuffer buffer : bufferList) {
-            consolidatedBuffer.put(buffer);
+    public Channel(ByteChannel channel, Reader reader, Writer writer, int size) throws BallerinaIOException {
+        if (null != channel) {
+            this.channel = channel;
+            this.reader = reader;
+            this.writer = writer;
+            contentBuffer = new Buffer(size);
+            if (log.isDebugEnabled()) {
+                log.debug("Initializing ByteChannel with ref id " + channel.hashCode());
+            }
+        } else {
+            String message = "Provided channel cannot be initialized";
+            throw new BallerinaIOException(message);
         }
-        return consolidatedBuffer.array();
+    }
+
+    /**
+     * Will be used when performing direct transfer operations from OS cache.
+     *
+     * @param position   starting position of the bytes to be transferred.
+     * @param count      number of bytes to be transferred.
+     * @param dstChannel destination channel to transfer.
+     * @throws IOException during I/O error.
+     */
+    public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException;
+
+    /**
+     * Specifies whether the channel has reached to it's end.
+     *
+     * @return true if the channel has reached to it's end
+     */
+    public boolean hasReachedEnd() {
+        return hasReachedToEnd;
+    }
+
+    /**
+     * <p>
+     * Async read bytes from the channel.
+     * </p>
+     *
+     * @param buffer the buffer which will hold the content.
+     * @return the number of bytes read.
+     * @throws IOException errors occur during reading from channel.
+     */
+    public int read(ByteBuffer buffer) throws IOException {
+        int readBytes = reader.read(buffer, channel);
+        if (readBytes <= 0) {
+            //Since we're counting the bytes if a value < 0 is returned, this will be re-set
+            readBytes = 0;
+            hasReachedToEnd = true;
+        }
+        return readBytes;
+    }
+
+    /**
+     * <p>
+     * Writes provided buffer content to the channel.
+     * </p>
+     *
+     * @param content the buffer which holds the content.
+     * @return the number of bytes written to the channel.
+     * @throws IOException errors occur during writing data to channel.
+     */
+    public int write(ByteBuffer content) throws IOException {
+        return writer.write(content, channel);
+    }
+
+    /**
+     * This will return {@link InputStream} from underlying {@link ByteChannel}.
+     *
+     * @return An {@link InputStream}
+     * @throws BallerinaIOException error occur during obtaining input-stream.
+     */
+    public InputStream getInputStream() throws BallerinaIOException {
+        if (!channel.isOpen()) {
+            String message = "Channel is already closed.";
+            throw new BallerinaIOException(message);
+        }
+        return Channels.newInputStream(channel);
     }
 
     /**
@@ -98,51 +206,37 @@ public abstract class Channel extends AbstractChannel {
      *
      * @param numberOfBytes the number of bytes required.
      * @return bytes which are retrieved from the channel.
-     * @throws BallerinaIOException during I/O error.
+     * @throws IOException during I/O error.
      */
-    public byte[] read(int numberOfBytes) throws BallerinaIOException {
+    public byte[] readFull(int numberOfBytes) throws IOException {
         ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
-        return readBuffer.array();
-    }
-
-    /**
-     * Reads all bytes from the I/O source.
-     *
-     * @return all the bytes read.
-     * @throws BallerinaException during I/O error.
-     */
-    public byte[] readAll() throws BallerinaException {
-        List<ByteBuffer> readBufferList = new ArrayList<>();
-        int totalNumberOfBytes = 0;
-        boolean hasRemaining = false;
-        do {
-            ByteBuffer readBuffer = contentBuffer.get(MAX_BUFFER_CHUNK_SIZE, this);
-            int numberOfBytesRead = readBuffer.limit();
-            if (numberOfBytesRead > 0) {
-                readBufferList.add(readBuffer);
-                totalNumberOfBytes = totalNumberOfBytes + numberOfBytesRead;
-            } else {
-                hasRemaining = true;
-            }
-        } while (!hasRemaining);
-        return merge(readBufferList, totalNumberOfBytes);
-    }
-
-    /**
-     * Writes bytes to channel.
-     *
-     * @param content     the data which will be written.
-     * @param startOffset if the data should be written from an offset (starting byte position).
-     * @return the number of bytes written.
-     */
-    public int write(byte[] content, int startOffset) throws BallerinaException {
-        ByteBuffer outputBuffer = ByteBuffer.wrap(content);
-        //If a larger position is set, the position would be disregarded
-        outputBuffer.position(startOffset);
-        if (log.isDebugEnabled()) {
-            log.debug("Writing " + content.length + " for the buffer with offset " + startOffset);
+        byte[] content = readBuffer.array();
+        int contentLength = readBuffer.capacity();
+        if (content.length > numberOfBytes || contentLength < numberOfBytes) {
+            //We need to collect the bytes only belonging to the offset, since the number of bytes returned can be < the
+            //required amount of bytes
+            content = Arrays.copyOfRange(content, 0, contentLength);
         }
-        return write(outputBuffer);
+        return content;
+    }
+
+    /**
+     * Closes the given channel.
+     *
+     * @throws IOException errors occur while closing the connection.
+     */
+    public void close() throws IOException {
+        try {
+            if (null != channel) {
+                channel.close();
+            } else {
+                log.error("The channel has already being closed");
+            }
+        } catch (IOException e) {
+            String message = "Error occurred while closing the connection";
+            log.error(message, e);
+            throw new IOException(message, e);
+        }
     }
 
 }

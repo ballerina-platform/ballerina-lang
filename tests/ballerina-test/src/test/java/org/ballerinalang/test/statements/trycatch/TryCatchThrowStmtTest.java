@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -93,27 +92,31 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(returns[1].stringValue(), "013", "Unexpected execution order.");
     }
 
-    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = "error: " +
-            "error, message: test message.*", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = ".*error, " +
+            "message: test message.*", expectedExceptions = BLangRuntimeException.class)
     public void testUncaughtException() {
         BValue[] args = {};
         BRunUtil.invoke(compileResult, "testUncaughtException", args);
     }
 
-    @Test(description = "Test getStack trace of an error in a function.")
-    public void testGetStackTrace() {
+    @Test(description = "Test call stack frame of an error in a function.")
+    public void testGetErrorCallStackFrame() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStackTrace", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorCallStackFrame", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        BRefValueArray bArray = (BRefValueArray) returns[0];
-        Assert.assertEquals(bArray.size(), 3);
-        Assert.assertEquals(((BStruct) bArray.get(0)).getStringField(0), "testNestedThrow");
-        Assert.assertEquals(((BStruct) bArray.get(1)).getStringField(0), "testUncaughtException");
-        Assert.assertEquals(((BStruct) bArray.get(2)).getStringField(0), "testStackTrace");
-
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct stackFrame1 = (BStruct) returns[0];
+        Assert.assertEquals(stackFrame1.getStringField(0), "testErrorCallStackFrame");
+        Assert.assertEquals(stackFrame1.getStringField(2), "try-catch-stmt.bal");
+        Assert.assertEquals(stackFrame1.getIntField(0), 95);
+        BStruct stackFrame2 = (BStruct) returns[1];
+        Assert.assertEquals(stackFrame2.getStringField(0), "testUncaughtException");
+        Assert.assertEquals(stackFrame2.getStringField(2), "try-catch-stmt.bal");
+        Assert.assertEquals(stackFrame2.getIntField(0), 88);
     }
 
     @Test(description = "Test scope issue when using try catch inside while loop")

@@ -51,7 +51,7 @@ public class RecordInputOutputTest {
         int expectedFieldCount = 3;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
@@ -76,7 +76,7 @@ public class RecordInputOutputTest {
         boolean hasNext = false;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
@@ -108,7 +108,7 @@ public class RecordInputOutputTest {
         int expectedFieldCount = 18;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample4.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
@@ -123,7 +123,7 @@ public class RecordInputOutputTest {
     public void readNonIndentedRecords() throws IOException, URISyntaxException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
@@ -148,7 +148,7 @@ public class RecordInputOutputTest {
     public void writeRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 

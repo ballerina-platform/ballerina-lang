@@ -16,9 +16,10 @@
 package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.AsyncTimer;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -28,21 +29,22 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.runtime",
+        orgName = "ballerina", packageName = "runtime",
         functionName = "sleepCurrentWorker",
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class SleepCurrentWorker extends AbstractNativeFunction {
+public class SleepCurrentWorker implements NativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        long millis = getIntArgument(context, 0);
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            // We ignore any interruptions.
-        }
-        return VOID_RETURN;
+    public void execute(Context context, CallableUnitCallback callback) {
+        long delayMillis = context.getIntArgument(0);
+        AsyncTimer.schedule(callback::notifySuccess, delayMillis);
     }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
+    
 }

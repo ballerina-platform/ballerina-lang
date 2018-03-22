@@ -1,43 +1,56 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-service<http> passthrough {
+endpoint http:ServiceEndpoint passthroughEP {
+    port:9090
+};
+
+endpoint http:ClientEndpoint clientEP {
+    targets:[{uri:"http://localhost:9092/echo"}]
+};
+
+@http:ServiceConfig
+service<http:Service> passthrough bind passthroughEP {
 
     @Description {value:"Requests which contain any HTTP method will be directed to passthrough resource."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource passthrough (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:9090/echo", {});
-        }
+    passthrough (endpoint outboundEP, http:Request req) {
         //Extract HTTP method from the inbound request.
         string method = req.method;
-        http:InResponse clientResponse = {};
-        http:HttpConnectorError err;
-        //Action forward() does a backend client call and returns the response. It includes endPoint, resource path and inbound request as parameters.
-        clientResponse, err = endPoint.forward("/", req);
+        //Action forward() does a backend client call and returns the response.
+        //It includes endPoint, resource path and inbound request as parameters.
+        var clientResponse = clientEP -> forward("/", req);
         //Native function "forward" sends back the clientResponse to the caller if no any error is found.
-        http:OutResponse res = {};
-        if (err != null) {
-            res.statusCode = 500;
-            res.setStringPayload(err.message);
-            _ = conn.respond(res);
-        } else {
-            _ = conn.forward(clientResponse);
+        match clientResponse {
+            http:Response res => {
+                _ = outboundEP -> forward(res);
+            }
+            http:HttpConnectorError err => {
+                http:Response res = {};
+                res.statusCode = 500;
+                res.setStringPayload(err.message);
+                _ = outboundEP -> respond(res);
+            }
         }
     }
 }
 
+endpoint http:ServiceEndpoint echoEP {
+    port:9092
+};
+
 @Description {value:"Sample backend echo service."}
-service<http> echo {
+@http:ServiceConfig
+service<http:Service> echo bind echoEP {
     @Description {value:"A common resource for POST, PUT and GET methods."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echoResource (endpoint outboundEP, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("Resource is invoked");
-        _ = conn.respond(res);
+        _ = outboundEP -> respond(res);
     }
 }

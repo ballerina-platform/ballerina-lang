@@ -1,45 +1,43 @@
-import ballerina.auth.basic;
-import ballerina.auth.userstore;
-import ballerina.caching;
-import ballerina.auth.utils;
+import ballerina/auth.basic;
+import ballerina/auth.userstore;
+import ballerina/caching;
+import ballerina/auth.utils;
 
-function testBasicAuthenticatorCreationWithoutCache () (basic:BasicAuthenticator, userstore:CredentialsStore,
-                                                        caching:Cache) {
+function testBasicAuthenticatorCreationWithoutCache () returns (basic:BasicAuthenticator, userstore:UserStore,
+                                                               caching:Cache) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
-    basic:BasicAuthenticator authenticator = basic:createAuthenticator((userstore:CredentialsStore)fileBasedUserstore,
-                                                                       null);
-    return authenticator, authenticator.credentialsStore, authenticator.authCache;
+    basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, {});
+    return (authenticator, authenticator.userStore, authenticator.authCache);
 }
 
-function testBasicAuthenticatorCreationWithCache () (basic:BasicAuthenticator, userstore:CredentialsStore,
-                                                     caching:Cache) {
+function testBasicAuthenticatorCreationWithCache () returns (basic:BasicAuthenticator, userstore:UserStore,
+                                                            caching:Cache) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
-    basic:BasicAuthenticator authenticator = basic:createAuthenticator((userstore:CredentialsStore)fileBasedUserstore,
+    basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore,
                                                                        utils:createCache("auth_cache"));
-    return authenticator, authenticator.credentialsStore, authenticator.authCache;
+    return (authenticator, authenticator.userStore, authenticator.authCache);
 }
 
 function testCreateBasicAuthenticatorWithoutUserstore () {
-    _ = basic:createAuthenticator(null, null);
+    _ = basic:createAuthenticator({}, {});
 }
 
-function testAuthenticationForNonExistingUser () (boolean) {
+function testAuthenticationForNonExistingUser () returns (boolean) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
-    basic:BasicAuthenticator authenticator = basic:createAuthenticator((userstore:CredentialsStore)fileBasedUserstore,
-                                                                       null);
+    basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, {});
     return authenticator.authenticate("amila", "yyy");
 }
 
-function testAuthenticationWithWrongPassword () (boolean) {
+function testAuthenticationWithWrongPassword () returns (boolean) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
-    basic:BasicAuthenticator authenticator = basic:createAuthenticator((userstore:CredentialsStore)fileBasedUserstore,
-                                                                       null);
+    basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, {});
     return authenticator.authenticate("isuru", "pqr");
 }
 
-function testAuthenticationSuccess () (boolean) {
+function testAuthenticationSuccess () returns (boolean) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
-    basic:BasicAuthenticator authenticator = basic:createAuthenticator((userstore:CredentialsStore)fileBasedUserstore,
-                                                                       null);
+    basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, {});
     return authenticator.authenticate("isuru", "xxx");
 }
+
+

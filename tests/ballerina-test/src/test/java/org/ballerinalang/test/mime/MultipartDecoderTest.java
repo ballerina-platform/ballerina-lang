@@ -47,6 +47,7 @@ import java.util.List;
  */
 public class MultipartDecoderTest {
     private CompileResult serviceResult;
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
@@ -60,7 +61,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/mixed; boundary=" + multipartDataBoundary));
+                "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
@@ -76,7 +77,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -87,7 +88,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/form-data; boundary=" + multipartDataBoundary));
+                "multipart/form-data; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -105,7 +106,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -116,7 +117,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/new-sub-type; boundary=" + multipartDataBoundary));
+                "multipart/new-sub-type; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -134,7 +135,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -145,7 +146,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/mixed; boundary=" + multipartDataBoundary));
+                "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
@@ -167,7 +168,7 @@ public class MultipartDecoderTest {
     public void testNestedPartsForOneLevel() {
         String path = "/test/nestedparts";
         HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Child Part 1" + StringUtil.NEWLINE
                 + "Child Part 2" + StringUtil.NEWLINE);

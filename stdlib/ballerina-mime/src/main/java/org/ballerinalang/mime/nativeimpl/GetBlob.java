@@ -19,13 +19,12 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,19 +40,19 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.mime",
+        orgName = "ballerina", packageName = "mime",
         functionName = "getBlob",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.BLOB), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetBlob extends AbstractNativeFunction {
+public class GetBlob extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BlobDataSource result;
+    public void execute(Context context) {
+        BlobDataSource result = null;
         try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
                 result = (BlobDataSource) messageDataSource;
@@ -64,9 +63,9 @@ public class GetBlob extends AbstractNativeFunction {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            return this.getBValues(null, MimeUtil.createEntityError
+            context.setReturnValues(MimeUtil.createEntityError
                     (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
-        return this.getBValues(new BBlob(result != null ? result.getValue() : new byte[0]), null);
+        context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]));
     }
 }

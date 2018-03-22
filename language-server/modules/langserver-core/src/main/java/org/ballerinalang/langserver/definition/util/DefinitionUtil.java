@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.definition.util;
 import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -104,6 +105,21 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
+            case ContextConstants.ENDPOINT:
+                bLangNode = bLangPackage.globalEndpoints.stream()
+                        .filter(globalEndpoint -> globalEndpoint.name.value
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+
+                if (bLangNode == null) {
+                    DefinitionTreeVisitor definitionTreeVisitor = new DefinitionTreeVisitor(definitionContext);
+                    definitionContext.get(NodeContextKeys.NODE_STACK_KEY).pop().accept(definitionTreeVisitor);
+                    if (definitionContext.get(NodeContextKeys.NODE_KEY) != null) {
+                        bLangNode = definitionContext.get(NodeContextKeys.NODE_KEY);
+                    }
+                }
+
+                break;
             case ContextConstants.VARIABLE:
                 bLangNode = bLangPackage.globalVars.stream()
                         .filter(globalVar -> globalVar.name.getValue()
@@ -129,14 +145,13 @@ public class DefinitionUtil {
 
         Location l = new Location();
         TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = CommonUtil.getPath(position.getTextDocument().getUri()).getParent();
+        Path parentPath = CommonUtil.getPath(new LSDocument(position.getTextDocument().getUri())).getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths
-                    .get(CommonUtil.getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps,
-                            parentPath.toString(),
-                            definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps),
-                            fileName);
+                    .get(CommonUtil.getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY)
+                            .name.getValue(), parentPath.toString(), definitionContext
+                            .get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()), fileName);
             l.setUri(filePath.toUri().toString());
             Range r = new Range();
             // Subtract 1 to convert the token lines and char positions to zero based indexing

@@ -40,7 +40,7 @@ public class CodeGeneratorTest {
                     "        path:\"/stocks/{name}\",\n" +
                     "        consumes:[\"application/json\"]" +
                     "    }\n" +
-                    "    resource stock (http:Connection conn, http:InRequest inReq, string name) {\n" +
+                    "    stock (endpoint conn, http:Request inReq, string name) {\n" +
                     "        http:OutResponse res = {};\n" +
                     "        json payload = {\"exchange\":\"nyse\", \"name\": name, \"value\":\"127.50\"};\n" +
                     "        res.setJsonPayload(payload);\n" +

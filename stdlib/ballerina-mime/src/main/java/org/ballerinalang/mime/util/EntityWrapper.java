@@ -21,7 +21,10 @@ package org.ballerinalang.mime.util;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
 
+import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -33,11 +36,12 @@ import java.nio.channels.WritableByteChannel;
 public class EntityWrapper extends Channel {
 
     public EntityWrapper(EntityBodyChannel channel) throws BallerinaIOException {
-        super(channel, IOConstants.CHANNEL_BUFFER_SIZE);
+        super(channel, new BlockingReader(), new BlockingWriter(), IOConstants.CHANNEL_BUFFER_SIZE);
     }
 
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
         //For the time being not applicable
+        throw new UnsupportedOperationException();
     }
 }

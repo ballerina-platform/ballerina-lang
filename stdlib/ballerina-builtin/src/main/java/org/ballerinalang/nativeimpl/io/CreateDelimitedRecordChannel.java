@@ -18,19 +18,18 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.io#createDelimitedRecordChannel.
@@ -38,18 +37,20 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "createDelimitedRecordChannel",
         args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT,
-                structType = "DelimitedRecordChannel",
-                structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
+                structPackage = "ballerina.io"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
+public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateDelimitedRecordChannel.class);
 
     /**
      * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
@@ -64,10 +65,6 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
      */
     private static final int FIELD_SEPARATOR_INDEX = 1;
     /**
-     * represents the information related to the byte channel.
-     */
-    private StructInfo textRecordChannelStructInfo;
-    /**
      * The package path of the byte channel.
      */
     private static final String RECORD_CHANNEL_PACKAGE = "ballerina.io";
@@ -77,37 +74,18 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
     private static final String STRUCT_TYPE = "DelimitedRecordChannel";
 
     /**
-     * Gets the struct related to AbstractChannel.
-     *
-     * @param context invocation context.
-     * @return the struct related to AbstractChannel.
-     */
-    private StructInfo getCharacterChannelStructInfo(Context context) {
-        StructInfo result = textRecordChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(RECORD_CHANNEL_PACKAGE);
-            textRecordChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return textRecordChannelStructInfo;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        BStruct textRecordChannelInfo;
-        BStruct textRecordChannel;
-        BValue[] bValues;
-        String recordSeparator;
-        String fieldSeparator;
+    public void execute(Context context) {
         try {
             //File which holds access to the channel information
-            textRecordChannelInfo = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            recordSeparator = getStringArgument(context, RECORD_SEPARATOR_INDEX);
-            fieldSeparator = getStringArgument(context, FIELD_SEPARATOR_INDEX);
+            BStruct textRecordChannelInfo = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            String recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
+            String fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
 
-            textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
+            BStruct textRecordChannel = BLangConnectorSPIUtil.createBStruct(context, RECORD_CHANNEL_PACKAGE,
+                    STRUCT_TYPE);
 
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) textRecordChannelInfo.getNativeData(IOConstants
@@ -115,12 +93,12 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
             DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
                     fieldSeparator);
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
-            bValues = getBValues(textRecordChannel);
+            context.setReturnValues(textRecordChannel);
         } catch (Throwable e) {
-            String message = "Error occurred while converting character channel to textRecord channel:"
-                    + e.getMessage();
-            throw new BallerinaException(message, context);
+            String message =
+                    "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
         }
-        return bValues;
     }
 }

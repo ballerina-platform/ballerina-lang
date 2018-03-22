@@ -11,8 +11,8 @@ connector MyClient (string url) {
         create http:HttpClient(url, {});
     }
 
-    action connect (string path) (http:InResponse) {
-        http:InResponse response;
+    action connect (string path) (http:Response) {
+        http:Response response;
         response, _ = clientConnectorEP.get(path, {});
         return response;
     }
@@ -22,6 +22,6 @@ function main (string[] args) {
     endpoint<MyClient> myClientEP {
         create MyClient("http://example.com");
     }
-    http:InResponse response = myClientEP.connect("");
+    http:Response response = myClientEP.connect("");
     io:println(response.getStringPayload());
 }

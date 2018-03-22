@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -31,22 +30,22 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Native function ballerina.model.strings:split(string, string).
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.split",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "regex", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class Split extends AbstractNativeFunction {
+public class Split extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String initialString = getStringArgument(context, 0);
-        String regex = getStringArgument(context, 1);
+    public void execute(Context context) {
+        String initialString = context.getStringArgument(0);
+        String regex = context.getStringArgument(1);
 
         String[] splitArray = initialString.split(regex);
         BStringArray bSplitArray = new BStringArray(splitArray);
-        return getBValues(bSplitArray);
+        context.setReturnValues(bSplitArray);
     }
 }

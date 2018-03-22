@@ -48,3 +48,22 @@ function testAction2 () (string) {
     string value = testConnector.action2(request);
     return value;
 }
+
+struct testEP {
+}
+
+function <testEP ep> init(string name, struct {} config) {
+}
+
+function <testEP ep> start() {
+}
+
+function <testEP ep> stop() {
+}
+
+function <testEP ep> register(type t) {
+}
+
+function <testEP ep> getConnector() (TestConnector) {
+    return null;
+}

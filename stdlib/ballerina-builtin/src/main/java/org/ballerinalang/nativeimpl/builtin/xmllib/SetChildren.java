@@ -19,11 +19,10 @@
 package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -34,26 +33,26 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "xml.setChildren",
         args = {@Argument(name = "children", type = TypeKind.XML)},
         isPublic = true
 )
-public class SetChildren extends AbstractNativeFunction {
+public class SetChildren extends BlockingNativeCallableUnit {
 
     private static final String OPERATION = "set children to xml element";
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         try {
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-            BXML children = (BXML) getRefArgument(ctx, 1);
+            BXML xml = (BXML) ctx.getRefArgument(0);
+            BXML children = (BXML) ctx.getRefArgument(1);
             xml.setChildren(children);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
         
         // Setting output value.
-        return VOID_RETURN;
+        ctx.setReturnValues();
     }
 }

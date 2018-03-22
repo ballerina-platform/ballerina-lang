@@ -1,27 +1,34 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-@http:configuration {basePath:"/hello"}
-service<http> negativeTemplateURI {
+endpoint mock:NonListeningServiceEndpoint testEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {
+    basePath:"/hello"
+}
+service<http:Service> negativeTemplateURI bind testEP {
+
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/echo/{abc}/bar"
     }
-    resource echo1 (http:Connection conn, http:InRequest req, string abc) {
-        http:OutResponse res = {};
+     echo1 (endpoint client, http:Request req, string abc) {
+        http:Response res = {};
         json responseJson = {"first":abc, "echo":"echo"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/echo/{xyz}/bar"
     }
-    resource echo2 (http:Connection conn, http:InRequest req, string xyz) {
-        http:OutResponse res = {};
+     echo2 (endpoint client, http:Request req, string xyz) {
+        http:Response res = {};
         json responseJson = {"first":xyz, "echo":"echo"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 }

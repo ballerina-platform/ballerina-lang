@@ -90,6 +90,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ParameterTypeNameList;
 import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
@@ -98,7 +99,6 @@ import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TransformerDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
-import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -2362,17 +2362,17 @@ public class BallerinaPsiImplUtil {
         if (node == null) {
             return results;
         }
-        // But there can be two possible scenarios. The actual return types can be in either TypeListNode or
+        // But there can be two possible scenarios. The actual return types can be in either ParameterTypeNameList or
         // ParameterListNode. This is because return types can be named parameters. In that case, ParameterListNode is
         // available.
 
-        // First we check for TypeListNode.
-        TypeListNode typeListNode = PsiTreeUtil.findChildOfType(node, TypeListNode.class);
+        // First we check for ParameterTypeNameList.
+        ParameterTypeNameList parameterTypeNameList = PsiTreeUtil.findChildOfType(node, ParameterTypeNameList.class);
         // If it is available, that means the return types are not named parameters.
-        if (typeListNode != null) {
+        if (parameterTypeNameList != null) {
             // Each parameter will be of type TypeNameNode. So we get all return types.
             Collection<TypeNameNode> typeNameNodes =
-                    PsiTreeUtil.findChildrenOfType(typeListNode, TypeNameNode.class);
+                    PsiTreeUtil.findChildrenOfType(parameterTypeNameList, TypeNameNode.class);
             // Add each TypeNameNode to the result list.
             results.addAll(typeNameNodes);
             // Return the results.

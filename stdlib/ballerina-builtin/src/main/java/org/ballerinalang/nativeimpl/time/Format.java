@@ -21,7 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina", packageName = "time",
         functionName = "Time.format",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.time"),
@@ -43,9 +42,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Format extends AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        String pattern = getStringArgument(context, 0);
-        return new BValue[]{new BString(getFormattedtString(timeStruct, pattern))};
+    public void execute(Context context) {
+        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        String pattern = context.getStringArgument(0);
+        context.setReturnValues(new BString(getFormattedtString(timeStruct, pattern)));
     }
 }

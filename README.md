@@ -20,7 +20,7 @@ You can download the Ballerina distribution, try samples, and read the documenta
 ### Prerequisites
 
 1. [Maven](https://maven.apache.org/download.cgi)
-2. [Node + npm](https://nodejs.org/en/download/)
+2. [Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
 3. [Docker](https://www.docker.com/get-docker)
 
 ### Building the source

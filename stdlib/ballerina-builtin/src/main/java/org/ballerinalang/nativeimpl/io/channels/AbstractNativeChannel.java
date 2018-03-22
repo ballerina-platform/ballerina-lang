@@ -18,14 +18,11 @@
 package org.ballerinalang.nativeimpl.io.channels;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -38,13 +35,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @see org.ballerinalang.nativeimpl.io.OpenFile
  */
-public abstract class AbstractNativeChannel extends AbstractNativeFunction {
-
-    /**
-     * represents the information related to the byte channel.
-     */
-    private StructInfo byteChannelStructInfo;
-
+public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
     /**
      * The package path of the byte channel.
      */
@@ -55,22 +46,6 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
      */
     private static final String STRUCT_TYPE = "ByteChannel";
 
-
-    /**
-     * Gets the struct related to AbstractChannel.
-     *
-     * @param context invocation context.
-     * @return the struct related to AbstractChannel.
-     */
-    private StructInfo getByteChannelStructInfo(Context context) {
-        StructInfo result = byteChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(BYTE_CHANNEL_PACKAGE);
-            byteChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return byteChannelStructInfo;
-    }
-
     /**
      * <p>
      * Defines the set of actions which should be performed to created a byte channel.
@@ -79,17 +54,17 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
      * @param context holds the context received from Ballerina.
      * @return the channel which holds the reference.
      */
-    public abstract AbstractChannel inFlow(Context context) throws BallerinaException;
+    public abstract Channel inFlow(Context context) throws BallerinaException;
 
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        AbstractChannel channel = inFlow(context);
-        BStruct channelStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context));
+    public void execute(Context context) {
+        Channel channel = inFlow(context);
+        BStruct channelStruct = BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE, STRUCT_TYPE);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
-        return getBValues(channelStruct);
+        context.setReturnValues(channelStruct);
     }
 }

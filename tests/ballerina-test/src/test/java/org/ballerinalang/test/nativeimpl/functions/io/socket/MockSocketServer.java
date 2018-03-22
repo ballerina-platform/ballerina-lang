@@ -95,6 +95,8 @@ public class MockSocketServer {
         String classpath = System.getProperty("java.class.path");
         String className = MockSocketServer.class.getCanonicalName();
         ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", classpath, className);
+        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
         return builder.start();
     }
 }

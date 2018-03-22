@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description{value:"an Argument"}
 @Field{value:"text: a string"}

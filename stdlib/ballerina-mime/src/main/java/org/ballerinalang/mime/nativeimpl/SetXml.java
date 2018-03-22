@@ -19,12 +19,11 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -37,18 +36,18 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(packageName = "ballerina.mime",
+@BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setXml",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "xmlContent", type = TypeKind.XML)},
         isPublic = true
 )
-public class SetXml extends AbstractNativeFunction {
+public class SetXml extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-        BXML xmlContent = (BXML) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
+    public void execute(Context context) {
+        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BXML xmlContent = (BXML) context.getRefArgument(SECOND_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, xmlContent);
-        return AbstractNativeFunction.VOID_RETURN;
+        context.setReturnValues();
     }
 }

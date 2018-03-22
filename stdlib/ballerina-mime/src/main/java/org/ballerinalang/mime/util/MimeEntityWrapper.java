@@ -18,7 +18,10 @@
 
 package org.ballerinalang.mime.util;
 
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.jvnet.mimepull.MIMEPart;
+
+import java.io.IOException;
 
 /**
  * Wrap body part stream as a ballerina specific byte channel. A reference has been kept for 'MIMEPart' for temp file
@@ -30,13 +33,13 @@ public class MimeEntityWrapper extends EntityWrapper {
 
     private MIMEPart mimePart;
 
-    MimeEntityWrapper(EntityBodyChannel channel, MIMEPart mimePart) {
+    MimeEntityWrapper(EntityBodyChannel channel, MIMEPart mimePart) throws BallerinaIOException {
         super(channel);
         this.mimePart = mimePart;
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         super.close();
         if (mimePart != null) {
             mimePart.close(); //Clean up temp files

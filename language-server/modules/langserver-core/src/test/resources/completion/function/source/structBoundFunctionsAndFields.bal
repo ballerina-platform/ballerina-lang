@@ -1,11 +1,15 @@
-import ballerina.net.http;
+import ballerina/file;
 
-function testFunction () {
-    http:OutResponse res = {};
-    res.
+function main (string[] args) {
+    TestStruct ts = {};
+    ts.
 }
 
-struct testStruct1 {
-    int test1A;
-    string test1B;
+function <TestStruct t> testFunction () {
+    int hello = 12;
+}
+
+struct TestStruct{
+    int a;
+    string b;
 }

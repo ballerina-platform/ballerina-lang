@@ -29,7 +29,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +51,7 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/sql-actions.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
@@ -83,14 +82,14 @@ public class SQLActionsTest {
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
         BString retValue = (BString) returns[0];
-        Assert.assertTrue(retValue.intValue() > 0);
+        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
     }
 
     @Test(groups = "ConnectorTest")
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn");
         BString retValue = (BString) returns[0];
-        Assert.assertTrue(retValue.intValue() > 0);
+        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
     }
 
     @Test(groups = "ConnectorTest")
@@ -133,10 +132,22 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest")
     public void testCallProcedureWithResultSet() {
-        BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithResultSet");
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invokeFunction(result, "testCallProcedureWithResultSet", args);
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSets() {
+        BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithMultipleResultSets");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        BString retValue2 = (BString) returns[1];
+        final String expected2 = "John";
+        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(retValue2.stringValue(), expected2);
     }
 
     @Test(groups = "ConnectorTest")
@@ -223,7 +234,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testNullINParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameters");
         BInteger retValue = (BInteger) returns[0];
@@ -449,7 +460,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", description = "Check blob binary and clob types types.")
+    @Test(groups = "ConnectorTest", description = "Check blob binary and clob types types.", enabled = false)
     public void testComplexTypeRetrieval() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval", args);
@@ -476,40 +487,40 @@ public class SQLActionsTest {
                 + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]");
     }
 
-    @Test(description = "Test failed select query",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute query failed: .*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed select query")
     public void testFailedSelect() {
-        BRunUtil.invoke(resultNegative, "testSelectData");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData");
+        Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
     }
 
-    @Test(description = "Test failed update with generated id action",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute update with generated keys failed:.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
-        BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
+        Assert.assertTrue(returns[0].stringValue().contains("execute update with generated keys failed:"));
     }
 
-    @Test(description = "Test failed call procedure",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute stored procedure failed:.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed call procedure")
     public void testFailedCallProcedure() {
-        BRunUtil.invoke(resultNegative, "testCallProcedure");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testCallProcedure");
+        Assert.assertTrue(returns[0].stringValue().contains("execute stored procedure failed:"));
     }
 
-    @Test(description = "Test failed batch update",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute batch update failed:.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed batch update")
     public void testFailedBatchUpdate() {
-        BRunUtil.invoke(resultNegative, "testBatchUpdate");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
+        Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
     }
 
-    @Test(description = "Test failed batch update",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: execute query failed: unsupported array type for parameter "
-                  + "index 0.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
-        BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
+        Assert.assertTrue(returns[0].stringValue()
+                .contains("execute query failed: unsupported array type for parameter index 0"));
     }
 
     @AfterSuite

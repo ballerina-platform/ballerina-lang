@@ -1,47 +1,54 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-@http:configuration {basePath:"/hello"}
-service<http> testService {
+endpoint mock:NonListeningServiceEndpoint testEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {
+    basePath:"/hello"
+}
+service<http:Service> testService bind testEP {
+
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/t1/{person}/bar/{year}/foo"
     }
-    resource test1 (http:Connection conn, http:InRequest req, string person, string year) {
-        http:OutResponse res = {};
+     test1 (endpoint client, http:Request req, string person, string year) {
+        http:Response res = {};
         json outJson = {};
         outJson.pathParams = string `{{person}}, {{year}}`;
 
         map personMParams = req.getMatrixParams(string `/hello/t1/{{person}}`);
-        var age, _ = (string) personMParams["age"];
-        var color, _ = (string) personMParams["color"];
+        var age =? <string> personMParams["age"];
+        var color =? <string> personMParams["color"];
         outJson.personMatrix = string `age={{age}};color={{color}}`;
 
         map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}`);
-        var month, _ = (string) yearMParams["month"];
-        var day, _ = (string) yearMParams["day"];
+        var month =? <string> yearMParams["month"];
+        var day =? <string> yearMParams["day"];
         outJson.yearMatrix = string `month={{month}};day={{day}}`;
 
         map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}/foo`);
-        var a, _ = (string) fooMParams["a"];
-        var b, _ = (string) fooMParams["b"];
+        var a =? <string> fooMParams["a"];
+        var b =? <string> fooMParams["b"];
         outJson.fooMatrix = string `a={{a}};b={{b}}`;
 
         map queryParams = req.getQueryParams();
-        var x, _ = (string) queryParams["x"];
-        var y, _ = (string) queryParams["y"];
+        var x =? <string> queryParams["x"];
+        var y =? <string> queryParams["y"];
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
         res.setJsonPayload(outJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/t2/{person}/foo;a=5;b=10"
     }
-    resource testEncoded (http:Connection conn, http:InRequest req, string person) {
-        http:OutResponse res = {};
+     testEncoded (endpoint client, http:Request req, string person) {
+        http:Response res = {};
         json outJson = {};
         outJson.person = person;
 
@@ -52,6 +59,6 @@ service<http> testService {
         outJson.fooParamSize = lengthof fooMParams;
 
         res.setJsonPayload(outJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 }

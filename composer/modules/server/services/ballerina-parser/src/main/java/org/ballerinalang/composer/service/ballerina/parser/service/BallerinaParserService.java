@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -48,6 +49,8 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -288,6 +291,19 @@ public class BallerinaParserService implements ComposerService {
                 continue;
             }
 
+            if (node.getKind() == NodeKind.ANNOTATION
+                    && node instanceof BLangAnnotation) {
+                JsonArray attachmentPoints = new JsonArray();
+                ((BLangAnnotation) node)
+                        .getAttachmentPoints()
+                        .stream()
+                        .map(BLangAnnotationAttachmentPoint::getAttachmentPoint)
+                        .map(BLangAnnotationAttachmentPoint.AttachmentPoint::getValue)
+                        .map(JsonPrimitive::new)
+                        .forEach(attachmentPoints::add);
+                nodeJson.add("attachmentPoints", attachmentPoints);
+            }
+
             if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
                 IdentifierNode typeNode = (IdentifierNode) prop;
                 Node structNode;
@@ -404,6 +420,7 @@ public class BallerinaParserService implements ComposerService {
         final String filePath = bFileRequest.getFilePath();
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
+        final java.nio.file.Path packagePath = Paths.get(bFileRequest.getFilePath());
 
         Pattern pkgPattern = Pattern.compile(PACKAGE_REGEX);
         Matcher pkgMatcher = pkgPattern.matcher(content);
@@ -436,7 +453,8 @@ public class BallerinaParserService implements ComposerService {
                 : null;
         // always use dirty content from editor to generate model
         // TODO: Remove this once in-memory file resolver with dirty content for compiler is implemented
-        final BallerinaFile balFileFromDirtyContent = ParserUtils.getBallerinaFileForContent(fileName, content,
+        final BallerinaFile balFileFromDirtyContent = ParserUtils.getBallerinaFileForContent(packagePath,
+                fileName, content,
                 CompilerPhase.CODE_ANALYZE);
         // always get compilation unit and diagnostics from dirty content
         final BLangPackage model = balFileFromDirtyContent.getBLangPackage();

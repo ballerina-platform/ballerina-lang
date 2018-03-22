@@ -1,10 +1,10 @@
-import ballerina.lang.strings;
-import ballerina.lang.system;
-import ballerina.net.http;
-import ballerina.net.uri;
-import ballerina.utils;
-import ballerina.net.http.request;
-import ballerina.net.http.response;
+import ballerina/lang.strings;
+import ballerina/lang.system;
+import ballerina/net.http;
+import ballerina/net.uri;
+import ballerina/utils;
+import ballerina/net.http.request;
+import ballerina/net.http.response;
 
 function main (string[] args) {
 

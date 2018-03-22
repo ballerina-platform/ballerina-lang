@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.math;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -34,19 +33,19 @@ import java.util.concurrent.ThreadLocalRandom;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.math",
+        orgName = "ballerina", packageName = "math",
         functionName = "randomInRange",
         args = {@Argument(name = "start", type = TypeKind.INT),
                 @Argument(name = "end", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class RandomInRange extends AbstractNativeFunction {
+public class RandomInRange extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        long start = getIntArgument(ctx, 0);
-        long end = getIntArgument(ctx, 1);
+    public void execute(Context ctx) {
+        long start = ctx.getIntArgument(0);
+        long end = ctx.getIntArgument(1);
         long random = ThreadLocalRandom.current().nextLong(start, end);
-        return getBValues(new BInteger(random));
+        ctx.setReturnValues(new BInteger(random));
     }
 }

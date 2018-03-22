@@ -19,13 +19,12 @@
 package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,22 +38,22 @@ import org.slf4j.LoggerFactory;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "json.getKeys",
         args = {@Argument(name = "j", type = TypeKind.JSON)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetKeys extends AbstractNativeFunction {
+public class GetKeys extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(GetKeys.class);
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         BStringArray keys = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) getRefArgument(ctx, 0);
+            BJSON json = (BJSON) ctx.getRefArgument(0);
             keys = JSONUtils.getKeys(json);
             if (log.isDebugEnabled()) {
                 log.debug("keys: " + keys);
@@ -63,6 +62,6 @@ public class GetKeys extends AbstractNativeFunction {
             ErrorHandler.handleJsonException("get keys from json", e);
         }
 
-        return getBValues(keys);
+        ctx.setReturnValues(keys);
     }
 }

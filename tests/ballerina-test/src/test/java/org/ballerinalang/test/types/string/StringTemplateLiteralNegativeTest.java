@@ -37,15 +37,18 @@ public class StringTemplateLiteralNegativeTest {
         //testUndefinedSymbol
         BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'name'", 2, 32);
         //testIncompatibleTypes
-        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'string', found 'json'", 8, 32);
+        BAssertUtil.validateError(resultNegative, 1,
+                "incompatible types: expected 'string', found 'json'", 8, 32);
     }
 
     @Test(description = "Test string template literal syntax errors")
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resultNegative, 0, "mismatched input '}'. expecting {'?', '+', " +
+        BAssertUtil.validateError(resultNegative, 0,
+                "mismatched input '}'. expecting {'?', '+', " +
                 "'-', '*', '/', '^', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', ExpressionEnd}", 4, 71);
-        BAssertUtil.validateError(resultNegative, 1, "mismatched input ';'. expecting {'[', Identifier}", 5, 13);
+        BAssertUtil.validateError(resultNegative, 1,
+                "mismatched input ';'. expecting {'[', '|', Identifier}", 5, 13);
     }
 }

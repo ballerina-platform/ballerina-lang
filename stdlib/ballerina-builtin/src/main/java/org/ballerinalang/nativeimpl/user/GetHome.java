@@ -16,9 +16,8 @@
 package org.ballerinalang.nativeimpl.user;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
@@ -29,17 +28,17 @@ import org.ballerinalang.util.BuiltInUtils;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.user",
+        orgName = "ballerina", packageName = "user",
         functionName = "getHome",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetHome extends AbstractNativeFunction {
+public class GetHome extends BlockingNativeCallableUnit {
 
     private static final String PROPERTY_NAME = "user.home";
 
     @Override
-    public BValue[] execute(Context context) {
-        return getBValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
+    public void execute(Context context) {
+        context.setReturnValues(BuiltInUtils.getSystemProperty(PROPERTY_NAME));
     }
 }

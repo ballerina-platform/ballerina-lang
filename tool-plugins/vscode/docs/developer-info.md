@@ -2,8 +2,16 @@
 
 1. Install [maven](https://maven.apache.org/install.html) and [nodejs](https://nodejs.org/en/)
 2. Clone this repo
-3. Run `npm install` and `mvn clean install`
-4. Run vscode with `code --extensionDevelopmentPath=/path/to/ballerina/plugin-vscode`
+3. Run `mvn clean install` from the root of the project
+4. Run vscode with `code --extensionDevelopmentPath=/path/to/ballerina/tool-plugins/vscode`
+
+## Installing from the `vsix` file
+
+The plugin is packaged into a file named `ballerina-vscode-plugin-[VERSION].vsix` created in the directory `ballerina/tool-plugins/vscode/target`.
+
+To install the package using it, run:
+
+`code --install-extension ballerina-vscode-plugin-[VERSION].vsix`
 
 ## Debugging language server
 

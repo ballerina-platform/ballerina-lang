@@ -43,14 +43,15 @@ public class CompilerPluginTest {
     @Test(description = "Test compiler plugin")
     public void testCompilerPlugin() {
         Assert.assertEquals(compileResult.getErrorCount(), 0, "There are compilation errors");
-        Map<TestEvent.Kind, Set<TestEvent>> eventMap = ABCCompilerPlugin.testEventMap;
+        Map<TestEvent.Kind, Set<TestEvent>> abcEventMap = ABCCompilerPlugin.testEventMap;
+        Map<TestEvent.Kind, Set<TestEvent>> xyzEventMap = XYZCompilerPlugin.testEventMap;
 
-        Assert.assertEquals(eventMap.size(), 11,
+        Assert.assertEquals(abcEventMap.size(), 11,
                 "All the process methods haven't been invoked by the compiler plugin");
 
         // Test service events
         assertData(TestEvent.Kind.SERVICE_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.SERVICE_ANN, "routerService", 3));
                     add(new TestEvent(TestEvent.Kind.SERVICE_ANN, "routerService2", 2));
@@ -58,7 +59,7 @@ public class CompilerPluginTest {
 
         // Test resource events
         assertData(TestEvent.Kind.RESOURCE_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.RESOURCE_ANN, "route", 2));
                     add(new TestEvent(TestEvent.Kind.RESOURCE_ANN, "route2", 1));
@@ -66,21 +67,27 @@ public class CompilerPluginTest {
 
         // Test connector events
         assertData(TestEvent.Kind.CONNECTOR_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.CONNECTOR_ANN, "routeCon", 1));
                 }});
 
         // Test action events
         assertData(TestEvent.Kind.ACTION_ANN,
-                eventMap,
+                abcEventMap,
+                new ArrayList<TestEvent>() {{
+                    add(new TestEvent(TestEvent.Kind.ACTION_ANN, "getRoutes", 1));
+                }});
+
+        assertData(TestEvent.Kind.ACTION_ANN,
+                xyzEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.ACTION_ANN, "getRoutes", 1));
                 }});
 
         // Test struct events
         assertData(TestEvent.Kind.STRUCT_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.STRUCT_ANN, "RouteConfig", 1));
                     add(new TestEvent(TestEvent.Kind.STRUCT_ANN, "Employee", 1));
@@ -88,21 +95,27 @@ public class CompilerPluginTest {
 
         // Test enum events
         assertData(TestEvent.Kind.ENUM_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.ENUM_ANN, "state", 1));
                 }});
 
         // Test function events
         assertData(TestEvent.Kind.FUNC_ANN,
-                eventMap,
+                abcEventMap,
+                new ArrayList<TestEvent>() {{
+                    add(new TestEvent(TestEvent.Kind.FUNC_ANN, "routerFunc", 1));
+                }});
+
+        assertData(TestEvent.Kind.FUNC_ANN,
+                xyzEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.FUNC_ANN, "routerFunc", 1));
                 }});
 
         // Test variable events
         assertData(TestEvent.Kind.VARIAVLE_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     // TODO Annotations cannot be attached to global variables at the moment.
 //                    add(new TestEvent(TestEvent.Kind.VARIAVLE_ANN, "a", 1));
@@ -111,14 +124,14 @@ public class CompilerPluginTest {
 
         // Test annotation events
         assertData(TestEvent.Kind.ANNOTATION_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.ANNOTATION_ANN, "RouteData", 2));
                 }});
 
         // Test transformer events
         assertData(TestEvent.Kind.TRANSFORM_ANN,
-                eventMap,
+                abcEventMap,
                 new ArrayList<TestEvent>() {{
                     add(new TestEvent(TestEvent.Kind.TRANSFORM_ANN, "setCityToNewYork", 2));
                 }});
@@ -128,6 +141,7 @@ public class CompilerPluginTest {
                            Map<TestEvent.Kind, Set<TestEvent>> eventMap,
                            List<TestEvent> expectedEventList) {
         Set<TestEvent> actualEventSet = eventMap.get(kind);
+        Assert.assertNotNull(actualEventSet, "All the " + kind.name + " nodes haven't been processed");
         Assert.assertEquals(actualEventSet.size(), expectedEventList.size(),
                 "All the " + kind.name + " nodes haven't been processed");
         expectedEventList.forEach(expectedEvent ->

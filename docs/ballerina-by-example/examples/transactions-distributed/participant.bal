@@ -1,6 +1,6 @@
-import ballerina.log;
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/log;
+import ballerina/io;
+import ballerina/net.http;
 
 // This service is a participant in the distributed transaction. It will get infected when it receives a transaction
 // context from the participant. The transaction context, in the HTTP case, will be passed in as custom HTTP headers.
@@ -14,9 +14,9 @@ service<http> ParticipantService {
     @http:resourceConfig {
         path:"/update"
     }
-    resource updateStockQuote (http:Connection conn, http:InRequest req) {
+    resource updateStockQuote (http:Connection conn, http:Request req) {
         log:printInfo("Received update stockquote request");
-        http:OutResponse res;
+        http:Response res;
 
         // At the beginning of the transaction statement, since a transaction context has been received, this service
         // will register with the initiator as a participant.

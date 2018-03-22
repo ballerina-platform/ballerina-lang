@@ -1,28 +1,45 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-@http:configuration {basePath:"/identifierLiteral"}
-service<http> |sample service| {
+endpoint mock:NonListeningService testEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+
+@http:ServiceConfig {
+    basePath:"/identifierLiteral",
+    endpoints:[testEP],
+    cors: {
+              allowOrigins :["http://www.m3.com", "http://www.hello.com"],
+              allowCredentials : true,
+              allowHeaders :["CORELATION_ID"],
+              exposeHeaders :["CORELATION_ID"],
+              maxAge : 1
+          }
+}
+
+service<http:Service> ^"sample Service" {
+
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/resource"
     }
-    resource |sample resource| (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    ^"sample resource" (endpoint outboundEp, http:Request req) {
+        http:Response res = {};
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = outboundEp -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/resource2"
     }
-    resource |sample resource2| (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        string |a a| = "hello";
-        res.setStringPayload(|a a|);
-        _ = conn.respond(res);
+    ^"sample resource2" (endpoint outboundEp, http:Request req) {
+        http:Response res = {};
+        string ^"a a" = "hello";
+        res.setStringPayload(^"a a");
+        _ = outboundEp -> respond(res);
     }
 }
 

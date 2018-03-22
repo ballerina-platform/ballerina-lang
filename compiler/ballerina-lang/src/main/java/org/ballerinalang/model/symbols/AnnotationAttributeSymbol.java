@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 /**
  * @since 0.94
  */
+@Deprecated
 public interface AnnotationAttributeSymbol extends Symbol {
 
     ExpressionNode getDefaultValue();

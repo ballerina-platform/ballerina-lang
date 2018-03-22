@@ -1,9 +1,9 @@
-function testNonInitArrayAccess()(string){
+function testNonInitArrayAccess() returns (string){
     string[] fruits;
     return fruits[5];
 }
 
-function arrayAccessTest(int x, int y) (int) {
+function arrayAccessTest(int x, int y) returns (int) {
     int[] arr = [];
 
     arr[0] = x;
@@ -13,7 +13,7 @@ function arrayAccessTest(int x, int y) (int) {
     return arr[0] + arr[1] + arr[2];
 }
 
-function arrayReturnTest(int x, int y) (int[]) {
+function arrayReturnTest(int x, int y) returns (int[]) {
     int[] arr =[];
 
     arr[0] = x;
@@ -23,7 +23,7 @@ function arrayReturnTest(int x, int y) (int[]) {
     return arr;
 }
 
-function arrayArgTest(int[] arr) (int) {
+function arrayArgTest(int[] arr) returns (int) {
     return arr[0] + arr[1];
 }
 
@@ -33,5 +33,4 @@ function arrayIndexOutOfBoundTest() {
 
     animals = ["Lion", "Cat"];
     name = animals[5];
-    return;
 }

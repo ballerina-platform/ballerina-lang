@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,16 +32,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "table.hasNext",
         args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasNext extends AbstractNativeFunction {
+public class HasNext extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        BTable table = (BTable) getRefArgument(ctx, 0);
-        return getBValues(new BBoolean(table.hasNext(ctx.isInTransaction())));
+    public void execute(Context context) {
+        BTable table = (BTable) context.getRefArgument(0);
+        context.setReturnValues(new BBoolean(table.hasNext(context.isInTransaction())));
     }
 }

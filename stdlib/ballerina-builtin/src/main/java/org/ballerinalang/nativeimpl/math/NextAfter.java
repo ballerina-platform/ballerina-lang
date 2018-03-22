@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.math;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,18 +31,18 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.math",
+        orgName = "ballerina", packageName = "math",
         functionName = "nextAfter",
         args = {@Argument(name = "a", type = TypeKind.FLOAT),
                 @Argument(name = "b", type = TypeKind.FLOAT)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class NextAfter extends AbstractNativeFunction {
+public class NextAfter extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        double a = getFloatArgument(ctx, 0);
-        double b = getFloatArgument(ctx, 1);
-        return getBValues(new BFloat(Math.nextAfter(a, b)));
+    public void execute(Context ctx) {
+        double a = ctx.getFloatArgument(0);
+        double b = ctx.getFloatArgument(1);
+        ctx.setReturnValues(new BFloat(Math.nextAfter(a, b)));
     }
 }

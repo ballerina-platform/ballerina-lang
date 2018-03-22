@@ -19,11 +19,11 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -35,42 +35,40 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-
 /**
  * Creates the file at the path specified in the File struct.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "createNewFile",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT),
                 @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class CreateNewFile extends AbstractNativeFunction {
+public class CreateNewFile extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(CreateNewFile.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct fileStruct = (BStruct) context.getRefArgument(0);
         Path filePath = Paths.get(fileStruct.getStringField(0));
         Path newFile;
         try {
             newFile = Files.createFile(filePath);
-        } catch (IOException | UnsupportedOperationException e) {
-            String msg = "Failed to create the file: " + filePath.toString();
+            context.setReturnValues(new BBoolean(Files.exists(newFile)));
+        } catch (IOException | UnsupportedOperationException | SecurityException e) {
+            String msg;
+            if (e instanceof SecurityException) {
+                msg = "Permission denied. Failed to create the file: " + filePath.toString();
+            } else {
+                msg = "Failed to create the file: " + filePath.toString();   
+            }
             log.error(msg, e);
-            return getBValues(new BBoolean(false), null, createIOError(context, msg));
-        } catch (SecurityException e) {
-            String msg = "Permission denied. Failed to create the file: " + filePath.toString();
-            log.error(msg, e);
-            return getBValues(new BBoolean(false), createAccessDeniedError(context, msg), null);
+            context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
-        return getBValues(new BBoolean(Files.exists(newFile)), null, null);
     }
 }

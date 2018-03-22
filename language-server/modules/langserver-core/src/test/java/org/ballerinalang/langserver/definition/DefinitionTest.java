@@ -35,12 +35,12 @@ import java.nio.file.Paths;
  */
 public class DefinitionTest {
     private static final String DEFINITION_TESTS_SAMPLES = "src" + File.separator + "test" + File.separator
-            + "resources" + File.separator + "definition";
+            + "resources" + File.separator + "definition.test";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition";
+    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition.test";
     private static final String METHOD = "textDocument/definition";
-    private String balPath1 = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "definition1.bal";
-    private String balPath2 = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "definition2.bal";
+    private String balPath1 = SAMPLES_COPY_DIR + File.separator + "definition1.bal";
+    private String balPath2 = SAMPLES_COPY_DIR + File.separator + "definition2.bal";
     private String balFile1Content;
     private String balFile2Content;
 
@@ -165,8 +165,7 @@ public class DefinitionTest {
      * @return string content read from the json file.
      */
     private String getExpectedValue(String expectedFile, String expectedFileURI) throws IOException {
-        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "test" + File.separator
-                + "expected" + File.separator + expectedFile;
+        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "expected" + File.separator + expectedFile;
         byte[] expectedByte = Files.readAllBytes(Paths.get(expectedFilePath));
         String positionRange = new String(expectedByte);
 

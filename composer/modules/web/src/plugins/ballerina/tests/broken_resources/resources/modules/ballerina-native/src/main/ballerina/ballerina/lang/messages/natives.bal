@@ -1,6 +1,6 @@
 package ballerina.lang.messages;
 
-import ballerina.doc;
+import ballerina/doc;
 
 @doc:Description { value:"Gets the message payload in JSON format"}
 @doc:Param { value:"m: The message object" }

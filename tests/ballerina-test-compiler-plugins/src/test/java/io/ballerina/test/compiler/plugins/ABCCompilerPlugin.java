@@ -48,7 +48,7 @@ import java.util.Set;
 )
 public class ABCCompilerPlugin extends AbstractCompilerPlugin {
 
-    public static Map<TestEvent.Kind, Set<TestEvent>> testEventMap = new HashMap<>();
+    static Map<TestEvent.Kind, Set<TestEvent>> testEventMap = new HashMap<>();
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {

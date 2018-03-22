@@ -1,31 +1,64 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/io;
 
-service<http> proxy {
+endpoint http:ServiceEndpoint serverEP {
+    port:9090
+};
+
+//Configure client connector forwarded/x-forwarded-- header behaviour by adding disable (default value), enable or transition.
+//Transition config converts available x-forwarded-- headers to forwarded header.
+endpoint http:ClientEndpoint clientEndPoint {
+    targets: [
+       {
+            uri: "http://localhost:9090"
+       }
+    ],
+    forwarded:"enable"
+};
+
+@http:ServiceConfig {
+    basePath: "/proxy"
+}
+service<http:Service> proxy bind serverEP {
 
     @Description {value:"Proxy server forward the inbound request to a backend with forwarded config enabled."}
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource sample (http:Connection conn, http:InRequest req) {
-        //Configure client connector forwarded/x-forwarded-- header behaviour by adding disable (default value), enable or transition.
-        //Transition config converts available x-forwarded-- headers to forwarded header.
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:9090/sample", {forwarded:"enable"});
+    sample (endpoint conn, http:Request req) {
+        var response = clientEndPoint -> forward("/sample", req);
+        match response {
+            http:Response clientResponse => {
+                _ = conn -> forward(clientResponse);
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while invoking the service");
+            }
         }
-        var clientResponse, _ = endPoint.forward("/", req);
-        _ = conn.forward(clientResponse);
     }
 }
 
 @Description {value:"Sample backend which respond with forwarded header value."}
-service<http> sample {
-    @http:resourceConfig {
+@http:ServiceConfig {
+    basePath: "/sample"
+}
+service<http:Service> sample bind serverEP {
+
+    @http:ResourceConfig {
         path:"/"
     }
-    resource sampleResource (http:Connection conn, http:InRequest req) {
-        string value = req.getHeader("forwarded");
-        http:OutResponse res = {};
-        res.setStringPayload("forwarded header value : " + value);
-        _ = conn.respond(res);
+    sampleResource (endpoint conn, http:Request req) {
+        http:Response res = {};
+        string|null header;
+        header = req.getHeader("forwarded");
+        match header {
+            string headerVal => {
+                res.setStringPayload("forwarded header value : " + headerVal);
+            }
+            any | null => {
+                res.setStringPayload("forwarded header value not found");
+            }
+        }
+         _ = conn -> respond(res);
     }
 }

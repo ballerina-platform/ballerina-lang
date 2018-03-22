@@ -34,6 +34,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
  */
 public class UriTemplateDefaultDispatcherTest {
 
+    private static final String TEST_EP = "testEP";
     private CompileResult application;
 
     @BeforeClass()
@@ -44,9 +45,9 @@ public class UriTemplateDefaultDispatcherTest {
 
     @Test(description = "Test dispatching with Service name when basePath is not defined and resource path empty")
     public void testServiceNameDispatchingWhenBasePathUndefined() {
-        String path = "/serviceName";
+        String path = "/serviceName/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -54,11 +55,11 @@ public class UriTemplateDefaultDispatcherTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test dispatching with Service name when basePath is empty and resource annotation unavailable")
+    @Test(description = "Test dispatching when resource annotation unavailable")
     public void testServiceNameDispatchingWithEmptyBasePath() {
         String path = "/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -70,7 +71,7 @@ public class UriTemplateDefaultDispatcherTest {
     public void testServiceNameDispatchingWhenAnnotationUnavailable() {
         String path = "/serviceWithNoAnnotation/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -82,7 +83,7 @@ public class UriTemplateDefaultDispatcherTest {
     public void testPureProxyService() {
         String path = "/";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -92,9 +93,9 @@ public class UriTemplateDefaultDispatcherTest {
 
     @Test(description = "Test dispatching with default resource")
     public void testDispatchingToDefault() {
-        String path = "/hello";
+        String path = "/serviceEmptyName/hello";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());

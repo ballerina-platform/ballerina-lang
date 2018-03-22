@@ -116,9 +116,21 @@ class TransformerNodeManager {
      */
     createStatementEdge(connection) {
         const { source, target } = connection;
+        let sourceType = source.type;
+        let targetType = target.type;
         let sourceExpression;
         let targetExpression;
-        const compatibility = this.getCompatibility(source.type, target.type);
+        let compatibility;
+        if (source.typeName && target.typeName) {
+            sourceType = source.typeName;
+            targetType = target.typeName;
+            compatibility = {
+                safe: false,
+                type: 'conversion',
+            };
+        } else {
+            compatibility = this.getCompatibility(sourceType, targetType);
+        }
 
         if (!compatibility) {
             return;
@@ -126,16 +138,16 @@ class TransformerNodeManager {
 
         // create source and target expressions
         if (source.endpointKind === 'input') {
-            sourceExpression = this.getVertexExpression(source.name, source.type);
+            sourceExpression = this.getVertexExpression(source.name, sourceType);
         }
         if (target.endpointKind === 'output') {
-            targetExpression = this.getVertexExpression(target.name, target.type);
+            targetExpression = this.getVertexExpression(target.name, targetType);
         }
 
         // create or modify statements as per the connection.
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             // Connection is from source variable to a target variable.
-            this._mapper.createInputToOutputMapping(sourceExpression, targetExpression, target.type, compatibility);
+            this._mapper.createInputToOutputMapping(sourceExpression, targetExpression, targetType, compatibility);
             return;
         }
 
@@ -233,7 +245,7 @@ class TransformerNodeManager {
     getFunctionVertices(functionInvocationExpression) {
         let fullPackageName = functionInvocationExpression.getFullPackageName();
         let type = 'function';
-
+        let status = true;
         if (!fullPackageName) {
             // TODO: Fix obtaining the full package name for bound functions
             // package name should be found through the receiver in bound functions
@@ -245,7 +257,7 @@ class TransformerNodeManager {
 
         if (!funPackage) {
             log.error('Cannot find package definition for ' + fullPackageName);
-            return;
+            status = false;
         }
 
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
@@ -284,7 +296,7 @@ class TransformerNodeManager {
                 funcInv: functionInvocationExpression }];
         } else if (!funcDef) {
             log.error('Cannot find function definition for ' + functionInvocationExpression.getFunctionName());
-            return;
+            status = false;
         } else {
             if (funcDef.getReceiverType()) {
                 receiver = {
@@ -324,12 +336,17 @@ class TransformerNodeManager {
                 returnParams.push(paramObj);
             });
         }
-        return {
-            type,
-            parameters,
-            returnParams,
-            receiver,
-        };
+
+        if (status) {
+            return {
+                type,
+                parameters,
+                returnParams,
+                receiver,
+            };
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -384,6 +401,53 @@ class TransformerNodeManager {
             operator: operatorExpression,
             index: 0,
         });
+
+        return {
+            parameters,
+            returnParams,
+        };
+    }
+
+    /**
+     * Get conversion input and output vertices
+     * @param {any} conversionExpression conversion expression
+     * @returns vertices
+     * @memberof TransformerNodeManager
+     */
+    getConversionVertices(conversionExpression) {
+        const parameters = [];
+        const returnParams = [];
+
+        const transformerDef = this._transformStmt.parent.getTopLevelNodes().filter((node) => {
+            return TreeUtil.isTransformer(node)
+            && conversionExpression.transformerInvocation.getName().getValue() === node.getName().getValue();
+        });
+
+        if (transformerDef.length > 0) {
+            parameters.push({
+                name: conversionExpression.getID() + ':0',
+                displayName: transformerDef[0].source.getName().getValue(),
+                type: transformerDef[0].source.getTypeNode().getTypeName().getValue(),
+                index: -1,
+            });
+            transformerDef[0].parameters.forEach((param, index) => {
+                parameters.push({
+                    name: conversionExpression.getID() + ':' + (index + 1),
+                    displayName: param.getName().getValue(),
+                    type: param.getTypeNode().typeKind,
+                    index,
+                    funcInv: conversionExpression.transformerInvocation,
+                });
+            });
+            transformerDef[0].returnParameters.forEach((param) => {
+                returnParams.push({
+                    name: conversionExpression.getID() + ':0:return',
+                    displayName: param.getName().getValue(),
+                    type: param.getTypeNode().getTypeName().getValue(),
+                    index: 0,
+                });
+            });
+        }
 
         return {
             parameters,
@@ -584,6 +648,30 @@ class TransformerNodeManager {
      */
     addIterableOperator(connection, type, isLamda) {
         this._mapper.addIterableOperator(connection, type, isLamda);
+    }
+
+    /**
+     * Checks given expression is a transformer conversion
+     * @param {Expression} nodeExpression expression needs to be checked
+     * @returns {boolean} is a transformer conversion
+     */
+    isTransformerConversion(nodeExpression) {
+        return TreeUtil.isTypeConversionExpr(nodeExpression) && nodeExpression.transformerInvocation;
+    }
+
+    /**
+     * Provide compatible transformers list for given source target types
+     * @param {string} sourceType conversion source type
+     * @param {string} targetType conversion target type
+     * @returns {[Object]} compatible transformers list
+     */
+    getCompatibleTransformers(sourceType, targetType) {
+        return this._transformStmt.parent.getTopLevelNodes()
+            .filter((node) => {
+                return TreeUtil.isTransformer(node)
+                        && node.getSource().getTypeNode().getTypeName().getValue() === sourceType
+                        && node.getReturnParameters()[0].getTypeNode().getTypeName().getValue() === targetType;
+            });
     }
  }
 

@@ -1,4 +1,4 @@
-function testOverloading(string a) (string) {
+function testOverloading(string a) returns (string) {
     return a;
 }
 

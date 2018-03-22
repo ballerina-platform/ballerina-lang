@@ -54,5 +54,5 @@ public enum Flag {
     /**
      * Indicates Flagged node is deprecated.
      */
-    DEPRECATED
+    DEPRECATED,
 }

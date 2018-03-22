@@ -18,10 +18,11 @@
 package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina", packageName = "time",
         functionName = "Time.getDate",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.time")},
@@ -44,9 +45,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetDate extends AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return getBValues(new BInteger(getYear(timeStruct)), new BInteger(getMonth(timeStruct)),
-                new BInteger(getDay(timeStruct)));
+    public void execute(Context context) {
+        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        BRefValueArray date = new BRefValueArray(BTypes.typeInt);
+        date.add(0, new BInteger(getYear(timeStruct)));
+        date.add(1, new BInteger(getMonth(timeStruct)));
+        date.add(2, new BInteger(getDay(timeStruct)));
+        context.setReturnValues(date);
     }
 }

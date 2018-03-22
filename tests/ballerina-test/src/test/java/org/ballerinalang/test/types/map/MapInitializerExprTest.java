@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -39,18 +38,10 @@ import org.testng.annotations.Test;
 public class MapInitializerExprTest {
 
     private CompileResult compileResult;
-    private CompileResult negativeResult;
 
     @BeforeTest
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/map/map-initializer-expr.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/map/map-literal-negative.bal");
-    }
-
-    @Test
-    public void testMapWithUnsupportedKey() {
-        // testMapWithUnsupportedKey
-        BAssertUtil.validateError(negativeResult, 0, "missing token ':' before '('", 2, 18);
     }
 
     @Test(description = "Test map initializer expression")
@@ -151,6 +142,25 @@ public class MapInitializerExprTest {
     @Test
     public void testMapInitWithStringTemplateAsKey() {
         CompileResult result = BCompileUtil.compile("test-src/types/map/map-initializer-with-string-template.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input 'string `'. expecting '}'", 3, 14);
+        BValue[] returns = BRunUtil.invoke(result, "testMapInitWithStringTemplateAsKey");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BString> mapValue = (BMap<String, BString>) returns[0];
+        Assert.assertEquals(mapValue.get("firstname").stringValue(), "John");
+    }
+
+    @Test(description = "Test map initializer expression")
+    public void mapInitWithIdentifiersTest() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "mapInitWithIdentifiersTest", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+
+        BMap<String, BString> mapValue = (BMap<String, BString>) returns[0];
+        Assert.assertEquals(mapValue.size(), 3);
+
+        Assert.assertEquals(mapValue.get("a").stringValue(), "Lion");
+        Assert.assertEquals(mapValue.get("key1").stringValue(), "Cat");
+        Assert.assertEquals(mapValue.get("key2").stringValue(), "Dog");
     }
 }

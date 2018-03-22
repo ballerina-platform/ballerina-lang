@@ -14,19 +14,21 @@ Now that you know [a little bit about Ballerina](index.md), let's take it for a 
 
 The HelloWorld sample will show you how easy it is to run Ballerina, send it a request, and get a response. 
 
-Let's take a look at what the sample looks like in the Ballerina programming language:
+Let's take a look at what the code looks like in the Ballerina programming language:
 
 ```
+import ballerina.io;
 function main (string[] args) {
-  println("Hello, World!");
+    io:println("Hello, World!");
+}
 ``` 
 
-The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
+The above code doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line. To run this, copy the above code into a hello-world.bal file.
 
-At the command prompt, navigate to the `<ballerina_home>/samples/helloWorld` directory and enter the following line:
+At the command prompt, navigate to the directory that contains the hello-world.bal file and enter the following line:
 
-```bash
-ballerina run helloworld.bal
+```
+$ ballerina run hello-world.bal
 ```
 
 You will see the following response:
@@ -35,7 +37,7 @@ You will see the following response:
 Hello, World!
 ```
 
-You just started Ballerina, ran the HelloWorld sample, and got a response within seconds. 
+You just started Ballerina, ran a simple code, and got a response within seconds. 
 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 

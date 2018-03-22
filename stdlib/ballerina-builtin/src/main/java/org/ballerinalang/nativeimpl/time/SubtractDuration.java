@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.time;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -31,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina", packageName = "time",
         functionName = "Time.subtractDuration",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.time"),
@@ -49,17 +48,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class SubtractDuration extends AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        long years = getIntArgument(context, 0);
-        long months = getIntArgument(context, 1);
-        long dates = getIntArgument(context, 2);
-        long hours = getIntArgument(context, 3);
-        long minutes = getIntArgument(context, 4);
-        long seconds = getIntArgument(context, 5);
-        long milliSeconds = getIntArgument(context, 6);
-        return new BValue[] {
-                subtractDuration(context, timeStruct, years, months, dates, hours, minutes, seconds, milliSeconds)
-        };
+    public void execute(Context context) {
+        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        long years = context.getIntArgument(0);
+        long months = context.getIntArgument(1);
+        long dates = context.getIntArgument(2);
+        long hours = context.getIntArgument(3);
+        long minutes = context.getIntArgument(4);
+        long seconds = context.getIntArgument(5);
+        long milliSeconds = context.getIntArgument(6);
+        context.setReturnValues(
+                subtractDuration(context, timeStruct, years, months, dates, hours, minutes, seconds, milliSeconds));
     }
 }
