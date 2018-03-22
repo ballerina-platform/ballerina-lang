@@ -80,4 +80,6 @@ function<InitiatorClient client> register (string transactionId,
             }
         }
     }
+    error err = {message: "Invalid execution path in register request"};
+    throw err;
 }
