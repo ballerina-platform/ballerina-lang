@@ -883,8 +883,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue);
-                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr),
-                        getRegIndex(TypeTags.STRUCT));
+                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr));
             }
         }
 
