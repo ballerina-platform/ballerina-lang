@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.workspace.repository;
 
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 
@@ -25,12 +26,12 @@ import java.nio.file.Path;
 /**
  * Language Server Source Repo.
  */
-public class LSProjectSourceRepo extends ProjectSourceRepo {
-    public LSProjectSourceRepo(PathConverter converter) {
+class LSProjectSourceRepo extends ProjectSourceRepo {
+    private LSProjectSourceRepo(PathConverter converter) {
         super(converter);
     }
 
-    public LSProjectSourceRepo(Path projectRoot) {
-        this(new LSPathConverter(projectRoot));
+    LSProjectSourceRepo(Path projectRoot, WorkspaceDocumentManager documentManager) {
+        this(new LSPathConverter(projectRoot, documentManager));
     }
 }

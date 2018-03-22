@@ -40,6 +40,7 @@ import java.util.Map;
 public class BLangVMErrors {
 
     private static final String MSG_CALL_FAILED = "call failed";
+    private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String PACKAGE_BUILTIN = "ballerina.builtin";
     private static final String PACKAGE_RUNTIME = "ballerina.runtime";
     public static final String STRUCT_GENERIC_ERROR = "error";
@@ -47,6 +48,7 @@ public class BLangVMErrors {
     private static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     public static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
     private static final String STRUCT_CALL_FAILED_EXCEPTION = "CallFailedException";
+    public static final String TRANSACTION_ERROR = "TransactionError";
 
     /**
      * Create error Struct from given error message.
@@ -148,6 +150,13 @@ public class BLangVMErrors {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
         return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, createErrorCauseArray(errors));
+    }
+    
+    public static BStruct createCallCancelledException(CallableUnitInfo callableUnitInfo) {
+        PackageInfo errorPackageInfo = callableUnitInfo.getPackageInfo().getProgramFile().getPackageInfo(
+                PACKAGE_RUNTIME);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
+        return generateError(callableUnitInfo, true, errorStructInfo, MSG_CALL_CANCELLED);
     }
 
     public static BStruct createIllegalStateException(Context context, String msg) {
@@ -312,7 +321,7 @@ public class BLangVMErrors {
         sb.append(")");
 
         BRefValueArray cause = (BRefValueArray) error.getRefField(0);
-        if (cause != null) {
+        if (cause != null && cause.size() > 0) {
             sb.append("\ncaused by ").append(getCauseStackTraceArray(cause));
         }
 
