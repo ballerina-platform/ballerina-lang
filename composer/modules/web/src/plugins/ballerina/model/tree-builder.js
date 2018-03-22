@@ -153,6 +153,7 @@ class TreeBuilder {
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
             node.parameters[0].serviceEndpoint = true;
+            node.parameters[0].name.setValue(node.parameters[0].name.getValue().replace('$', ''));
         }
 
         // Add the positions for the join and timeout bodies.

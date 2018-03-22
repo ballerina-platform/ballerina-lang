@@ -234,7 +234,7 @@ public interface InstructionCodes {
     int AWAIT = 193;
 
     int IS_ASSIGNABLE = 196;
-
+    int CHECK_CONVERSION = 197;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
