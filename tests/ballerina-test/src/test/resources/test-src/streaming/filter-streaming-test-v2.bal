@@ -35,9 +35,9 @@ Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 stream<Employee> employeeStream = {};
 
-function testFilterQuery (stream<Teacher> teacherStream1) {
+function testFilterQuery (stream<Teacher> teacherStream6) {
     whenever{
-        from teacherStream1
+        from teacherStream6
         where age > 30
         select name, age, status
         => (Employee [] emp) {
@@ -48,8 +48,8 @@ function testFilterQuery (stream<Teacher> teacherStream1) {
 
 function startFilterQuery( ) returns (Employee []) {
 
-    stream<Teacher> teacherStream1 = {};
-    testFilterQuery(teacherStream1);
+    stream<Teacher> teacherStream6 = {};
+    testFilterQuery(teacherStream6);
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
@@ -57,9 +57,9 @@ function startFilterQuery( ) returns (Employee []) {
 
     employeeStream.subscribe(printEmployeeNumber);
 
-    teacherStream1.publish(t1);
-    teacherStream1.publish(t2);
-    teacherStream1.publish(t3);
+    teacherStream6.publish(t1);
+    teacherStream6.publish(t2);
+    teacherStream6.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
     return globalEmployeeArray;
