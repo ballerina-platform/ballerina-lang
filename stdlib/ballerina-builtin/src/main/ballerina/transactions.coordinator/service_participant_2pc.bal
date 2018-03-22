@@ -53,7 +53,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             res.statusCode = 404;
             prepareRes.message = "Transaction-Unknown";
         } else {
-            var txn =? (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+            var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
             if (txn.state == TransactionState.ABORTED) {
                 res.statusCode = 200;
                 prepareRes.message = "aborted";
@@ -110,7 +110,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             res.statusCode = 404;
             notifyRes.message = "Transaction-Unknown";
         } else {
-            var txn =? (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+            var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
             if (notifyReq.message == "commit") {
                 if (txn.state != TransactionState.PREPARED) {
                     res.statusCode = 400;
