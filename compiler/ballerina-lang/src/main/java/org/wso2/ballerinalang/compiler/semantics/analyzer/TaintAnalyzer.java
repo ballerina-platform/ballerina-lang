@@ -1384,7 +1384,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // Analyzing a function that does not have any return statement and instead have a throw statement.
                 boolean observedReturnTaintedStatus = false;
                 if (returnTaintedStatusList.size() > paramIndex) {
-                    returnTaintedStatusList.get(paramIndex);
+                    observedReturnTaintedStatus = returnTaintedStatusList.get(paramIndex);
                 }
                 if (observedReturnTaintedStatus) {
                     // If return is tainted, but return is marked as untainted, overwrite the value.
