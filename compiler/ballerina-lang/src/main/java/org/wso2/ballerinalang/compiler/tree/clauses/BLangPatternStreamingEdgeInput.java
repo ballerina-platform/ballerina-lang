@@ -32,7 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangPatternStreamingEdgeInput extends BLangNode implements PatternStreamingEdgeInputNode {
 
-    private String identifierName;
+    private ExpressionNode streamRef;
 
     private String alias;
 
@@ -51,8 +51,8 @@ public class BLangPatternStreamingEdgeInput extends BLangNode implements Pattern
     }
 
     @Override
-    public void setIdentifier(String identifier) {
-        this.identifierName = identifier;
+    public void setStreamReference(ExpressionNode ref) {
+        this.streamRef = ref;
     }
 
     @Override
@@ -66,8 +66,8 @@ public class BLangPatternStreamingEdgeInput extends BLangNode implements Pattern
     }
 
     @Override
-    public String getIdentifier() {
-        return identifierName;
+    public ExpressionNode getStreamReference() {
+        return streamRef;
     }
 
     @Override

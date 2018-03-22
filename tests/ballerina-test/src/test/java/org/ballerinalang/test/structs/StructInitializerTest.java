@@ -35,7 +35,7 @@ public class StructInitializerTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/struct-initializer.bal");
+        compileResult = BCompileUtil.compile(this, "test-src/structs", "init");
     }
 
     @Test(description = "Test struct initializers that are in the same package")
@@ -64,14 +64,14 @@ public class StructInitializerTest {
 
     @Test(description = "Test negative structs initializers scenarios")
     public void testInvalidStructLiteralKey() {
-        CompileResult result = BCompileUtil.compile("test-src/structs/struct-initializer-negative.bal");
+        CompileResult result = BCompileUtil.compile(this, "test-src/structs", "init.negative");
 
         Assert.assertEquals(2, result.getErrorCount());
         BAssertUtil.validateError(result, 0,
-                "explicit invocation of 'person' struct initializer is not allowed",
-                22, 5);
+                "explicit invocation of 'init.negative:person' struct initializer is not allowed",
+                23, 5);
         BAssertUtil.validateError(result, 1,
-                "attempt to create a struct with a non-public initializer ", 26, 21);
+                "attempt to create a struct with a non-public initializer ", 27, 21);
 
     }
 }

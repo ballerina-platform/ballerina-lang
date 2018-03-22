@@ -1336,6 +1336,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAbortStatement(BallerinaParser.AbortStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterFailStatement(BallerinaParser.FailStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitFailStatement(BallerinaParser.FailStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#retriesStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -2050,45 +2060,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAggregationQuery(BallerinaParser.AggregationQueryContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamletDefinition}.
+	 * Enter a parse tree produced by {@link BallerinaParser#wheneverStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterStreamletDefinition(BallerinaParser.StreamletDefinitionContext ctx);
+	void enterWheneverStatement(BallerinaParser.WheneverStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamletDefinition}.
+	 * Exit a parse tree produced by {@link BallerinaParser#wheneverStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitStreamletDefinition(BallerinaParser.StreamletDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamletBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamletBody(BallerinaParser.StreamletBodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamletBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamletBody(BallerinaParser.StreamletBodyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#streamingQueryDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#streamingQueryDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#queryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterQueryStatement(BallerinaParser.QueryStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#queryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitQueryStatement(BallerinaParser.QueryStatementContext ctx);
+	void exitWheneverStatement(BallerinaParser.WheneverStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#streamingQueryStatement}.
 	 * @param ctx the parse tree
@@ -2230,15 +2210,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#outputRate}.
+	 * Enter a parse tree produced by {@link BallerinaParser#outputRateLimit}.
 	 * @param ctx the parse tree
 	 */
-	void enterOutputRate(BallerinaParser.OutputRateContext ctx);
+	void enterOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#outputRate}.
+	 * Exit a parse tree produced by {@link BallerinaParser#outputRateLimit}.
 	 * @param ctx the parse tree
 	 */
-	void exitOutputRate(BallerinaParser.OutputRateContext ctx);
+	void exitOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#patternStreamingInput}.
 	 * @param ctx the parse tree
@@ -2310,15 +2290,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitJoinType(BallerinaParser.JoinTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#outputRateType}.
+	 * Enter a parse tree produced by {@link BallerinaParser#timeScale}.
 	 * @param ctx the parse tree
 	 */
-	void enterOutputRateType(BallerinaParser.OutputRateTypeContext ctx);
+	void enterTimeScale(BallerinaParser.TimeScaleContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#outputRateType}.
+	 * Exit a parse tree produced by {@link BallerinaParser#timeScale}.
 	 * @param ctx the parse tree
 	 */
-	void exitOutputRateType(BallerinaParser.OutputRateTypeContext ctx);
+	void exitTimeScale(BallerinaParser.TimeScaleContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedAttachment}.
 	 * @param ctx the parse tree

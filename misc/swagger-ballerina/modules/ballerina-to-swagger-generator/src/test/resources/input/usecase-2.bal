@@ -1,8 +1,10 @@
 import ballerina/net.http;
 
-service<http> Service1 {
+service<http:Service> Service1 {
 
-    resource Resource1 (message m) {
-        reply m;
+    sayHello (endpoint outboundEP, http:Request request) {
+        http:Response response = {};
+        response.setStringPayload("Hello World!!!");
+        _ = outboundEP -> respond(response);
     }
 }

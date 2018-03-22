@@ -3,6 +3,10 @@ struct Department {
     boolean y;
 }
 
+struct person {
+    string a;
+}
+
 function testInvalidFieldNameInit () {
     string name;
     Department dpt = {dptName[0]:54};

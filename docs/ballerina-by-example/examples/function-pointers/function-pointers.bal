@@ -1,9 +1,9 @@
 import ballerina/io;
 
-function test (int x, string s) returns (float f) {
-    var y, _ = <int>s;
-    f = x * 1.0 * y;
-    return;
+function test (int x, string s) returns (float) {
+    int y =? <int>s;
+    float f = x * 1.0 * y;
+    return f;
 }
 
 @Description {value:"Function pointer as a parameter."}
@@ -13,9 +13,8 @@ function foo (int x, function (int, string) returns (float) bar)
 }
 
 @Description {value:"Function pointer as a return type."}
-function getIt () (function (int, string) returns (float) f) {
-    f = test;
-    return;
+function getIt () returns (function (int, string) returns (float)) {
+    return test;
 }
 
 function main (string[] args) {
