@@ -15,18 +15,34 @@ function main (string[] args) {
 
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0.
-    int ret =? testDB -> update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
+    var ret = testDB -> update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))", null);
-    io:println("Table creation status:" + ret);
+    match ret {
+        int status => {
+            io:println("Table creation status:" + status);
+        }
+        sql:SQLConnectorError err => {
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
+        }
+    }
 
     //Create a stored procedure using update action.
-    ret =? testDB -> update("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
+    ret = testDB -> update("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
                          INOUT pInt INT)
                          BEGIN SELECT COUNT(*) INTO pCount FROM STUDENT
                               WHERE AGE = pAge; SELECT COUNT(*) INTO pInt FROM
                               STUDENT WHERE ID = pInt;
                          END", null);
-    io:println("Stored proc creation status:" + ret);
+    match ret {
+        int status => {
+            io:println("Stored proc creation status:" + status);
+        }
+        sql:SQLConnectorError err => {
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
+        }
+    }
 
     //Insert data using update action. If the DML statement execution
     //is success update action returns the updated row count.
@@ -34,8 +50,16 @@ function main (string[] args) {
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:8};
     sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Sam"};
     params = [para1, para2];
-    ret =? testDB -> update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", params);
-    io:println("Inserted row count:" + ret);
+    ret = testDB -> update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", params);
+    match ret {
+        int rows => {
+            io:println("Inserted row count:" + rows);
+        }
+        sql:SQLConnectorError err => {
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
+        }
+    }
 
     //Column values generated during the update can be retrieved via
     //updateWithGeneratedKeys action. If the table has several auto
@@ -108,12 +132,28 @@ function main (string[] args) {
         }
     }
     //Drop the STUDENT table.
-    ret =? testDB -> update("DROP TABLE STUDENT", null);
-    io:println("Table drop status:" + ret);
+    ret = testDB -> update("DROP TABLE STUDENT", null);
+    match ret {
+        int status => {
+            io:println("Table drop status:" + status);
+        }
+        sql:SQLConnectorError err => {
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
+        }
+    }
 
     //Drop the GETCOUNT procedure.
-    ret =? testDB -> update("DROP PROCEDURE GETCOUNT", null);
-    io:println("Procedure drop status:" + ret);
+    ret = testDB -> update("DROP PROCEDURE GETCOUNT", null);
+    match ret {
+        int status => {
+            io:println("Procedure drop status:" + status);
+        }
+        sql:SQLConnectorError err => {
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
+        }
+    }
 
     //Finally close the connection pool.
     _ = testDB -> close();
