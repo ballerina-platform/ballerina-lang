@@ -61,7 +61,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/mixed; boundary=" + multipartDataBoundary));
+                "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
@@ -88,7 +88,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/form-data; boundary=" + multipartDataBoundary));
+                "multipart/form-data; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -117,7 +117,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/new-sub-type; boundary=" + multipartDataBoundary));
+                "multipart/new-sub-type; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
@@ -146,7 +146,7 @@ public class MultipartDecoderTest {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                               "multipart/mixed; boundary=" + multipartDataBoundary));
+                "multipart/mixed; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
 
