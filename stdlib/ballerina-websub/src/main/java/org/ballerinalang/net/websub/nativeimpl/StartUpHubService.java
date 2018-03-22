@@ -32,7 +32,7 @@ import org.ballerinalang.net.websub.hub.Hub;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.websub",
+        orgName = "ballerina", packageName = "net.websub",
         functionName = "startUpHubService",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

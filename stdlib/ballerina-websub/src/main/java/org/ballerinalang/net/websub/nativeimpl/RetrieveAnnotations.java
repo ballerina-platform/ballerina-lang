@@ -34,7 +34,7 @@ import org.ballerinalang.util.codegen.ResourceInfo;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.websub",
+        orgName = "ballerina", packageName = "net.websub",
         functionName = "retrieveAnnotations",
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "SubscriberServiceConfiguration",
                 structPackage = "ballerina.net.websub")}

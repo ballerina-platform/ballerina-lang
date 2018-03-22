@@ -1,6 +1,6 @@
-import ballerina.lang.messages;
-import ballerina.lang.system;
-import ballerina.net.jms;
+import ballerina/lang.messages;
+import ballerina/lang.system;
+import ballerina/net.jms;
 
 @jms:configuration {
     initialContextFactory:"org.apache.activemq.jndi.ActiveMQInitialContextFactory",

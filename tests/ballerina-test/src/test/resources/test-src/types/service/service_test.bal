@@ -1,14 +1,14 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-function testServiceType () returns (type) {
-    type ts = typeof HelloWorld;
+function testServiceType () returns (typedesc) {
+    typedesc ts = typeof HelloWorld;
     return ts;
 }
 
 service<http:Service> HelloWorld {
-    resource hello (http:ServerConnector conn, http:Request req) {
+    hello (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello, World!");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }

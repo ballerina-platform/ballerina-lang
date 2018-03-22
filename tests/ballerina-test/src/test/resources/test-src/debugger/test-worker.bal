@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 function main(string[] args) {
     simpleWorkers();
     io:println("worker run finished");
@@ -26,7 +26,7 @@ function simpleWorkers() {
     }
 }
 
-function calculateExp1(int x, int y) (int) {
+function calculateExp1(int x, int y) returns (int) {
     int z;
     while(x >= y) {
         y = y + 1;
@@ -39,7 +39,7 @@ function calculateExp1(int x, int y) (int) {
     return z;
 }
 
-function calculateExp3(int x, int y) (int) {
+function calculateExp3(int x, int y) returns (int) {
     int z;
     while(x >= y) {
         y = y + 1;

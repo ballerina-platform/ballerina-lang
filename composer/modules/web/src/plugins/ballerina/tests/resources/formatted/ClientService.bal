@@ -1,7 +1,7 @@
 package sample.websocket.client;
 
-import ballerina.lang.system;
-import ballerina.net.ws;
+import ballerina/lang.system;
+import ballerina/net.ws;
 
 @ws:clientService {}
 service<ws> ClientService {
