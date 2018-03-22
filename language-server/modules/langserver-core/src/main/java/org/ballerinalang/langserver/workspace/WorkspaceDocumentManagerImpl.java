@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.workspace;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -33,6 +34,21 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceDocumentManagerImpl.class);
 
     private Map<Path, WorkspaceDocument> documentList = new HashMap<>();
+    
+    private Map<Path, BLangPackage> documentAstList = new HashMap<>();
+
+    private static WorkspaceDocumentManagerImpl instance = null;
+
+    private WorkspaceDocumentManagerImpl() {
+    }
+    
+    public static WorkspaceDocumentManagerImpl getInstance() {
+        if (instance == null) {
+            instance = new WorkspaceDocumentManagerImpl();
+        }
+
+        return instance;
+    }
 
     @Override
     public boolean isFileOpen(Path filePath) {
@@ -61,6 +77,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     public void closeFile(Path filePath) {
         if (isFileOpen(filePath)) {
             documentList.remove(filePath);
+            documentAstList.remove(filePath);
         } else {
             logger.error("File " + filePath.toString() + " is not opened in document manager.");
         }
@@ -69,5 +86,15 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public String getFileContent(Path filePath) {
         return isFileOpen(filePath) ? documentList.get(filePath).getContent() : null;
+    }
+
+    @Override
+    public BLangPackage getDocumentAst(Path path) {
+        return documentAstList.get(path);
+    }
+
+    @Override
+    public void setDocumentAst(Path path, BLangPackage bLangPackage) {
+        this.documentAstList.put(path, bLangPackage);
     }
 }

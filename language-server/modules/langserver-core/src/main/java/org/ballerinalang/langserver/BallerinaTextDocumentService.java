@@ -466,10 +466,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         if ("".equals(pkgName)) {
             Path filePath = path.getFileName();
             if (filePath != null) {
-                compiler.compile(filePath.toString());
+                documentManager.setDocumentAst(path, compiler.compile(filePath.toString()));
             }
         } else {
-            compiler.compile(pkgName);
+            documentManager.setDocumentAst(path, compiler.compile(pkgName));
         }
 
         publishDiagnostics(balDiagnostics, path);

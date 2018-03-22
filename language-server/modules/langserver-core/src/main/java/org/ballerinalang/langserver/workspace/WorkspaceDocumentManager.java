@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.workspace;
 
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+
 import java.nio.file.Path;
 
 /**
@@ -63,4 +65,18 @@ public interface WorkspaceDocumentManager {
      * @return Content of the file
      */
     String getFileContent(Path filePath);
+
+    /**
+     * Get the document ast from the path.
+     * @param path                      Path of the file
+     * @return {@link BLangPackage}     Document Package
+     */
+    BLangPackage getDocumentAst(Path path);
+
+    /**
+     * Set the document ast for the given path.
+     * @param path              Path of the document
+     * @param bLangPackage      BLang package for document
+     */
+    void setDocumentAst(Path path, BLangPackage bLangPackage);
 }
