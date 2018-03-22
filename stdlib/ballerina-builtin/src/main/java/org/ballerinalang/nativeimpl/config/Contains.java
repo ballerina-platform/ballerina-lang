@@ -15,7 +15,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.config",
+        orgName = "ballerina", packageName = "config",
         functionName = "contains",
         args = {@Argument(name = "configKey", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},

@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.966.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.config",
+        orgName = "ballerina", packageName = "config",
         functionName = "setConfig",
         args = {@Argument(name = "configKey", type = TypeKind.STRING),
                 @Argument(name = "configValue", type = TypeKind.STRING)},

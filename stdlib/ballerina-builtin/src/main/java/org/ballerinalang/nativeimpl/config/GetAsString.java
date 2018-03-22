@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.966.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.config",
+        orgName = "ballerina", packageName = "config",
         functionName = "getAsString",
         args = {@Argument(name = "configkey", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
@@ -48,6 +48,6 @@ public class GetAsString extends BlockingNativeCallableUnit {
         String configKey = context.getStringArgument(0);
         // TODO: Change the signature of getAsString() once default params are available
         String globalValue = configRegistry.getConfigOrDefault(configKey, null);
-        context.setReturnValues(new BString(globalValue));
+        context.setReturnValues(globalValue != null ? new BString(globalValue) : null);
     }
 }
