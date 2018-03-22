@@ -1621,6 +1621,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (iExpr.async) {
             flags = FunctionFlags.markAsync(flags);
         }
+        if (iExpr.actionInvocation) {
+            flags = FunctionFlags.markObserved(flags);
+        }
         operands[i++] = getOperand(flags);
         operands[i++] = getOperand(nArgRegs);
 

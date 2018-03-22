@@ -75,7 +75,7 @@ public class TraceManagerWrapper {
 
     public void startSpan(WorkerExecutionContext ctx) {
         Tracer aBTracer = TraceUtil.getTracer(ctx);
-        Tracer rBTracer = TraceUtil.getParentTracer(ctx);
+        Tracer rBTracer = TraceUtil.getParentTracer(ctx.parent);
         addToRegistry(aBTracer);
 
         String service = aBTracer.getConnectorName();

@@ -175,6 +175,10 @@ public class BLangFunctions {
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse,
             int flags) {
+        if (FunctionFlags.isObserved(flags)) {
+            BLangVMUtils.initClientConnectorTrace(parentCtx, callableUnitInfo.attachedToType.toString(),
+                    callableUnitInfo.getName());
+        }
         BLangScheduler.switchToWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {

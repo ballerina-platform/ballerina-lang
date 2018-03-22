@@ -2660,10 +2660,6 @@ public class CPU {
         StructInfo structInfo = structVal.getType().structInfo;
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
-
-        //TODO: find a way to only trace connectors
-        // BLangVMUtils.initClientConnectorTrace(ctx, concreteFuncInfo.attachedToType.toString(),
-        //          concreteFuncInfo.getName());
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
     }
 
@@ -2679,10 +2675,6 @@ public class CPU {
         BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-
-        //TODO: find a way to only trace connectors
-        // BLangVMUtils.initClientConnectorTrace(ctx, actualCon, actionName);
-
         return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, flags);
     }
 
