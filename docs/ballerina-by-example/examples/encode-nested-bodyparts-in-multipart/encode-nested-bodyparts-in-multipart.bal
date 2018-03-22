@@ -51,7 +51,14 @@ service<http:Service> test bind mockEP {
 
         http:Response resp1 = {};
         var returnResponse = clientEP -> post("/nestedparts/decoder", request);
-
-        _ = conn -> forward(resp1);
+        match returnResponse {
+            http:HttpConnectorError err => {
+                io:println(err);
+                http:Response resp1 ={};
+                resp1.setStringPayload("Error response");
+                _ = conn -> respond(resp1);
+            }
+            http:Response resp1 =>  _ = conn -> forward(resp1);
+        }
     }
 }

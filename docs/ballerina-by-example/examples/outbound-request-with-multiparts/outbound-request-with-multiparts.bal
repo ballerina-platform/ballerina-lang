@@ -53,9 +53,16 @@ service<http:Service> test bind mockEP {
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
 
         http:Response resp1 = {};
-        resp1, _ = clientEP -> post("/multiparts/decode_in_request", request);
-
-        _ = conn -> forward(resp1);
+            var returnResponse = clientEP -> post("/multiparts/decode_in_request", request);
+            match returnResponse {
+                http:HttpConnectorError err => {
+                    io:println(err);
+                    http:Response resp1 ={};
+                    resp1.setStringPayload("Error response");
+                    _ = conn -> respond(resp1);
+                }
+                http:Response resp1 =>  _ = conn -> forward(resp1);
+            }
     }
 }
 

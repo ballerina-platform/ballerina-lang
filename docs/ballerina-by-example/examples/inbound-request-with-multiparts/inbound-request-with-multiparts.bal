@@ -15,6 +15,11 @@ service<http:Service> test bind mockEP {
     receiveMultiparts (endpoint conn, http:Request request) {
         http:Response response = {};
         match request.getMultiparts() {
+            mime:EntityError err => {
+                io:println(err);
+                response.setStringPayload("Error!");
+                response.statusCode = 500;
+            }
             mime:Entity[] bodyParts => {
                 int i = 0;
                 io:println("Body Parts Detected!");
@@ -24,9 +29,6 @@ service<http:Service> test bind mockEP {
                     i = i + 1;
                 }
                 response.setStringPayload("Multiparts Received!");
-            }
-            mime:EntityError err => {
-                io:println("Error");
             }
         }
         _ = conn -> respond(response);
@@ -38,15 +40,24 @@ function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
         //Extract xml data from body part and print.
-        var xmlContent =? bodyPart.getXml();
-        io:println(xmlContent);
+        var payload = bodyPart.getXml();
+        match payload {
+            mime:EntityError err => io:println("Error in getting xml payload");
+            xml xmlCotnent => io:println(xmlContent);
+        }
     } else if (mime:APPLICATION_JSON == contentType) {
         //Extract json data from body part and print.
-        var jsonContent =? bodyPart.getJson();
-        io:println(jsonContent);
+        var payload = bodyPart.getJson();
+        match payload {
+            mime:EntityError err => io:println("Error in getting json payload");
+            json jsonContent => io:println(jsonContent);
+        }
     } else if (mime:TEXT_PLAIN == contentType) {
         //Extract text data from body part and print.
-        var textContent =? bodyPart.getText();
-        io:println(textContent);
+        var payload = bodyPart.getText();
+        match payload {
+            mime:EntityError err => io:println("Error in getting string payload");
+            string textContent => io:println(textContent);
+        }
     }
 }
