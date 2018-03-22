@@ -208,39 +208,39 @@ function testTransactionStmtWithRetryOff (int i) returns (string) {
     return a;
 }
 
-function testTransactionStmtWithConstRetryFailed () returns (string) {
-    string a = "start";
-    try {
-        transaction with retries(RETRYCOUNT) {
-            a = a + " inTrx";
-            error err = {message:" err"};
-            throw err;
-        } onretry {
-            a = a + " inFailed";
-        }
-    } catch (error err) {
-        a = a + err.message;
-    }
-    a = a + " end";
-    return a;
-}
+//function testTransactionStmtWithConstRetryFailed () returns (string) {
+//    string a = "start";
+//    try {
+//        transaction with retries(RETRYCOUNT) {
+//            a = a + " inTrx";
+//            error err = {message:" err"};
+//            throw err;
+//        } onretry {
+//            a = a + " inFailed";
+//        }
+//    } catch (error err) {
+//        a = a + err.message;
+//    }
+//    a = a + " end";
+//    return a;
+//}
 
-function testTransactionStmtWithConstRetryFailed2 () returns (string) {
-    string a = "start ";
-    try {
-        transaction with retries(RETRYCOUNT_2) {
-            a = a + " inTrx";
-            error err = {message:" err"};
-            throw err;
-        } onretry {
-            a = a + " inFailed";
-        }
-    } catch (error err) {
-        a = a + err.message;
-    }
-    a = a + " end";
-    return a;
-}
+//function testTransactionStmtWithConstRetryFailed2 () returns (string) {
+//    string a = "start ";
+//    try {
+//        transaction with retries(RETRYCOUNT_2) {
+//            a = a + " inTrx";
+//            error err = {message:" err"};
+//            throw err;
+//        } onretry {
+//            a = a + " inFailed";
+//        }
+//    } catch (error err) {
+//        a = a + err.message;
+//    }
+//    a = a + " end";
+//    return a;
+//}
 
 function testTransactionStmtWithConstRetrySuccess () returns (string) {
     string a = "start";
@@ -279,50 +279,50 @@ function testMultipleTransactionStmtSuccess () returns (string) {
     return a;
 }
 
-function testMultipleTransactionStmtFailed1 () returns (string) {
-    string a = "start";
-    try {
-        transaction with retries(2) {
-            a = a + " inFirstTrxBlock";
-            error err = {message:" err"};
-            throw err;
-        } onretry {
-            a = a + " inFirstTrxFld";
-        }
-        a = a + " inFirstTrxEnd";
-        transaction {
-            a = a + " inSecTrxBlock";
-        }
-        a = a + " inFSecTrxEnd";
-    } catch (error err) {
-        a = a + err.message;
-    }
-    a = a + " end";
-    return a;
-}
+//function testMultipleTransactionStmtFailed1 () returns (string) {
+//    string a = "start";
+//    try {
+//        transaction with retries(2) {
+//            a = a + " inFirstTrxBlock";
+//            error err = {message:" err"};
+//            throw err;
+//        } onretry {
+//            a = a + " inFirstTrxFld";
+//        }
+//        a = a + " inFirstTrxEnd";
+//        transaction {
+//            a = a + " inSecTrxBlock";
+//        }
+//        a = a + " inFSecTrxEnd";
+//    } catch (error err) {
+//        a = a + err.message;
+//    }
+//    a = a + " end";
+//    return a;
+//}
 
-function testMultipleTransactionStmtFailed2 () returns (string) {
-    string a = "start";
-    try {
-        transaction with retries(2) {
-            a = a + " inFirstTrxBlock";
-            error err = {message:" err"};
-            throw err;
-        } onretry {
-            a = a + " inFirstTrxFld";
-        }
-        a = a + " inFirstTrxEnd";
-    } catch (error err) {
-        a = a + err.message;
-    }
-
-    transaction {
-        a = a + " inSecTrxBlock";
-    }
-    a = a + " inFSecTrxEnd";
-    a = a + " end";
-    return a;
-}
+//function testMultipleTransactionStmtFailed2 () returns (string) {
+//    string a = "start";
+//    try {
+//        transaction with retries(2) {
+//            a = a + " inFirstTrxBlock";
+//            error err = {message:" err"};
+//            throw err;
+//        } onretry {
+//            a = a + " inFirstTrxFld";
+//        }
+//        a = a + " inFirstTrxEnd";
+//    } catch (error err) {
+//        a = a + err.message;
+//    }
+//
+//    transaction {
+//        a = a + " inSecTrxBlock";
+//    }
+//    a = a + " inFSecTrxEnd";
+//    a = a + " end";
+//    return a;
+//}
 
 function testAbort () returns (string) {
     string i = "st";
