@@ -71,7 +71,7 @@ public class PullCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        String resourceName = argList.get(0);
+ //       String resourceName = argList.get(0);
 //        NetworkUtils.pullPackages(resourceName, BALLERINA_CENTRAL_REPO_URL);
 
     }
