@@ -37,13 +37,13 @@ function testXAransactonSuccess () returns (int, int) {
     table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 1 ",
                                   null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 1", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -89,13 +89,13 @@ function testXAransactonFailed1 () returns (int, int) {
     table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2", null,
                                   typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -140,13 +140,13 @@ function testXAransactonFailed2 () returns (int, int) {
     int count1;
     int count2;
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -199,13 +199,13 @@ function testXAransactonRetry () returns (int, int) {
     int count2;
 
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 4", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
