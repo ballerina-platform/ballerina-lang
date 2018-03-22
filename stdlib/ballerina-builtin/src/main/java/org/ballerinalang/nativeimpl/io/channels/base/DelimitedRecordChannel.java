@@ -232,6 +232,7 @@ public class DelimitedRecordChannel {
      * </p>
      *
      * @return the list of fields.
+     * @throws IOException during I/O error.
      */
     public String[] read() throws IOException {
         final int emptyArrayIndex = 0;

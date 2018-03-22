@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -32,6 +33,7 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -60,10 +62,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -393,6 +393,13 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             }
         }
 
+        List<VariableSymbol> functionVariables = wheneverStatement.getFunctionVariables();
+        if (functionVariables != null) {
+            for (VariableSymbol variable : functionVariables) {
+                getStreamDefintionForFuntionVariable((BVarSymbol) variable);
+            }
+        }
+
         List<? extends StatementNode> statementNodes = wheneverStatement.gettreamingQueryStatements();
         for (StatementNode statementNode : statementNodes) {
             ((BLangStatement) statementNode).accept(this);
@@ -402,10 +409,24 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangQueryStatement queryStatement) {
-        BLangStreamingQueryStatement streamingQueryStatement = (BLangStreamingQueryStatement) queryStatement.
-                getStreamingQueryStatement();
-        streamingQueryStatement.accept(this);
+    public void visit(BLangVariable varNode) {
+        StringBuilder streamDefinition = new StringBuilder("define stream ");
+        streamDefinition.append(varNode.name).append("( ");
+        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varNode).type).
+                constraint).fields;
+        generateStreamDefinition(structFieldList, streamDefinition);
+
+        streamDefinitionQuery.append(streamDefinition).append("\n");
+    }
+
+    private void getStreamDefintionForFuntionVariable(BVarSymbol varSymbol) {
+        StringBuilder streamDefinition = new StringBuilder("define stream ");
+        streamDefinition.append(varSymbol.name).append("( ");
+        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varSymbol).type).constraint).
+                fields;
+        generateStreamDefinition(structFieldList, streamDefinition);
+
+        streamDefinitionQuery.append(streamDefinition).append("\n");
     }
 
     @Override
@@ -512,6 +533,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     }
 
+    @Override
     public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
         BLangExpression streamRef = (BLangExpression) patternStreamingEdgeInput.getStreamReference();
         streamRef.accept(this);
@@ -554,27 +576,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         addVarRefToClauseBuilder((BLangExpression) setAssignmentClause.getVariableReference(), setExpr);
         setExpr.append(" = ");
         addVarRefToClauseBuilder((BLangExpression) setAssignmentClause.getExpressionNode(), setExpr);
-    }
-
-    public void visit(BLangVariable varNode) {
-        StringBuilder streamDefinition = new StringBuilder("define stream ");
-        streamDefinition.append(varNode.name).append("( ");
-        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varNode).type).
-                constraint).fields;
-        generateStreamDefinition(structFieldList, streamDefinition);
-
-        streamDefinitionQuery.append(streamDefinition).append("\n");
-    }
-
-    @Override
-    public void visit(BLangVariableDef varDefNode) {
-        StringBuilder streamDefinition = new StringBuilder("define stream ");
-        streamDefinition.append(varDefNode.var.name).append("( ");
-        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) varDefNode.var.type).
-                constraint).fields;
-        generateStreamDefinition(structFieldList, streamDefinition);
-
-        streamDefinitionQuery.append(streamDefinition).append("\n");
     }
 
     private void generateStreamDefinition(List<BStructType.BStructField> structFieldList,

@@ -25,7 +25,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@code BLangMatch} represents a type switch statement in Ballerina.
@@ -67,6 +69,10 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         public BLangVariable variable;
         public BLangBlockStmt body;
+
+        // This field is used to capture types that are matched to this pattern.
+        public Set<BType> matchedTypesDirect = new HashSet<>();
+        public Set<BType> matchedTypesIndirect = new HashSet<>();
 
         @Override
         public NodeKind getKind() {

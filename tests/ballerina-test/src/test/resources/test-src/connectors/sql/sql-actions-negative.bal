@@ -16,7 +16,7 @@ function testSelectData () returns (string) {
 
         match x {
             table dt => {
-                var j, _ = <json>dt;
+                var j =? <json>dt;
                 firstName = j.toString();
             }
             sql:SQLConnectorError err1 => {
@@ -82,7 +82,7 @@ function testCallProcedure () returns (string) {
         var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
         match x {
             table[] dt  =>{
-                var j, _ = <json>dt[0];
+                var j =? <json>dt[0];
                 firstName = j.toString();
             }
             sql:SQLConnectorError err1 =>{
@@ -164,7 +164,7 @@ function testInvalidArrayofQueryParameters () returns (string) {
         var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
         match x {
             table dt  =>{
-                var j, _ = <json>dt;
+                var j =? <json>dt;
                 value = j.toString();
             }
             sql:SQLConnectorError err1 =>{

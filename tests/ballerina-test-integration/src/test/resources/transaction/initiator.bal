@@ -37,14 +37,14 @@ service<http:Service> InitiatorService bind initiatorEP {
             http:Request newReq = {};
             var getResult = ep -> get("/", newReq);
             match getResult {
-                error err => {
+                http:HttpConnectorError err => {
                     sendErrorResponseToCaller(conn);
                     abort;
                 }
                 http:Response participant1Res => {
                     var fwdResult = conn -> forward(participant1Res); 
                     match fwdResult {
-                        error err => {
+                        http:HttpConnectorError err => {
                             io:print("Could not forward response to caller:");
                             io:println(err);
                         }
@@ -58,10 +58,11 @@ service<http:Service> InitiatorService bind initiatorEP {
 }
 
 function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
+    endpoint http:ServiceEndpoint conn2 = conn;
     http:Response errRes = {statusCode: 500};
-    var respondResult = conn -> respond(errRes); 
+    var respondResult = conn2 -> respond(errRes);
     match respondResult {
-        error respondErr => {
+        http:HttpConnectorError respondErr => {
             io:print("Could not send error response to caller:");
             io:println(respondErr);
         }

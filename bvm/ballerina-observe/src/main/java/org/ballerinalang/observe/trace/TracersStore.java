@@ -72,7 +72,7 @@ class TracersStore {
                 try {
                     Tracer tracer = tracerGenerator.generate(serviceName);
                     tracerMap.put(tracerGenerator.name, tracer);
-                } catch (InvalidConfigurationException e) {
+                } catch (Throwable ignored) {
                     //Tracers will get added only of there's no errors.
                     //If tracers contains errors, tracer will be ignored.
                 }

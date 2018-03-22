@@ -27,8 +27,8 @@ import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
  *     EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS callableUnitBody
  *
  * E.g.
- *      from teacherStream where age > 18 window lengthBatch(3) select status, count(status) as totalCount
- *      group by status having totalCount > 1 => ( Teacher[] teachers) {
+ *      from teacherStream where age &gt; 18 window lengthBatch(3) select status, count(status) as totalCount
+ *      group by status having totalCount &gt; 1 =&gt; ( Teacher[] teachers) {
  *          //Do something with Teacher[] array (Streaming action)
  *      };
  * </pre>

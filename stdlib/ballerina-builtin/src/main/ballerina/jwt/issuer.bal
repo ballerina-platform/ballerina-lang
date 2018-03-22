@@ -31,12 +31,12 @@ public struct JWTIssuerConfig {
 @Param {value:"config: JWTIssuerConfig object"}
 @Return {value:"string: JWT token string"}
 @Return {value:"error: If token validation fails "}
-public function issue (Header header, Payload payload, JWTIssuerConfig config) returns (string | error) {
+public function issue (Header header, Payload payload, JWTIssuerConfig config) returns (string|error) {
     string jwtHeader = createHeader(header);
     string jwtPayload = "";
     match createPayload(payload) {
-       error e => return e;
-       string payload => jwtPayload = payload;
+        error e => return e;
+        string result => jwtPayload = result;
     }
     string jwtAssertion = jwtHeader + "." + jwtPayload;
     string signature = signature:sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
@@ -51,7 +51,7 @@ function createHeader (Header header) returns (string) {
     return urlEncode(util:base64Encode(headerJson.toString()));
 }
 
-function createPayload (Payload payload) returns (string | error) {
+function createPayload (Payload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
@@ -76,43 +76,23 @@ function urlEncode (string data) returns (string) {
 }
 
 function addMapToJson (json inJson, map mapToConvert) returns (json) {
-    if (lengthof mapToConvert != 0) {
+    if (mapToConvert != null && lengthof mapToConvert != 0) {
         foreach key in mapToConvert.keys() {
             if (typeof mapToConvert[key] == typeof string[]) {
-                string[] inputArray = [];
-                match (string[])mapToConvert[key] {
-                    error e => {}
-                    string[] value => inputArray = value;
-                }
-                inJson[key] = convertStringArrayToJson(inputArray);
+                string[] value =? <string[]>mapToConvert[key];
+                inJson[key] = convertStringArrayToJson(value);
             } else if (typeof mapToConvert[key] == typeof int[]) {
-                int[] inputArray = [];
-                match (int[])mapToConvert[key] {
-                    error e => {}
-                    int[] value => inputArray = value;
-                }
-                inJson[key] = convertIntArrayToJson(inputArray);
+                int[] value =? <int[]>mapToConvert[key];
+                inJson[key] = convertIntArrayToJson(value);
             } else if (typeof mapToConvert[key] == typeof string) {
-                string inputString = "";
-                match (string)mapToConvert[key] {
-                    error e => {}
-                    string value => inputString = value;
-                }
-                inJson[key] = inputString;
+                string value = <string>mapToConvert[key];
+                inJson[key] = value;
             } else if (typeof mapToConvert[key] == typeof int) {
-                int inputInt = (int)mapToConvert[key];
-                match (int)mapToConvert[key] {
-                    error e => {}
-                    int value => inputInt = value;
-                }
-                inJson[key] = inputInt;
+                int value =? <int>mapToConvert[key];
+                inJson[key] = value;
             } else if (typeof mapToConvert[key] == typeof boolean) {
-                boolean inputBool = false;
-                match (boolean)mapToConvert[key] {
-                    error e => {}
-                    boolean value => inputBool = value;
-                }
-                inJson[key] = inputBool;
+                boolean value =? <boolean>mapToConvert[key];
+                inJson[key] = value;
             }
         }
     }

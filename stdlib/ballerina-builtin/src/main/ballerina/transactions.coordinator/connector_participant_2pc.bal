@@ -55,37 +55,20 @@ public function <Participant2pcClient client> prepare (string transactionId) ret
     PrepareRequest prepareReq = {transactionId:transactionId};
     var j =? <json>prepareReq;
     req.setJsonPayload(j);
-    var result = httpClient -> post("/prepare", req);
-    match result {
-        error commErr => {
-            return commErr;
-        }
-        http:Response res => {
-            int statusCode = res.statusCode;
-            if (statusCode == 404) {
-                error err = {message:"Transaction-Unknown"};
-                return err;
-            } else if (statusCode == 200) {
-                var jsonPayloadResult = res.getJsonPayload();
-                match jsonPayloadResult {
-                    error err => return err;
-                    json payload => {
-                        var transformResult = <PrepareResponse>payload;
-                        match transformResult {
-                            error transformErr => return transformErr;
-                            PrepareResponse prepareRes => return prepareRes.message;
-                        }
-                    }
-                }
-            } else {
-                error err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
-                                     client.clientEP.conf.participantURL};
-                return err;
-            }
-        }
+    var res =? httpClient -> post("/prepare", req);
+    int statusCode = res.statusCode;
+    if (statusCode == 404) {
+        error err = {message:"Transaction-Unknown"};
+        return err;
+    } else if (statusCode == 200) {
+        var payload =? res.getJsonPayload();
+        var prepareRes =? <PrepareResponse>payload;
+        return prepareRes.message;
+    } else {
+        error err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
+                             client.clientEP.conf.participantURL};
+        return err;
     }
-    error err = {message:"Unhandled condition in prepare action"};
-    throw err;
 }
 
 public function <Participant2pcClient client> notify (string transactionId, string message) returns string|error {
@@ -94,33 +77,20 @@ public function <Participant2pcClient client> notify (string transactionId, stri
     NotifyRequest notifyReq = {transactionId:transactionId, message:message};
     var j =? <json>notifyReq;
     req.setJsonPayload(j);
-    var result = httpClient -> post("/notify", req);
-    match result {
-        error commErr => {
-            return commErr;
-        }
-        http:Response res => {
-            int statusCode = res.statusCode;
-            var payloadResult = res.getJsonPayload();
-            match payloadResult {
-                error payloadErr => return payloadErr;
-                json payload => {
-                    var notifyRes =? <NotifyResponse>payload;
-                    string msg = notifyRes.message;
-                    if (statusCode == 200) {
-                        return msg;
-                    } else if ((statusCode == 400 && msg == "Not-Prepared") ||
-                               (statusCode == 404 && msg == "Transaction-Unknown") ||
-                               (statusCode == 500 && msg == "Failed-EOT")) {
-                        error participantErr = {message:msg};
-                        return participantErr;
-                    } else {
-                        error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
-                                                        client.clientEP.conf.participantURL};
-                        return participantErr;
-                    }
-                }
-            }
-        }
+    var res =? httpClient -> post("/notify", req);
+    var payload =? res.getJsonPayload();
+    var notifyRes =? <NotifyResponse>payload;
+    string msg = notifyRes.message;
+    int statusCode = res.statusCode;
+    if (statusCode == 200) {
+        return msg;
+    } else if ((statusCode == 400 && msg == "Not-Prepared") || (statusCode == 404 && msg == "Transaction-Unknown") ||
+               (statusCode == 500 && msg == "Failed-EOT")) {
+        error participantErr = {message:msg};
+        return participantErr;
+    } else {
+        error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
+                                        client.clientEP.conf.participantURL};
+        return participantErr;
     }
 }

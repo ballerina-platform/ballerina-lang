@@ -1,13 +1,13 @@
 import ballerina/test;
 
-@test:config{
+@test:Config{
     enable:false
 }
 function testFunc1 () {
     test:assertTrue(false, msg = "errorMessage");
 }
 
-@test:config{
+@test:Config{
     enable:true
 }
 function testFunc4 () {
@@ -15,7 +15,7 @@ function testFunc4 () {
 }
 
 // test without enable attribute
-@test:config{
+@test:Config{
 }
 function testFunc6 () {
     test:assertFalse(false, msg = "errorMessage");

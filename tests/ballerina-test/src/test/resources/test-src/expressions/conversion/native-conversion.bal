@@ -1,5 +1,3 @@
-
-
 struct Person {
     string name;
     int age;
@@ -10,7 +8,7 @@ struct Person {
     any a;
     float score;
     boolean alive;
-    Person[] children;
+    Person[]|null children;
 }
 
 struct Student {
@@ -26,7 +24,7 @@ function testStructToMap () returns (map) {
                    info:{status:"single"},
                    marks:[67, 38, 91]
                };
-    map m =? <map>p;
+    map m = <map>p;
     return m;
 }
 
@@ -69,12 +67,7 @@ function testStructToJson () returns (json) {
                    marks:[87, 94, 72]
                };
 
-    json j;
-    match p {
-                Person p1 => j =? <json>p;
-     any | null => io.println("error");
-}
-
+    json j =? <json>p;
     return j;
 }
 
@@ -101,8 +94,7 @@ function testJsonToStruct () returns (Person | error) {
                  alive:true,
                  children:null
              };
-    var p =? <Person>j;
-    //TODO fix the error handling
+    var p = <Person>j;
     return p;
 }
 
@@ -114,9 +106,7 @@ function testIncompatibleMapToStruct () returns (Person) {
                 info:{status:"single"},
                 marks:marks
             };
-    Person p = {};
-    error e = {};
-    p =? <Person>m;
+    Person p =? <Person>m;
     return p;
 }
 
@@ -127,9 +117,7 @@ function testMapWithMissingFieldsToStruct () returns (Person) {
                 address:{"city":"Colombo", "country":"SriLanka"},
                 marks:marks
             };
-    Person p = {};
-    error e = {};
-    p =? <Person>m;
+    Person p =? <Person>m;
     return p;
 }
 
@@ -198,7 +186,6 @@ function testJsonToStructWithMissingFields () returns (Person) {
              };
 
     var p =? <Person>j;
-
     return p;
 }
 
@@ -211,7 +198,6 @@ function testIncompatibleJsonToStruct () returns (Person) {
              };
 
     var p =? <Person>j;
-
     return p;
 }
 
@@ -232,7 +218,6 @@ function testJsonWithIncompatibleMapToStruct () returns (Person) {
              };
 
     var p =? <Person>j;
-
     return p;
 }
 
@@ -273,7 +258,6 @@ function testJsonWithIncompatibleStructToStruct () returns (Person) {
              };
 
     var p =? <Person>j;
-
     return p;
 }
 
@@ -294,9 +278,7 @@ function testStructWithIncompatibleTypeMapToJson () returns (json) {
     Info info = {foo:m};
 
     var j =? <json>info;
-
     return j;
-
 }
 
 function testJsonIntToString () returns (string) {
@@ -308,8 +290,7 @@ function testJsonIntToString () returns (string) {
 
 function testBooleanInJsonToInt () returns (int) {
     json j = true;
-    int value;
-    value =? <int>j;
+    int value =? <int>j;
     return value;
 }
 
@@ -352,8 +333,8 @@ struct AnyArray {
 
 function testJsonToAnyArray () returns (AnyArray) {
     json j = {a:[4, "Supun", 5.36, true, {lname:"Setunga"}, [4, 3, 7], null]};
-    var a =? <AnyArray>j;
-    return a;
+    AnyArray value =? <AnyArray>j;
+    return value;
 }
 
 struct IntArray {
@@ -362,7 +343,7 @@ struct IntArray {
 
 function testJsonToIntArray () returns (IntArray) {
     json j = {a:[4, 3, 9]};
-    var a =? <IntArray>j;
-    return a;
+    IntArray value =? <IntArray>j;
+    return value;
 }
 
