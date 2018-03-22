@@ -104,3 +104,8 @@ grpc Unary Blocking
 gRPC Server Streaming
 gRPC Client Streaming
 gRPC Bidirectional Streaming
+JMS Message Producer
+JMS Message Consumer
+JMS Client Acknowledgment
+MB Message Producer
+Taint Checking

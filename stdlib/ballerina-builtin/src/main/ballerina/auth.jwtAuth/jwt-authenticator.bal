@@ -61,7 +61,10 @@ struct CachedJWTAuthContext {
 public function createAuthenticator () returns (JWTAuthenticator) {
     JWTAuthenticator authenticator = {};
     authenticator.jwtValidatorConfig = getAuthenticatorConfig();
-    authenticator.authCache = utils:createCache(JWT_AUTH_CACHE);
+    match utils:createCache(JWT_AUTH_CACHE) {
+        caching:Cache cache => authenticator.authCache = cache;
+        any|null => authenticator.authCache = {};
+    }
     return authenticator;
 }
 
@@ -69,49 +72,75 @@ public function createAuthenticator () returns (JWTAuthenticator) {
 @Param {value:"jwtToken: Jwt token extracted from the authentication header"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 @Return {value:"error: If error occured in authentication"}
-public function <JWTAuthenticator authenticator> authenticate (string jwtToken) returns (boolean, error) {
-    boolean isAuthenticated = false;
-    boolean isCacheHit = false;
-    JWTAuthContext authContext;
-    if (authenticator.authCache != null) {
-        isCacheHit, isAuthenticated, authContext = authenticator.authenticateFromCache(jwtToken);
-        if (isCacheHit) {
-            return isAuthenticated, null;
+public function <JWTAuthenticator authenticator> authenticate (string jwtToken) returns boolean|error {
+    boolean isCacheHit;
+    boolean isAuthenticated;
+    JWTAuthContext authContext = {};
+    if (authenticator.authCache.capacity > 0) {
+        match authenticator.authenticateFromCache(jwtToken) {
+            (boolean, boolean) cacheHit => {
+                (isCacheHit, isAuthenticated) = cacheHit;
+                if (isCacheHit) {
+                    return isAuthenticated;
+                }
+            }
+            (boolean, boolean, JWTAuthContext) authResult => {
+                (_, isAuthenticated, authContext) = authResult;
+                //Todo set the security context from authContext.
+                return isAuthenticated;
+            }
         }
     }
-    var isValid, payload, err = jwt:validate(jwtToken, authenticator.jwtValidatorConfig);
-    if (isValid) {
-        authContext = setAuthContext(payload);
-        if (authenticator.authCache != null) {
-            authenticator.addToAuthenticationCache(jwtToken, payload.exp, authContext);
+    match jwt:validate(jwtToken, authenticator.jwtValidatorConfig) {
+        jwt:Payload authResult => {
+            isAuthenticated = true;
+            authContext = setAuthContext(authResult);
+            if (authenticator.authCache.capacity > 0) {
+                authenticator.addToAuthenticationCache(jwtToken, authResult.exp, authContext);
+            }
+            //Todo set the security context from authContext.
+            return isAuthenticated;
         }
-        return true, null;
-    } else {
-        return false, err;
+        boolean isInvalid => return isInvalid;
+        error err => return err;
     }
 }
 
 function getAuthenticatorConfig () returns (jwt:JWTValidatorConfig) {
     jwt:JWTValidatorConfig jwtValidatorConfig = {};
-    jwtValidatorConfig.issuer = config:getAsString(AUTHENTICATOR_JWT + "." + ISSUER);
-    jwtValidatorConfig.audience = config:getAsString(AUTHENTICATOR_JWT + "." + AUDIENCE);
-    jwtValidatorConfig.certificateAlias = config:getAsString(AUTHENTICATOR_JWT + "." + CERTIFICATE_ALIAS);
+    jwtValidatorConfig.issuer = getAuthenticatorConfigValue(AUTHENTICATOR_JWT, ISSUER);
+    jwtValidatorConfig.audience = getAuthenticatorConfigValue(AUTHENTICATOR_JWT, AUDIENCE);
+    jwtValidatorConfig.certificateAlias = getAuthenticatorConfigValue(AUTHENTICATOR_JWT, CERTIFICATE_ALIAS);
     return jwtValidatorConfig;
 }
 
-function <JWTAuthenticator authenticator> authenticateFromCache (string jwtToken) returns (boolean isCacheHit,
-                                                                                   boolean isAuthenticated,
-                                                                                   JWTAuthContext authContext) {
-    var cachedAuthContext, _ = (CachedJWTAuthContext)authenticator.authCache.get(jwtToken);
-    if (cachedAuthContext != null) {
-        isCacheHit = true;
+function <JWTAuthenticator authenticator> authenticateFromCache (string jwtToken)
+returns (boolean, boolean)|(boolean, boolean, JWTAuthContext) {
+    boolean isCacheHit;
+    boolean isAuthenticated;
+    JWTAuthContext authContext = {};
+    CachedJWTAuthContext cachedAuthContext = {};
+    try {
+        match <CachedJWTAuthContext>authenticator.authCache.get(jwtToken) {
+            CachedJWTAuthContext cache => {
+                cachedAuthContext = cache;
+                isCacheHit = true;
+            }
+            error err => isCacheHit = false;
+        }
+    } catch (error e) {
+        isCacheHit = false;
+    }
+
+    if (isCacheHit) {
         if (cachedAuthContext.expiryTime > time:currentTime().time) {
             isAuthenticated = true;
             authContext = cachedAuthContext.jwtAuthContext;
             log:printDebug("Authenticate user :" + authContext.userName + " from cache");
+            return (isCacheHit, isAuthenticated, authContext);
         }
     }
-    return;
+    return (isCacheHit, isAuthenticated);
 }
 
 function <JWTAuthenticator authenticator> addToAuthenticationCache (string jwtToken, int exp,
@@ -127,16 +156,23 @@ function setAuthContext (jwt:Payload jwtPayload) returns (JWTAuthContext) {
     JWTAuthContext authContext = {};
     authContext.userName = jwtPayload.sub;
     if (jwtPayload.customClaims[SCOPES] != null) {
-        var scopeString, _ = (string)jwtPayload.customClaims[SCOPES];
+        var scopeString = <string>jwtPayload.customClaims[SCOPES];
         if (scopeString != null) {
             authContext.scopes = scopeString.split(" ");
         }
     }
     if (jwtPayload.customClaims[ROLES] != null) {
-        var roleList, _ = (string[])jwtPayload.customClaims[ROLES];
-        if (roleList != null) {
+        string[] roleList =? <string[]>jwtPayload.customClaims[ROLES];
+        if (lengthof roleList > 0) {
             authContext.roles = roleList;
         }
     }
     return authContext;
+}
+
+function getAuthenticatorConfigValue (string instanceId, string property) returns (string) {
+    match config:getAsString(instanceId + "." + property) {
+        string value => return value;
+        any|null => return "";
+    }
 }
