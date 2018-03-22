@@ -28,7 +28,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *      where expressionList
  *
  * E.g
- *      where age > 20;
+ *      where age &gt; 20;
  * </pre>
  */
 
