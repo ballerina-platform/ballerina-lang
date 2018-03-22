@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 endpoint http:ServiceEndpoint echoDummyEP {
     port:9090

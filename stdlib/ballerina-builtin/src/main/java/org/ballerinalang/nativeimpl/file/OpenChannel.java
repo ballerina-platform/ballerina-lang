@@ -48,7 +48,7 @@ import java.util.Set;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "openChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         args = {@Argument(name = "accessMode", type = TypeKind.STRING)},

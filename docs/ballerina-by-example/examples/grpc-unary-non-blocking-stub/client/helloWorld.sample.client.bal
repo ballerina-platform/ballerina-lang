@@ -1,5 +1,5 @@
 package client;
-import ballerina.io;
+import ballerina/io;
 
 int total = 0;
 function main (string[] args) {

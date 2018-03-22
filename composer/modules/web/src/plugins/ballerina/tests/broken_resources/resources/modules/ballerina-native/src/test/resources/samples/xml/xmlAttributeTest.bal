@@ -1,6 +1,6 @@
-import ballerina.lang.xmls;
-import ballerina.lang.system;
-import ballerina.lang.strings;
+import ballerina/lang.xmls;
+import ballerina/lang.system;
+import ballerina/lang.strings;
 
 xmlns "http://sample.com/wso2/a1" as ns0;
 xmlns "http://sample.com/wso2/b1" as ns1;

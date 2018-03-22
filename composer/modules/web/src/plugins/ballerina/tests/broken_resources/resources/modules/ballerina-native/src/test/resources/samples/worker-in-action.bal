@@ -1,5 +1,5 @@
-import ballerina.lang.messages;
-import ballerina.lang.system;
+import ballerina/lang.messages;
+import ballerina/lang.system;
 
 connector TestConnector(string param1, string param2, int param3) {
 

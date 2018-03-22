@@ -1,6 +1,6 @@
 package client;
-import ballerina.io;
-import ballerina.log;
+import ballerina/io;
+import ballerina/log;
 
 int total = 0;
 function main (string[] args) {

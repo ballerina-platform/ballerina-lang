@@ -42,7 +42,7 @@ import java.util.NoSuchElementException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "getSession",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),

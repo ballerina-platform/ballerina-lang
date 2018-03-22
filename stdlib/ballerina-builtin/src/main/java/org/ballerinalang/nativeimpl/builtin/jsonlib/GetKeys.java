@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "json.getKeys",
         args = {@Argument(name = "j", type = TypeKind.JSON)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},

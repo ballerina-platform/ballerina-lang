@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  * {@code Post} is the POST action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "post",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),

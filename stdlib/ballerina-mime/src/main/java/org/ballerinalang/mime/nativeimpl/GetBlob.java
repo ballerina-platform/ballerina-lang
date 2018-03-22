@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.mime",
+        orgName = "ballerina", packageName = "mime",
         functionName = "getBlob",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.BLOB), @ReturnType(type = TypeKind.STRUCT)},

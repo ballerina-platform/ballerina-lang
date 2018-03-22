@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 const string myConst = "MyParam1";
 

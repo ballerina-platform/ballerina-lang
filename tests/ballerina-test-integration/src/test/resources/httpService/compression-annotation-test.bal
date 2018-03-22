@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 endpoint<http:Service> mockEP {
     port:9090

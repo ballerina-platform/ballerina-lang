@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function test (int x, string s) returns (float f) {
     var y, _ = <int>s;

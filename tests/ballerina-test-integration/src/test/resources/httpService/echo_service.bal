@@ -1,4 +1,5 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint echoEP {
     port:9090
@@ -14,9 +15,16 @@ service<http:Service> echo bind echoEP {
         path:"/"
     }
     echo (endpoint outboundEP, http:Request req) {
-        http:Response resp = {};
-        var payload, _ = req.getStringPayload();
-        resp.setStringPayload(payload);
-        _ = outboundEP -> respond(resp);
+        var payload = req.getStringPayload();
+        match payload {
+            string payloadValue => {
+                http:Response resp = {};
+                resp.setStringPayload(payloadValue);
+                _ = outboundEP -> respond(resp);
+            }
+            any | null => {
+                io:println("Error while fetching string payload");
+            }
+        }
     }
 }

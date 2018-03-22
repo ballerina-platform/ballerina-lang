@@ -1,6 +1,6 @@
-import ballerina.lang.messages;
-import ballerina.io;
-import ballerina.net.jms;
+import ballerina/lang.messages;
+import ballerina/io;
+import ballerina/net.jms;
 
 @Description{value : "Add the subscriptionId when connecting to a topic to create a durable topic subscription."}
 @jms:configuration {
