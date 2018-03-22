@@ -13,9 +13,17 @@ function testSelectData () returns (string) {
     string firstName;
     try {
         var x = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
-        //TODO:match x to get dt and e
-        var j, _ = <json>dt;
-        firstName = j.toString();
+
+        match x {
+            table dt => {
+                var j, _ = <json>dt;
+                firstName = j.toString();
+            }
+            sql:SQLConnectorError err1 => {
+               firstName = err1.message;
+            }
+        }
+
     } finally {
         _ = testDB -> close();
     }
@@ -41,13 +49,22 @@ function testGeneratedKeyOnInsert () returns (string) {
         var x = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
                                                                   null, null);
-        //TODO:do match to get (insertCount, generatedID) or error
-        id = generatedID[0];
+
+        match x {
+            (int, string[] ) =>{
+                id = generatedID[0];
+            }
+                sql:SQLConnectorError err1 =>{
+                id = err1.message;
+            }
+        }
+
     } finally {
         _ = testDB -> close();
     }
     return id;
 }
+
 
 
 function testCallProcedure () returns (string) {
@@ -62,18 +79,24 @@ function testCallProcedure () returns (string) {
     };
     string firstName;
     try {
-        _ = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
-        var x = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null, null);
-        //Match x to get dt and e. do the following if e is not null
-        var j, _ = <json>dt;
-        firstName = j.toString();
+        var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
+        match x {
+            table[] dt  =>{
+                var j, _ = <json>dt[0];
+                firstName = j.toString();
+            }
+            sql:SQLConnectorError err1 =>{
+                firstName = err1.message;
+            }
+        }
+
     } finally {
         _ = testDB -> close();
     }
     return firstName;
 }
 
-function testBatchUpdate () returns (int[]) {
+function testBatchUpdate () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -85,6 +108,7 @@ function testBatchUpdate () returns (int[]) {
     };
 
     int[] updateCount;
+    string returnVal;
     try {
         //Batch 1
         sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
@@ -105,11 +129,19 @@ function testBatchUpdate () returns (int[]) {
 
         var x = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters);
-    //TODO:match x to get updateCount
+        match x {
+            int[] data  =>{
+                updateCount = data;
+                returnVal = "success";
+            }
+            sql:SQLConnectorError err1 =>{
+                returnVal = err1.message;
+            }
+        }
     } finally {
         _ = testDB -> close();
     }
-    return updateCount;
+    return returnVal;
 }
 
 function testInvalidArrayofQueryParameters () returns (string) {
@@ -130,9 +162,16 @@ function testInvalidArrayofQueryParameters () returns (string) {
         sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:xmlDataArray};
         sql:Parameter[] parameters = [para0];
         var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
-        //Match x to get dt and e. do the following if e is not null
-        var j, _ = <json>dt;
-        value = j.toString();
+        match x {
+            table dt  =>{
+                var j, _ = <json>dt;
+                value = j.toString();
+            }
+            sql:SQLConnectorError err1 =>{
+                value = err1.message;
+            }
+        }
+
     } finally {
         _ = testDB -> close();
     }

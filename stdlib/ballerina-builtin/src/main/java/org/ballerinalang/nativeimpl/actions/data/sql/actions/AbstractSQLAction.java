@@ -165,7 +165,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             }
-            BRefValueArray tuple = new BRefValueArray(BTypes.typeAny);
+            BRefValueArray tuple = new BRefValueArray(new BArrayType(BTypes.typeAny));
             tuple.add(0, updatedCount);
             tuple.add(1, generatedKeys);
             context.setReturnValues(tuple);
