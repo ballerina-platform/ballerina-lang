@@ -22,16 +22,19 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -115,6 +118,12 @@ public class TextDocumentServiceUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
+        try {
+            context.put(SourceDirectory.class,
+                    new LangServerFSProjectDirectory(Paths.get(new URI("file://" + sourceRoot))));
+        } catch (URISyntaxException e) {
+            // Ignore
+        }
         return context;
     }
 
