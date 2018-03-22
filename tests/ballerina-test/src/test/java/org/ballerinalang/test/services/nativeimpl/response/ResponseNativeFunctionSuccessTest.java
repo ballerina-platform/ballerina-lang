@@ -128,7 +128,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
-    @Test (description = "Enable this once the method is added back in http package", enabled = false)
+    @Test(description = "Enable this once the method is added back in http package", enabled = false)
     public void testGetContentLength() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
