@@ -29,7 +29,8 @@ import org.ballerinalang.natives.annotations.Receiver;
  * This function which implements the finishSpan method for tracing.
  */
 @BallerinaFunction(
-        packageName = "ballerina.observe",
+        orgName = "ballerina",
+        packageName = "observe",
         functionName = "finishSpan",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         isPublic = true

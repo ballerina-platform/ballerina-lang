@@ -16,7 +16,7 @@
 
 package ballerina.observe;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @Description {value:"Reference types between spans"}
 @Field {value:"CHILDOF: The parent span depends on the child span in some capacity"}
@@ -44,7 +44,7 @@ public struct Span {
 @Param {value:"parentSpanId: The Id of the parent span. If root reference, then parentSpanId will not be used"}
 @Return {value:"The span struct"}
 public function startSpan (string serviceName, string spanName, map tags, ReferenceType reference,
-                           string parentSpanId) (Span) {
+                           string parentSpanId) returns (Span) {
     Span span = {};
     span.spanId = init(serviceName, spanName, tags, reference, parentSpanId);
     span.serviceName = serviceName;
@@ -60,7 +60,7 @@ public function startSpan (string serviceName, string spanName, map tags, Refere
 @Param {value:"parentSpanId: The Id of the parent span"}
 @Return {value:"String value of the span id that was generated"}
 native function init (string serviceName, string spanName, map tags, ReferenceType reference,
-                      string parentSpanId) (string);
+                      string parentSpanId) returns (string);
 
 @Description {value:"Finish the span specified by the spanId"}
 @Param {value:"spanId: The ID of the span to be finished"}
@@ -78,7 +78,7 @@ public native function <Span span> setBaggageItem (string baggageKey, string bag
 
 @Description {value:"Add a baggage item to the current span. Baggage items are given as a key value pair"}
 @Param {value:"tagKey: The key of the key value pair"}
-public native function <Span span> getBaggageItem (string baggageKey) (string);
+public native function <Span span> getBaggageItem (string baggageKey) returns (string);
 
 @Description {value:"Attach an info log to the current span"}
 @Param {value:"event: The type of event this log represents"}
@@ -92,19 +92,19 @@ public native function <Span span> logError (string errorKind, string message);
 
 @Description {value:"Adds span headers when request chaining"}
 @Return {value:"The span context as a key value pair that should be passed out to an external function"}
-public native function <Span span> injectTraceContext (string traceGroup) (map);
+public native function <Span span> injectTraceContext (string traceGroup) returns (map);
 
 @Description {value:"Creates a span context of a parent span propogated through request chaining"}
 @Param {value:"headers: The map of headers"}
 @Param {value:"traceGroup: The kind of error. e.g. DBError"}
 @Return {value:""}
-public native function extractTraceContext (map headers, string traceGroup) (string);
+public native function extractTraceContext (map headers, string traceGroup) returns (string);
 
 @Description {value:"Method to save the parent span and extract the span Id"}
 @Param {value:"req: The http request that contains the header maps"}
 @Param {value:"traceGroup: The group to which this span belongs to"}
 @Return {value:"The id of the parent span passed in from an external function"}
-public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) (string) {
+public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) returns (string) {
     map headers = req.getCopyOfAllHeaders();
     return extractTraceContext(headers, traceGroup);
 }
@@ -113,11 +113,13 @@ public function extractTraceContextFromHttpHeader (http:Request req, string trac
 @Param {value:"req: The http request used when calling an endpoint"}
 @Param {value:"traceGroup: The group that the span context is associated to"}
 @Return {value:"The http request which includes the span context related headers"}
-public function <Span span> injectTraceContextToHttpHeader (http:Request req, string traceGroup) (http:Request) {
+public function <Span span> injectTraceContextToHttpHeader (http:Request req, string traceGroup) returns (http:Request) {
     map headers = span.injectTraceContext(traceGroup);
     foreach key, v in headers {
-        var value, _ = (string)v;
-        req.addHeader(key, value);
+        var value = <string>v;
+        match value {
+            string sVal => req.addHeader(key, value);
+        }
     }
     return req;
 }

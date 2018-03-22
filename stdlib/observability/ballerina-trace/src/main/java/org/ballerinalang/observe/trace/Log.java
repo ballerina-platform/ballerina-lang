@@ -34,7 +34,8 @@ import java.util.Map;
  * This function adds logs to a span.
  */
 @BallerinaFunction(
-        packageName = "ballerina.observe",
+        orgName = "ballerina",
+        packageName = "observe",
         functionName = "log",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         args = {@Argument(name = "event", type = TypeKind.STRING),
