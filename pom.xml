@@ -1414,7 +1414,6 @@
         <mimepull.version>1.9.7</mimepull.version>
         <broker.version>0.1.20</broker.version>
         <open.tracing.version>0.31.0</open.tracing.version>
-        <jaeger.version>0.24.0</jaeger.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>

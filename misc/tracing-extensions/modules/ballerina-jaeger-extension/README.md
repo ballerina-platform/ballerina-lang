@@ -10,6 +10,8 @@ jaegertracing/all-in-one:latest`.
   - [jaeger-core-0.24.0.jar] [1]
   - [jaeger-thrift-0.24.0.jar] [2]
   - [libthrift-0.11.0.jar] [3]
+  - [okhttp-3.9.1.jar] [4]
+  - [okio-1.13.0.jar] [5]
 - Create a `trace-config.yaml` with following properties.
 ```yaml
 tracers:
@@ -34,3 +36,5 @@ tracers:
 [1]: http://central.maven.org/maven2/com/uber/jaeger/jaeger-core/0.24.0/jaeger-core-0.24.0.jar
 [2]: http://central.maven.org/maven2/com/uber/jaeger/jaeger-thrift/0.24.0/jaeger-thrift-0.24.0.jar
 [3]: http://central.maven.org/maven2/org/apache/thrift/libthrift/0.11.0/libthrift-0.11.0.jar
+[4]: http://central.maven.org/maven2/com/squareup/okhttp3/okhttp/3.9.1/okhttp-3.9.1.jar
+[5]: http://central.maven.org/maven2/com/squareup/okio/okio/1.13.0/okio-1.13.0.jar
