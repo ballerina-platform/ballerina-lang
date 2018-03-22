@@ -57,12 +57,12 @@ import java.util.stream.Collectors;
         value = "ballerina.test"
 )
 public class TestAnnotationProcessor extends AbstractCompilerPlugin {
-    private static final String TEST_ANNOTATION_NAME = "config";
-    private static final String BEFORE_SUITE_ANNOTATION_NAME = "beforeSuite";
-    private static final String AFTER_SUITE_ANNOTATION_NAME = "afterSuite";
-    private static final String BEFORE_EACH_ANNOTATION_NAME = "beforeEach";
-    private static final String AFTER_EACH_ANNOTATION_NAME = "afterEach";
-    private static final String MOCK_ANNOTATION_NAME = "mock";
+    private static final String TEST_ANNOTATION_NAME = "Config";
+    private static final String BEFORE_SUITE_ANNOTATION_NAME = "BeforeSuite";
+    private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
+    private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
+    private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
+    private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";

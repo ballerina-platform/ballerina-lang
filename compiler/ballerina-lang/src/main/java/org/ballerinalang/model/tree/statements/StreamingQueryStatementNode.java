@@ -36,7 +36,7 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
  *
  * E.g.
  *      from testStream
- *      where x > 50
+ *      where x &gt; 50
  *      select 10 as mo
  *      group by mo
  *      insert into test1

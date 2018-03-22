@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-@test:config{
+@test:Config{
     dataProvider:"invalidDataGen"
 }
 function testFunc2 (string fValue, string sValue, string result) {

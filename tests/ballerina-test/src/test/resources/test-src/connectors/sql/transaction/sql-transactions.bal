@@ -309,7 +309,7 @@ function testLocalTransactionFailed () returns (string, int) {
     string a = "beforetx";
     int count = -1;
     try {
-        transaction with retries(4) {
+        transaction with retries = 4 {
             a = a + " inTrx";
             _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                         values ('James', 'Clerk', 111, 5000.75, 'USA')", null);
@@ -349,7 +349,7 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
     int count = -1;
     int i = 0;
     try {
-        transaction with retries(4) {
+        transaction with retries=4 {
             a = a + " inTrx";
             _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 222, 5000.75, 'USA')", null);
@@ -561,7 +561,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
                 a = a + " txL2";
                 _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')", null);
-                transaction with retries(2){
+                transaction with retries=2{
                     a = a + " txL3";
                     if (index == 1) {
                         a = a + " txL3_If";

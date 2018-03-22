@@ -20,9 +20,13 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -32,6 +36,17 @@ import java.util.HashMap;
  * Test cases for ballerina.test package.
  */
 public class ServiceTest {
+
+    String sourceRoot = "src/test/resources";
+
+    // TODO : Added as a temporary solution to create .ballerina directory
+    @BeforeSuite
+    public void createDir() throws IOException {
+        // TODO : Done as a workaround to create the .ballerina directory
+        Path filePath = Paths.get(sourceRoot + "/.ballerina");
+        Files.deleteIfExists(filePath);
+        Files.createDirectory(filePath);
+    }
 
     @BeforeClass
     public void setup() {
@@ -51,6 +66,12 @@ public class ServiceTest {
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
+    }
+
+    // TODO : Added as a temporary solution to cleanup .ballerina directory
+    @AfterSuite
+    public void cleanDirectory() throws IOException {
+        Files.deleteIfExists(Paths.get(sourceRoot + "/.ballerina"));
     }
 
 }

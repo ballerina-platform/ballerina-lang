@@ -58,6 +58,7 @@ public class BTestRunner {
     /**
      * Executes a given set of ballerina program files.
      *
+     * @param sourceRoot      source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included
      */
@@ -68,6 +69,7 @@ public class BTestRunner {
     /**
      * Executes a given set of ballerina program files.
      *
+     * @param sourceRoot      source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included/excluded
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
@@ -316,7 +318,7 @@ public class BTestRunner {
     /**
      * Return the Test report of program runner.
      *
-     * @return @{@link TesterinaReport} object
+     * @return {@link TesterinaReport} object
      */
     public TesterinaReport getTesterinaReport() {
         return tReport;
