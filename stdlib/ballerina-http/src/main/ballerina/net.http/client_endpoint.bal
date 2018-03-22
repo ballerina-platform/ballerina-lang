@@ -88,7 +88,8 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"ep: The endpoint to be initialized"}
 @Param {value:"epName: The endpoint name"}
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
-public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
+public function <ClientEndpoint ep> init (ClientEndpointConfiguration config) {
+    boolean httpClientRequired = false;
     string uri = config.targets[0].uri;
     var cbConfig = config.circuitBreaker;
     match cbConfig {
@@ -100,14 +101,24 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
             ep.config = config;
             ep.httpClient = createCircuitBreakerClient(uri, config);
         }
-        int | null => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
-            }
+        int| null => httpClientRequired = true;
+    }
+    var foConfig = config.failoverConfig;
+    match foConfig {
+        FailoverConfig fo => {
             ep.config = config;
-            ep.httpClient = createHttpClient(uri, config);
+            ep.httpClient = createFailOverClient(config);
+            httpClientRequired = false;
         }
+        int| null => httpClientRequired = true;
+    }
+    if (httpClientRequired) {
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+        }
+        ep.config = config;
+        ep.httpClient = createHttpClient(uri, config);
     }
 }
 
@@ -207,12 +218,12 @@ public function createCircuitBreakerClient (string uri, ClientEndpointConfigurat
                                     var httpClient =? <HttpClient> cbClient;
                                     return httpClient;
                                 }
-        int | null => {
-                        //remove following once we can ignore
-                        io:println("CB CONFIG IS NULL");
-                        return createHttpClient(uri, configuration);
-                    }
-                }
+        int| null => {
+        //remove following once we can ignore
+            io:println("CB CONFIG IS NULL");
+            return createHttpClient(uri, configuration);
+        }
+    }
 }
 
     //validateCircuitBreakerConfiguration(configuration.circuitBreaker);
@@ -245,13 +256,24 @@ function createLoadBalancerClient(ClientEndpointConfiguration config) returns Ht
 
 function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
     HttpClient[] clients = createHttpClientArray(config);
-    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
+    FailoverConfig foConfig = {};
+    match config.failoverConfig {
+        FailoverConfig foc => foConfig = foc;
+        int | null =>  io:println("FO CONFIG IS NULL");
+    }
+
+    boolean[] failoverCodes = populateErrorCodeIndex(foConfig.failoverCodes);
     FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
                                           failoverCodesIndex : failoverCodes,
-                                          failoverInterval : config.failoverConfig.interval};
+                                          failoverInterval : foConfig.interval};
 
     Failover failover = {serviceUri:config.targets[0].uri, config:config,
                             failoverInferredConfig:failoverInferredConfig};
-    var httpClient, _ = (HttpClient) failover;
-    return httpClient;
+    HttpClient foClient = {};
+    error conversionErr = {};
+    match <HttpClient>failover {
+        HttpClient client => foClient = client;
+        error err => conversionErr = err;
+    }
+    return foClient;
 }
