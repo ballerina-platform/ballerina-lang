@@ -26,7 +26,7 @@ public struct LoadBalancer {
     string serviceUri;
     ClientEndpointConfiguration config;
     HttpClient[] loadBalanceClientsArray;
-    function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
+    (function (LoadBalancer, HttpClient[]) returns (HttpClient))|null algorithm;
     int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
 }
 
@@ -211,7 +211,16 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
     }
 
     // Tracks at which point failover within the load balancing should be terminated.
-    HttpClient loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
+    HttpClient loadBalanceClient = {};
+
+    match lb.algorithm {
+        function (LoadBalancer, HttpClient[]) returns (HttpClient) lbAlgo => loadBalanceClient = lbAlgo(lb, lb.loadBalanceClientsArray);
+        int | null => { 
+            LoadBalanceConnectorError err = {message: "Load balance client not found"};
+            throw err;
+        }
+    }
+
     int loadBalanceTermination = 0;
     LoadBalanceConnectorError loadBalanceConnectorError = {};
     loadBalanceConnectorError.httpConnectorError = [];
@@ -222,7 +231,14 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
 
             HttpConnectorError httpConnectorError => {
                 loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
-                loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
+                //loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
+                match lb.algorithm {
+                    function (LoadBalancer, HttpClient[]) returns (HttpClient) lbAlgo => loadBalanceClient = lbAlgo(lb, lb.loadBalanceClientsArray);
+                    int | null => {
+                        LoadBalanceConnectorError err = {message: "Load balance client not found"};
+                        throw err;
+                    }
+                }
                 loadBalanceTermination = loadBalanceTermination + 1;
             }
         }
@@ -256,12 +272,7 @@ function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loa
     loadBalanceConnectorError.statusCode = 500;
     loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
                                         + loadBalanceConnectorError.httpConnectorError[nErrs - 1].message;
-    HttpConnectorError httpConnectorError = {};
-    error conversionErr = {};
-    match <HttpConnectorError> loadBalanceConnectorError {
-        HttpConnectorError conError => httpConnectorError = conError;
-        error err => conversionErr = err;
-    }
+    HttpConnectorError httpConnectorError = loadBalanceConnectorError;
     return httpConnectorError;
 }
 

@@ -28,6 +28,9 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.net.grpc.MessageConstants.EMPTY_STRING;
+import static org.ballerinalang.net.grpc.MessageConstants.KEY_FILE;
+import static org.ballerinalang.net.grpc.MessageConstants.TRUST_FILE;
 import static org.wso2.carbon.launcher.utils.Utils.getSystemVariableValue;
 
 /**
@@ -58,8 +61,8 @@ public class EndpointUtils {
         }
         endpointConfiguration.setPort(Math.toIntExact(port));
         
-        if (!"".equals(sslConfig.getStringField("trustStoreFile")) ||
-                !"".equals(sslConfig.getStringField("keyStoreFile"))) {
+        if (sslConfig != null && (!EMPTY_STRING.equals(sslConfig.getStringField(TRUST_FILE)) ||
+                !EMPTY_STRING.equals(sslConfig.getStringField(KEY_FILE)))) {
             endpointConfiguration.setScheme(EndpointConstants.PROTOCOL_HTTPS);
             endpointConfiguration.setSslConfig(getSslConfig(sslConfig));
             return endpointConfiguration;
