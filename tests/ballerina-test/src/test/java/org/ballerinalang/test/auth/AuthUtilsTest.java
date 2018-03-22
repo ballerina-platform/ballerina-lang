@@ -72,10 +72,8 @@ public class AuthUtilsTest {
     public void testExtractBasicAuthCredentialsFromInvalidHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthCredentialsFromInvalidHeader");
         Assert.assertTrue(returns != null);
-        Assert.assertTrue(returns[0].stringValue() == null);
-        Assert.assertTrue(returns[1].stringValue() == null);
         // an error should be returned
-        Assert.assertTrue(returns[2] != null);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
     }
 
     @Test(description = "Test case for extracting credentials from basic auth header")
@@ -83,9 +81,7 @@ public class AuthUtilsTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthCredentials");
         Assert.assertTrue(returns != null);
         // username and password should ne returned
-        Assert.assertTrue(returns[0].stringValue() != null);
-        Assert.assertTrue(returns[1].stringValue() != null);
-        // no error should be returned
-        Assert.assertTrue(returns[2] == null);
+        Assert.assertEquals(returns[0].stringValue(), "isuru");
+        Assert.assertEquals(returns[1].stringValue(), "xxx");
     }
 }
