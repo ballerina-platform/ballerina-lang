@@ -1,4 +1,4 @@
-import ballerina.test;
+import ballerina/test;
 
 
 // You can add your tests to a particular group

@@ -1,4 +1,4 @@
-import ballerina.test;
+import ballerina/test;
 
 // ===== Assert Equals ===== //
 
@@ -128,8 +128,7 @@ function testAssertFalse () {
 function testAssertFail1 () {
     try {
         // I'm expecting a error
-        error err;
-        throw err;
+        error err = {};
         test:assertFail(msg = "Exception Never occured");
 
     } catch (error e) {
@@ -148,14 +147,14 @@ function testAssertFail2 () {
 
 
 // Test functions
-function intAdd (int a, int b) (int) {
-    return a + b;
+function intAdd (int a, int b) returns (int) {
+    return (a + b);
 }
 
-function floatAdd (float a, float b) (float) {
-    return a + b;
+function floatAdd (float a, float b) returns (float) {
+    return (a + b);
 }
 
-function stringConcat (string a, string b) (string) {
-    return a + b;
+function stringConcat (string a, string b) returns (string) {
+    return (a + b);
 }

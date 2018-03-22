@@ -33,9 +33,9 @@ service<http:Service> EventServiceMock bind eventEP {
 }
 
 function init() {
-    isEventServiceStarted = test:startServices("src.test.resources.servicemocktest");
-    isPortalServiceStarted = test:startServices("src.test.resources.servicemocktest2");
-    isNonExistingServiceStarted = test:startServices("src.test.resources.servicemocktestX");
+    isEventServiceStarted = test:startServices("servicemocktest");
+    isPortalServiceStarted = test:startServices("servicemocktest2");
+    isNonExistingServiceStarted = test:startServices("servicemocktestX");
 }
 
 @test:config{before: "init"}
@@ -63,6 +63,6 @@ function testService () {
                http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+url2);
     }
 
-    test:stopServices("src.test.resources.servicemocktest");
-    test:stopServices("src.test.resources.servicemocktest2");
+    test:stopServices("servicemocktest");
+    test:stopServices("servicemocktest2");
 }

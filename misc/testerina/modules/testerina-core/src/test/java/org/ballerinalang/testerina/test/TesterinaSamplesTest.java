@@ -56,7 +56,7 @@ public class TesterinaSamplesTest {
     public void assertSampleTest() {
         cleanup();
         BTestRunner runner = new BTestRunner();
-        runner.runTest(testerinaRoot, new Path[] { Paths.get("features/assertions.bal") }, new ArrayList<>());
+        runner.runTest(testerinaRoot + "/features/", new Path[]{Paths.get("assertions.bal")}, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 14);
     }
 
@@ -65,7 +65,7 @@ public class TesterinaSamplesTest {
     public void dataProviderSampleTest() {
         cleanup();
         BTestRunner runner = new BTestRunner();
-        runner.runTest(testerinaRoot, new Path[] { Paths.get("features/data-providers.bal") }, new ArrayList<>());
+        runner.runTest(testerinaRoot + "/features/", new Path[]{Paths.get("data-providers.bal")}, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
     }
 

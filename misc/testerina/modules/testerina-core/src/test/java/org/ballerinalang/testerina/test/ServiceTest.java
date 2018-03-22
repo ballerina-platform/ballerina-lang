@@ -45,9 +45,7 @@ public class ServiceTest {
         BTestRunner bTestRunner = new BTestRunner();
         bTestRunner.runTest("src/test/resources", new Path[]{Paths.get("servicemocktest"), Paths.get
                 ("servicemocktest2")}, new ArrayList<>());
-        Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary("src.test.resources.servicemocktest",
-                "passed"), 1);
-
+        Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary("servicemocktest", "passed"), 1);
     }
 
     private void cleanup() {

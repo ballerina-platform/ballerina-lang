@@ -19,8 +19,8 @@ public struct AssertError {
 @Description{value:"Creates an AssertError with custom message and category"}
 @Param{value:"errorMessage: Custom message for the ballerina error"}
 @Param{value:"category: error category"}
-public function createBallerinaError (string errorMessage, string category) returns (AssertError) {
-    AssertError e = { message : errorMessage, category : category };
+public function createBallerinaError (string errorMessage, string category) returns (error) {
+    error e = { message : errorMessage };
     return e;
 }
 

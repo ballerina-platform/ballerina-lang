@@ -23,7 +23,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
@@ -101,13 +100,13 @@ public class TestCmd implements BLauncherCmd {
         }
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        ConfigRegistry.getInstance().initRegistry(configRuntimeParams, sourceRootPath.resolve("ballerina.conf"));
-
+        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().loadConfigurations();
+            ConfigRegistry.getInstance().initRegistry(configRuntimeParams, null, ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (ConfigFileParserException e) {
-            outStream.println("[WARN] Failed to load configurations: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException("failed to read the specified configuration file: " + ballerinaConfPath
+                    .toString(), e);
         }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);

@@ -1,8 +1,7 @@
 package functionTest;
 
-
-import ballerina.test;
-import ballerina.io;
+import ballerina/test;
+import ballerina/io;
 
 @test:beforeSuite
 function beforeTest(){
