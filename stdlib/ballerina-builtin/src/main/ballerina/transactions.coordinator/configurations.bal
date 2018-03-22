@@ -29,24 +29,32 @@ const string registrationPathPattern = "/{transactionBlockId}" + registrationPat
 const string coordinatorHost = getCoordinatorHost();
 const int coordinatorPort = getCoordinatorPort();
 
-function getCoordinatorHost () returns (string host) {
+function getCoordinatorHost () returns string {
     io:println("###### getCoordinatorHost");
-    host = config:getInstanceValue("http", "coordinator.host");
-    if (host == null || host == "") {
-        host = getHostAddress();
+    string host;
+    var result = config:getAsString("http.coordinator.host");
+    match result {
+        string h => host = h;
+        any x => host = getHostAddress(); //TODO: change this to null
     }
-    return;
+    return host;
 }
 
-function getCoordinatorPort () returns (int port) {
+function getCoordinatorPort () returns int {
     io:println("###### getCoordinatorPort");
-    var p, e = <int>config:getInstanceValue("http", "coordinator.port");
-    if (e != null) {
-        port = getAvailablePort();
-    } else {
-        port = p;
+    int port;
+    var result = config:getAsString("http.coordinator.port");
+    match result {
+        string p => {
+            var result2 = <int>p;
+            match result2 {
+                error e => port = getAvailablePort();
+                int p2 => port = p2;
+            }
+        }
+        any x => port = getAvailablePort(); //TODO: change this to null
     }
-    return;
+    return port;
 }
 
 endpoint http:ServiceEndpoint coordinatorServerEP {
