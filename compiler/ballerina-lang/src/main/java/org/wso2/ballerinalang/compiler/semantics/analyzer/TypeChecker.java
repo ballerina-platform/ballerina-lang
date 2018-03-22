@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -96,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -297,7 +297,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         type.tag == TypeTags.TABLE || 
                         type.tag == TypeTags.NONE || 
                         type.tag == TypeTags.STREAM ||
-                        type.tag == TypeTags.STREAMLET || 
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
     }
@@ -531,8 +530,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAM:
                 checkFunctionInvocationExpr(iExpr, symTable.streamType);
                 break;
-            case TypeTags.STREAMLET:
-                checkFunctionInvocationExpr(iExpr, symTable.streamletType);
+            case TypeTags.FUTURE:
+                checkFunctionInvocationExpr(iExpr, symTable.futureType);
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
@@ -727,6 +726,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> actualTypes;
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
+        conversionExpr.targetType = targetType;
         BType sourceType = checkExpr(conversionExpr.expr, env, Lists.of(symTable.noType)).get(0);
 
         if (conversionExpr.transformerInvocation == null) {
@@ -991,7 +991,7 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangNamedArgsExpression.type = bLangNamedArgsExpression.expr.type;
     }
 
-    public void visit(BLangStreamlet streamletNode){
+    public void visit(BLangWhenever wheneverStatement) {
         /* ignore */
     }
 
@@ -1113,12 +1113,19 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
             case TypeTags.JSON:
-            case TypeTags.XML:
             case TypeTags.STREAM:
-            case TypeTags.STREAMLET:
             case TypeTags.TABLE:
             case TypeTags.TUPLE_COLLECTION:
                 return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+            case TypeTags.XML: {
+                // This has been done as there are an iterable operation and a function both named "select"
+                // "select" function is applicable over XML type and select iterable operation is applicable over
+                // Table type. In order to avoid XML.select being confused for iterable function select at
+                // TypeChecker#visit(BLangInvocation iExpr) following condition is checked.
+                // TODO: There should be a proper way to resolve the conflict
+                return IterableKind.getFromString(iExpr.name.value) != IterableKind.SELECT
+                        && IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+            }
         }
         return false;
     }

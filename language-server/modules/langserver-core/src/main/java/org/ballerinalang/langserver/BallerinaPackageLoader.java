@@ -16,8 +16,10 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.workspace.repository.NullSourceDirectory;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -26,6 +28,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -63,18 +66,17 @@ public class BallerinaPackageLoader {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
+        String[] pkgComps = name.split("\\.");
         return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(
-                Names.ANON_ORG.value,
-                name)));
+                pkgComps[0], String.join(".", Arrays.copyOfRange(pkgComps, 1, pkgComps.length)))));
     }
 
     public static BLangPackage getBuiltinPackageByName(CompilerContext context, String name) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(
-                Names.ANON_ORG.value,
-                name)));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.value,
+                Names.BUILTIN_PACKAGE.getValue())));
     }
     
     public static CompilerContext prepareCompilerContext() {
@@ -83,6 +85,7 @@ public class BallerinaPackageLoader {
         options.put(PROJECT_DIR, "");
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        context.put(SourceDirectory.class, new NullSourceDirectory());
         
         return context;
     }
@@ -93,7 +96,7 @@ public class BallerinaPackageLoader {
      * @param maxDepth      Max depth to be searched
      * @return              {@link Set} set of packages
      */
-    public static Set<PackageID> getPackageList(CompilerContext context, int maxDepth) {
+    static Set<PackageID> getPackageList(CompilerContext context, int maxDepth) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         return pkgLoader.listPackages(Math.max(MAX_DEPTH, maxDepth));
     }

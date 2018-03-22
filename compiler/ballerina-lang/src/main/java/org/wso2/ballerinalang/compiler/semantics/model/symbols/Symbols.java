@@ -43,6 +43,8 @@ import java.util.Set;
  */
 public class Symbols {
 
+    public static final String ANON_STRUCT = "$anonStruct$";
+
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,
                                                  PackageID pkgID,
@@ -58,8 +60,9 @@ public class Symbols {
                                                  PackageID pkgID,
                                                  BType type,
                                                  BSymbol owner) {
-        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+        BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
+        typeSymbol.isObject = true;
         return typeSymbol;
     }
 
@@ -122,16 +125,6 @@ public class Symbols {
         return serviceSymbol;
     }
 
-    public static BStreamletSymbol createStreamletSymbol(int flags,
-                                                    Name name,
-                                                    PackageID pkgID,
-                                                    BType type,
-                                                    BSymbol owner) {
-        BStreamletSymbol typeSymbol = createStreamletSymbol(SymTag.STREAMLET, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.STREAMLET;
-        return typeSymbol;
-    }
-
     public static BInvokableSymbol createFunctionSymbol(int flags,
                                                         Name name,
                                                         PackageID pkgID,
@@ -169,15 +162,6 @@ public class Symbols {
                                                BType type,
                                                BSymbol owner) {
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
-    }
-
-    public static BStreamletSymbol createStreamletSymbol(int symTag,
-                                                         int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        return new BStreamletSymbol(symTag, flags, name, pkgID, type, owner);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,

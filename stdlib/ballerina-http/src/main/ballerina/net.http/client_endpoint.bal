@@ -61,12 +61,12 @@ public struct TargetService {
 @Field {value:"failoverConfig: Failover configuration"}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
-    int endpointTimeout = 60000;
+    int endpointTimeout;
     boolean keepAlive = true;
     TransferEncoding transferEncoding;
     Chunking chunking;
     string httpVersion;
-    string forwarded = "disable";
+    string forwarded;
     FollowRedirects|null followRedirects;
     Retry|null retry;
     Proxy|null proxy;
@@ -82,6 +82,8 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
     config.httpVersion = "1.1";
+    config.forwarded = "disable";
+    config.endpointTimeout = 60000;
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
@@ -191,22 +193,25 @@ public function createCircuitBreakerClient (string uri, ClientEndpointConfigurat
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
-                                    validateCircuitBreakerConfiguration(cb);
-                                    boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
-                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
-                                                                            { failureThreshold:cb.failureThreshold,
-                                                                                resetTimeout:cb.resetTimeout, httpStatusCodes:httpStatusCodes };
-                                    HttpClient cbHttpClient = createHttpClient(uri, configuration);
-                                    CircuitBreakerClient cbClient = {
-                                        serviceUri:uri, config:configuration,
-                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                                        httpClient:cbHttpClient,
-                                        circuitHealth:{},
-                                        currentCircuitState:CircuitState.CLOSED
-                                    };
-                                    var httpClient =? <HttpClient> cbClient;
-                                    return httpClient;
-                                }
+                    validateCircuitBreakerConfiguration(cb);
+                    boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
+                    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
+                                                            { failureThreshold:cb.failureThreshold,
+                                                                resetTimeout:cb.resetTimeout, 
+                                                                httpStatusCodes:httpStatusCodes 
+                                                            };
+                    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+                    CircuitBreakerClient cbClient = 
+                    {
+                        serviceUri:uri, config:configuration,
+                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+                        httpClient:cbHttpClient,
+                        circuitHealth:{},
+                        currentCircuitState:CircuitState.CLOSED
+                    };
+                    HttpClient httpClient =  cbClient;
+                    return httpClient;
+                }
         int | null => {
                         //remove following once we can ignore
                         io:println("CB CONFIG IS NULL");
@@ -234,12 +239,7 @@ function createLoadBalancerClient(ClientEndpointConfiguration config) returns Ht
     HttpClient[] lbClients = createHttpClientArray(config);
     LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
                           algorithm:config.algorithm};
-    HttpClient lbClient = {};
-    error conversionErr = {};
-    match <HttpClient>lb {
-        HttpClient client => lbClient = client;
-        error err => conversionErr = err;
-    }
+    HttpClient lbClient = lb;
     return lbClient;
 }
 

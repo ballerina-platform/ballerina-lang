@@ -667,36 +667,7 @@ public class TypeCastExprTest {
     public void testCastingWithTooManyReturns() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/cast-too-many-returns-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "assignment count mismatch: expected 3 values, but found 2", 15, 17);
-    }
-
-
-    @Test
-    public void testAnyToStringWithErrors() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyToStringWithErrors", new BValue[]{});
-
-        // check whether string is empty
-        //TODO : Check with VM string registry maintain empty as null
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[0].stringValue());
-
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'int' cannot be cast to 'string'");
-    }
-
-    @Test (description = "Test any to string casting happens without errors, error struct should be null")
-    public void testAnyToStringWithoutErrors() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyToStringWithoutErrors", new BValue[]{});
-
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "value");
-
-        // check the error
-        Assert.assertNull(returns[1]);
+        BAssertUtil.validateError(res, 0, "invalid token '=?'", 15, 15);
     }
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
@@ -736,18 +707,11 @@ public class TypeCastExprTest {
     }
 
     @Test
-    public void testAnyNullToStringWithErrors() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyNullToStringWithErrors", new BValue[]{});
+    public void testAnyNullToString() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyNullToString", new BValue[]{});
 
-        // check whether string is empty
-        //TODO : Check with VM string registry maintain empty as null
+        // null to string should return string null
         Assert.assertNull(returns[0].stringValue());
-
-        // check the error
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct error = (BStruct) returns[1];
-        String errorMsg = error.getStringField(0);
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'string'");
     }
 
     @Test
