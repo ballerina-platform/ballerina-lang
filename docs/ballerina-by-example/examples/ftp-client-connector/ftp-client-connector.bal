@@ -5,41 +5,44 @@ import ballerina/lang.blobs;
 
 
 function main (string[] args) {
-    endpoint<ftp:ClientConnector> ftpEp {
-        create ftp:ClientConnector();
-    }
+
+    endpoint ftp:Client clientEndpoint {
+        protocol: "sftp",
+        host:"localhost",
+        username : "ftpUser",
+        passPhrase : "helloWorld"
+    };
 
     // Checking if a specified file exists.
-    files:File target = {path:"ftp://127.0.0.1/ballerina-user/aa.txt"};
-    boolean filesExists = ftpEp.exists(target);
+    file:File newDir = {path:"/ballerina-user/README.txt"};
+    boolean filesExists;
+    filesExists =? clientEndpoint -> exists(newDir);
     io:println("File exists: " + filesExists);
 
     // Creating a new directory at a remote location.
-    files:File newDir = {path:"ftp://127.0.0.1/ballerina-user/new-dir/"};
-    ftpEp.createFile(newDir, "folder");
+    files:File newDir = {path:"/ballerina-user/new-dir/"};
+    clientEndpoint -> createFile(newDir, false);
 
     // Reading a file in a remote directory.
-    files:File txtFile = {path:"ftp://127.0.0.1/ballerina-user/bb.txt"};
-    blob contentB = ftpEp.read(txtFile);
-    io:println(blobs:toString(contentB, "UTF-8"));
+    files:File txtFile = {path:"/ballerina-user/final-results.txt"};
+    io:ByteChannel channel =? clientEndpoint -> read(txtFile);
 
     // Copying a remote file to another location.
-    files:File copyOfTxt = {path:
-                            "ftp://127.0.0.1/ballerina-user/new-dir/copy-of-bb.txt"};
-    ftpEp.copy(txtFile, copyOfTxt);
+    files:File copyOfTxt = {path:"/ballerina-user/backup/copy-final-results.txt"};
+    clientEndpoint -> copy(txtFile, copyOfTxt);
 
     // Moving a remote file to another location.
-    files:File mvSrc = {path:"ftp://127.0.0.1/ballerina-user/aa.txt"};
-    files:File mvTarget = {path:
-                           "ftp://127.0.0.1/ballerina-user/move/moved-aa.txt"};
-    ftpEp.move(mvSrc, mvTarget);
+    files:File mvSrc = {path:"/ballerina-user/aa.txt"};
+    files:File mvTarget = {path:"/ballerina-user/move/moved-aa.txt"};
+    clientEndpoint -> move(mvSrc, mvTarget);
 
     // Deleting a specified remote file.
-    files:File del = {path:"ftp://127.0.0.1/ballerina-user/cc.txt"};
-    ftpEp.delete(del);
+    files:File del = {path:"/ballerina-user/cc.txt"};
+    clientEndpoint -> delete(del);
 
     // Writing to a remote file.
-    files:File wrt = {path:"ftp://127.0.0.1/ballerina-user/dd.txt"};
-    blob contentD = "Hello World!".toBlob("UTF-8");
-    ftpEp.write(contentD, wrt);
+    files:File wrt = {path:"/ballerina-user/dd.txt"};
+    string text = "Sample Text";
+    blob content = text.toBlob("UTF-8");
+    clientEndpoint -> write(content, wrt, "o");
 }
