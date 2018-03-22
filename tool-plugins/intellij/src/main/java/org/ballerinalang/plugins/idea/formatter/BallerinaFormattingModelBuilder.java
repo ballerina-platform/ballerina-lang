@@ -48,28 +48,37 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMPOUND_OPERATOR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CURRENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.DAY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DELETE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DIV;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOUBLE_COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.EVENTS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.EVERY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPIRED;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FAIL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FIRST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FLOATING_POINT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FOLLOWED;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FOR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FORK;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FROM;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FULL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.GROUP;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.GT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.HAVING;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.HOUR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IDENTIFIER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IMPORT;
@@ -83,14 +92,18 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.INVOCATION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CONDITIONS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JSON;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LAST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LBRACE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LBRACK;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.LEFT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LENGTHOF;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LOCK;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LPAREN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.MAP;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.MATCH;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.MINUTE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.MONTH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NAME_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NATIVE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NEW;
@@ -101,6 +114,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ONCOMMIT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ONRETRY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.OPERATORS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ORDER;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OUTER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER_LIST;
@@ -110,13 +124,16 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.QUESTION_MARK;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RBRACE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECEIVEARROW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.REDUCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETRIES;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURNS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN_PARAMETER;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RIGHT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RPAREN;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SECOND;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SELECT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SEMI;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SENDARROW;
@@ -124,7 +141,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SET;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SIMPLE_EXPRESSION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.STREAMLET;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SNAPSHOT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SUB;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.THROW;
@@ -137,25 +154,28 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSFORMER_INVOCATI
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TRY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPEOF;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_AGGREGATION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_STREAM;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.UNIDIRECTIONAL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.UNTAINT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.UPDATE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.VALUE_TYPE_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.VAR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.VARIABLE_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WHENEVER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WHERE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WINDOW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WITH;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WITHIN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XML;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XMLNS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_ATTRIB;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_LOCAL_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XML_NAMESPACE_NAME;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.YEAR;
 
 /**
  * Builds the Ballerina file formatting model.
@@ -202,64 +222,84 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(BY).spaceIf(true)
                 .around(BREAK).spaceIf(false)
                 .around(CATCH).spaceIf(true)
+                .around(CURRENT).spaceIf(true)
+                .around(EVENTS).spaceIf(true)
+                .around(EVERY).spaceIf(true)
+                .around(EXPIRED).spaceIf(true)
                 .around(COMPOUND_OPERATOR).spaceIf(true)
                 .around(ONABORT).spaceIf(true)
                 .around(ONCOMMIT).spaceIf(true)
                 .around(ONRETRY).spaceIf(true)
                 .around(DOUBLE_COLON).spaceIf(false)
+                .after(FAIL).spaceIf(true)
                 .around(FINALLY).spaceIf(true)
                 .around(GROUP).spaceIf(true)
                 .after(CONST).spaceIf(true)
+                .around(DAY).spaceIf(true)
                 .around(DELETE).spaceIf(true)
                 .after(ENDPOINT).spaceIf(true)
                 .around(ELSE).spaceIf(true)
                 .between(FORK, LBRACE).spaceIf(true)
+                .around(FIRST).spaceIf(true)
                 .around(FOLLOWED).spaceIf(true)
                 .around(FOR).spaceIf(true)
                 .around(FROM).spaceIf(true)
+                .around(FULL).spaceIf(true)
                 .between(EXPRESSION, LBRACE).spaceIf(true)
                 .between(FORK, SEMI).spaceIf(false)
                 .after(FUNCTION).spaceIf(true)
                 .after(IF).spaceIf(true)
                 .around(INSERT).spaceIf(true)
                 .around(INTO).spaceIf(true)
-                .after(HAVING).spaceIf(true)
+                .around(HAVING).spaceIf(true)
+                .around(HOUR).spaceIf(true)
                 .after(IMPORT).spaceIf(true)
                 .after(FOREACH).spaceIf(true)
                 .around(IN).spaceIf(true)
                 .around(JOIN).spaceIf(true)
+                .around(LAST).spaceIf(true)
+                .around(LEFT).spaceIf(true)
                 .after(MATCH).spaceIf(true)
+                .around(MINUTE).spaceIf(true)
+                .around(MONTH).spaceIf(true)
                 .after(NATIVE).spaceIf(true)
                 .after(NEW).spaceIf(true)
                 .around(OBJECT).spaceIf(true)
                 .around(ON).spaceIf(true)
                 .around(ORDER).spaceIf(true)
+                .around(OUTER).spaceIf(true)
                 .after(PACKAGE).spaceIf(true)
                 .around(QUERY).spaceIf(true)
+                .around(REDUCE).spaceIf(true)
                 .after(RETRIES).spaceIf(false)
+                .around(RIGHT).spaceIf(true)
                 .after(TRANSACTION_PROPERTY_INIT_STATEMENT_LIST).spaceIf(true)
                 .after(RESOURCE).spaceIf(true)
+                .around(SECOND).spaceIf(true)
                 .around(SELECT).spaceIf(true)
                 .around(SET).spaceIf(true)
                 .between(SERVICE, LT).spaceIf(false)
                 .between(SERVICE, IDENTIFIER).spaceIf(true)
-                .after(STREAMLET).spaceIf(true)
+                .around(SNAPSHOT).spaceIf(true)
                 .after(STRUCT).spaceIf(true)
                 .after(THROW).spaceIf(true)
                 .around(TIMEOUT).spaceIf(true)
                 .after(TRY).spaceIf(true)
                 .after(TYPE).spaceIf(true)
-                .around(TYPE_AGGREGATION).spaceIf(true)
                 .around(TYPE_STREAM).spaceIf(true)
+                .around(UNIDIRECTIONAL).spaceIf(true)
                 .after(UNTAINT).spaceIf(true)
                 .around(UPDATE).spaceIf(true)
                 .after(VAR).spaceIf(true)
+                .after(WHENEVER).spaceIf(true)
                 .around(WHERE).spaceIf(true)
                 .after(WHILE).spaceIf(true)
+                .around(WITHIN).spaceIf(true)
                 .around(WINDOW).spaceIf(true)
                 .after(WORKER).spaceIf(true)
                 .around(WITH).spaceIf(true)
                 .after(XMLNS).spaceIf(true)
+                .around(YEAR).spaceIf(true)
                 .after(TYPEOF).spaceIf(true)
                 .after(LENGTHOF).spaceIf(true)
                 .after(LOCK).spaceIf(true)
