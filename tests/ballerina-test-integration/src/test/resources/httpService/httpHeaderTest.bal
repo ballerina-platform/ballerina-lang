@@ -37,8 +37,17 @@ service<http:Service> headerService bind headerServiceEP {
 
         match reply {
             http:Response clientResponse => {
-                string[] headers = clientResponse.getHeaders("person");
-                json payload = {header1:headers[0] , header2:headers[1]};
+                json payload = {};
+                if (clientResponse.hasHeader("person")) {
+                    string[] headers = clientResponse.getHeaders("person");
+                    if (lengthof(headers) == 2) {
+                        payload = {header1:headers[0], header2:headers[1]};
+                    } else {
+                        payload = {"response":"expected number of 'person' headers not found"};
+                    }
+                } else {
+                    payload = {"response":"person header not available"};
+                }
                 http:Response res = {};
                 res.setJsonPayload(payload);
                 _ = conn -> respond(res);
@@ -61,8 +70,17 @@ service<http:Service> quoteService bind stockServiceEP {
         path:"/stocks"
     }
     company (endpoint conn, http:Request req) {
-        string[] headers = req.getHeaders("core");
-        json payload = {header1:headers[0] , header2:headers[1]};
+        json payload = {};
+        if (req.hasHeader("core")) {
+            string[] headers = req.getHeaders("core");
+            if (lengthof(headers) == 2) {
+                payload = {header1:headers[0], header2:headers[1]};
+            } else {
+                payload = {"response":"expected number of 'core' headers not found"};
+            }
+        } else {
+            payload = {"response":"core header not available"};
+        }
         http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn -> respond(res);
