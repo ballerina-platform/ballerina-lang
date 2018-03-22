@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function contains(string source, string substring) returns (boolean) {
     return source.contains(substring);
 }
@@ -67,7 +69,8 @@ function stringValueOf(string s) returns (string) {
 }
 
 function xmlValueOf(xml x) returns (string) {
-    return <string>(x);
+    any[] value = [x];
+    return io:sprintf("%s", value);
 }
 
 function jsonValueOf(json j) returns (string) {
@@ -88,29 +91,4 @@ function split(string j, string k) returns (string[]) {
 
 function toBlob(string l, string m) returns (blob) {
     return l.toBlob(m);
-}
-
-function nullInString() returns (string, string) {
-    string s1;
-    string s2 = null;
-    return (s1, s2);
-}
-
-function concatNullString() returns (string) {
-    string s1;
-    string s2 = null;
-    return s1 + s2;
-}
-
-function compareNullStringWithNull() returns (boolean, boolean, boolean, boolean,
-                              boolean, boolean, boolean, boolean) {
-    string s1;
-    string s2 = null;
-    return (s1 == "", "" == s1, s1 != "", "" != s1, s2 == null, null == s2, s2 != null, null != s2);
-}
-
-function compareNotNullStringWithNull() returns (boolean, boolean, boolean, boolean) {
-    string s1 = "hello";
-    string s2 = null;
-    return (s1 == null, s1 != null, s1 == s2, s1 != s2);
 }
