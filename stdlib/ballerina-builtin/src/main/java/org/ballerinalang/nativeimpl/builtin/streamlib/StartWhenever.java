@@ -39,7 +39,8 @@ import java.util.Set;
  *
  * @since 0.965.0
  */
-@BallerinaFunction(packageName = "ballerina.builtin",
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "builtin",
         functionName = "startWhenever",
         args = {
                 @Argument(name = "streamQuery", type = TypeKind.STRING),

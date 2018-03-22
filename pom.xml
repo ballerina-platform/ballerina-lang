@@ -744,11 +744,6 @@
                 <version>${disruptor.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${metrics.version}</version>
@@ -1423,7 +1418,6 @@
 
         <mvel2.version>2.2.1.Final</mvel2.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <guava.version>19.0</guava.version>
         <metrics.version>3.1.0</metrics.version>
     </properties>
 
