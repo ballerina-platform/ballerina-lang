@@ -139,9 +139,6 @@ public function <Cache cache> get (string key) returns (any) {
         }
         error e => throw e;
     }
-    // Todo - This line should no be reached since we return from the match statement.
-    error e = {message:"Error occurred"};
-    return e;
 }
 
 @Description {value:"Removes a cached value from a cache."}
