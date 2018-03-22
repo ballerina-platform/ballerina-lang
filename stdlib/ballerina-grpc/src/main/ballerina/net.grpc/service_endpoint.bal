@@ -82,5 +82,5 @@ public struct Endpoint {
 }
 
 function <Endpoint s> getEndpoint() returns (Service) {
-    return null;
+    return {};
 }

@@ -25,21 +25,29 @@ function <helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
     stub.serviceStub = navStub;
 }
 
-function <helloWorldBlockingStub stub> hello (string req) (string, error) {
-    var res, err1 = stub.serviceStub.blockingExecute("helloWorld/hello", req);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return null, e;
+function <helloWorldBlockingStub stub> hello (string req) returns (string | error) {
+    any | grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
+    match unionResp {
+        grpc:ConnectorError payloadError => {
+            error e = {message:payloadError.message};
+            return e;
+        }
+        //Below code snippet will change after the pending match fix.
+        any | string payload => {
+            match payload {
+                string s => {
+                    return s;
+                }
+                any nonOccurance => {
+                    io:println("This condition should not occur.");
+                    return "";
+                }
+            }
+        }
     }
-    var response, err2 = (string)res;
-    if (err2 != null && err2.message != null) {
-        error e = {message:err2.message};
-        return null, e;
-    }
-    return response, null;
 }
 
-function <helloWorldStub stub> hello (string req, typedesc listener) (error) {
+function <helloWorldStub stub> hello (string req, typedesc listener) returns (error | null) {
     var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
     if (err1 != null && err1.message != null) {
         error e = {message:err1.message};

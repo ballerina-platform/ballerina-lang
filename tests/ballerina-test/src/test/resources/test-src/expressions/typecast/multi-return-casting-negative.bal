@@ -13,7 +13,7 @@ struct B {
 
 function testMistmatchErrorInMultiReturnCasting() {
     B b = {x: "x-valueof-b"};
-    A a;
-    Error err;
+    A a = {};
+    Error err = {};
     a, err = (A) b;
 }

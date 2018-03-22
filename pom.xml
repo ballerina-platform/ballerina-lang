@@ -712,11 +712,6 @@
                 <version>${io.grpc.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${google.guava.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.opencensus</groupId>
                 <artifactId>opencensus-api</artifactId>
                 <version>${io.opencensus.version}</version>
@@ -1244,6 +1239,11 @@
                     <artifactId>docerina-maven-plugin</artifactId>
                     <version>${ballerina.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.xolstice.maven.plugins</groupId>
+                    <artifactId>protobuf-maven-plugin</artifactId>
+                    <version>${protobuf.maven.plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -1318,7 +1318,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.112</transport.http.version>
+        <transport.http.version>6.0.114</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1417,8 +1417,8 @@
         <!-- gRPC support for microservice -->
         <io.grpc.version>1.10.0</io.grpc.version>
         <com.google.protobuf.version>3.5.1</com.google.protobuf.version>
+        <protobuf.maven.plugin.version>0.5.0</protobuf.maven.plugin.version>
         <io.opencensus.version>0.11.0</io.opencensus.version>
-        <google.guava.version>19.0</google.guava.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
         <mvel2.version>2.2.1.Final</mvel2.version>

@@ -202,7 +202,7 @@ public class IdentifierLiteralTest {
     }
 
     //Error scenarios
-    //TODO : Need to review this test... 
+    //TODO : Need to review this test...
     @Test(description = "Test error message when trying to access undefined global var with identifier literal",
             enabled = false)
     public void testTryToAccessUndefinedGlobalVarWithIdentifierLiteral() {
@@ -212,7 +212,7 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global v \" ar'", 5, 12);
     }
 
-    //TODO : Need to review this test... 
+    //TODO : Need to review this test...
     @Test(description = "Test wrong character in identifier literal", enabled = false)
     public void testIdentifierLiteralWithWrongCharacter() {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +

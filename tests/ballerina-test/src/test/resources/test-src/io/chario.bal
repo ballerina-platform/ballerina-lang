@@ -1,46 +1,70 @@
 import ballerina/io;
 
-io:CharacterChannel characterChannel;
+io:CharacterChannel|null chChannel;
 
-function initFileChannel (string filePath, string permission, string encoding) {
+function initCharacterChannel (string filePath, string permission, string encoding) {
     io:ByteChannel channel = io:openFile(filePath, permission);
     var result = io:createCharacterChannel(channel, encoding);
-    match result{
-         io:CharacterChannel charChannel => {
-             characterChannel = charChannel;
-         }
-         io:IOError err => {
-             throw err;
-         }
+    match result {
+        io:CharacterChannel charChannel => {
+            chChannel = charChannel;
+        }
+        io:IOError err => {
+            throw err;
+        }
     }
 }
 
 function readCharacters (int numberOfCharacters) returns (string) {
-    var result = characterChannel.readCharacters(numberOfCharacters);
-    match result{
-       string characters => {
-          return characters;
-       }
-       io:IOError err => {
-          throw err;
-       }
+    string empty = "";
+    match chChannel {
+        io:CharacterChannel ch => {
+            var result = ch.readCharacters(numberOfCharacters);
+            match result {
+                string characters => {
+                    return characters;
+                }
+                io:IOError err => {
+                    throw err;
+                }
+            }
+            return empty;
+        }
+        (any|null) => {
+            return empty;
+        }
     }
-    return "";
 }
 
 function writeCharacters (string content, int startOffset) returns (int) {
-    var result = characterChannel.writeCharacters(content, startOffset);
-    match result {
-        int numberOfCharsWritten =>{
-           return numberOfCharsWritten;
+    int blank = -1;
+    match chChannel {
+        io:CharacterChannel ch => {
+            var result = ch.writeCharacters(content, startOffset);
+            io:println(result);
+            match result {
+                int numberOfCharsWritten => {
+                    return numberOfCharsWritten;
+                }
+                io:IOError err => {
+                    throw err;
+                }
+            }
+            return blank;
         }
-        io:IOError err => {
-           throw err;
+        (any|null) => {
+            return blank;
         }
     }
-    return -1;
 }
 
-function close(){
-    io:IOError err = characterChannel.closeCharacterChannel();
+function close () {
+    match chChannel {
+        io:CharacterChannel ch => {
+            io:IOError err = ch.closeCharacterChannel();
+        }
+        (any|null) => {
+            io:println("Channel cannot be closed");
+        }
+    }
 }
