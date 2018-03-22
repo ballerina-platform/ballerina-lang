@@ -29,7 +29,6 @@ import java.lang.annotation.Target;
 /**
  * Index all subclasses of the annotated class or package.
  * <p>
- * <p>
  * During compilation {@link org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor}
  * creates a resource files listing all classes
  * extending annotated class or located inside annotated package.
@@ -54,10 +53,10 @@ public @interface IndexSubclasses {
     /**
      * Specifies whether to store Javadoc for runtime retrieval.
      * <p>
-     * <p>
      * You can retrieve the stored Javadoc summary using
      * {@link org.ballerinalang.siddhi.annotation.classindex.ClassIndex#getClassSummary(Class)}.
      * </p>
+     * @return true of false
      */
     boolean storeJavadoc() default false;
 }

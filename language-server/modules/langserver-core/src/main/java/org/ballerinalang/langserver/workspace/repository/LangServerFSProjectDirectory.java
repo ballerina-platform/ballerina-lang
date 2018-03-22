@@ -33,7 +33,6 @@ public class LangServerFSProjectDirectory extends FileSystemProjectDirectory {
         this.documentManager = documentManager;
     }
 
-    @Override
     public Repo getPackageRepository() {
         return new LSProjectSourceRepo(this.getPath(), documentManager);
     }
