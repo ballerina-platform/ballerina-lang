@@ -43,7 +43,6 @@ public class SymTag {
     public static final int XMLNS = 1 << 17 | IMPORT;
     public static final int ERROR = 1 << 18;
     public static final int ENDPOINT = 1 << 19 | VARIABLE;
-    public static final int STREAMLET = 1 << 20 | TYPE | VARIABLE_NAME;
-    public static final int OBJECT = 1 << 21 | TYPE | VARIABLE_NAME;
+    public static final int OBJECT = 1 << 20 | TYPE | VARIABLE_NAME | STRUCT;
 
 }

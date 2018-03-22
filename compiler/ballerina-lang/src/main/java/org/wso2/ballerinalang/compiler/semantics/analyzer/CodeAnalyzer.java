@@ -48,7 +48,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -96,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -137,19 +138,19 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
- * This represents the code analyzing pass of semantic analysis. 
- * 
+ * This represents the code analyzing pass of semantic analysis.
+ * <p>
  * The following validations are done here:-
- * 
+ * <p>
  * (*) Loop continuation statement validation.
  * (*) Function return path existence and unreachable code validation.
  * (*) Worker send/receive validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
-    
+
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    
+
     private int loopCount;
     private int transactionCount;
     private boolean statementReturns;
@@ -186,7 +187,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void resetFunction() {
         this.resetStatementReturns();
     }
-    
+
     private void resetStatementReturns() {
         this.statementReturns = false;
     }
@@ -199,7 +200,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         pkgNode.accept(this);
         return pkgNode;
     }
-    
+
     @Override
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
@@ -210,7 +211,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
-    
+
     @Override
     public void visit(BLangCompilationUnit compUnitNode) {
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
@@ -249,7 +250,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.finalizeCurrentWorkerActionSystem();
     }
-    
+
     @Override
     public void visit(BLangForkJoin forkJoin) {
         this.forkJoinCount++;
@@ -272,7 +273,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean inForkJoin() {
         return this.forkJoinCount > 0;
     }
-    
+
     private void checkForkJoinWorkerCount(BLangForkJoin forkJoin) {
         if (forkJoin.joinType == ForkJoinNode.JoinType.SOME) {
             int wc = forkJoin.joinedWorkers.size();
@@ -284,7 +285,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
     }
-    
+
     private boolean inWorker() {
         return this.workerCount > 0;
     }
@@ -330,6 +331,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.lastStatement = true;
     }
 
+    @Override
+    public void visit(BLangFail failNode) {
+        if (this.transactionCount == 0) {
+            this.dlog.error(failNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            return;
+        }
+        this.lastStatement = true;
+    }
+
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
@@ -340,11 +350,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetLastStatement();
         }
     }
-    
+
     private void checkStatementExecutionValidity(BLangStatement stmt) {
         this.checkUnreachableCode(stmt);
     }
-    
+
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.stmts.forEach(e -> {
@@ -352,7 +362,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         });
         this.resetLastStatement();
     }
-    
+
     @Override
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
@@ -363,7 +373,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.statementReturns = true;
         analyzeExprs(returnStmt.exprs);
     }
-    
+
     @Override
     public void visit(BLangIf ifStmt) {
         this.checkStatementExecutionValidity(ifStmt);
@@ -464,7 +474,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(lockNode);
         lockNode.body.stmts.forEach(e -> e.accept(this));
     }
-    
+
     @Override
     public void visit(BLangNext nextNode) {
         this.checkStatementExecutionValidity(nextNode);
@@ -509,7 +519,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         connectorNode.actions.forEach(a -> a.accept(this));
     }
 
-    public void visit(BLangStreamlet streamletNode) {
+    public void visit(BLangWhenever wheneverStatement) {
+        /* ignore */
         //TODO Implement
     }
 
@@ -652,6 +663,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangThrow throwNode) {
         this.checkStatementExecutionValidity(throwNode);
+        this.statementReturns = true;
         analyzeExpr(throwNode.expr);
     }
 
@@ -749,6 +761,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
     }
+
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
         analyzeExpr(cIExpr.objectInitInvocation);
@@ -759,7 +772,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(ternaryExpr.thenExpr);
         analyzeExpr(ternaryExpr.elseExpr);
     }
-    
+
     public void visit(BLangAwaitExpr awaitExpr) {
         analyzeExpr(awaitExpr.expr);
     }
@@ -894,20 +907,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void initNewWorkerActionSystem() {
         this.workerActionSystemStack.push(new WorkerActionSystem());
     }
-    
+
     private void finalizeCurrentWorkerActionSystem() {
         WorkerActionSystem was = this.workerActionSystemStack.pop();
         this.validateWorkerInteractions(was);
     }
-    
+
     private static boolean isWorkerSend(BLangStatement action) {
         return action.getKind() == NodeKind.WORKER_SEND;
     }
-    
+
     private static boolean isWorkerForkSend(BLangStatement action) {
         return ((BLangWorkerSend) action).isForkJoinSend;
     }
-    
+
     private String extractWorkerId(BLangStatement action) {
         if (isWorkerSend(action)) {
             return ((BLangWorkerSend) action).workerIdentifier.value;
@@ -915,7 +928,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return ((BLangWorkerReceive) action).workerIdentifier.value;
         }
     }
-    
+
     private void validateWorkerInteractions(WorkerActionSystem workerActionSystem) {
         BLangStatement currentAction;
         WorkerActionStateMachine currentSM;
@@ -937,7 +950,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     } else {
                         WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
                         if (otherSM.currentIsReceive(currentWorkerId)) {
-                            this.validateWorkerActionParameters((BLangWorkerSend) currentAction, 
+                            this.validateWorkerActionParameters((BLangWorkerSend) currentAction,
                                     (BLangWorkerReceive) otherSM.currentAction());
                             otherSM.next();
                             currentSM.next();
@@ -970,7 +983,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean checkNextBreakValidityInTransaction() {
         return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0;
     }
-    
+
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {
         List<BLangIdentifier> existingArgs = new ArrayList<>();
         args.forEach(arg -> {
@@ -986,49 +999,49 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * This class contains the state machines for a set of workers.
      */
     private static class WorkerActionSystem {
-        
+
         public Map<String, WorkerActionStateMachine> workerActionStateMachines = new LinkedHashMap<>();
-        
+
         private WorkerActionStateMachine currentSM;
-        
+
         private String currentWorkerId;
-        
+
         public void startWorkerActionStateMachine(String workerId, DiagnosticPos pos) {
             this.currentWorkerId = workerId;
             this.currentSM = new WorkerActionStateMachine(pos);
         }
-        
+
         public void endWorkerActionStateMachine() {
             this.workerActionStateMachines.put(this.currentWorkerId, this.currentSM);
         }
-        
+
         public void addWorkerAction(BLangStatement action) {
             this.currentSM.actions.add(action);
         }
-        
+
         public WorkerActionStateMachine get(String workerId) {
             return this.workerActionStateMachines.get(workerId);
         }
-        
+
         public Set<Map.Entry<String, WorkerActionStateMachine>> entrySet() {
             return this.workerActionStateMachines.entrySet();
         }
-        
+
         public boolean everyoneDone() {
             return this.workerActionStateMachines.values().stream().allMatch(WorkerActionStateMachine::done);
         }
-        
+
         public DiagnosticPos getRootPosition() {
             return this.workerActionStateMachines.values().iterator().next().pos;
         }
-        
+
         @Override
         public String toString() {
             return this.workerActionStateMachines.toString();
         }
-        
+
     }
-    
+
     /**
      * This class represents a state machine to maintain the state of the send/receive
      * actions of a worker.
@@ -1042,7 +1055,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         public List<BLangStatement> actions = new ArrayList<>();
 
         public DiagnosticPos pos;
-        
+
         public WorkerActionStateMachine(DiagnosticPos pos) {
             this.pos = pos;
         }
@@ -1085,9 +1098,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     /**
      * Visit all the nested expressions and validate variable references against a given set of symbols.
-     * This visitor is used to check whether an expression contains inputs/output variables, that are not 
+     * This visitor is used to check whether an expression contains inputs/output variables, that are not
      * suppose to be there.
-     * 
+     *
      * @since 0.94.2
      */
     private class TransformerVarRefValidator extends BLangNodeVisitor {
@@ -1097,8 +1110,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         /**
          * Create a new {@link TransformerVarRefValidator}.
-         * 
-         * @param symbols List of symbols to validate the expression against
+         *
+         * @param symbols         List of symbols to validate the expression against
          * @param diagCodeOnError Diagnostic code to be logged on error
          */
         public TransformerVarRefValidator(List<BVarSymbol> symbols, DiagnosticCode diagCodeOnError) {

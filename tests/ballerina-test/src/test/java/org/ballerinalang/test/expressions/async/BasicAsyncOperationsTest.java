@@ -19,6 +19,7 @@ package org.ballerinalang.test.expressions.async;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -67,6 +68,12 @@ public class BasicAsyncOperationsTest {
     public void testAsyncNonNativeBasic5() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic5", new BValue[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 31.0);
+    }
+    
+    @Test
+    public void testAsyncNonNativeBasic6() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic6", new BValue[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
     
 }

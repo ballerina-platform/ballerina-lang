@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for Connector actions with optional and named params.
  */
+@Test(enabled = false)
 public class ConnectorActionWithOptionalParamsTest {
     CompileResult result;
 

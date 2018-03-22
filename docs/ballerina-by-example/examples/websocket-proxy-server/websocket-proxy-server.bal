@@ -1,64 +1,79 @@
 import ballerina/io;
-import ballerina/net.ws;
+import ballerina/net.http;
 
-@ws:configuration {
-    basePath: "/proxy/ws",
+const string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
+endpoint http:WebSocketClient wsEndpoint {
+    url:"wss://echo.websocket.org",
+    callbackService:typeof ClientService
+};
+endpoint http:ServiceEndpoint serviceEndpoint {
     port:9090
+};
+@http:WebSocketServiceConfig {
+    basePath:"/proxy/ws"
 }
-service<ws> SimpleProxyServer {
+service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 
-    map clientConnMap = {};
     string remoteUrl = "wss://echo.websocket.org";
-    string remoteServerCallbackService = "ClientService";
 
     @Description {value:"Create a client connection to remote server from ballerina when new client connects to this service endpoint."}
-    resource onHandshake(ws:HandshakeConnection con) {
-        endpoint<ws:WsClient> wsEndpoint {
-            create ws:WsClient(remoteUrl, remoteServerCallbackService);
-        }
-        var clientConn, err = wsEndpoint.connect({parentConnectionID:con.connectionID});
-        if (err != null) {
-            io:println(err.message);
-            con.cancelHandshake(1001, "Cannot connect to remote server");
-        } else {
-            clientConnMap[con.connectionID] = clientConn;
-        }
+    onUpgrade (endpoint ep, http:Request req) {
+        var conn = ep.getClient();
+        var clientConn = wsEndpoint.getClient();
+        ep -> upgradeToWebSocket({"custom":"header"});
+        conn.attributes[ASSOCIATED_CONNECTION] = clientConn;
+        clientConn.attributes[ASSOCIATED_CONNECTION] = conn;
     }
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        var clientCon, _ = (ws:Connection)clientConnMap[conn.getID()];
+    onTextMessage (endpoint conn, http:TextFrame frame) {
+        var clientCon = getAssociatedConnection(conn.getClient());
         clientCon.pushText(frame.text);
     }
 
-    resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
-        var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
-        clientConn.pushBinary(frame.data);
+    onBinaryMessage (endpoint conn, http:BinaryFrame frame) {
+        var clientCon = getAssociatedConnection(conn.getClient());
+        clientCon.pushBinary(frame.data);
     }
 
-    resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
+    onClose (endpoint ep, http:CloseFrame frame) {
+        var conn = ep.getClient();
+        var clientConn = getAssociatedConnection(conn);
         clientConn.closeConnection(frame.statusCode, frame.reason);
-        clientConnMap.remove(conn.getID());
+        _ = conn.attributes.remove(ASSOCIATED_CONNECTION);
     }
 }
 
 @Description {value:"Client service to receive frames from remote server"}
-@ws:clientService {}
-service<ws> ClientService {
+@http:WebSocketServiceConfig {}
+service<http:WebSocketService> ClientService {
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        ws:Connection parentConn = conn.getParentConnection();
+    onTextMessage (endpoint conn, http:TextFrame frame) {
+        var parentConn = getAssociatedConnection(conn.getClient());
         parentConn.pushText(frame.text);
     }
 
-    resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
-        ws:Connection parentConn = conn.getParentConnection();
+    onBinaryMessage (endpoint conn, http:BinaryFrame frame) {
+        var parentConn = getAssociatedConnection(conn.getClient());
         parentConn.pushBinary(frame.data);
     }
 
-    resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-        ws:Connection parentConn = conn.getParentConnection();
+    onClose (endpoint ep, http:CloseFrame frame) {
+        var conn = ep.getClient();
+        var parentConn = getAssociatedConnection(conn);
         parentConn.closeConnection(frame.statusCode, frame.reason);
+        _ = conn.attributes.remove(ASSOCIATED_CONNECTION);
     }
 
+}
+
+
+function getAssociatedConnection (http:WebSocketConnector conn) returns (http:WebSocketConnector) {
+    var param = <http:WebSocketConnector>conn.attributes[ASSOCIATED_CONNECTION];
+    match param {
+        http:WebSocketConnector associatedConnection => return associatedConnection;
+        any|null val => {
+            error err = {message:"Associated connection is not set"};
+            throw err;
+        }
+    }
 }

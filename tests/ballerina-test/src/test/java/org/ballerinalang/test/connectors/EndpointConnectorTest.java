@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for endpoint connector combination.
  */
+@Test (enabled = false)
 public class EndpointConnectorTest {
     CompileResult result;
     CompileResult resultNegative;

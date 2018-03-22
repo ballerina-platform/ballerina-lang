@@ -125,20 +125,12 @@ public class JSONLibraryTest {
     @Test
     public void testComplexJSONParseGen() throws IOException {
         String json = "[\n" +
-                "  {\n" +
-                "    \"_id\": \"5a2e62bcc952044058853b92\",\n" +
-                "    \"index\": 0,\n" +
-                "    \"guid\": \"a8d6d338-5fb4-4775-a14f-30aa631c539f\",\n" +
-                "    \"isActive\": false,\n" +
-                "    \"balance\": \"$3,656.67\",\n" +
-                "    \"picture\": \"http://placehold.it/32x32\",\n" +
-                "    \"age\": 32,\n" +
-                "    \"eyeColor\": \"green\",\n" +
-                "    \"name\": \"Knapp Price\",\n" +
-                "    \"gender\": \"male\",\n" +
-                "    \"company\": \"BALOOBA\",\n" +
-                "    \"email\": \"knappprice@balooba.com\",\n" +
-                "    \"phone\": \"+1 (994) 584-2832\",\n" +
+                "  {\n \"_id\": \"5a2e62bcc952044058853b92\",\n \"index\": 0,\n" +
+                "    \"guid\": \"a8d6d338-5fb4-4775-a14f-30aa631c539f\",\n    \"isActive\": false,\n" +
+                "    \"balance\": \"$3,656.67\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
+                "    \"age\": 32,\n \"eyeColor\": \"green\",\n \"name\": \"Knapp Price\",\n" +
+                "    \"gender\": \"male\",\n \"company\": \"BALOOBA\",\n" +
+                "    \"email\": \"knappprice@balooba.com\",\n \"phone\": \"+1 (994) 584-2832\",\n" +
                 "    \"address\": \"806 Grand Street, Bedias, Virgin Islands, 274\",\n" +
                 "    \"about\": \"Consequat ex veniam voluptate eu commodo minim nulla aliqua"
                 + " enim magna dolore cillum velit. Voluptate eiusmod proident cillum qui enim"
@@ -146,50 +138,25 @@ public class JSONLibraryTest {
                 + " cillum id sunt pariatur duis aliquip consequat. Exercitation id eiusmod occaecat"
                 + " qui commodo ex excepteur aliquip nostrud consectetur ullamco magna sunt mollit."
                 + " Excepteur sint esse aliquip ea adipisicing nostrud sunt reprehenderit nulla dolore"
-                + " officia reprehenderit.\\r\\n\",\n" +
-                "    \"registered\": \"2015-09-03T11:14:04 -06:-30\",\n" +
-                "    \"latitude\": -42.496948,\n" +
-                "    \"longitude\": 21.642371,\n" +
-                "    \"tags\": [\n" +
-                "      \"fugiat\",\n" +
-                "      \"fugiat\",\n" +
-                "      \"labore\",\n" +
-                "      \"consequat\",\n" +
-                "      \"adipisicing\",\n" +
-                "      \"esse\",\n" +
-                "      \"enim\"\n" +
-                "    ],\n" +
+                + " officia reprehenderit.\\r\\n\",\n \"registered\": \"2015-09-03T11:14:04 -06:-30\",\n" +
+                "    \"latitude\": -42.496948,\n \"longitude\": 21.642371,\n" +
+                "    \"tags\": [\n \"fugiat\",\n \"fugiat\",\n \"labore\",\n \"consequat\",\n\"adipisicing\",\n" +
+                "      \"esse\",\n \"enim\"\n ],\n" +
                 "    \"friends\": [\n" +
-                "      {\n" +
-                "        \"id\": 0,\n" +
-                "        \"name\": \"Matilda Hutchinson\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 1,\n" +
-                "        \"name\": \"Christensen Chase\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 2,\n" +
-                "        \"name\": \"Adrian Castillo\"\n" +
-                "      }\n" +
+                "      {\n \"id\": 0,\n \"name\": \"Matilda Hutchinson\"\n},\n" +
+                "      {\n \"id\": 1,\n \"name\": \"Christensen Chase\"\n},\n" +
+                "      {\n \"id\": 2,\n \"name\": \"Adrian Castillo\"\n}\n" +
                 "    ],\n" +
                 "    \"greeting\": \"Hello, Knapp Price! You have 2 unread messages.\",\n" +
                 "    \"favoriteFruit\": \"banana\"\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"_id\": \"5a2e62bcb795ed1030bf2729\",\n" +
-                "    \"index\": 1,\n" +
-                "    \"guid\": \"9593b0fd-b7a6-4269-8598-791c1d446072\",\n" +
-                "    \"isActive\": true,\n" +
-                "    \"balance\": \"$3,876.09\",\n" +
-                "    \"picture\": \"http://placehold.it/32x32\",\n" +
-                "    \"age\": 23,\n" +
-                "    \"eyeColor\": \"blue\",\n" +
-                "    \"name\": \"Carmela Taylor\",\n" +
-                "    \"gender\": \"female\",\n" +
-                "    \"company\": \"SPLINX\",\n" +
-                "    \"email\": \"carmelataylor@splinx.com\",\n" +
-                "    \"phone\": \"+1 (946) 580-3736\",\n" +
+                "    \"_id\": \"5a2e62bcb795ed1030bf2729\",\n \"index\": 1,\n" +
+                "    \"guid\": \"9593b0fd-b7a6-4269-8598-791c1d446072\",\n \"isActive\": true,\n" +
+                "    \"balance\": \"$3,876.09\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
+                "    \"age\": 23,\n \"eyeColor\": \"blue\",\n \"name\": \"Carmela Taylor\",\n" +
+                "    \"gender\": \"female\",\n \"company\": \"SPLINX\",\n" +
+                "    \"email\": \"carmelataylor@splinx.com\",\n \"phone\": \"+1 (946) 580-3736\",\n" +
                 "    \"address\": \"984 Legion Street, Neahkahnie, Louisiana, 3996\",\n" +
                 "    \"about\": \"Amet incididunt reprehenderit id deserunt aute exercitation"
                 + " deserunt consequat irure veniam deserunt. Proident labore nostrud nulla"
@@ -200,45 +167,21 @@ public class JSONLibraryTest {
                 "    \"registered\": \"2017-10-02T10:56:41 -06:-30\",\n" +
                 "    \"latitude\": -58.108242,\n" +
                 "    \"longitude\": 13.373699,\n" +
-                "    \"tags\": [\n" +
-                "      \"eiusmod\",\n" +
-                "      \"minim\",\n" +
-                "      \"veniam\",\n" +
-                "      \"laboris\",\n" +
-                "      \"in\",\n" +
-                "      \"id\",\n" +
-                "      \"incididunt\"\n" +
-                "    ],\n" +
+                "    \"tags\": [\n \"eiusmod\",\n \"minim\",\n \"veniam\",\n \"laboris\",\n \"in\",\n" +
+                "      \"id\",\n \"incididunt\"\n ],\n" +
                 "    \"friends\": [\n" +
-                "      {\n" +
-                "        \"id\": 0,\n" +
-                "        \"name\": \"Flores Pacheco\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 1,\n" +
-                "        \"name\": \"Duran Melton\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 2,\n" +
-                "        \"name\": \"Tammie Mcgowan\"\n" +
-                "      }\n" +
+                "      {\n \"id\": 0,\n \"name\": \"Flores Pacheco\"\n},\n" +
+                "      {\n \"id\": 1,\n \"name\": \"Duran Melton\"\n },\n" +
+                "      {\n \"id\": 2,\n \"name\": \"Tammie Mcgowan\"\n}\n" +
                 "    ],\n" +
                 "    \"greeting\": \"Hello, Carmela Taylor! You have 3 unread messages.\",\n" +
                 "    \"favoriteFruit\": \"apple\"\n" +
                 "  },\n" +
-                "  {\n" +
-                "    \"_id\": \"5a2e62bc61cf3baedbf94387\",\n" +
-                "    \"index\": 2,\n" +
-                "    \"guid\": \"8ef39ecc-dc8e-4ffd-b495-d62850e97887\",\n" +
-                "    \"isActive\": true,\n" +
-                "    \"balance\": \"$3,337.73\",\n" +
-                "    \"picture\": \"http://placehold.it/32x32\",\n" +
-                "    \"age\": 29,\n" +
-                "    \"eyeColor\": \"green\",\n" +
-                "    \"name\": \"Laverne Soto\",\n" +
-                "    \"gender\": \"female\",\n" +
-                "    \"company\": \"TRASOLA\",\n" +
-                "    \"email\": \"lavernesoto@trasola.com\",\n" +
+                "  {\n \"_id\": \"5a2e62bc61cf3baedbf94387\",\n \"index\": 2,\n" +
+                "    \"guid\": \"8ef39ecc-dc8e-4ffd-b495-d62850e97887\",\n \"isActive\": true,\n" +
+                "    \"balance\": \"$3,337.73\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
+                "    \"age\": 29,\n \"eyeColor\": \"green\",\n \"name\": \"Laverne Soto\",\n" +
+                "    \"gender\": \"female\",\n \"company\": \"TRASOLA\",\n \"email\": \"lavernesoto@trasola.com\",\n" +
                 "    \"phone\": \"+1 (973) 431-3053\",\n" +
                 "    \"address\": \"973 Minna Street, Fairacres, California, 1962\",\n" +
                 "    \"about\": \"Cupidatat et sunt sunt in anim et ad proident anim ex qui."
@@ -249,45 +192,23 @@ public class JSONLibraryTest {
                 "    \"registered\": \"2016-06-09T10:19:50 -06:-30\",\n" +
                 "    \"latitude\": 74.986738,\n" +
                 "    \"longitude\": 16.096849,\n" +
-                "    \"tags\": [\n" +
-                "      \"deserunt\",\n" +
-                "      \"reprehenderit\",\n" +
-                "      \"ex\",\n" +
-                "      \"cillum\",\n" +
-                "      \"in\",\n" +
-                "      \"aute\",\n" +
-                "      \"elit\"\n" +
-                "    ],\n" +
+                "    \"tags\": [\n \"deserunt\",\n \"reprehenderit\",\n \"ex\",\n \"cillum\",\n \"in\",\n" +
+                "      \"aute\",\n \"elit\"\n ],\n" +
                 "    \"friends\": [\n" +
-                "      {\n" +
-                "        \"id\": 0,\n" +
-                "        \"name\": \"Vicki Le\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 1,\n" +
-                "        \"name\": \"Elvia Hull\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 2,\n" +
-                "        \"name\": \"Sophie Blankenship\"\n" +
-                "      }\n" +
+                "      {\n \"id\": 0,\n \"name\": \"Vicki Le\"\n},\n" +
+                "      {\n \"id\": 1,\n \"name\": \"Elvia Hull\"\n},\n" +
+                "      {\n \"id\": 2,\n \"name\": \"Sophie Blankenship\"\n}\n" +
                 "    ],\n" +
                 "    \"greeting\": \"Hello, Laverne Soto! You have 1 unread messages.\",\n" +
                 "    \"favoriteFruit\": \"strawberry\"\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"_id\": \"5a2e62bc638ea321dad78f67\",\n" +
-                "    \"index\": 3,\n" +
+                "    \"_id\": \"5a2e62bc638ea321dad78f67\",\n \"index\": 3,\n" +
                 "    \"guid\": \"00dd92e2-c71d-44f7-b5dc-42e9fd4e7f37\",\n" +
-                "    \"isActive\": false,\n" +
-                "    \"balance\": \"$1,939.48\",\n" +
-                "    \"picture\": \"http://placehold.it/32x32\",\n" +
-                "    \"age\": 26,\n" +
-                "    \"eyeColor\": \"blue\",\n" +
-                "    \"name\": \"Rosalyn Walker\",\n" +
-                "    \"gender\": \"female\",\n" +
-                "    \"company\": \"ELPRO\",\n" +
-                "    \"email\": \"rosalynwalker@elpro.com\",\n" +
+                "    \"isActive\": false,\n \"balance\": \"$1,939.48\",\n" +
+                "    \"picture\": \"http://placehold.it/32x32\",\n \"age\": 26,\n" +
+                "    \"eyeColor\": \"blue\",\n \"name\": \"Rosalyn Walker\",\n \"gender\": \"female\",\n" +
+                "    \"company\": \"ELPRO\",\n \"email\": \"rosalynwalker@elpro.com\",\n" +
                 "    \"phone\": \"+1 (805) 405-3108\",\n" +
                 "    \"address\": \"504 Highland Avenue, Faxon, Indiana, 2611\",\n" +
                 "    \"about\": \"Magna enim aute esse pariatur non dolore est nulla dolore cupidatat."
@@ -298,46 +219,23 @@ public class JSONLibraryTest {
                 "    \"registered\": \"2014-11-26T09:31:46 -06:-30\",\n" +
                 "    \"latitude\": -76.595194,\n" +
                 "    \"longitude\": 82.539045,\n" +
-                "    \"tags\": [\n" +
-                "      \"adipisicing\",\n" +
-                "      \"voluptate\",\n" +
-                "      \"ex\",\n" +
-                "      \"nisi\",\n" +
-                "      \"enim\",\n" +
-                "      \"laboris\",\n" +
-                "      \"pariatur\"\n" +
-                "    ],\n" +
+                "    \"tags\": [\n \"adipisicing\",\n \"voluptate\",\n \"ex\",\n \"nisi\",\n \"enim\",\n" +
+                "      \"laboris\",\n \"pariatur\"\n],\n" +
                 "    \"friends\": [\n" +
-                "      {\n" +
-                "        \"id\": 0,\n" +
-                "        \"name\": \"Deleon Calhoun\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 1,\n" +
-                "        \"name\": \"Delia Porter\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 2,\n" +
-                "        \"name\": \"Toni Mercer\"\n" +
-                "      }\n" +
+                "      {\n \"id\": 0,\n \"name\": \"Deleon Calhoun\"\n},\n" +
+                "      {\n \"id\": 1,\n \"name\": \"Delia Porter\"\n},\n" +
+                "      {\n \"id\": 2,\n \"name\": \"Toni Mercer\"\n}\n" +
                 "    ],\n" +
                 "    \"greeting\": \"Hello, Rosalyn Walker! You have 7 unread messages.\",\n" +
                 "    \"favoriteFruit\": \"strawberry\"\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"_id\": \"5a2e62bc0ee2fa109d65e5f8\",\n" +
-                "    \"index\": 4,\n" +
-                "    \"guid\": \"21fba439-7ccd-4552-b047-29de1770ffdd\",\n" +
-                "    \"isActive\": true,\n" +
-                "    \"balance\": \"$3,032.06\",\n" +
-                "    \"picture\": \"http://placehold.it/32x32\",\n" +
-                "    \"age\": 23,\n" +
-                "    \"eyeColor\": \"blue\",\n" +
-                "    \"name\": \"Earline Cortez\",\n" +
-                "    \"gender\": \"female\",\n" +
-                "    \"company\": \"VENOFLEX\",\n" +
-                "    \"email\": \"earlinecortez@venoflex.com\",\n" +
-                "    \"phone\": \"+1 (936) 582-2977\",\n" +
+                "    \"_id\": \"5a2e62bc0ee2fa109d65e5f8\",\n \"index\": 4,\n" +
+                "    \"guid\": \"21fba439-7ccd-4552-b047-29de1770ffdd\",\n \"isActive\": true,\n" +
+                "    \"balance\": \"$3,032.06\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
+                "    \"age\": 23,\n \"eyeColor\": \"blue\",\n" +
+                "    \"name\": \"Earline Cortez\",\n \"gender\": \"female\",\n \"company\": \"VENOFLEX\",\n" +
+                "    \"email\": \"earlinecortez@venoflex.com\",\n \"phone\": \"+1 (936) 582-2977\",\n" +
                 "    \"address\": \"919 Fairview Place, Manitou, Alabama, 6067\",\n" +
                 "    \"about\": \"Ad ad anim sint esse consequat eu id. In aute Lorem ipsum "
                 + "labore do laboris aute et culpa. Ex consectetur exercitation occaecat non "
@@ -346,46 +244,23 @@ public class JSONLibraryTest {
                 "    \"registered\": \"2016-11-03T10:46:27 -06:-30\",\n" +
                 "    \"latitude\": -51.928376,\n" +
                 "    \"longitude\": 99.427013,\n" +
-                "    \"tags\": [\n" +
-                "      \"exercitation\",\n" +
-                "      \"sunt\",\n" +
-                "      \"non\",\n" +
-                "      \"nisi\",\n" +
-                "      \"est\",\n" +
-                "      \"Lorem\",\n" +
-                "      \"nostrud\"\n" +
-                "    ],\n" +
+                "    \"tags\": [\n \"exercitation\",\n \"sunt\",\n \"non\",\n \"nisi\",\n \"est\",\n \"Lorem\",\n" +
+                "      \"nostrud\"\n ],\n" +
                 "    \"friends\": [\n" +
-                "      {\n" +
-                "        \"id\": 0,\n" +
-                "        \"name\": \"Jeri Noel\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 1,\n" +
-                "        \"name\": \"Webster Kirby\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 2,\n" +
-                "        \"name\": \"Beatriz Flores\"\n" +
-                "      }\n" +
+                "      {\n \"id\": 0,\n \"name\": \"Jeri Noel\"\n},\n" +
+                "      {\n \"id\": 1,\n \"name\": \"Webster Kirby\"\n},\n" +
+                "      {\n \"id\": 2,\n \"name\": \"Beatriz Flores\"\n}\n" +
                 "    ],\n" +
                 "    \"greeting\": \"Hello, Earline Cortez! You have 5 unread messages.\",\n" +
                 "    \"favoriteFruit\": \"apple\"\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"_id\": \"5a2e62bc8a1e885b9edad867\",\n" +
-                "    \"index\": 5,\n" +
-                "    \"guid\": \"ecf7f3ef-17e5-45b2-9d13-9a487dd4221d\",\n" +
-                "    \"isActive\": true,\n" +
-                "    \"balance\": \"$1,374.20\",\n" +
-                "    \"picture\": \"http://placehold.it/32x32\",\n" +
-                "    \"age\": 33,\n" +
-                "    \"eyeColor\": \"blue\",\n" +
-                "    \"name\": \"Virginia Jackson\",\n" +
-                "    \"gender\": \"female\",\n" +
-                "    \"company\": \"GREEKER\",\n" +
-                "    \"email\": \"virginiajackson@greeker.com\",\n" +
-                "    \"phone\": \"+1 (810) 461-2989\",\n" +
+                "    \"_id\": \"5a2e62bc8a1e885b9edad867\",\n \"index\": 5,\n" +
+                "    \"guid\": \"ecf7f3ef-17e5-45b2-9d13-9a487dd4221d\",\n \"isActive\": true,\n" +
+                "    \"balance\": \"$1,374.20\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
+                "    \"age\": 33,\n \"eyeColor\": \"blue\",\n \"name\": \"Virginia Jackson\",\n" +
+                "    \"gender\": \"female\",\n \"company\": \"GREEKER\",\n" +
+                "    \"email\": \"virginiajackson@greeker.com\",\n \"phone\": \"+1 (810) 461-2989\",\n" +
                 "    \"address\": \"249 Ivan Court, Tecolotito, Maryland, 3734\",\n" +
                 "    \"about\": \"Labore incididunt nisi id est elit laborum officia amet ex "
                 + "enim eiusmod. Ea nostrud occaecat qui deserunt velit sit Lorem aliqua ea magna. "
@@ -395,46 +270,23 @@ public class JSONLibraryTest {
                 "    \"registered\": \"2014-08-06T02:13:23 -06:-30\",\n" +
                 "    \"latitude\": 6.170452,\n" +
                 "    \"longitude\": 67.163572,\n" +
-                "    \"tags\": [\n" +
-                "      \"non\",\n" +
-                "      \"minim\",\n" +
-                "      \"ipsum\",\n" +
-                "      \"duis\",\n" +
-                "      \"velit\",\n" +
-                "      \"fugiat\",\n" +
-                "      \"anim\"\n" +
-                "    ],\n" +
+                "    \"tags\": [\n \"non\",\n \"minim\",\n \"ipsum\",\n \"duis\",\n \"velit\",\n" +
+                "      \"fugiat\",\n \"anim\"\n ],\n" +
                 "    \"friends\": [\n" +
-                "      {\n" +
-                "        \"id\": 0,\n" +
-                "        \"name\": \"Melton Walton\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 1,\n" +
-                "        \"name\": \"Ellison Marks\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 2,\n" +
-                "        \"name\": \"Aurelia Wong\"\n" +
-                "      }\n" +
+                "      {\n \"id\": 0,\n \"name\": \"Melton Walton\"\n},\n" +
+                "      {\n \"id\": 1,\n \"name\": \"Ellison Marks\"\n},\n" +
+                "      {\n \"id\": 2,\n \"name\": \"Aurelia Wong\"\n}\n" +
                 "    ],\n" +
                 "    \"greeting\": \"Hello, Virginia Jackson! You have 2 unread messages.\",\n" +
                 "    \"favoriteFruit\": \"strawberry\"\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"_id\": \"5a2e62bced0680efe15377df\",\n" +
-                "    \"index\": 6,\n" +
-                "    \"guid\": \"1d620f55-7627-4c6f-ba44-83e0e80cad86\",\n" +
-                "    \"isActive\": true,\n" +
-                "    \"balance\": \"$1,228.11\",\n" +
-                "    \"picture\": \"http://placehold.it/32x32\",\n" +
-                "    \"age\": 32,\n" +
-                "    \"eyeColor\": \"green\",\n" +
-                "    \"name\": \"Valencia Bishop\",\n" +
-                "    \"gender\": \"male\",\n" +
-                "    \"company\": \"GOLOGY\",\n" +
-                "    \"email\": \"valenciabishop@gology.com\",\n" +
-                "    \"phone\": \"+1 (877) 449-3372\",\n" +
+                "    \"_id\": \"5a2e62bced0680efe15377df\",\n \"index\": 6,\n" +
+                "    \"guid\": \"1d620f55-7627-4c6f-ba44-83e0e80cad86\",\n \"isActive\": true,\n" +
+                "    \"balance\": \"$1,228.11\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
+                "    \"age\": 32,\n \"eyeColor\": \"green\",\n \"name\": \"Valencia Bishop\",\n" +
+                "    \"gender\": \"male\",\n \"company\": \"GOLOGY\",\n" +
+                "    \"email\": \"valenciabishop@gology.com\",\n \"phone\": \"+1 (877) 449-3372\",\n" +
                 "    \"address\": \"382 Grant Avenue, Dundee, New Mexico, 1007\",\n" +
                 "    \"about\": \"Consectetur sint ex veniam velit. Et excepteur adipisicing "
                 + "pariatur sit ex. In adipisicing occaecat qui est est magna. Excepteur "
@@ -443,28 +295,13 @@ public class JSONLibraryTest {
                 "    \"registered\": \"2016-08-10T08:37:17 -06:-30\",\n" +
                 "    \"latitude\": 49.170631,\n" +
                 "    \"longitude\": 129.413828,\n" +
-                "    \"tags\": [\n" +
-                "      \"incididunt\",\n" +
-                "      \"adipisicing\",\n" +
-                "      \"sit\",\n" +
-                "      \"nisi\",\n" +
-                "      \"mollit\",\n" +
-                "      \"eu\",\n" +
-                "      \"tempor\"\n" +
+                "    \"tags\": [\n \"incididunt\",\n \"adipisicing\",\n \"sit\",\n \"nisi\",\n \"mollit\",\n" +
+                "      \"eu\",\n \"tempor\"\n" +
                 "    ],\n" +
                 "    \"friends\": [\n" +
-                "      {\n" +
-                "        \"id\": 0,\n" +
-                "        \"name\": \"Imelda Obrien\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 1,\n" +
-                "        \"name\": \"Jefferson Webster\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"id\": 2,\n" +
-                "        \"name\": \"Bonnie Vincent\"\n" +
-                "      }\n" +
+                "      {\n \"id\": 0,\n \"name\": \"Imelda Obrien\"\n},\n" +
+                "      {\n \"id\": 1,\n \"name\": \"Jefferson Webster\"\n},\n" +
+                "      {\n \"id\": 2,\n \"name\": \"Bonnie Vincent\"\n}\n" +
                 "    ],\n" +
                 "    \"greeting\": \"Hello, Valencia Bishop! You have 4 unread messages.\",\n" +
                 "    \"favoriteFruit\": \"banana\"\n" +

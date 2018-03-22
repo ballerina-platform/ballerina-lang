@@ -38,9 +38,12 @@ import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINITION;
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
@@ -52,18 +55,20 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX
  * @since 1.0.0
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "streamingExecute",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
-                structPackage = PROTOCOL_PACKAGE_GRPC),
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "listenerService", type = TypeKind.TYPEDESC)
         },
         returnType = {
-                @ReturnType(type = TypeKind.ANY),
+                @ReturnType(type = TypeKind.STRUCT, structType = CLIENT,
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
                 @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_PACKAGE_GRPC),
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         },
         isPublic = true
 )
@@ -76,7 +81,7 @@ public class StreamingExecute extends AbstractExecute {
                     "is not initialized properly");
             return;
         }
-
+        
         Object connectionStub = serviceStub.getNativeData(SERVICE_STUB);
         if (connectionStub == null) {
             notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
@@ -107,7 +112,7 @@ public class StreamingExecute extends AbstractExecute {
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = grpcNonBlockingStub.executeClientStreaming
                             (responseObserver, methodName);
-
+                    
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
                     requestSender = grpcNonBlockingStub.executeBidiStreaming
                             (responseObserver, methodName);
@@ -128,7 +133,7 @@ public class StreamingExecute extends AbstractExecute {
             }
         }
     }
-
+    
     private Value getTypeField(BTypeDescValue refField) {
         if (refField == null) {
             return null;

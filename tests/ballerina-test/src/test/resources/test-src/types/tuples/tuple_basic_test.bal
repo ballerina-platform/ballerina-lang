@@ -14,7 +14,7 @@ function basicTupleTest () returns (string) {
     FooStruct foo = {x:"foo test3"};
     var (a, b) = ("test3",foo);
     addValue(a);
-    addValue(b);
+    addValue(b.x);
     endTest();
 
     // Test 4
@@ -22,14 +22,14 @@ function basicTupleTest () returns (string) {
     int d;
     (c, d) = ("test4", 4);
     addValue(c);
-    addValue(d);
+    addValue(<string> d);
     endTest();
 
     // Test 5
     (string,int) f = ("test5",5);
     var (g, h) = f;
     addValue(g);
-    addValue(h);
+    addValue(<string> h);
     endTest();
 
     // Test 6
@@ -37,7 +37,7 @@ function basicTupleTest () returns (string) {
     var i = ("test6",foo6);
     var (j, k) = i;
     addValue(j);
-    addValue(k);
+    addValue(k.x);
     endTest();
     return exFlow;
 }
@@ -46,9 +46,8 @@ struct FooStruct {
     string x;
 }
 
-function addValue (any value) {
-    var x = <string> value;
-    exFlow += x;
+function addValue (string value) {
+    exFlow += value;
     exFlow += " ";
 }
 

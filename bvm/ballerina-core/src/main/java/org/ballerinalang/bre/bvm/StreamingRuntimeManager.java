@@ -18,17 +18,25 @@
 
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BStreamlet;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class responsible on holding Siddhi App runtimes and related stream objects.
@@ -58,50 +66,47 @@ public class StreamingRuntimeManager {
         return streamingRuntimeManager;
     }
 
-    public void createSiddhiAppRuntime(BStreamlet streamlet) {
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streamlet.getSiddhiApp());
-        Set<String> streamIds = siddhiAppRuntime.getStreamDefinitionMap().keySet();
-        Map<String, InputHandler> streamSpecificInputHandlerMap = new HashMap<>();
-        for (String streamId : streamIds) {
-            streamSpecificInputHandlerMap.put(streamId, siddhiAppRuntime.getInputHandler(streamId));
-        }
-
-        streamlet.setStreamSpecificInputHandlerMap(streamSpecificInputHandlerMap);
-        streamlet.setSiddhiAppRuntime(siddhiAppRuntime);
+    public SiddhiAppRuntime createSiddhiAppRuntime(String siddhiApp) {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         siddhiAppRuntimeList.add(siddhiAppRuntime);
         siddhiAppRuntime.start();
+        return siddhiAppRuntime;
     }
 
-    public void registerSubscriberForTopics(Map<String, InputHandler> streamSpecificInputHandlerMap,
-                                            String streamIdsAsString) {
-        String[] streamIds = streamIdsAsString.trim().split(",");
-        for (String streamId : streamIds) {
-            BStream streamReference = StreamingRuntimeManager.getInstance().getStreamReference(streamId);
-            if (streamReference != null) {
-                streamReference.subscribe(streamSpecificInputHandlerMap.get(streamId));
-            }
+
+    public void addCallback(String streamId, BFunctionPointer functionPointer, SiddhiAppRuntime siddhiAppRuntime) {
+
+        BType[] parameters = functionPointer.value().getFunctionInfo().getParamTypes();
+        BStructType structType = (BStructType) ((BArrayType) parameters[0]).getElementType();
+        if (!(parameters[0] instanceof BArrayType)) {
+            throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
+                    + " a struct array");
         }
-    }
 
-    public void removeSiddhiAppRuntime(SiddhiAppRuntime siddhiAppRuntime) {
-        siddhiAppRuntimeList.remove(siddhiAppRuntime);
-    }
-
-    public List<SiddhiAppRuntime> getStreamSpecificSiddhiAppRuntimes(String streamId) {
-        List<SiddhiAppRuntime> siddhiAppRuntimeList = new ArrayList<>();
-        for (SiddhiAppRuntime siddhiAppRuntime : this.siddhiAppRuntimeList) {
-            if (siddhiAppRuntime != null && siddhiAppRuntime.getStreamDefinitionMap().get(streamId) != null) {
-                siddhiAppRuntimeList.add(siddhiAppRuntime);
+        siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                for (Event event : events) {
+                    AtomicInteger intVarIndex = new AtomicInteger(-1);
+                    AtomicInteger floatVarIndex = new AtomicInteger(-1);
+                    AtomicInteger boolVarIndex = new AtomicInteger(-1);
+                    AtomicInteger stringVarIndex = new AtomicInteger(-1);
+                    BStruct output = new BStruct(structType);
+                    for (Object field : event.getData()) {
+                        if (field instanceof Long) {
+                            output.setIntField(intVarIndex.incrementAndGet(), (Long) field);
+                        } else if (field instanceof Double) {
+                            output.setFloatField(floatVarIndex.incrementAndGet(), (Double) field);
+                        } else if (field instanceof Boolean) {
+                            output.setBooleanField(boolVarIndex.incrementAndGet(), (Integer) field);
+                        } else if (field instanceof String) {
+                            output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
+                        }
+                    }
+                    BValue[] args = {output};
+                    BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), args);
+                }
             }
-        }
-        return siddhiAppRuntimeList;
-    }
-
-    public void addStreamReference(String streamId, BStream bStream) {
-        this.streamMap.put(streamId, bStream);
-    }
-
-    public BStream getStreamReference(String streamId) {
-        return streamMap.get(streamId);
+        });
     }
 }
