@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 // struct to represent a person in the example.
 struct Person {
