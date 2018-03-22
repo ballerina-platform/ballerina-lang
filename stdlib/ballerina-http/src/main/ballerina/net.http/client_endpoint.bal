@@ -73,7 +73,7 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
-    //FailoverConfig failoverConfig;
+    FailoverConfig|null failoverConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -243,15 +243,15 @@ function createLoadBalancerClient(ClientEndpointConfiguration config) returns Ht
     return lbClient;
 }
 
-//function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
-//    HttpClient[] clients = createHttpClientArray(config);
-//    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
-//    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
-//                                          failoverCodesIndex : failoverCodes,
-//                                          failoverInterval : config.failoverConfig.interval};
-//
-//    Failover failover = {serviceUri:config.targets[0].uri, config:config,
-//                            failoverInferredConfig:failoverInferredConfig};
-//    var httpClient, _ = (HttpClient) failover;
-//    return httpClient;
-//}
+function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
+    HttpClient[] clients = createHttpClientArray(config);
+    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
+    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
+                                          failoverCodesIndex : failoverCodes,
+                                          failoverInterval : config.failoverConfig.interval};
+
+    Failover failover = {serviceUri:config.targets[0].uri, config:config,
+                            failoverInferredConfig:failoverInferredConfig};
+    var httpClient, _ = (HttpClient) failover;
+    return httpClient;
+}
