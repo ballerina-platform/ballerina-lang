@@ -57,7 +57,7 @@ public class PushUtils {
      * @param installToRepo if it should be pushed to central or home
      */
     public static void pushPackages(String packageName, String installToRepo) {
-        String accessToken = getAccessTokenOfCLI() != null ? getAccessTokenOfCLI() : null;
+        String accessToken = getAccessTokenOfCLI();
         if (accessToken == null) {
             throw new BLangCompilerException("You have not specified an access-token for the central in your" +
                     " Settings.toml\n. Please login to central if you are already registered using" +
@@ -87,7 +87,7 @@ public class PushUtils {
             ExecutorUtils.execute(balxPath, accessToken, resourcePath, pkgPathFromPrjtDir.toString(), msg);
         } else {
             if (!installToRepo.equals("home")) {
-                throw new BLangCompilerException("No repository provided to push the package");
+                throw new BLangCompilerException("Unknown repository provided to push the package");
             }
             Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
             Path targetDirectoryPath = Paths.get(balHomeDir.toString(), "repo", orgName, packageName, version,

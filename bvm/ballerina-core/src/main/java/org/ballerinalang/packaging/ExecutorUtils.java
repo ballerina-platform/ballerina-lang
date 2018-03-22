@@ -47,10 +47,8 @@ public class ExecutorUtils {
     public static void execute(URI balxResource, String... args) {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
-        if (baloFilePath != null) {
-            ProgramFile programFile = readExecutableProgram(baloFilePath);
-            BLangProgramRunner.runMain(programFile, args);
-        }
+        ProgramFile programFile = readExecutableProgram(baloFilePath);
+        BLangProgramRunner.runMain(programFile, args);
     }
 
     /**
@@ -77,9 +75,8 @@ public class ExecutorUtils {
     private static ProgramFile readExecutableProgram(Path baloFilePath) {
         ByteArrayInputStream byteIS = null;
         try {
-            byte[] byteArray = Files.readAllBytes(baloFilePath);
+            byteIS = new ByteArrayInputStream(Files.readAllBytes(baloFilePath));
             ProgramFileReader reader = new ProgramFileReader();
-            byteIS = new ByteArrayInputStream(byteArray);
             return reader.readProgram(byteIS);
         } catch (IOException ignore) {
         } finally {
