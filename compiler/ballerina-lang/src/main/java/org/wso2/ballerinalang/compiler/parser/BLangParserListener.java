@@ -2066,7 +2066,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos currentPos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
-        boolean exprAvailable = ctx.simpleLiteral() != null;
+        boolean exprAvailable = ctx.expression() != null;
         if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
             this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateStructBodyContext) {
