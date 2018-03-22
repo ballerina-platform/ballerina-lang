@@ -39,6 +39,7 @@ public class CustomFunctionTest {
     public void testDuplicateParameters() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/duplicate-parameters.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
+        // Checking duplicate parameter definition in a function starting at 31st column
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 31);
     }
 
