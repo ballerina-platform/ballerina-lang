@@ -1,8 +1,8 @@
 import ballerina/net.http;
 
-service<http:Service> SampleService {
+service<http:Service> echo1 {
 
-  resource sampleResource (http:ServerConnector conn, http:Request req) {
+passthru (endpoint outboundEP, http:Request request) {
     reply;
   }
 }
