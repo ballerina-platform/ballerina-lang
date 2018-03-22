@@ -42,6 +42,9 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "invalid rest arguments", 33, 25);
 
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
+
+        BAssertUtil.validateError(result, i++, "this function must return a result", 32, 1);
+
     }
 
     @Test

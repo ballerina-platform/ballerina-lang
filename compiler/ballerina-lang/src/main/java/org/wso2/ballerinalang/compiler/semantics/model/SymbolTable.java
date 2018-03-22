@@ -143,6 +143,7 @@ public class SymbolTable {
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
+        initializeType(nullType, TypeKind.NULL.typeName());
 
         // Initialize error type;
         this.errType = new BErrorType(null);

@@ -16,7 +16,7 @@ function cleanup () {
     i = 0;
 }
 
-@test:config{
+@test:Config{
     before: "init"
 }
 function testBefore () {
@@ -24,14 +24,14 @@ function testBefore () {
     reset();
 }
 
-@test:config{
+@test:Config{
     before: "init", after: "cleanup"
 }
 function test1 () {
     test:assertTrue(i == 1, msg = "Expected i to be 1, but i = "+i);
 }
 
-@test:config{
+@test:Config{
     dependsOn: ["test1"]
 }
 function testAfter () {
@@ -39,7 +39,7 @@ function testAfter () {
     reset();
 }
 
-@test:config{
+@test:Config{
     after: "cleanup"
 }
 function test2 () {
@@ -47,7 +47,7 @@ function test2 () {
     test:assertTrue(i == 0, msg = "Expected i to be 1, but i = "+i);
 }
 
-@test:config{
+@test:Config{
     dependsOn: ["test2"]
 }
 function testAfterAlone () {
@@ -55,17 +55,17 @@ function testAfterAlone () {
     reset();
 }
 
-@test:config
+@test:Config
 function test3 () {
     j = j + 1;
 }
 
-@test:config
+@test:Config
 function test4 () {
     j = j + 2;
 }
 
-@test:config{
+@test:Config{
     dependsOn: ["test3", "test4"]
 }
 function testDependsOn1 () {
