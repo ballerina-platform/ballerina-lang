@@ -1595,6 +1595,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType handleSafeAssignmentWithVarDeclaration(DiagnosticPos pos, BType rhsType) {
         if (rhsType.tag != TypeTags.UNION && types.isAssignable(symTable.errStructType, rhsType)) {
             dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+            return symTable.errType;
         } else if (rhsType.tag != TypeTags.UNION) {
             return rhsType;
         }
@@ -1603,7 +1604,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BUnionType unionType = (BUnionType) rhsType;
         List<BType> rhsTypeList = new ArrayList<>(unionType.memberTypes);
         for (BType type : rhsTypeList) {
-            if (types.isAssignable(symTable.errStructType, type)) {
+            if (types.isAssignable(type, symTable.errStructType)) {
                 unionType.memberTypes.remove(type);
             }
         }
