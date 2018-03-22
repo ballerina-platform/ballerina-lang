@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * ballerina.model.map:hasKey(string)
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "map.hasKey",
         args = {@Argument(name = "m", type = TypeKind.MAP),
                 @Argument(name = "key", type = TypeKind.STRING)},

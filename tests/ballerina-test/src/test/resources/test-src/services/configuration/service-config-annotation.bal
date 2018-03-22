@@ -1,19 +1,19 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-endpoint<mock:NonListeningService> helloEP {
+endpoint mock:NonListeningService helloEP {
     port:9090
-}
+};
 
-@http:serviceConfig {basePath:"/hello"}
-@http:serviceConfig {endpoints:[helloEP]}
+@http:ServiceConfig {basePath:"/hello"}
+@http:ServiceConfig {endpoints:[helloEP]}
 service<http:Service> helloWorldServiceConfig {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:ServerConnector conn, http:Request req) {
+    sayHello (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);

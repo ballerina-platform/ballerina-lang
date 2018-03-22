@@ -18,13 +18,11 @@
 package org.ballerinalang.nativeimpl.io.channels;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -38,12 +36,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @see org.ballerinalang.nativeimpl.io.OpenFile
  */
 public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
-
-    /**
-     * represents the information related to the byte channel.
-     */
-    private StructInfo byteChannelStructInfo;
-
     /**
      * The package path of the byte channel.
      */
@@ -53,22 +45,6 @@ public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
      * The struct type of the byte channel.
      */
     private static final String STRUCT_TYPE = "ByteChannel";
-
-
-    /**
-     * Gets the struct related to AbstractChannel.
-     *
-     * @param context invocation context.
-     * @return the struct related to AbstractChannel.
-     */
-    private StructInfo getByteChannelStructInfo(Context context) {
-        StructInfo result = byteChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(BYTE_CHANNEL_PACKAGE);
-            byteChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return byteChannelStructInfo;
-    }
 
     /**
      * <p>
@@ -87,7 +63,7 @@ public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         Channel channel = inFlow(context);
-        BStruct channelStruct = BLangVMStructs.createBStruct(getByteChannelStructInfo(context));
+        BStruct channelStruct = BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE, STRUCT_TYPE);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
         context.setReturnValues(channelStruct);
     }

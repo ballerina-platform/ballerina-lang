@@ -163,7 +163,7 @@ public class VarDeclaredAssignmentStmtTest {
         CompileResult res = BCompileUtil.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 2);
         BAssertUtil.validateError(res, 0, "extraneous input 'var'", 1, 1);
-        BAssertUtil.validateError(res, 1, "mismatched input '='. expecting {'[', '?', '|', Identifier}", 1, 15);
+        BAssertUtil.validateError(res, 1, "invalid token '='", 1, 15);
     }
 
     @Test
@@ -185,10 +185,10 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarDeclarationWithDuplicateVariableRefs() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-duplicate-variable-ref-lhs-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "redeclared symbol 'age'", 2, 14);
+        BAssertUtil.validateError(res, 0, "redeclared symbol 'age'", 2, 15);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testVarDeclarationWithArrayInit() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declaration-with-array-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);

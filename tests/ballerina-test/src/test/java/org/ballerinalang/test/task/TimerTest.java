@@ -51,7 +51,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+
 import java.util.Arrays;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -63,7 +65,7 @@ public class TimerTest {
     @BeforeClass
     public void setup() {
         System.setProperty("java.util.logging.config.file",
-                ClassLoader.getSystemResource("logging.properties").getPath());
+                           ClassLoader.getSystemResource("logging.properties").getPath());
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
     }
 
@@ -76,11 +78,11 @@ public class TimerTest {
         int interval = 1000;
         BValue[] returns =
                 BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
-                        new BValue[]{new BInteger(initialDelay), new BInteger(interval)});
+                                        new BValue[]{new BInteger(initialDelay), new BInteger(interval)});
         String taskId = returns[0].stringValue();
         assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
-        assertEquals(returns.length, 2); // There should be no errors
-        assertNull(returns[1], "Ballerina scheduler returned an error");
+        assertEquals(returns.length, 1); // There should be no errors
+
         await().atMost(30, SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCount");
             return ((BInteger) counts[0]).intValue() >= 5;
@@ -88,7 +90,7 @@ public class TimerTest {
 
         // Now let's try stopping the task
         BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult,
-                "stopTask", new BValue[]{new BString(taskId)});
+                                                      "stopTask", new BValue[]{new BString(taskId)});
         assertNull(stopResult[0], "Task stopping resulted in an error");
 
         // One more check to see whether the task really stopped
@@ -106,14 +108,15 @@ public class TimerTest {
         String errMsg = "Timer error";
         BValue[] returns =
                 BRunUtil.invokeStateful(timerCompileResult, "scheduleTimerWithError",
-                        new BValue[]{new BInteger(initialDelay), new BInteger(interval), new BString(errMsg)});
+                                        new BValue[]{new BInteger(initialDelay), new BInteger(interval),
+                                                new BString(errMsg)});
         String taskId = returns[0].stringValue();
         assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
-        assertEquals(returns.length, 2); // There should be no errors
-        assertNull(returns[1], "Ballerina scheduler returned an error");
+        assertEquals(returns.length, 1); // There should be no errors
+
         await().atMost(5, SECONDS).until(() -> {
             BValue[] error = BRunUtil.invokeStateful(timerCompileResult, "getError");
-            return error != null && error[0] != null && error[0].stringValue() != null;
+            return error != null && error[0] != null && !error[0].stringValue().isEmpty();
         });
 
         // Now test whether the onError Ballerina function got called
@@ -133,10 +136,10 @@ public class TimerTest {
         int w2Interval = 2000;
         BValue[] returns =
                 BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
-                        new BValue[]{
-                                new BInteger(w1InitialDelay), new BInteger(w1Interval),
-                                new BInteger(w2InitialDelay), new BInteger(w2Interval),
-                                new BString(""), new BString("")});
+                                        new BValue[]{
+                                                new BInteger(w1InitialDelay), new BInteger(w1Interval),
+                                                new BInteger(w2InitialDelay), new BInteger(w2Interval),
+                                                new BString(""), new BString("")});
         String w1TaskId = returns[0].stringValue();
         String w2TaskId = returns[1].stringValue();
         assertNotEquals(w1TaskId, "", "Invalid task ID from worker w1");  // A non-null task ID should be returned
@@ -149,7 +152,7 @@ public class TimerTest {
 
         // Now let's try stopping the tasks
         BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult, "stopTasks",
-                new BValue[]{new BString(w1TaskId), new BString(w2TaskId)});
+                                                      new BValue[]{new BString(w1TaskId), new BString(w2TaskId)});
         assertNull(stopResult[0], "Task stopping on worker w1 resulted in an error");
         assertNull(stopResult[1], "Task stopping on worker w2 resulted in an error");
 
@@ -173,18 +176,18 @@ public class TimerTest {
 
         BValue[] returns =
                 BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
-                        new BValue[]{
-                                new BInteger(w1InitialDelay), new BInteger(w1Interval),
-                                new BInteger(w2InitialDelay), new BInteger(w2Interval),
-                                new BString(w1ErrMsg), new BString(w2ErrMsg)});
+                                        new BValue[]{
+                                                new BInteger(w1InitialDelay), new BInteger(w1Interval),
+                                                new BInteger(w2InitialDelay), new BInteger(w2Interval),
+                                                new BString(w1ErrMsg), new BString(w2ErrMsg)});
         String w1TaskId = returns[0].stringValue();
         String w2TaskId = returns[1].stringValue();
         assertNotEquals(w1TaskId, "", "Invalid task ID from worker w1");  // A non-null task ID should be returned
         assertNotEquals(w2TaskId, "", "Invalid task ID from worker w2");  // A non-null task ID should be returned
         await().atMost(10, SECONDS).until(() -> {
             BValue[] errors = BRunUtil.invokeStateful(timerCompileResult, "getErrors");
-            return errors != null && errors[0] != null && errors[0].stringValue() != null &&
-                    errors[1] != null && errors[1].stringValue() != null;
+            return errors != null && errors[0] != null && !errors[0].stringValue().isEmpty() &&
+                    errors[1] != null && !errors[1].stringValue().isEmpty();
         });
 
         // Now test whether the onError Ballerina function got called
@@ -195,7 +198,7 @@ public class TimerTest {
 
         // Now let's try stopping the tasks
         BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult, "stopTasks",
-                new BValue[]{new BString(w1TaskId), new BString(w2TaskId)});
+                                                      new BValue[]{new BString(w1TaskId), new BString(w2TaskId)});
         assertNull(stopResult[0], "Task stopping on worker w1 resulted in an error");
         assertNull(stopResult[1], "Task stopping on worker w2 resulted in an error");
 

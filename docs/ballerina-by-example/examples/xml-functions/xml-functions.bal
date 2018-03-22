@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 function main (string[] args) {
     xml bookName = xml `<name>Book1</name>`;
@@ -8,7 +8,7 @@ function main (string[] args) {
 
     // Other than the XML literal syntax, XML can be parsed using a string. The string should be a valid XML.
     string xmlString = "<book/>";
-    var book, _ = <xml>xmlString;
+    xml book =? <xml>xmlString;
 
     // Get the type of the XML.
     io:println(bookComment.getItemType());

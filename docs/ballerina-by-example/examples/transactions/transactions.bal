@@ -1,9 +1,9 @@
-import ballerina.data.sql;
-import ballerina.io;
+import ballerina/data.sql;
+import ballerina/io;
 
 function main (string[] args) {
 
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDBEP {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
@@ -11,7 +11,7 @@ function main (string[] args) {
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
-    }
+    };
 
     var testDB = testDBEP.getConnector();
 
@@ -40,7 +40,7 @@ function main (string[] args) {
         transactionSuccess = true;
         //The end curly bracket marks the end of the transaction and the transaction will
         //be committed or rolled back at this point.
-    } failed {
+    } onretry {
         //The failed block will be executed if the transaction is failed due to an
         //exception or a throw statement. This block will execute each time
         //transaction is failed until retry count is reached.

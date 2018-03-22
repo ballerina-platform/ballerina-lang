@@ -77,37 +77,37 @@
 
             <!-- copy built-in ballerina sources to the jar -->
             <resource>
-                <directory>${generated.testerina.source.directory}</directory>
-                <targetPath>META-INF/natives</targetPath>
+                <directory>${generated.ballerina.source.directory}</directory>
+                <targetPath>META-INF/ballerina</targetPath>
             </resource>
         </resources>
 
         <plugins>
             <!-- For creating the ballerina structure from testerina structure -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${mvn.resource.plugins.version}</version>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-resources-plugin</artifactId>-->
+                <!--<version>${mvn.resource.plugins.version}</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>copy-resources</id>-->
 
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${generated.testerina.source.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/ballerina</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+                        <!--<phase>validate</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>copy-resources</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<outputDirectory>${generated.testerina.source.directory}</outputDirectory>-->
+                            <!--<resources>-->
+                                <!--<resource>-->
+                                    <!--<directory>src/main/ballerina</directory>-->
+                                    <!--<filtering>true</filtering>-->
+                                <!--</resource>-->
+                            <!--</resources>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
 
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -181,6 +181,7 @@
                     <systemPropertyVariables>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
                         <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
+                        <testerina.root>${session.executionRootDirectory}</testerina.root>
                     </systemPropertyVariables>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
@@ -188,12 +189,16 @@
                         <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
                             /repository/BallerinaBuiltinPackageRepository.class</additionalClasspathElement>
                     </additionalClasspathElements>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
     <properties>
+        <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
         <maven.checkstyleplugin.excludes>
             **/parser/*,
             **/generated/**

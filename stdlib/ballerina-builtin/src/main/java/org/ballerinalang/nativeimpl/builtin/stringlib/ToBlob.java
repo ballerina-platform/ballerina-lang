@@ -32,7 +32,7 @@ import java.io.UnsupportedEncodingException;
  * Convert String to Blob.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.toBlob",
         args = {@Argument(name = "string", type = TypeKind.STRING),
                 @Argument(name = "encoding", type = TypeKind.STRING)},

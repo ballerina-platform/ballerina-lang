@@ -1,15 +1,15 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
 endpoint<mock:NonListeningService> testEP {
     port:9090
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo66 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/test1",
         consumes:["application/xml"]
@@ -21,7 +21,7 @@ service<http:Service> echo66 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test2",
         produces:["text/xml","application/xml "]
@@ -33,7 +33,7 @@ service<http:Service> echo66 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/test3",
         consumes:["application/xhtml+xml","text/plain","text/json"],
@@ -47,7 +47,7 @@ service<http:Service> echo66 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     endpoints:[testEP]
 }
 service<http:Service> echo67 {

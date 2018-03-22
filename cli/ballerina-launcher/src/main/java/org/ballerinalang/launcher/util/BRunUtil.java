@@ -194,8 +194,30 @@ public class BRunUtil {
         return spreadToBValueArray(response);
     }
 
+    /**
+     * Invoke a ballerina function to get BReference Value Objects.
+     *
+     * @param compileResult CompileResult instance
+     * @param functionName  Name of the function to invoke
+     * @param args          Input parameters for the function
+     * @return return values of the function
+     */
+    public static BValue[] invokeFunction(CompileResult compileResult, String functionName, BValue[] args) {
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
+        ProgramFile programFile = compileResult.getProgFile();
+        Debugger debugger = new Debugger(programFile);
+        programFile.setDebugger(debugger);
+
+        BValue[] response = BLangFunctions.invokeEntrypointCallable(programFile,
+                programFile.getEntryPkgName(), functionName, args);
+        return response;
+    }
+
+
     private static BValue[] spreadToBValueArray(BValue[] response) {
-        if (!(response[0] instanceof BRefValueArray)) {
+        if (!(response != null && response.length > 0 && response[0] instanceof BRefValueArray)) {
             return response;
         }
 
@@ -228,7 +250,7 @@ public class BRunUtil {
      * @param initFuncInfo Function to invoke.
      * @param context invocation context.
      */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, 
+    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo,
             WorkerExecutionContext context) {
         Debugger debugger = new Debugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);

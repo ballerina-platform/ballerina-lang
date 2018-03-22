@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description { value:"In scope variables can be accessed within workers of fork-join statement."}
 function main(string[] args) {

@@ -18,11 +18,9 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.TupleDestructureStatementNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,8 +29,6 @@ import java.util.List;
  * @since 0.966.0
  */
 public class BLangTupleDestructure extends BLangAssignment implements TupleDestructureStatementNode {
-
-    public List<BCastOperatorSymbol> castOperatorSymbols = new ArrayList<>();
 
     @Override
     public List<BLangExpression> getVariableRefs() {

@@ -1,7 +1,7 @@
-import ballerina.io;
-import ballerina.net.http;
-import ballerina.net.http.resiliency;
-import ballerina.runtime;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/net.http.resiliency;
+import ballerina/runtime;
 
 @http:configuration {basePath:"/cb"}
 service<http> circuitBreakerDemo {

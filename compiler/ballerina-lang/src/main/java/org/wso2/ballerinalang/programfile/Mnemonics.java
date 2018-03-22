@@ -63,12 +63,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
-        mnemonics[InstructionCodes.ISTORE] = "istore";
-        mnemonics[InstructionCodes.FSTORE] = "fstore";
-        mnemonics[InstructionCodes.SSTORE] = "sstore";
-        mnemonics[InstructionCodes.BSTORE] = "bstore";
-        mnemonics[InstructionCodes.LSTORE] = "lstore";
-        mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
         mnemonics[InstructionCodes.SASTORE] = "sastore";
@@ -215,7 +209,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
         
-        mnemonics[InstructionCodes.ASYNC] = "async";
         mnemonics[InstructionCodes.AWAIT] = "await";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
@@ -233,7 +226,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
-        mnemonics[InstructionCodes.NEWSTREAMLET] = "newstreamlet";
 
         mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";

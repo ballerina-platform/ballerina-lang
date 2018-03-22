@@ -148,8 +148,7 @@ public class SecureClientSocketTest {
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
-    @Test(dependsOnMethods = "testOpenSecureClientSocket",
-          description = "Test content read/write")
+    @Test(dependsOnMethods = "testOpenSecureClientSocket", description = "Test content read/write")
     public void testWriteReadContent() {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;

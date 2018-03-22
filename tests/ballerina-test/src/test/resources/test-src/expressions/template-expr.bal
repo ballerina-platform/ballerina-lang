@@ -1,22 +1,22 @@
-function testJSONInit (string name) (json) {
+function testJSONInit (string name) returns (json) {
     json msg;
     msg = {"name":"John"};
     return msg;
 }
 
-function testStringVariableAccessInJSONInit (string variable) (json) {
+function testStringVariableAccessInJSONInit (string variable) returns (json) {
     json backTickMessage;
     backTickMessage = {"name":variable};
     return backTickMessage;
 }
 
-function testIntegerVariableAccessInJSONInit (int variable) (json) {
+function testIntegerVariableAccessInJSONInit (int variable) returns (json) {
     json backTickMessage;
     backTickMessage = {"age":variable};
     return backTickMessage;
 }
 
-function testEnrichFullJSON (int variable) (json) {
+function testEnrichFullJSON (int variable) returns (json) {
     json msg;
     json backTickMessage;
     msg = {"name":"John"};
@@ -24,7 +24,7 @@ function testEnrichFullJSON (int variable) (json) {
     return backTickMessage;
 }
 
-function testMultipleVariablesInJSONInit (string fname, string lname) (json) {
+function testMultipleVariablesInJSONInit (string fname, string lname) returns (json) {
     json msg;
     json backTickMessage;
     msg = {"name":{"first_name":fname, "last_name":lname}};
@@ -32,7 +32,7 @@ function testMultipleVariablesInJSONInit (string fname, string lname) (json) {
     return backTickMessage;
 }
 
-function testArrayVariableAccessInJSONInit () (json) {
+function testArrayVariableAccessInJSONInit () returns (json) {
     json msg;
     string[] stringArray;
     int[] intArray;
@@ -43,7 +43,7 @@ function testArrayVariableAccessInJSONInit () (json) {
     return msg;
 }
 
-function testMapVariableAccessInJSONInit () (json) {
+function testMapVariableAccessInJSONInit () returns (json) {
     json msg;
     map myMap;
 
@@ -52,13 +52,13 @@ function testMapVariableAccessInJSONInit () (json) {
     //outside the json init
     string val2;
     int intVal;
-    val2, _ = (string)myMap["stirngVal"];
-    intVal, _ = (int)myMap["intVal"];
+    val2 =? <string> myMap["stirngVal"];
+    intVal =? <int> myMap["intVal"];
     msg = {"val1":val2, "val2":intVal};
     return msg;
 }
 
-function testBooleanIntegerValuesAsStringsInJSONInit () (json) {
+function testBooleanIntegerValuesAsStringsInJSONInit () returns (json) {
     json msg;
     string[] intStrArray;
     string[] boolStrArray;

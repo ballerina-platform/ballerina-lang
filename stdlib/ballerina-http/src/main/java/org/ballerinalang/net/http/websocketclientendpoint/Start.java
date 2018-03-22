@@ -48,7 +48,7 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),
@@ -76,20 +76,18 @@ public class Start extends BlockingNativeCallableUnit {
         WebSocketService wsService = (WebSocketService) serviceConfig;
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(
-                new WsHandshakeListener(clientEndpointConfig, context, wsService, clientConnectorListener));
+                new WsHandshakeListener(context, wsService, clientConnectorListener));
         context.setReturnValues();
     }
 
     static class WsHandshakeListener implements HandshakeListener {
 
-        Struct clientEndpointConfig;
         Context context;
         WebSocketService wsService;
         WebSocketClientConnectorListener clientConnectorListener;
 
-        WsHandshakeListener(Struct clientEndpointConfig, Context context, WebSocketService wsService,
+        WsHandshakeListener(Context context, WebSocketService wsService,
                             WebSocketClientConnectorListener clientConnectorListener) {
-            this.clientEndpointConfig = clientEndpointConfig;
             this.context = context;
             this.wsService = wsService;
             this.clientConnectorListener = clientConnectorListener;
@@ -100,10 +98,10 @@ public class Start extends BlockingNativeCallableUnit {
             BStruct endpoint = (BStruct) context.getRefArgument(0);
             wsService.setServiceEndpoint(endpoint);
             BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
-            clientEndpointConfig.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
             wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+            WebSocketUtil.populateEndpoint(session, wsConnection);
             clientConnectorListener.setWebSocketService(wsService);
-            endpoint.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
+            endpoint.setRefField(0, wsConnection);
             context.setReturnValues();
         }
 

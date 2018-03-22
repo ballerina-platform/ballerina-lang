@@ -15,7 +15,7 @@ struct Student {
     int[] marks;
 }
 
-function testStructToStruct() (Person) {
+function testStructToStruct() returns (Person) {
     Student s = { name:"Supun", 
                   age:25, 
                   address:{"city":"Kandy", "country":"SriLanka"}, 

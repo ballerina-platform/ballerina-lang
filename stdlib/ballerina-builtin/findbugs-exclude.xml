@@ -22,4 +22,7 @@
     <Match>
         <Package name="org.ballerinalang.nativeimpl.actions.data.sql.actions"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.nativeimpl.compression"/>
+    </Match>
 </FindBugsFilter>

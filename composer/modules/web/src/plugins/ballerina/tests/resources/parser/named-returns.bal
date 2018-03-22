@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description {value:"These names are treated as variables defined at the top of the function."}
 function divideBy10 (int d) (int quotient, int remainder) {

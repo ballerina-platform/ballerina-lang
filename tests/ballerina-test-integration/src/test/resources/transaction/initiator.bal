@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint initiatorEP {
     port:8888
@@ -33,13 +33,37 @@ service<http:Service> InitiatorService bind initiatorEP {
         endpoint http:ClientEndpoint ep {
             targets: [{uri: "http://localhost:8889/participant1"}]
         };
-        http:Request newReq = {};
-        http:Response clientResponse1;
         transaction {
-            clientResponse1, _ = ep -> get("/", newReq);
+            http:Request newReq = {};
+            var getResult = ep -> get("/", newReq);
+            match getResult {
+                error err => {
+                    sendErrorResponseToCaller(conn);
+                    abort;
+                }
+                http:Response participant1Res => {
+                    var fwdResult = conn -> forward(participant1Res); 
+                    match fwdResult {
+                        error err => {
+                            io:print("Could not forward response to caller:");
+                            io:println(err);
+                        }
+                    }
+                }
+            }
         } onretry {
             io:println("Intiator failed");
         }
-        _ = conn -> forward(clientResponse1);
+    }
+}
+
+function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
+    http:Response errRes = {statusCode: 500};
+    var respondResult = conn -> respond(errRes); 
+    match respondResult {
+        error respondErr => {
+            io:print("Could not send error response to caller:");
+            io:println(respondErr);
+        }
     }
 }
