@@ -34,25 +34,24 @@ service<http:Service> participant1 bind participant1EP {
         };
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
-        http:Response clientResponse2;
         transaction {
             var forwardResult = ep -> forward("/task1", req);
             match forwardResult {
-                error err => {
+                http:HttpConnectorError err => {
                     sendErrorResponseToCaller(conn);
                     abort;
                 }
                 http:Response forwardRes => {
                     var getResult = ep -> get("/task2", newReq);
                     match getResult {
-                        error err => {
+                        http:HttpConnectorError err => {
                             sendErrorResponseToCaller(conn);
                             abort;
                         }
                         http:Response getRes => {
-                            var forwardRes = conn -> forward(getRes);  
-                            match forwardRes {
-                                error err => {
+                            var forwardRes2 = conn -> forward(getRes);
+                            match forwardRes2 {
+                                http:HttpConnectorError err => {
                                     io:print("Could not forward response to caller:");
                                     io:println(err);
                                 }
@@ -67,11 +66,12 @@ service<http:Service> participant1 bind participant1EP {
     }
 }
 
-function sendErrorResponseToCaller(endpoint http:ServiceEndpoint conn) {
+function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
+    endpoint http:ServiceEndpoint conn2 = conn;
     http:Response errRes = {statusCode: 500};
-    var respondResult = conn -> respond(errRes); 
+    var respondResult = conn2 -> respond(errRes);
     match respondResult {
-        error respondErr => {
+        http:HttpConnectorError respondErr => {
             io:print("Could not send error response to caller:");
             io:println(respondErr);
         }
