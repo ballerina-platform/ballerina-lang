@@ -1381,6 +1381,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (returnTaintedStatusList != null) {
             for (int paramIndex = 0; paramIndex < retParams.size(); paramIndex++) {
                 BLangVariable param = retParams.get(paramIndex);
+                // Analyzing a function that does not have any return statement and instead have a throw statement.
                 boolean observedReturnTaintedStatus = false;
                 if (returnTaintedStatusList.size() > paramIndex) {
                     returnTaintedStatusList.get(paramIndex);
