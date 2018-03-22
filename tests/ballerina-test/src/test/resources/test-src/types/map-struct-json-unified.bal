@@ -34,18 +34,18 @@ function testAccessJsonInStruct () returns (string, string, string) {
     string status3;
 
     match p1.parent {
-     Person p2  => status1,_ = (string)p2.info.status;
+     Person p2  => status1 =? <string>p2.info.status;
      any | null => io:println("Person is null");
    }
 
     match p1["parent"] {
      Person p2 => {
-                    status2, _ = (string) p2["info"]["status"];
-                    status3, _ = (string)p2.info["status"];
+                    status2 =? <string> p2["info"]["status"];
+                    status3 =? <string>p2.info["status"];
      }
      any | null => io:println("Person is null");
     }
-    return ( status1, status2, status3);
+    return (status1, status2, status3);
 }
 
 function testAccessMapInStruct () returns (any, any, any, string) {
@@ -63,7 +63,7 @@ function testAccessMapInStruct () returns (any, any, any, string) {
 
     match p1["parent"] {
         Person p2 =>{
-                city, _ = (string)p2.address[cityKey];
+                city = <string>p2.address[cityKey];
                 return (p2.address.city, p2["address"]["city"], p2.address["city"], city);
          }
         any | null => {
@@ -106,6 +106,6 @@ function testAccessArrayInStruct () returns (int, int) {
 function testMapInitWithAnyType () returns (any, map) {
     any a = {name:"Supun"};
     map mapCast;
-    mapCast, _ = (map)a;
+    mapCast =? <map>a;
     return (a, mapCast);
 }

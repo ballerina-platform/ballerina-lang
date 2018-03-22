@@ -76,7 +76,8 @@ public class CodeGeneratorTest {
 
             if (genFile.exists()) {
                 String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
-                Assert.assertTrue(result != null && result.contains("action listPets"));
+                Assert.assertTrue(result != null &&
+                        result.contains("<SwaggerPetstoreClient client> listPets()"));
             } else {
                 Assert.fail("Service was not generated");
             }

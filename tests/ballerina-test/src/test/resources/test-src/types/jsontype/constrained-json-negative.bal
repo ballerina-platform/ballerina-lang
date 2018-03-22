@@ -67,10 +67,10 @@ function tesInitializationWithInvalidNestedStruct() {
     json<Employee> e = {first_name: "John",last_name: "Doe",age: 30,address: {phoneNumber: {number:"456", foo:5}, street:"York St"}};
 }
 
-function testConstrainedJSONArrayToConstraintJsonArrayCast() returns (json<Student>[], error) {
+function testConstrainedJSONArrayToConstraintJsonArrayCast() returns (json<Student>[]) {
     json<Person>[] j1 = [{name:"John Doe", age:30, address:"London"}];
-    var j2, e = (json<Student>[]) j1;
-    return (j2, e);
+    var j2 = <json<Student>[]> j1;
+    return j2;
 }
 
 function testBooleanArrayToJsonAssignment() returns (json) {
