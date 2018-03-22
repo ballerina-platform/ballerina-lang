@@ -139,7 +139,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
 
-    @Test(groups = "TransactionTest")
+    @Test(groups = "TransactionTest", enabled = false)
     public void testNestedThreeLevelTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
