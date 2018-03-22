@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctio
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -965,6 +966,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 calcAndGetExprRegIndex(enumeratorAccessExpr));
     }
 
+    @Override
     public void visit(BLangBinaryExpr binaryExpr) {
         if (OperatorKind.AND.equals(binaryExpr.opKind)) {
             visitAndExpression(binaryExpr);
@@ -984,6 +986,14 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangIsAssignableExpr assignableExpr) {
+        genNode(assignableExpr.lhsExpr, this.env);
+        RegIndex regIndex = calcAndGetExprRegIndex(assignableExpr);
+        Operand typeCPIndex = getTypeCPIndex(assignableExpr.targetType);
+        emit(assignableExpr.opSymbol.opcode, assignableExpr.lhsExpr.regIndex, typeCPIndex, regIndex);
     }
 
     @Override

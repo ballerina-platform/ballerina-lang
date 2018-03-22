@@ -22,6 +22,10 @@ const string AUTH_HEADER = "Authorization";
 const string AUTH_SCHEME_BASIC = "Basic";
 @Description {value:"Bearer authentication scheme"}
 const string AUTH_SCHEME_BEARER = "Bearer";
+@Description {value:"Auth annotation package"}
+const string AUTH_ANN_PACKAGE = "ballerina.auth";
+@Description {value:"Auth annotation name"}
+const string AUTH_ANN_NAME = "Config";
 
 @Description {value:"Extracts the basic authentication header value from the request"}
 @Param {value:"req: Request instance"}

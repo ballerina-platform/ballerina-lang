@@ -52,7 +52,7 @@ public class HoverProviderTest {
         balFileContent = new String(encoded);
     }
 
-    @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
+    //@Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
     public void hoverForBuiltInFunctionTest(Position position, String expectedFile)
             throws URISyntaxException, InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,

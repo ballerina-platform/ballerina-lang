@@ -12,7 +12,7 @@ struct Person {
     string street;
 }
 
-transformer <Person p, Employee e> {
+transformer <Person p, Employee e> foo() {
     e.name = p.firstName + " " + p.lastName;
     e.age = p.age;
     e.address = p.street + "," + p.city.toUpperCase();
@@ -20,7 +20,7 @@ transformer <Person p, Employee e> {
 
 public function main (string[] args) {
     Person person = {firstName:args[0], lastName:"Doe", age:30, city:"London"};
-    Employee employee = <Employee>person;
+    Employee employee = <Employee, foo()>person;
     secureFunction(employee, employee);
     secureFunction(employee.name, employee.name);
     secureFunction(employee.age, employee.age);

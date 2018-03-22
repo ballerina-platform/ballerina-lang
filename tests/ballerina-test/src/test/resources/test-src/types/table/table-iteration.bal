@@ -336,7 +336,7 @@ function testCloseConnectionPool () returns (int) {
     table<Person> dt = dt1; //TODO:remove this
     int count;
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount) dt.getNext();
+        var rs =? <ResultCount> dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();

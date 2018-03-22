@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/net.http;
 
 function openFileSuccess(string path) returns (boolean | error) {
     return true;
@@ -71,4 +72,34 @@ function testSafeAssignOpInAssignmentStatement5 () {
     int a = 10;
     statusFailure =? openFileFailure("/home/sameera/bar.txt");
     io:println("there....failure3. 1");
+}
+
+function testSafeAssignOpInAssignmentStatement6 () returns boolean {
+    io:println("there....failure3. 0");
+    int a = 10;
+    var statusFailure =? openFileSuccess("/home/sameera/bar.txt");
+    io:println("there....failure3. 1");
+    return statusFailure;
+}
+
+struct person {
+    string name;
+}
+
+public struct myerror {
+    string message;
+    error[] cause;
+    int code;
+}
+
+function getPerson() returns person | myerror {
+   //myerror e = {message:"ddd"};
+    //return e;
+    person p = {name:"Diayasena"};
+    return  p;
+}
+
+function testSafeAssignOpInAssignmentStatement7 () returns string {
+    var p =? getPerson();
+    return p.name;
 }

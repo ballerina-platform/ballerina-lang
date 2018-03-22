@@ -47,7 +47,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
     string basicAuthHeaderValue;
     match basicAuthHeader {
         string basicAuthHeaderStr => {
-            basicAuthHeaderVal = basicAuthHeaderStr;
+            basicAuthHeaderValue = basicAuthHeaderStr;
         }
         error err => {
             return false;

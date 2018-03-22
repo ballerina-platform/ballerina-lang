@@ -3,7 +3,7 @@ package functionmocktest2.pkg;
 import ballerina/test;
 import ballerina/io;
 
-@test:config{}
+@test:Config{}
 function testAssertIntEquals () {
     int answer = 0;
     answer = intAdd(5, 3);

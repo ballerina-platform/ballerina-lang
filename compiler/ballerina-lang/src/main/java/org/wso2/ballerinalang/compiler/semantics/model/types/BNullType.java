@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.NullType;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -27,5 +28,10 @@ public class BNullType extends BType implements NullType {
 
     public BNullType() {
         super(TypeTags.NULL, null);
+    }
+
+    @Override
+    public String getDesc() {
+        return TypeDescriptor.SIG_NULL;
     }
 }

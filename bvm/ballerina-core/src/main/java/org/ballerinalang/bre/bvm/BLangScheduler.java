@@ -60,7 +60,7 @@ public class BLangScheduler {
         CPU.exec(ctx);
     }
     
-    public static void workerCountUp() {
+    private static void workerCountUp() {
         int count = workerCount.incrementAndGet();
         if (count == 1) {
             try {
@@ -69,7 +69,7 @@ public class BLangScheduler {
         }
     }
     
-    public static void workerCountDown() {
+    private static void workerCountDown() {
         int count = workerCount.decrementAndGet();
         if (count <= 0) {
             workersDoneSemaphore.release();

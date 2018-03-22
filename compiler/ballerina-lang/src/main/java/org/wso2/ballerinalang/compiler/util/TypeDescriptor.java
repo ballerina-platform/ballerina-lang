@@ -30,7 +30,7 @@ public class TypeDescriptor {
     public static final String SIG_JSON = "J";
     public static final String SIG_TABLE = "D";
     public static final String SIG_STREAM = "H";
-    public static final String SIG_MAP = "N";
+    public static final String SIG_MAP = "M";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_SERVICE = "X";
     public static final String SIG_STRUCT = "T";
@@ -41,5 +41,6 @@ public class TypeDescriptor {
     public static final String SIG_TYPEDESC = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
-
+    public static final String SIG_UNION = "O";
+    public static final String SIG_NULL = "N";
 }

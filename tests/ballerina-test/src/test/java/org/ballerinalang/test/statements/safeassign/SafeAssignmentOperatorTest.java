@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -104,13 +105,28 @@ public class SafeAssignmentOperatorTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
-
     }
 
     @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: error, message: file not found error: /home/sameera/bar.txt.*")
     public void testSafeAssignOpInAssignmentStatement5() {
         BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testSafeAssignOpInAssignmentStatement6() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement6", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testSafeAssignOpInAssignmentStatement7() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement7", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Diayasena", "Invalid boolean value returned.");
     }
 }
 

@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -124,7 +125,8 @@ public class BLangFragmentParser {
     protected static JsonElement getJsonModel(String source) throws IOException {
         String fileName = "untitled";
         BLangCompilationUnit compilationUnit = null;
-        BLangPackage model = ParserUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.DEFINE)
+        BLangPackage model = ParserUtils.getBallerinaFileForContent(Paths.get(fileName),
+                fileName, source, CompilerPhase.DEFINE)
                 .getBLangPackage();
         if (model != null) {
             compilationUnit = model.getCompilationUnits().stream().

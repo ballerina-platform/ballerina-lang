@@ -78,10 +78,10 @@ public class SwaggerCmd implements BLauncherCmd {
         StringBuilder msg = new StringBuilder("successfully generated ballerina ");
 
         switch (action) {
-//            case connector:
-//                generateFromSwagger(connector);
-//                msg.append("connector");
-//                break;
+            case connector:
+                generateFromSwagger(connector);
+                msg.append("connector");
+                break;
             case skeleton:
                 generateFromSwagger(skeleton);
                 msg.append("skeleton");
