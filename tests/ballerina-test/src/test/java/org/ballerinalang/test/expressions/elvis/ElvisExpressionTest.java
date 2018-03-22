@@ -102,7 +102,7 @@ public class ElvisExpressionTest {
     }
 
     @Test
-    public void testConstrainedMapNegative() {
+    public void testElvisOperatorNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int|null'", 5, 14);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 12, 14);
