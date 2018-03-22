@@ -68,6 +68,7 @@ under the License.
             <package name="org.ballerinalang.test.config.*"/>
             <package name="org.ballerinalang.test.streaming.*"/>
             <package name="org.ballerinalang.test.object.*"/>
+            <package name="org.ballerinalang.test.net.grpc"/>
         </packages>
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">

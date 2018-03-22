@@ -13,7 +13,7 @@ function testInt1() returns (int, int, int, int, int, float){
     return (fadd, count, max, min, sum, avg);
 }
 
-function testInt2()returns (int, int, int, int, float){
+function testInt2() returns (int, int, int, int, float){
     int[] fa = [-5, 2, 4, 5, 7, -8, -3 , 2];
     int count = fa.filter(filterIntNegative).count();
     int max = fa.filter(filterIntNegative).max();
@@ -27,7 +27,7 @@ function filterIntNegative(int i) returns (boolean){
     return i >= 0;
 }
 
-function testFloat1()returns (int, int, float, float, float, float){
+function testFloat1() returns (int, int, float, float, float, float){
     add = 0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
     fa.foreach(function (int i){ add = add + i;});
@@ -40,7 +40,7 @@ function testFloat1()returns (int, int, float, float, float, float){
     return (fcount, count, max, min, sum, avg);
 }
 
-function testFloat2()returns (int, float, float, float, float){
+function testFloat2() returns (int, float, float, float, float){
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
     int count = fa.filter(filterFloatNegative).count();
     float max = fa.filter(filterFloatNegative).max();
@@ -50,7 +50,7 @@ function testFloat2()returns (int, float, float, float, float){
     return (count, max, min, sum, avg);
 }
 
-function filterFloatNegative(float i)returns (boolean){
+function filterFloatNegative(float i) returns (boolean){
     return i >= 0;
 }
 
@@ -58,7 +58,7 @@ string output;
 
 function testBasicArray1 (string[] values) returns (string) {
     output = "";
-    values.map(mapString).foreach (concat);
+    values.map(mapString).foreach(concat);
     return output.trim();
 }
 
@@ -72,7 +72,7 @@ function concat (string up, string lower) {
     output = output + " " + up + ":" + lower;
 }
 
-function testBasicArray2 (string[] values) returns  (string) {
+function testBasicArray2 (string[] values) returns (string) {
     output = "";
     values.map(function (int a, string b) returns (string) {
                     string s = a + b;
@@ -111,8 +111,8 @@ function testBasicMap2 () returns (string[]) {
     return values;
 }
 
-function mapAnyToString (string key, any value) returns  (string, string) {
-    var v  =? <string>value;
+function mapAnyToString (string key, any value) returns (string, string) {
+    var v =? <string>value;
     return (key, v);
 }
 
@@ -137,7 +137,7 @@ function jsonTest() returns (string, string[], int, any, string[]){
     int i = j1.count();
 
     var ja =? <json[]> j1.subjects;
-    string[] result = ja.map(function (int i, json j)returns (string){
+    string[] result = ja.map(function (int i, json j) returns (string){
         return i + "->" + j.toString();
     });
 
