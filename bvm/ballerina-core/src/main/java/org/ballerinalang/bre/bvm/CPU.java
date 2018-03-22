@@ -363,7 +363,7 @@ public class CPU {
                     i = operands[0];
                     j = operands[1];
                     if (sf.refRegs[i] == null) {
-                        handleNullRefError(ctx);
+                        sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
                         break;
                     }
                     sf.refRegs[j] = new BTypeDescValue(sf.refRegs[i].getType());
@@ -529,6 +529,7 @@ public class CPU {
                 case InstructionCodes.JSON2B:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.IS_ASSIGNABLE:
+                case InstructionCodes.CHECK_CONVERSION:
                     execTypeCastOpcodes(ctx, sf, opcode, operands);
                     break;
 
@@ -1929,6 +1930,12 @@ public class CPU {
                 j = operands[1];
                 sf.stringRegs[j] = null;
                 break;
+            case InstructionCodes.CHECK_CONVERSION:
+                i = operands[0];
+                j = operands[1];
+                bRefTypeValue = sf.refRegs[i];
+                sf.refRegs[j] = JSONUtils.convertUnionTypeToJSON(bRefTypeValue);
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -2879,6 +2886,11 @@ public class CPU {
         }
 
         if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG &&
+                lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
             return true;
         }
 

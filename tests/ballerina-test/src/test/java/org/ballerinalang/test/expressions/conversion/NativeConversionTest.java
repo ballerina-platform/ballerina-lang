@@ -173,8 +173,7 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(1), 79);
     }
 
-    @Test (enabled = false)
-    //TODO enable this. 
+    @Test
     public void testStructToJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);

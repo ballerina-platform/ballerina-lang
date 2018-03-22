@@ -247,7 +247,7 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
     userFoo uFoo = {age:10, name:"ttt", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = u<serA>uFoo;
+    var uA = <userA>uFoo;
 
     // This is a unsafe cast
     var uB =? <userB>uA;
@@ -302,28 +302,28 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = (userPA)uFoo;
+    var uA =? <userPA>uFoo;
 
     // This is a unsafe cast
-    var uB, err = (userPB)uA;
-    if (err != null) {
-        return err.message;
+    var uB = <userPB>uA;
+    match uB {
+        error err => return err.message;
+        userPB user=> return user.name;
     }
-    return uB.name;
 }
 
 function testRuntimeEqPublicStructs () returns (string) {
     req:userPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = <userPA>uFoo;
+    var uA =? <userPA>uFoo;
 
     // This is a unsafe cast
-    var uB, err = <userPB>uA;
-    if (err != null) {
-        return err.message;
+    var uB  = <userPB>uA;
+    match uB {
+        error err => return err.message;
+        userPB user=> return user.name;
     }
-    return uB.name;
 }
 
 function testRuntimeEqPublicStructs1 () returns (string) {
@@ -333,11 +333,11 @@ function testRuntimeEqPublicStructs1 () returns (string) {
     var uA = <userPA>uFoo;
 
     // This is a unsafe cast
-    var uB, err = <req2:userPB>uA;
-    if (err != null) {
-        return err.message;
+    var uB  = <req2:userPB>uA;
+    match uB {
+        error err => return err.message;
+        userPB user=> return user.getName();
     }
-    return uB.getName();
 }
 
 struct personC {
@@ -408,7 +408,7 @@ struct AnyStruct {
 }
 
 function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
-    var j, _ = <json>aa;
+    var j =? <json>aa;
     return "anyStruct" + j.toString();
 }
 
@@ -421,7 +421,7 @@ struct SomeStruct {
 }
 
 function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
-    var j, _ = <json>aa;
+    var j =? <json>aa;
     return "someStruct" + j.toString();
 }
 

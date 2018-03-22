@@ -764,7 +764,7 @@ public class Types {
                 return getExplicitArrayConversionOperator(t, s, t, s);
             } else if (s.tag == TypeTags.UNION) {
                 if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {
-                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST); 
+                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECK_CONVERSION);
                 }
                 return symTable.notFoundSymbol;
             } else if (t.constraint.tag != TypeTags.NONE) {

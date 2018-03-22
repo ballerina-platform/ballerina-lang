@@ -1,20 +1,20 @@
 import ballerina/io;
+import ballerina/mime;
 import ballerina/net.http;
 
-endpoint<http:Service> serviceEnpoint {
+endpoint http:ServiceEndpoint serviceEndpoint {
     port:9090
-}
+};
 
-@http:serviceConfig {
-    basePath:"/customerservice",
-    endpoints:[serviceEnpoint]
+@http:ServiceConfig {
+    basePath:"/customerservice"
 }
-service<http:Service> CustomerMgtService {
+service<http:Service> CustomerMgtService bind serviceEndpoint {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET", "POST"]
     }
-    resource customers (http:ServerConnector conn, http:Request req) {
+    customers (endpoint outboundEP, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -25,95 +25,156 @@ service<http:Service> CustomerMgtService {
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
-endpoint<http:Client> productsService {
-    serviceUri: "http://localhost:9090"
-}
+endpoint http:ClientEndpoint productsService {
+    targets: [{uri: "http://localhost:9090"}]
+};
 
-@http:serviceConfig {
-    basePath:"/ecommerceservice",
-    endpoints:[serviceEnpoint]
+@http:ServiceConfig {
+    basePath:"/ecommerceservice"
 }
-service<http:Service> Ecommerce {
-    http:HttpConnectorError err;
+service<http:Service> Ecommerce bind serviceEndpoint {
+    http:HttpConnectorError err = {};
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{prodId}"
     }
-    resource productsInfo (http:ServerConnector conn, http:Request req, string prodId) {
+    productsInfo (endpoint outboundEP, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + prodId;
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService -> get(reqPath, clientRequest);
-        _ = conn -> forward(clientResponse);
+        var clientResponse = productsService -> get(reqPath, clientRequest);
+
+        match clientResponse {
+            http:Response product => {
+                _ = outboundEP -> forward(product);
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while reading product response");
+                return;
+            }
+        }
+
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/products"
     }
-    resource productMgt (http:ServerConnector conn, http:Request req) {
+    productMgt (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = {};
-        var jsonReq, _ = req.getJsonPayload();
-        clientRequest.setJsonPayload(jsonReq);
-        var clientResponse, _ = productsService -> post("/productsservice", clientRequest);
-        _ = conn -> forward(clientResponse);
+        var jsonReq = req.getJsonPayload();
+        match jsonReq {
+            json products => {
+                clientRequest.setJsonPayload(products);
+            }
+            mime:EntityError err => {
+                io:println("Error occurred while reading products payload");
+                return;
+            }
+        }
+
+        http:Response clientResponse = {};
+        var clientRes = productsService -> post("/productsservice", clientRequest);
+        match clientRes {
+            http:Response prod => {
+                clientResponse = prod;
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while reading locator response");
+                return;
+            }
+        }
+        _ = outboundEP -> forward(clientResponse);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/orders"
     }
-    resource ordersInfo (http:ServerConnector conn, http:Request req) {
+    ordersInfo (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService -> get("/orderservice/orders", clientRequest);
-        _ = conn -> forward(clientResponse);
+        var clientResponse = productsService -> get("/orderservice/orders", clientRequest);
+        match clientResponse {
+            http:Response orders => {
+                _ = outboundEP -> forward(orders);
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while reading orders response");
+                return;
+            }
+        }
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/orders"
     }
-    resource ordersMgt (http:ServerConnector conn, http:Request req) {
+    ordersMgt (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService -> post("/orderservice/orders", clientRequest);
-        _ = conn -> forward(clientResponse);
+        var clientResponse = productsService -> post("/orderservice/orders", clientRequest);
+        match clientResponse {
+            http:Response orders => {
+                _ = outboundEP -> forward(orders);
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while writing orders response");
+                return;
+            }
+        }
+
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/customers"
     }
-    resource customersInfo (http:ServerConnector conn, http:Request req) {
+    customersInfo (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService -> get("/customerservice/customers", clientRequest);
-        _ = conn -> forward(clientResponse);
+        var clientResponse = productsService -> get("/customerservice/customers", clientRequest);
+        match clientResponse {
+            http:Response customer => {
+                _ = outboundEP -> forward(customer);
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while reading customers response");
+                return;
+            }
+        }
+
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/customers"
     }
-    resource customerMgt (http:ServerConnector conn, http:Request req) {
+    customerMgt (endpoint outboundEP, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService -> post("/customerservice/customers", clientRequest);
-        _ = conn -> forward(clientResponse);
+        var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
+        match clientResponse {
+            http:Response customer => {
+                _ = outboundEP -> forward(customer);
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while writing customers response");
+                return;
+            }
+        }
     }
 }
 
-@http:serviceConfig {
-    basePath:"/orderservice",
-    endpoints:[serviceEnpoint]
+@http:ServiceConfig {
+    basePath:"/orderservice"
 }
-service<http:Service> OrderMgtService {
+service<http:Service> OrderMgtService bind serviceEndpoint {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET", "POST"]
     }
-    resource orders (http:ServerConnector conn, http:Request req) {
+    orders (endpoint outboundEP, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -124,49 +185,57 @@ service<http:Service> OrderMgtService {
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
-@http:serviceConfig {
-    basePath:"/productsservice",
-    endpoints:[serviceEnpoint]
+@http:ServiceConfig {
+    basePath:"/productsservice"
 }
-service<http:Service> productmgt {
+service<http:Service> productmgt bind serviceEndpoint {
 
     map productsMap = populateSampleProducts();
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/{prodId}"
     }
-    resource product (http:ServerConnector conn, http:Request req, string prodId) {
+    product (endpoint outboundEP, http:Request req, string prodId) {
         json payload;
-        payload, _ = (json)productsMap[prodId];
+        payload =? <json>productsMap[prodId];
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource addProduct (http:ServerConnector conn, http:Request req) {
-        var jsonReq, _ = req.getJsonPayload();
-        var productId, _ = (string)jsonReq.Product.ID;
-        productsMap[productId] = jsonReq;
-        json payload = {"Status":"Product is successfully added."};
+    addProduct (endpoint outboundEP, http:Request req) {
+        var jsonReq = req.getJsonPayload();
 
-        http:Response res = {};
-        res.setJsonPayload(payload);
-        _ = conn -> respond(res);
+        match jsonReq {
+            json prod => {
+                var productId =? <string>prod.Product.ID;
+                productsMap[productId] = prod;
+                json payload = {"Status":"Product is successfully added."};
+
+                http:Response res = {};
+                res.setJsonPayload(payload);
+                _ = outboundEP -> respond(res);
+            }
+            mime:EntityError err => {
+                io:println("Error occurred while reading bank locator request");
+                return;
+            }
+        }
     }
 }
 
-function populateSampleProducts () (map productsMap) {
-    productsMap = {};
+function populateSampleProducts () returns (map) {
+    map productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};

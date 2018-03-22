@@ -1,3 +1,2 @@
 $ ballerina run errors.bal
-error: Account with id:23 is not found
-
+Error occurred: Account with id:24 is not found
