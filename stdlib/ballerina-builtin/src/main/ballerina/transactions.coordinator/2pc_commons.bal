@@ -160,7 +160,7 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns string|error {
                         ret = e;
                     }
                 }
-                any x => {
+                any|null => {
                     var result = notifyRemoteParticipant(txn, participant, "abort");
                     match result {
                         string status => {
@@ -195,7 +195,7 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
                             successful = false;
                         }
                     }
-                    any x => {
+                    any|null => {
                         if (!prepareRemoteParticipant(txn, participant, proto.url)) {
                             successful = false;
                         }
@@ -299,7 +299,7 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns boolean 
                         successful = false;
                     }
                 }
-                any x => {
+                any|null => {
                     var result = notifyRemoteParticipant(txn, participant, message);
                     match result {
                         error err => successful = false;
@@ -370,19 +370,14 @@ function abortInitiatorTransaction (string transactionId, int transactionBlockId
         var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         log:printInfo("Aborting transaction: " + transactionId);
         // return response to the initiator. ( Aborted | Mixed )
-        var result = notifyAbort(txn);
-        match result {
-            error err => ret = err;
-            string msg => {
-                ret = msg;
-                txn.state = TransactionState.ABORTED;
-            }
-        }
+        ret = notifyAbort(txn);
+        txn.state = TransactionState.ABORTED;
         boolean localAbortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
         if (!localAbortSuccessful) {
             log:printError("Aborting local resource managers failed");
+        } else {
+            removeInitiatedTransaction(transactionId);
         }
-        removeInitiatedTransaction(transactionId);
     }
     return ret;
 }

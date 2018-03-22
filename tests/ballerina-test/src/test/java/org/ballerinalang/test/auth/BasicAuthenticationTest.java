@@ -27,7 +27,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -75,11 +74,6 @@ public class BasicAuthenticationTest {
         Assert.assertTrue(returns[2] != null);
     }
 
-    @Test(description = "Test case for creating basic authenticator without userstore", expectedExceptions =
-            BLangRuntimeException.class)
-    public void testCreateBasicAuthenticatorWithoutUserstore() {
-        BRunUtil.invoke(compileResult, "testCreateBasicAuthenticatorWithoutUserstore");
-    }
 
     @Test(description = "Test case for authenticating non-existing user")
     public void testAuthenticationForNonExistingUser() {

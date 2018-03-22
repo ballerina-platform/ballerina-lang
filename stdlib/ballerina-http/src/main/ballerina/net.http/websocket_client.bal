@@ -15,7 +15,13 @@ public struct WebSocketClientEndpointConfig {
     typedesc callbackService;
     string [] subProtocols;
     map<string> customHeaders;
-    int idleTimeoutInSeconds = -1;
+    int idleTimeoutInSeconds;
+}
+
+@Description {value:"Initializes the WebSocketClientEndpointConfig struct with default values."}
+@Param {value:"config: The WebSocketClientEndpointConfig struct to be initialized"}
+public function <WebSocketClientEndpointConfig config> WebSocketClientEndpointConfig() {
+    config.idleTimeoutInSeconds = -1;
 }
 
 //TODO: This throws errors. Fix it.

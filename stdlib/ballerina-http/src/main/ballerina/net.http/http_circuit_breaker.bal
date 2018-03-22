@@ -1,29 +1,25 @@
-//// Copyright (c) 2018 WSO2 Inc. (//www.wso2.org) All Rights Reserved.
-////
-//// WSO2 Inc. licenses this file to you under the Apache License,
-//// Version 2.0 (the "License"); you may not use this file except
-//// in compliance with the License.
-//// You may obtain a copy of the License at
-////
-//// //www.apache.org/licenses/LICENSE-2.0
-////
-//// Unless required by applicable law or agreed to in writing,
-//// software distributed under the License is distributed on an
-//// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-//// KIND, either express or implied.  See the License for the
-//// specific language governing permissions and limitations
-//// under the License.
+// Copyright (c) 2018 WSO2 Inc. (//www.wso2.org) All Rights Reserved.
 //
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// //www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.net.http;
 
 import ballerina/log;
 import ballerina/time;
 import ballerina/io;
 
-@Description {value:"The algorithms which can be used in crypto functions."}
-@Field {value:"MD5: MD5 algorithm"}
-@Field {value:"SHA1: SHA1 algorithm"}
-@Field {value:"SHA256: SHA256 algorithm"}
 documentation {
     Represents Circuit Breaker circuit state.
 

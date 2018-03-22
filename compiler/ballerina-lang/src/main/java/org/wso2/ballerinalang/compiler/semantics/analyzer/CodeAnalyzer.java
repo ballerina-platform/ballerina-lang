@@ -409,7 +409,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // TODO Handle the case where there are incompatible types. e.g. input string : pattern int and pattern string
 
         List<BType> unmatchedExprTypes = new ArrayList<>();
-        List<BLangMatchStmtPatternClause> unmatchedPatterns = new ArrayList<>(matchStmt.patternClauses);
         for (BType exprType : matchStmt.exprTypes) {
             boolean assignable = false;
             for (BLangMatchStmtPatternClause pattern : matchStmt.patternClauses) {
@@ -420,8 +419,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 assignable = this.types.isAssignable(exprType, patternType);
                 if (assignable) {
-                    unmatchedPatterns.remove(pattern);
+                    pattern.matchedTypesDirect.add(exprType);
                     break;
+                } else if (exprType.tag == TypeTags.ANY) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.JSON &&
+                        this.types.isAssignable(patternType, exprType)) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.STRUCT &&
+                        this.types.isAssignable(patternType, exprType)) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else {
+                    // TODO Support other assignable types
                 }
             }
 
@@ -436,10 +445,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     unmatchedExprTypes);
         }
 
-        if (!unmatchedPatterns.isEmpty()) {
-            unmatchedPatterns.forEach(patternClause -> {
-                dlog.error(patternClause.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-            });
+        boolean matchedPatternsAvailable = false;
+        for (int i = matchStmt.patternClauses.size() - 1; i >= 0; i--) {
+            BLangMatchStmtPatternClause pattern = matchStmt.patternClauses.get(i);
+            if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
+                if (matchedPatternsAvailable) {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                } else {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                }
+            } else {
+                matchedPatternsAvailable = true;
+            }
         }
 
         // Execute the following block if there are no unmatched expression types

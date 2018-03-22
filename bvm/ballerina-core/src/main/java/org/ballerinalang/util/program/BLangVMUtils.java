@@ -323,11 +323,19 @@ public class BLangVMUtils {
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
-                    local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
+                    if (args[i] instanceof BString) {
+                        local.longRegs[longParamCount] = ((BString) args[i]).intValue();
+                    } else {
+                        local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
+                    }
                     longParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
-                    local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    if (args[i] instanceof BString) {
+                        local.doubleRegs[doubleParamCount] = ((BString) args[i]).floatValue();
+                    } else {
+                        local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    }
                     doubleParamCount++;
                     break;
                 case TypeTags.STRING_TAG:
@@ -335,7 +343,11 @@ public class BLangVMUtils {
                     stringParamCount++;
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    local.intRegs[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    if (args[i] instanceof BString) {
+                        local.intRegs[intParamCount] = ((BString) args[i]).value().toLowerCase().equals("true") ? 1 : 0;
+                    } else {
+                        local.intRegs[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    }
                     intParamCount++;
                     break;
                 case TypeTags.BLOB_TAG:

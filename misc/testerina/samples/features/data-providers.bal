@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-@test:config{
+@test:Config{
     dataProvider:"ValueProvider"
 }
 function testAddingValues (string fValue, string sValue, string result) {
@@ -18,7 +18,7 @@ function ValueProvider() returns (string[][]) {
     return [["1", "2", "3"], ["10", "20", "30"], ["5", "6", "11"]];
 }
 
-@test:config{
+@test:Config{
     dataProvider:"jsonDataProvider"
 }
 function testJsonObjects (json fValue, json sValue, json result) {

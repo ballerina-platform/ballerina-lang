@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/net.http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint participant2EP {
     port:8890
@@ -28,7 +29,7 @@ service<http:Service> participant2 bind participant2EP {
         res.setStringPayload("Resource is invoked");
         var forwardRes = conn -> respond(res);  
         match forwardRes {
-            error err => {
+            http:HttpConnectorError err => {
                 io:print("Could not forward response to caller:");
                 io:println(err);
             }
@@ -46,7 +47,7 @@ service<http:Service> participant2 bind participant2EP {
         res.setStringPayload(result);
         var forwardRes = conn -> respond(res);  
         match forwardRes {
-            error err => {
+            http:HttpConnectorError err => {
                 io:print("Could not forward response to caller:");
                 io:println(err);
             }

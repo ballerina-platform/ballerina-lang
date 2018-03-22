@@ -36,17 +36,6 @@ public native function <Connection conn> promise(PushPromise promise) returns (H
 @Return { value:"Error occured during HTTP server connector forward" }
 public native function <Connection conn> pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError);
 
-@Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
-@Param {value:"conn: The server connector connection"}
-@Return {value:"HTTP Session struct"}
-public native function <Connection conn> createSessionIfAbsent() returns (Session);
-
-@Description {value:"Gets the Session struct from the connection if it is present"}
-@Param {value:"conn: The server connector connection"}
-@Return {value:"The HTTP Session struct assoicated with the request"}
-public native function <Connection conn> getSession() returns (Session);
-
-
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
