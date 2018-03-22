@@ -64,7 +64,8 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testGetHeader() {
         try {
-            BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
+            BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                                 inRespStruct);
             BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
             BValue[] inputArg = {inResponse, key};
             BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
