@@ -541,3 +541,10 @@ function testConstrainedMapWithCompoundAssignment() returns (int) {
     testMap["count"] *= 2;
     return testMap["count"];
 }
+
+function testMapConstrainedEquivalentMapInsert() returns (string, int) {
+    map<Employee> emp = {};
+    Person jack = {name:"Jack", age:25, address:"Usa"};
+    emp["jack"] = jack;
+    return (emp["jack"].name, emp["jack"].age);
+}
