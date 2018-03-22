@@ -214,6 +214,9 @@ public class BLangScheduler {
             this.nativeCallable = nativeCallable;
             this.nativeCtx = nativeCtx;
             this.respCtx = respCtx;
+            /* worker count needs to be incremented, since this represents a new execution, similar to
+             * scheduling a worker execution context. Afterwards, we should not call workerCountDown,
+             * since it will be automatically be called by the signals sent to response context */
             workerCountUp();
         }
         
@@ -235,8 +238,6 @@ public class BLangScheduler {
                 BStruct error = BLangVMErrors.createError(this.nativeCtx.getCallableUnitInfo(), e.getMessage());
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
-            } finally {
-                workerCountDown();
             }
             executeNow(runInCaller);
         }
@@ -251,9 +252,7 @@ public class BLangScheduler {
         private WorkerResponseContext respCtx;
         
         private Context nativeCallCtx;
-        
-        private boolean cancelled;
-            
+
         public BLangAsyncCallableUnitCallback(WorkerResponseContext respCtx, Context nativeCallCtx) {
             this.respCtx = respCtx;
             this.nativeCallCtx = nativeCallCtx;
@@ -262,23 +261,16 @@ public class BLangScheduler {
         
         @Override
         public synchronized void notifySuccess() {
-            if (this.cancelled) {
-                return;
-            } 
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
             BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
             WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
             BLangScheduler.resume(ctx);
-            workerCountDown();
         }
 
         @Override
         public synchronized void notifyFailure(BStruct error) {
-            if (this.cancelled) {
-                return;
-            }
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
@@ -286,16 +278,6 @@ public class BLangScheduler {
             WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(
                     new WorkerExecutionContext(error), SignalType.ERROR, result));
             BLangScheduler.resume(ctx);
-            workerCountDown();
-        }
-        
-        public synchronized boolean cancel() {
-            if (this.cancelled) {
-                return false;
-            }
-            this.cancelled = true;
-            workerCountDown();
-            return true;
         }
 
     }

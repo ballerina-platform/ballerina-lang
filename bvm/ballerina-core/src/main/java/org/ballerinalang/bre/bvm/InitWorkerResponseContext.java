@@ -36,12 +36,15 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
     public WorkerExecutionContext signal(WorkerSignal signal) {
         switch (signal.getType()) {
         case ERROR:
+            BLangScheduler.workerExcepted(signal.getSourceContext());
             this.errored = true;
             BLangScheduler.errorThrown(this.targetCtx, signal.getSourceContext().getError());
             break;
         case HALT:
+            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         case RETURN:
+            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         default:
             break;

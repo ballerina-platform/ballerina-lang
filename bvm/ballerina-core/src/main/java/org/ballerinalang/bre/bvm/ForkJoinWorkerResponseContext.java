@@ -82,6 +82,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     @Override
     protected synchronized WorkerExecutionContext onHalt(WorkerSignal signal) {
+        BLangScheduler.workerDone(signal.getSourceContext());
         if (!joinWorkerNames.contains(signal.getSourceContext().workerInfo.getWorkerName())) {
             return null;
         }
@@ -99,6 +100,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     @Override
     protected synchronized WorkerExecutionContext onError(WorkerSignal signal) {
+        BLangScheduler.workerExcepted(signal.getSourceContext());
         BStruct error = signal.getSourceContext().getError();
         if (this.isFulfilled()) {
             printError(signal.getSourceContext().workerInfo.getWorkerName(), error);

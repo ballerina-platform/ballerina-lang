@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.bvm.BLangScheduler.BLangAsyncCallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -36,8 +35,6 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     private boolean errored;
     
     private List<WorkerExecutionContext> workerExecutionContexts;
-        
-    private BLangAsyncCallableUnitCallback nonBlockingCallback;
     
     private CallableUnitInfo callableUnitInfo;
     
@@ -57,8 +54,13 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
         this.workerExecutionContexts = workerExecutionContexts;
     }
     
-    public void setNonBlockingCallback(BLangAsyncCallableUnitCallback nonBlockingCallback) {
-        this.nonBlockingCallback = nonBlockingCallback;
+    @Override
+    public synchronized WorkerExecutionContext signal(WorkerSignal signal) {
+        if (this.cancelled) {
+            return null;
+        } else {
+            return super.signal(signal);
+        }
     }
     
     @Override
@@ -131,11 +133,10 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
         if (this.isDone()) {
             return false;
         }
+        /* only non-native workers can be cancelled */
         if (this.workerExecutionContexts != null) {
             //TODO
             this.cancelled = true;
-        } else if (this.nonBlockingCallback != null) {
-            this.cancelled = this.nonBlockingCallback.cancel();
         }
         if (this.cancelled) {
             this.sendAsyncCancelErrorSignal();

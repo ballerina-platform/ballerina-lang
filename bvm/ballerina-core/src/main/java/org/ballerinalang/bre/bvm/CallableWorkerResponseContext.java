@@ -88,6 +88,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
 
     @Override
     protected WorkerExecutionContext onHalt(WorkerSignal signal) {
+        BLangScheduler.workerDone(signal.getSourceContext());
         WorkerExecutionContext runInCallerCtx = null;
         this.haltCount++;
         if (this.isReturnable()) {
@@ -134,6 +135,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     
     @Override
     protected WorkerExecutionContext onError(WorkerSignal signal) {
+        BLangScheduler.workerExcepted(signal.getSourceContext());
         this.initWorkerErrors();
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
         if (this.isFulfilled()) {
@@ -162,6 +164,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
 
     @Override
     protected WorkerExecutionContext onReturn(WorkerSignal signal) {
+        BLangScheduler.workerDone(signal.getSourceContext());
         WorkerExecutionContext runInCallerCtx = null;
         if (this.isFulfilled() && this.isReturnable()) {
             this.handleAlreadyFulfilled(signal);
