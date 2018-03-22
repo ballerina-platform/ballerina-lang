@@ -22,7 +22,8 @@ import org.ballerinalang.code.generator.util.GeneratorUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,13 +64,16 @@ public class ResourceContextHolder {
         if (ann == null) {
             throw new CodeGeneratorException("Incomplete resource configuration found");
         }
-        Map<String, AnnotationAttachmentAttributeNode> attrs = GeneratorUtils.getAttributeMap(ann.getAttributes());
+        BLangRecordLiteral bLiteral = ((BLangRecordLiteral)((BLangAnnotationAttachment) ann).getExpression());
+        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+        Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(list);
 
         // We don't expect multiple http methods to be supported by single action
         // We only consider first content type for a single resource
-        context.method = GeneratorUtils.getAttributeValue(attrs.get("methods"), 0);
-        context.contentType = GeneratorUtils.getAttributeValue(attrs.get("consumes"), 0);
-        context.path = context.getTemplatePath(GeneratorUtils.getAttributeValue(attrs.get("path")));
+        context.method = attrs.get("methods") != null ? attrs.get("methods")[0] : null;
+        context.contentType = attrs.get("consumes") != null ? attrs.get("consumes")[0] : null;
+        String path = attrs.get("path") != null ? attrs.get("path")[0] : null;
+        context.path = context.getTemplatePath(path);
 
         return context;
     }

@@ -17,12 +17,15 @@
 package org.ballerinalang.code.generator.util;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 
 /**
  * Utilities used by ballerina code generator.
@@ -55,83 +58,31 @@ public class GeneratorUtils {
     }
 
     /**
-     * Retrieve {@link Map} representation of a Ballerina Attribute list
+     * Retrieve {@link Map} representation of a Ballerina Record Key Value list
      *
-     * @param attrs attribute list
-     * @return Map of attributes with attribute name as the key. Empty Map will be returned if list is empty.
+     * @param list list of key value pairs
+     * @return Map of key value pairs. Empty Map will be returned if list is empty.
      */
-    public static Map<String, AnnotationAttachmentAttributeNode> getAttributeMap(
-            List<? extends AnnotationAttachmentAttributeNode> attrs) {
-        Map<String, AnnotationAttachmentAttributeNode> attrMap = new HashMap<>();
-        attrs.forEach(attr -> attrMap.put(attr.getName().getValue(), attr));
+    public static Map<String, String[]> getKeyValuePairAsMap(List<BLangRecordKeyValue> list) {
+        Map<String, String[]> attrMap = new HashMap<>();
+
+        list.forEach(attr -> {
+            // We don't accept struct type values for annotation attribute
+            if (attr.getValue() instanceof BLangLiteral) {
+                attrMap.put(attr.getKey().toString(), new String[] {attr.getValue().toString()});
+            } else if (attr.getValue() instanceof BLangArrayLiteral) {
+                List<? extends ExpressionNode> exprs = ((BLangArrayLiteral) attr.getValue()).getExpressions();
+                String[] values = new String[exprs.size()];
+
+                for(int i = 0; i < exprs.size(); i++) {
+                    values[i] = ((BLangLiteral) exprs.get(i)).getValue().toString();
+                }
+
+                attrMap.put(attr.getKey().toString(), values);
+            }
+        });
 
         return attrMap;
     }
 
-    /**
-     * Retrieve String value of {@code attr}.
-     *
-     * @param attr Attribute with non array type value
-     * @return value of the attribute or {@code null} if {@code attr} is null
-     */
-    public static String getAttributeValue(AnnotationAttachmentAttributeNode attr) {
-        if (attr == null) {
-            return null;
-        }
-
-        return attr.getValue().getValue().toString();
-    }
-
-    /**
-     * Retrieve value at specific index from array type attribute node.
-     *
-     * @param attr Attribute with array type values
-     * @param index index of the value to be retrieved
-     * @return value in the {@code index}<sup>th</sup> location of value list
-     * <p>null will be returned in following cases</p>
-     * <ul>
-     *     <li>{@code attr is null}</li>
-     *     <li>{@code attr} doesn't contain array type values</li>
-     * </ul>
-     */
-    public static String getAttributeValue(AnnotationAttachmentAttributeNode attr, int index) {
-        String value = null;
-        if (attr == null) {
-            return null;
-        }
-
-        String[] values = getAttributeValueArray(attr);
-        if (values != null && values.length >= index) {
-            value = values[index];
-        }
-
-        return value;
-    }
-
-    /**
-     * Retrieve attribute value list of a Array type attribute.
-     *
-     * @param attr Attribute with array type values
-     * @return array of Strings containing all values for {@code attr}.
-     * <p>null will be returned in following two cases</p>
-     * <ul>
-     *     <li>{@code attr} is null</li>
-     *     <li>{@code attr} doesn't contain array type values</li>
-     * </ul>
-     */
-    public static String[] getAttributeValueArray(AnnotationAttachmentAttributeNode attr) {
-        String[] values = null;
-        if (attr == null || attr.getValue().getValueArray() == null) {
-            return values;
-        }
-
-        List<? extends AnnotationAttachmentAttributeValueNode> valueList = attr.getValue().getValueArray();
-        values = new String[valueList.size()];
-
-        for (int i = 0; i < valueList.size(); i++) {
-            values[i] = valueList.get(i).getValue().toString();
-        }
-
-        return values;
-    }
 }

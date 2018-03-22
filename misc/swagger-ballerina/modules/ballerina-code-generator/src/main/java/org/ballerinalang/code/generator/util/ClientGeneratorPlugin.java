@@ -23,12 +23,15 @@ import org.ballerinalang.code.generator.model.ClientContextHolder;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,26 +40,40 @@ import java.util.Map;
  */
 @SupportedAnnotationPackages(value = { "ballerina.net.http.swagger" })
 public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
+    List<EndpointNode> endpoints;
+
     @Override
-    public void init(DiagnosticLog diagnosticLog) {}
+    public void init(DiagnosticLog diagnosticLog) {
+        this.endpoints = new ArrayList<>();
+    }
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         CodeGenerator codegen = new CodeGenerator();
         PrintStream err = System.err;
         AnnotationAttachmentNode config = GeneratorUtils
-                .getAnnotationFromList(GeneratorConstants.HTTP_CONFIG_ANNOTATION, GeneratorConstants.SWAGGER_PKG_ALIAS,
+                .getAnnotationFromList("ClientConfig", GeneratorConstants.SWAGGER_PKG_ALIAS,
                         annotations);
 
         // Generate client only if requested by providing the client config annotation
         if (isClientGenerationEnabled(config)) {
             try {
-                ClientContextHolder context = ClientContextHolder.buildContext(serviceNode);
+                ClientContextHolder context = ClientContextHolder.buildContext(serviceNode, endpoints);
                 codegen.writeGeneratedSource(GeneratorConstants.GenType.CLIENT, context,
                         getOutputFilePath(serviceNode));
             } catch (CodeGeneratorException e) {
                 err.println("Client code was not generated: " + e.getMessage());
             }
+        }
+    }
+
+    @Override
+    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
+        AnnotationAttachmentNode config = GeneratorUtils
+                .getAnnotationFromList("ClientEndpoint", GeneratorConstants.SWAGGER_PKG_ALIAS,
+                        annotations);
+        if (config != null) {
+            this.endpoints.add(endpointNode);
         }
     }
 
@@ -73,8 +90,10 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
             return false;
         }
 
-        Map<String, AnnotationAttachmentAttributeNode> attrs =  GeneratorUtils.getAttributeMap(ann.getAttributes());
-        String val = GeneratorUtils.getAttributeValue(attrs.get("client"));
+        BLangRecordLiteral bLiteral = ((BLangRecordLiteral)((BLangAnnotationAttachment) ann).getExpression());
+        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+        Map<String, String[]> attrs =  GeneratorUtils.getKeyValuePairAsMap(list);
+        String val = attrs.get("generate")[0];
         isClientRequested = Boolean.parseBoolean(val);
 
         return isClientRequested;
