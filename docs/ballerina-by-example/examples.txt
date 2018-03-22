@@ -103,3 +103,4 @@ gRPC Unary Non Blocking Stub
 grpc Unary Blocking Stub
 gRPC Server Streaming
 gRPC Client Streaming
+gRPC Bidirectional Streaming
