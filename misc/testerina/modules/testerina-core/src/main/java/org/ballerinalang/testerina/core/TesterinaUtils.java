@@ -48,6 +48,13 @@ public class TesterinaUtils {
 
     /**
      * Utility method to get a Java field via reflection.
+     *
+     * @param instance instance
+     * @param fieldName field name
+     * @param fieldType field type
+     * @param <T> type
+     * @return field
+     * @throws NoSuchFieldException if no field is found
      */
     public static <T> T getField(Object instance, String fieldName, Class<T> fieldType) throws NoSuchFieldException {
         try {
@@ -68,6 +75,16 @@ public class TesterinaUtils {
 
     /**
      * Utility method to invoke a Java method and get the result via reflection.
+     *
+     * @param object object
+     * @param methodName method name
+     * @param returnType return type
+     * @param <T> type
+     * @param <V> return type
+     * @return result
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
      */
     public static <T, V> V invokeMethod(T object, String methodName, Class<V> returnType)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -82,6 +99,13 @@ public class TesterinaUtils {
 
     /**
      * Set the provided property value to the give object's fieldName.
+     *
+     * @param instance instance
+     * @param fieldName field name
+     * @param value value
+     * @param <T> type
+     * @throws IllegalAccessException if access is not allowed
+     * @throws NoSuchFieldException if no such field is found
      */
     public static <T> void setProperty(T instance, String fieldName, String value)
             throws IllegalAccessException, NoSuchFieldException {
