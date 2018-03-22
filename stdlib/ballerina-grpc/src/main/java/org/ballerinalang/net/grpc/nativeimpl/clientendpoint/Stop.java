@@ -25,7 +25,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Native function to stop gRPC client instance.
@@ -33,10 +35,11 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
  * @since 1.0.0
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "stop",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
-                             structPackage = PROTOCOL_PACKAGE_GRPC),
+                             structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
 public class Stop extends BlockingNativeCallableUnit {

@@ -15,36 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.langserver.workspace.repository;
 
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 
-import java.util.List;
+import java.nio.file.Path;
 
 /**
- * @since 0.965.0
+ * Language Server Source Repo.
  */
-public interface StreamletNode extends AnnotatableNode, TopLevelNode {
+public class LSProjectSourceRepo extends ProjectSourceRepo {
+    public LSProjectSourceRepo(PathConverter converter) {
+        super(converter);
+    }
 
-    IdentifierNode getName();
-
-    void setName(IdentifierNode name);
-
-    void setBody(BlockNode body);
-
-    BlockNode getBody();
-
-    List<? extends VariableNode> getParameters();
-
-    void addParameter(VariableNode param);
-
-    void setInitFunction(FunctionNode function);
-
-    FunctionNode getInitFunction();
-
-    void addGlobalVariable(VariableNode variable);
-
-    List<VariableNode> getGlobalVariables();
-
+    public LSProjectSourceRepo(Path projectRoot) {
+        this(new LSPathConverter(projectRoot));
+    }
 }
-
