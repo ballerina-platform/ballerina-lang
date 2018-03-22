@@ -45,7 +45,7 @@ public class UriTemplateDefaultDispatcherTest {
 
     @Test(description = "Test dispatching with Service name when basePath is not defined and resource path empty")
     public void testServiceNameDispatchingWhenBasePathUndefined() {
-        String path = "/serviceName";
+        String path = "/serviceName/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
@@ -55,7 +55,7 @@ public class UriTemplateDefaultDispatcherTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test dispatching with Service name when basePath is empty and resource annotation unavailable")
+    @Test(description = "Test dispatching when resource annotation unavailable")
     public void testServiceNameDispatchingWithEmptyBasePath() {
         String path = "/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -93,7 +93,7 @@ public class UriTemplateDefaultDispatcherTest {
 
     @Test(description = "Test dispatching with default resource")
     public void testDispatchingToDefault() {
-        String path = "/hello";
+        String path = "/serviceEmptyName/hello";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 

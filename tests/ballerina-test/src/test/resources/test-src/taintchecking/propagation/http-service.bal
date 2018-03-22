@@ -1,13 +1,17 @@
 import ballerina/net.http;
 
-service<http> sample {
-    @http:resourceConfig {
+endpoint http:ServiceEndpoint helloWorldEP {
+port:9090
+};
+
+service<http:Service> sample bind helloWorldEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    resource params (http:Connection conn, http:Request req, string foo) {
-        map params = req.getQueryParams();
-        var bar, _ = (string) params.bar;
+    params (endpoint outboundEP, http:Request req, string foo) {
+        map paramsMap = req.getQueryParams();
+        var bar = paramsMap.bar;
 
         secureFunction(foo, foo);
         secureFunction(bar, bar);
@@ -15,6 +19,7 @@ service<http> sample {
 }
 
 
-public function secureFunction (@sensitive string secureIn, string insecureIn) {
-    string data = secureIn + insecureIn;
+public function secureFunction (@sensitive any secureIn, any insecureIn) {
+
 }
+

@@ -44,8 +44,8 @@ public class ConstrainedMapTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src", "types/map/constrained-map.bal");
-        negativeResult = BCompileUtil.compile(this, "test-src", "types/map/constrained-map-negative.bal");
+        compileResult = BCompileUtil.compile("test-src/types/map/constrained-map.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/map/constrained-map-negative.bal");
     }
 
     @Test(description = "Test Map constrained with type negative semantic validations.")
@@ -494,4 +494,16 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 52);
     }
 
+    @Test(description = "Test constrianed map Equivelent map insert.")
+    public void testMapConstrianedWithStructEquivalency() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testMapConstrainedEquivalentMapInsert");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "Jack");
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+    }
 }

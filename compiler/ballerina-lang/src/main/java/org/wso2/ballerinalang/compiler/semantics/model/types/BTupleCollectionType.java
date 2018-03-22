@@ -57,7 +57,7 @@ public class BTupleCollectionType extends BType implements TupleCollectionType {
 
     @Override
     public String toString() {
-        return "(" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(",")) + ")" + "[]";
+        return "(" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(",")) + ")";
     }
 
 }

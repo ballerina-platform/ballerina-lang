@@ -4,8 +4,8 @@ function toString(xml msg) returns (string) {
 }
 
 function testIsSingleton() returns (boolean, boolean) {
-    var x1, _ = <xml> "<!-- outer comment -->";
-    var x2, _ = <xml> "<name>supun</name>";
+    var x1 = xml `<!-- outer comment -->`;
+    var x2 = xml `<name>supun</name>`;
     xml x3 = x1 + x2;
     boolean b1 = x3.isSingleton();
     boolean b2 = x2.isSingleton();
@@ -13,33 +13,33 @@ function testIsSingleton() returns (boolean, boolean) {
 }
 
 function testIsSingletonWithMultipleChildren() returns (boolean) {
-    var x1, _ = <xml> "<order><orderid>123</orderid><noOfItems>5</noOfItems></order>";
+    var x1 = xml `<order><orderid>123</orderid><noOfItems>5</noOfItems></order>`;
     boolean b = x1.isSingleton();
     return b;
 }
  
 function testIsEmpty() returns (boolean) {
-    var x, _ = <xml> "<name>supun</name>";
+    var x = xml `<name>supun</name>`;
     boolean b = x.isEmpty();
     return b;
 }
 
 function testIsEmptyWithNoElementTextValue() returns (boolean) {
-    var x, _ = <xml> "<name/>";
+    var x = xml `<name/>`;
     boolean b = x.isEmpty();
     return b;
 }
 
 function testIsEmptyWithMultipleChildren() returns (boolean) {
-    var x, _ = <xml> "<order><orderid>123</orderid><noOfItems>5</noOfItems></order>";
+    var x = xml `<order><orderid>123</orderid><noOfItems>5</noOfItems></order>`;
     boolean b = x.isEmpty();
     return b;
 }
 
 function testGetItemType() returns (string, string, string) {
-    var x1, _  = <xml> "<name>supun</name>";
-    var x2, _  = <xml> "<!-- outer comment -->";
-    var x3, _  = <xml> "<name gender=\"male\">supun</name>";
+    var x1 = xml `<name>supun</name>`;
+    var x2 = xml `<!-- outer comment -->`;
+    var x3 = xml `<name gender="male">supun</name>`;
     xml x4 = x2 + x1 + x3;
     string s1 = x1.getItemType();
     string s2 = x3.getItemType();
@@ -48,49 +48,49 @@ function testGetItemType() returns (string, string, string) {
 }
 
 function testGetItemTypeForElementWithPrefix() returns (string) {
-    var x, _ = <xml> "<cre:name xmlns:cre=\"http://xmlns.oracle.com/apps/ozf\" cre:gender=\"male\">supun</cre:name>";
+    var x = xml `<cre:name xmlns:cre="http://xmlns.oracle.com/apps/ozf" cre:gender="male">supun</cre:name>`;
     string s1 = x.getItemType();
     return s1;
 }
 
 function testGetItemTypeForElementWithDefaultNamespace() returns (string) {
-    var x, _ = <xml> "<name xmlns=\"http://xmlns.oracle.com/apps/ozf\" gender=\"male\">supun</name>";
+    var x = xml `<name xmlns="http://xmlns.oracle.com/apps/ozf" gender="male">supun</name>`;
     string s1 = x.getItemType();
     return s1;
 }
 
 function testGetElementName() returns (string) {
-    var x, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\">supun</ns0:name>";
+    var x = xml `<ns0:name xmlns:ns0="http://sample.com/test">supun</ns0:name>`;
     string s = x.getElementName();
     return s;
 }
 
 function testGetElementNameForElementWithDefaultNamespace() returns (string) {
-    var x, _ = <xml> "<name xmlns=\"http://sample.com/test\">supun</name>";
+    var x = xml `<name xmlns="http://sample.com/test">supun</name>`;
     string s = x.getElementName();
     return s;
 }
 
 function testGetElementNameForElementWithoutNamespace() returns (string) {
-    var x, _  = <xml> "<name xmlns=\"http://sample.com/test/core\" xmlns:ns0=\"http://sample.com/test\" ns0:gender=\"male\">supun</name>";
+    var x = xml `<name xmlns="http://sample.com/test/core" xmlns:ns0="http://sample.com/test" ns0:gender="male">supun</name>`;
     string s = x.getElementName();
     return s;
 }
 
 function testGetTextValue() returns (string) {
-    var x, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\">supun</ns0:name>";
+    var x = xml `<ns0:name xmlns:ns0="http://sample.com/test">supun</ns0:name>`;
     string s = x.getTextValue();
     return s;
 }
 
 function testGetTextValueDefaultNamespace() returns (string) {
-    var x, _ = <xml> "<name xmlns=\"http://sample.com/test\">supun</name>";
+    var x = xml `<name xmlns="http://sample.com/test">supun</name>`;
     string s = x.getTextValue();
     return s;
 }
 
 function testGetChildren() returns (xml, boolean, boolean) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></ns0:name>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></ns0:name>`;
     xml x2 = x1.children();
     
     boolean isEmpty = x2.isEmpty();
@@ -110,7 +110,7 @@ function testGetChildrenFromComplexXml() returns (xml, boolean, boolean) {
 }
 
 function testGetNonExistingChildren() returns (xml, boolean, boolean) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"></ns0:name>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"></ns0:name>`;
     xml x2 = x1.children();
     
     boolean isEmpty = x2.isEmpty();
@@ -120,7 +120,7 @@ function testGetNonExistingChildren() returns (xml, boolean, boolean) {
 }
 
 function testSelectChildren() returns (xml, boolean, boolean) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
               
     xml x2 = x1.selectChildren("{http://sample.com/test}fname");
     boolean isEmpty = x2.isEmpty();
@@ -190,7 +190,7 @@ function testSelectChildrenWithDifferentNamespaces() returns (xml, xml, boolean,
 }
 
 function testGetElements() returns (xml, boolean, boolean) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></ns0:name>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></ns0:name>`;
     xml x2 = x1.elements();
     
     boolean isEmpty = x2.isEmpty();
@@ -200,8 +200,8 @@ function testGetElements() returns (xml, boolean, boolean) {
 }
 
 function testGetElementsFromSequence() returns (xml, boolean, boolean){
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
-    var x2, _ = <xml> "<order xmlns=\"http://sample.com/test/core\"><orderid>123</orderid><noOfItems>5</noOfItems></order>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
+    var x2 = xml `<order xmlns="http://sample.com/test/core"><orderid>123</orderid><noOfItems>5</noOfItems></order>`;
     xml x3 = x1 + x2;
     xml x4 = x3.elements();
 
@@ -212,7 +212,7 @@ function testGetElementsFromSequence() returns (xml, boolean, boolean){
 }
 
 function testGetElementsByName() returns (xml, boolean, boolean) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
     xml x2 = x1.children();
     xml x3 = x2.select("{http://sample.com/test}fname");
     
@@ -223,7 +223,7 @@ function testGetElementsByName() returns (xml, boolean, boolean) {
 }
 
 function testGetElementsByNameWithDefaultNamespace() returns (xml, boolean, boolean) {
-    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>";
+    var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
     xml x2 = x1.children();
     xml x3 = x2.select("{http://sample.com/test}fname");
 
@@ -235,7 +235,7 @@ function testGetElementsByNameWithDefaultNamespace() returns (xml, boolean, bool
 
 function testGetElementsByNameByPrefix() returns (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as ns0;
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
     xml x2 = x1.children();
     xml x3 = x2.select(ns0:fname);
 
@@ -247,7 +247,7 @@ function testGetElementsByNameByPrefix() returns (xml, boolean, boolean) {
 
 function testGetElementsByNameByDifferentPrefix() returns (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as pre;
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
     xml x2 = x1.children();
     xml x3 = x2.select(pre:fname);
 
@@ -271,7 +271,7 @@ function testGetElementsByNameEmptyNamespace() returns (xml, boolean, boolean) {
 
 function testGetElementsByNamePrefixForDefaultNamespace() returns (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as pre;
-    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>";
+    var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
     xml x2 = x1.children();
     xml x3 = x2.select(pre:fname);
 
@@ -283,7 +283,7 @@ function testGetElementsByNamePrefixForDefaultNamespace() returns (xml, boolean,
 
 function testGetElementsByNameDifferentNamespaces() returns (xml, xml, boolean, boolean, boolean, boolean) {
     xmlns "http://sample.com/test" as pre;
-    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><ns0:fname xmlns:ns0=\"http://sample.com/test/code\">supun</ns0:fname><fname>thilina</fname><lname>setunga</lname></name>";
+    var x1 = xml `<name xmlns="http://sample.com/test"><ns0:fname xmlns:ns0="http://sample.com/test/code">supun</ns0:fname><fname>thilina</fname><lname>setunga</lname></name>`;
     xml x2 = x1.children();
     xml x3 = x2.select(pre:fname);
     xml x4 = x2.select("{http://sample.com/test/code}fname");
@@ -298,8 +298,8 @@ function testGetElementsByNameDifferentNamespaces() returns (xml, xml, boolean, 
 }
 
 function testConcat() returns (xml, boolean, boolean) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></ns0:name>";
-    var x2, _ = <xml> "<ns1:address xmlns:ns1=\"http://sample.com/test\"><country>SL</country><city>Colombo</city></ns1:address>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></ns0:name>`;
+    var x2 = xml `<ns1:address xmlns:ns1="http://sample.com/test"><country>SL</country><city>Colombo</city></ns1:address>`;
     
     xml x3 = x1 + x2;
     
@@ -310,10 +310,10 @@ function testConcat() returns (xml, boolean, boolean) {
 }
 
 function testSetChildren() returns (xml, boolean, boolean, xml) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></ns0:name>";
-    var x2, _ = <xml> "<newFname>supun-new</newFname>";
-    var x3, _ = <xml> "<newMname>thilina-new</newMname>";
-    var x4, _ = <xml> "<newLname>setunga-new</newLname>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></ns0:name>`;
+    var x2 = xml `<newFname>supun-new</newFname>`;
+    var x3 = xml `<newMname>thilina-new</newMname>`;
+    var x4 = xml `<newLname>setunga-new</newLname>`;
     
     xml children = x2 + x3 + x4;
     x1.setChildren(children);
@@ -327,7 +327,7 @@ function testSetChildren() returns (xml, boolean, boolean, xml) {
 function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, string) {
     xmlns "http://sample.com/test";
 
-    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>";
+    var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
     string elemantName = "residency";
     string attributeName = "citizen";
     string elementValue = "true";
@@ -347,7 +347,7 @@ function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, 
 function testSetChildrenEmptyNamespace() returns (xml, boolean, boolean, xml, string) {
     xmlns "http://sample.com/test";
 
-    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>";
+    var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
     string elemantName = "{}residency";
     string attributeName = "citizen";
     string elementValue = "true";
@@ -367,7 +367,7 @@ function testSetChildrenEmptyNamespace() returns (xml, boolean, boolean, xml, st
 function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boolean, boolean, string) {
     xmlns "http://sample.com/test";
 
-    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>";
+    var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
     string elemantName = "residency";
     string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
@@ -388,7 +388,7 @@ function testSetChildrenWithPrefixedAttribute() returns (xml, boolean, boolean, 
     xmlns "http://sample.com/test/code" as pre;
     xmlns "http://sample.com/test";
 
-    var x1, _ = <xml> "<name xmlns=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></name>";
+    var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
     string elemantName = "residency";
     string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
@@ -509,10 +509,10 @@ function testSetChildrenWithElementDiffNamespace() returns (xml, boolean, boolea
 }
 
 function testCopy() returns (xml, boolean, boolean, xml) {
-    var x1, _ = <xml> "<ns0:name xmlns:ns0=\"http://sample.com/test\"><fname>supun</fname><lname>setunga</lname></ns0:name>";
-    var x2, _ = <xml> "<newFname>supun-new</newFname>";
-    var x3, _ = <xml> "<newMname>thilina-new</newMname>";
-    var x4, _ = <xml> "<newLname>setunga-new</newLname>";
+    var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></ns0:name>`;
+    var x2 = xml `<newFname>supun-new</newFname>`;
+    var x3 = xml `<newMname>thilina-new</newMname>`;
+    var x4 = xml `<newLname>setunga-new</newLname>`;
     
     xml children = x2 + x3 + x4;
     
@@ -527,11 +527,11 @@ function testCopy() returns (xml, boolean, boolean, xml) {
 }
 
 function testToString() returns (string) {
-    var bookComment, _ = <xml> "<!-- comment about the book-->";
-    var bookName, _ = <xml> "<bookName>Book1</bookName>";
-    var bookId, _ = <xml> "<bookId>001</bookId>";
-    var bookAuthor, _ = <xml> "<bookAuthor>Author01</bookAuthor>";
-    var bookMeta, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var bookComment = xml `<!-- comment about the book-->`;
+    var bookName = xml `<bookName>Book1</bookName>`;
+    var bookId = xml `<bookId>001</bookId>`;
+    var bookAuthor = xml `<bookAuthor>Author01</bookAuthor>`;
+    var bookMeta = xml `<?word document="book.doc" ?>`;
     
     xml book = bookComment + bookName + bookId + bookAuthor + bookMeta;
     
@@ -540,23 +540,23 @@ function testToString() returns (string) {
 }
 
 function testStrip() returns (xml, xml) {
-    var x1, _  = <xml> "<!-- comment about the book-->";
-    var x2, _ = <xml> "     ";
-    var x3, _ = <xml> "<bookId>001</bookId>";
-    var x4, _ = <xml> "";
-    var x5, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var x1 = xml `<!-- comment about the book-->`;
+    var x2 = xml `     `;
+    var x3 = xml `<bookId>001</bookId>`;
+    var x4 = <xml> "";
+    var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
     return (x6, x6.strip());
 }
 
 function testStripSingleton() returns (xml, xml) {
-    var x1, _ = <xml> "<bookId>001</bookId>";
+    var x1 = xml `<bookId>001</bookId>`;
     return (x1, x1.strip());
 }
 
 function testStripEmptySingleton() returns (xml, xml, boolean) {
-    var x1, _ = <xml> "";
+    var x1 = <xml> "";
     xml x2 = x1.strip();
     boolean isEmpty = x2.isEmpty();
     
@@ -564,65 +564,65 @@ function testStripEmptySingleton() returns (xml, xml, boolean) {
 }
 
 function testSlice() returns (xml) {
-    var x1, _ = <xml> "<!-- comment about the book-->";
-    var x2, _ = <xml> "<bookName>Book1</bookName>";
-    var x3, _ = <xml> "<bookId>001</bookId>";
-    var x4, _ = <xml> "<bookAuthor>Author01</bookAuthor>";
-    var x5, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var x1 = xml `<!-- comment about the book-->`;
+    var x2 = xml `<bookName>Book1</bookName>`;
+    var x3 = xml `<bookId>001</bookId>`;
+    var x4 = xml `<bookAuthor>Author01</bookAuthor>`;
+    var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
     return x6.slice(1, 4);
 }
 
 function testSliceAll() returns (xml) {
-    var x1, _ = <xml> "<!-- comment about the book-->";
-    var x2, _ = <xml> "<bookName>Book1</bookName>";
-    var x3, _ = <xml> "<bookId>001</bookId>";
-    var x4, _ = <xml> "<bookAuthor>Author01</bookAuthor>";
-    var x5, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var x1 = xml `<!-- comment about the book-->`;
+    var x2 = xml `<bookName>Book1</bookName>`;
+    var x3 = xml `<bookId>001</bookId>`;
+    var x4 = xml `<bookAuthor>Author01</bookAuthor>`;
+    var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
     return x6.slice(-1, -1);
 }
 
 function testSliceInvalidIndex() returns (xml) {
-    var x1, _ = <xml> "<!-- comment about the book-->";
-    var x2, _ = <xml> "<bookName>Book1</bookName>";
-    var x3, _ = <xml> "<bookId>001</bookId>";
-    var x4, _ = <xml> "<bookAuthor>Author01</bookAuthor>";
-    var x5, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var x1 = xml `<!-- comment about the book-->`;
+    var x2 = xml `<bookName>Book1</bookName>`;
+    var x3 = xml `<bookId>001</bookId>`;
+    var x4 = xml `<bookAuthor>Author01</bookAuthor>`;
+    var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
     return x6.slice(4, 1);
 }
 
 function testSliceOutOfRangeIndex(int startIndex, int endIndex) returns (xml) {
-    var x1, _ = <xml> "<!-- comment about the book-->";
-    var x2, _ = <xml> "<bookName>Book1</bookName>";
-    var x3, _ = <xml> "<bookId>001</bookId>";
-    var x4, _ = <xml> "<bookAuthor>Author01</bookAuthor>";
-    var x5, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var x1 = xml `<!-- comment about the book-->`;
+    var x2 = xml `<bookName>Book1</bookName>`;
+    var x3 = xml `<bookId>001</bookId>`;
+    var x4 = xml `<bookAuthor>Author01</bookAuthor>`;
+    var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
     return x6.slice(startIndex, endIndex);
 }
 
 function testSliceSingleton() returns (xml) {
-    var x1, _ = <xml> "<bookName>Book1</bookName>";
+    var x1 = xml `<bookName>Book1</bookName>`;
     return x1.slice(-1, -1);
 }
 
 function testSeqCopy() returns (xml, xml) {
-    var x1, _ = <xml> "<!-- comment about the book-->";
-    var x2, _ = <xml> "<bookName>Book1</bookName>";
-    var x3, _ = <xml> "<bookId>001</bookId>";
-    var x4, _ = <xml> "<bookAuthor>Author01</bookAuthor>";
-    var x5, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var x1 = xml `<!-- comment about the book-->`;
+    var x2 = xml `<bookName>Book1</bookName>`;
+    var x3 = xml `<bookId>001</bookId>`;
+    var x4 = xml `<bookAuthor>Author01</bookAuthor>`;
+    var x5 = xml `<?word document="book.doc" ?>`;
     
     xml original = x1 + x2 + x3 + x4 + x5;
     xml copy = original.copy();
 
-    var x7, _ = <xml> "Updated Book ID";
+    var x7 = xml `Updated Book ID`;
     x3.setChildren(x7);
     
     return (original, copy);
@@ -639,22 +639,22 @@ function testSetChildrenToElemntInDefaultNameSpace() returns (xml) {
 
 
 function testToJsonForValue() returns (json) {
-    var x, _ = <xml> "value";
+    var x = xml `value`;
     return x.toJSON({});
 }
 
 function testToJsonForEmptyValue() returns (json) {
-    var x, _ = <xml> "";
+    var x = <xml> "";
     return x.toJSON({});
 }
 
 function testToJsonForComment() returns (json) {
-    var x, _ = <xml> "<!-- value -->";
+    var x = xml `<!-- value -->`;
     return x.toJSON({});
 }
 
 function testToJsonForPI() returns (json) {
-    var x, _ = <xml> "<?doc document=\"book.doc\"?>";
+    var x = xml `<?doc document="book.doc"?>`;
     return x.toJSON({});
 }
 
@@ -672,70 +672,70 @@ function testToJSONWithoutNamespace(xml msg) returns (json) {
 }
 
 function testToJSONWithSequenceDistinctKeys() returns (json) {
-    var x1, _ = <xml> "<key1>value1</key1>";
-    var x2, _ = <xml> "<key2>value2</key2>";
+    var x1 = xml `<key1>value1</key1>`;
+    var x2 = xml `<key2>value2</key2>`;
     xml x3 = x1 + x2;
 
     return x3.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceSimilarKeys() returns (json) {
-    var x1, _ = <xml> "<key>value1</key>";
-    var x2, _ = <xml> "<key>value2</key>";
-    var x3, _ = <xml> "<key>value3</key>";
+    var x1 = xml `<key>value1</key>`;
+    var x2 = xml `<key>value2</key>`;
+    var x3 = xml `<key>value3</key>`;
     xml x = x1 + x2 + x3;
 
     return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithValueArray() returns (json) {
-    var x1, _ = <xml> "a";
-    var x2, _ = <xml> "b";
-    var x3, _ = <xml> "c";
+    var x1 = xml `a`;
+    var x2 = xml `b`;
+    var x3 = xml `c`;
     xml x = x1 + x2 + x3;
 
     return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithMultipleElements() returns (json) {
-    var x1, _ = <xml> "<person><name>Jack</name><age>40</age></person>";
-    var x2, _ = <xml> "<metadata>5</metadata>";
+    var x1 = xml `<person><name>Jack</name><age>40</age></person>`;
+    var x2 = xml `<metadata>5</metadata>`;
     xml x = x1 + x2;
 
     return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithElementAndText() returns (json) {
-    var x1, _ = <xml> "a";
-    var x2, _ = <xml> "b";
-    var x3, _ = <xml> "<key>value3</key>";
+    var x1 = xml `a`;
+    var x2 = xml `b`;
+    var x3 = xml `<key>value3</key>`;
     xml x = x1 + x2 + x3;
 
     return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithElementAndTextArray() returns (json) {
-    var x1, _ = <xml> "a";
-    var x2, _ = <xml> "b";
-    var x3, _ = <xml> "<key>value3</key>";
-    var x4, _ = <xml> "<key>value4</key>";
-    var x5, _ = <xml> "<key>value4</key>";
+    var x1 = xml `a`;
+    var x2 = xml `b`;
+    var x3 = xml `<key>value3</key>`;
+    var x4 = xml `<key>value4</key>`;
+    var x5 = xml `<key>value4</key>`;
     xml x = x1 + x2 + x3 + x4 + x5;
 
     return x.toJSON({preserveNamespaces : false});
 }
 
 function testToJSONWithSequenceWithDifferentElements() returns (json) {
-    var x1, _ = <xml> "a";
-    var x2, _ = <xml> "b";
-    var x3, _ = <xml> "<key>value3</key>";
-    var x4, _ = <xml> "<key>value4</key>";
-    var x5, _ = <xml> "<key>value4</key>";
-    var x6, _ = <xml> "<!-- comment about the book-->";
-    var x7, _ = <xml> "<bookName>Book1</bookName>";
-    var x8, _ = <xml> "<bookId>001</bookId>";
-    var x9, _ = <xml> "<bookAuthor>Author01</bookAuthor>";
-    var x10, _ = <xml> "<?word document=\"book.doc\" ?>";
+    var x1 = xml `a`;
+    var x2 = xml `b`;
+    var x3 = xml `<key>value3</key>`;
+    var x4 = xml `<key>value4</key>`;
+    var x5 = xml `<key>value4</key>`;
+    var x6 = xml `<!-- comment about the book-->`;
+    var x7 = xml `<bookName>Book1</bookName>`;
+    var x8 = xml `<bookId>001</bookId>`;
+    var x9 = xml `<bookAuthor>Author01</bookAuthor>`;
+    var x10 = xml `<?word document="book.doc" ?>`;
 
     xml x = x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x8 + x10;
 
@@ -743,12 +743,12 @@ function testToJSONWithSequenceWithDifferentElements() returns (json) {
 }
 
 function testToJSONWithSequenceWithDifferentComplexElements() returns (json) {
-    var x1, _ = <xml> ("<bookStore status=\"online\"><storeName>foo</storeName><postalCode>94</postalCode>" +
-                        "<isOpen>true</isOpen><address><street>foo</street><city>94</city><country>true</country>" +
-                        "</address><codes><item>4</item><item>8</item><item>9</item></codes></bookStore>");
-    var x2, _ = <xml> "<!-- some comment -->";
-    var x3, _ = <xml> "<?doc document=\"book.doc\"?>";
-    var x4, _ = <xml> "<metaInfo>some info</metaInfo>";
+    var x1 = xml `<bookStore status="online"><storeName>foo</storeName><postalCode>94</postalCode>
+                    <isOpen>true</isOpen><address><street>foo</street><city>94</city><country>true</country>
+                        </address><codes><item>4</item><item>8</item><item>9</item></codes></bookStore>`;
+    var x2 = xml `<!-- some comment -->`;
+    var x3 = xml `<?doc document="book.doc"?>`;
+    var x4 = xml `<metaInfo>some info</metaInfo>`;
 
     xml x = x1 + x2 + x3 + x4;
 
@@ -813,12 +813,12 @@ function testUpdateAttributeWithDifferentUri() returns (xml) {
 }
 
 function testParseXMLElementWithXMLDeclrEntity() returns (xml) {
-    var x, _ = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><root>hello world</root><!-- comment node-->";
+    var x = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><root>hello world</root>";
     return x;
 }
 
 function testParseXMLCommentWithXMLDeclrEntity() returns (xml, error) {
-    var x, e = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->";
+    var (x, e) = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->";
     return (x, e);
 }
 

@@ -1,43 +1,34 @@
 import ballerina/net.http;
 import ballerina/net.http.swagger;
 
-@http:configuration {basePath:"/api"}
+@http:ServiceConfig {basePath:"/api"}
 @swagger:ServiceInfo {
-    version: "1.0.0",
+    serviceVersion: "1.0.0",
     title: "Swagger Petstore",
     description: "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
     termsOfService: "http://swagger.io/terms/",
-    contact: @swagger:Contact {
+    contact: {
         name: "Swagger API Team"
     },
-    license: @swagger:License {
+    license: {
         name: "MIT"
     }
 }
-@swagger:ServiceConfig {
-    schemes:[
-        "http"
-    ]
-}
-service<http> Service3 {
+service<http:Service> Service3 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/pets",
         produces:["application/json"]
     }
-    @swagger:Responses {
-        value:[
-            @swagger:Response {
-                code:"200",
-                description:"A list of pets."
-            }
-        ]
-    }
     @swagger:ResourceInfo {
         description: "Returns all pets from the system that the user has access to"
     }
-    resource Resource1 (message m) {
-        reply m;
+    listPets (endpoint outboundEp, http:Request req) {
+        //stub code - fill as necessary
+        http:Response resp = {};
+        string payload = "Sample listPets Response";
+        resp.setStringPayload(payload);
+        _ = outboundEp -> respond(resp);
     }
 }
