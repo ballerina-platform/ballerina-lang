@@ -59,14 +59,15 @@ public class ParameterContextHolder {
 
     /**
      * Check if the provided type is one of ignored variable type.
-     * {@code Connection} and {@code InRequest} type should be ignored without identifying as
+     * {@code endpoint} and {@code Request} type should be ignored without identifying as
      * resource parameters
      *
      * @param type Variable type
      * @return True if {@code type} is ignored type. False otherwise.
      */
     private boolean isIgnoredType(String type) {
-        if (type != null && ("Connection".equals(type) || "InRequest".equals(type))) {
+        // type of endpoint is returned as null
+        if (type == null  || "Request".equals(type)) {
             return true;
         }
 

@@ -16,17 +16,13 @@
 
 package org.ballerinalang.code.generator.model;
 
-import org.ballerinalang.code.generator.GeneratorConstants;
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
-import org.ballerinalang.code.generator.util.GeneratorUtils;
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Context holder for ballerina client generation.
@@ -34,43 +30,30 @@ import java.util.Map;
  */
 public class ClientContextHolder {
     private String name;
-    private String url;
     private List<ResourceContextHolder> resources;
+    private List<EndpointContextHolder> endpoints;
 
     /**
      * Build a parsable context from a Ballerina {@link ServiceNode}
      *
-     * @param service {@code ServiceNode} for a valid ballerina source file
+     * @param service   {@code ServiceNode} for a valid ballerina source file
+     * @param endpoints list of endpoints to be used as service endpoints for generated client
      * @return A parsable data model for provided ballerina {@code service}
      */
-    public static ClientContextHolder buildContext(ServiceNode service) throws CodeGeneratorException {
+    public static ClientContextHolder buildContext(ServiceNode service, List<EndpointNode> endpoints)
+            throws CodeGeneratorException {
         ClientContextHolder context = new ClientContextHolder();
         context.name = service.getName().getValue();
         context.resources = new ArrayList<>();
+        context.endpoints = new ArrayList<>();
 
-        AnnotationAttachmentNode ann = GeneratorUtils
-                .getAnnotationFromList(GeneratorConstants.HTTP_CONFIG_ANNOTATION, GeneratorConstants.HTTP_PKG_ALIAS,
-                        service.getAnnotationAttachments());
-        if (ann == null) {
-            throw new CodeGeneratorException("Incomplete service configuration found");
+        // Extract bound endpoint details
+        for (EndpointNode ep : endpoints) {
+            EndpointContextHolder epContext = EndpointContextHolder.buildContext(service, ep);
+            if (epContext != null) {
+                context.endpoints.add(EndpointContextHolder.buildContext(service, ep));
+            }
         }
-
-        Map<String, AnnotationAttachmentAttributeNode> attrs = GeneratorUtils.getAttributeMap(ann.getAttributes());
-        String host = GeneratorUtils.getAttributeValue(attrs.get("host"));
-        String port = GeneratorUtils.getAttributeValue(attrs.get("port"));
-        String httpsPort = GeneratorUtils.getAttributeValue(attrs.get("httpsPort"));
-        String basePath = GeneratorUtils.getAttributeValue(attrs.get("basePath"));
-        StringBuffer sb = new StringBuffer();
-
-        // Select protocol according to given ports. HTTPS is given the priority
-        if (httpsPort != null) {
-            sb.append("https://");
-            port = httpsPort;
-        } else {
-            sb.append("http://");
-        }
-
-        context.url = sb.append(host).append(':').append(port).append(basePath).toString();
 
         // Extract ballerina resource nodes as parsable resources
         for (ResourceNode resource: service.getResources()) {
@@ -85,11 +68,11 @@ public class ClientContextHolder {
         return name;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
     public List<ResourceContextHolder> getResources() {
         return resources;
+    }
+
+    public List<EndpointContextHolder> getEndpoints() {
+        return endpoints;
     }
 }
