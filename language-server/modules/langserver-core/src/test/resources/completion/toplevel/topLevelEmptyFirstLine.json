@@ -7,74 +7,100 @@
   "items": [
     {
       "label":"import",
-      "detail":"Snippet",
+      "detail":"Keyword",
+      "sortText":"210",
       "insertText":"import ",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"package",
-      "detail":"Snippet",
+      "detail":"Keyword",
+      "sortText":"210",
       "insertText":"package ",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"const",
-      "detail":"Snippet",
+      "detail":"Keyword",
+      "sortText":"210",
       "insertText":"const ",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"function",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"function ${1:name} (${2}) {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"main function",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"function main (string[] args) {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"enum",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"enum ${1:name} {\n\t\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"service",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"service\u003c${1:ServiceType}\u003e ${2:serviceName}{\n\t${3:newResource} () {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"transformer",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"transformer\u003c${1:Source} ${2:a},${3:Target} ${4:b}\u003e{\n\t${5}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"connector",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"connector ${1:name} (${2}) {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"struct",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"struct ${1:name}{\n\t${2}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"annotation",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"xmlns",
       "detail":"Snippet",
+      "sortText":"190",
       "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type \u003cName\u003e object",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"type ${1:ObjectTypeName} object {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"type ",
       "insertTextFormat":"Snippet"
     }
   ]
