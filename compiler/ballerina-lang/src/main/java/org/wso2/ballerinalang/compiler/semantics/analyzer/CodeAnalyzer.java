@@ -652,6 +652,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangThrow throwNode) {
         this.checkStatementExecutionValidity(throwNode);
+        this.statementReturns = true;
         analyzeExpr(throwNode.expr);
     }
 
