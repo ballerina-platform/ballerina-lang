@@ -51,8 +51,8 @@ import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.tracer.TraceManagerWrapper;
 import org.ballerinalang.util.tracer.TraceUtil;
-import org.ballerinalang.util.tracer.TraceableCallbackWrapper;
 import org.ballerinalang.util.tracer.TraceableCallback;
+import org.ballerinalang.util.tracer.TraceableCallbackWrapper;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
