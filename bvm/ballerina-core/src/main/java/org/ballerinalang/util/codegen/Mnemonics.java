@@ -220,7 +220,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
         
-        mnemonics[InstructionCodes.ASYNC] = "async";
         mnemonics[InstructionCodes.AWAIT] = "await";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
@@ -234,7 +233,6 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
-        mnemonics[InstructionCodes.NEWSTREAMLET] = "newstreamlet";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";

@@ -1,7 +1,7 @@
-import ballerina.lang.errors;
-import ballerina.lang.files;
-import ballerina.lang.system;
-import ballerina.lang.strings;
+import ballerina/lang.errors;
+import ballerina/lang.files;
+import ballerina/lang.system;
+import ballerina/lang.strings;
 
 function main (string[] args) {
     string[] data = null;

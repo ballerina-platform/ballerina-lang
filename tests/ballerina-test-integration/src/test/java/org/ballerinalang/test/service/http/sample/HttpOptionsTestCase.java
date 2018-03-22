@@ -41,7 +41,7 @@ public class HttpOptionsTestCase {
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
         String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath();
+                + File.separator + "httpService" + File.separator + "http_echo_service.bal").getAbsolutePath();
         ballerinaServer.startBallerinaServer(relativePath);
     }
 

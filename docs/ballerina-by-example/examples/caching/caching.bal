@@ -1,6 +1,6 @@
-import ballerina.caching;
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/caching;
+import ballerina/io;
+import ballerina/runtime;
 
 public function main (string[] args) {
     // Create a new cache. Cache cleanup task runs every 5 seconds and clears

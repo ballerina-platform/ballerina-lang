@@ -46,7 +46,9 @@ import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_REF_IN
 import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_KEY_STRING_INDEX;
 import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_MAP_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageConstants.NON_BLOCKING_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageConstants.STUB_TYPE_STRING_INDEX;
@@ -57,12 +59,13 @@ import static org.ballerinalang.net.grpc.MessageConstants.STUB_TYPE_STRING_INDEX
  * @since 1.0.0
  */
 @BallerinaFunction(
+        orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "initStub",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
-                structPackage = PROTOCOL_PACKAGE_GRPC),
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
-                @Argument(name = "clientEndpoint", type = TypeKind.STRUCT, structPackage = PROTOCOL_PACKAGE_GRPC,
+                @Argument(name = "clientEndpoint", type = TypeKind.STRUCT, structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC,
                         structType = "Client"),
                 @Argument(name = "stubType", type = TypeKind.STRING),
                 @Argument(name = "descriptorKey", type = TypeKind.STRING),

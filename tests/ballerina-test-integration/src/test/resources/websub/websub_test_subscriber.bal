@@ -1,6 +1,6 @@
-import ballerina.io;
-import ballerina.net.http;
-import ballerina.net.websub;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/net.websub;
 
 endpoint websub:SubscriberServiceEndpoint websubEP {
     host:"localhost",
@@ -27,13 +27,11 @@ service<websub:SubscriberService> websubSubscriber bind websubEP {
     onNotification (endpoint client, http:Request request) {
         http:Response response = { statusCode:202 };
         _ = client -> respond(response);
-        websub:WebSubNotification webSubNotification;
-        websub:WebSubError webSubError;
-        webSubNotification, webSubError = websub:processWebSubNotification(request);
-        if (webSubError == null) {
-            io:println("WebSub Notification Received: " + webSubNotification.payload.toString());
+        var payload, _ = request.getJsonPayload();
+        if (payload != null) {
+            io:println("WebSub Notification Received: " + payload.toString());
         } else {
-            io:println("Error occurred processing WebSub Notification: " + webSubError.errorMessage);
+            io:println("Error occurred processing WebSub Notification");
         }
     }
 

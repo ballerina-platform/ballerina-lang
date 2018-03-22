@@ -22,16 +22,19 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +45,7 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Compilation unit builder is for building ballerina compilation units.
@@ -112,9 +115,15 @@ public class TextDocumentServiceUtil {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRoot);
+        options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
+        try {
+            context.put(SourceDirectory.class,
+                    new LangServerFSProjectDirectory(Paths.get(new URI("file://" + sourceRoot))));
+        } catch (URISyntaxException e) {
+            // Ignore
+        }
         return context;
     }
 
@@ -152,8 +161,7 @@ public class TextDocumentServiceUtil {
                     for (File file : files) {
                         Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot,
                                 preserveWhitespace, customErrorStrategy);
-                        compiler.compile(file.getName());
-                        packages.add((BLangPackage) compiler.getAST());
+                        packages.add(compiler.compile(file.getName()));
                     }
                 }
             }
@@ -161,12 +169,10 @@ public class TextDocumentServiceUtil {
             Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot, preserveWhitespace,
                     customErrorStrategy);
             if ("".equals(pkgName)) {
-                compiler.compile(fileName);
+                packages.add(compiler.compile(fileName));
             } else {
-                compiler.compile(pkgName);
+                packages.add(compiler.compile(pkgName));
             }
-
-            packages.add((BLangPackage) compiler.getAST());
         }
         return packages;
     }

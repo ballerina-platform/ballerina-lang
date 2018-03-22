@@ -1,13 +1,13 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
 endpoint mock:NonListeningService mockEP {
     port:9090
 };
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.AUTO}
+@http:ServiceConfig {endpoints:[mockEP], compression: http:Compression.AUTO}
 service<http:Service> autoCompress {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
@@ -18,9 +18,9 @@ service<http:Service> autoCompress {
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.ALWAYS}
+@http:ServiceConfig {endpoints:[mockEP], compression: http:Compression.ALWAYS}
 service<http:Service> alwaysCompress {
-     @http:resourceConfig {
+     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
         }
@@ -31,9 +31,9 @@ service<http:Service> alwaysCompress {
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
+@http:ServiceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
 service<http:Service> neverCompress {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
@@ -44,9 +44,9 @@ service<http:Service> neverCompress {
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
+@http:ServiceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
 service<http:Service> userOverridenValue {
-    @http:resourceConfig {
+    @http:ResourceConfig {
             methods:["GET"],
             path:"/"
     }

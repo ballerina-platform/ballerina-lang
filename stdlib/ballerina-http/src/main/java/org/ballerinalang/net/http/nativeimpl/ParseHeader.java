@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.SEMICOLON;
  * @since 0.96.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "parseHeader",
         args = {@Argument(name = "headerValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),

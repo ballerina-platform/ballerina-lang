@@ -1,6 +1,6 @@
-import ballerina.data.sql;
-import ballerina.io;
-import ballerina.time;
+import ballerina/data.sql;
+import ballerina/io;
+import ballerina/time;
 
 struct ResultPrimitive {
     int INT_TYPE;
