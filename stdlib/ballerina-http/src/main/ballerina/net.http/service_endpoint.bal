@@ -14,9 +14,17 @@ public struct ServiceEndpoint {
 @Field {value:"maxHeaderSize: Maximum size allowed in the headers"}
 @Field {value:"maxEntityBodySize: Maximum size allowed in the entity body"}
 public struct RequestLimits {
-    int maxUriLength = -1;
-    int maxHeaderSize = -1;
-    int maxEntityBodySize = -1;
+    int maxUriLength;
+    int maxHeaderSize;
+    int maxEntityBodySize;
+}
+
+@Description {value:"Initializes the RequestLimits struct with default values."}
+@Param {value:"config: The RequestLimits struct to be initialized"}
+public function <RequestLimits config> RequestLimits() {
+    config.maxUriLength = -1;
+    config.maxHeaderSize = -1;
+    config.maxEntityBodySize = -1;
 }
 
 @Description {value:"Configuration for HTTP service endpoint"}
