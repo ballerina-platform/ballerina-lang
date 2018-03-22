@@ -27,13 +27,13 @@ import org.ballerinalang.langserver.completions.resolvers.ConnectorActionContext
 import org.ballerinalang.langserver.completions.resolvers.ConnectorDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.DefaultResolver;
 import org.ballerinalang.langserver.completions.resolvers.FunctionContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.ObjectTypeContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.PackageNameContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ParameterContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ResourceContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ServiceContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.StatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ObjectTypeContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAssignmentStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAttachmentPointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleCallableUnitBodyContextResolver;

@@ -2,12 +2,12 @@ import ballerina/net.http.authadaptor;
 import ballerina/mime;
 import ballerina/net.http;
 
-function testCreateAuthzHandlerChain () (authadaptor:AuthzHandlerChain) {
+function testCreateAuthzHandlerChain () returns (authadaptor:AuthzHandlerChain) {
     authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     return authzHandlerChain;
 }
 
-function testAuthzFailure () (boolean) {
+function testAuthzFailure () returns (boolean) {
     authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -18,7 +18,7 @@ function testAuthzFailure () (boolean) {
     return authzHandlerChain.handle(inRequest, "scope2", "sayHello");
 }
 
-function testAuthzFailureNonMatchingScope () (boolean) {
+function testAuthzFailureNonMatchingScope () returns (boolean) {
     authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -29,7 +29,7 @@ function testAuthzFailureNonMatchingScope () (boolean) {
     return authzHandlerChain.handle(inRequest, "scope2", "sayHello");
 }
 
-function testAuthzSucess () (boolean) {
+function testAuthzSucess () returns (boolean) {
     authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
