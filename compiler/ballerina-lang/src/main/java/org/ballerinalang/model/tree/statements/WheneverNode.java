@@ -15,14 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.types.ReferenceType;
+import org.ballerinalang.model.tree.VariableNode;
+
+import java.util.List;
 
 /**
- * {@code {@link StreamletType}} represents the type of a streamlet in Ballerina.
- *
  * @since 0.965.0
  */
-public interface StreamletType extends ReferenceType {
+public interface WheneverNode extends ExpressionStatementNode {
+
+
+    void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode);
+
+    List<StreamingQueryStatementNode> gettreamingQueryStatements();
+
+    void addGlobalVariable(VariableNode variable);
+
+    List<VariableNode> getGlobalVariables();
+
+    List<? extends VariableNode> getParameters();
+
+    void addParameter(VariableNode param);
+
 }
+

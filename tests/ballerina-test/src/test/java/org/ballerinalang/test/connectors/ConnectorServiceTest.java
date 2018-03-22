@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 /**
  * Test class for Connector service.
  */
+@Test(enabled = false)
 public class ConnectorServiceTest {
 
 

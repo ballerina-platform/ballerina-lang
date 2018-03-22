@@ -91,5 +91,5 @@ public struct Listener {
 }
 
 public function <Listener s> getEndpoint() returns (Client) {
-    return null;
+    return {};
 }

@@ -9,9 +9,9 @@ endpoint<mock:NonListeningService> sessionEP {
     port:9090
 }
 
-@http:serviceConfig {basePath:"/sample", endpoints:[sessionEP]}
+@http:ServiceConfig {basePath:"/sample", endpoints:[sessionEP]}
 service<http:Service> sample {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test1"
     }
@@ -27,7 +27,7 @@ service<http:Service> sample {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test2"
     }
@@ -45,7 +45,7 @@ service<http:Service> sample {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test3"
     }
@@ -63,7 +63,7 @@ service<http:Service> sample {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test4"
     }
@@ -82,7 +82,7 @@ service<http:Service> sample {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test5"
     }
@@ -96,7 +96,7 @@ service<http:Service> sample {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test6"
     }
@@ -116,7 +116,7 @@ service<http:Service> sample {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/hello"
     }
@@ -137,9 +137,9 @@ service<http:Service> sample {
     }
 }
 
-@http:serviceConfig {basePath:"/counter", endpoints:[sessionEP]}
+@http:ServiceConfig {basePath:"/counter", endpoints:[sessionEP]}
 service<http:Service> counter {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo"
     }
@@ -161,7 +161,7 @@ service<http:Service> counter {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2"
     }
@@ -184,9 +184,9 @@ service<http:Service> counter {
     }
 }
 
-@http:serviceConfig {basePath:"/sample2", endpoints:[sessionEP]}
+@http:ServiceConfig {basePath:"/sample2", endpoints:[sessionEP]}
 service<http:Service> sample2 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"]
     }
     resource echoName (http:ServerConnector conn, http:Request req) {
@@ -204,7 +204,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
     resource myStruct (http:ServerConnector conn, http:Request req) {
@@ -224,7 +224,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names"
     }
@@ -241,7 +241,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names2"
     }
@@ -257,7 +257,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names3"
     }
@@ -277,7 +277,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names4"
     }
@@ -296,7 +296,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names5"
     }
@@ -311,7 +311,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names6"
     }
@@ -328,7 +328,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/map"
     }
@@ -355,7 +355,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/map2"
     }
@@ -373,7 +373,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/id1"
     }
@@ -387,7 +387,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/id2"
     }
@@ -401,7 +401,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new1"
     }
@@ -415,7 +415,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new2"
     }
@@ -429,7 +429,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new3"
     }
@@ -444,7 +444,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new4"
     }
@@ -458,7 +458,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new5"
     }
@@ -473,7 +473,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new6"
     }
@@ -488,7 +488,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new7"
     }
@@ -503,7 +503,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new8"
     }
@@ -518,7 +518,7 @@ service<http:Service> sample2 {
         _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new9"
     }
