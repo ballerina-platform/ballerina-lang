@@ -18,22 +18,26 @@
 
 package org.ballerinalang.net.websub.hub;
 
-import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BrokerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,7 +53,7 @@ public class Hub {
     private static Hub instance = new Hub();
     private String hubUrl;
     private volatile boolean started = false;
-    private CompileResult hubCompileResult;
+    private ProgramFile hubProgramFile;
 
     private List<HubSubscriber> subscribers = new ArrayList<>();
 
@@ -79,6 +83,11 @@ public class Hub {
             unregisterSubscription(topic, callback);
         }
         String queue = UUID.randomUUID().toString();
+
+        //Temporary workaround - expected secret to be "" if not specified but got null
+        if (BLangConnectorSPIUtil.toStruct(subscriptionDetails).getStringField("secret") == null) {
+            subscriptionDetails.setStringField(2, "");
+        }
         HubSubscriber subscriberToAdd = new HubSubscriber(queue, topic, callback, subscriptionDetails);
         BrokerUtils.addSubscription(topic, subscriberToAdd);
         subscribers.add(subscriberToAdd);
@@ -135,17 +144,13 @@ public class Hub {
     public String startUpHubService() {
         synchronized (this) {
             if (!isStarted()) {
-                CompileResult compileResult = BCompileUtil.compile(instance, "ballerina-websub/",
-                                                                   "ballerina.net.websub.hub");
-                BRunUtil.invokePackageInit(compileResult);
-                if (compileResult.getProgFile() == null) {
-                    throw new BallerinaException("Failed to bring up Default Ballerina WebSub Hub");
-                }
-                ProgramFile hubProgramFile = compileResult.getProgFile();
-                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo("ballerina.net.websub.hub");
+                URI balxPath = URI.create(String.valueOf(Hub.class.getClassLoader().getResource
+                        ("net.websub.hub.balx")));
+                ProgramFile hubProgramFile = readExecutableProgram(Paths.get(balxPath));
+                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo("net.websub.hub");
                 if (hubPackageInfo != null) {
                     hubPackageInfo.setProgramFile(hubProgramFile);
-                    LauncherUtils.runServices(hubProgramFile);
+                    BLangProgramRunner.runService(hubProgramFile);
                     BValue[] args = {};
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
                     String webSubHubUrl = (BLangFunctions.invokeCallable(
@@ -155,7 +160,7 @@ public class Hub {
                     PrintStream console = System.out;
                     console.println("ballerina: Default Ballerina WebSub Hub started up at " + webSubHubUrl);
                     hubUrl = webSubHubUrl;
-                    setHubCompileResult(compileResult);
+                    setHubProgramFile(hubProgramFile);
                     started = true;
                 }
             }
@@ -164,20 +169,46 @@ public class Hub {
     }
 
     /**
-     * Method to set the compile result for the WebSub Hub service.
+     * Method to set the program file for the WebSub Hub service.
      *
-     * @param compileResult the compile result to set
+     * @param programFile the program file result to set
      */
-    private void setHubCompileResult(CompileResult compileResult) {
-        hubCompileResult = compileResult;
+    private void setHubProgramFile(ProgramFile programFile) {
+        hubProgramFile = programFile;
     }
 
     /**
-     * Method to retrieve the compile result for the WebSub Hub service.
+     * Method to retrieve the program file for the WebSub Hub service.
      *
-     * @return the compile result returned when compiling the package at Hub start up
+     * @return the program file returned when compiling the package at Hub start up
      */
-    CompileResult getHubCompileResult() {
-        return hubCompileResult;
+    ProgramFile getHubProgramFile() {
+        return hubProgramFile;
     }
+
+    /**
+     * Get program file after reading the executable program i.e. balo file.
+     *
+     * @param baloFilePath path of the balo file
+     * @return program file
+     */
+    private static ProgramFile readExecutableProgram(Path baloFilePath) {
+        ByteArrayInputStream byteIS = null;
+        try {
+            byte[] byteArray = Files.readAllBytes(baloFilePath);
+            ProgramFileReader reader = new ProgramFileReader();
+            byteIS = new ByteArrayInputStream(byteArray);
+            return reader.readProgram(byteIS);
+        } catch (IOException ignore) {
+        } finally {
+            if (byteIS != null) {
+                try {
+                    byteIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return null;
+    }
+
 }

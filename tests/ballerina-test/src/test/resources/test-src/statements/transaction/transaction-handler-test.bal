@@ -28,7 +28,7 @@ function testTransactionStmtCommitWithCommitHandler () returns (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with oncommit(commitFunction){
+        transaction with oncommit=commitFunction{
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
@@ -46,7 +46,7 @@ function testTransactionAbortStmtWithAbortHandler () returns (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with onabort(abortFunction){
+        transaction with onabort=abortFunction{
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
@@ -89,7 +89,7 @@ function testTransactionAbortStmtWithCommitHandler () returns (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with oncommit(commitFunction){
+        transaction with oncommit=commitFunction{
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
@@ -110,7 +110,7 @@ function testTransactionAbortStmtWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
+        transaction with retries=4, oncommit=commitFunction, onabort=abortFunction {
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
@@ -131,7 +131,7 @@ function testTransactionCommitStmtWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
+        transaction with retries=4, oncommit=commitFunction, onabort=abortFunction {
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
@@ -149,7 +149,7 @@ function testTransactionThrowWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
+        transaction with retries=4, oncommit=commitFunction, onabort=abortFunction{
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
@@ -172,7 +172,7 @@ function testTransactionCommitAfterFailureWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
+        transaction with retries=4, oncommit=commitFunction, onabort=abortFunction {
             a = a + " inTrx";
             if (i < 2) {
                 TrxError err = {message:" trxErr", data:"test"};
@@ -193,7 +193,7 @@ function testTransactionCommitAfterFailureWithAllHandlers () returns (string) {
 function testMultipleTransactionsWithAllHandlers () returns (string) {
     a = "";
     a = a +  "start";
-    transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
+    transaction with retries=4, oncommit=commitFunction, onabort=abortFunction{
         a = a + " inFirstTrx";
 
         a = a + " endFirstTrx";
@@ -201,7 +201,7 @@ function testMultipleTransactionsWithAllHandlers () returns (string) {
         a = a + " beforeRetry-First";
     }
 
-    transaction with retries(4), oncommit(commitFunctionSecond), onabort(abortFunctionSecond){
+    transaction with retries=4, oncommit=commitFunctionSecond, onabort=abortFunctionSecond {
         a = a + " inSecondTrx";
         int i = 0;
         a = a + " endSecondTrx";
@@ -218,7 +218,7 @@ function testMultipleTransactionsFailedWithAllHandlers () returns (string) {
     a = a +  "start";
     int i = 0;
     try {
-        transaction with retries(0), oncommit( commitFunction), onabort( abortFunction) {
+        transaction with retries=0, oncommit=commitFunction, onabort=abortFunction {
             a = a + " inFirstTrx";
             if (i == 0) {
                 TrxError err = {message:" trxErr", data:"test"};
@@ -232,7 +232,7 @@ function testMultipleTransactionsFailedWithAllHandlers () returns (string) {
         a = a + err.message;
     }
 
-    transaction with retries(4), oncommit(commitFunctionSecond), onabort(abortFunctionSecond){
+    transaction with retries=4, oncommit=commitFunctionSecond, onabort=abortFunctionSecond {
         a = a + " inSecondTrx";
         if (i == 0) {
             abort;

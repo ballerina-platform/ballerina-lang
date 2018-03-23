@@ -1,6 +1,6 @@
-import ballerina.io;
-import ballerina.net.grpc;
-import ballerina.log;
+import ballerina/io;
+import ballerina/net.grpc;
+import ballerina/log;
 
 endpoint grpc:Service ep {
     host:"localhost",
@@ -24,7 +24,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            var con, e = (grpc:Service) consMap[conKeys[i]];
+            var con =? <grpc:Service> consMap[conKeys[i]];
             grpc:ConnectorError err =  con.getClient ().send(string `{{chat.message}} {{chat.name}}!`);
             if (err != null) {
                 io:println("Error at lotsOfReplies : " + err.message);
@@ -47,7 +47,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            var con, _ = (grpc:ClientResponder) consMap[conKeys[i]];
+            var con =? <grpc:ClientResponder> consMap[conKeys[i]];
             grpc:ConnectorError err = con.send(msg);
             if (err != null) {
                 io:println("Error at onComplete send message : " + err.message);

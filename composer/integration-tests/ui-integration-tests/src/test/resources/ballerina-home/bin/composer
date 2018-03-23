@@ -191,7 +191,6 @@ done
     -XX:HeapDumpPath="$BAL_COMPOSER_HOME/logs/heap-dump-tool.hprof" \
     $JAVA_OPTS \
     -classpath "$COMPOSER_CLASSPATH" \
-    -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BAL_COMPOSER_HOME" \
     -Dbal.composer.home="$BAL_COMPOSER_HOME" \

@@ -133,5 +133,9 @@
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>
+            **/generated/**,
+            **/generated-sources/**
+        </maven.checkstyleplugin.excludes>
     </properties>
 </project>

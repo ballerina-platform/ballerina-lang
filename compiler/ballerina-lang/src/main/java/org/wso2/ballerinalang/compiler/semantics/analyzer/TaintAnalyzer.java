@@ -129,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -350,46 +349,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangEndpoint endpoint) {
-        //TODO: Implement support for endpoints
-       /* if (endpoint.symbol.attachedConnector != null) {
-            if (endpoint.symbol.attachedConnector.taintTable == null) {
-                addToBlockedList(endpoint.symbol.pkgID, endpoint.symbol.name, endpoint.pos);
-            } else {
-                Map<Integer, TaintRecord> taintTable = endpoint.symbol.attachedConnector.taintTable;
-                TaintRecord allParamsUntaintedRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
-                if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
-                    // This can occur when there is a error regardless of tainted status of parameters.
-                    // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
-                    addTaintError(allParamsUntaintedRecord.taintError);
-                }
-                if (endpoint.configurationExpr instanceof BLangRecordLiteral) {
-                    BLangRecordLiteral configRecord = (BLangRecordLiteral) endpoint.configurationExpr;
-                    for (int argIndex = 0; argIndex < configRecord.keyValuePairs.size(); argIndex++) {
-                        BLangRecordLiteral.BLangRecordKeyValue argExpr = configRecord.keyValuePairs.get(argIndex);
-                        argExpr.accept(this);
-                        // If current argument is tainted, look-up the taint-table for the record of
-                        // return-tainted-status when the given argument is in tainted state.
-                        if (getObservedTaintedStatus()) {
-                            TaintRecord taintRecord = taintTable.get(argIndex);
-                            if (taintRecord == null) {
-                                // This is when current parameter is "sensitive". Therefore, providing a tainted
-                                // value to a sensitive parameter is invalid and should return a compiler error.
-                                addTaintError(argExpr.pos,
-                                        endpoint.symbol.attachedConnector.params.get(argIndex).name.value,
-                                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
-                            } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
-                                // This is when current parameter is derived to be sensitive. The error already
-                                // generated during taint-table generation will be used.
-                                addTaintError(taintRecord.taintError);
-                            }
-                            if (stopAnalysis) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
+        /* ignore */
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -619,7 +579,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
         /* ignore */
     }
-    
+
     public void visit(BLangForeach foreach) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         // Propagate the tainted status of collection to foreach variables.
@@ -660,7 +620,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleDestructure stmt) {
-        //TODO Test this
         this.visit((BLangAssignment) stmt);
     }
 
@@ -1039,10 +998,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangQueryStatement queryStatement) {
-        /* ignore */
-    }
-
     public void visit(BLangWithinClause withinClause) {
         /* ignore */
     }
@@ -1225,7 +1180,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    //TODO fix properly
     private void visitInvokable(BLangFunction invNode, SymbolEnv symbolEnv) {
         if (invNode.symbol.taintTable == null) {
             if (Symbols.isNative(invNode.symbol) || invNode.interfaceFunction) {
@@ -1381,7 +1335,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (returnTaintedStatusList != null) {
             for (int paramIndex = 0; paramIndex < retParams.size(); paramIndex++) {
                 BLangVariable param = retParams.get(paramIndex);
-                boolean observedReturnTaintedStatus = returnTaintedStatusList.get(paramIndex);
+                // Analyzing a function that does not have any return statement and instead have a throw statement.
+                boolean observedReturnTaintedStatus = false;
+                if (returnTaintedStatusList.size() > paramIndex) {
+                    observedReturnTaintedStatus = returnTaintedStatusList.get(paramIndex);
+                }
                 if (observedReturnTaintedStatus) {
                     // If return is tainted, but return is marked as untainted, overwrite the value.
                     if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {

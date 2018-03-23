@@ -1,77 +1,79 @@
 import ballerina/net.http;
-import ballerina/net.http.resiliency;
 import ballerina/runtime;
+import ballerina/io;
 
-service<http> failoverService {
+endpoint http:ServiceEndpoint failoveruEP {
+    port:9090
+};
 
-    // Set of Http Status codes needs to be failover.
-    int[] failoverHttpStatusCodes = [400, 404, 500];
-    resiliency:FailoverConfig errorCode = {failoverCodes:failoverHttpStatusCodes};
+endpoint http:ServiceEndpoint backendEP {
+    port:8080
+};
 
-    @Description {value:"Requests which contain any HTTP method will be directed to failoverPostResource resource."}
-    @http:resourceConfig {
+endpoint http:ClientEndpoint backendClientEP {
+    failoverConfig: {
+                        failoverCodes : [400, 404, 500],
+                        interval : 0
+                    },
+    targets: [
+             {uri: "http://localhost:300000/mock"},
+             {uri: "http://localhost:8080/echo"},
+             {uri: "http://localhost:8080/mock"}],
+    endpointTimeout:5000
+};
+
+@http:ServiceConfig {
+    basePath:"/fo"
+}
+service<http:Service> failover bind failoveruEP {
+
+    @http:ResourceConfig {
+        methods:["GET", "POST"],
         path:"/"
     }
-
-    resource failoverPostResource (http:Connection conn, http:Request req) {
-        // Failover Connector takes the input as an array of HttpClient connectors and FailoverConfig struct.
-        // The FailoverConfig struct should contain int array of HTTP status codes and interval of failover in  milliseconds.
-        //      struct FailoverConfig {
-        //             int[] failoverCodes;
-        //             int interval;
-        //      }
-        endpoint<http:HttpClient> endPoint {
-            create resiliency:Failover(
-                    [create http:HttpClient("http://localhost:23456/mock", {}),
-                     create http:HttpClient("http://localhost:9090/echo",
-                                    {endpointTimeout:5000}),
-                     create http:HttpClient("http://localhost:9090/mock", {})],
-                     errorCode);
-        }
-
-        http:Response inResponse = {};
-        http:HttpConnectorError err;
-
-        http:Request outRequest = {};
-        json requestPayload = {"name":"Ballerina"};
-        outRequest.setJsonPayload(requestPayload);
-        inResponse, err = endPoint.post("/", outRequest);
-
-        http:Response outResponse = {};
-        if (err != null) {
-            outResponse.statusCode = err.statusCode;
-            outResponse.setStringPayload(err.message);
-            _ = conn.respond(outResponse);
-        } else {
-            _ = conn.forward(inResponse);
+    doFailover (endpoint client, http:Request request) {
+        http:Response response = {};
+        http:HttpConnectorError err = {};
+        var backendRes = backendClientEP -> post("/", request);
+        match backendRes {
+            http:Response res => {
+            _ = client -> forward(res);}
+        http:HttpConnectorError err1 => {
+            response = {};
+            response.statusCode = 500;
+            response.setStringPayload(err1.message);
+            _ = client -> respond(response);}
         }
     }
-
 }
 
-// Below sample services are used to mock backend services which include timeouts.
-// Mock services are run separately from the Failover Service.
-service<http> echo {
-    @http:resourceConfig {
+@http:ServiceConfig {
+    basePath:"/echo"
+}
+service<http:Service> echo bind backendEP{
+    @http:ResourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:Connection conn, http:Request req) {
+    echoResource (endpoint ep, http:Request req) {
         http:Response outResponse = {};
         runtime:sleepCurrentWorker(30000);
-        outResponse.setStringPayload("Resource is invoked");
-        _ = conn.respond(outResponse);
+        outResponse.setStringPayload("echo Resource is invoked");
+        _ = ep -> respond(outResponse);
     }
 }
 
-service<http> mock {
-    @http:resourceConfig {
+@http:ServiceConfig {
+    basePath:"/mock"
+}
+service<http:Service> mock  bind backendEP{
+    @http:ResourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mockResource (http:Connection conn, http:Request req) {
+    mockResource (endpoint ep, http:Request req) {
         http:Response outResponse = {};
         outResponse.setStringPayload("Mock Resource is Invoked.");
-        _ = conn.respond(outResponse);
+        _ = ep -> respond(outResponse);
     }
 }

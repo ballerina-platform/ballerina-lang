@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeElementRepository;
@@ -322,8 +321,8 @@ public class FunctionSignatureTest {
     @Test
     public void testInvokeFuncWithAnyRestParam1() {
         BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithAnyRestParam1");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[[10, 20, 30], {\"name\":\"John\"}]");
+        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
     }
 
     @Test

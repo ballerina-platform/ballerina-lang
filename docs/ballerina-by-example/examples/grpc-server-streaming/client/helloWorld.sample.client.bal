@@ -8,11 +8,15 @@ function main (string[] args) {
             host: "localhost",
             port: 9090
         };
-    error err = helloWorldEp -> lotsOfReplies("Sam", typeof helloWorldMessageListener);
-
-    if (err != null) {
-        io:println("Error occured while sending event " + err.message);
-    }
+     var result = helloWorldEp -> lotsOfReplies("Sam", typeof helloWorldMessageListener);
+     match result {
+         error payloadError => {
+            io:println("Error occured while sending event " + payloadError.message);
+        }
+        any | null => {
+            io:println("Connected successfully");
+          }
+     }
 
     //to hold the programme
     while (total == 0) {}

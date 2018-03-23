@@ -200,6 +200,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
+        mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
 
         // Transactions
         mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";

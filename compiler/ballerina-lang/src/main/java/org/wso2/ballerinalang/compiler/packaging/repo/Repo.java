@@ -10,14 +10,14 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
  * that can turn that path patten to a usable object such as Path
  * <pre>
  *
- *  Repo --->  Patten ---> Usable Object (eg: Path)
+ *  Repo ---&gt;  Patten ---&gt; Usable Object (eg: Path)
  *     \         ^
  *      \        |
- *       `---> Converter
+ *       `---&gt; Converter
  *
  * </pre>
  *
- * @param <I>
+ * @param <I> Intermediate representation type of the repo.
  */
 public interface Repo<I> {
     Patten calculate(PackageID pkg);

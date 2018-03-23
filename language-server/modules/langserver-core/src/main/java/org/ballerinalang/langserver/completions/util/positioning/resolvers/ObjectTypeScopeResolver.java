@@ -60,7 +60,8 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         
         
         if ((!ownerObject.fields.isEmpty() && node instanceof BLangVariable
-                && ownerObject.fields.indexOf(node) == ownerObject.fields.size() - 1)
+                && ownerObject.fields.indexOf(node) == ownerObject.fields.size() - 1
+                && ownerObject.functions.isEmpty())
                 || (!ownerObject.functions.isEmpty() && node instanceof BLangFunction 
                 && ownerObject.functions.indexOf(node) == ownerObject.functions.size() - 1)) {
             isLastField = true;
@@ -68,7 +69,7 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         
         if ((line < zeroBasedPos.getStartLine()
                 || (line == zeroBasedPos.getStartLine() && col < zeroBasedPos.getStartColumn()))
-                || (isLastField && (blockOwnerPos.getEndLine() > line
+                || (isLastField && ((blockOwnerPos.getEndLine() > line && zeroBasedPos.getEndLine() < line)
                 || (blockOwnerPos.getEndLine() == line && blockOwnerPos.getEndColumn() > col)))) {
             
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =

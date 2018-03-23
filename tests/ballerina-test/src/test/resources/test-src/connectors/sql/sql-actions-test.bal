@@ -176,7 +176,7 @@ function testSelectData () returns (string) {
     string firstName;
 
     while (dt.hasNext()) {
-        var rs, err = (ResultCustomers)dt.getNext();
+        var rs =? <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -202,7 +202,7 @@ function testSelectIntFloatData () returns (int, int, float, float) {
     float float_type;
     float double_type;
     while (dt.hasNext()) {
-        var rs, err = (ResultDataType)dt.getNext();
+        var rs =? <ResultDataType>dt.getNext();
         int_type = rs.INT_TYPE;
         long_type = rs.LONG_TYPE;
         float_type = rs.FLOAT_TYPE;
@@ -228,7 +228,7 @@ function testCallProcedure () returns (string) {
                              typeof ResultCustomers);
     string firstName;
     while (dt.hasNext()) {
-        var rs, err = (ResultCustomers)dt.getNext();
+        var rs =? <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -250,7 +250,7 @@ function testCallProcedureWithResultSet () returns (string) {
     string firstName;
 
     while (dts[0].hasNext()) {
-        var rs, err = (ResultCustomers)dts[0].getNext();
+        var rs =? <ResultCustomers>dts[0].getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -273,12 +273,12 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
     string firstName2;
 
     while (dts[0].hasNext()) {
-        var rs, err = (ResultCustomers)dts[0].getNext();
+        var rs =? <ResultCustomers>dts[0].getNext();
         firstName1 = rs.FIRSTNAME;
     }
 
     while (dts[1].hasNext()) {
-        var rs, err = (ResultCustomers)dts[1].getNext();
+        var rs =? <ResultCustomers>dts[1].getNext();
         firstName2 = rs.FIRSTNAME;
     }
 
@@ -300,12 +300,12 @@ function testQueryParameters () returns (string) {
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:1};
     sql:Parameter[] parameters = [para1];
     table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = ?", parameters,
-    typeof ResultCustomers);
+        typeof ResultCustomers);
 
     string firstName;
 
     while (dt.hasNext()) {
-    var rs, err = (ResultCustomers)dt.getNext();
+    var rs =? <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -362,7 +362,7 @@ function testArrayofQueryParameters () returns (string) {
 
     string firstName;
     while (dt.hasNext()) {
-        var rs, err = (ResultCustomers)dt.getNext();
+        var rs =? <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -389,7 +389,7 @@ function testBoolArrayofQueryParameters () returns (int) {
 
     blob blobData;
     while (dt1.hasNext()) {
-        var rs, err = (ResultBlob)dt1.getNext();
+        var rs =? <ResultBlob>dt1.getNext();
         blobData = rs.BLOB_TYPE;
     }
     blob[] blobDataArray = [blobData];
@@ -404,7 +404,7 @@ function testBoolArrayofQueryParameters () returns (int) {
 
     int value;
     while (dt.hasNext()) {
-    var rs, err = (ResultIntType)dt.getNext();
+    var rs =? <ResultIntType>dt.getNext();
         value = rs.INT_TYPE;
     }
     _ = testDB -> close();
@@ -452,7 +452,7 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
         string_array, float_array from ArrayTypes where row_id = 2", null, typeof ResultArrayType);
 
     while (dt.hasNext()) {
-        var rs, _ = (ResultArrayType)dt.getNext();
+        var rs =? <ResultArrayType>dt.getNext();
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
         double_arr = rs.DOUBLE_ARRAY;
@@ -863,7 +863,7 @@ function testBatchUpdateWithFailure () returns (int[], int) {
         country) values (?,?,?,?,?,?)", parameters);
     table dt =? testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
 
@@ -962,7 +962,7 @@ function testDateTimeNullInValues () returns (string) {
                 from DateTimeTypes where row_id = 33", null, typeof ResultDates);
     string data;
 
-    var j, _ = <json>dt;
+    var j =?  <json>dt;
     data = j.toString();
 
     _ = testDB -> close();
@@ -1001,7 +1001,7 @@ function testDateTimeNullOutValues () returns (int) {
     table dt =? testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", null,
                              typeof ResultCount);
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -1063,7 +1063,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
 
     int count;
     while (dt.hasNext()) {
-        var rs, _ = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -1105,19 +1105,19 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
     string s4;
 
     table dt =? testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
-    var x, _ = <xml>dt;
-    s1 = <string>x;
+    var x1 =? <xml>dt;
+    s1 = io:sprintf("%l", [x1]);
 
     dt =? testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
-    x, _ = <xml>dt;
-    s2 = <string>x;
+    var x2 =? <xml>dt;
+    s2 = io:sprintf("%l", [x2]);
 
     dt =? testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     s3 = j.toString();
 
     dt =? testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
-    j, _ = <json>dt;
+    j =? <json>dt;
     s4 = j.toString();
 
     _ = testDB -> close();
@@ -1140,7 +1140,7 @@ function testCloseConnectionPool () returns (int) {
     typeof ResultCount);
     int count;
     while (dt.hasNext()) {
-        var rs, err = (ResultCount)dt.getNext();
+        var rs =? <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();

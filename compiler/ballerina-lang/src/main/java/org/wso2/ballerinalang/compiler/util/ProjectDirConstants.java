@@ -42,4 +42,8 @@ public class ProjectDirConstants {
 
     public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
+
+    public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
+    public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina_home";
+    public static final String SETTINGS_FILE_NAME = "Settings.toml";
 }

@@ -14,9 +14,17 @@ public struct ServiceEndpoint {
 @Field {value:"maxHeaderSize: Maximum size allowed in the headers"}
 @Field {value:"maxEntityBodySize: Maximum size allowed in the entity body"}
 public struct RequestLimits {
-    int maxUriLength = -1;
-    int maxHeaderSize = -1;
-    int maxEntityBodySize = -1;
+    int maxUriLength;
+    int maxHeaderSize;
+    int maxEntityBodySize;
+}
+
+@Description {value:"Initializes the RequestLimits struct with default values."}
+@Param {value:"config: The RequestLimits struct to be initialized"}
+public function <RequestLimits config> RequestLimits() {
+    config.maxUriLength = -1;
+    config.maxHeaderSize = -1;
+    config.maxEntityBodySize = -1;
 }
 
 @Description {value:"Configuration for HTTP service endpoint"}
@@ -49,6 +57,7 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
     config.httpVersion = "1.1";
+    config.port = 9090;
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
@@ -66,7 +75,13 @@ public struct ServiceSecureSocket {
     ValidateCert|null validateCert;
     string ciphers;
     string sslVerifyClient;
-    boolean sessionCreation = true;
+    boolean sessionCreation;
+}
+
+@Description {value:"Initializes the ServiceSecureSocket struct with default values."}
+@Param {value:"config: The ServiceSecureSocket struct to be initialized"}
+public function <ServiceSecureSocket config> ServiceSecureSocket() {
+    config.sessionCreation = true;
 }
 
 public enum KeepAlive {

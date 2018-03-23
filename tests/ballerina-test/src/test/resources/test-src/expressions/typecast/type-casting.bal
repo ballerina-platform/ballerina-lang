@@ -1,4 +1,3 @@
-import ballerina/io;
 
 function floattoint(float value) returns (int) {
     int result;

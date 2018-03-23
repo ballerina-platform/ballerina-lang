@@ -177,19 +177,25 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (string msg) returns http:Response {
+function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
+    endpoint http:ServiceEndpoint ep = conn;
     log:printError(msg);
     http:Response res = {statusCode:400};
     RequestError err = {errorMessage:msg};
     var resPayload =? <json>err;
     res.setJsonPayload(resPayload);
-    return res;
+    var respondResult = ep -> respond(res);
+    match respondResult {
+        http:HttpConnectorError respondErr => {
+            log:printErrorCause("Could not send Bad Request error response to caller", respondErr);
+        }
+    }
 }
 
 function createNewTransaction (string coordinationType) returns Transaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
         TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(), coordinationType:TWO_PHASE_COMMIT};
-        Transaction txn =? <Transaction>twopcTxn;
+        Transaction txn = <Transaction>twopcTxn;
         return txn;
     } else {
         error e = {message:"Unknown coordination type: " + coordinationType};

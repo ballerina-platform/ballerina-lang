@@ -37,6 +37,7 @@ public enum DiagnosticCode {
     UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
+    UNDEFINED_PARAMETER("undefined.parameter"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
@@ -63,6 +64,11 @@ public enum DiagnosticCode {
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
+
+    // Service, endpoint, & connectors related errors codes
+    ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
+    ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
+    ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
 
     // Transformer related error codes
     UNDEFINED_TRANSFORMER("undefined.transformer"),
@@ -100,14 +106,17 @@ public enum DiagnosticCode {
     ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER("attempt.to.create.struct.non.public.initializer"),
     STRUCT_INITIALIZER_INVOKED("explicit.invocation.of.struct.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
+    INVALID_REST_ARGS("invalid.rest.args"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
+    INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
+    DUPLICATE_NAMED_ARGS("duplicate.named.args"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
@@ -130,11 +139,7 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
-    INVALID_DEFAULT_VALUE("invalid.default.value"),
-    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
-    NO_SUCH_ATTRIBUTE("no.such.attribute"),
-    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
@@ -161,6 +166,13 @@ public enum DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
+
+    // Taint checking related codes
+    ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
+    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
+    TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
+    PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS("partial.taint.checking.done.with.return.annotations"),
+    UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
     ;
 
     private String value;

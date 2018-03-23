@@ -320,7 +320,7 @@ public class TableLiteralTest {
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*",
           enabled = false)
-    public void testFailedGeneratedKeyOnInsert() {
+    public void testEmptyTableCreateInvalid() {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }
 
