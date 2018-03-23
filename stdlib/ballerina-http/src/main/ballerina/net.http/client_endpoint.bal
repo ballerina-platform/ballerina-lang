@@ -94,49 +94,49 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     boolean httpClientRequired = false;
     string uri = config.targets[0].uri;
-    var cbConfig = config.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
-            }
-            ep.config = config;
-            ep.httpClient = createCircuitBreakerClient(uri, config);
-            httpClientRequired = false;
-        }
-        int | null => {
-            httpClientRequired = true;
-        }
-    }
-
-    if (httpClientRequired) {
-        match config.lbMode {
-            FailoverConfig failoverConfig => {
-                if (lengthof config.targets > 1) {
-                    ep.config = config;
-                    ep. httpClient = createFailOverClient(config, failoverConfig);
-                } else {
-                    if (uri.hasSuffix("/")) {
-                        int lastIndex = uri.length() - 1;
-                        uri = uri.subString(0, lastIndex);
-                    }
-                    ep.config = config;
-                    ep.httpClient = createHttpClient(uri, config);
+    match config.lbMode {
+        FailoverConfig failoverConfig => {
+            if (lengthof config.targets > 1) {
+                ep.config = config;
+                ep. httpClient = createFailOverClient(config, failoverConfig);
+            } else {
+                if (uri.hasSuffix("/")) {
+                    int lastIndex = uri.length() - 1;
+                    uri = uri.subString(0, lastIndex);
                 }
+                ep.config = config;
+                ep.httpClient = createHttpClient(uri, config);
             }
+        }
 
-            string lbAlgorithm => {
-                if (lengthof config.targets > 1) {
-                    ep.httpClient = createLoadBalancerClient(config, lbAlgorithm);
-                } else {
-                    if (uri.hasSuffix("/")) {
-                        int lastIndex = uri.length() - 1;
-                        uri = uri.subString(0, lastIndex);
-                    }
-                    ep.config = config;
-                    ep.httpClient = createHttpClient(uri, config);
+        string lbAlgorithm => {
+            if (lengthof config.targets > 1) {
+                ep.httpClient = createLoadBalancerClient(config, lbAlgorithm);
+            } else {
+                if (uri.hasSuffix("/")) {
+                    int lastIndex = uri.length() - 1;
+                    uri = uri.subString(0, lastIndex);
                 }
+                ep.config = config;
+                var cbConfig = config.circuitBreaker;
+                match cbConfig {
+                    CircuitBreakerConfig cb => {
+                        if (uri.hasSuffix("/")) {
+                            int lastIndex = uri.length() - 1;
+                            uri = uri.subString(0, lastIndex);
+                        }
+                        httpClientRequired = false;
+                    }
+                    int | null => {
+                        httpClientRequired = true;
+                    }
+                }   
+                if (httpClientRequired) {
+                    ep.httpClient = createHttpClient(uri, config);
+                } else {
+                    ep.httpClient = createCircuitBreakerClient(uri, config);                    
+                }   
+                
             }
         }
     }
