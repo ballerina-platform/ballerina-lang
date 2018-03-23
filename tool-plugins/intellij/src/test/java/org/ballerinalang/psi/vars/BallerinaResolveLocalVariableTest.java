@@ -28,13 +28,13 @@ public class BallerinaResolveLocalVariableTest extends BallerinaResolveTestBase 
         return getTestDataPath("psi/resolve/vars/local");
     }
 
-    public void testLocalVariableInAction() {
-        doFileTest();
-    }
+    //    public void testLocalVariableInAction() {
+    //        doFileTest();
+    //    }
 
-    public void testLocalVariableInConnector() {
-        doFileTest();
-    }
+    //    public void testLocalVariableInConnector() {
+    //        doFileTest();
+    //    }
 
     public void testLocalVariableInFunction() {
         doFileTest();

@@ -7,8 +7,6 @@ function test () {
 
      int  k    =  (       int        )       i  +    (  int     )      j     ;
 
-            type       t         =       typeof         k      ;
-
           int        len         =      lengthof              k       ;
 
      int    [   ]      [   ]    a =     [  ]    ;
