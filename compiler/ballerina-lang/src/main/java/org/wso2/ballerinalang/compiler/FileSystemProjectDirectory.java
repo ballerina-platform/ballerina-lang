@@ -94,6 +94,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public InputStream getManifestContent() {
+        Path tomlFilePath = projectDirPath.resolve("Ballerina.toml");
+        if (Files.exists(tomlFilePath)) {
+            try {
+                return Files.newInputStream(tomlFilePath);
+            } catch (IOException e) {
+                return null;
+            }
+        }
         return null;
     }
 

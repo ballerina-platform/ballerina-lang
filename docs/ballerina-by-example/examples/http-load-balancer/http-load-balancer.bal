@@ -1,74 +1,76 @@
 import ballerina/net.http;
-import ballerina/net.http.resiliency;
 
-service<http> loadBalancerService {
+import ballerina/io;
 
-    @Description {value:"Requests which contain any HTTP method will be directed to loadBalanceResource resource."}
-    @http:resourceConfig {
+endpoint http:ServiceEndpoint backendEP {
+    port: 9090
+};
+
+endpoint http:ClientEndpoint lbEP {
+    targets: [
+             {uri:"http://localhost:9090/mock1"},
+             {uri:"http://localhost:9090/mock2"},
+             {uri:"http://localhost:9090/mock3"}
+             ]
+};
+
+@http:ServiceConfig {
+    basePath: "/lb"
+}
+service<http:Service> loadBalancerService bind backendEP{
+
+    @http:ResourceConfig {
         path:"/"
     }
-
-    resource loadBalanceResource (http:Connection conn, http:Request req) {
-
-        endpoint<http:HttpClient> endPoint {
-            create resiliency:LoadBalancer(
-            [create http:HttpClient("http://localhost:9090/mock1", {}),
-             create http:HttpClient("http://localhost:9090/mock2", {}),
-             create http:HttpClient("http://localhost:9090/mock3", {})],
-            resiliency:roundRobin);
-        }
-
-        http:Response inResponse = {};
-        http:HttpConnectorError httpConnectorError;
-
+    loadBalanceResource (endpoint conn, http:Request req) {
         http:Request outRequest = {};
         json requestPayload = {"name":"Ballerina"};
         outRequest.setJsonPayload(requestPayload);
-        inResponse, httpConnectorError = endPoint.post("/", outRequest);
-
-        http:Response outResponse = {};
-        if (httpConnectorError != null) {
-            outResponse.statusCode = httpConnectorError.statusCode;
-            outResponse.setStringPayload(httpConnectorError.message);
-            _ = conn.respond(outResponse);
-        } else {
-            _ = conn.forward(inResponse);
+        var response = lbEP -> post("/", outRequest);
+        match  response {
+                http:Response resp => _ = conn -> forward(resp);
+                http:HttpConnectorError err => {
+                http:Response outResponse = {};
+                outResponse.statusCode = err.statusCode;
+                outResponse.setStringPayload(err.message);
+                _ = conn -> respond(outResponse);
+            }
         }
     }
 }
 
-service<http> mock1 {
-    @http:resourceConfig {
-        methods:["POST", "PUT", "GET"],
+@http:ServiceConfig{basePath:"/mock1"}
+service<http:Service> mock1 bind backendEP {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource mock1Resource (http:Connection conn, http:Request req) {
+    mock1Resource (endpoint conn, http:Request req) {
         http:Response outResponse = {};
         outResponse.setStringPayload("Mock1 Resource is invoked.");
-        _ = conn.respond(outResponse);
+        _ = conn -> respond(outResponse);
     }
 }
 
-service<http> mock2 {
-    @http:resourceConfig {
-        methods:["POST", "PUT", "GET"],
+@http:ServiceConfig{basePath:"/mock2"}
+service<http:Service> mock2 bind backendEP {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource mock2Resource (http:Connection conn, http:Request req) {
+    mock2Resource (endpoint conn, http:Request req) {
         http:Response outResponse = {};
         outResponse.setStringPayload("Mock2 Resource is Invoked.");
-        _ = conn.respond(outResponse);
+        _ = conn -> respond(outResponse);
     }
 }
 
-service<http> mock3 {
-    @http:resourceConfig {
-        methods:["POST", "PUT", "GET"],
+@http:ServiceConfig{basePath:"/mock3"}
+service<http:Service> mock3 bind backendEP {
+    @http:ResourceConfig {
         path:"/"
     }
-    resource mock3Resource (http:Connection conn, http:Request req) {
+    mock3Resource (endpoint conn, http:Request req) {
         http:Response outResponse = {};
         outResponse.setStringPayload("Mock3 Resource is Invoked.");
-        _ = conn.respond(outResponse);
+        _ = conn -> respond(outResponse);
     }
 }

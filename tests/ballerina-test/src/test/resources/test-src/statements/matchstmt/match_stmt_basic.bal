@@ -200,5 +200,48 @@ function testMatchStatementBasics17() returns (string | int | boolean) {
     }
 }
 
+function testMatchStatementBasics18() returns (string | int | boolean) {
+    json j = {name:"testing with json"};
+
+    match j.name {
+        string s => return s;
+        any k => return "found any";
+    }
+}
+
+function testMatchStatementBasics19() returns (string | int | boolean) {
+    json j = {name:12345};
+
+    match j.name {
+        string s => return s;
+        int i => return i;
+        any k => return "found any";
+    }
+}
+
+function testMatchStatementBasics20() returns (string | int | boolean) {
+    json j = {name:false};
+
+    match j.name {
+        string s => return s;
+        int i => return i;
+        boolean b => return b;
+        any k => return "found any";
+    }
+}
+
+function testMatchStatementBasics21() returns (string | int | boolean | float) {
+    json j = {name:10.333};
+
+    match j.name {
+        string s => return s;
+        int i => return i;
+        boolean b => return b;
+        float f => return f;
+        any k => return "found any";
+    }
+}
+
+
 
 

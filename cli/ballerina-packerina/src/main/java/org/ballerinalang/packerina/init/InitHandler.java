@@ -19,7 +19,7 @@
 package org.ballerinalang.packerina.init;
 
 import org.ballerinalang.packerina.init.models.SrcFile;
-import org.ballerinalang.packerina.toml.model.Manifest;
+import org.ballerinalang.toml.model.Manifest;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

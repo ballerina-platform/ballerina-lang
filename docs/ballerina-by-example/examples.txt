@@ -1,6 +1,7 @@
 Hello World
 Hello World Parallel
 Hello World Service
+Secured Hello World Service with Basic Auth
 Value Types
 Constants
 Global Variables
@@ -108,6 +109,14 @@ JMS Message Producer
 JMS Message Consumer
 JMS Client Acknowledgment
 MB Message Producer
-MB-Message-Consumer
+MB Message Consumer
 Taint Checking
 WebSub Basic Sample
+Testerina Assertions
+Testerina Before After
+Testerina Before After Suite
+Testerina Before Each
+Testerina Data Provider
+Testerina Depends On
+Testerina Function Mocks
+Testerina Groups

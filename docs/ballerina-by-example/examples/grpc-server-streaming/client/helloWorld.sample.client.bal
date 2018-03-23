@@ -14,7 +14,7 @@ function main (string[] args) {
             io:println("Error occured while sending event " + payloadError.message);
         }
         any | null => {
-            io:println("This cannot happen.");
+            io:println("Connected successfully");
           }
      }
 
