@@ -38,10 +38,10 @@ function testConnectionPoolProperties1 () returns (string) {
 
 
     string firstName;
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-    var j, _ = <json>dt;
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -51,12 +51,12 @@ function testConnectionPoolProperties2 () returns (string) {
         options: properties
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -68,11 +68,11 @@ function testConnectionPoolProperties3 () returns (string) {
         username: "SA"
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -87,12 +87,12 @@ function testConnectorWithDefaultPropertiesForListedDB () returns (string) {
         options: {}
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -110,10 +110,10 @@ function testConnectorWithWorkers () returns (string) {
         int x = 0;
         json y;
 
-	    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-	    var j, _ = <json>dt;
+	    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+	    var j =? <json>dt;
 	    string firstName = j.toString();
-        testDB -> close();
+        _ = testDB -> close();
 	    return firstName;
     }    
     worker w2 {
@@ -128,11 +128,11 @@ function testConnectorWithDirectUrl () returns (string) {
         options: Properties2
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -143,11 +143,11 @@ function testConnectorWithDataSourceClass () returns (string) {
         options: properties3
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -161,11 +161,11 @@ function testConnectorWithDataSourceClassAndProps () returns (string) {
         options: properties4
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -179,11 +179,11 @@ function testConnectorWithDataSourceClassWithoutURL () returns (string) {
         options: properties5
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }
 
@@ -197,10 +197,10 @@ function testConnectorWithDataSourceClassURLPriority () returns (string) {
         options: properties6
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     string firstName;
-    var j, _ = <json>dt;
+    var j =? <json>dt;
     firstName = j.toString();
-    testDB -> close();
+    _ = testDB -> close();
     return firstName;
 }

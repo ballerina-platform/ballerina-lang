@@ -62,14 +62,15 @@ public class SourceDirectoryManager {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         return Stream.concat(sourceFileNames.stream().map(PackageID::new),
-                packageNames.stream().map(name -> new PackageID(Names.ANON_ORG,
-                        names.fromString(name), Names.DEFAULT_VERSION)));
+                             packageNames.stream().map(name -> new PackageID(Names.ANON_ORG,
+                                                                             names.fromString(name),
+                                                                             Names.DEFAULT_VERSION)));
     }
 
     public Stream<PackageID> listPackages() {
         List<String> pkgNames = sourceDirectory.getSourcePackageNames();
         return pkgNames.stream().map(name -> new PackageID(Names.ANON_ORG,
-                names.fromString(name), Names.DEFAULT_VERSION));
+                                                           names.fromString(name), Names.DEFAULT_VERSION));
     }
 
     public PackageID getPackageID(String sourcePackage) {

@@ -34,22 +34,19 @@ import org.testng.annotations.Test;
  */
 public class FunctionPointersTest {
 
-    CompileResult fpProgram, globalProgram, structProgram;
+    CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
 
     @BeforeClass
     public void setup() {
         fpProgram = BCompileUtil.compile("test-src/expressions/lambda/function-pointers.bal");
+        privateFPProgram = BCompileUtil.compile(this, "test-src/expressions/lambda", "private-function-pointers");
         globalProgram = BCompileUtil.compile("test-src/expressions/lambda/global-function-pointers.bal");
         structProgram = BCompileUtil.compile("test-src/expressions/lambda/struct-function-pointers.bal");
     }
 
     @Test
     public void testFunctionPointerAsVariable() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test1");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+        invokeFunctionPointerProgram(fpProgram, "test1", 3);
     }
 
     @Test
@@ -63,11 +60,7 @@ public class FunctionPointersTest {
 
     @Test
     public void testFunctionPointerAsParameter() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "test3");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+        invokeFunctionPointerProgram(fpProgram, "test3", 4);
     }
 
     @Test
@@ -100,11 +93,25 @@ public class FunctionPointersTest {
 
     @Test
     public void testFuncWithArrayParams() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFuncWithArrayParams");
+        invokeFunctionPointerProgram(fpProgram, "testFuncWithArrayParams", 0);
+    }
+
+    @Test
+    public void testPrivateFunctionPointerTest1() {
+        invokeFunctionPointerProgram(privateFPProgram, "test1", 3);
+    }
+
+    @Test
+    public void testPrivateFunctionPointerTest2() {
+        invokeFunctionPointerProgram(privateFPProgram, "test2", 3);
+    }
+
+    private void invokeFunctionPointerProgram(CompileResult programToRun, String functionName, int valueToAssert) {
+        BValue[] returns = BRunUtil.invoke(programToRun, functionName);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), valueToAssert);
     }
 
     @Test

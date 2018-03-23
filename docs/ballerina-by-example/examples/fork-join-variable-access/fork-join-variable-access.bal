@@ -29,24 +29,43 @@ function main (string[] args) {
             s -> fork;
         }
     } join (all) (map results) {
-        // Declare variables to receive the results from forked workers W1 and W2.
+
         any[] r1;
         any[] r2;
+        // Declare variables to receive the results from forked workers W1 and W2.
         // The 'results' map contains a map of any type array from each worker
         // defined within the fork-join statement.
         // Values received from worker W1 are assigned to any array of r1.
-        r1, _ = (any[])results["W1"];
+        var x1 = <any[]>results["W1"];
+        match x1 {
+            any[] val  => {r1 = <any[]> val;}
+            error e => {io:println(e.message);}
+        }
+
         // Values received from worker W2 are assigned to any array of r2.
-        r2, _ = (any[])results["W2"];
+        var x2 = <any[]>results["W2"];
+        match x2 {
+            any[] val  => {r2 = <any[]> val;}
+            error e => {io:println(e.message);}
+        }
+
         // Getting the 0th index of array returned from worker W1.
         int p;
-        p, _ = (int)r1[0];
+        p =? <int>r1[0];
         // Getting the 1th index of array returned from worker W1.
         string l;
-        l, _ = (string)r1[1];
+        var indexL = <string>r1[1];
+        match indexL {
+            string val  => {l = <string > val;}
+        }
+
         // Getting the 0th index of array returned from worker W2.
         string q;
-        q, _ = (string)r2[0];
+        var indexQ = <string>r2[0];
+        match indexQ {
+            string val  => {q = <string > val;}
+        }
+
         // Print values received from workers within join block.
         io:println("[default worker] within join:
         Value of integer from W1 is [" + p + "]");
@@ -63,10 +82,20 @@ function main (string[] args) {
         Value of string variable is [" + s + "]");
     // Reference type variables are changed since they have passed in as a
     // reference to the workers.
+
     string name;
     string era;
-    name, _ = (string)m["name"];
-    era, _ = (string)m["era"];
+
+    var varName = <string>m["name"];
+    match varName {
+        string val  => {name = <string > val;}
+    }
+
+    var varEra = <string>m["era"];
+    match varEra {
+        string val  => {era = <string > val;}
+    }
+
     io:println("[default worker] after fork-join:
         Value of name is [" + name + "]
         Value of era is [" + era + "]");

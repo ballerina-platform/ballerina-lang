@@ -133,8 +133,7 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(2), 72);
     }
 
-    @Test (enabled = false)
-    //TODO: enable test case
+    @Test
     public void testJsonToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStruct");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -174,8 +173,7 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(1), 79);
     }
 
-    @Test (enabled = false)
-    //TODO enable this. 
+    @Test
     public void testStructToJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);

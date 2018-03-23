@@ -26,11 +26,11 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BStreamletType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
@@ -62,7 +62,6 @@ import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
@@ -208,31 +207,6 @@ public class ProgramFileReader {
                 utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
                 return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue());
 
-            case CP_ENTRY_STREAMLET_REF:
-                pkgCPIndex = dataInStream.readInt();
-                packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
-
-                cpIndex = dataInStream.readInt();
-                UTF8CPEntry streamletNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
-                String streamletName = streamletNameCPEntry.getValue();
-                StreamletRefCPEntry streamletRefCPEntry = new StreamletRefCPEntry(pkgCPIndex,
-                        packageRefCPEntry.getPackageName(), cpIndex, streamletName);
-
-                // Find the streamletInfo
-                packageInfoOptional = Optional.ofNullable(programFile.getPackageInfo(packageRefCPEntry
-                        .getPackageName()));
-                Optional<StreamletInfo> streamletInfoOptional = packageInfoOptional.map(
-                        packageInfo -> packageInfo.getStreamletInfo(streamletName));
-                if (!streamletInfoOptional.isPresent()) {
-                    // This must reference to the current package and the current package is not been read yet.
-                    // Therefore we add this to the unresolved CP Entry list.
-                    unresolvedCPEntries.add(streamletRefCPEntry);
-                    return streamletRefCPEntry;
-                }
-
-                streamletRefCPEntry.setStreamletInfo(streamletInfoOptional.get());
-                return streamletRefCPEntry;
-
             case CP_ENTRY_FUNCTION_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -373,9 +347,6 @@ public class ProgramFileReader {
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
 
-        // Read streamlet info entries
-        readStreamletInfoEntries(dataInStream, packageInfo);
-
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
 
@@ -453,6 +424,8 @@ public class ProgramFileReader {
                 readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
             }
 
+            String defaultInit = structName + INIT_FUNCTION_SUFFIX;
+
             // Read attached function info entries
             int attachedFuncCount = dataInStream.readShort();
             for (int j = 0; j < attachedFuncCount; j++) {
@@ -473,6 +446,10 @@ public class ProgramFileReader {
                 // Setting the initializer function info, if any.
                 if (structName.equals(attachedFuncName)) {
                     structInfo.initializer = functionInfo;
+                }
+                // Setting the default initializer function info
+                if (defaultInit.equals(attachedFuncName)) {
+                    structInfo.defaultsValuesInitFunc = functionInfo;
                 }
             }
 
@@ -592,42 +569,6 @@ public class ProgramFileReader {
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
-    }
-
-    private void readStreamletInfoEntries(DataInputStream dataInStream,
-                                          PackageInfo packageInfo) throws IOException {
-        int stremletCount = dataInStream.readShort();
-        for (int i = 0; i < stremletCount; i++) {
-            // Create streamlet info entry
-            int streamletNameCPIndex = dataInStream.readInt();
-            int siddhiQueryCPIndex = dataInStream.readInt();
-            int streamIdsAsStringCPIndex = dataInStream.readInt();
-            int flags = dataInStream.readInt();
-            UTF8CPEntry streamletNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(streamletNameCPIndex);
-            String streamletName = streamletNameUTF8Entry.getValue();
-
-            UTF8CPEntry siddhiQueryUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(siddhiQueryCPIndex);
-            String siddhiQuery = siddhiQueryUTF8Entry.getValue();
-
-            UTF8CPEntry streamIdsAsStringUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(streamIdsAsStringCPIndex);
-            String streamIdsAsString = streamIdsAsStringUTF8Entry.getValue();
-
-            StreamletInfo streamletInfo = new StreamletInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    streamletNameCPIndex, streamletName, flags);
-            packageInfo.addStreamletInfo(streamletName, streamletInfo);
-
-            // Set streamlet type
-            BStreamletType bStreamletType = new BStreamletType(streamletInfo, streamletName,
-                    packageInfo.getPkgPath(), flags);
-            streamletInfo.setType(bStreamletType);
-
-            // Set Siddhi query
-            streamletInfo.setSiddhiQuery(siddhiQuery);
-
-            // Set Stream Ids
-            streamletInfo.setStreamIdsAsString(streamIdsAsString);
-        }
-
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
@@ -945,7 +886,7 @@ public class ProgramFileReader {
             case 'E':
             case 'D':
             case 'H':
-            case 'M':
+            case 'Z':
                 char typeChar = chars[index];
                 // TODO Improve this logic
                 index++;
@@ -991,12 +932,6 @@ public class ProgramFileReader {
                     } else {
                         typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
                     }
-                } else if (typeChar == 'M') {
-                    if (name.isEmpty()) {
-                        typeStack.push(BTypes.typeStreamlet);
-                    } else {
-                        typeStack.push(packageInfoOfType.getStreamletInfo(name).getType());
-                    }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
                 } else {
@@ -1011,7 +946,7 @@ public class ProgramFileReader {
                 BArrayType arrayType = new BArrayType(elemType);
                 typeStack.push(arrayType);
                 return index;
-            case 'N':
+            case 'M':
                 index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
                 BType constrainedType = typeStack.pop();
                 BType mapType;
@@ -1025,6 +960,24 @@ public class ProgramFileReader {
             case 'U':
                 // TODO : Fix this for type casting.
                 typeStack.push(new BFunctionType());
+                return index + 1;
+            case 'O':
+                index++;
+                nameIndex = index;
+                while (chars[nameIndex] != ';') {
+                    nameIndex++;
+                }
+                List<BType> memberTypes = new ArrayList<>();
+                int memberCount = Integer.parseInt(new String(Arrays.copyOfRange(chars, index, nameIndex)));
+                index = nameIndex;
+                for (int i = 0; i < memberCount; i++) {
+                    index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo) - 1;
+                    memberTypes.add(typeStack.pop());
+                }
+                typeStack.push(new BUnionType(memberTypes));
+                return index + 1;
+            case 'N':
+                typeStack.push(BTypes.typeNull);
                 return index + 1;
             default:
                 throw new ProgramFileFormatException("unsupported base type char: " + ch);
@@ -1050,7 +1003,7 @@ public class ProgramFileReader {
                 return BTypes.typeAny;
             case 'R':
                 return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
-            case 'N':
+            case 'M':
                 BType constrainedType = getBTypeFromDescriptor(desc.substring(1));
                 if (constrainedType == BTypes.typeAny) {
                     return BTypes.typeMap;
@@ -1063,7 +1016,7 @@ public class ProgramFileReader {
             case 'T':
             case 'E':
             case 'H':
-            case 'M':
+            case 'Z':
             case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
@@ -1075,8 +1028,6 @@ public class ProgramFileReader {
                         return BTypes.typeTable;
                     } else if (ch == 'H') { //TODO:CHECK
                         return BTypes.typeStream;
-                    } else if (ch == 'M') {
-                        return BTypes.typeStreamlet;
                     }
                 }
 
@@ -1093,8 +1044,6 @@ public class ProgramFileReader {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'H') {
                     return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'M') {
-                    return packageInfoOfType.getStreamletInfo(name).getType();
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
@@ -1106,6 +1055,12 @@ public class ProgramFileReader {
             case 'U':
                 // TODO : Fix this for type casting.
                 return new BFunctionType();
+            case 'O':
+                Stack<BType> typeStack = new Stack<BType>();
+                createBTypeFromSig(desc.toCharArray(), 0, typeStack, null);
+                return typeStack.pop();
+            case 'N':
+                return BTypes.typeNull;
             default:
                 throw new ProgramFileFormatException("unsupported base type char: " + ch);
         }
@@ -1373,7 +1328,7 @@ public class ProgramFileReader {
             int i, j, k, h;
             int funcRefCPIndex;
             FunctionRefCPEntry funcRefCPEntry;
-            boolean async;
+            int flags;
             int[] argRegs;
             int[] retRegs;
 
@@ -1422,12 +1377,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BGLOAD:
                 case InstructionCodes.LGLOAD:
                 case InstructionCodes.RGLOAD:
-                case InstructionCodes.ISTORE:
-                case InstructionCodes.FSTORE:
-                case InstructionCodes.SSTORE:
-                case InstructionCodes.BSTORE:
-                case InstructionCodes.LSTORE:
-                case InstructionCodes.RSTORE:
                 case InstructionCodes.IGSTORE:
                 case InstructionCodes.FGSTORE:
                 case InstructionCodes.SGSTORE:
@@ -1441,7 +1390,6 @@ public class ProgramFileReader {
                 case InstructionCodes.RNE_NULL:
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
-                case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
@@ -1473,7 +1421,6 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWTABLE:
-                case InstructionCodes.NEWSTREAMLET:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
@@ -1523,6 +1470,7 @@ public class ProgramFileReader {
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
+                case InstructionCodes.CHECK_CONVERSION:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1605,6 +1553,8 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
                 case InstructionCodes.ANY2E:
+                case InstructionCodes.IS_ASSIGNABLE:
+                case InstructionCodes.TR_RETRY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1622,44 +1572,44 @@ public class ProgramFileReader {
 
                 case InstructionCodes.CALL:
                     funcRefCPIndex = codeStream.readInt();
-                    async = this.readBoolean(codeStream);
+                    flags = codeStream.readInt();
                     funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(funcRefCPIndex);
                     packageInfo.addInstruction(new InstructionCALL(opcode, funcRefCPIndex,
-                            funcRefCPEntry.getFunctionInfo(), async, getArgRegs(codeStream), getArgRegs(codeStream)));
+                            funcRefCPEntry.getFunctionInfo(), flags, getArgRegs(codeStream), getArgRegs(codeStream)));
                     break;
                 case InstructionCodes.VCALL:
                     int receiverRegIndex = codeStream.readInt();
                     funcRefCPIndex = codeStream.readInt();
-                    async = this.readBoolean(codeStream);
+                    flags = codeStream.readInt();
                     funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(funcRefCPIndex);
                     packageInfo.addInstruction(new InstructionVCALL(opcode, receiverRegIndex, funcRefCPIndex,
-                            funcRefCPEntry.getFunctionInfo(), async, getArgRegs(codeStream), getArgRegs(codeStream)));
+                            funcRefCPEntry.getFunctionInfo(), flags, getArgRegs(codeStream), getArgRegs(codeStream)));
                     break;
                 case InstructionCodes.ACALL:
                     int actionRefCPIndex = codeStream.readInt();
-                    async = this.readBoolean(codeStream);
+                    flags = codeStream.readInt();
                     ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) packageInfo.getCPEntry(actionRefCPIndex);
                     packageInfo.addInstruction(new InstructionACALL(opcode, actionRefCPIndex,
-                            actionRefCPEntry.getActionName(), async, getArgRegs(codeStream), getArgRegs(codeStream)));
+                            actionRefCPEntry.getActionName(), flags, getArgRegs(codeStream), getArgRegs(codeStream)));
                     break;
                 case InstructionCodes.FPCALL:
                     funcRefCPIndex = codeStream.readInt();
-                    async = this.readBoolean(codeStream);
+                    flags = codeStream.readInt();
                     argRegs = getArgRegs(codeStream);
                     retRegs = getArgRegs(codeStream);
 
-                    FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(async, argRegs, retRegs);
+                    FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(flags, argRegs, retRegs);
                     int funcCallCPIndex = packageInfo.addCPEntry(funcCallCPEntry);
 
                     packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
                     break;
                 case InstructionCodes.TCALL:
                     int transformCPIndex = codeStream.readInt();
-                    async = this.readBoolean(codeStream);
+                    flags = codeStream.readInt();
                     TransformerRefCPEntry transformerRefCPEntry =
                             (TransformerRefCPEntry) packageInfo.getCPEntry(transformCPIndex);
                     packageInfo.addInstruction(new InstructionTCALL(opcode, transformCPIndex,
-                            transformerRefCPEntry.getTransformerInfo(), async,
+                            transformerRefCPEntry.getTransformerInfo(), flags,
                             getArgRegs(codeStream), getArgRegs(codeStream)));
                     break;
                 case InstructionCodes.WRKSEND:
@@ -1731,13 +1681,6 @@ public class ProgramFileReader {
                             structureRefCPEntry.getStructureName());
                     structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
                     break;
-                case CP_ENTRY_STREAMLET_REF:
-                    StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(streamletRefCPEntry.getPackagePath());
-                    StreamletInfo streamletInfo = packageInfo.getStreamletInfo(
-                            streamletRefCPEntry.getStreamletName());
-                    streamletRefCPEntry.setStreamletInfo(streamletInfo);
-                    break;
                 case CP_ENTRY_TYPE_REF:
                     TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
                     String typeSig = typeRefCPEntry.getTypeSig();
@@ -1795,6 +1738,8 @@ public class ProgramFileReader {
                 attachedFunctions[count++] = attachedFunction;
                 if (structInfo.initializer == attachedFuncInfo) {
                     structType.initializer = attachedFunction;
+                } else if (structInfo.defaultsValuesInitFunc == attachedFuncInfo) {
+                    structType.defaultsValuesInitFunc = attachedFunction;
                 }
             }
             structType.setAttachedFunctions(attachedFunctions);

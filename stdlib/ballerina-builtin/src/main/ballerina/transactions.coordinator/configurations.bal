@@ -17,7 +17,6 @@
 package ballerina.transactions.coordinator;
 
 import ballerina/config;
-import ballerina/io;
 
 const string basePath = "/balcoordinator";
 const string initiatorCoordinatorBasePath = basePath + "/initiator";
@@ -29,24 +28,30 @@ const string registrationPathPattern = "/{transactionBlockId}" + registrationPat
 const string coordinatorHost = getCoordinatorHost();
 const int coordinatorPort = getCoordinatorPort();
 
-function getCoordinatorHost () returns (string host) {
-    io:println("###### getCoordinatorHost");
-    host = config:getInstanceValue("http", "coordinator.host");
-    if (host == null || host == "") {
-        host = getHostAddress();
+function getCoordinatorHost () returns string {
+    string host;
+    var result = config:getAsString("http.coordinator.host");
+    match result {
+        string h => host = h;
+        any|null => host = getHostAddress();
     }
-    return;
+    return host;
 }
 
-function getCoordinatorPort () returns (int port) {
-    io:println("###### getCoordinatorPort");
-    var p, e = <int>config:getInstanceValue("http", "coordinator.port");
-    if (e != null) {
-        port = getAvailablePort();
-    } else {
-        port = p;
+function getCoordinatorPort () returns int {
+    int port;
+    var result = config:getAsString("http.coordinator.port");
+    match result {
+        string p => {
+            var result2 = <int>p;
+            match result2 {
+                error e => port = getAvailablePort();
+                int p2 => port = p2;
+            }
+        }
+        any|null => port = getAvailablePort();
     }
-    return;
+    return port;
 }
 
 endpoint http:ServiceEndpoint coordinatorServerEP {

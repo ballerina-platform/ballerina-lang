@@ -40,6 +40,7 @@ import java.util.Set;
  */
 public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi, OpenAPI> {
     private String apiPackage;
+    private String modelPackage;
     private String openapi = "3.0.0";
     private Info info = null;
     private ExternalDocumentation externalDocs = null;
@@ -151,13 +152,24 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         }));
     }
 
+    public BallerinaOpenApi apiPackage(String apiPackage) {
+        this.apiPackage = apiPackage;
+        return this;
+    }
+
+    public BallerinaOpenApi modelPackage(String modelPackage) {
+        if (modelPackage != null) {
+            this.modelPackage = modelPackage.replaceFirst("\\.", "/");
+        }
+        return this;
+    }
+
     public String getApiPackage() {
         return apiPackage;
     }
 
-    public BallerinaOpenApi apiPackage(String apiPackage) {
-        this.apiPackage = apiPackage;
-        return this;
+    public String getModelPackage() {
+        return modelPackage;
     }
 
     public String getOpenapi() {

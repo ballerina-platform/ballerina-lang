@@ -63,11 +63,17 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testGetHeader() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
-        BValue[] inputArg = {inResponse, key};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
-        Assert.assertNull(returnVals[0]);
+        try {
+            BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                                 inRespStruct);
+            BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
+            BValue[] inputArg = {inResponse, key};
+            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
+            Assert.assertNull(returnVals[0]);
+        } catch (Exception exception) {
+            String errorMessage = exception.getMessage();
+            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+        }
     }
 
     @Test(description = "Test method without json payload")

@@ -84,14 +84,6 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createTransformer,
         description: 'Custom type conversion for transforming data',
     },
-    {
-        id: 'enum',
-        name: 'Enum',
-        icon: 'enum',
-        title: 'Enum',
-        nodeFactoryMethod: DefaultNodeFactory.createEnum,
-        description: 'User defined enums',
-    },
 ];
 
 export default tools;

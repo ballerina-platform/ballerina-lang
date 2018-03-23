@@ -44,4 +44,13 @@ public class FileSystemSourceEntry implements PackageSourceEntry {
     public void setPkgId(PackageID pkgId) {
         this.pkgId = pkgId;
     }
+    
+    public Path getPath() {
+        return this.path;
+    }
+
+    @Override
+    public String toString() {
+        return this.path.toString();
+    }
 }

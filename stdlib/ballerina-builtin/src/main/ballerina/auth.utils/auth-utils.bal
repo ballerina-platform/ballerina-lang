@@ -44,12 +44,12 @@ const float CACHE_EVICTION_FACTOR_DEFAULT_VALUE = 0.25;
 
 @Description {value:"Creates a cache to store authentication results against basic auth headers"}
 @Return {value:"cache: authentication cache instance"}
-public function createCache (string cacheName) returns (caching:Cache) {
+public function createCache (string cacheName) returns (caching:Cache|null) {
     if (isCacheEnabled(cacheName)) {
         int expiryTime;
         int capacity;
         float evictionFactor;
-        expiryTime, capacity, evictionFactor = getCacheConfigurations(cacheName);
+        (expiryTime, capacity, evictionFactor) = getCacheConfigurations(cacheName);
         return caching:createCache(cacheName, expiryTime, capacity, evictionFactor);
     }
     return null;
@@ -59,17 +59,10 @@ public function createCache (string cacheName) returns (caching:Cache) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"boolean: true of the cache is enabled, else false"}
 function isCacheEnabled (string cacheName) returns (boolean) {
-    string isCacheEnabled = config:getInstanceValue(cacheName, CACHE_ENABLED);
-    if (isCacheEnabled == null) {
-        // by default we enable the cache
-        return CACHE_ENABLED_DEFAULT_VALUE;
-    } else {
-        var boolIsCacheEnabled, typeConversionErr = <boolean>isCacheEnabled;
-        if (typeConversionErr != null) {
-            return CACHE_ENABLED_DEFAULT_VALUE;
-        } else {
-            return boolIsCacheEnabled;
-        }
+    // by default we enable the cache
+    match config:getAsString(cacheName + "." + CACHE_ENABLED) {
+        string value => return value == "true" ? true : false;
+        int|null => return CACHE_ENABLED_DEFAULT_VALUE;
     }
 }
 
@@ -79,7 +72,7 @@ function isCacheEnabled (string cacheName) returns (boolean) {
 @Return {value:"int: cache capacity"}
 @Return {value:"float: cache eviction factor"}
 function getCacheConfigurations (string cacheName) returns (int, int, float) {
-    return getExpiryTime(cacheName), getCapacity(cacheName), getEvictionFactor(cacheName);
+    return (getExpiryTime(cacheName), getCapacity(cacheName), getEvictionFactor(cacheName));
 }
 
 @Description {value:"Reads the cache expiry time"}
@@ -87,16 +80,14 @@ function getCacheConfigurations (string cacheName) returns (int, int, float) {
 @Return {value:"int: cache expiry time read from ballerina.conf, default value if no configuration entry found"}
 function getExpiryTime (string cacheName) returns (int) {
     // expiry time
-    string expiryTime = config:getInstanceValue(cacheName, CACHE_EXPIRY_TIME);
-    if (expiryTime == null) {
-        // set the default
-        return CACHE_EXPIRY_DEFAULT_VALUE;
-    } else {
-        var intExpiryTime, typeConversionErr = <int>expiryTime;
-        if (typeConversionErr != null) {
-            return CACHE_EXPIRY_DEFAULT_VALUE;
+    match config:getAsString(cacheName + "." + CACHE_EXPIRY_TIME) {
+        string value => {
+            match <int>value {
+                int intExpiryTime => return intExpiryTime;
+                error typeConversionErr => return CACHE_EXPIRY_DEFAULT_VALUE;
+            }
         }
-        return intExpiryTime;
+        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -104,15 +95,14 @@ function getExpiryTime (string cacheName) returns (int) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"int: cache capacity read from ballerina.conf, default value if no configuration entry found"}
 function getCapacity (string cacheName) returns (int) {
-    string capacity = config:getInstanceValue(cacheName, CACHE_CAPACITY);
-    if (capacity == null) {
-        return CACHE_CAPACITY_DEFAULT_VALUE;
-    } else {
-        var intCapacity, typeConversionErr = <int>capacity;
-        if (typeConversionErr != null) {
-            return CACHE_CAPACITY_DEFAULT_VALUE;
+    match config:getAsString(cacheName + "." + CACHE_CAPACITY) {
+        string value => {
+            match <int>value {
+                int intCapacity => return intCapacity;
+                error typeConversionErr => return CACHE_CAPACITY_DEFAULT_VALUE;
+            }
         }
-        return intCapacity;
+        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -120,15 +110,14 @@ function getCapacity (string cacheName) returns (int) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"float: cache eviction factor read from ballerina.conf, default value if no configuration entry found"}
 function getEvictionFactor (string cacheName) returns (float) {
-    string evictionFactor = config:getInstanceValue(cacheName, CACHE_EVICTION_FACTOR);
-    if (evictionFactor == null) {
-        return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
-    } else {
-        var floatEvictionFactor, typeConversionErr = <float>evictionFactor;
-        if (typeConversionErr != null || floatEvictionFactor > 1.0) {
-            return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
+    match config:getAsString(cacheName + "." + CACHE_EVICTION_FACTOR) {
+        string value => {
+            match <float>value {
+                float floatEvictionFactor => return floatEvictionFactor;
+                error typeConversionErr => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
+            }
         }
-        return floatEvictionFactor;
+        any|null => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
     }
 }
 
@@ -137,19 +126,19 @@ function getEvictionFactor (string cacheName) returns (float) {
 @Return {value:"string: username extracted"}
 @Return {value:"string: password extracted"}
 @Return {value:"error: any error occurred while extracting creadentials"}
-public function extractBasicAuthCredentials (string authHeader) returns (string, string, error) {
+public function extractBasicAuthCredentials (string authHeader) returns (string, string)|error {
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
         decodedBasicAuthHeader = util:base64Decode(authHeader.subString(5, authHeader.length()).trim());
     } catch (error err) {
-        return null, null, err;
+        return err;
     }
     string[] decodedCredentials = decodedBasicAuthHeader.split(":");
     if (lengthof decodedCredentials != 2) {
-        return null, null, handleError("Incorrect basic authentication header format");
+        return handleError("Incorrect basic authentication header format");
     } else {
-        return decodedCredentials[0], decodedCredentials[1], null;
+        return (decodedCredentials[0], decodedCredentials[1]);
     }
 }
 

@@ -11,18 +11,62 @@ function main(string[] args) {
     // variable takes precedence. Similarly, if the same is set as a CLI parameter, it replaces the environment 
     // variable value. <br>
     // The configs are simply arbitrary key/value pairs with slight structure to it.
-    string[] users = config:getGlobalValue("username.instances").split(",");
-    string user1Rights = config:getInstanceValue(users[0], "access.rights");
-    string user2Rights = config:getInstanceValue(users[1], "access.rights");
+    string[] users;
+    var usersConfig  = config:getAsString("username.instances");
+    match usersConfig {
+        string usersString => {
+            users = usersString.split(",");
+        }
+        int | null => { return; }
+    }
+
+    string user1Rights;
+    var user1RightsConfig = config:getAsString(users[0] + ".access.rights");
+    match user1RightsConfig {
+        string user1RightsString => {
+            user1Rights = user1RightsString;
+        }
+        int | null => { return; }
+    }
+
+    string user2Rights;
+    var user2RightsConfig = config:getAsString(users[1] + ".access.rights");
+    match user2RightsConfig {
+        string user2RightsString => {
+            user2Rights = user2RightsString;
+        }
+        int | null => { return; }
+    }
 
     io:println(users[0] + " has " + user1Rights + " access");
     io:println(users[1] + " has " + user2Rights + " access");
     // A sample config file looks as follows: <br>
-    // username.instances=john,peter <br>
+    // sum.limit=5 <br>
+    // username.instances="john,peter" <br>
     // [john] <br>
-    // access.rights=RW <br>
+    // access.rights="RW" <br>
     // [peter] <br>
-    // access.rights=R <br><br>
+    // access.rights="R" <br><br>
     // The same configs can be set using CLI parameters as follows: <br>
-    // -Busername.instances=john,peter -B[john].access.rights=RW -B[peter].access.rights=R <br>
+    // -e sum.limit=5 -e username.instances=john,peter -e john.access.rights=RW -e peter.access.rights=R<br>
+
+    io:println("Before changing sum.limit in code: " + getLimit());
+
+    // Configurations can be set in code as well.
+    config:setConfig("sum.limit", "10");
+
+    io:println("After changing sum.limit: " + getLimit());
+}
+
+function getLimit() returns (string) {
+    var limitConfig = config:getAsString("sum.limit");
+    match limitConfig {
+        string limit => {
+            return limit;
+        }
+        float | null => {
+            io:println("Returning default limit: 1000");
+            return "1000";
+        }
+    }
 }

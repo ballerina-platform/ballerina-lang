@@ -24,7 +24,9 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.config.cipher.AESCipherTool;
+import org.ballerinalang.config.cipher.AESCipherToolException;
+import org.ballerinalang.util.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -112,6 +114,10 @@ public class Main {
             VersionCmd versionCmd = new VersionCmd();
             cmdParser.addCommand("version", versionCmd);
             versionCmd.setParentCmdParser(cmdParser);
+
+            EncryptCmd encryptCmd = new EncryptCmd();
+            cmdParser.addCommand("encrypt", encryptCmd);
+            encryptCmd.setParentCmdParser(cmdParser);
 
             cmdParser.setProgramName("ballerina");
             cmdParser.parse(args);
@@ -207,14 +213,23 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
 
+        @Parameter(names = {"--offline", "-o"})
+        private boolean offline;
+
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
         @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
         private String javaDebugPort;
 
-        @DynamicParameter(names = "-B", description = "collects dynamic parameters")
-        private Map<String, String> configRuntimeParams = new HashMap<>();
+        @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
+        private String configFilePath;
+
+        @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
+        private Map<String, String> runtimeParams = new HashMap<>();
+
+        @DynamicParameter(names = "-B", description = "Ballerina VM options")
+        private Map<String, String> vmOptions = new HashMap<>();
 
         public void execute() {
             if (helpFlag) {
@@ -233,7 +248,8 @@ public class Main {
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-            ConfigRegistry.getInstance().initRegistry(configRuntimeParams, sourceRootPath.resolve("ballerina.conf"));
+            System.setProperty("ballerina.source.root", sourceRootPath.toString());
+            VMOptions.getInstance().addOptions(vmOptions);
 
             // Start all services, if the services flag is set.
             if (runServices) {
@@ -241,7 +257,8 @@ public class Main {
                     throw LauncherUtils.createUsageException("too many arguments");
                 }
 
-                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, new String[0]);
+                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams, configFilePath,
+                                         new String[0], offline);
                 return;
             }
 
@@ -255,7 +272,8 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, programArgs);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams,
+                                     configFilePath, programArgs, offline);
         }
 
         @Override
@@ -412,6 +430,109 @@ public class Main {
         @Override
         public void setSelfCmdParser(JCommander selfCmdParser) {
 
+        }
+    }
+
+    /**
+     * Represents the encrypt command which can be used to make use of the AES cipher tool. This is for the users to be
+     * able to encrypt sensitive values before adding them to config files.
+     *
+     * @since 0.966.0
+     */
+    @Parameters(commandNames = "encrypt", commandDescription = "encrypt sensitive data")
+    public static class EncryptCmd implements BLauncherCmd {
+
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
+
+        @Parameter(names = {"--help", "-h"}, hidden = true)
+        private boolean helpFlag;
+
+        private JCommander parentCmdParser;
+
+        @Override
+        public void execute() {
+            if (helpFlag) {
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "encrypt");
+                outStream.println(commandUsageInfo);
+                return;
+            }
+
+            String value;
+            if ((value = promptForInput("Enter value: ")).trim().isEmpty()) {
+                if (value.trim().isEmpty()) {
+                    value = promptForInput("Value cannot be empty; enter value: ");
+                    if (value.trim().isEmpty()) {
+                        throw LauncherUtils.createLauncherException("encryption failed: empty value.");
+                    }
+                }
+            }
+
+            String secret;
+            if ((secret = promptForInput("Enter secret: ")).trim().isEmpty()) {
+                if (secret.trim().isEmpty()) {
+                    secret = promptForInput("Secret cannot be empty; enter secret: ");
+                    if (secret.trim().isEmpty()) {
+                        throw LauncherUtils.createLauncherException("encryption failed: empty secret.");
+                    }
+                }
+            }
+
+            String secretVerifyVal = promptForInput("Re-enter secret to verify: ");
+
+            if (!secret.equals(secretVerifyVal)) {
+                throw LauncherUtils.createLauncherException("secrets did not match.");
+            }
+
+            try {
+                AESCipherTool cipherTool = new AESCipherTool(secret);
+                String encryptedValue = cipherTool.encrypt(value);
+
+                outStream.println("Add the following to the runtime config:");
+                outStream.println("@encrypted:{" + encryptedValue + "}\n");
+
+                outStream.println("Or add to the runtime command line:");
+                outStream.println("-e<param>=@encrypted:{" + encryptedValue + "}");
+            } catch (AESCipherToolException e) {
+                throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "encrypt";
+        }
+
+        @Override
+        public void printLongDesc(StringBuilder out) {
+            out.append("The encrypt command can be used to encrypt sensitive data.\n\n");
+            out.append("When the command is executed, the user will be prompted to\n");
+            out.append("enter the value to be encrypted and a secret. The secret will be used in \n");
+            out.append("encrypting the value.\n\n");
+            out.append("Once encrypted, the user can place the encrypted value in the config files,\n");
+            out.append("similar to the following example:\n");
+            out.append("\tuser.password=\"@encrypted:{UtD9d+o6eHpqFnBxtvhb+RWXey7qm7xLMt6+6mrt9w0=}\"\n\n");
+            out.append("The Ballerina Config API will automatically decrypt the values on-demand.\n");
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+            out.append("  ballerina encrypt\n");
+        }
+
+        @Override
+        public void setParentCmdParser(JCommander parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
+        }
+
+        @Override
+        public void setSelfCmdParser(JCommander selfCmdParser) {
+
+        }
+
+        private String promptForInput(String msg) {
+            outStream.println(msg);
+            return new String(System.console().readPassword());
         }
     }
 

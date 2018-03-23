@@ -124,8 +124,7 @@ function refTypeAccessTestArrayEqualityPositiveCase() returns (int) {
 }
 
 function refTypeAccessTestStructAccessCase() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
+    Person jack = {name:"Jack", age:25};
 
     if ((typeof jack.name) == (typeof jack.age)) {
         return 1;
@@ -135,10 +134,8 @@ function refTypeAccessTestStructAccessCase() returns (int) {
 }
 
 function refTypeAccessTestStructTypeEqualityCase() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
-    Person neal;
-    neal = {name:"Neal", age:9};
+    Person jack = {name:"Jack", age:25};
+    Person neal = {name:"Neal", age:9};
 
     if ((typeof jack) == (typeof neal)) {
         return 1;
@@ -148,10 +145,8 @@ function refTypeAccessTestStructTypeEqualityCase() returns (int) {
 }
 
 function refTypeAccessTestStructTypeNotEqualityCase() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
-    Person neal;
-    neal = {name:"Neal", age:9};
+    Person jack = {name:"Jack", age:25};
+    Person neal = {name:"Neal", age:9};
 
     if ((typeof jack) != (typeof neal)) {
         return 1;
@@ -161,10 +156,8 @@ function refTypeAccessTestStructTypeNotEqualityCase() returns (int) {
 }
 
 function refTypeAccessTestStructTypeNegativeEqualityCase() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
-    Animal dog;
-    dog = {name:"Doggy", size:1, age:4};
+    Person jack = {name:"Jack", age:25};
+    Animal dog = {name:"Doggy", size:1, age:4};
 
     if ((typeof jack) == (typeof dog)) {
         return 1;
@@ -174,10 +167,8 @@ function refTypeAccessTestStructTypeNegativeEqualityCase() returns (int) {
 }
 
 function refTypeAccessTestStructTypeNegativeNotEqualityCase() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
-    Animal dog;
-    dog = {name:"Doggy", size:1, age:4};
+    Person jack = {name:"Jack", age:25};
+    Animal dog = {name:"Doggy", size:1, age:4};
 
     if ((typeof jack) != (typeof dog)) {
         return 1;
@@ -187,10 +178,8 @@ function refTypeAccessTestStructTypeNegativeNotEqualityCase() returns (int) {
 }
 
 function refTypeAccessTestStructFieldTypeEqualityCase() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
-    Animal dog;
-    dog = {name:"Doggy", size:1, age:4};
+    Person jack = {name:"Jack", age:25};
+    Animal dog = {name:"Doggy", size:1, age:4};
 
     if ((typeof jack.name) == (typeof dog.name)) {
         return 1;
@@ -200,10 +189,8 @@ function refTypeAccessTestStructFieldTypeEqualityCase() returns (int) {
 }
 
 function refTypeAccessTestStructFieldTypeNotEqualityCase() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
-    Animal dog;
-    dog = {name:"Doggy", size:1, age:4};
+    Person jack = {name:"Jack", age:25};
+    Animal dog = {name:"Doggy", size:1, age:4};
 
     if ((typeof jack.name) == (typeof dog.age)) {
         return 1;
@@ -307,13 +294,13 @@ function typeToAnyImplicitCast() returns (any, typedesc) {
 function typeToAnyExplicitCast() returns (any, typedesc, any) {
     int i = 5;
     typedesc t = (typeof i);
-    return ((any)t, t, t);
+    return (<any>t, t, t);
 }
 
 function anyToTypeExplicitCast() returns (typedesc, any) {
     int i = 5;
     any typeOfInt = (typeof i);
-    var t, _ = (typedesc)typeOfInt;
+    var t =? <typedesc>typeOfInt;
     return (t, typeOfInt);
 }
 
@@ -323,8 +310,7 @@ function getTypeStringValue() returns (typedesc){
 }
 
 function getStructTypeStringValue() returns (typedesc){
-    Person jack;
-    jack = {name:"Jack", age:25};
+    Person jack = {name:"Jack", age:25};
     return (typeof jack);
 }
 
@@ -367,8 +353,7 @@ function testTypeAccessExprValueTypeArray() returns (int) {
 }
 
 function testTypeAccessExprStructWithValue() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
+    Person jack = {name:"Jack", age:25};
     if((typeof jack) == (typeof Person)){
        return 1;
     } else {
@@ -377,8 +362,7 @@ function testTypeAccessExprStructWithValue() returns (int) {
 }
 
 function testTypeAccessExprStructWithValueNegative() returns (int) {
-    Person jack;
-    jack = {name:"Jack", age:25};
+    Person jack = {name:"Jack", age:25};
     if((typeof jack) == (typeof Animal)){
        return 1;
     } else {
@@ -409,7 +393,7 @@ function testTypeOfJson() returns (typedesc, typedesc, typedesc, typedesc, typed
     json j4 = 3;
     json j5 = 7.65;
     json j6 = true;
-    
+
     return (typeof j1, typeof j2, typeof j3, typeof j4, typeof j5, typeof j6);
 }
 
@@ -420,14 +404,14 @@ function testCheckTypeOfJson() returns (json, json[], string, int, float, boolea
     json j4 = 3;
     json j5 = 7.65;
     json j6 = true;
-    
+
     json j;
     json[] ja;
     string s;
     int a;
     float f;
     boolean b;
-    
+
     if (typeof j1 == typeof json) {
         j = j1;
     }
@@ -435,28 +419,27 @@ function testCheckTypeOfJson() returns (json, json[], string, int, float, boolea
     io:println(typeof j2);
     io:println(typeof json[]);
     if (typeof j2 == typeof json[]) {
-        var ja, e = (json[]) j2;
-        io:println(e);
+        ja =? <json[]> j2;
     } else {
         io:println("error on json[] cast");
     }
 
     if (typeof j3 == typeof string) {
-        s, _ = (string) j3;
+        s =? <string> j3;
     }
-    
+
     if (typeof j4 == typeof int) {
-        a, _ = (int) j4;
+        a =? <int> j4;
     }
 
     if (typeof j5 == typeof float) {
-        f, _ = (float) j5;
+        f =? <float> j5;
     }
-    
+
     if (typeof j6 == typeof boolean) {
-        b, _ = (boolean) j6;
+        b =? <boolean> j6;
     }
-    
+
     return (j, ja, s, a, f, b);
 }
 
@@ -466,20 +449,27 @@ function testTypeOfStructArray() returns (typedesc, typedesc, typedesc) {
 }
 
 struct Software {
-   string name;
-   string des;
+    string name;
+    string des;
 }
 
 struct Middleware {
-   string name;
+    string name;
 }
 
-function getTypePreserveWhenCast()returns (int){
-   Software s = {name:"WSO2", des:"ESB"};
-   Middleware m = (Middleware)s;
-   if (typeof s == typeof m){
-      return 1;
-   } else {
-      return 0;
-   }
+function getTypePreserveWhenCast() returns (int){
+    Software s = {name:"WSO2", des:"ESB"};
+    Middleware m = <Middleware>s;
+    if (typeof s == typeof m){
+        return 1;
+    } else {
+        return 0;
+    }
 }
+
+function testTypeOfNullString(string|null s) returns (typedesc) {
+    io:println(typeof s);
+    io:println(s);
+    return (typeof s);
+}
+

@@ -23,20 +23,15 @@ import ballerina/auth.authz.permissionstore;
 @Field {value:"authzCache: authorization cache instance"}
 public struct AuthzChecker {
     permissionstore:PermissionStore permissionstore;
-    caching:Cache authzCache;
+    caching:Cache|null authzCache;
 }
 
 @Description {value:"Creates a Basic Authenticator"}
 @Param {value:"permissionstore: PermissionStore instance"}
 @Param {value:"cache: Cache instance"}
 @Return {value:"AuthzChecker: AuthzChecker instance"}
-public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache cache) returns (AuthzChecker) {
-    if (permissionstore == null) {
-        // error, cannot proceed without permissionstore
-        error e = {msg:"Permission store cannot be null for authz checker"};
-        throw e;
-    }
-
+public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache|null cache)
+                                                                                        returns (AuthzChecker) {
     AuthzChecker authzChecker = {permissionstore:permissionstore, authzCache:cache};
     return authzChecker;
 }
@@ -54,8 +49,17 @@ public function <AuthzChecker authzChecker> check (string username, string scope
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Return {value:"any: cached entry, or null in a cache miss"}
 public function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCacheKey) returns (any) {
-    if (authzChecker.authzCache != null) {
-        return authzChecker.authzCache.get(authzCacheKey);
+    try {
+        match authzChecker.authzCache {
+            caching:Cache cache => {
+                return cache.get(authzCacheKey);
+            }
+            null => {
+                return null;
+            }
+        }
+    } catch (error e) {
+        // do nothing
     }
     return null;
 }
@@ -64,15 +68,25 @@ public function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCa
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Param {value:"isAuthorized: authorization decision"}
 public function <AuthzChecker authzChecker> cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
-    if (authzChecker.authzCache != null) {
-        authzChecker.authzCache.put(authzCacheKey, isAuthorized);
+    match authzChecker.authzCache {
+        caching:Cache cache => {
+            cache.put(authzCacheKey, isAuthorized);
+        }
+        null => {
+            return;
+        }
     }
 }
 
 @Description {value:"Clears any cached authorization result"}
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 public function <AuthzChecker authzChecker> clearCachedAuthzResult (string authzCacheKey) {
-    if (authzChecker.authzCache != null) {
-        authzChecker.authzCache.remove(authzCacheKey);
+    match authzChecker.authzCache {
+        caching:Cache cache => {
+             cache.remove(authzCacheKey);
+        }
+        null => {
+            return;
+        }
     }
 }

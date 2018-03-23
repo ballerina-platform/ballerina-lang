@@ -1,24 +1,20 @@
-import ballerina/lang.messages;
-import ballerina/io;
 import ballerina/net.jms;
+import ballerina/io;
 
-@jms:configuration {
-    initialContextFactory:"wso2mbInitialContextFactory",
-    providerUrl:
-        "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
-    connectionFactoryType:"queue",
-    connectionFactoryName:"QueueConnectionFactory",
-    destination:"MyQueue",
-    acknowledgmentMode:"CLIENT_ACKNOWLEDGE"
+endpoint jms:ConsumerEndpoint ep1 {
+    initialContextFactory: "wso2mbInitialContextFactory",
+    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+};
+
+@jms:ServiceConfig {
+    acknowledgementMode: "CLIENT_ACKNOWLEDGE"
 }
-service<jms> jmsService {
-    resource onMessage (message m) {
+service<jms:Service> jmsService bind ep1 {
 
-        string stringPayload = messages:getStringPayload(m);
-        io:println("Payload: " + stringPayload);
-        // Acknowledge the message with positive acknowledgment. If we want to reject the message due to some error
-        // we can use the same method with second argument as 'jms:DELIVERY_ERROR'.
-        jms:acknowledge(m, jms:DELIVERY_SUCCESS);
-
+    onMessage (endpoint client, jms:Message message) {
+        // Retrieve content of the text message.
+        string messageText = message.getTextMessageContent();
+        // Print the retrieved message.
+        io:println("Message: " + messageText);
     }
 }

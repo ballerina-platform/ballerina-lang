@@ -75,12 +75,6 @@ public interface InstructionCodes {
     int JSONLOAD = 47;
     int ENUMERATORLOAD = 48;
 
-    int ISTORE = 49;
-    int FSTORE = 50;
-    int SSTORE = 51;
-    int BSTORE = 52;
-    int LSTORE = 53;
-    int RSTORE = 54;
     int IASTORE = 55;
     int FASTORE = 56;
     int SASTORE = 57;
@@ -213,8 +207,8 @@ public interface InstructionCodes {
     int ANY2JSON = 170;
     int ANY2XML = 171;
     int ANY2MAP = 172;
+    int ANY2STM = 173;
     int ANY2DT = 174;
-    int ANYSTM = 175;
 
     int ANY2E = 177;
     int ANY2T = 178;
@@ -239,6 +233,9 @@ public interface InstructionCodes {
     
     int AWAIT = 193;
 
+    int IS_ASSIGNABLE = 196;
+    int CHECK_CONVERSION = 197;
+
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
     int SNEWARRAY = 202;
@@ -254,7 +251,6 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWJSON = 213;
     int NEWTABLE = 215;
-    int NEWSTREAMLET = 216;
     int NEWSTREAM = 217;
 
     int NEW_INT_RANGE = 219;

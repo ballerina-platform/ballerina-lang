@@ -8,44 +8,45 @@ struct Employee {
 
 io:DelimitedRecordChannel|null txtChannel;
 
-function initDelimitedRecordChannel (string filePath, string permission, string encoding, string rs, string fs) {
+function initDelimitedRecordChannel (string filePath, string permission, string encoding, string rs, string fs)
+returns (boolean|io:IOError){
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     var characterChannelResult = io:createCharacterChannel(byteChannel, encoding);
     match characterChannelResult {
-        io:CharacterChannel ch => {
+        io:CharacterChannel ch =>{
             var delimitedRecordChannelResult = io:createDelimitedRecordChannel(ch, rs, fs);
             match delimitedRecordChannelResult {
-                io:DelimitedRecordChannel recordChannel => {
+                io:DelimitedRecordChannel recordChannel =>{
                     txtChannel = recordChannel;
+                    return true;
                 }
-                io:IOError err => {
-                    throw err;
+                io:IOError err =>{
+                    return err;
                 }
             }
         }
-        io:IOError err => {
+        io:IOError err =>{
             io:println("Error occurred in record channel");
-            throw err;
+            return err;
         }
     }
 }
 
-function nextRecord () returns (string[]) {
+function nextRecord () returns (string[]|io:IOError) {
     string[] empty = [];
     match txtChannel {
-        io:DelimitedRecordChannel delimChannel => {
+        io:DelimitedRecordChannel delimChannel =>{
             var result = delimChannel.nextTextRecord();
             match result {
-                string[] fields => {
+                string[] fields =>{
                     return fields;
                 }
-                io:IOError err => {
-                    throw err;
+                io:IOError err =>{
+                    return err;
                 }
             }
-            return empty;
         }
-        (any|null) => {
+        (any|null) =>{
             return empty;
         }
 
@@ -54,10 +55,10 @@ function nextRecord () returns (string[]) {
 
 function writeRecord (string[] fields) {
     match txtChannel {
-        io:DelimitedRecordChannel delimChannel => {
+        io:DelimitedRecordChannel delimChannel =>{
             var result = delimChannel.writeTextRecord(fields);
         }
-        (any|null) => {
+        (any|null) =>{
             io:println("Feilds cannot be written");
         }
     }
@@ -65,10 +66,10 @@ function writeRecord (string[] fields) {
 
 function close () {
     match txtChannel {
-        io:DelimitedRecordChannel delimChannel => {
+        io:DelimitedRecordChannel delimChannel =>{
             var err = delimChannel.closeDelimitedRecordChannel();
         }
-        (any|null) => {
+        (any|null) =>{
             io:println("Channel cannot be closed");
         }
     }
@@ -78,11 +79,11 @@ function close () {
 function hasNextRecord () returns (boolean) {
     boolean hasNext;
     match txtChannel {
-        io:DelimitedRecordChannel delimChannel => {
+        io:DelimitedRecordChannel delimChannel =>{
             hasNext = delimChannel.hasNextTextRecord();
             return hasNext;
         }
-        (any|null) => {
+        (any|null) =>{
             io:println("Channel cannot be closed");
             return hasNext;
         }
@@ -90,19 +91,18 @@ function hasNextRecord () returns (boolean) {
 
 }
 
-function loadToTable (string filePath) returns (float) {
+function loadToTable (string filePath) returns (float|io:IOError) {
     float total;
     var result = io:loadToTable(filePath, "\n", ",", "UTF-8", false, typeof Employee);
     match result {
-        table <Employee> tb => {
+        table<Employee> tb => {
             foreach x in tb {
                 total = total + x.salary;
             }
             return total;
         }
         io:IOError err => {
-            throw err;
+            return err;
         }
     }
-    return -1;
 }

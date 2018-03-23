@@ -33,7 +33,12 @@ public struct HttpJwtAuthnHandler {
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) returns (boolean) {
-    string authHeader = req.getHeader(AUTH_HEADER);
+    string authHeader;
+    try {
+        authHeader = req.getHeader(AUTH_HEADER);
+    } catch (error e) {
+        return false;
+    }
     if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
         if (lengthof authHeaderComponents == 2) {
@@ -51,17 +56,15 @@ public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) 
 @Return {value:"boolean: true if its possible to authenticate with JWT auth, else false"}
 public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
-    if (jwtAuthenticator == null) {
-        jwtAuthenticator = jwtAuth:createAuthenticator();
-    }
-    var isAuthenticated, err = jwtAuthenticator.authenticate(jwtToken);
-    if (isAuthenticated) {
-        return true;
-    } else {
-        if (err != null) {
-            log:printErrorCause("Error while validating JWT token ", err);
+    var isAuthenticated = jwtAuthenticator.authenticate(jwtToken);
+    match isAuthenticated {
+        boolean authenticated => {
+            return authenticated;
         }
-        return false;
+        error err => {
+            log:printErrorCause("Error while validating JWT token ", err);
+            return false;
+        }
     }
 }
 

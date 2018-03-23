@@ -464,10 +464,8 @@ public class BJSONValueTest {
     @Test
     public void testJsonToJsonArrayInvalidCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
-        Assert.assertEquals(returns[0], null);
-
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        String errorMsg = ((BStruct) returns[1]).getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        String errorMsg = ((BStruct) returns[0]).getStringField(0);
         Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json[][][]'");
     }
 

@@ -31,23 +31,26 @@ documentation {
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
     P{{registerAtUrl}} - The URL of the initiator
     P{{coordinationType}} - Coordination type of this transaction
-    R{{txnCtx}} - Transaction context corresponding to this transaction block
-    R{{err}} - Error if something fails during beginning a transaction
 }
-function beginTransaction (string transactionId, int transactionBlockId, string registerAtUrl,
-                           string coordinationType) returns (TransactionContext txnCtx, error err) {
-    if (transactionId == null) {
-        txnCtx, err = createTransactionContext(coordinationType, transactionBlockId);
-    } else if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
-        // we don't need to do a network call and can simply do a local function call
-        txnCtx, err = registerParticipantWithLocalInitiator(transactionId, transactionBlockId, registerAtUrl);
-    } else {
-        //TODO: set the proper protocol
-        string protocol = "durable";
-        Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
-        txnCtx, err = registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
+function beginTransaction (string|null transactionId, int transactionBlockId, string registerAtUrl,
+                           string coordinationType) returns TransactionContext|error {
+    match transactionId {
+        string txnId => {
+            if (initiatedTransactions.hasKey(txnId)) { // if participant & initiator are in the same process
+                // we don't need to do a network call and can simply do a local function call
+                return registerParticipantWithLocalInitiator(txnId, transactionBlockId, registerAtUrl);
+            } else {
+                //TODO: set the proper protocol
+                string protocol = "durable";
+                Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
+                return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
+            }
+        }
+
+        any|null => {
+            return createTransactionContext(coordinationType, transactionBlockId);
+        }
     }
-    return;
 }
 
 documentation {
@@ -55,20 +58,19 @@ documentation {
 
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-    R{{err}} - If the transaction was not found
 }
-function markForAbortion (string transactionId, int transactionBlockId) returns(error err) {
+function markForAbortion (string transactionId, int transactionBlockId) {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(transactionId);
+        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else if (initiatedTransactions.hasKey(transactionId)) {
-        var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
+        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else {
-        err = {message: "Transaction: " + participatedTxnId + " not found"};
+        error err = {message:"Transaction: " + participatedTxnId + " not found"};
+        throw err;
     }
-    return;
 }
 
 documentation {
@@ -79,28 +81,24 @@ documentation {
 
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-    R{{msg}} - Outcome of the transaction
-    R{{err}} - Error if something fails during beginning a transaction
 }
-function endTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
+function endTransaction (string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
+        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
-            msg, err = abortTransaction(transactionId, transactionBlockId);
+            return abortTransaction(transactionId, transactionBlockId);
         } else {
-            msg, err = commitTransaction(transactionId, transactionBlockId);
-            if (err == null) {
-                txn.state = TransactionState.COMMITTED;
-                initiatedTransactions.remove(transactionId);
-            }
+            var ret =? commitTransaction(transactionId, transactionBlockId);
+            removeInitiatedTransaction(transactionId);
+            return ret;
         }
+    } else {
+        return "";  // Nothing to do on endTransaction if you are a participant
     }
-     // Nothing to do on endTransaction if you are a participant
-    return;
 }
 
 documentation {
@@ -113,10 +111,8 @@ documentation {
 
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-    R{{msg}} - Transaction context corresponding to this transaction block
-    R{{err}} - Error if something fails during beginning a transaction
 }
-function abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
+function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
     log:printInfo("########### abort called");
 
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -125,39 +121,39 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
 
             log:printInfo("########### aborting local participant transaction");
 
-            // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
-            // and then call abort on the initiator
-            var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
+            var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
-                err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
-                return;
+                error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
+                return err;
             }
             string participantId = getParticipantId(transactionBlockId);
-            // do not remove the transaction since we may get a msg from the initiator
-            _ = txn.participants.remove(participantId);
-            msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
-            if (err == null) {
-                txn.state = TransactionState.ABORTED;
+            // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
+            // and then call abort on the initiator
+            boolean removed = txn.participants.remove(participantId);
+            if (!removed) {
+                error err = {message:"Participant: " + participantId + " removal failed"};
+                throw err;
             }
+            var ret =? abortInitiatorTransaction(transactionId, transactionBlockId);
+            txn.state = TransactionState.ABORTED;
+            return ret;
         } else {
-            msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
+            return abortInitiatorTransaction(transactionId, transactionBlockId);
         }
     } else {
-        //msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId); // TODO: we can move the core logic here from the function
-        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
+        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
         boolean successful = abortResourceManagers(transactionId, transactionBlockId);
         if (!successful) {
-            err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
+            error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
             log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
-            return;
+            return err;
         } else {
             txn.state = TransactionState.ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
+            return ""; //TODO: check what will happen if nothing is returned
         }
     }
-    // do not remove the transaction since we may get a msg from the initiator
-    return;
 }
 
 documentation {
@@ -166,7 +162,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function isInitiator (string transactionId, int transactionBlockId) returns (boolean) {
+function isInitiator (string transactionId, int transactionBlockId) returns boolean {
     if (initiatedTransactions.hasKey(transactionId)) {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
@@ -181,28 +177,25 @@ documentation {
 
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-    R{{prepareSuccessful}} - Indicates whether the outcome was successful
 }
 native function prepareResourceManagers (string transactionId,
-                                         int transactionBlockId) returns (boolean prepareSuccessful);
+                                         int transactionBlockId) returns boolean;
 
 documentation {
     Commit local resource managers.
 
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-    R{{commitSuccessful}} - Indicates whether the outcome was successful
 }
 native function commitResourceManagers (string transactionId,
-                                        int transactionBlockId) returns (boolean commitSuccessful);
+                                        int transactionBlockId) returns boolean;
 
 documentation {
     Abort local resource managers.
 
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-    R{{abortSuccessful}} - Indicates whether the outcome was successful
 }
 native function abortResourceManagers (string transactionId,
-                                       int transactionBlockId) returns (boolean abortSuccessful);
+                                       int transactionBlockId) returns boolean;
 

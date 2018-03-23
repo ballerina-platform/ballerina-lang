@@ -21,7 +21,6 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -51,10 +50,12 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_DIR_NAME;
@@ -66,7 +67,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLE
  */
 public class LauncherUtils {
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String[] args) {
+    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
+                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
+                                  boolean offline) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -75,9 +78,9 @@ public class LauncherUtils {
         } else if (Files.isRegularFile(fullPath) &&
                 srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
                 !Files.isDirectory(sourceRootPath.resolve(DOT_BALLERINA_DIR_NAME))) {
-            programFile = compile(fullPath.getParent(), fullPath.getFileName());
+            programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
-            programFile = compile(sourceRootPath, sourcePath);
+            programFile = compile(sourceRootPath, sourcePath, offline);
         } else {
             throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +
                                                  "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
@@ -88,11 +91,13 @@ public class LauncherUtils {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
+        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().loadConfigurations();
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (ConfigFileParserException e) {
-            throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
         }
 
         if (runServices || !programFile.isMainEPAvailable()) {
@@ -224,14 +229,16 @@ public class LauncherUtils {
      * 
      * @param sourceRootPath Path to the source root
      * @param sourcePath Path to the source from the source root
+     * @param offline Should the build call remote repos
      * @return Executable program
      */
-    public static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
+    public static ProgramFile compile(Path sourceRootPath, Path sourcePath, boolean offline) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(OFFLINE, Boolean.toString(offline));
 
         // compile
         Compiler compiler = Compiler.getInstance(context);

@@ -16,17 +16,20 @@
 
 package ballerina.net.http;
 
+@Description {value:"Stands for the round robin algorithm for load balancing."}
+public const string ROUND_ROBIN = "round-robin";
+
 @Description {value:"Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient."}
 @Field {value:"serviceUri: This is there just so that the struct is equivalent to HttpClient. This has no bearing on the functionality."}
 @Field {value:"config: The client endpoint configurations for the load balancer"}
 @Field {value:"loadBalanceClientsArray: The clients for the load balance endpoints"}
-@Field {value:"algorithm: The load balance algorithm. Round robin algorithm is provided out of the box. The user can also set their own load balancing algorithm."}
+@Field {value:"algorithm: The load balance algorithm. Round robin algorithm is provided out of the box."}
 @Field {value:"nextIndex: Indicates the next client to be used. Users should not edit this."}
 public struct LoadBalancer {
     string serviceUri;
     ClientEndpointConfiguration config;
     HttpClient[] loadBalanceClientsArray;
-    function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
+    string algorithm;
     int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
 }
 
@@ -210,19 +213,19 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
         }
     }
 
-    // Tracks at which point failover within the load balancing should be terminated.
-    HttpClient loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
-    int loadBalanceTermination = 0;
+    int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     LoadBalanceConnectorError loadBalanceConnectorError = {};
     loadBalanceConnectorError.httpConnectorError = [];
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
+        HttpClient loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
+
         match invokeEndpoint(path, outRequest, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
 
             HttpConnectorError httpConnectorError => {
                 loadBalanceConnectorError.httpConnectorError[lb.nextIndex] = httpConnectorError;
-                loadBalanceClient = lb.algorithm(lb, lb.loadBalanceClientsArray);
+                loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
                 loadBalanceTermination = loadBalanceTermination + 1;
             }
         }
@@ -232,8 +235,7 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
-public function (LoadBalancer, HttpClient[]) returns (HttpClient) roundRobin =
-                        function (LoadBalancer lb, HttpClient [] loadBalanceConfigArray) returns (HttpClient) {
+public function roundRobin(LoadBalancer lb, HttpClient[] loadBalanceConfigArray) returns (HttpClient) {
     HttpClient httpClient = {};
 
     lock {
@@ -247,7 +249,7 @@ public function (LoadBalancer, HttpClient[]) returns (HttpClient) roundRobin =
     }
 
     return httpClient;
-};
+}
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
 function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loadBalanceConnectorError)
@@ -256,12 +258,7 @@ function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loa
     loadBalanceConnectorError.statusCode = 500;
     loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
                                         + loadBalanceConnectorError.httpConnectorError[nErrs - 1].message;
-    HttpConnectorError httpConnectorError = {};
-    error conversionErr = {};
-    match <HttpConnectorError> loadBalanceConnectorError {
-        HttpConnectorError conError => httpConnectorError = conError;
-        error err => conversionErr = err;
-    }
+    HttpConnectorError httpConnectorError = loadBalanceConnectorError;
     return httpConnectorError;
 }
 

@@ -25,8 +25,10 @@ import ballerina/log;
 @Description {value:"Authorization cache name"}
 const string AUTHZ_CACHE = "authz_cache";
 
+permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
+permissionstore:PermissionStore permissionStore =? <permissionstore:PermissionStore> fileBasedPermissionstore;
 @Description {value:"AuthorizationChecker instance"}
-authz:AuthzChecker authzChecker;
+authz:AuthzChecker authzChecker = authz:createChecker(permissionStore, utils:createCache(AUTHZ_CACHE));
 
 @Description {value:"Representation of Authorization Handler"}
 @Field {value:"name: Authz handler name"}
@@ -44,55 +46,68 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
 
     // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
     // extract the header value
-    var basicAuthHeaderValue, err = extractBasicAuthHeaderValue(req);
-    if (err != null) {
-        log:printErrorCause("Error in extracting basic authentication header", err);
+    string basicAuthHeaderValue = extractBasicAuthHeaderValue(req);
+    if (basicAuthHeaderValue.length() == 0) {
+        log:printError("Error in extracting basic authentication header");
         return false;
     }
 
+    var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
     string username;
-    username, _, err = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
-    if (err != null) {
-        log:printErrorCause("Error in decoding basic authentication header", err);
-        return false;
-    }
-    if (authzChecker == null) {
-        permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-        authzChecker = authz:createChecker((permissionstore:PermissionStore)fileBasedPermissionstore,
-                                     utils:createCache(AUTHZ_CACHE));
+    match credentials {
+        (string, string) creds => {
+            var (user, _) = creds;
+            username = user;
+        }
+        error err => {
+            log:printErrorCause("Error in decoding basic authentication header", err);
+            return false;
+        }
     }
 
     // check in the cache. cache key is <username>-<resource>-<http method>,
     // since different resources can have different scopes
     string authzCacheKey = username + "-" + resourceName + "-" + req.method;
-    any cachedAuthzResult = authzChecker.getCachedAuthzResult(authzCacheKey);
-    if (cachedAuthzResult != null) {
-        log:printDebug("Authz cache hit for request URL: " + resourceName);
-        var isAuthorized, typeCastErr = (boolean)cachedAuthzResult;
-        if (typeCastErr == null) {
-            // no type cast error, return cached result.
+    match getCachedAuthzValue(authzCacheKey) {
+        boolean cachedAuthzValue => {
+            log:printDebug("Authz cache hit for request URL: " + resourceName);
+            return cachedAuthzValue;
+        }
+        any|null => {
+            log:printDebug("Authz cache miss for request URL: " + resourceName);
+            boolean isAuthorized = authzChecker.check(username, scopeName);
+            if (isAuthorized) {
+                log:printDebug("Successfully authorized to access resource: " + resourceName);
+            } else {
+                log:printDebug("Insufficient permission to access resource: " + resourceName);
+            }
+            authzChecker.cacheAuthzResult(authzCacheKey, isAuthorized);
             return isAuthorized;
         }
-        // if a casting error occurs, clear the cache entry
-        authzChecker.clearCachedAuthzResult(authzCacheKey);
     }
-    log:printDebug("Authz cache miss for request URL: " + resourceName);
+}
 
-    boolean isAuthorized = authzChecker.check(username, scopeName);
-    if (isAuthorized) {
-        log:printDebug("Successfully authorized to access resource: " + resourceName);
-    } else {
-        log:printDebug("Insufficient permission to access resource: " + resourceName);
+function getCachedAuthzValue (string cacheKey) returns (boolean | null) {
+    match authzChecker.getCachedAuthzResult(cacheKey) {
+        boolean isAuthorized => {
+            return isAuthorized;
+        }
+        any|null => {
+            return null;
+        }
     }
-    authzChecker.cacheAuthzResult(authzCacheKey, isAuthorized);
-    return isAuthorized;
 }
 
 @Description {value:"Checks if the provided request can be authorized"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
 public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:Request req) returns (boolean) {
-    string basicAuthHeader = req.getHeader(AUTH_HEADER);
+    string basicAuthHeader;
+    try {
+        basicAuthHeader = req.getHeader(AUTH_HEADER);
+    } catch (error e) {
+       return false;
+    }
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
         return true;
     }

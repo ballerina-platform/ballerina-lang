@@ -55,7 +55,7 @@ public class BalGenToolTest {
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
         Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.gen.pb.bal"));
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BCompileUtil.compile("protoFiles/helloWorld.gen.pb.bal");
+        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
                         .getStructInfo("helloWorldClient"),
                 "Connector not found.");
@@ -96,7 +96,7 @@ public class BalGenToolTest {
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming.pb.bal"));
         Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming.gen.pb.bal"));
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BCompileUtil.compile("protoFiles/helloWorldClientStreaming.gen.pb.bal");
+        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
                         .getStructInfo("helloWorldClientStreamingClient"),
                 "Connector not found.");
@@ -125,7 +125,7 @@ public class BalGenToolTest {
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming.pb.bal"));
         Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming.gen.pb.bal"));
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BCompileUtil.compile("protoFiles/helloWorldServerStreaming.gen.pb.bal");
+        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
                         .getStructInfo("helloWorldServerStreamingClient"),
                 "Connector not found.");

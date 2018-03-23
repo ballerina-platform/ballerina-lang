@@ -34,7 +34,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -55,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -250,6 +253,16 @@ class ASTBuilderUtil {
         return typeofExpr;
     }
 
+    static BLangIndexBasedAccess createIndexBasesAccessExpr(DiagnosticPos pos, BType type, BVarSymbol varSymbol,
+                                                            BLangExpression indexExpr) {
+        final BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        arrayAccess.pos = pos;
+        arrayAccess.expr = createVariableRef(pos, varSymbol);
+        arrayAccess.indexExpr = indexExpr;
+        arrayAccess.type = type;
+        return arrayAccess;
+    }
+
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
         if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
             return varRef;
@@ -259,7 +272,7 @@ class ASTBuilderUtil {
         conversion.pos = varRef.pos;
         conversion.expr = varRef;
         conversion.type = target;
-        conversion.types = Lists.of(target);
+        conversion.targetType = target;
         conversion.conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(varRef.type,
                 target);
         return conversion;
@@ -361,6 +374,21 @@ class ASTBuilderUtil {
         binaryExpr.opKind = opKind;
         binaryExpr.opSymbol = symbol;
         return binaryExpr;
+    }
+
+    static BLangIsAssignableExpr createIsAssignableExpr(DiagnosticPos pos,
+                                                        BLangExpression lhsExpr,
+                                                        BType targetType,
+                                                        BType type,
+                                                        Names names) {
+        final BLangIsAssignableExpr assignableExpr = new BLangIsAssignableExpr();
+        assignableExpr.pos = pos;
+        assignableExpr.lhsExpr = lhsExpr;
+        assignableExpr.targetType = targetType;
+        assignableExpr.type = type;
+        assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
+                null, targetType, null, InstructionCodes.IS_ASSIGNABLE);
+        return assignableExpr;
     }
 
     static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {

@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -97,7 +96,6 @@ public class SymbolTable {
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType connectorType = new BConnectorType(null, null);
     public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
-    public final BType streamletType = new BStreamletType(null, null);
     public final BType arrayType = new BArrayType(noType);
 
     public final BTypeSymbol errSymbol;
@@ -142,10 +140,10 @@ public class SymbolTable {
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
         initializeType(streamType, TypeKind.STREAM.typeName());
-        initializeType(streamletType, TypeKind.STREAMLET.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
+        initializeType(nullType, TypeKind.NULL.typeName());
 
         // Initialize error type;
         this.errType = new BErrorType(null);
@@ -185,8 +183,6 @@ public class SymbolTable {
                 return tableType;
             case TypeTags.STREAM:
                 return streamType;
-            case TypeTags.STREAMLET:
-                return streamletType;
             case TypeTags.NULL:
                 return nullType;
             default:
@@ -260,8 +256,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, nullType, mapType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, connectorType, nullType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, connectorType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, streamletType, nullType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nullType, streamletType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, arrayType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, arrayType, nullType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, nullType, booleanType, InstructionCodes.REQ);
@@ -286,8 +280,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, mapType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, connectorType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, connectorType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, streamletType, nullType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, streamletType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, arrayType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, arrayType, nullType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nullType, nullType, booleanType, InstructionCodes.RNE);
@@ -376,8 +368,7 @@ public class SymbolTable {
         defineConversionOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);
         defineConversionOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
         defineConversionOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
-        defineConversionOperator(anyType, streamType, false, InstructionCodes.ANYSTM);
-        defineConversionOperator(anyType, streamletType, false, InstructionCodes.ANY2M);
+        defineConversionOperator(anyType, streamType, false, InstructionCodes.ANY2STM);
 
         defineConversionOperator(jsonType, intType, false, InstructionCodes.JSON2I);
         defineConversionOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
@@ -385,7 +376,7 @@ public class SymbolTable {
         defineConversionOperator(jsonType, booleanType, false, InstructionCodes.JSON2B);
 
         // Define conversion operators
-//        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
+        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
 //        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);

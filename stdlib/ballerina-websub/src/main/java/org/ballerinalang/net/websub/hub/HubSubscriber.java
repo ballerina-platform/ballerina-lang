@@ -22,11 +22,11 @@ import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.charset.StandardCharsets;
@@ -56,7 +56,7 @@ class HubSubscriber extends Consumer {
 
     @Override
     protected void send(Message message) throws BrokerException {
-        CompileResult result = Hub.getInstance().getHubCompileResult();
+        ProgramFile programFile = Hub.getInstance().getHubProgramFile();
         byte[] bytes = new byte[0];
         for (ContentChunk chunk:message.getContentChunks()) {
             bytes = new byte[chunk.getBytes().readableBytes()];
@@ -65,7 +65,7 @@ class HubSubscriber extends Consumer {
         BValue[] args = {new BString(callback),
                 subscriptionDetails,
                 new BJSON(new String(bytes, StandardCharsets.UTF_8))};
-        BLangFunctions.invokeCallable(result.getProgFile().getPackageInfo("ballerina.net.websub.hub")
+        BLangFunctions.invokeCallable(programFile.getPackageInfo("net.websub.hub")
                                      .getFunctionInfo("distributeContent"), args);
     }
 

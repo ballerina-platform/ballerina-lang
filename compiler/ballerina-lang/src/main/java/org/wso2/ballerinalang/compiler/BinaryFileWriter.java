@@ -17,14 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
@@ -33,11 +33,14 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_EXEC_FILE_SUFFIX;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
  * Write a compiled executable program(.balx) or a compiled package(balo.) to a file.
@@ -78,14 +81,14 @@ public class BinaryFileWriter {
         writeExecutableBinary(packageNode, fileName);
 
         // Generate balo
-        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(this.sourceDirectory.getPath());
-        PackageID id = packageNode.packageID;
-        Converter<Path> converter = projectSourceRepo.getConverterInstance();
-        Stream<PackageSourceEntry> pathStream = projectSourceRepo.calculate(id)
-                                                                 .convertToSources(converter, id);
-        String prjPath = converter.toString();
-        //TODO: add balo creation back
-//        ZipUtils.generateBalo(packageNode, prjPath, pathStream);
+        Path path = this.sourceDirectory.getPath();
+        if (Files.isDirectory(path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
+            ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
+            Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convert
+                    (projectSourceRepo.getConverterInstance());
+            String prjPath = projectSourceRepo.getConverterInstance().toString();
+            ZipUtils.generateBalo(packageNode, prjPath, pathStream);
+        }
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
@@ -107,6 +110,11 @@ public class BinaryFileWriter {
         }
 
         this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS.toByteArray()), fileName);
+        final Path execFilePath = this.sourceDirectory.getPath().resolve(fileName);
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        processorServiceLoader.forEach(plugin -> {
+            plugin.codeGenerated(execFilePath);
+        });
     }
 
     public void writeLibraryPackage(BLangPackage packageNode) {
@@ -126,7 +134,11 @@ public class BinaryFileWriter {
 
     private String getOutputFileName(BLangPackage packageNode, String suffix) {
         if (packageNode.packageID.isUnnamed) {
-            return packageNode.packageID.sourceFileName.value;
+            String sourceFileName = packageNode.packageID.sourceFileName.value;
+            if (sourceFileName.endsWith(BLANG_SOURCE_EXT)) {
+                sourceFileName = StringUtils.removeEnd(sourceFileName, BLANG_SOURCE_EXT).concat(BLANG_EXEC_FILE_SUFFIX);
+            }
+            return sourceFileName;
         }
 
         return packageNode.packageID.name.value + suffix;

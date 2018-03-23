@@ -8,7 +8,7 @@ function main (string[] args) {
     float f = 20.0;
     io:println(f);
 
-    //The zero value of a string is null.
+    //The default value of a string is and empty string "".
     string s;
     io:println(s);
 

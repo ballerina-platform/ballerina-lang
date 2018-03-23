@@ -1,8 +1,9 @@
+// This is an auto generated client stub which is used to communicate between gRPC client.
 package client;
 import ballerina/net.grpc;
 import ballerina/io;
 
-// This is an auto generated client stub which is used to communicate between gRPC client.
+// Non-blocking client
 struct helloWorldStub {
     grpc:Client clientEndpoint;
     grpc:ServiceStub serviceStub;
@@ -14,19 +15,21 @@ function <helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
     stub.serviceStub = navStub;
 }
 
-function <helloWorldStub stub> LotsOfGreetings (typedesc listener) (grpc:Client, error)  {
-    var res, err1 = stub.serviceStub.streamingExecute("helloWorld/LotsOfGreetings", listener);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return null, e;
+function <helloWorldStub stub> LotsOfGreetings (typedesc listener) returns (grpc:ClientConnection | error)  {
+    var res = stub.serviceStub.streamingExecute("helloWorld/LotsOfGreetings", listener);
+    match res {
+        grpc:ConnectorError err => {
+            error e = {message:err.message};
+            return e;
+        }
+        grpc:Client conn => {
+            grpc:ClientConnection con= conn.getClient();
+            return con;
+        }
     }
-    var response, err2 = (grpc:Client)res;
-    if (err2 != null && err2.message != null) {
-        error e = {message:err2.message};
-        return null,e;
-    }
-        return response,null;
 }
+
+// Non-blocking client endpoint
 public struct helloWorldClient {
     grpc:Client client;
     helloWorldStub stub;

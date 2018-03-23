@@ -30,10 +30,10 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
     AuthnHandlerChain authnHandlerChain = {authnHandlers:{}};
     // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
     HttpBasicAuthnHandler httpAuthnHandler = {};
-    HttpJwtAuthnHandler jwtAuthnHandler = {};
+    //HttpJwtAuthnHandler jwtAuthnHandler = {};
     // add to map
     authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
-    authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
+    //authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
     return authnHandlerChain;
 }
 
@@ -42,8 +42,8 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
 @Return {value:"boolean: true if authenticated successfully, else false"}
 public function <AuthnHandlerChain authnHandlerChain> handle (http:Request req) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authnHandlerChain.authnHandlers {
-        var authnHandler, err = (HttpAuthnHandler)currentAuthHandler;
-        if (err == null && authnHandler.canHandle(req)) {
+        var authnHandler =? <HttpAuthnHandler> currentAuthHandler;
+        if (authnHandler.canHandle(req)) {
             log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);
             return authnHandler.handle(req);
         }
