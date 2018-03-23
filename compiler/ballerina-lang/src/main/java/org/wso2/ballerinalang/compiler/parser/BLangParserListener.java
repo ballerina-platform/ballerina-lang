@@ -165,7 +165,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgNameComps = new ArrayList<>();
         ctx.Identifier().forEach(e -> pkgNameComps.add(e.getText()));
-        this.pkgVersion = null;
+        this.pkgVersion = ctx.version() != null ? ctx.version().Identifier().getText() : null;
     }
 
     /**
@@ -179,16 +179,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         String alias = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
         BallerinaParser.OrgNameContext orgNameContext = ctx.orgName();
-        String version = "";
-        if (ctx.version() != null && ctx.version().Semvar() != null) {
-            version = ctx.version().Semvar().getText();
-        }
         if (orgNameContext == null) {
             this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
-                    null, this.pkgNameComps, version, alias);
+                    null, this.pkgNameComps, this.pkgVersion, alias);
         } else {
             this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
-                    orgNameContext.getText(), this.pkgNameComps, version, alias);
+                    orgNameContext.getText(), this.pkgNameComps, this.pkgVersion, alias);
         }
     }
 
@@ -1790,9 +1786,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
-   /* *//**
+    /**
      * {@inheritDoc}
-     *//*
+     */
     @Override
     public void exitFailStatement(BallerinaParser.FailStatementContext ctx) {
         if (ctx.exception != null) {
@@ -1800,7 +1796,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addFailStatement(getCurrentPos(ctx), getWS(ctx));
-    }*/
+    }
 
     /**
      * {@inheritDoc}

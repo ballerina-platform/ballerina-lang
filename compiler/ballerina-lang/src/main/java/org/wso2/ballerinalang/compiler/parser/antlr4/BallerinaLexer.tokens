@@ -223,7 +223,6 @@ DeprecatedTemplateText=222
 StringTemplateLiteralEnd=223
 StringTemplateExpressionStart=224
 StringTemplateText=225
-Semvar=226
 'package'=1
 'import'=2
 'as'=3
