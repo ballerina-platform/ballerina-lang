@@ -74,7 +74,7 @@ public struct ClientEndpointConfiguration {
     TargetService[] targets;
     function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
     boolean enableLoadBalancing;
-    //FailoverConfig failoverConfig;
+    FailoverConfig|null failoverConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -95,6 +95,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"epName: The endpoint name"}
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
+    boolean httpClientRequired = false;
     string uri = config.targets[0].uri;
     var cbConfig = config.circuitBreaker;
     match cbConfig {
@@ -106,26 +107,28 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
             ep.config = config;
             ep.httpClient = createCircuitBreakerClient(uri, config);
         }
-        int | null => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
-            }
-            ep.config = config;
-            ep.httpClient = createHttpClient(uri, config);
-        }
+    int | null => {
+    httpClientRequired = true;
     }
+}
 
-    if (config.enableLoadBalancing && lengthof config.targets > 1) {
-        ep.httpClient = createLoadBalancerClient(config);
-    } else {
+    var foConfig = config.failoverConfig;
+        match foConfig {
+            FailoverConfig fo => {
+            ep.config = config;
+            ep.httpClient = createFailOverClient(config);
+            httpClientRequired = false;
+        }
+        int| null => httpClientRequired = true;
+    }
+    if (httpClientRequired) {
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
             uri = uri.subString(0, lastIndex);
         }
         ep.config = config;
         ep.httpClient = createHttpClient(uri, config);
-    }
+    }   
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -277,6 +280,24 @@ function createLoadBalancerClient(ClientEndpointConfiguration config) returns Ht
                         algorithm:config.algorithm};
     HttpClient lbClient = lb;
     return lbClient;
+}
+
+public function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
+        HttpClient[] clients = createHttpClientArray(config);
+        FailoverConfig foConfig = {};
+        match config.failoverConfig {
+            FailoverConfig foc => {foConfig = foc; }
+            int | null =>  io:println("FO CONFIG IS NULL");
+        }
+        boolean[] failoverCodes = populateErrorCodeIndex(foConfig.failoverCodes);
+        FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
+                                                            failoverCodesIndex : failoverCodes,
+                                                            failoverInterval : foConfig.interval};
+
+        Failover failover = {serviceUri:config.targets[0].uri, config:config,
+                                failoverInferredConfig:failoverInferredConfig};
+        HttpClient foClient = failover;
+        return foClient;
 }
 
 //function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
