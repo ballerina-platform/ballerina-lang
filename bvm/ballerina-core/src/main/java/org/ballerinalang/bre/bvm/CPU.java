@@ -3120,6 +3120,9 @@ public class CPU {
         }
 
         // TODO Support function types, json/map constrained types etc.
+        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
+            return lhsType.equals(rhsType);
+        }
 
         return false;
     }

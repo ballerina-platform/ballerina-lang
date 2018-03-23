@@ -548,3 +548,44 @@ function testMapConstrainedEquivalentMapInsert() returns (string, int) {
     emp["jack"] = jack;
     return (emp["jack"].name, emp["jack"].age);
 }
+
+struct Transaction {
+    string transactionId;
+    string coordinationType = "2pc";
+    map<Participant> participants;
+    Protocol[] coordinatorProtocols;
+}
+struct Participant {
+    string participantId;
+    Protocol[] participantProtocols;
+}
+
+public enum TransactionState {
+    ACTIVE, PREPARED, COMMITTED, ABORTED
+}
+
+public struct Protocol {
+    string name;
+    string url;
+    int transactionBlockId;
+    (function (string transactionId,
+               int transactionBlockId,
+               string protocolAction) returns boolean)|null protocolFn;
+}
+
+struct TwoPhaseCommitTransaction {
+    string transactionId;
+    string coordinationType = "2pc";
+    map<Participant> participants;
+    Protocol[] coordinatorProtocols;
+    TransactionState state;
+    boolean possibleMixedOutcome;
+}
+
+
+function testRuntimeStructEquivalencyWithNestedConstrainedMaps() returns (string) {
+   map<Transaction> initiatedTransactions = {};
+   TwoPhaseCommitTransaction tpc = {transactionId:"TR-ID"};
+   initiatedTransactions["Foo"] = tpc;
+   return initiatedTransactions["Foo"].transactionId;
+}
