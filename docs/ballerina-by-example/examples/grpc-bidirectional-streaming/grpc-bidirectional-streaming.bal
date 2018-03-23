@@ -1,7 +1,9 @@
+// This is server implementation for bidirectional streaming scenario
 import ballerina/io;
 import ballerina/net.grpc;
 import ballerina/log;
 
+// Server endpoint configuration
 endpoint grpc:Service ep {
     host:"localhost",
     port:9090
