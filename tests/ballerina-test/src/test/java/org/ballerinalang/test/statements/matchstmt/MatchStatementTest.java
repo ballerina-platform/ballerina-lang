@@ -202,6 +202,14 @@ public class MatchStatementTest {
         Assert.assertEquals(returns[0].stringValue(), "Piyal");
     }
 
+    @Test(description = "Test basics of match statement with function pointers")
+    public void testMatchStatementBasics17() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics17", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "function pointer matched");
+    }
+
     @Test(description = "Test basics of match statement")
     public void testMatchStmtNegative1() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/matchstmt/match_stmt_negative.bal");
