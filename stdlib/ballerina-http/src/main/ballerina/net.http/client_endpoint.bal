@@ -113,7 +113,7 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
         FailoverConfig failoverConfig => {
             if (lengthof config.targets > 1) {
                 ep.config = config;
-                ep. httpClient = createFailOverClient(config);
+                ep. httpClient = createFailOverClient(config, failoverConfig);
             } else {
                 if (uri.hasSuffix("/")) {
                     int lastIndex = uri.length() - 1;
@@ -279,13 +279,9 @@ function createLoadBalancerClient(ClientEndpointConfiguration config, string lbA
     return lbClient;
 }
 
-public function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
+public function createFailOverClient(ClientEndpointConfiguration config, FailoverConfig foConfig) returns HttpClient {
         HttpClient[] clients = createHttpClientArray(config);
-        FailoverConfig foConfig = {};
-        match config.failoverConfig {
-            FailoverConfig foc => {foConfig = foc; }
-            int | null =>  io:println("FO CONFIG IS NULL");
-        }
+
         boolean[] failoverCodes = populateErrorCodeIndex(foConfig.failoverCodes);
         FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
                                                             failoverCodesIndex : failoverCodes,
