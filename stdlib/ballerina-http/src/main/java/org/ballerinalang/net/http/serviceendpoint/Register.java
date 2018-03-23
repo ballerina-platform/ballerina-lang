@@ -55,12 +55,11 @@ public class Register extends AbstractHttpNativeFunction {
         // TODO: Check if this is valid.
         // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
         if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            getHttpServicesRegistry(connectorEndpoint).registerService(service, connectorEndpoint);
+            getHttpServicesRegistry(connectorEndpoint).registerService(service);
         }
 
         if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService webSocketService = new WebSocketService(service);
-            webSocketService.setServiceEndpoint((BStruct) connectorEndpoint.getVMValue());
             getWebSocketServicesRegistry(connectorEndpoint).registerService(webSocketService);
         }
 
