@@ -2,7 +2,7 @@ import ballerina/net.http.authadaptor;
 import ballerina/net.http;
 import ballerina/mime;
 
-function testCanHandleHttpJwtAuthWithoutHeader () (boolean) {
+function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
     authadaptor:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -13,7 +13,7 @@ function testCanHandleHttpJwtAuthWithoutHeader () (boolean) {
     return handler.canHandle(request);
 }
 
-function testCanHandleHttpJwtAuth () (boolean) {
+function testCanHandleHttpJwtAuth () returns (boolean) {
     authadaptor:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -24,7 +24,7 @@ function testCanHandleHttpJwtAuth () (boolean) {
     return handler.canHandle(request);
 }
 
-function testHandleHttpJwtAuthFailure () (boolean) {
+function testHandleHttpJwtAuthFailure () returns (boolean) {
     authadaptor:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
@@ -35,7 +35,7 @@ function testHandleHttpJwtAuthFailure () (boolean) {
     return handler.handle(request);
 }
 
-function testHandleHttpJwtAuth (string token) (boolean) {
+function testHandleHttpJwtAuth (string token) returns (boolean) {
     authadaptor:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};

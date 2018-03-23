@@ -3,3 +3,4 @@
 $ ballerina run http-failover.bal
 ballerina: deploying service(s) in 'http-failover.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
+ballerina: started HTTP/WS server connector 0.0.0.0:8080

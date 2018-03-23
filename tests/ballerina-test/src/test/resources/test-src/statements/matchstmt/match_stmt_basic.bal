@@ -168,14 +168,6 @@ struct Man {
     int age;
 }
 
-struct Woman {
-    string name;
-    function (int, string) returns string | null foo;
-    int age;
-    string color;
-}
-
-
 function testMatchStatementBasics16() returns (string | int | boolean) {
 
      Human m = {name:"Piyal"};
@@ -183,6 +175,28 @@ function testMatchStatementBasics16() returns (string | int | boolean) {
     match m {
         Man r => return r.name;
         Human h => return h.name;
+    }
+}
+
+struct Woman {
+    string fname;
+    (function (int, string) returns string) | Human foo;
+    int age;
+    string color;
+}
+
+function fp_xyz (int a, string k) returns string {
+    return "fp call return";
+}
+
+function testMatchStatementBasics17() returns (string | int | boolean) {
+
+    Human h = {name:"sirisena"};
+     Woman m = {fname:"Piyal", foo:fp_xyz};
+
+    match m.foo {
+        function (int, string) returns string fp => return "function pointer matched";
+        Human r => return r.name;
     }
 }
 

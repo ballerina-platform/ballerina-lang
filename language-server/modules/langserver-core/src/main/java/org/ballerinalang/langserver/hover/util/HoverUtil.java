@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
@@ -93,6 +94,21 @@ public class HoverUtil {
                     hover = getDefaultHoverObject();
                 }
 
+                break;
+            case ContextConstants.OBJECT:
+                BLangObject bLangObject = bLangPackage.objects.stream()
+                        .filter(object -> object.name.getValue()
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                if (bLangObject != null) {
+                    if (bLangObject.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangObject.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangObject.annAttachments);
+                    }
+                } else {
+                    hover = getDefaultHoverObject();
+                }
                 break;
             case ContextConstants.ENUM:
                 BLangEnum bLangEnum = bLangPackage.enums.stream()

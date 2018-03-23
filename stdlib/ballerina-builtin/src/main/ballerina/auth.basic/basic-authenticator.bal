@@ -57,14 +57,19 @@ public function <BasicAuthenticator authenticator> authenticate (string username
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Return {value:"any: cached entry, or null in a cache miss"}
 public function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) returns (any) {
-    match authenticator.authCache {
-        caching:Cache cache => {
-            return cache.get(basicAuthCacheKey);
+    try {
+        match authenticator.authCache {
+            caching:Cache cache => {
+                return cache.get(basicAuthCacheKey);
+            }
+            null => {
+                return null;
+            }
         }
-        null => {
-            return null;
-        }
+    } catch (error e) {
+        // nothing to do
     }
+    return null;
 }
 
 @Description {value:"Caches the authentication result"}

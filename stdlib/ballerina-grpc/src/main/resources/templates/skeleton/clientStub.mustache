@@ -14,7 +14,7 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> initStub(grpc:Client clientE
 }
 {{/stubs}}
 {{#blockingFunctions}}
-function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}| error|null) {
+function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}| error) {
     any | grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("{{methodId}}", req);
     match unionResp {
             grpc:ConnectorError payloadError => {
@@ -28,8 +28,8 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputData
                         return s;
                     }
                     any nonOccurance => {
-                        io:println("This condition should not occur.");
-                        return null;
+                        error e = {message:"Unexpected data type."};
+                        return e;
                     }
                 }
             }
