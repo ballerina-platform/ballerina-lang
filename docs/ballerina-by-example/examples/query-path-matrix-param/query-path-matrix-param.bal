@@ -15,16 +15,16 @@ service<http:Service> sample bind sampleEP {
     params (endpoint client, http:Request req, string foo) {
         // Get QueryParam.
         var params = req.getQueryParams();
-        var bar, _ = (string)params.bar;
+        var bar = <string> params.bar;
 
         // Get Matrix params
         map pathMParams = req.getMatrixParams("/sample/path");
-        var a, _ = (string)pathMParams.a;
-        var b, _ = (string)pathMParams.b;
+        var a = <string> pathMParams.a;
+        var b = <string> pathMParams.b;
         string pathMatrixStr = string `a={{a}}, b={{b}}`;
         map fooMParams = req.getMatrixParams("/sample/path/" + foo);
-        var x, _ = (string)fooMParams.x;
-        var y, _ = (string)fooMParams.y;
+        var x = <string> fooMParams.x;
+        var y = <string> fooMParams.y;
         string fooMatrixStr = string `x={{x}}, y={{y}}`;
         json matrixJson = {"path":pathMatrixStr, "foo":fooMatrixStr};
 

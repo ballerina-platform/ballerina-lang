@@ -228,7 +228,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx inFailed err end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTransactionStmtWithConstRetryFailed() {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetryFailed");
 
@@ -237,7 +237,7 @@ public class TransactionStmtFlowTest {
                 + "inFailed err end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTransactionStmtWithConstRetryFailed2() {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetryFailed2");
 
@@ -262,7 +262,7 @@ public class TransactionStmtFlowTest {
                 "start inFirstTrxBlock inFirstTrxEnd inSecTrxBlock inFSecTrxEnd end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultipleTransactionStmtFailed1() {
         BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionStmtFailed1");
 
@@ -271,7 +271,7 @@ public class TransactionStmtFlowTest {
                 "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock inFirstTrxFld err end");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultipleTransactionStmtFailed2() {
         BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionStmtFailed2");
 
