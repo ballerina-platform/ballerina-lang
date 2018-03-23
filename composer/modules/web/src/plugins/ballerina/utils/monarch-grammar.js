@@ -46,7 +46,8 @@ export default {
     tokenizer: {
         root: [
             // identifiers and keywords
-            ['function', { token: 'keyword', next: '@function' }],
+            ['\\bfunction\\b', { token: 'keyword', next: '@function' }],
+            ['\\btype\\b', { token: 'keyword', next: '@type' }],
 
             [/[a-z_$][\w$]*/, {
                 cases: {
@@ -119,6 +120,7 @@ export default {
             ['\\(', {token:'delimiter.parenthesis', next: 'functionParameters'}],
             ['\\breturns\\b', {token:'keyword', next:'@functionReturns'}],
             ['{', {token: 'delimiter.curly', next: 'functionBody'}],
+            ['}', {token: 'delimiter.curly', next: '@pop'}],
             [`\\b${identifier}\\b`, 'identifier'],
         ],
 
@@ -128,23 +130,26 @@ export default {
         ],
 
         functionParameters: [
-            [`\\b${identifier}\\b`, {token:'type', next: 'varDefStatement'}],
+            [`\\b${identifier}\\b`, {token:'type', next: '@varDefStatement'}],
             ['\\)', {token:'delimiter.parenthesis', next: '@pop'}],
             ['\/\/.*', 'comment'],
             {include: 'root'},
         ],
-
+        
         functionReturns: [
             [`\\b${identifier}\\b`, 'type'],
             ['\\(|\\)', 'operator'],
             ['[,:|]', 'operator'],
             ['{', {token: 'delimiter.curly', next: 'functionBody'}],
+            ['(?=\})', {token: 'delimiter.curly', next: '@pop'}],
         ],
-
+        
         functionBody: [
+            ['(?=\})',  { token: 'keyword', next: '@pop'}],
+            ['\\bmatch\\b', { token: 'keyword', next: '@match' }],
             {include: 'root'},
-            ['}', '@pop']
         ],
+        
         varDefStatement: [
             ['[|,:]', {token: 'operator', next: 'continuedType'}],
             [`\\b${identifier}\\b`, {token:'variable.parameter', next: '@pop'}],
@@ -156,5 +161,45 @@ export default {
             ['\/\/.*', 'comment'],
             {include: 'root'},
         ],
+
+        match: [
+            ['{', {token:'delimiter.curly', next: '@matchBody'}],
+            [`\\b${identifier}\\b`, 'identifier'],
+        ],
+
+        matchBody: [
+            ['}', '@pop'],
+            ['=>', {token:'keyword', next: '@matchedStatement'}],
+            [`\\b${identifier}\\b`, {token:'type', next: '@varDefStatement'}],
+            {include: 'root'},
+        ],
+        
+        matchedStatement: [
+            ['{', {token:'delimiter.curly', next: '@functionBody'}],
+            ['[;}]', {token: 'delimiter.curly', next: '@pop'}],
+            {include: 'root'},
+        ],
+        
+        type: [
+            ['\\bobject\\b', { token: 'keyword', next: '@object' }],
+            [`\\b${identifier}\\b`, 'identifier'],
+        ],
+        
+        object: [
+            ['{', {token:'delimiter.curly', next: '@objectBody'}],
+        ],
+        
+        objectBody: [
+            ['\\b(private|public)\\b', {token: 'keyword', next: '@varDefBlock'} ],
+        ],
+        
+        varDefBlock: [
+            ['{', {token:'delimiter.curly', next: '@varDefBlockBody'}],
+        ],
+        
+        varDefBlockBody: [
+            [';', 'semi'],
+            [`\\b${identifier}\\b`, {token:'type', next: '@varDefStatement'}],
+        ]
     },
 };
