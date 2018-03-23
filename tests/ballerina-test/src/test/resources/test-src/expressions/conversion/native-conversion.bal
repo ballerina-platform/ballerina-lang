@@ -59,7 +59,7 @@ function testMapToStruct () returns (Person | error) {
 }
 
 function testStructToJson () returns (json) {
-    Person | null p = {name:"Child",
+    Person p = {name:"Child",
                    age:25,
                    parent:{name:"Parent", age:50},
                    address:{"city":"Colombo", "country":"SriLanka"},
