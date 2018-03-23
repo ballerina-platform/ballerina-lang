@@ -85,7 +85,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     }
 
     protected void modifyDebugCommands(WorkerExecutionContext parent, WorkerExecutionContext child) {
-        if (child.programFile == null || !child.programFile.getDebugger().isDebugEnabled()
+        if (child == null || child.programFile == null || !child.programFile.getDebugger().isDebugEnabled()
                 || parent == null || parent.getDebugContext() == null) {
             return;
         }
