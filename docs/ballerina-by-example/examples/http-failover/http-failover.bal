@@ -11,10 +11,10 @@ endpoint http:ServiceEndpoint backendEP {
 };
 
 endpoint http:ClientEndpoint backendClientEP {
-    failoverConfig: {
-                        failoverCodes : [400, 404, 500],
-                        interval : 0
-                    },
+    lbMode: {
+        failoverCodes : [400, 404, 500],
+        interval : 0
+    },
     targets: [
              {uri: "http://localhost:300000/mock"},
              {uri: "http://localhost:8080/echo"},
