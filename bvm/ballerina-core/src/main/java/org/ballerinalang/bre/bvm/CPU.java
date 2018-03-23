@@ -187,7 +187,6 @@ public class CPU {
             int[] operands = instruction.getOperands();
             ctx.ip++;
             WorkerData sf = ctx.workerLocal;
-
             switch (opcode) {
                 case InstructionCodes.ICONST:
                     cpIndex = operands[0];
@@ -2634,7 +2633,8 @@ public class CPU {
     private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
                                             int transactionBlockId, String protocol, boolean isInitiator) {
         BValue[] args = {
-                new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
+                (glbalTransactionId == null? null : new BString(glbalTransactionId)) ,
+                new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
@@ -3120,6 +3120,9 @@ public class CPU {
         }
 
         // TODO Support function types, json/map constrained types etc.
+        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
+            return lhsType.equals(rhsType);
+        }
 
         return false;
     }
