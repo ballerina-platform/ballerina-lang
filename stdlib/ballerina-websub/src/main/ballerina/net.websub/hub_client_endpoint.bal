@@ -42,9 +42,9 @@ public function <HubClientEndpoint ep> start () {
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
-public function <HubClientEndpoint ep> getClient () (HubClientConnector webSubHubClientConn) {
-    webSubHubClientConn = { hubUri:ep.config.uri, httpClientEndpoint:ep.httpClientEndpoint };
-    return;
+public function <HubClientEndpoint ep> getClient () returns (HubClientConnector) {
+    HubClientConnector webSubHubClientConn = { hubUri:ep.config.uri, httpClientEndpoint:ep.httpClientEndpoint };
+    return webSubHubClientConn;
 }
 
 @Description {value:"Stops the registered service"}

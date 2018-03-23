@@ -16,35 +16,34 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.websub.hub.nativeimpl;
+package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to publish against a topic in the default Ballerina Hub's underlying broker.
+ * Native function to remove a subscription from the default Ballerina Hub's underlying broker.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub.hub",
-        functionName = "publishToInternalHub",
+        orgName = "ballerina", packageName = "net.websub",
+        functionName = "removeSubscription",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "payload", type = TypeKind.JSON)}
+                @Argument(name = "callback", type = TypeKind.STRING)},
+        isPublic = true
 )
-public class PublishToInternalHub extends BlockingNativeCallableUnit {
+public class RemoveSubscription extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         String topic = context.getStringArgument(0);
-        BJSON jsonPayload = (BJSON) context.getRefArgument(0);
-        String payload = jsonPayload.stringValue();
-        Hub.getInstance().publish(topic, payload);
+        String callback = context.getStringArgument(1);
+        Hub.getInstance().unregisterSubscription(topic, callback);
         context.setReturnValues();
     }
 

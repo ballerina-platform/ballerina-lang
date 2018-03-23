@@ -39,40 +39,43 @@ function getHubUrl () returns (string) {
 @Description {value:"Function to retrieve if hub persistence is enabled, from a config file, or set to false by default
                     if not specified."}
 @Return {value:"Whether persistence of hub subscriptions is expected"}
-function isHubPersistenceEnabled (string property) returns (boolean configuration) {
-    string stringConfiguration = config:getGlobalValue(property);
-    if (stringConfiguration == null) {
-        configuration = false;
-    } else {
-        stringConfiguration = stringConfiguration.trim();
-        configuration, _ = <boolean> stringConfiguration;
-        if (configuration != true) {
-            configuration = false;
+function isHubPersistenceEnabled (string property) returns (boolean) {
+    boolean configuration;
+    match (config:getAsString(property)) {
+        string stringConfigFromFile => {
+            configuration = <boolean>stringConfigFromFile;
         }
+        any | null => { configuration = false; }
     }
-    return;
+    return configuration;
 }
 
 @Description {value:"Function to retrieve a configuration set as a string, from a config file, or set a default value
                     if not specified."}
 @Return {value:"The string configuration"}
-function getStringConfig (string property, string defaultIfNotSet) returns (string configuration) {
-    configuration = config:getGlobalValue(property);
-    if (configuration == null || configuration == "") {
-        configuration = defaultIfNotSet;
+function getStringConfig (string property, string defaultIfNotSet) returns (string) {
+    string configuration;
+    match (config:getAsString(property)) {
+        string stringConfigFromFile => { configuration = stringConfigFromFile == "" ? defaultIfNotSet
+                                                         : stringConfigFromFile; }
+        int | null => configuration = defaultIfNotSet;
     }
-    return;
+    return configuration;
 }
 
 @Description{value:"Function to retrieve a configuration set as an integer, from a config file, or set a default value
                     if not specified."}
 @Return{value:"The integer configuration"}
-function getIntConfig (string property, int defaultIfNotSet) returns (int configuration) {
-    var portConfigFromFile, err = <int>config:getGlobalValue(property);
-    if (err != null) {
-        configuration = defaultIfNotSet;
-    } else {
-        configuration = portConfigFromFile;
+function getIntConfig (string property, int defaultIfNotSet) returns (int) {
+    int configuration;
+    match (config:getAsString(property)) {
+        string stringConfigFromFile => {
+            match (<int>stringConfigFromFile) {
+                int portConfigFromFile => { configuration = portConfigFromFile; }
+                error => { configuration = defaultIfNotSet; }
+            }
+        }
+        int | null => configuration = defaultIfNotSet;
     }
-    return;
+    return configuration;
 }

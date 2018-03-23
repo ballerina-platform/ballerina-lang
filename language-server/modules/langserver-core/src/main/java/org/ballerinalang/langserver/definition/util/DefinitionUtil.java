@@ -73,6 +73,12 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
+            case ContextConstants.OBJECT:
+                bLangNode = bLangPackage.objects.stream()
+                        .filter(object -> object.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
             case ContextConstants.ENUM:
                 bLangNode = bLangPackage.enums.stream()
                         .filter(enm -> enm.name.getValue()

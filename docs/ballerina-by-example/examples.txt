@@ -108,4 +108,6 @@ JMS Message Producer
 JMS Message Consumer
 JMS Client Acknowledgment
 MB Message Producer
+MB-Message-Consumer
 Taint Checking
+WebSub Basic Sample
