@@ -72,7 +72,7 @@ public struct ClientEndpointConfiguration {
     Proxy|null proxy;
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
-    function (LoadBalancer, HttpClient[]) returns (HttpClient)|FailoverConfig lbMode;
+    string|FailoverConfig lbMode;
     // boolean enableLoadBalancing;
     //FailoverConfig failoverConfig;
 }
@@ -86,7 +86,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.forwarded = "disable";
     config.endpointTimeout = 60000;
     config.keepAlive = true;
-    config.lbMode = roundRobin;
+    config.lbMode = ROUND_ROBIN;
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
@@ -115,19 +115,19 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
             int x = 0; // TODO: Replace this with actual failover related logic
         }
 
-        (function (LoadBalancer, HttpClient[]) returns (HttpClient)) lbAlgorithm => {
+        string lbAlgorithm => {
             if (lengthof config.targets > 1) {
                 ep.httpClient = createLoadBalancerClient(config, lbAlgorithm);
+            } else {
+                if (uri.hasSuffix("/")) {
+                    int lastIndex = uri.length() - 1;
+                    uri = uri.subString(0, lastIndex);
+                }
+                ep.config = config;
+                ep.httpClient = createHttpClient(uri, config);
             }
         }
     }
-
-    if (uri.hasSuffix("/")) {
-        int lastIndex = uri.length() - 1;
-        uri = uri.subString(0, lastIndex);
-    }
-    ep.config = config;
-    ep.httpClient = createHttpClient(uri, config);
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -252,14 +252,12 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         }
         int | null => {
             //remove following once we can ignore
-            io:println("CB CONFIG IS NULL");
             return createHttpClient(uri, configuration);
         }
     }
 }
 
-function createLoadBalancerClient(ClientEndpointConfiguration config,
-                                    function (LoadBalancer, HttpClient[]) returns (HttpClient) lbAlgorithm) returns HttpClient {
+function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
 
     LoadBalancer lb = {
