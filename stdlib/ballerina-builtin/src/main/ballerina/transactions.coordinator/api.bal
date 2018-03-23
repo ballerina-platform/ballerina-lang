@@ -15,6 +15,7 @@
 // under the License.
 
 package ballerina.transactions.coordinator;
+import ballerina/io;
 
 documentation {
     When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
@@ -36,6 +37,8 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
                            string coordinationType) returns TransactionContext|error {
     match transactionId {
         string txnId => {
+            io:println("************ Participate in transaction:" + txnId);
+            io:println(typeof txnId);
             if (initiatedTransactions.hasKey(txnId)) { // if participant & initiator are in the same process
                 // we don't need to do a network call and can simply do a local function call
                 return registerParticipantWithLocalInitiator(txnId, transactionBlockId, registerAtUrl);
@@ -47,7 +50,8 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
             }
         }
 
-        any|null => {
+        null => {
+            io:println("************ Creating new transaction ");
             return createTransactionContext(coordinationType, transactionBlockId);
         }
     }
@@ -62,10 +66,10 @@ documentation {
 function markForAbortion (string transactionId, int transactionBlockId) {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else if (initiatedTransactions.hasKey(transactionId)) {
-        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         txn.state = TransactionState.ABORTED;
     } else {
         error err = {message:"Transaction: " + participatedTxnId + " not found"};
@@ -88,11 +92,11 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
             return abortTransaction(transactionId, transactionBlockId);
         } else {
-            var ret =? commitTransaction(transactionId, transactionBlockId);
+            string|error ret = commitTransaction(transactionId, transactionBlockId);
             removeInitiatedTransaction(transactionId);
             return ret;
         }
@@ -121,7 +125,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
 
             log:printInfo("########### aborting local participant transaction");
 
-            var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
                 error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
@@ -135,14 +139,14 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
                 error err = {message:"Participant: " + participantId + " removal failed"};
                 throw err;
             }
-            var ret =? abortInitiatorTransaction(transactionId, transactionBlockId);
+            string ret =? abortInitiatorTransaction(transactionId, transactionBlockId);
             txn.state = TransactionState.ABORTED;
             return ret;
         } else {
             return abortInitiatorTransaction(transactionId, transactionBlockId);
         }
     } else {
-        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
         boolean successful = abortResourceManagers(transactionId, transactionBlockId);
         if (!successful) {
             error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};

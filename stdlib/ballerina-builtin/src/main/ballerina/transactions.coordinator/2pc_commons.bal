@@ -209,7 +209,7 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
 
 function getParticipant2pcClientEP (string participantURL) returns Participant2pcClientEP {
     if (httpClientCache.hasKey(participantURL)) {
-        var participantEP =? <Participant2pcClientEP>httpClientCache.get(participantURL);
+        Participant2pcClientEP participantEP =? <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
         Participant2pcClientEP participantEP = {};
@@ -351,7 +351,7 @@ function commitTransaction (string transactionId, int transactionBlockId) return
         error err = {message:msg};
         return err;
     } else {
-        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         log:printInfo("Committing transaction: " + transactionId);
         // return response to the initiator. ( Committed | Aborted | Mixed )
         return twoPhaseCommit(txn, transactionBlockId);
@@ -367,7 +367,7 @@ function abortInitiatorTransaction (string transactionId, int transactionBlockId
         error err = {message:msg};
         return err;
     } else {
-        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         log:printInfo("Aborting transaction: " + transactionId);
         // return response to the initiator. ( Aborted | Mixed )
         ret = notifyAbort(txn);
@@ -398,7 +398,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         error err = {message:msg};
         return err;
     } else {
-        var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
         boolean successful = abortResourceManagers(transactionId, transactionBlockId);
         if (successful) {
             txn.state = TransactionState.ABORTED;
