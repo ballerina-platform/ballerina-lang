@@ -49,14 +49,14 @@ public class AuthnConfigInheritanceTest extends IntegrationTestCase {
         ballerinaServer.startBallerinaServerWithConfigPath(balFile, configPath);
     }
 
-    @Test(description = "Authn success and authz failure test case")
+    @Test(description = "invalid scope test case")
     public void testAuthzFailureWithInheritedConfigs()
             throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headersMap);
         Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
     @Test(description = "Authn and authz failure test case")

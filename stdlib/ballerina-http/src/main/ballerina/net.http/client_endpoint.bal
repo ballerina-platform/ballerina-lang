@@ -73,8 +73,6 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     string|FailoverConfig lbMode;
-    // boolean enableLoadBalancing;
-    //FailoverConfig failoverConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -94,6 +92,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"epName: The endpoint name"}
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
+    boolean httpClientRequired = false;
     string uri = config.targets[0].uri;
     var cbConfig = config.circuitBreaker;
     match cbConfig {
@@ -112,7 +111,17 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
 
     match config.lbMode {
         FailoverConfig failoverConfig => {
-            int x = 0; // TODO: Replace this with actual failover related logic
+            if (lengthof config.targets > 1) {
+                ep.config = config;
+                ep. httpClient = createFailOverClient(config);
+            } else {
+                if (uri.hasSuffix("/")) {
+                    int lastIndex = uri.length() - 1;
+                    uri = uri.subString(0, lastIndex);
+                }
+                ep.config = config;
+                ep.httpClient = createHttpClient(uri, config);
+            }
         }
 
         string lbAlgorithm => {
@@ -268,6 +277,24 @@ function createLoadBalancerClient(ClientEndpointConfiguration config, string lbA
                       };
     HttpClient lbClient = lb;
     return lbClient;
+}
+
+public function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
+        HttpClient[] clients = createHttpClientArray(config);
+        FailoverConfig foConfig = {};
+        match config.failoverConfig {
+            FailoverConfig foc => {foConfig = foc; }
+            int | null =>  io:println("FO CONFIG IS NULL");
+        }
+        boolean[] failoverCodes = populateErrorCodeIndex(foConfig.failoverCodes);
+        FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
+                                                            failoverCodesIndex : failoverCodes,
+                                                            failoverInterval : foConfig.interval};
+
+        Failover failover = {serviceUri:config.targets[0].uri, config:config,
+                                failoverInferredConfig:failoverInferredConfig};
+        HttpClient foClient = failover;
+        return foClient;
 }
 
 //function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
