@@ -15,7 +15,7 @@ public struct HttpServiceConfig {
     HttpServiceLifeTime lifetime;
     string basePath;
     Compression compression;
-    CorsConfig|null cors;
+    CorsConfig cors;
     WebSocketUpgradeConfig|null webSocketUpgrade;
     boolean transactionInfectable;
 }
@@ -39,6 +39,12 @@ public struct CorsConfig {
     string[] exposeHeaders;
     boolean allowCredentials;
     int maxAge = -1;
+}
+
+@Description {value:"Initializes the CorsConfig struct with default values."}
+@Param {value:"config: The CorsConfig struct to be initialized"}
+public function <CorsConfig config> CorsConfig() {
+    config.maxAge = -1;
 }
 
 public struct WebSocketUpgradeConfig {

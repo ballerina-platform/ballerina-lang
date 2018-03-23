@@ -459,10 +459,17 @@ struct Middleware {
 
 function getTypePreserveWhenCast() returns (int){
     Software s = {name:"WSO2", des:"ESB"};
-    Middleware m =? <Middleware>s;
+    Middleware m = <Middleware>s;
     if (typeof s == typeof m){
         return 1;
     } else {
         return 0;
     }
 }
+
+function testTypeOfNullString(string|null s) returns (typedesc) {
+    io:println(typeof s);
+    io:println(s);
+    return (typeof s);
+}
+

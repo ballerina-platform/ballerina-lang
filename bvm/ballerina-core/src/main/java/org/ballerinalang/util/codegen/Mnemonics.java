@@ -185,6 +185,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
         mnemonics[InstructionCodes.NULL2S] = "null2s";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
+        mnemonics[InstructionCodes.IS_ASSIGNABLE] = "is_assignable";
 
         mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";
@@ -205,6 +206,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
+        mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
 
         // Transactions
         mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";

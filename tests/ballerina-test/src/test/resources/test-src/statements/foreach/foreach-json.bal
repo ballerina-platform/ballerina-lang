@@ -26,9 +26,13 @@ function testJSONArray () returns (string) {
     return output;
 }
 
-function testArrayOfJSON () returns (string) {
+function testArrayOfJSON () returns string | error {
     output = "";
-    var array, _ = (json[]) j1.subjects;
+    json[] array;
+    match <json[]> j1.subjects {
+        json[] arr1 => array = arr1;
+        error err1 => return err1;
+    }
     foreach i, j in array {
         concatIntString(i, j.toString());
     }
@@ -77,14 +81,18 @@ struct Protocol {
     string url;
 }
 
-function testJSONToStructCast () returns (string) {
+function testJSONToStructCast () returns string | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    var protocolsData, _ = <Protocols>j;
-    output = "";
-    foreach protocol in protocolsData.plist {
-        concatString(protocol.name + "-" + protocol.url);
+    match <Protocols> j {
+        Protocols p => {
+                output = "";
+                foreach protocol in p.plist {
+                    concatString(protocol.name + "-" + protocol.url);
+                }
+                return output;
+        }
+        error err => return err;
     }
-    return output;
 }
 
 function testAddWhileIteration () returns (string) {

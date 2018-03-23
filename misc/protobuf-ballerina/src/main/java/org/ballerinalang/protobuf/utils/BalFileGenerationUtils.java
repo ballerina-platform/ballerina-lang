@@ -28,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,7 +66,6 @@ public class BalFileGenerationUtils {
      * Execute command and generate file descriptor.
      *
      * @param command protoc executor command.
-     * @throws UnsupportedEncodingException when Character Encoding is not supported.
      */
     public static void generateDescriptor(String command) {
         boolean isWindows = System.getProperty("os.name")

@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.common.position;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -85,7 +86,7 @@ import java.util.stream.Collectors;
 /**
  * Tree visitor for finding the node at the given position.
  */
-public class PositionTreeVisitor extends NodeVisitor {
+public class PositionTreeVisitor extends LSNodeVisitor {
 
     private String fileName;
     private Position position;
@@ -783,6 +784,26 @@ public class PositionTreeVisitor extends NodeVisitor {
 
         if (stmt.expr != null) {
             this.acceptNode(stmt.expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangObject objectNode) {
+        setPreviousNode(objectNode);
+        if (!objectNode.fields.isEmpty()) {
+            objectNode.fields.forEach(this::acceptNode);
+        }
+
+        if (!objectNode.functions.isEmpty()) {
+            objectNode.functions.forEach(this::acceptNode);
+        }
+
+        if (objectNode.initFunction != null) {
+            this.acceptNode(objectNode.initFunction);
+        }
+
+        if (objectNode.receiver != null) {
+            this.acceptNode(objectNode.receiver);
         }
     }
 

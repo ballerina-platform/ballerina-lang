@@ -15,26 +15,17 @@ service<http:WebSocketService> ChatApp bind ep {
     map<http:WebSocketConnector> consMap = {};
     onUpgrade (endpoint ep, http:Request req) {
         var params = req.getQueryParams();
-        var param = <string>params.name;
-        match param {
-            string val => {
-                name = untaint val;
-                msg = string `{{name}} connected to chat`;
-            }
-            error e => {
-                error err = {message:"Please enter a name"};
-                throw err;
-            }
+        name = untaint <string>params.name;
+        if (name != null) {
+            msg = string `{{name}} connected to chat`;
+        } else {
+            error err = {message:"Please enter a name"};
+            throw err;
         }
+        age = untaint <string>params.age;
 
-        param = <string>params.age;
-
-        match param {
-            string val => {
-                age = untaint val;
-                msg = string `{{name}} with age {{age}} connected to chat`;
-            }
-            error e => io:println("You can also enter an error");
+        if (age != null) {
+            msg = string `{{name}} with age {{age}} connected to chat`;
         }
     }
     onOpen (endpoint ep) {

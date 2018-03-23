@@ -1,7 +1,7 @@
-function toString(xml msg) returns (string) {
-    string s = <string> msg;
-    return s;
-}
+//function toString(xml msg) returns (string) {
+//    string s = <string> msg;
+//    return s;
+//}
 
 function testIsSingleton() returns (boolean, boolean) {
     var x1 = xml `<!-- outer comment -->`;
@@ -526,24 +526,24 @@ function testCopy() returns (xml, boolean, boolean, xml) {
     return (copy, isEmpty, isSingleton, x1.children());
 }
 
-function testToString() returns (string) {
-    var bookComment = xml `<!-- comment about the book-->`;
-    var bookName = xml `<bookName>Book1</bookName>`;
-    var bookId = xml `<bookId>001</bookId>`;
-    var bookAuthor = xml `<bookAuthor>Author01</bookAuthor>`;
-    var bookMeta = xml `<?word document="book.doc" ?>`;
-    
-    xml book = bookComment + bookName + bookId + bookAuthor + bookMeta;
-    
-    string s = <string> book;
-    return s;
-}
+//function testToString() returns (string) {
+//    var bookComment = xml `<!-- comment about the book-->`;
+//    var bookName = xml `<bookName>Book1</bookName>`;
+//    var bookId = xml `<bookId>001</bookId>`;
+//    var bookAuthor = xml `<bookAuthor>Author01</bookAuthor>`;
+//    var bookMeta = xml `<?word document="book.doc" ?>`;
+//    
+//    xml book = bookComment + bookName + bookId + bookAuthor + bookMeta;
+//    
+//    string s = <string> book;
+//    return s;
+//}
 
 function testStrip() returns (xml, xml) {
     var x1 = xml `<!-- comment about the book-->`;
     var x2 = xml `     `;
     var x3 = xml `<bookId>001</bookId>`;
-    var x4 = <xml> "";
+    var x4 = xml ` `;
     var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
@@ -556,7 +556,7 @@ function testStripSingleton() returns (xml, xml) {
 }
 
 function testStripEmptySingleton() returns (xml, xml, boolean) {
-    var x1 = <xml> "";
+    var x1 = xml ` `;
     xml x2 = x1.strip();
     boolean isEmpty = x2.isEmpty();
     
@@ -644,7 +644,7 @@ function testToJsonForValue() returns (json) {
 }
 
 function testToJsonForEmptyValue() returns (json) {
-    var x = <xml> "";
+    var x = xml ` `;
     return x.toJSON({});
 }
 
@@ -812,15 +812,15 @@ function testUpdateAttributeWithDifferentUri() returns (xml) {
     return x1;
 }
 
-function testParseXMLElementWithXMLDeclrEntity() returns (xml) {
-    var x = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><root>hello world</root>";
-    return x;
-}
+//function testParseXMLElementWithXMLDeclrEntity() returns (xml) {
+//    var x = xml `<?xml version='1.0' encoding='UTF-8' standalone='no'?><root>hello world</root>`;
+//    return x;
+//}
 
-function testParseXMLCommentWithXMLDeclrEntity() returns (xml, error) {
-    var (x, e) = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->";
-    return (x, e);
-}
+//function testParseXMLCommentWithXMLDeclrEntity() returns (xml, error) {
+//    var (x, e) = <xml> "<?xml version='1.0' encoding='UTF-8' standalone='no'?><!-- comment node-->";
+//    return (x, e);
+//}
 
 function testRemoveAttributeUsingStringName() returns (xml) {
   xmlns "http://ballerina.com/aaa" as ns0;

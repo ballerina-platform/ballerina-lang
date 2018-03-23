@@ -27,8 +27,17 @@ import java.nio.file.Paths;
  */
 public class LSDocument {
     private String uri;
+    private String sourceRoot;
+
+    public LSDocument() {
+    }
 
     public LSDocument(String uri) {
+        this.uri = uri;
+    }
+
+    public LSDocument(String uri, String sourceRoot) {
+        this.sourceRoot = sourceRoot;
         this.uri = uri;
     }
 
@@ -41,6 +50,15 @@ public class LSDocument {
      */
     public Path getPath() throws MalformedURLException, URISyntaxException {
         return Paths.get(new URL(uri).toURI());
+    }
+
+    /**
+     * Get source root path.
+     *
+     * @return {@link Path} source root path
+     */
+    public Path getSourceRootPath() {
+        return Paths.get(this.sourceRoot);
     }
 
     /**
@@ -61,5 +79,32 @@ public class LSDocument {
      */
     public String getURIString() {
         return this.uri;
+    }
+
+    /**
+     * Get source root.
+     *
+     * @return {@link String} source root
+     */
+    public String getSourceRoot() {
+        return this.sourceRoot;
+    }
+
+    /**
+     * Set URI.
+     *
+     * @param uri string URI
+     */
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    /**
+     * Set source root.
+     *
+     * @param sourceRoot source root
+     */
+    public void setSourceRoot(String sourceRoot) {
+        this.sourceRoot = sourceRoot;
     }
 }

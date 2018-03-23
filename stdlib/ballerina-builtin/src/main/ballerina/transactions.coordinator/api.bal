@@ -47,7 +47,7 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
             }
         }
 
-        any x => {
+        any|null => {
             return createTransactionContext(coordinationType, transactionBlockId);
         }
     }
@@ -92,20 +92,13 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
         if (txn.state == TransactionState.ABORTED) {
             return abortTransaction(transactionId, transactionBlockId);
         } else {
-            string|error ret = commitTransaction(transactionId, transactionBlockId);
-            match ret {
-                error err => {
-                    txn.state = TransactionState.COMMITTED; //TODO: We can remove this line
-                    removeInitiatedTransaction(transactionId);
-                    ret = err;
-                }
-                string s => ret = s;
-            }
+            var ret =? commitTransaction(transactionId, transactionBlockId);
+            removeInitiatedTransaction(transactionId);
             return ret;
         }
+    } else {
+        return "";  // Nothing to do on endTransaction if you are a participant
     }
-    // Nothing to do on endTransaction if you are a participant
-    return ""; //TODO: check what will happen if nothing is returned
 }
 
 documentation {
@@ -128,8 +121,6 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
 
             log:printInfo("########### aborting local participant transaction");
 
-            // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
-            // and then call abort on the initiator
             var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
@@ -137,16 +128,15 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
                 return err;
             }
             string participantId = getParticipantId(transactionBlockId);
+            // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
+            // and then call abort on the initiator
             boolean removed = txn.participants.remove(participantId);
             if (!removed) {
                 error err = {message:"Participant: " + participantId + " removal failed"};
                 throw err;
             }
-            string|error ret = abortInitiatorTransaction(transactionId, transactionBlockId);
-            match ret {
-                error err => txn.state = TransactionState.ABORTED;
-                string s => ret = s;
-            }
+            var ret =? abortInitiatorTransaction(transactionId, transactionBlockId);
+            txn.state = TransactionState.ABORTED;
             return ret;
         } else {
             return abortInitiatorTransaction(transactionId, transactionBlockId);

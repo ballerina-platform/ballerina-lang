@@ -34,9 +34,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -118,15 +116,11 @@ public class TextDocumentServiceUtil {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRoot.getURIString());
+        options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
-        try {
-            context.put(SourceDirectory.class,
-                    new LangServerFSProjectDirectory(sourceRoot.getPath(), documentManager));
-        } catch (URISyntaxException | MalformedURLException e) {
-            // Ignore
-        }
+        context.put(SourceDirectory.class,
+                new LangServerFSProjectDirectory(sourceRoot.getSourceRootPath(), documentManager));
         return context;
     }
 
@@ -155,7 +149,10 @@ public class TextDocumentServiceUtil {
 
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
-        LSDocument sourceDocument = new LSDocument(sourceRoot);
+        LSDocument sourceDocument = new LSDocument();
+        sourceDocument.setUri(uri);
+        sourceDocument.setSourceRoot(sourceRoot);
+
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
         if (compileFullProject) {
@@ -164,9 +161,11 @@ public class TextDocumentServiceUtil {
                 File[] files = projectDir.listFiles();
                 if (files != null) {
                     for (File file : files) {
-                        Compiler compiler = getCompiler(context, fileName, packageRepository, sourceDocument,
-                                preserveWhitespace, customErrorStrategy, docManager);
-                        packages.add(compiler.compile(file.getName()));
+                        if (!file.getName().equals(".ballerina")) {
+                            Compiler compiler = getCompiler(context, fileName, packageRepository, sourceDocument,
+                                    preserveWhitespace, customErrorStrategy, docManager);
+                            packages.add(compiler.compile(file.getName()));
+                        }
                     }
                 }
             }

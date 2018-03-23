@@ -19,7 +19,6 @@
 package org.ballerinalang.net.grpc.ssl;
 
 import io.grpc.netty.GrpcSslContexts;
-import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
@@ -87,7 +86,7 @@ public class SSLHandlerFactory {
                 }
             }
             TrustManager[] trustManagers = null;
-            if (sslConfig.getTrustStore() != null) {
+            if ((sslConfig.getTrustStore() != null) && (sslConfig.getTrustStore().isFile())) {
                 KeyStore tks = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
                 tmf = TrustManagerFactory.getInstance(algorithm);
                 tmf.init(tks);
@@ -102,13 +101,14 @@ public class SSLHandlerFactory {
         }
     }
     
-    private KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
+    private KeyStore getKeyStore(File trustStore, String trustStorePassword) throws IOException {
         KeyStore ks = null;
         String tlsStoreType = sslConfig.getTLSStoreType();
-        if (keyStore != null && keyStorePassword != null) {
-            try (InputStream is = new FileInputStream(keyStore)) {
+        if ((trustStore != null && trustStore.isFile()) && (trustStorePassword != null
+                && !trustStorePassword.isEmpty())) {
+            try (InputStream is = new FileInputStream(trustStore)) {
                 ks = KeyStore.getInstance(tlsStoreType);
-                ks.load(is, keyStorePassword.toCharArray());
+                ks.load(is, trustStorePassword.toCharArray());
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
                 throw new IOException(e);
             }
@@ -148,7 +148,6 @@ public class SSLHandlerFactory {
         try {
             grpcSslContexts = GrpcSslContexts.forServer(certfile, keyfile)
                     .keyManager(kmf)
-                    .trustManager(tmf)
                     .sslProvider(provider)
                     .ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
                     .applicationProtocolConfig(
@@ -168,15 +167,12 @@ public class SSLHandlerFactory {
     }
     
     public SslContext createHttp2TLSContextForClient() throws SSLException {
-        
         // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
         SslProvider provider = SslProvider.JDK;
-        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
-                Arrays.asList(sslConfig.getCipherSuites()) :
-                Http2SecurityUtil.CIPHERS;
-        
-        return GrpcSslContexts.forClient().sslProvider(provider).keyManager(kmf).trustManager(tmf)
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
+                .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
+        return GrpcSslContexts.forClient().sslProvider(provider).trustManager(tmf)
                 .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
                 .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
                         // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.

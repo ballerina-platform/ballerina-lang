@@ -1,6 +1,6 @@
 package {{packageName}};
-import ballerina.net.grpc;
-import ballerina.io;
+import ballerina/net.grpc;
+import ballerina/io;
 
 {{#stubs}}
 struct {{connectorId}}{{stubTypeName}}Stub {
@@ -14,22 +14,30 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> initStub(grpc:Client clientE
 }
 {{/stubs}}
 {{#blockingFunctions}}
-function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) ({{outputDataType}}, error) {
-    var res, err1 = stub.serviceStub.blockingExecute("{{methodId}}", req);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return null, e;
-    }
-    var response, err2 = ({{outputDataType}})res;
-    if (err2 != null && err2.message != null) {
-        error e = {message:err2.message};
-        return null, e;
-    }
-    return response, null;
+function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}| error) {
+    any | grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("{{methodId}}", req);
+    match unionResp {
+            grpc:ConnectorError payloadError => {
+                error e = {message:payloadError.message};
+                return e;
+            }
+            //Below code snippet will change after the pending match fix.
+            any | {{outputDataType}} payload => {
+                match payload {
+                    {{outputDataType}} s => {
+                        return s;
+                    }
+                    any nonOccurance => {
+                        error e = {message:"Unexpected data type."};
+                        return e;
+                    }
+                }
+            }
+        }
 }
 {{/blockingFunctions}}
 {{#nonBlockingFunctions}}
-function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, typedesc listener) (error) {
+function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error|null) {
     var err1 = stub.serviceStub.nonBlockingExecute("{{methodId}}", req, listener);
     if (err1 != null && err1.message != null) {
         error e = {message:err1.message};
@@ -39,18 +47,17 @@ function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, type
 }
 {{/nonBlockingFunctions}}
 {{#streamingFunctions}}
-function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) (grpc:Client, error)  {
-    var res, err1 = stub.serviceStub.streamingExecute("{{methodId}}", listener);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return null, e;
-    }
-    var response, err2 = (grpc:Client)res;
-    if (err2 != null && err2.message != null) {
-        error e = {message:err2.message};
-        return null,e;
-    }
-        return response,null;
+function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
+    var res = stub.serviceStub.streamingExecute("{{methodId}}", listener);
+        match res {
+            grpc:ConnectorError err => {
+                error e = {message:err.message};
+                return e;
+            }
+            grpc:Client con =>{
+                return con;
+            }
+        }
 }
 {{/streamingFunctions}}
 {{#client}}

@@ -1,0 +1,7 @@
+// A service can be secured using basic authentication and optionally, authorization.
+// The userstore used is a simple file based one. The file based userstore stores
+// usernames, password hashes for authentication purposes, as well as groups and scopes
+// for authorization purposes. Ballerina uses the concept of scopes for authorization.
+// A resource declared in a Service can be bound to a scope. A scope is mapped to one
+// or more groups. To access the resource, a user need to be in the same groups to
+// which the corresponding scope is mapped. 

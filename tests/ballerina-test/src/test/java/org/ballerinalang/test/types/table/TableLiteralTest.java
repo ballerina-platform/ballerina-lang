@@ -64,7 +64,7 @@ public class TableLiteralTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(priority = 1, enabled = false)
+    @Test(priority = 1)
     public void testAddData() {
         BValue[] returns = BRunUtil.invoke(result, "testAddData");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
@@ -115,7 +115,7 @@ public class TableLiteralTest {
         }
     }
 
-    @Test(priority = 1, enabled = false)
+    @Test(priority = 1)
     public void testMultipleAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testMultipleAccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
@@ -320,7 +320,7 @@ public class TableLiteralTest {
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*",
           enabled = false)
-    public void testFailedGeneratedKeyOnInsert() {
+    public void testEmptyTableCreateInvalid() {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }
 

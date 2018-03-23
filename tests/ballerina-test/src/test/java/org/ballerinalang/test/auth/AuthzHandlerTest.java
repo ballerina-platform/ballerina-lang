@@ -70,9 +70,7 @@ public class AuthzHandlerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractInvalidBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);
         // basic auth header should be null
-        Assert.assertTrue(returns[0].stringValue() == null);
-        // an error should be returned
-        Assert.assertTrue(returns[1] != null);
+        Assert.assertFalse(returns[0].stringValue().isEmpty());
     }
 
     @Test(description = "Test case for extracting basic auth header value")
@@ -80,8 +78,6 @@ public class AuthzHandlerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);
         // basic auth header should not be null
-        Assert.assertTrue(returns[0].stringValue() != null);
-        // no error should be returned
-        Assert.assertTrue(returns[1] == null);
+        Assert.assertEquals(returns[0].stringValue(), "Basic aXN1cnU6eHh4");
     }
 }

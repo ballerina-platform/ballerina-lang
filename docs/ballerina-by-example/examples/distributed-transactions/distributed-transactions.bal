@@ -27,33 +27,59 @@ function main (string[] args) {
         options: {maximumPoolSize:5}
     };
 
-    var testDB1 = testDBEP1.getConnector();
-    var testDB2 = testDBEP2.getConnector();
-
     //Create the table named CUSTOMER in the first database.
-    int ret = testDB1 -> update("CREATE TABLE CUSTOMER (ID INT AUTO_INCREMENT PRIMARY KEY,
+    var ret = testDBEP1 -> update("CREATE TABLE CUSTOMER (ID INT AUTO_INCREMENT PRIMARY KEY,
                                     NAME VARCHAR(30))", null);
-    io:println("CUSTOMER table create status in first DB:" + ret);
+    match ret {
+        int retInt =>  io:println("CUSTOMER table create status in first DB:" + retInt);
+        sql:SQLConnectorError err => {
+            io:println("CUSTOMER table Creation failed:" + err.message);
+            return;
+        }
+    }
     //Create the table named SALARY in the second database.
-    ret = testDB2 -> update("CREATE TABLE SALARY (ID INT, VALUE FLOAT)", null);
-    io:println("SALARY table create status in second DB:" + ret);
+    ret = testDBEP2 -> update("CREATE TABLE SALARY (ID INT, VALUE FLOAT)", null);
+    match ret {
+        int retInt =>  {
+            io:println("SALARY table create status in second DB:" + retInt);
+        }
+        sql:SQLConnectorError err => {
+            io:println("SALARY table Creation failed:" + err.message);
+            return;
+        }
+    }
 
     boolean transactionSuccess = false;
     //Begins the transaction.
     transaction {
         //This is the first action participate in the transaction which insert customer
         //name to the first DB and get the generated key.
-        var insertCount, generatedID = testDB1 -> updateWithGeneratedKeys("INSERT INTO
+        int insertCount; string[] generatedID;
+        var out = testDBEP1 -> updateWithGeneratedKeys("INSERT INTO
                                      CUSTOMER(NAME) VALUES ('Anne')", null, null);
-        var returnedKey, _ = <int>generatedID[0];
+        match out {
+            (int, string[]) output =>
+                (insertCount, generatedID) = output;
+            sql:SQLConnectorError err => {
+                throw err.cause[0];
+            }
+        }
+        var returnedKey =? <int>generatedID[0];
         io:println("Inserted count to CUSTOMER table:" + insertCount);
         io:println("Generated key for the inserted row:" + returnedKey);
         //This is the second action participate in the transaction which insert the
         //salary info to the second DB along with the key generated in the first DB.
         sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:returnedKey};
         sql:Parameter[] params = [para1];
-        ret = testDB2 -> update("INSERT INTO SALARY (ID, VALUE) VALUES (?, 2500)", params);
-        io:println("Inserted count to SALARY table:" + ret);
+        ret = testDBEP2 -> update("INSERT INTO SALARY (ID, VALUE) VALUES (?, 2500)", params);
+        match ret {
+            int retInt =>  {
+                io:println("Inserted count to SALARY table:" + retInt);
+            }
+            sql:SQLConnectorError err => {
+                fail;
+            }
+        }
 
         transactionSuccess = true;
     } onretry {
@@ -64,12 +90,26 @@ function main (string[] args) {
         io:println("Transaction committed");
     }
     //Drop the tables created for this sample.
-    ret = testDB1 -> update("DROP TABLE CUSTOMER", null);
-    io:println("CUSTOMER table drop status:" + ret);
-    ret = testDB2 -> update("DROP TABLE SALARY", null);
-    io:println("SALARY table drop status:" + ret);
+    ret = testDBEP1 -> update("DROP TABLE CUSTOMER", null);
+    match ret {
+        int retInt =>  {
+            io:println("CUSTOMER table drop status:" + retInt);
+        }
+        sql:SQLConnectorError err => {
+            throw err.cause[0];
+        }
+    }
+    ret = testDBEP2 -> update("DROP TABLE SALARY", null);
+    match ret {
+        int retInt =>  {
+            io:println("SALARY table drop status:" + retInt);
+        }
+        sql:SQLConnectorError err => {
+            throw err.cause[0];
+        }
+    }
 
     //Close the connection pool.
-    testDB1 -> close();
-    testDB2 -> close();
+    var closedCon1 = testDBEP1 -> close();
+    var closedCon2 = testDBEP2 -> close();
 }

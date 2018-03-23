@@ -22,5 +22,3 @@ function testSignJWTData () returns (boolean) {
     string algorithm = "RS256";
     return signature == signature:sign(data, algorithm, "ballerina", "ballerina");
 }
-
-function main(string[] args) {}

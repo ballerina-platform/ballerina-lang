@@ -26,19 +26,18 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
-import java.util.stream.Collectors;
 
 /**
  * Test command for ballerina launcher.
@@ -83,15 +82,9 @@ public class TestCmd implements BLauncherCmd {
         }
 
         if (sourceFileList == null || sourceFileList.isEmpty()) {
-            sourceFileList = new ArrayList<>();
-            // TODO this should be properly fixed once the Packering V4 is done
             Path userDir = Paths.get(System.getProperty("user.dir"));
-            try {
-                sourceFileList = Files.walk(userDir, 1).filter(Files::isDirectory).filter(file -> file != userDir)
-                        .map(path -> path.getFileName().toString()).collect(Collectors.toList());
-            } catch (IOException e) {
-                throw LauncherUtils.createUsageException("Failed to load the ballerina package/s from " + userDir);
-            }
+            SourceDirectory srcDirectory = new FileSystemProjectDirectory(userDir);
+            sourceFileList = srcDirectory.getSourcePackageNames();
         }
 
         if (groupList != null && disableGroupList != null) {
@@ -111,10 +104,14 @@ public class TestCmd implements BLauncherCmd {
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 
+        BTestRunner testRunner = new BTestRunner();
         if (disableGroupList != null) {
-            new BTestRunner().runTest(sourceRoot, paths, disableGroupList, false);
+            testRunner.runTest(sourceRoot, paths, disableGroupList, false);
         } else {
-            new BTestRunner().runTest(sourceRoot, paths, groupList, true);
+            testRunner.runTest(sourceRoot, paths, groupList, true);
+        }
+        if (testRunner.getTesterinaReport().isFailure()) {
+            Runtime.getRuntime().exit(1);
         }
         Runtime.getRuntime().exit(0);
     }

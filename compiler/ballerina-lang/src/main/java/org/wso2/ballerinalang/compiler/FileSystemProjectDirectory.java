@@ -18,8 +18,6 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
@@ -96,6 +94,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public InputStream getManifestContent() {
+        Path tomlFilePath = projectDirPath.resolve("Ballerina.toml");
+        if (Files.exists(tomlFilePath)) {
+            try {
+                return Files.newInputStream(tomlFilePath);
+            } catch (IOException e) {
+                return null;
+            }
+        }
         return null;
     }
 
@@ -122,12 +128,6 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     @Override
     public void saveCompiledPackage(InputStream source, String fileName) {
     }
-
-    @Override
-    public Repo getPackageRepository() {
-        return new ProjectSourceRepo(projectDirPath);
-    }
-
 
     // private methods
 
