@@ -31,7 +31,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ServiceTest"/>
             <class name="org.ballerinalang.testerina.test.GroupFilterTest"/>
             <class name="org.ballerinalang.testerina.test.DisableFunctionsTest"/>
-            <!--<class name="org.ballerinalang.testerina.test.TesterinaSamplesTest"/>-->
+            <class name="org.ballerinalang.testerina.test.TesterinaSamplesTest"/>
         </classes>
     </test>
 
