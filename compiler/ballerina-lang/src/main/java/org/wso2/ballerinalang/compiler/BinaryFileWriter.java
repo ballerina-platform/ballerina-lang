@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
@@ -79,11 +81,14 @@ public class BinaryFileWriter {
         writeExecutableBinary(packageNode, fileName);
 
         // Generate balo
-        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(this.sourceDirectory.getPath());
-        Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convert
-                (projectSourceRepo.getConverterInstance());
-        String prjPath = projectSourceRepo.getConverterInstance().toString();
-        ZipUtils.generateBalo(packageNode, prjPath, pathStream);
+        Path path = this.sourceDirectory.getPath();
+        if (Files.isDirectory(path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
+            ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
+            Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convert
+                    (projectSourceRepo.getConverterInstance());
+            String prjPath = projectSourceRepo.getConverterInstance().toString();
+            ZipUtils.generateBalo(packageNode, prjPath, pathStream);
+        }
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
