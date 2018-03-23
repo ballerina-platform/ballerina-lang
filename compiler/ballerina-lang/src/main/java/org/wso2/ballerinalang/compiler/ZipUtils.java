@@ -21,64 +21,26 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Zip Utils needed to zip the packages.
  */
 class ZipUtils {
-
-    /**
-     * Zip all the bal files in the package.
-     *
-     * @param filesToBeZipped bal files to be zipped
-     * @param zipFile         name of the zip file
-     */
-    private static void zipFile(Stream<Path> filesToBeZipped, String zipFile) {
-        ZipOutputStream zipOut = null;
-        try {
-            zipOut = new ZipOutputStream(new FileOutputStream(zipFile));
-            ZipOutputStream finalZipOut = zipOut;
-            filesToBeZipped.forEach((path) -> addToZip(path, "src", finalZipOut));
-        } catch (FileNotFoundException e) {
-            throw new BLangCompilerException("Unable to create balo " + zipFile);
-        } finally {
-            try {
-                if (zipOut != null) {
-                    zipOut.close();
-                }
-            } catch (IOException ignore) {
-            }
-        }
-    }
-
-    /**
-     * Add file to the zipped folder.
-     *
-     * @param srcFilePath path of the folder/file to be zipped
-     * @param includedDir directory to be included
-     * @param zipOut      ZipOutputStream object
-     */
-    private static void addToZip(Path srcFilePath, String includedDir, ZipOutputStream zipOut) {
-        String filePath = srcFilePath.getFileName().toString();
-        if (!includedDir.isEmpty()) {
-            filePath = includedDir + "/" + filePath;
-        }
-        try {
-            zipOut.putNextEntry(new ZipEntry(filePath));
-            Files.copy(srcFilePath, zipOut);
-        } catch (IOException e) {
-            throw new BLangCompilerException("Error occurred when generating the balo " + filePath);
-        }
-    }
+    private static final String SRC_DIR = "src";
 
     /**
      * Generates the balo/zip of the package.
@@ -102,6 +64,68 @@ class ZipUtils {
         }
         String fileName = packageID.getName() + ".zip";
         String baloDirPath = destPath.resolve(fileName).toString();
-        zipFile(paths, baloDirPath);
+        createArchive(paths, baloDirPath);
+    }
+
+    /**
+     * Create archive when creating the balo.
+     *
+     * @param filesToBeArchived files to be archived
+     * @param outFileName       output archive name
+     */
+    private static void createArchive(Stream<Path> filesToBeArchived, String outFileName) {
+        Map<String, String> zipFSEnv = new HashMap<>();
+        zipFSEnv.put("create", "true");
+        URI filepath = Paths.get(outFileName).toUri();
+        URI zipFileURI;
+        try {
+            zipFileURI = new URI("jar:" + filepath.getScheme(),
+                    filepath.getUserInfo(), filepath.getHost(), filepath.getPort(),
+                    filepath.getPath() + "!/",
+                    filepath.getQuery(), filepath.getFragment());
+        } catch (URISyntaxException ignore) {
+            throw new BLangCompilerException("error creating artifact" + outFileName);
+        }
+        try (FileSystem zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv)) {
+            addFileToArchive(filesToBeArchived, zipFS, outFileName);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating artifact" + outFileName);
+        }
+    }
+
+    /**
+     * Add file to archive.
+     *
+     * @param filesToBeArchived files to be archived
+     * @param zipFS             Zip file system
+     * @param outFileName       output archive name
+     */
+    private static void addFileToArchive(Stream<Path> filesToBeArchived, FileSystem zipFS, String outFileName) {
+        filesToBeArchived.forEach((path) -> {
+            Path root = zipFS.getPath(SRC_DIR);
+            Path dest = zipFS.getPath(root.toString(), path.getFileName().toString());
+            try {
+                copyFileToArchive(new FileInputStream(path.toString()), dest);
+            } catch (IOException e) {
+                throw new BLangCompilerException("error generating artifact " + outFileName);
+            }
+        });
+    }
+
+    /**
+     * Copy file to archive.
+     *
+     * @param srcInputStream inputstream of the file to be copied
+     * @param destPath       output path
+     * @throws IOException i/o exception thrown
+     */
+    private static void copyFileToArchive(InputStream srcInputStream, Path destPath) throws IOException {
+        Path parent = destPath.getParent();
+        if (parent != null) {
+            if (Files.notExists(parent)) {
+                Files.createDirectories(parent);
+            }
+            Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }
