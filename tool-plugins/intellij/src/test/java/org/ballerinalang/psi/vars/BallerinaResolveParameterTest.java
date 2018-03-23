@@ -28,19 +28,19 @@ public class BallerinaResolveParameterTest extends BallerinaResolveTestBase {
         return getTestDataPath("psi/resolve/vars/parameter");
     }
 
-//    public void testParameterInAction() {
-//        doFileTest();
-//    }
+    //    public void testParameterInAction() {
+    //        doFileTest();
+    //    }
 
-//    public void testParameterInConnector() {
-//        doFileTest();
-//    }
+    //    public void testParameterInConnector() {
+    //        doFileTest();
+    //    }
 
     public void testParameterInFunction() {
         doFileTest();
     }
 
-    public void testParameterInService() {
-        doFileTest();
-    }
+    //    public void testParameterInService() {
+    //        doFileTest();
+    //    }
 }

@@ -88,17 +88,17 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
     //        doTest();
     //    }
 
-    public void testServiceDefinition() {
-        doTest();
-    }
+    //    public void testServiceDefinition() {
+    //        doTest();
+    //    }
 
     //    public void testStatement() {
     //        doTest();
     //    }
 
-    public void testStruct() {
-        doTest();
-    }
+    //    public void testStruct() {
+    //        doTest();
+    //    }
 
     //    public void testTransaction() {
     //        doTest();

@@ -64,6 +64,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STREAMING_QUERY_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TIMEOUT_CLAUSE;
@@ -156,6 +157,8 @@ public class BallerinaBlock extends AbstractBlock {
                 } else if (childElementType == OBJECT_BODY) {
                     indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == OBJECT_FIELD_DEFINITION) {
+                    indent = Indent.getSpaceIndent(4);
+                } else if (childElementType == STREAMING_QUERY_STATEMENT) {
                     indent = Indent.getSpaceIndent(4);
                 }
 

@@ -44,9 +44,9 @@ public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
         doFileTest();
     }
 
-    public void testStructInSameFileInService() {
-        doFileTest();
-    }
+    //    public void testStructInSameFileInService() {
+    //        doFileTest();
+    //    }
 
     //    public void testStructInDifferentFileInAction() throws IOException {
     //        doFileTest(struct);

@@ -165,6 +165,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.VAR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.VARIABLE_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WHENEVER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WHERE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WHERE_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WINDOW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WITH;
@@ -279,6 +280,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(SELECT).spaceIf(true)
                 .around(SET).spaceIf(true)
                 .between(SERVICE, LT).spaceIf(false)
+                .between(TYPE_STREAM, LT).spaceIf(false)
                 .between(SERVICE, IDENTIFIER).spaceIf(true)
                 .around(SNAPSHOT).spaceIf(true)
                 .after(STRUCT).spaceIf(true)
@@ -293,6 +295,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(VAR).spaceIf(true)
                 .after(WHENEVER).spaceIf(true)
                 .around(WHERE).spaceIf(true)
+                .around(WHERE_CLAUSE).spaceIf(true)
                 .after(WHILE).spaceIf(true)
                 .around(WITHIN).spaceIf(true)
                 .around(WINDOW).spaceIf(true)

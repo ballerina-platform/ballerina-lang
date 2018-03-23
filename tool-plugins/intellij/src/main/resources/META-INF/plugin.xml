@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.970.0-alpha1</version>
+    <version>0.970.0-alpha0</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,7 +11,7 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Supports Ballerina v0.970.0-alpha1 grammar.</li>
+        <li>Supports Ballerina v0.970.0-alpha0 grammar.</li>
       </ul>
     ]]>
     </change-notes>
