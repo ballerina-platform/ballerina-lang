@@ -4,8 +4,8 @@ endpoint http:ServiceEndpoint passthroughEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint clientEP {
-    targets:[{uri:"http://localhost:9092/echo"}]
+endpoint http:SimpleClientEndpoint clientEP {
+    uri:"http://localhost:9092/echo"
 };
 
 @http:ServiceConfig
