@@ -90,13 +90,33 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
 function createHttpClientArray (ClientEndpointConfiguration config) returns HttpClient[] {
     HttpClient[] httpClients = [];
     int i=0;
+    boolean httpClientRequired = false;
+    string uri = config.targets[0].uri;
+    var cbConfig = config.circuitBreaker;
+    match cbConfig {
+        CircuitBreakerConfig cb => {
+            if (uri.hasSuffix("/")) {
+                int lastIndex = uri.length() - 1;
+                uri = uri.subString(0, lastIndex);
+            }
+            httpClientRequired = false;
+        }
+        int | null => {
+            httpClientRequired = true;
+        }
+    }
+
     foreach target in config.targets {
-        string uri = target.uri;
+        uri = target.uri;
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
             uri = uri.subString(0, lastIndex);
+        } 
+        if (!httpClientRequired) {
+            httpClients[i] = createCircuitBreakerClient(uri, config);
+        } else {
+            httpClients[i] = createHttpClient(uri, config);
         }
-        httpClients[i] = createHttpClient(uri, config);
         httpClients[i].config = config;
         i = i+1;
     }
