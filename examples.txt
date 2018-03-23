@@ -9,8 +9,6 @@ While
 IF Else
 Ternary
 Functions
-Multiple Return Values
-Named Returns
 Errors
 Var
 Any Type
