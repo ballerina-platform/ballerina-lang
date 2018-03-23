@@ -362,7 +362,8 @@ public class CPU {
                 case InstructionCodes.TYPEOF:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.refRegs[i] == null) {
+                    BValue val = sf.refRegs[i];
+                    if (val == null || (val instanceof BString && ((BString) val).value() == null)) {
                         sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
                         break;
                     }
