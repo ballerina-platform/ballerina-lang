@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,15 +17,26 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents an ReturnParameters in PSI tree.
+ * Represents a CodeBlockBody in PSI tree.
  */
-public class ReturnParametersNode extends ANTLRPsiNode {
+public class NonEmptyCodeBlockBodyNode extends ANTLRPsiNode implements CodeBlockScope, VariableContainer {
 
-    public ReturnParametersNode(@NotNull ASTNode node) {
+    public NonEmptyCodeBlockBodyNode(@NotNull ASTNode node) {
         super(node);
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+        return null;
     }
 }

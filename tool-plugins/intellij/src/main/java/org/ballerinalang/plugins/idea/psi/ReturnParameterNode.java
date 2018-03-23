@@ -14,33 +14,18 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.psi.vars;
+package org.ballerinalang.plugins.idea.psi;
 
-import org.ballerinalang.psi.BallerinaResolveTestBase;
+import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Test parameter resolving.
+ * Represents an ReturnParameters in PSI tree.
  */
-public class BallerinaResolveParameterTest extends BallerinaResolveTestBase {
+public class ReturnParameterNode extends ANTLRPsiNode {
 
-    @Override
-    protected String getTestDataPath() {
-        return getTestDataPath("psi/resolve/vars/parameter");
-    }
-
-//    public void testParameterInAction() {
-//        doFileTest();
-//    }
-
-//    public void testParameterInConnector() {
-//        doFileTest();
-//    }
-
-    public void testParameterInFunction() {
-        doFileTest();
-    }
-
-    public void testParameterInService() {
-        doFileTest();
+    public ReturnParameterNode(@NotNull ASTNode node) {
+        super(node);
     }
 }
