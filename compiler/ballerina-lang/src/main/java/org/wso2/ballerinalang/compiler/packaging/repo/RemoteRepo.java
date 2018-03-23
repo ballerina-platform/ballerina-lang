@@ -24,7 +24,7 @@ public class RemoteRepo extends NonSysRepo<URI> {
     public Patten calculateNonSysPkg(PackageID pkg) {
         String orgName = pkg.getOrgName().value;
         String pkgName = pkg.getName().value;
-        String pkgVersion = pkg.version.value;
+        String pkgVersion = "*";
 
         return new Patten(Patten.path(orgName, pkgName, pkgVersion));
     }

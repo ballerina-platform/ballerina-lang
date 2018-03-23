@@ -297,9 +297,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         String version = names.fromIdNode(importPkgNode.version).getValue().replaceAll("[^\\d.]", "");
-        if (!orgName.equals("ballerina")) { //TODO change app
-            version = "*";
-        }
         PackageID pkgId = new PackageID(orgName, nameComps, new Name(version));
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
