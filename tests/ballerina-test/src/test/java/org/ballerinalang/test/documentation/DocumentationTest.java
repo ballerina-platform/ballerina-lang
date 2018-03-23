@@ -137,16 +137,13 @@ public class DocumentationTest {
                 "Please note that #foo will always be bigger than #bar.\n" +
                 "Example:\n" +
                 "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``\n");
-        Assert.assertEquals(dNode.getAttributes().size(), 3);
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
                 " file path ``C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src``\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " read or write mode\n");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "successful");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
-                " boolean `true` or `false`\n");
 
         docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         dNode = docNodes.get(0);
@@ -443,7 +440,7 @@ public class DocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/deprecate_function_use.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 1);
         BAssertUtil.validateWarning(compileResult, 0,
-                "usage of deprecated function 'randomNumber'", 10, 12);
+                "usage of deprecated function 'randomNumber'", 11, 12);
     }
 
     @Test(description = "Test doc deprecated.", enabled = false)
