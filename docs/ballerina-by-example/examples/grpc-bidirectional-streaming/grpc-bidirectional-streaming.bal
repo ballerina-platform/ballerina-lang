@@ -57,3 +57,7 @@ service<grpc:Endpoint> helloWorld bind ep {
     }
 }
 
+struct ChatMessage {
+    string name;
+    string message;
+}
