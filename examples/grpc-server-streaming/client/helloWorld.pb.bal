@@ -1,8 +1,9 @@
+// This is an auto generated client stub which is used to communicate between gRPC client.
 package client;
 import ballerina/net.grpc;
 import ballerina/io;
 
-// This is an auto generated client stub which is used to communicate between gRPC client.
+// Non-blocking client
 struct helloWorldStub {
     grpc:Client clientEndpoint;
     grpc:ServiceStub serviceStub;
@@ -23,15 +24,7 @@ function <helloWorldStub stub> lotsOfReplies (string req, typedesc listener) ret
     return null;
 }
 
-function <helloWorldStub stub> lotsOfByes (string req, typedesc listener) returns (error | null) {
-    var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/lotsOfByes", req, listener);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return e;
-    }
-    return null;
-}
-
+// Non-blocking client endpoint
 public struct helloWorldClient {
     grpc:Client client;
     helloWorldStub stub;
