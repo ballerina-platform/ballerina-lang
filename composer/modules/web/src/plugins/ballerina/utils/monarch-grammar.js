@@ -5,7 +5,7 @@ const identifier = `(${letter}(${letterOrDigit})*)|(\^"${identifierLiteralChar}+
 
 
 export default {
-    defaultToken: 'invalid',
+    defaultToken: 'identifier',
     controlKeywords: [
         'if', 'else', 'iterator', 'try', 'catch', 'finally', 'fork', 'join', 'all', 'some',
         'while', 'throw', 'return', 'returns', 'break', 'timeout', 'transaction', 'aborted',
@@ -48,6 +48,7 @@ export default {
             // identifiers and keywords
             ['\\bfunction\\b', { token: 'keyword', next: '@function' }],
             ['\\btype\\b', { token: 'keyword', next: '@type' }],
+            ['\\bobject\\b', { token: 'keyword', next: '@object' }],
 
             [/[a-z_$][\w$]*/, {
                 cases: {
@@ -122,11 +123,13 @@ export default {
             ['{', {token: 'delimiter.curly', next: 'functionBody'}],
             ['}', {token: 'delimiter.curly', next: '@pop'}],
             [`\\b${identifier}\\b`, 'identifier'],
+            ['\/\/.*', 'comment'],
         ],
 
         functionReceiver: [
             [`\\b${identifier}\\b`, {token:'type', next: 'varDefStatement'}],
             ['>', {token:'tag', next: '@pop'}],
+            ['\/\/.*', 'comment'],
         ],
 
         functionParameters: [
@@ -141,11 +144,12 @@ export default {
             ['\\(|\\)', 'operator'],
             ['[,:|]', 'operator'],
             ['{', {token: 'delimiter.curly', next: 'functionBody'}],
+            ['\/\/.*', 'comment'],
             ['(?=\})', {token: 'delimiter.curly', next: '@pop'}],
         ],
         
         functionBody: [
-            ['(?=\})',  { token: 'keyword', next: '@pop'}],
+            ['(?=\})',  { token: 'delimiter.curly', next: '@pop'}],
             ['\\bmatch\\b', { token: 'keyword', next: '@match' }],
             {include: 'root'},
         ],
@@ -155,23 +159,26 @@ export default {
             [`\\b${identifier}\\b`, {token:'variable.parameter', next: '@pop'}],
             {include: 'root'},
         ],
-
+        
         continuedType: [
             [`\\b${identifier}\\b`, {token:'type', next: '@pop'}],
             ['\/\/.*', 'comment'],
             {include: 'root'},
         ],
-
+        
         match: [
             ['{', {token:'delimiter.curly', next: '@matchBody'}],
             [`\\b${identifier}\\b`, 'identifier'],
+            ['}', {token:'delimiter.curly', next: '@pop'}],
+            ['\/\/.*', 'comment'],
         ],
-
+        
         matchBody: [
             ['}', '@pop'],
             ['=>', {token:'keyword', next: '@matchedStatement'}],
             [`\\b${identifier}\\b`, {token:'type', next: '@varDefStatement'}],
             {include: 'root'},
+            ['\/\/.*', 'comment'],
         ],
         
         matchedStatement: [
@@ -181,25 +188,64 @@ export default {
         ],
         
         type: [
-            ['\\bobject\\b', { token: 'keyword', next: '@object' }],
-            [`\\b${identifier}\\b`, 'identifier'],
+            [`\\b${identifier}\\b`, { token: 'identifier', next: '@pop'}],
+            ['\/\/.*', 'comment'],
         ],
         
         object: [
             ['{', {token:'delimiter.curly', next: '@objectBody'}],
+            ['}', {token:'delimiter.curly', next: '@pop'}],
+            ['\/\/.*', 'comment'],
         ],
         
         objectBody: [
             ['\\b(private|public)\\b', {token: 'keyword', next: '@varDefBlock'} ],
+            ['\\bfunction\\b', { token: 'keyword', next: '@function' }],
+            ['\\bnew\\b', { token: 'keyword', next: '@new' }],
+            ['(?=\})', { token: 'delimiter.curly', next: '@pop'}],
+            ['\/\/.*', 'comment'],
+        ],
+        
+        objectInit: [
+            ['{', {token:'delimiter.curly', next: '@objectInitBody'}],
+            ['}', {token:'delimiter.curly', next: '@pop'}],
+            ['\/\/.*', 'comment'],
+        ],
+        
+        objectInitBody: [
+            {include: 'root'},
+            ['(?=\})', { token: 'delimiter.curly', next: '@pop'}],
+        ],
+        
+        new: [
+            ['\\(', {token:'delimiter.parenthesis', next: 'newParameters'}],
+            ['{', {token:'delimiter.curly', next: '@newBody'}],
+            ['}', {token:'delimiter.curly', next: '@pop'}],
+            ['\/\/.*', 'comment'],
+        ],
+        
+        newBody: [
+            ['(?=\})', { token: 'delimiter.curly', next: '@pop'}],
+        ],
+        
+        newParameters: [
+            [`\\b${identifier}\\b`, {token:'variable.parameter'}],
+            ['\\)', {token:'delimiter.parenthesis', next: '@pop'}],
+            ['\/\/.*', 'comment'],
+            {include: 'root'},
         ],
         
         varDefBlock: [
             ['{', {token:'delimiter.curly', next: '@varDefBlockBody'}],
+            ['}', {token:'delimiter.curly', next: '@pop'}],
+            ['\/\/.*', 'comment'],
         ],
         
         varDefBlockBody: [
             [';', 'semi'],
             [`\\b${identifier}\\b`, {token:'type', next: '@varDefStatement'}],
+            ['(?=\})', { token: 'delimiter.curly', next: '@pop'}],
+            ['\/\/.*', 'comment'],
         ]
     },
 };
