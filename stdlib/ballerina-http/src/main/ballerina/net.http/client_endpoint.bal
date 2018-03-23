@@ -103,37 +103,40 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
             }
             ep.config = config;
             ep.httpClient = createCircuitBreakerClient(uri, config);
+            httpClientRequired = false;
         }
         int | null => {
-            int x = 0; // TODO: Remove this once empty blocks are supported
+            httpClientRequired = true;
         }
     }
 
-    match config.lbMode {
-        FailoverConfig failoverConfig => {
-            if (lengthof config.targets > 1) {
-                ep.config = config;
-                ep. httpClient = createFailOverClient(config, failoverConfig);
-            } else {
-                if (uri.hasSuffix("/")) {
-                    int lastIndex = uri.length() - 1;
-                    uri = uri.subString(0, lastIndex);
+    if (httpClientRequired) {
+        match config.lbMode {
+            FailoverConfig failoverConfig => {
+                if (lengthof config.targets > 1) {
+                    ep.config = config;
+                    ep. httpClient = createFailOverClient(config, failoverConfig);
+                } else {
+                    if (uri.hasSuffix("/")) {
+                        int lastIndex = uri.length() - 1;
+                        uri = uri.subString(0, lastIndex);
+                    }
+                    ep.config = config;
+                    ep.httpClient = createHttpClient(uri, config);
                 }
-                ep.config = config;
-                ep.httpClient = createHttpClient(uri, config);
             }
-        }
 
-        string lbAlgorithm => {
-            if (lengthof config.targets > 1) {
-                ep.httpClient = createLoadBalancerClient(config, lbAlgorithm);
-            } else {
-                if (uri.hasSuffix("/")) {
-                    int lastIndex = uri.length() - 1;
-                    uri = uri.subString(0, lastIndex);
+            string lbAlgorithm => {
+                if (lengthof config.targets > 1) {
+                    ep.httpClient = createLoadBalancerClient(config, lbAlgorithm);
+                } else {
+                    if (uri.hasSuffix("/")) {
+                        int lastIndex = uri.length() - 1;
+                        uri = uri.subString(0, lastIndex);
+                    }
+                    ep.config = config;
+                    ep.httpClient = createHttpClient(uri, config);
                 }
-                ep.config = config;
-                ep.httpClient = createHttpClient(uri, config);
             }
         }
     }
