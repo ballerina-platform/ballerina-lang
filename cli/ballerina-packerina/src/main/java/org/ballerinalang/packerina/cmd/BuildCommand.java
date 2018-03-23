@@ -81,6 +81,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath, buildCompiledPkg);
+        Runtime.getRuntime().exit(0);
     }
 
     @Override

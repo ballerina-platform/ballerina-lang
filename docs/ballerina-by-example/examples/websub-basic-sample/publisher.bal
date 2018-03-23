@@ -1,12 +1,15 @@
+//Ballerina Websub Publisher which brings up the internal Ballerina Hub and publishes updates to the hub
 import ballerina/log;
 import ballerina/net.websub;
 import ballerina/runtime;
 
+//The WebSub Hub Client Endpoint to send subscription/unsubscription requests to a remote hub
 endpoint websub:HubClientEndpoint websubHubClientEP {
     uri: "http://localhost:9999/websub/hub"
 };
 
 function main (string [] args) {
+    //Start up the internal Ballerina Hub
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
 

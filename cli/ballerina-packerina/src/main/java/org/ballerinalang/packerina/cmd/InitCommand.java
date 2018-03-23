@@ -24,7 +24,7 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.init.InitHandler;
 import org.ballerinalang.packerina.init.models.SrcFile;
-import org.ballerinalang.packerina.toml.model.Manifest;
+import org.ballerinalang.toml.model.Manifest;
 
 import java.io.IOException;
 import java.io.PrintStream;

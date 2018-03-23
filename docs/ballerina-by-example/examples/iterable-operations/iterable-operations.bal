@@ -35,6 +35,8 @@ public function main (string[] args) {
 }
 
 function toUpper (any value) returns string {
-    var word =? <string> value;
-    return word.toUpperCase();
+    var word = <string> value;
+    match word {
+        string x => { return x.toUpperCase();}
+    }
 }
