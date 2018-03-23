@@ -26,7 +26,7 @@ function testJSONArray () returns (string) {
     return output;
 }
 
-function testArrayOfJSON () returns (string) | error {
+function testArrayOfJSON () returns string | error {
     output = "";
     json[] array;
     match <json[]> j1.subjects {
@@ -81,7 +81,7 @@ struct Protocol {
     string url;
 }
 
-function testJSONToStructCast () returns (string) | error {
+function testJSONToStructCast () returns string | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
     match <Protocols> j {
         Protocols p => {
