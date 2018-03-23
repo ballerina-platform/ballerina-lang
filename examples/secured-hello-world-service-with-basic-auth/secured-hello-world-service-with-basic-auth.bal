@@ -1,70 +1,52 @@
-import ballerina.net.http;
-import ballerina.auth.authz;
-import ballerina.auth.basic;
+import ballerina/net.http;
+import ballerina/io;
+import ballerina/net.http.endpoints;
+import ballerina/auth;
 
-// The secure service uses a HTTPS endpoint, exposed via the port 9096.
-endpoint<http:Service> backendEp {
-    port:9096,
-    ssl:{
-        keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        keyStorePassword:"ballerina",
-        certPassword:"ballerina"
+// The endpoint used here is 'endpoints:ApiEndpoint', which by default tries to authenticate and authorize each request.
+// The developer has the option to override the authentication and authorization at service and resource level.
+endpoint endpoints:ApiEndpoint ep {
+    port:9090,
+    // The secure hello world sample uses https.
+    secureSocket:
+    {
+        keyStore:{
+          filePath:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+          password:"ballerina"
+        },
+        trustStore:{
+          filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+          password:"ballerina"
+       }
     }
-}
+};
 
-// Sample Hello Service, which require authentication and authorization.
-// This service is registered against the previously defined endpoint 'backendEp'.
-@http:serviceConfig {
-    basePath:"/helloWorld",
-    endpoints:[backendEp]
+@http:ServiceConfig {
+    basePath:"/hello"
 }
-service<http:Service> helloWorld {
-    @http:resourceConfig {
+// Auth configuration comprises of two parts - authentication and authorization.
+// Authentication can be enabled by setting 'authentication:{enabled:true}' annotation attribute.
+// Authorization is based on scopes, where a scope maps to one or more groups.
+// For a user to access a resource, the user should be in the same groups as the scope.
+// To specify a scope of a resource, the annotation attribute 'scope' would be used.
+@auth:Config {
+    authentication:{enabled:true},
+    scope:"xxx"
+}
+service<http:Service> echo bind ep {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/sayHello"
     }
-    resource sayHello (http:ServerConnector conn, http:Request request) {
+    // The authentication and authorization settings can be overridden at resource level.
+    // The hello resource would inherit the authentication:{enabled:true} flag from the
+    // service level, and override scope defined in service level (xxx) with scope2.
+    @auth:Config {
+        scope:"scope2"
+    }
+    hello (endpoint client, http:Request req) {
         http:Response res = {};
-        // Perform the authentication and authorization check. This is done by calling the 'checkAuth' fucntion
-        // defined below.
-        AuthStatus authStatus = checkAuth(request, "scope2", "sayHello");
-        if(authStatus.success) {
-            // The request has been authenticated and authorized successfully.
-            res.setJsonPayload("Hello, World!!");
-        } else {
-            // The request has failed the auth check, set the status code and the reason phrase appropriately. 
-            res = {statusCode:authStatus.statusCode, reasonPhrase:authStatus.message};
-        }
-        _ = conn -> respond(res);
+        res.setStringPayload("Hello, World!!!");
+        _ = client -> respond(res);
     }
-}
-
-// Helper function which performs authentication and authorization checks.
-function checkAuth (http:Request request, string scopeName, string resourceName) (AuthStatus) {
-    //The Basic Authentication handler and Authorization Handler is used for authentication and authorization.
-    // First, the authentication check is done, which is then followed by the authorization check.
-    basic:HttpBasicAuthnHandler authnHandler = {};
-    authz:HttpAuthzHandler authzHandler = {};
-    AuthStatus status;
-    // First, the authentication check is performed.
-    if (!authnHandler.handle(request)) {
-        // If authentication fails, the status code is set as 401.
-        status = {success:false, statusCode:401, message:"Unauthenticated"};
-        // If authentication is successful, an optional authorization step can be performed.
-        // Here, to access the resource 'sayHello' , user needs to be in the same groups
-        // which are mapped to 'scope2'.
-    } else if (!authzHandler.handle(request, scopeName, resourceName)) {
-        // If authorization check fails, the status code is set as 403.
-        status = {success:false, statusCode:403, message:"Unauthorized"};
-    } else {
-        status = {success:true, statusCode:200, message:"Successful"};
-    }
-    return status;
-}
-
-// Represents the status of the auth check.
-public struct AuthStatus {
-    boolean success;
-    int statusCode;
-    string message;
 }

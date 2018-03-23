@@ -19,11 +19,11 @@ generateHash () {
 writeToFile () {
     echo "# start of a user section" >> ${1}
     echo "[${2}]" >> ${1}
-    echo "userid=${3}" >> ${1}
+    echo "userid=\"${3}\"" >> ${1}
     echo "[${3}]" >> ${1}
-    echo "password=${4}" >> ${1}
+    echo "password=\"${4}\"" >> ${1}
     if [[ ! -z ${5} ]]; then
-        echo "groups=${5}" >> ${1}
+        echo "groups=\"${5}\"" >> ${1}
     fi
     echo "# end of a user section" >> ${1}
     echo "" >> ${1}
@@ -62,7 +62,7 @@ usage () {
 writeToFile () {
     echo "# start of a permission section" >> ${1}
     echo "[${2}]" >> ${1}
-    echo "groups=${3}" >> ${1}
+    echo "groups=\"${3}\"" >> ${1}
     echo "# end of a permission section" >> ${1}
     echo "" >> ${1}
     echo "permissionstore updated successfully with details of scope: ${2}"
@@ -95,7 +95,7 @@ $ bash permissionstore-generator.sh -s {scope name} -g {comma separated groups}
 # same directory as the secured-hello-world-service-with-basic-auth.bal file.
 $ ballerina run secured-hello-world-service-with-basic-auth.bal
 ballerina: deploying service(s) in 'secured-hello-world-service-with-basic-auth.bal'
-ballerina: started HTTPS/WSS server connector 0.0.0.0:9096
+ballerina: started HTTPS/WSS server connector 0.0.0.0:9090
 
 # To build a compiled program file, we can use the
 # "ballerina build" command followed by
