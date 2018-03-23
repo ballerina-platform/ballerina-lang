@@ -21,7 +21,7 @@ package org.ballerinalang.packerina.init;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.packerina.init.models.SrcFile;
-import org.ballerinalang.packerina.toml.model.Manifest;
+import org.ballerinalang.toml.model.Manifest;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
