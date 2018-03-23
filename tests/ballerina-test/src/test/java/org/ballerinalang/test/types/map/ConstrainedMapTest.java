@@ -507,7 +507,7 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
     }
 
-    @Test(description = "Test runtime struct equivalency .")
+    @Test(description = "Test runtime struct equivalency with nested constrained maps.")
     public void testRuntimeStructEquivalencyWithNestedConstrainedMaps() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testRuntimeStructEquivalencyWithNestedConstrainedMaps");
