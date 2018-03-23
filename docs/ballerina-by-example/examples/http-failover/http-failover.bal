@@ -35,7 +35,6 @@ service<http:Service> failover bind failoveruEP {
         http:Response response = {};
         http:HttpConnectorError err = {};
         var backendRes = backendClientEP -> post("/", request);
-        io:println(backendRes);
         match backendRes {
             http:Response res => {
             _ = client -> forward(res);}
