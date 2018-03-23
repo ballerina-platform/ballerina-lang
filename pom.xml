@@ -897,6 +897,8 @@
 
                 <module>tests/ballerina-test</module>
 
+                <module>docs/ballerina-by-example</module>
+
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
