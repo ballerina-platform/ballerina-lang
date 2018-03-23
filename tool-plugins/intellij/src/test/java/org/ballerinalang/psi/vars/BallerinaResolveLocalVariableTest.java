@@ -40,9 +40,9 @@ public class BallerinaResolveLocalVariableTest extends BallerinaResolveTestBase 
         doFileTest();
     }
 
-    public void testLocalVariableInResource() {
-        doFileTest();
-    }
+    //    public void testLocalVariableInResource() {
+    //        doFileTest();
+    //    }
 
     public void testLocalVariableInService() {
         doFileTest();

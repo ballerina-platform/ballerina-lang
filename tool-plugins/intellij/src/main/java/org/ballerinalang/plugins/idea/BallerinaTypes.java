@@ -74,6 +74,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_servic
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_simpleExpression;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_statement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_streamingQueryStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_structDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_timeoutClause;
@@ -84,6 +85,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_tryCat
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_typeName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_valueTypeName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_variableReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_whereClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_whileStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerDeclaration;
@@ -219,6 +221,10 @@ public class BallerinaTypes {
     public static final RuleIElementType TRANSACTION_PROPERTY_INIT_STATEMENT_LIST =
             ruleIElementTypes.get(RULE_transactionPropertyInitStatementList);
     public static final RuleIElementType COMPOUND_OPERATOR = ruleIElementTypes.get(RULE_compoundOperator);
+    public static final RuleIElementType STREAMING_QUERY_STATEMENT =
+            ruleIElementTypes.get(RULE_streamingQueryStatement);
+    public static final RuleIElementType WHERE_CLAUSE = ruleIElementTypes.get(RULE_whereClause);
+
     // Keywords
     public static final TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
     public static final TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);

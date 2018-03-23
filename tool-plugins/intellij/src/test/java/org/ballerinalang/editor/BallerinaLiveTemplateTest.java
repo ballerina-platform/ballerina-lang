@@ -89,13 +89,14 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.checkResult("function test () {\n    worker  {\n        \n    }\n}");
     }
 
-    public void testWorkerInResource() {
-        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        " +
-                "<caret>\n    }\n}");
-        myFixture.type("wor\t");
-        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        worker  {\n            " +
-                "\n        }\n    }\n}");
-    }
+    //    public void testWorkerInResource() {
+    //        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        " +
+    //                "<caret>\n    }\n}");
+    //        myFixture.type("wor\t");
+    //        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        worker  {\n
+    //      " +
+    //                "\n        }\n    }\n}");
+    //    }
 
     //    public void testWorkerInAction() {
     //        myFixture.configureByText("test.bal", "connector test() {\n    action test () {\n        <caret>\n" +
@@ -125,13 +126,13 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.checkResult("function test () {\n    fork {\n        \n    } join () () {\n        \n    }\n}");
     }
 
-    public void testForkJoinInResource() {
-        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        " +
-                "<caret>\n    }\n}");
-        myFixture.type("fojo\t");
-        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        " +
-                "fork {\n            \n        } join () () {\n            \n        }\n    }\n}");
-    }
+    //    public void testForkJoinInResource() {
+    //        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        " +
+    //                "<caret>\n    }\n}");
+    //        myFixture.type("fojo\t");
+    //        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        " +
+    //                "fork {\n            \n        } join () () {\n            \n        }\n    }\n}");
+    //    }
 
     //    public void testForkJoinInAction() {
     //        myFixture.configureByText("test.bal", "connector test() {\n    action test () {\n        <caret>\n" +
