@@ -27,8 +27,15 @@
             <directory>
                 examples
             </directory>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>examples</outputDirectory>
         </fileSet>
     </fileSets>
+    <files>
+        <file>
+            <source>examples.txt</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+    </files>
+
 
 </assembly>
