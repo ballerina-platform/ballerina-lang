@@ -109,7 +109,6 @@ import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
-
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Set;
@@ -2633,7 +2632,7 @@ public class CPU {
     private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
                                             int transactionBlockId, String protocol, boolean isInitiator) {
         BValue[] args = {
-                (glbalTransactionId == null? null : new BString(glbalTransactionId)) ,
+                (glbalTransactionId == null ? null : new BString(glbalTransactionId)),
                 new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)
         };
