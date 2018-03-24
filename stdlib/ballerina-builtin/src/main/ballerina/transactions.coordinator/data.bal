@@ -15,6 +15,7 @@
 // under the License.
 
 package ballerina.transactions.coordinator;
+import ballerina/io;
 
 struct Transaction {
     string transactionId;
@@ -64,12 +65,13 @@ public function regRequestToJson (RegistrationRequest req) returns json {
     json j;
     j.transactionId = req.transactionId;
     j.participantId = req.participantId;
-    json[] protocols;
-    foreach proto in req.participantProtocols {
-        json j2 = {name:proto.name, url:proto.url};
-        protocols[lengthof protocols - 1] = j2;
-    }
-    j.participantProtocols = protocols;
+    //json[] protocols = [];
+    //foreach proto in req.participantProtocols {
+    //    json j2 = {name:proto.name, url:proto.url};
+    //    protocols[lengthof protocols - 1] = j2;
+    //}
+    //j.participantProtocols = protocols;
+    j.participantProtocols = [{name:req.participantProtocols[0].name, url:req.participantProtocols[0].url}];
     return j;
 }
 
@@ -84,24 +86,39 @@ public function regResponseToJson (RegistrationResponse res) returns json {
     json[] protocols;
     foreach proto in res.coordinatorProtocols {
         json j2 = {name:proto.name, url:proto.url};
-        protocols[lengthof protocols - 1] = j2;
+        protocols[lengthof protocols] = j2;
     }
     j.coordinatorProtocols = protocols;
     return j;
 }
 
 public function jsonToRegResponse (json j) returns RegistrationResponse {
-    string transactionId =? <string>j.transactionId;
+    io:println(j.transactionId);
+    //string transactionId =? <string>j.transactionId; //TODO: Fix
+    string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
     Protocol[] protocols;
     foreach proto in j.coordinatorProtocols {
-        string name =? <string>proto.name;
-        string url =? <string>proto.url;
+        string name = <string>jsonToAny(proto.name);
+        string url = <string>jsonToAny(proto.url);
+        //string name =? <string>proto.name; //TODO: Fix
+        //string url =? <string>proto.url; //TODO: Fix
         Protocol p = {name:name, url:url};
-        protocols[lengthof protocols - 1] = p;
+        protocols[lengthof protocols] = p;
     }
     res.coordinatorProtocols = protocols;
     return res;
+}
+
+// TODO: temp function. Remove when =? is fixed for json
+function jsonToAny(json j) returns any {
+    match j {
+        int i => return i;
+        string s => return s;
+        boolean b => return b;
+        null => return null;
+        json j2 => return j2;
+    }
 }
 
 public struct RequestError {
