@@ -33,7 +33,7 @@ function getCoordinatorHost () returns string {
     var result = config:getAsString("http.coordinator.host");
     match result {
         string h => host = h;
-        any|null => host = getHostAddress();
+        null => host = getHostAddress();
     }
     return host;
 }
@@ -49,7 +49,7 @@ function getCoordinatorPort () returns int {
                 int p2 => port = p2;
             }
         }
-        any|null => port = getAvailablePort();
+        null => port = getAvailablePort();
     }
     return port;
 }

@@ -21,6 +21,18 @@ import ballerina/log;
 import ballerina/net.http;
 import ballerina/util;
 
+const string PROTOCOL_COMPLETION = "completion";
+const string PROTOCOL_VOLATILE = "volatile";
+const string PROTOCOL_DURABLE = "durable";
+
+enum Protocols {
+    COMPLETION, DURABLE, VOLATILE
+}
+
+public enum TransactionState {
+    ACTIVE, PREPARED, COMMITTED, ABORTED
+}
+
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
 documentation {
@@ -43,106 +55,6 @@ documentation {
 }
 caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
 
-struct Transaction {
-    string transactionId;
-    string coordinationType = "2pc";
-    map<Participant> participants;
-    Protocol[] coordinatorProtocols;
-}
-
-struct Participant {
-    string participantId;
-    Protocol[] participantProtocols;
-}
-
-public struct TransactionContext {
-    string contextVersion = "1.0";
-    string transactionId;
-    int transactionBlockId;
-    string coordinationType;
-    string registerAtURL;
-}
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
-                the `protocolFn` will be called
-    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
-}
-public struct Protocol {
-    string name;
-    string url;
-    int transactionBlockId;
-    (function (string transactionId,
-               int transactionBlockId,
-               string protocolAction) returns boolean)|null protocolFn;
-}
-
-public struct RegistrationRequest {
-    string transactionId;
-    string participantId;
-    Protocol[] participantProtocols;
-}
-
-public transformer <RegistrationRequest req, json j> regRequestToJson() {
-    j.transactionId = req.transactionId;
-    j.participantId = req.participantId;
-    json[] protocols = req.participantProtocols.map(
-                                               function (Protocol proto) returns json {
-                                                   json j2 = {name:proto.name, url:proto.url};
-                                                   return j2;
-                                               });
-    j.participantProtocols = protocols;
-}
-
-public transformer <json j, RegistrationRequest req> jsonToRegRequest() {
-    string transactionId =? <string>j.transactionId;
-    string participantId =? <string>j.participantId;
-    req.transactionId = transactionId;
-    req.participantId = participantId;
-    Protocol[] protocols = j.participantProtocols.map(
-                                                 function (json proto) returns Protocol {
-                                                     string name =? <string>proto.name;
-                                                     string url =? <string>proto.url;
-                                                     Protocol p = {name:name, url:url};
-                                                     return p;
-                                                 });
-    req.participantProtocols = protocols;
-}
-
-public struct RegistrationResponse {
-    string transactionId;
-    Protocol[] coordinatorProtocols;
-}
-
-public transformer <RegistrationResponse res, json j> regResposeToJson () {
-    j.transactionId = res.transactionId;
-    json[] protocols = res.coordinatorProtocols.map(
-                                               function (Protocol proto) returns json {
-                                                   json j2 = {name:proto.name, url:proto.url};
-                                                   return j2;
-                                               });
-    j.coordinatorProtocols = protocols;
-}
-
-public transformer <json j, RegistrationResponse res> jsonToRegResponse () {
-    string transactionId =? <string>j.transactionId;
-    res.transactionId = transactionId;
-    Protocol[] protocols = j.coordinatorProtocols.map(
-                                                 function (json proto) returns Protocol {
-                                                     string name =? <string>proto.name;
-                                                     string url =? <string>proto.url;
-                                                     Protocol p = {name:name, url:url};
-                                                     return p;
-                                                 });
-    res.coordinatorProtocols = protocols;
-}
-
-public struct RequestError {
-    string errorMessage;
-}
 
 function isRegisteredParticipant (string participantId, map<Participant> participants) returns boolean {
     return participants.hasKey(participantId);
@@ -192,9 +104,11 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     }
 }
 
-function createNewTransaction (string coordinationType) returns Transaction {
+function createNewTransaction (string coordinationType, int transactionBlockId) returns Transaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
-        TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(), coordinationType:TWO_PHASE_COMMIT};
+        TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(),
+                                                 transactionBlockId:transactionBlockId,
+                                                 coordinationType:TWO_PHASE_COMMIT};
         Transaction txn = <Transaction>twopcTxn;
         return txn;
     } else {
@@ -222,7 +136,7 @@ function createTransactionContext (string coordinationType,
         error err = {message:msg};
         return err;
     } else {
-        Transaction txn = createNewTransaction(coordinationType);
+        Transaction txn = createNewTransaction(coordinationType, transactionBlockId);
         string txnId = txn.transactionId;
         initiatedTransactions[txnId] = txn;
         TransactionContext txnContext = {transactionId:txnId,
@@ -260,7 +174,9 @@ function registerParticipantWithLocalInitiator (string transactionId,
             txn.participants[participantId] = participant;
 
             //Set initiator protocols
-            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
+            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
+                                                     transactionBlockId:transactionBlockId,
+                                                     coordinationType:TWO_PHASE_COMMIT};
             Protocol initiatorProto = {name:"durable", transactionBlockId:transactionBlockId};
             twopcTxn.coordinatorProtocols = [initiatorProto];
 
@@ -341,6 +257,20 @@ function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     }
 }
 
+function getParticipant2pcClientEP (string participantURL) returns Participant2pcClientEP {
+    if (httpClientCache.hasKey(participantURL)) {
+        Participant2pcClientEP participantEP =? <Participant2pcClientEP>httpClientCache.get(participantURL);
+        return participantEP;
+    } else {
+        Participant2pcClientEP participantEP = {};
+        Participant2pcClientConfig config = {participantURL:participantURL,
+                                                endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+        participantEP.init(config);
+        httpClientCache.put(participantURL, participantEP);
+        return participantEP;
+    }
+}
+
 documentation {
     Registers a participant with the initiator's coordinator. This function will be called by the participant
 
@@ -375,7 +305,9 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         }
         RegistrationResponse regRes => {
             Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
-            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
+            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
+                                                     transactionBlockId:transactionBlockId,
+                                                     coordinationType:TWO_PHASE_COMMIT};
             twopcTxn.coordinatorProtocols = coordinatorProtocols;
             participatedTransactions[participatedTxnId] = twopcTxn;
             TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
