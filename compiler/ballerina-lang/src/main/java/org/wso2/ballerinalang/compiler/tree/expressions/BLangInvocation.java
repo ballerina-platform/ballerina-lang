@@ -187,7 +187,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
                                                List<BLangExpression> restArgs,
                                                BSymbol symbol,
                                                List<BType> types,
-                                               BLangExpression expr) {
+                                               BLangExpression expr,
+                                               boolean async) {
             this.pos = pos;
             this.requiredArgs = requiredArgs;
             this.namedArgs = namedArgs;
@@ -198,6 +199,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
                 this.type = types.get(0);
             }
             this.expr = expr;
+            this.async = async;
         }
 
         @Override
@@ -216,7 +218,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
                                      List<BLangExpression> namedArgs,
                                      List<BLangExpression> restArgs,
                                      BSymbol symbol,
-                                     List<BType> types) {
+                                     List<BType> types,
+                                     boolean async) {
             this.pos = pos;
             this.requiredArgs = requiredArgs;
             this.namedArgs = namedArgs;
@@ -226,6 +229,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             if (types.size() > 0) {
                 this.type = types.get(0);
             }
+            this.async = async;
         }
 
         @Override

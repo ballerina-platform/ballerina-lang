@@ -58,12 +58,12 @@ function <InitiatorClient client> register (string transactionId,
     json j = <json, regRequestToJson()>regReq;
     http:Request req = {};
     req.setJsonPayload(j);
-    var res =? httpClient -> post("", req);
+    http:Response res =? httpClient -> post("", req);
     int statusCode = res.statusCode;
     if (statusCode != 200) {
         error err = {message:"Registration for transaction: " + transactionId + " failed"};
         return err;
     }
-    var payload =? res.getJsonPayload();
+    json payload =? res.getJsonPayload();
     return <RegistrationResponse, jsonToRegResponse()>(payload);
 }

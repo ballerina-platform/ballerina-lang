@@ -53,7 +53,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             res.statusCode = 404;
             prepareRes.message = "Transaction-Unknown";
         } else {
-            var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
             if (txn.state == TransactionState.ABORTED) {
                 res.statusCode = 200;
                 prepareRes.message = "aborted";
@@ -76,9 +76,9 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                 }
             }
         }
-        var j =? <json>prepareRes;
+        json j =? <json>prepareRes;
         res.setJsonPayload(j);
-        var connErr = conn -> respond(res);
+        http:HttpConnectorError connErr = conn -> respond(res);
         match connErr {
             error err => log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
                                              " failed", err);
@@ -110,7 +110,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             res.statusCode = 404;
             notifyRes.message = "Transaction-Unknown";
         } else {
-            var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
             if (notifyReq.message == "commit") {
                 if (txn.state != TransactionState.PREPARED) {
                     res.statusCode = 400;
@@ -143,7 +143,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             }
             removeParticipatedTransaction(participatedTxnId);
         }
-        var j =? <json>notifyRes;
+        json j =? <json>notifyRes;
         res.setJsonPayload(j);
         var connErr = conn -> respond(res);
         match connErr {

@@ -67,7 +67,7 @@ service<http:Service> Ecommerce bind testEP {
         json responseJson;
         map params = req.getQueryParams();
         string rID;
-        rID =? <string>params.regID;
+        rID = <string>params.regID;
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
@@ -87,8 +87,8 @@ service<http:Service> Ecommerce bind testEP {
         map params = req.getQueryParams();
         string prdID;
         string rID;
-        prdID =? <string>params.prodID;
-        rID =? <string>params.regID;
+        prdID = <string>params.prodID;
+        rID = <string>params.regID;
         io:println ("Product ID " + prdID);
         io:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
@@ -107,7 +107,7 @@ service<http:Service> Ecommerce bind testEP {
         json responseJson;
         map params = req.getQueryParams();
         string rID;
-        rID =? <string>params.regID;
+        rID = <string>params.regID;
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};

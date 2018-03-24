@@ -31,12 +31,12 @@ string localParticipantId = util:uuid();
 documentation {
     This map is used for caching transaction that are initiated.
 }
-map<Transaction> initiatedTransactions;
+map<Transaction> initiatedTransactions = {};
 
 documentation {
     This map is used for caching transaction that are this Ballerina instance participates in.
 }
-map<Transaction> participatedTransactions;
+map<Transaction> participatedTransactions = {};
 
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
@@ -98,14 +98,14 @@ public transformer <RegistrationRequest req, json j> regRequestToJson() {
 }
 
 public transformer <json j, RegistrationRequest req> jsonToRegRequest() {
-    var transactionId =? <string>j.transactionId;
-    var participantId =? <string>j.participantId;
+    string transactionId =? <string>j.transactionId;
+    string participantId =? <string>j.participantId;
     req.transactionId = transactionId;
     req.participantId = participantId;
     Protocol[] protocols = j.participantProtocols.map(
                                                  function (json proto) returns Protocol {
-                                                     var name =? <string>proto.name;
-                                                     var url =? <string>proto.url;
+                                                     string name =? <string>proto.name;
+                                                     string url =? <string>proto.url;
                                                      Protocol p = {name:name, url:url};
                                                      return p;
                                                  });
@@ -128,12 +128,12 @@ public transformer <RegistrationResponse res, json j> regResposeToJson () {
 }
 
 public transformer <json j, RegistrationResponse res> jsonToRegResponse () {
-    var transactionId =? <string>j.transactionId;
+    string transactionId =? <string>j.transactionId;
     res.transactionId = transactionId;
     Protocol[] protocols = j.coordinatorProtocols.map(
                                                  function (json proto) returns Protocol {
-                                                     var name =? <string>proto.name;
-                                                     var url =? <string>proto.url;
+                                                     string name =? <string>proto.name;
+                                                     string url =? <string>proto.url;
                                                      Protocol p = {name:name, url:url};
                                                      return p;
                                                  });
@@ -160,7 +160,7 @@ function isValidCoordinationType (string coordinationType) returns boolean {
 function protocolCompatible (string coordinationType,
                              Protocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
-    var validProtocols =? coordinationTypeToProtocolsMap[coordinationType];
+    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType];
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
             if (participantProtocol.name == validProtocol) {
@@ -182,7 +182,7 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     log:printError(msg);
     http:Response res = {statusCode:400};
     RequestError err = {errorMessage:msg};
-    var resPayload =? <json>err;
+    json resPayload =? <json>err;
     res.setJsonPayload(resPayload);
     var respondResult = ep -> respond(res);
     match respondResult {
@@ -247,7 +247,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
         error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
         return err;
     } else {
-        var txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
             error err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
             return err;
@@ -281,7 +281,7 @@ function localParticipantProtocolFn (string transactionId,
     if (!participatedTransactions.hasKey(participatedTxnId)) {
         return false;
     }
-    var txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+    TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
     if (protocolAction == "prepare") {
         if (txn.state == TransactionState.ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
@@ -329,7 +329,7 @@ function removeInitiatedTransaction (string transactionId) {
 
 function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     if (httpClientCache.hasKey(registerAtURL)) {
-        var initiatorEP =? <InitiatorClientEP>httpClientCache.get(registerAtURL);
+        InitiatorClientEP initiatorEP =? <InitiatorClientEP>httpClientCache.get(registerAtURL);
         return initiatorEP;
     } else {
         InitiatorClientEP initiatorEP = {};
