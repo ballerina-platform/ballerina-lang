@@ -97,69 +97,14 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
-            return txn.abortTransaction(transactionBlockId);
+            return txn.abortTransaction();
         } else {
-            string|error ret = txn.commitTransaction(transactionBlockId);
+            string|error ret = txn.twoPhaseCommit();
             removeInitiatedTransaction(transactionId);
             return ret;
         }
     } else {
         return "";  // Nothing to do on endTransaction if you are a participant
-    }
-}
-
-documentation {
-    When an abort statement is executed, this function gets called. Depending on whether the transaction block
-    is an initiator or participant the flow will be different. An initiator will start the abort protocol. A participant
-    will notify the initiator that it aborted, which will prompt the initiator to start the abort protocol.
-
-    The initiator and participant being in the same process
-    has also been handled as a special case in order to avoid a network call in that case.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
-function<TwoPhaseCommitTransaction txn> abortTransaction (string transactionId, int transactionBlockId) returns string|error {
-    log:printInfo("########### abort called");
-
-    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    if (initiatedTransactions.hasKey(transactionId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
-        if (participatedTransactions.hasKey(participatedTxnId)) {
-
-            log:printInfo("########### aborting local participant transaction");
-
-            boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-            if (!successful) {
-                error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
-                return err;
-            }
-            string participantId = getParticipantId(transactionBlockId);
-            // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
-            // and then call abort on the initiator
-            boolean removed = txn.participants.remove(participantId);
-            if (!removed) {
-                error err = {message:"Participant: " + participantId + " removal failed"};
-                throw err;
-            }
-            string ret =? txn.abortInitiatorTransaction(transactionId, transactionBlockId);
-            txn.state = TransactionState.ABORTED;
-            return ret;
-        } else {
-            return txn.abortInitiatorTransaction(transactionId, transactionBlockId);
-        }
-    } else {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
-        boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-        if (!successful) {
-            error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
-            log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
-            return err;
-        } else {
-            txn.state = TransactionState.ABORTED;
-            log:printInfo("Local participant aborted transaction: " + participatedTxnId);
-            return ""; //TODO: check what will happen if nothing is returned
-        }
     }
 }
 
