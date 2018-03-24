@@ -2639,8 +2639,7 @@ public class CPU {
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx,
-                "error in transaction start: " + ((BStruct) returns[0]).getStringField(0));
+        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction start: ");
         return returns;
     }
 
@@ -2648,8 +2647,7 @@ public class CPU {
                                              int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx,
-                "error in transaction end: " + ((BStruct) returns[0]).getStringField(0));
+        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction end: ");
     }
 
     private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
@@ -2657,7 +2655,7 @@ public class CPU {
             PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(PACKAGE_BUILTIN);
             StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
             if (((BStruct) value).getType().structInfo.equals(errorStructInfo)) {
-                throw new BallerinaException(errMsg);
+                throw new BallerinaException(errMsg + ((BStruct) value).getStringField(0));
             }
         }
     }
