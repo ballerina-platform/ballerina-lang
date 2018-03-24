@@ -107,7 +107,7 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
 
                 RegistrationResponse regRes = {transactionId:txnId,
                                                   coordinatorProtocols:coordinatorProtocols};
-                json resPayload = <json, regResposeToJson()>(regRes);
+                json resPayload = regResponseToJson(regRes);
                 http:Response res = {statusCode:200};
                 res.setJsonPayload(resPayload);
                 var connErr = conn -> respond(res);
