@@ -45,6 +45,7 @@ caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache
 
 struct Transaction {
     string transactionId;
+    int transactionBlockId;
     string coordinationType = "2pc";
     map<Participant> participants;
     Protocol[] coordinatorProtocols;
@@ -192,9 +193,11 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     }
 }
 
-function createNewTransaction (string coordinationType) returns Transaction {
+function createNewTransaction (string coordinationType, int transactionBlockId) returns Transaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
-        TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(), coordinationType:TWO_PHASE_COMMIT};
+        TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(),
+                                                 transactionBlockId:transactionBlockId,
+                                                 coordinationType:TWO_PHASE_COMMIT};
         Transaction txn = <Transaction>twopcTxn;
         return txn;
     } else {
@@ -222,7 +225,7 @@ function createTransactionContext (string coordinationType,
         error err = {message:msg};
         return err;
     } else {
-        Transaction txn = createNewTransaction(coordinationType);
+        Transaction txn = createNewTransaction(coordinationType, transactionBlockId);
         string txnId = txn.transactionId;
         initiatedTransactions[txnId] = txn;
         TransactionContext txnContext = {transactionId:txnId,
@@ -260,7 +263,9 @@ function registerParticipantWithLocalInitiator (string transactionId,
             txn.participants[participantId] = participant;
 
             //Set initiator protocols
-            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
+            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
+                                                     transactionBlockId:transactionBlockId,
+                                                     coordinationType:TWO_PHASE_COMMIT};
             Protocol initiatorProto = {name:"durable", transactionBlockId:transactionBlockId};
             twopcTxn.coordinatorProtocols = [initiatorProto];
 
@@ -375,7 +380,9 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         }
         RegistrationResponse regRes => {
             Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
-            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
+            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
+                                                     transactionBlockId:transactionBlockId,
+                                                     coordinationType:TWO_PHASE_COMMIT};
             twopcTxn.coordinatorProtocols = coordinatorProtocols;
             participatedTransactions[participatedTxnId] = twopcTxn;
             TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,

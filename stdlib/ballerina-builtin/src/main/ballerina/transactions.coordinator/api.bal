@@ -37,7 +37,6 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
                            string coordinationType) returns TransactionContext|error {
     match transactionId {
         string txnId => {
-            io:println("************ Participate in transaction:" + txnId);
             io:println(typeof txnId);
             if (initiatedTransactions.hasKey(txnId)) { // if participant & initiator are in the same process
                 // we don't need to do a network call and can simply do a local function call
@@ -51,7 +50,6 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
         }
 
         null => {
-            io:println("************ Creating new transaction ");
             return createTransactionContext(coordinationType, transactionBlockId);
         }
     }
@@ -87,16 +85,21 @@ documentation {
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
 function endTransaction (string transactionId, int transactionBlockId) returns string|error {
+    log:printInfo("########### endTransaction");
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+    if(!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
+        error err = {message:"Transaction: " + participatedTxnId + " not found"};
+        throw err;
+    }
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
-            return abortTransaction(transactionId, transactionBlockId);
+            return txn.abortTransaction(transactionBlockId);
         } else {
-            string|error ret = commitTransaction(transactionId, transactionBlockId);
+            string|error ret = txn.commitTransaction(transactionBlockId);
             removeInitiatedTransaction(transactionId);
             return ret;
         }
@@ -116,16 +119,16 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
+function<TwoPhaseCommitTransaction txn> abortTransaction (string transactionId, int transactionBlockId) returns string|error {
     log:printInfo("########### abort called");
 
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (initiatedTransactions.hasKey(transactionId)) {
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (participatedTransactions.hasKey(participatedTxnId)) {
 
             log:printInfo("########### aborting local participant transaction");
 
-            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
                 error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
@@ -139,11 +142,11 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
                 error err = {message:"Participant: " + participantId + " removal failed"};
                 throw err;
             }
-            string ret =? abortInitiatorTransaction(transactionId, transactionBlockId);
+            string ret =? txn.abortInitiatorTransaction(transactionId, transactionBlockId);
             txn.state = TransactionState.ABORTED;
             return ret;
         } else {
-            return abortInitiatorTransaction(transactionId, transactionBlockId);
+            return txn.abortInitiatorTransaction(transactionId, transactionBlockId);
         }
     } else {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
