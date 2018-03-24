@@ -55,7 +55,9 @@ class WebSubDispatcher extends HttpDispatcher {
                 // Finer details of the errors are thrown from the dispatcher itself, ideally we shouldn't get here.
             }
 
-            resource = WebSubResourceDispatcher.findResource(service, httpCarbonMessage);
+            resource = WebSubResourceDispatcher.findResource(service, httpCarbonMessage,
+                                                             servicesRegistry.getTopicHeader(),
+                                                             servicesRegistry.getTopicResourceMap());
         } catch (Throwable throwable) {
             handleError(httpCarbonMessage, throwable);
         }

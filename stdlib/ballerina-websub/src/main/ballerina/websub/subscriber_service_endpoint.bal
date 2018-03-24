@@ -76,6 +76,7 @@ public type SubscriberServiceEndpoint object {
 };
 
 public function SubscriberServiceEndpoint::init(SubscriberServiceEndpointConfiguration config) {
+    self.config = config;
     SignatureValidationFilter sigValFilter = new(interceptWebSubRequest, interceptionPlaceholder);//TODO:rem placeholder
     http:Filter[] filters = [<http:Filter> sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
@@ -151,7 +152,8 @@ public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
     http:ServiceSecureSocket? secureSocket;
-    //TODO: include header, topic-resource map
+    string topicHeader;
+    map topicResourceMap;
 };
 
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}

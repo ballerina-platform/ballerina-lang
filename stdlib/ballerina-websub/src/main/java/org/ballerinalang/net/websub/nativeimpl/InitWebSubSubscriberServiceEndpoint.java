@@ -23,6 +23,8 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -41,8 +43,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
         orgName = "ballerina", packageName = "websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
-                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
-        isPublic = true
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH)
 )
 public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
 
@@ -52,8 +53,14 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
                 (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
-
+        BStruct config = (BStruct) ((BStruct) context.getRefArgument(0)).getRefField(0);
         WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
+        if (!(config.getStringField(1).equals(""))) {
+            webSubServicesRegistry.setTopicHeader(config.getStringField(1));
+            if (!((BMap<String, BString>) config.getRefField(1)).isEmpty()) {
+                webSubServicesRegistry.setTopicResourceMap((BMap<String, BString>) config.getRefField(1));
+            }
+        }
         serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
 
         context.setReturnValues();

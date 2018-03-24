@@ -19,6 +19,8 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -34,8 +36,47 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSubServicesRegistry.class);
 
+    private String topicHeader;
+    private BMap<String, BString> topicResourceMap;
+
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
+    }
+
+    /**
+     * Method to retrieve the topic header upon which routing would be based, if specified.
+     *
+     * @return the topic header to consider
+     */
+    public String getTopicHeader() {
+        return topicHeader;
+    }
+
+    /**
+     * Method to set the topic header upon which routing should be based, if specified.
+     *
+     * @param topicHeader the topic header to consider
+     */
+    public void setTopicHeader(String topicHeader) {
+        this.topicHeader = topicHeader;
+    }
+
+    /**
+     * Method to set the topic resource mapping if specified.
+     *
+     * @param topicResourceMap topic-resource map specified for the service
+     */
+    public void setTopicResourceMap(BMap<String, BString> topicResourceMap) {
+        this.topicResourceMap = topicResourceMap;
+    }
+
+    /**
+     * Method to retrieve the topic resource mapping if specified.
+     *
+     * @return the topic-resource map specified for the service
+     */
+    public BMap<String, BString> getTopicResourceMap() {
+        return topicResourceMap;
     }
 
     /**
@@ -53,7 +94,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        WebSubSubscriberServiceValidator.validateResources(httpService);
+        WebSubSubscriberServiceValidator.validateResources(httpService, topicHeader, topicResourceMap);
     }
 
 }

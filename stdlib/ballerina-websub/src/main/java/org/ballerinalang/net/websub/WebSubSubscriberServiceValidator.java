@@ -21,10 +21,13 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,11 +37,15 @@ import java.util.List;
  */
 class WebSubSubscriberServiceValidator {
 
-    static void validateResources(HttpService service) {
-        validateResources(service.getResources());
+    static void validateResources(HttpService service, String topicHeader, BMap<String, BString> topicResourceMap) {
+        if (topicHeader != null && topicResourceMap != null) {
+            validateCustomResources(service.getResources(), topicResourceMap);
+        } else {
+            validateDefaultResources(service.getResources());
+        }
     }
 
-    private static void validateResources(List<HttpResource> resources) {
+    private static void validateDefaultResources(List<HttpResource> resources) {
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
@@ -94,6 +101,36 @@ class WebSubSubscriberServiceValidator {
                     String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
                                   paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
                                   paramDetail.getVarName(), resourceName, packageName, structName));
+        }
+    }
+
+    private static void validateCustomResources(List<HttpResource> resources, BMap<String, BString> topicResourceMap) {
+        List<String> resourceNames = new ArrayList<>();
+        List<String> invalidResourceNames = new ArrayList<>();
+
+        for (String topic: topicResourceMap.keySet()) {
+            resourceNames.add(topicResourceMap.get(topic).stringValue());
+        }
+        for (HttpResource resource : resources) {
+            String resourceName = resource.getName();
+            if (!resourceNames.contains(resourceName)) {
+                invalidResourceNames.add(resourceName);
+            } else {
+                validateOnNotificationResource(resource.getBalResource());
+                resourceNames.remove(resourceName);
+            }
+        }
+
+        String errorMessage = null;
+        if (!invalidResourceNames.isEmpty()) {
+            errorMessage = "Resource name(s) not included in the topic-resource mapping found: " + invalidResourceNames
+                    + "\n";
+        }
+        if (!resourceNames.isEmpty()) {
+            errorMessage = "Resource(s) specified in topic-resource mapping not found: " + resourceNames;
+        }
+        if (errorMessage != null) {
+            throw new BallerinaException(errorMessage);
         }
     }
 

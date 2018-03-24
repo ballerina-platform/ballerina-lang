@@ -19,6 +19,8 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
@@ -33,22 +35,19 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 class WebSubResourceDispatcher {
 
-    static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest)
+    static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest, String topicHeader,
+                                     BMap<String, BString> topicResourceMap)
             throws BallerinaConnectorException, ServerConnectorException {
 
         String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
         HttpResource httpResource = null;
         String resourceName;
 
-        switch (method) {
-            case HttpConstants.HTTP_METHOD_POST:
-                resourceName = WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
-                break;
-            case HttpConstants.HTTP_METHOD_GET:
-                resourceName = WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
-                break;
-            default:
-                throw new BallerinaConnectorException("method not allowed for WebSub Subscriber Services : " + method);
+        if (topicHeader != null && topicResourceMap != null) {
+            String topic = inboundRequest.getHeader(topicHeader);
+            resourceName = retrieveResourceName(method, topic, topicResourceMap);
+        } else {
+            resourceName = retrieveResourceName(method);
         }
 
         for (HttpResource resource : service.getResources()) {
@@ -79,5 +78,33 @@ class WebSubResourceDispatcher {
         }
         return httpResource;
     }
+
+    private static String retrieveResourceName(String method) {
+        switch (method) {
+            case HttpConstants.HTTP_METHOD_POST:
+                return WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
+            case HttpConstants.HTTP_METHOD_GET:
+                return WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
+            default:
+                throw new BallerinaConnectorException("method not allowed for WebSub Subscriber Services : " + method);
+        }
+    }
+
+    private static String retrieveResourceName(String method, String topic, BMap<String, BString> topicResourceMap) {
+        switch (method) {
+            case HttpConstants.HTTP_METHOD_POST:
+                if (topicResourceMap.get(topic) != null) {
+                    return topicResourceMap.get(topic).stringValue();
+                } else {
+                    throw new BallerinaConnectorException("resource not specified for topic : " + topic);
+                }
+            case HttpConstants.HTTP_METHOD_GET:
+                //TODO handle GET without verify intent
+                return WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
+            default:
+                throw new BallerinaConnectorException("method not allowed for WebSub Subscriber Services : " + method);
+        }
+    }
+
 
 }
