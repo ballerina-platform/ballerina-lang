@@ -39,7 +39,7 @@ public type SubscriberServiceEndpoint object {
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during package init"}
-    @Param {value:"config: The HTTP ServiceEndpointConfiguration of the endpoint"}
+    @Param {value:"config: The Subscriber Service Endpoint Configuration of the endpoint"}
     public function init(SubscriberServiceEndpointConfiguration config);
 
     @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}

@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,8 @@ import java.util.List;
  * @since 0.965.0
  */
 class WebSubSubscriberServiceValidator {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebSubSubscriberServiceValidator.class);
 
     static void validateResources(HttpService service, String topicHeader, BMap<String, BString> topicResourceMap) {
         if (topicHeader != null && topicResourceMap != null) {
@@ -121,16 +125,12 @@ class WebSubSubscriberServiceValidator {
             }
         }
 
-        String errorMessage = null;
-        if (!invalidResourceNames.isEmpty()) {
-            errorMessage = "Resource name(s) not included in the topic-resource mapping found: " + invalidResourceNames
-                    + "\n";
-        }
         if (!resourceNames.isEmpty()) {
-            errorMessage = "Resource(s) specified in topic-resource mapping not found: " + resourceNames;
+            logger.warn("Resource(s) specified in topic-resource mapping not found: " + resourceNames);
         }
-        if (errorMessage != null) {
-            throw new BallerinaException(errorMessage);
+        if (!invalidResourceNames.isEmpty()) {
+            throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "
+                                                 + invalidResourceNames);
         }
     }
 
