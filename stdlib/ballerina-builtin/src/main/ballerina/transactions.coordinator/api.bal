@@ -85,7 +85,6 @@ documentation {
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
 function endTransaction (string transactionId, int transactionBlockId) returns string|error {
-    log:printInfo("########### endTransaction");
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if(!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = {message:"Transaction: " + participatedTxnId + " not found"};
