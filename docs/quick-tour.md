@@ -125,6 +125,5 @@ Hello Ballerina!
 1. Access the Composer from the following URL in your browser: http://localhost:9091
 
     The welcome page of Ballerina Composer appears. 
-    
     ![alt text](images/ComposerNew1.png "Welcome page")
     
