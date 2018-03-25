@@ -27,7 +27,7 @@ Ballerina is created for and dedicated to developers who want to solve integrati
 
 ### Download the binary
 
-You can download the Ballerina distribution, try samples, and read the documentation at http://ballerinalang.org.
+You can download the Ballerina distribution at http://ballerinalang.org.
 
 [(Back to top)](#table-of-contents)
 
