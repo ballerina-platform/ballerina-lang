@@ -6,6 +6,7 @@ These are the available sections in this tour.
 
 - [Install Ballerina](#install-ballerina)
 - [Run HelloWorld](#run-helloworld)
+- [Build, Run, and Call the Service](#build-run-and-call-the-service)
 
 
 ## Install Ballerina
