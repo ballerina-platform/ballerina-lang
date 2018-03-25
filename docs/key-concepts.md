@@ -15,5 +15,3 @@ As you create your program, there are several constructs available that you can 
 * **Action**: An action is an operation you can execute against a connector. It represents a single interaction with a participant of the integration.  
 
 You can also define constants, variables, structured types, and more as you do with other programming languages, and you can use logic statements like if and while.
-
-![alt text](images/Figure1-1.png "Ballerina constructs")
