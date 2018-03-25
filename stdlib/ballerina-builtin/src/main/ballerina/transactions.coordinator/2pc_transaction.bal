@@ -177,7 +177,7 @@ function<TwoPhaseCommitTransaction txn> prepareParticipants (string protocol) re
             if (proto.name == protocol) {
                 match proto.protocolFn {
                     (function (string, int, string) returns boolean) protocolFn => {
-                    // if the participant is a local participant, i.e. protoFn is set, then call that fn
+                        // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Preparing local participant: " + participant.participantId);
                         if (!protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
                             successful = false;
