@@ -14,11 +14,21 @@ Ballerina is a simple programming language whose syntax and runtime addresses th
 
 Ballerina is created for and dedicated to developers who want to solve integration problems. Ballerina is inspired by Java, Go, and other languages, and leverages years of experience in the integration domain.
 
-## Getting started
+## Table of contents
+
+- [Download and install](#download-and-install)
+- [Contributing to Ballerina](#contributing-to-ballerina)
+
+
+## Download and install
+
+### Download the binary
 
 You can download the Ballerina distribution, try samples, and read the documentation at http://ballerinalang.org.
 
-## Building from the source
+[(Back to top)](#table-of-contents)
+
+## Install from source
 
 ### Prerequisites
 
@@ -42,12 +52,22 @@ You can download the Ballerina distribution, try samples, and read the documenta
 2. Run the Maven command ``mvn clean install`` from the ``ballerina`` root directory.
 3. Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`.
 
+[(Back to top)](#table-of-contents)
+
 ## Running samples
 
 The website http://ballerinalang.org has several samples you can try out right there in the page. These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution. Or go to the [ballerina-by-example](https://ballerinalang.org/docs/by-example/) website to view the Ballerina examples.  
+
+[(Back to top)](#table-of-contents)
 
 ## Contributing to Ballerina
 
 As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-lang/ballerina/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
 
 Check the issue tracker for open issues that interest you. We look forward to receiving your contributions.
+
+[(Back to top)](#table-of-contents)
+
+## License
+
+Ballerina code is distributed under [Apache license 2.0](https://github.com/ballerina-lang/ballerina/blob/master/LICENSE).
