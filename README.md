@@ -33,6 +33,8 @@ You can download the Ballerina distribution at http://ballerinalang.org.
 
 ### Install from source
 
+Alternatively, you can install Ballerina from the source using the following instructions.
+
 #### Prerequisites
 
 * [Maven](https://maven.apache.org/download.cgi)
