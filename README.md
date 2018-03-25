@@ -23,8 +23,6 @@ Ballerina is created for and dedicated to developers who want to solve integrati
 - [License](#license)
 - [Useful links](#useful-links)
 
-## Download and install
-
 ## Getting started
 
 You can use one of the following options to try out Ballerina.
@@ -40,6 +38,8 @@ Once you are familiar with the basic language, you can also try out some more do
 * The Language Specification is a set of documents that explain more about the inner workings of the Ballerina language itself.
 
 [(Back to top)](#table-of-contents)
+
+## Download and install
 
 ### Download the binary
 
