@@ -18,6 +18,7 @@ Ballerina is created for and dedicated to developers who want to solve integrati
 ## Table of contents
 
 - [Download and install](#download-and-install)
+- [Using Ballerina](#using-ballerina)
 - [Contributing to Ballerina](#contributing-to-ballerina)
 - [License](#license)
 - [Useful links](#useful-links)
@@ -56,7 +57,7 @@ You can download the Ballerina distribution, try samples, and read the documenta
 
 [(Back to top)](#table-of-contents)
 
-## Running samples
+## Using Ballerina
 
 The website http://ballerinalang.org has several samples you can try out right there in the page. These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution. Or go to the [ballerina-by-example](https://ballerinalang.org/docs/by-example/) website to view the Ballerina examples.  
 
