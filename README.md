@@ -9,7 +9,7 @@
 
 # Hello, I'm Ballerina
 
-In the forseeable future, we will see a continous increase in the number of applications written to meet the growing demand. All these apps will increasingly depend on programmable endpoints and eventually everything we integrate with becomes an endpoint. Integration is the discipline of resilient communication between endpoints. The challenge with integration is to not only solve hard integration problems but to also do so in an agile manner.
+In the forseeable future, we will see a continous increase in the number of applications written in order to meet the growing demand. All these apps will increasingly depend on programmable endpoints and eventually everything we integrate with becomes an endpoint. Integration is the discipline of resilient communication between endpoints. The challenge with integration is to not only solve hard integration problems but to also do so in an agile manner.
 
 Ballerina is a simple programming language whose syntax and runtime addresses the hard problems of integration in an agile way. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. Ballerina code is compiled into services that include transactions, embedded brokers, and gateway runtimes.
 
@@ -18,7 +18,7 @@ Ballerina is created for and dedicated to developers who want to solve integrati
 ## Table of contents
 
 - [Download and install](#download-and-install)
-- [Using Ballerina](#using-ballerina)
+- [Getting started](#getting-started)
 - [Contributing to Ballerina](#contributing-to-ballerina)
 - [License](#license)
 - [Useful links](#useful-links)
@@ -57,9 +57,12 @@ You can download the Ballerina distribution at http://ballerinalang.org.
 
 [(Back to top)](#table-of-contents)
 
-## Using Ballerina
+## Getting started
 
-The website http://ballerinalang.org has several samples you can try out right there in the page. These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution. Or go to the [ballerina-by-example](https://ballerinalang.org/docs/by-example/) website to view the Ballerina examples.  
+* The [Quick Tour](https://github.com/ballerina-lang/ballerina/blob/master/docs/quick-tour.md) gives you instructions on how to start Ballerina, run a simple code, and get a response within seconds. It also introduces the means to quickly get started and take Ballerina for its first spin.
+* The [Ballerina website](http://ballerinalang.org) has a few selected samples that you can try out right there in the page. 
+* [Ballerina by Example](https://ballerinalang.org/docs/by-example/) can be used to understand Ballerina examples as you try them out.  
+* [Ballerina by Guide](https://github.com/ballerina-guides) is a series of long form examples that showcase a complete lifecycle of development with Ballerina including setting up the environment, using tools, build system, authoring code, running tests, and deploying within an architecture environment.
 
 [(Back to top)](#table-of-contents)
 
