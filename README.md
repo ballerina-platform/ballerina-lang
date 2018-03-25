@@ -1,4 +1,5 @@
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+![Ballerina](https://ballerina.io/images/ballerina-logo.svg)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=ballerina-lang/ballerina)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-lang/job/ballerina/)
 [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-lang/ballerina/all.svg)](https://github.com/ballerina-lang/ballerina/releases)
 [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-lang/ballerina.svg)](https://github.com/ballerina-lang/ballerina/releases)
@@ -18,7 +19,8 @@ Ballerina is created for and dedicated to developers who want to solve integrati
 
 - [Download and install](#download-and-install)
 - [Contributing to Ballerina](#contributing-to-ballerina)
-
+- [License](#license)
+- [Useful links](#useful-links)
 
 ## Download and install
 
@@ -28,15 +30,15 @@ You can download the Ballerina distribution, try samples, and read the documenta
 
 [(Back to top)](#table-of-contents)
 
-## Install from source
+### Install from source
 
-### Prerequisites
+#### Prerequisites
 
-1. [Maven](https://maven.apache.org/download.cgi)
-2. [Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
-3. [Docker](https://www.docker.com/get-docker)
+* [Maven](https://maven.apache.org/download.cgi)
+* [Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
+* [Docker](https://www.docker.com/get-docker)
 
-### Building the source
+#### Building the source
 
 1. Clone this repository using the following command.
 
@@ -71,3 +73,12 @@ Check the issue tracker for open issues that interest you. We look forward to re
 ## License
 
 Ballerina code is distributed under [Apache license 2.0](https://github.com/ballerina-lang/ballerina/blob/master/LICENSE).
+
+[(Back to top)](#table-of-contents)
+
+## Useful links
+
+* The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
+* Reach out to us on our [Slack channel](https://ballerina-platform.slack.com/) and integrate with our community.
+
+[(Back to top)](#table-of-contents)
