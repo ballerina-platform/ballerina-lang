@@ -59,10 +59,17 @@ You can download the Ballerina distribution at http://ballerinalang.org.
 
 ## Getting started
 
+You can use one of the following options to try out Ballerina.
+
 * The [Quick Tour](https://github.com/ballerina-lang/ballerina/blob/master/docs/quick-tour.md) gives you instructions on how to start Ballerina, run a simple code, and get a response within seconds. It also introduces the means to quickly get started and take Ballerina for its first spin.
 * The [Ballerina website](http://ballerinalang.org) has a few selected samples that you can try out right there in the page. 
-* [Ballerina by Example](https://ballerinalang.org/docs/by-example/) can be used to understand Ballerina examples as you try them out.  
+* [Editors, IDEs and the Ballerina Composer](https://github.com/ballerina-lang/ballerina/blob/master/docs/tools-ides-ballerina-composer.md) is a topic that introduces you to several tools that can help create, document, and test your code. These tools can be various editors, IDEs, and a graphical visualization tool for your code called the Ballerina Composer.
+* [Ballerina by Example](https://ballerinalang.org/docs/by-example/) can be used to understand Ballerina examples as you try them out. 
+
+Once you are familiar with the basic language, you can also try out some more documentation with integration scenarios and also a detailed language specification for advanced learning.
+
 * [Ballerina by Guide](https://github.com/ballerina-guides) is a series of long form examples that showcase a complete lifecycle of development with Ballerina including setting up the environment, using tools, build system, authoring code, running tests, and deploying within an architecture environment.
+* The Language Specification is a set of documents that explain more about the inner workings of the Ballerina language itself.
 
 [(Back to top)](#table-of-contents)
 
