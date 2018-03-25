@@ -6,7 +6,7 @@ These are the available sections in this tour.
 
 - [Install Ballerina](#install-ballerina)
 - [Run HelloWorld](#run-helloworld)
-- [Build, Run, and Call the Service](#build-run-and-call-the-service)
+- [Write and Call a Service](#write-and-call-a-service)
 
 
 ## Install Ballerina
@@ -48,9 +48,9 @@ You just started Ballerina, ran a simple code, and got a response within seconds
 
 Pretty simple and straightforward, right? Now, let's look at running the same Hello World program as a service.
 
-## Build, Run, and Call the Service
+## Write and Call a Service
 
-Now let's change the Hello World program to a service. Open the hello-world.bal file you just created
+Now let's change the Hello World program to a service. Open the hello-world.bal file you just created and replace the existing code with the following.
 
 ```
 import ballerina/net.http;
