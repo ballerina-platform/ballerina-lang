@@ -1,3 +1,4 @@
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=ballerina-lang/ballerina)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-lang/job/ballerina/)
 [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-lang/ballerina/all.svg)](https://github.com/ballerina-lang/ballerina/releases)
 [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-lang/ballerina.svg)](https://github.com/ballerina-lang/ballerina/releases)
@@ -5,11 +6,13 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
-# Hello, I'm Ballerina.
+# Hello, I'm Ballerina
 
-Ballerina is a general purpose, concurrent, and strongly typed programming language with both textual and graphical syntaxes. It is designed to make it easier to write programs that integrate with data sources, services, and network-connected APIs of all kinds. It is optimized primarily for such programs - while it can be use to program anything, it is not recommended to use Ballerina if a significant portion of the program is not related to integrating with data sources, services, or network-connected APIs.
+In the forseeable future, we will see a continous increase in the number of applications written to meet the growing demand. All these apps will increasingly depend on programmable endpoints and eventually everything we integrate with becomes an endpoint. Integration is the discipline of resilient communication between endpoints. The challenge with integration is to not only solve hard integration problems but to also do so in an agile manner.
 
-Ballerina has been inspired by Java, Go, and other languages, but it has a concurrency model built around a sequence diagram metaphor.
+Ballerina is a simple programming language whose syntax and runtime addresses the hard problems of integration in an agile way. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. Ballerina code is compiled into services that include transactions, embedded brokers, and gateway runtimes.
+
+Ballerina is created for and dedicated to developers who want to solve integration problems. Ballerina is inspired by Java, Go, and other languages, and leverages years of experience in the integration domain.
 
 ## Getting started
 
@@ -42,3 +45,9 @@ You can download the Ballerina distribution, try samples, and read the documenta
 ## Running samples
 
 The website http://ballerinalang.org has several samples you can try out right there in the page. These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution. Or go to the [ballerina-by-example](https://ballerinalang.org/docs/by-example/) website to view the Ballerina examples.  
+
+## Contributing to Ballerina
+
+As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-lang/ballerina/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
+
+Check the issue tracker for open issues that interest you. We look forward to receiving your contributions.
