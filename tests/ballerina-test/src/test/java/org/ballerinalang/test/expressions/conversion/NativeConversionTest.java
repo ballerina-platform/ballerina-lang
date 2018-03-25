@@ -215,7 +215,12 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a map to json")
     public void testMapToJsonConversionError() {
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'map' cannot be convert to 'json'", 36, 15);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'map' cannot be convert to 'json'", 36,15);
+    }
+
+    @Test(description = "Test converting a struct with map of blob to a JSON")
+    public void testStructWithIncompatibleTypeToJson() {
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'Info' cannot be convert to 'json'", 48,10);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -312,11 +317,6 @@ public class NativeConversionTest {
                     "incompatible types: expected 'json', found 'blob'.*")
     public void testStructWithIncompatibleTypeMapToJson() {
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
-    }
-
-    @Test(description = "Test converting a struct with map of blob to a JSON")
-    public void testStructWithIncompatibleTypeToJson() {
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: 'Info' cannot be convert to 'json'", 48, 10);
     }
 
     @Test(description = "Test converting a JSON array to any array")
