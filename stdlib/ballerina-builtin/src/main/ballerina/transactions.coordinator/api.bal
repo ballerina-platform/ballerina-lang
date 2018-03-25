@@ -55,6 +55,21 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
     }
 }
 
+function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
+    log:printInfo("########### abort called");
+    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+    if (participatedTransactions.hasKey(participatedTxnId)) {
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+        return txn.abortTransaction();
+    } else if (initiatedTransactions.hasKey(transactionId)) {
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        return txn.abortTransaction();
+    } else {
+        error err = {message:"Unknown transaction"};
+        throw err;
+    }
+}
+
 documentation {
     Mark a transaction for abortion.
 

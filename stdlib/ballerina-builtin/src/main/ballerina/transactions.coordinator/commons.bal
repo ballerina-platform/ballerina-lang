@@ -138,6 +138,7 @@ function createTransactionContext (string coordinationType,
     } else {
         Transaction txn = createNewTransaction(coordinationType, transactionBlockId);
         string txnId = txn.transactionId;
+        txn.isInitiated = true;
         initiatedTransactions[txnId] = txn;
         TransactionContext txnContext = {transactionId:txnId,
                                             transactionBlockId:transactionBlockId,
