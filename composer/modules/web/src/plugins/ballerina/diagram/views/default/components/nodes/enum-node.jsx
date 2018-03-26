@@ -170,7 +170,7 @@ class EnumNode extends React.Component {
         };
         const columnSize = (coDimensions.w - DesignerDefaults.structDefinition.submitButtonWidth);
         return (
-            <PanelDecorator icon='tool-icons/enum' title={title} bBox={bBox} model={model}>
+            <PanelDecorator icon='enum' title={title} bBox={bBox} model={model}>
                 {this.renderContentOperations(coDimensions, columnSize)}
                 <g>
                     {

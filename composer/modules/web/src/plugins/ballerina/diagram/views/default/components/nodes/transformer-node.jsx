@@ -37,7 +37,7 @@ class TransformerNode extends React.Component {
     }
 
     render() {
-        const icon = 'tool-icons/transformer';
+        const icon = 'transformer';
         const { model } = this.props;
         const { viewState } = model;
         const { bBox } = viewState;
