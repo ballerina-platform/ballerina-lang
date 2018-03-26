@@ -32,3 +32,12 @@ function testHMACValueFromBase16ToBase64Encoding (string base, string key) retur
 function testHMACValueFromBase64ToBase16Encoding (string base, string key) returns (string) {
     return util:base64ToBase16Encode(util:base16ToBase64Encode(crypto:getHmac(base, key, crypto:Algorithm.MD5)));
 }
+
+function testParseJson (string s) returns (json|error) {
+    match util:parseJson(s) {
+        json result => {
+            return result;
+        }
+        error err => return err;
+    }
+}

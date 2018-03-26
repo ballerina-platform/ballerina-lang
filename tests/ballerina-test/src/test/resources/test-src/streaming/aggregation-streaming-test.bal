@@ -37,7 +37,7 @@ stream<Teacher> teacherStream = {};
 
 function testAggregationQuery () {
 
-    whenever{
+    forever{
         from teacherStream where age > 18 window lengthBatch(3)
         select status, count(status) as totalCount
         group by status

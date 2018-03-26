@@ -39,7 +39,7 @@ public class Cancel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BFuture future = (BFuture) context.getRefArgument(0);
-        context.setReturnValues(new BBoolean(future.value().cancel()));
+        context.setReturnValues(new BBoolean(future.cancel()));
     }
     
 }

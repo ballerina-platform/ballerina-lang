@@ -53,7 +53,7 @@ public class UnaryMethodListener extends MethodListener implements UnaryMethod<M
             signatureParams[1] = requestParam;
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource, callback, null, signatureParams);
+        Executor.submit(resource, callback, null, null, signatureParams);
     }
 
 }

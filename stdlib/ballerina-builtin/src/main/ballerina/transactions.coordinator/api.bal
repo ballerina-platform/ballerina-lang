@@ -55,14 +55,20 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
     }
 }
 
+documentation {
+    When an abort statement is executed, this function gets called.
+
+    P{{transactionId}} - Globally unique transaction ID.
+    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
+}
 function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
-        return txn.abortTransaction();
+        return txn.markForAbortion();
     } else if (initiatedTransactions.hasKey(transactionId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
-        return txn.abortTransaction();
+        return txn.markForAbortion();
     } else {
         error err = {message:"Unknown transaction"};
         throw err;

@@ -95,7 +95,8 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsTextFrame;
         //TODO handle BallerinaConnectorException
-        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
+                null, bValues);
     }
 
     public static void dispatchBinaryMessage(WebSocketService wsService,
@@ -118,7 +119,8 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsBinaryFrame;
         //TODO handle BallerinaConnectorException
-        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
+                null, bValues);
     }
 
     public static void dispatchControlMessage(WebSocketService wsService,
@@ -147,7 +149,8 @@ public class WebSocketDispatcher {
         wsPingFrame.setBlobField(0, data);
         bValues[1] = wsPingFrame;
         //TODO handle BallerinaConnectorException
-        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
+                null, bValues);
     }
 
     private static void dispatchPongMessage(WebSocketService wsService,
@@ -164,7 +167,8 @@ public class WebSocketDispatcher {
         wsPongFrame.setBlobField(0, data);
         bValues[1] = wsPongFrame;
         //TODO handle BallerinaConnectorException
-        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
+                null, bValues);
     }
 
     public static void dispatchCloseMessage(WebSocketService wsService,
@@ -181,7 +185,8 @@ public class WebSocketDispatcher {
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
         bValues[1] = wsCloseFrame;
         //TODO handle BallerinaConnectorException
-        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(), null,
+                null, bValues);
     }
 
     public static void dispatchIdleTimeout(WebSocketService wsService,
@@ -194,7 +199,8 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = wsService.getServiceEndpoint();
         //TODO handle BallerinaConnectorException
-        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(), null,
+                null, bValues);
     }
 
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {

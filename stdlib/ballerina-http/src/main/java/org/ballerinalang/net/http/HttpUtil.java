@@ -70,6 +70,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,15 @@ import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.util.tracer.TraceConstants.HTTP_HOST;
+import static org.ballerinalang.util.tracer.TraceConstants.HTTP_PORT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_COMPONENT_BALLERINA;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_COMPONENT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_HOST;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_PORT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_PROTOCOL;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -1118,6 +1128,21 @@ public class HttpUtil {
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
         return new DefaultHttpWsConnectorFactory();
+    }
+
+    public static Map<String, String> extractTraceTags(HTTPCarbonMessage msg) {
+        Map<String, String> tags = new HashMap<>();
+        tags.put(TAG_KEY_COMPONENT, TAG_COMPONENT_BALLERINA);
+        tags.put(TAG_KEY_HTTP_METHOD, String.valueOf(msg.getProperty(HttpConstants.HTTP_METHOD)));
+        tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
+        tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(HTTP_HOST)));
+        tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(HTTP_PORT)));
+        tags.put(TAG_KEY_PROTOCOL, String.valueOf(msg.getProperty(HttpConstants.PROTOCOL)));
+        return tags;
+    }
+
+    public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
+        headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
     }
 }
 

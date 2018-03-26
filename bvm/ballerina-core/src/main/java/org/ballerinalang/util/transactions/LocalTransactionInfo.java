@@ -120,20 +120,16 @@ public class LocalTransactionInfo {
         return bNotifyCoordinator;
     }
 
-    public boolean onTransactionAbort() {
-        return (transactionLevel == 1);
-    }
-
     public boolean onTransactionEnd(int transactionBlockId) {
-        boolean bNotifyCoordinator = false;
+        boolean isOuterTx = false;
         transactionBlockIdStack.pop();
         --transactionLevel;
         if (transactionLevel == 0) {
             TransactionResourceManager.getInstance().endXATransaction(globalTransactionId, transactionBlockId);
             resetTransactionInfo();
-            bNotifyCoordinator = true;
+            isOuterTx = true;
         }
-        return bNotifyCoordinator;
+        return isOuterTx;
 
     }
 
