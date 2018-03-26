@@ -13,8 +13,7 @@ endpoint http:ClientEndpoint stockqEP {
 };
 
 @http:ServiceConfig {
-    basePath:"/product",
-    endpoints: [headerServiceEP]
+    basePath:"/product"
 }
 service<http:Service> headerService bind headerServiceEP {
 
@@ -60,8 +59,7 @@ service<http:Service> headerService bind headerServiceEP {
 }
 
 @http:ServiceConfig {
-    basePath:"/sample",
-    endpoints: [headerServiceEP]
+    basePath:"/sample"
 }
 service<http:Service> quoteService bind stockServiceEP {
 

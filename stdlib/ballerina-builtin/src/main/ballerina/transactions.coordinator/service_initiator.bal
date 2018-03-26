@@ -107,15 +107,16 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
 
                 RegistrationResponse regRes = {transactionId:txnId,
                                                   coordinatorProtocols:coordinatorProtocols};
-                json resPayload = <json, regResposeToJson()>(regRes);
+                json resPayload = regResponseToJson(regRes);
                 http:Response res = {statusCode:200};
                 res.setJsonPayload(resPayload);
                 var connErr = conn -> respond(res);
                 match connErr {
                     error err => log:printErrorCause("Sending response for register request for transaction " + txnId +
                                                      " failed", err);
+                    null => log:printInfo("Registered remote participant: " + participantId + " for transaction: " +
+                                          txnId);
                 }
-                log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
             }
         }
         //TODO: Need to handle the  Cannot-Register error case    

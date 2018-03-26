@@ -106,8 +106,8 @@ public class PackageLoader {
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
+        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
@@ -202,7 +202,7 @@ public class PackageLoader {
         return loadAndDefinePackage(pkgID);
     }
 
-    private BLangPackage loadAndDefinePackage(PackageID pkgId) {
+    public BLangPackage loadAndDefinePackage(PackageID pkgId) {
         BLangPackage bLangPackage = loadPackage(pkgId, null);
         if (bLangPackage == null) {
             return null;
