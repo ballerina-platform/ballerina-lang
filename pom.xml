@@ -939,7 +939,7 @@
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
-                <!--<module>misc/docerina</module>-->
+                <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
 
