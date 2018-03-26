@@ -56,7 +56,7 @@ public class TraceUtil {
     }
 
     public static Tracer getParentTracer(WorkerExecutionContext ctx) {
-        if (ctx != null) {
+        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx != null) {
             WorkerExecutionContext parent = ctx;
             do {
                 if (getTracer(parent).getInvocationID() != null) {
@@ -76,7 +76,7 @@ public class TraceUtil {
     }
 
     public static Tracer getTracer(WorkerExecutionContext ctx) {
-        if (ctx.localProps != null) {
+        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx.localProps != null) {
             return (Tracer) ctx.localProps.getOrDefault(KEY_TRACER, NoOpTracer.getInstance());
         }
         return NoOpTracer.getInstance();
