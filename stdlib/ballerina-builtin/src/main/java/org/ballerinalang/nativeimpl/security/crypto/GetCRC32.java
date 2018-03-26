@@ -19,11 +19,11 @@
 package org.ballerinalang.nativeimpl.security.crypto;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,11 +44,11 @@ import java.util.zip.Checksum;
         args = {@Argument(name = "content", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true)
-public class GetCRC32 extends AbstractNativeFunction {
+public class GetCRC32 extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BValue value = getRefArgument(context, 0);
+    public void execute(Context context) {
+        BValue value = context.getRefArgument(0);
         Checksum checksum = new CRC32();
         byte[] bytes;
         long checksumVal;
@@ -67,6 +67,6 @@ public class GetCRC32 extends AbstractNativeFunction {
                     "failed to generate hash: unsupported data type: " + value.getType().getName());
         }
 
-        return getBValues(new BString(Long.toHexString(checksumVal)));
+        context.setReturnValues(new BString(Long.toHexString(checksumVal)));
     }
 }
