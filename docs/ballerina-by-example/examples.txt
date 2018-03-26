@@ -42,6 +42,7 @@ Worker Interaction
 Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
+Async
 SQL Connector
 Table with SQL Connector
 Transactions
