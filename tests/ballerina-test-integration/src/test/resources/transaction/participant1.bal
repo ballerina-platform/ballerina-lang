@@ -78,5 +78,6 @@ function sendErrorResponseToInitiator(http:ServiceEndpoint conn) {
             io:print("Participant1 could not send error response to initiator. Error:");
             io:println(respondErr);
         }
+        null => return;
     }
 }
