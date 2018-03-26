@@ -8,6 +8,8 @@
 
 Ballerina is a simple programming language whose syntax and runtime addresses the integration problems in an agile way. Ballerina is designed to make it easier to write programs that integrate with data sources, services, and network-connected APIs of all kinds. It is optimized primarily for such programs. While it can be used to program anything, it is not recommended to use Ballerina if a significant portion of the program is not related to integrating with data sources, services, or network-connected APIs. 
 
+![Ballerina Philosophy](docs/images/philosophy-top.png)
+
 Ballerina is created for and dedicated to developers who want to solve integration problems. Ballerina is inspired by Java, Go, and other languages, and leverages years of experience in the integration domain.
 
 ## Table of contents
