@@ -10,9 +10,10 @@ function main (string[] args) {
         host: "localhost",
         port: 9090
     };
+
+    endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp -> LotsOfGreetings(typeof helloWorldMessageListener);
-    endpoint grpc:Client ep = {};
     match res {
         grpc:error err => {
             io:print("error");
@@ -28,12 +29,12 @@ function main (string[] args) {
     var name = "John";
     foreach greet in greets {
         log:printInfo("send greeting: " + greet + " " + name);
-        grpc:ConnectorError connErr = ep->send(greet + " " + name);
+        grpc:ConnectorError connErr = ep -> send(greet + " " + name);
         if (connErr != null) {
             io:println("Error at LotsOfGreetings : " + connErr.message);
         }
     }
-    _ = ep->complete();
+    _ = ep -> complete();
 
     //to hold the programme
     while (total == 0) {}

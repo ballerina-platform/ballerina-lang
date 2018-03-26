@@ -15,14 +15,14 @@ function <helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
     stub.serviceStub = navStub;
 }
 
-function <helloWorldStub stub> LotsOfGreetings (typedesc listener) returns (grpc:Client| error)  {
+function <helloWorldStub stub> LotsOfGreetings (typedesc listener) returns (grpc:Client | error)  {
     var res = stub.serviceStub.streamingExecute("helloWorld/LotsOfGreetings", listener);
     match res {
         grpc:ConnectorError err => {
             error e = {message:err.message};
             return e;
         }
-        grpc:Client con => {
+        grpc:Client con =>{
             return con;
         }
     }
