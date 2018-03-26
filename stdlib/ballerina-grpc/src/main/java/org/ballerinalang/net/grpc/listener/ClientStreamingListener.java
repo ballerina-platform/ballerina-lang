@@ -59,7 +59,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(onOpen, responseObserver);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-        Executor.submit(onOpen, callback, null, signatureParams);
+        Executor.submit(onOpen, callback, null, null, signatureParams);
 
         return new StreamObserver<Message>() {
             @Override
@@ -73,7 +73,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                     signatureParams[1] = requestParam;
                 }
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onMessage, callback, null, signatureParams);
+                Executor.submit(onMessage, callback, null, null, signatureParams);
             }
 
             @Override
@@ -97,7 +97,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
                 signatureParams[1] = errorStruct;
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onError, callback, null, signatureParams);
+                Executor.submit(onError, callback, null, null, signatureParams);
             }
 
             @Override
@@ -112,7 +112,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 BValue[] signatureParams = new BValue[paramDetails.size()];
                 signatureParams[0] = getConnectionParameter(onCompleted, responseObserver);
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-                Executor.submit(onCompleted, callback, null, signatureParams);
+                Executor.submit(onCompleted, callback, null, null, signatureParams);
             }
         };
     }

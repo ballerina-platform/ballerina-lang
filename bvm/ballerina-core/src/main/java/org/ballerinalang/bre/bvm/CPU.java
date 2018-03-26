@@ -2658,7 +2658,6 @@ public class CPU {
         BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-
         return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, flags);
     }
 

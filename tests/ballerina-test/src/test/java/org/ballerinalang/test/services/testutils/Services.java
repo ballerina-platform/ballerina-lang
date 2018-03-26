@@ -69,7 +69,7 @@ public class Services {
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
         callback.setRequestStruct(signatureParams[0]);
-        Executor.submit(resource.getBalResource(), callback, properties, signatureParams);
+        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();
         return callback.getResponseMsg();
     }
@@ -77,8 +77,8 @@ public class Services {
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
 //        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
 //                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
-//        TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
-//        request.setCallback(callback);
+//        BTracer bTracer = new BTracer(null, false);
+//        TestCallableUnitCallback callback = new TestCallableUnitCallback(request, bTracer);
 //        HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
 //
 //        if (resource == null) {
