@@ -1601,7 +1601,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocationArgList() != null;
-        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable, ctx.ASYNC() != null);
+        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
     @Override
@@ -1898,7 +1898,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.ASYNC() != null);
     }
 
     @Override
@@ -2877,6 +2877,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) { 
         this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override 
+    public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+        if (ctx.ASYNC() != null) {
+            this.pkgBuilder.markLastInvocationAsAsync();
+        }
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

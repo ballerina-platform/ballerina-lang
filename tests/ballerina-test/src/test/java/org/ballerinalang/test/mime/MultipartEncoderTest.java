@@ -216,7 +216,7 @@ public class MultipartEncoderTest {
         }
     }
 
-    @Test(description = "Retrieve body parts from the Request and send it across Response", enabled = false)
+    @Test(description = "Retrieve body parts from the Request and send it across Response")
     public void testNestedPartsInOutResponse() {
         String path = "/multipart/nested_parts_in_outresponse";
         HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);

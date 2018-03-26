@@ -15,26 +15,30 @@ public struct Connection {
 @Param {value:"conn: The server connector connection"}
 @Param {value:"res: The outbound response message"}
 @Return {value:"Error occured during HTTP server connector respond"}
-public native function <Connection conn> respond(Response res) returns (HttpConnectorError);
+@Return {value:"Returns null if any error does not exist."}
+public native function <Connection conn> respond(Response res) returns (HttpConnectorError | null);
 
 @Description {value:"Forwards inbound response to the caller"}
 @Param {value:"conn: The server connector connection"}
 @Param {value:"res: The inbound response message"}
 @Return {value:"Error occured during HTTP server connector forward"}
-public native function <Connection conn> forward(Response res) returns (HttpConnectorError);
+@Return {value:"Returns null if any error does not exist."}
+public native function <Connection conn> forward(Response res) returns (HttpConnectorError | null);
 
 @Description { value:"Sends a push promise to the caller."}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"promise: Push promise message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> promise(PushPromise promise) returns (HttpConnectorError);
+@Return {value:"Returns null if any error does not exist."}
+public native function <Connection conn> promise(PushPromise promise) returns (HttpConnectorError | null);
 
 @Description { value:"Sends a promised push response to the caller."}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"promise: Push promise message" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError);
+@Return {value:"Returns null if any error does not exist."}
+public native function <Connection conn> pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError | null);
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -60,11 +64,11 @@ public enum RedirectCode {
 @Description { value:"Sends a 100-continue response to the client."}
 @Param { value:"conn: The server connector connection" }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-public function <Connection conn> respondContinue () returns (HttpConnectorError) {
+@Return {value:"Returns null if any error does not exist."}
+public function <Connection conn> respondContinue () returns (HttpConnectorError | null) {
     Response res = {};
     res.statusCode = 100;
-    HttpConnectorError err = conn.respond(res);
-    return err;
+    return conn.respond(res);
 }
 
 @Description { value:"Sends a redirect response to the user with given redirection status code." }
@@ -73,7 +77,8 @@ public function <Connection conn> respondContinue () returns (HttpConnectorError
 @Param { value:"redirectCode: Status code of the specific redirect." }
 @Param { value:"locations: Array of locations where the redirection can happen." }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-public function <Connection conn> redirect (Response response, RedirectCode code, string[] locations) returns (HttpConnectorError) {
+@Return { value:"Returns null if any error does not exist." }
+public function <Connection conn> redirect (Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | null) {
     if (code == RedirectCode.MULTIPLE_CHOICES_300) {
         response.statusCode = 300;
     } else if (code == RedirectCode.MOVED_PERMANENTLY_301) {

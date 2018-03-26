@@ -33,6 +33,7 @@ service<http:Service> participant2 bind participant2EP {
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
+            null => io:print("");
         }
     }
 
@@ -51,6 +52,7 @@ service<http:Service> participant2 bind participant2EP {
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
+            null => io:print("");
         }
     }
 }

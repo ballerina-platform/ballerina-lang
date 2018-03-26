@@ -55,37 +55,22 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
     }
 }
 
-function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
-    log:printInfo("########### abort called");
-    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    if (participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
-        return txn.abortTransaction();
-    } else if (initiatedTransactions.hasKey(transactionId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
-        return txn.abortTransaction();
-    } else {
-        error err = {message:"Unknown transaction"};
-        throw err;
-    }
-}
-
 documentation {
-    Mark a transaction for abortion.
+    When an abort statement is executed, this function gets called.
 
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function markForAbortion (string transactionId, int transactionBlockId) {
+function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[transactionId];
-        txn.state = TransactionState.ABORTED;
+        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+        return txn.markForAbortion();
     } else if (initiatedTransactions.hasKey(transactionId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
-        txn.state = TransactionState.ABORTED;
+        return txn.markForAbortion();
     } else {
-        error err = {message:"Transaction: " + participatedTxnId + " not found"};
+        error err = {message:"Unknown transaction"};
         throw err;
     }
 }
@@ -111,7 +96,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
-            return txn.abortTransaction();
+            return txn.abortInitiatorTransaction();
         } else {
             string|error ret = txn.twoPhaseCommit();
             removeInitiatedTransaction(transactionId);

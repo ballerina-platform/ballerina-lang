@@ -109,6 +109,8 @@ import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
+import org.ballerinalang.util.transactions.TransactionUtils;
+
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Set;
@@ -2544,7 +2546,7 @@ public class CPU {
             String protocol = null;
             String url = null;
             if (isGlobalTransactionEnabled) {
-                BValue[] returns = notifyTransactionBegin(ctx, null, null, transactionBlockId,
+                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
                         TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
                 BStruct txDataStruct = (BStruct) returns[0];
                 globalTransactionId = txDataStruct.getStringField(1);
@@ -2558,7 +2560,7 @@ public class CPU {
         } else {
             if (isGlobalTransactionEnabled) {
                 isInitiator = false;
-                notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
+                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
                         localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol(),
                         isInitiator);
             }
@@ -2593,7 +2595,8 @@ public class CPU {
                 notifyCoordinator = localTransactionInfo.onTransactionFailed(transactionBlockId);
                 if (notifyCoordinator) {
                     if (isGlobalTransactionEnabled) {
-                        notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                                transactionBlockId);
                     } else {
                         TransactionResourceManager.getInstance()
                                 .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
@@ -2603,7 +2606,8 @@ public class CPU {
                 notifyCoordinator = localTransactionInfo.onTransactionAbort();
                 if (notifyCoordinator) {
                     if (isGlobalTransactionEnabled) {
-                        notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                                transactionBlockId);
                     } else {
                         TransactionResourceManager.getInstance()
                                 .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
@@ -2621,7 +2625,8 @@ public class CPU {
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
                 notifyCoordinator = localTransactionInfo.onTransactionEnd(transactionBlockId);
                 if (notifyCoordinator && isGlobalTransactionEnabled) {
-                    notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
+                            transactionBlockId);
                     BLangVMUtils.removeTransactionInfo(ctx);
                 }
             }
@@ -2629,47 +2634,6 @@ public class CPU {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
             handleError(ctx);
         }
-    }
-
-    private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
-                                                   int transactionBlockId, String protocol, boolean isInitiator) {
-        BValue[] args = {
-                (glbalTransactionId == null ? null : new BString(glbalTransactionId)),
-                new BInteger(transactionBlockId), new BString(url),
-                new BString(protocol)
-        };
-        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction start: ");
-        return returns;
-    }
-
-    private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
-                                             int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
-        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction end: ");
-    }
-
-    private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
-        if (value.getType().getTag() == TypeTags.STRUCT_TAG) {
-            PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(PACKAGE_BUILTIN);
-            StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-            if (((BStruct) value).getType().structInfo.equals(errorStructInfo)) {
-                throw new BallerinaException(errMsg + ((BStruct) value).getStringField(0));
-            }
-        }
-    }
-
-    private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
-                                               int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
-        invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
-    }
-
-    private static BValue[] invokeCoordinatorFunction(WorkerExecutionContext ctx, String functionName, BValue[] args) {
-        PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        return BLangFunctions.invokeCallable(functionInfo, args);
     }
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,

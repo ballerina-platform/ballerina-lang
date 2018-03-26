@@ -79,12 +79,12 @@ public class AuthnHandlerTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for extracting invalid basic auth header value")
-    public void testExtractInvalidBasicAuthHeaderValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExtractInvalidBasicAuthHeaderValue");
+    @Test(description = "Test case for extracting non existing basic auth header value")
+    public void testNonExistingBasicAuthHeaderValue() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistingBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);
         // TODO: fix properly
-        Assert.assertEquals(returns[0].stringValue(), ".Basic FSADFfgfsagas423gfdGSdfa");
+        Assert.assertEquals(returns[0], null);
     }
 
     @Test(description = "Test case for extracting basic auth header value")

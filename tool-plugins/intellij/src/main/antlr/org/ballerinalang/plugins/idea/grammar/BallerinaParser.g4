@@ -504,7 +504,7 @@ workerReply
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   functionInvocation                                                      # functionInvocationReference
+    |   ASYNC? functionInvocation                                               # functionInvocationReference
     |   awaitExpression                                                         # awaitExpressionReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
@@ -525,7 +525,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : ASYNC? functionReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : functionReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -543,7 +543,7 @@ invocationArg
     ;
 
 actionInvocation
-    : variableReference RARROW functionInvocation
+    : ASYNC? variableReference RARROW functionInvocation
     ;
 
 expressionList
