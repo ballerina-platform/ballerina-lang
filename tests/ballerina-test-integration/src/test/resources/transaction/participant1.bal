@@ -57,6 +57,7 @@ service<http:Service> participant1 bind participant1EP {
                                     io:print("Participant1 could not forward response from participant2 to initiator. Error:");
                                     io:println(err);
                                 }
+                                null => io:print("");
                             }
                         }
                     }
