@@ -6,7 +6,7 @@ These are the available sections in this tour.
 
 - [Install Ballerina](#install-ballerina)
 - [Run HelloWorld](#run-helloworld)
-- [Setting up the Editor](#setting-up-the-editor)
+- [Set up the Editor](#set-up-the-editor)
 - [Write and Call an Integration Service](#write-and-call-an-integration-service)
 - [Deploying on Docker](#deploying-on-docker)
 - [Run the Composer](#run-the-composer)
@@ -43,7 +43,7 @@ Hello, World!
 
 You just started Ballerina, ran a simple code, and got a response within seconds.
 
-## Setting up the Editor
+## Set up the Editor
 
 To run this, copy the above code into a hello-world.bal file. Let's try this on VS Code.
 
