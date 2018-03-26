@@ -37,10 +37,9 @@ http:SecureSocket|null secureSocket = getSecureSocketConfig();
                     send subscription/unsubscription requests."}
 @Return {value:"The WebSub Hub's URL"}
 function getHubUrl () returns (string) {
-    if (typeof serviceSecureSocket == typeof null) {
-        return "http://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH;
-    } else {
-        return "https://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH;
+    match (serviceSecureSocket) {
+        http:ServiceSecureSocket => { return "https://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH; }
+        null => { return "http://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH; }
     }
 }
 
