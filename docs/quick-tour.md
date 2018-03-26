@@ -7,7 +7,7 @@ These are the available sections in this tour.
 - [Install Ballerina](#install-ballerina)
 - [Run HelloWorld](#run-helloworld)
 - [Write and Call a Service](#write-and-call-a-service)
-- [Deploying on Docker](#deploying on docker)
+- [Deploying on Docker](#deploying-on-docker)
 - [Run the Composer](#run-the-composer)
 
 ___
