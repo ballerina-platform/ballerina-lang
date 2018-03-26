@@ -43,8 +43,8 @@ public class LogErrorCause extends AbstractLogFunction {
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
             String msg = getLogMessage(ctx, 0);
-            BStruct err = (BStruct) ctx.getRefArgument(0);
-            getLogger(pkg).error(msg + " : " + err.stringValue());
+            BStruct err = (BStruct) ctx.getNullableRefArgument(0);
+            getLogger(pkg).error(msg + " : " + (err == null ? null : err.stringValue()));
         }
         ctx.setReturnValues();
     }

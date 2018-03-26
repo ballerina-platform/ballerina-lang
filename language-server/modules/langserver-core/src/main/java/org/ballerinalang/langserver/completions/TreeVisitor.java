@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
@@ -54,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -103,7 +103,7 @@ import java.util.stream.Collectors;
 /**
  * @since 0.94
  */
-public class TreeVisitor extends BLangNodeVisitor {
+public class TreeVisitor extends LSNodeVisitor {
     private static final String NODE_TYPE_FUNCTION = "function";
     private static final String NODE_TYPE_ACTION = "action";
     private static final String NODE_TYPE_RESOURCE = "resource";
@@ -682,10 +682,9 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.cursorPositionResolver = ObjectTypeScopeResolver.class;
         objectNode.fields.forEach(field -> acceptNode(field, objectEnv));
         // TODO: visit annotation and doc attachments
-        // Here we set the top level node scope since the function related resolving can handle by top level resolver
-        this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
         objectNode.functions.forEach(f -> acceptNode(f, objectEnv));
         blockOwnerStack.pop();
+        this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
     }
 
     /**

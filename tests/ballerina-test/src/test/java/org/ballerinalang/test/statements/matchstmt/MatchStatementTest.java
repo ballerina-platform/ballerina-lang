@@ -22,6 +22,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -192,6 +195,54 @@ public class MatchStatementTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "json string | boolean matched");
+    }
+
+    @Test(description = "Test basics of match statement with function pointers")
+    public void testMatchStatementBasics16() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics16", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Piyal");
+    }
+
+    @Test(description = "Test basics of match statement with function pointers")
+    public void testMatchStatementBasics17() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics17", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "function pointer matched");
+    }
+
+    @Test(description = "Test basics of match statement with function pointers")
+    public void testMatchStatementBasics18() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics18", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "testing with json");
+    }
+
+    @Test(description = "Test basics of match statement with function pointers")
+    public void testMatchStatementBasics19() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics19", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger)returns[0]).intValue(), 12345);
+    }
+
+    @Test(description = "Test basics of match statement with function pointers")
+    public void testMatchStatementBasics20() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics20", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean)returns[0]).booleanValue(), false);
+    }
+
+    @Test(description = "Test basics of match statement with function pointers")
+    public void testMatchStatementBasics21() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics21", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat)returns[0]).floatValue(), 10.333);
     }
 
     @Test(description = "Test basics of match statement")

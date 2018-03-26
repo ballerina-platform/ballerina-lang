@@ -30,7 +30,7 @@ service<http:Service> participant2 bind participant2EP {
         var forwardRes = conn -> respond(res);  
         match forwardRes {
             http:HttpConnectorError err => {
-                io:print("Could not forward response to caller:");
+                io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
         }
@@ -48,7 +48,7 @@ service<http:Service> participant2 bind participant2EP {
         var forwardRes = conn -> respond(res);  
         match forwardRes {
             http:HttpConnectorError err => {
-                io:print("Could not forward response to caller:");
+                io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
         }

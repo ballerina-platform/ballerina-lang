@@ -968,7 +968,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
-        } else if ((ownerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
+        } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -1083,7 +1083,7 @@ public class Desugar extends BLangNodeVisitor {
                 argExprs.add(0, iExpr.expr);
                 final BLangAttachedFunctionInvocation attachedFunctionInvocation =
                         new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs,
-                        iExpr.symbol, iExpr.types, iExpr.expr);
+                                iExpr.symbol, iExpr.types, iExpr.expr, iExpr.async);
                 attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
                 result = attachedFunctionInvocation;
                 break;
@@ -1091,7 +1091,7 @@ public class Desugar extends BLangNodeVisitor {
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.requiredArgs);
                 actionArgExprs.add(0, iExpr.expr);
                 result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.namedArgs, iExpr.restArgs,
-                        iExpr.symbol, iExpr.types);
+                        iExpr.symbol, iExpr.types, iExpr.async);
                 break;
         }
     }

@@ -84,7 +84,7 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
         if (!initiatedTransactions.hasKey(txnId)) {
             respondToBadRequest(conn, "Transaction-Unknown. Invalid TID:" + txnId);
         } else {
-            var txn =? <Transaction>initiatedTransactions[txnId];
+            Transaction txn = initiatedTransactions[txnId];
             if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
                 respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
             } else if (!protocolCompatible(txn.coordinationType,
@@ -107,7 +107,7 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
 
                 RegistrationResponse regRes = {transactionId:txnId,
                                                   coordinatorProtocols:coordinatorProtocols};
-                json resPayload = <json, regResposeToJson()>(regRes);
+                json resPayload = regResponseToJson(regRes);
                 http:Response res = {statusCode:200};
                 res.setJsonPayload(resPayload);
                 var connErr = conn -> respond(res);

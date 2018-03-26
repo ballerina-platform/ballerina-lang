@@ -213,7 +213,7 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, hidden = true)
         private boolean helpFlag;
 
-        @Parameter(names = {"--offline", "-o"})
+        @Parameter(names = {"--offline"})
         private boolean offline;
 
         @Parameter(names = "--debug", hidden = true)

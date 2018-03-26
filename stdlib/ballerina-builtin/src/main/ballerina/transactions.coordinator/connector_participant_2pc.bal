@@ -53,16 +53,16 @@ public function <Participant2pcClient client> prepare (string transactionId) ret
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     http:Request req = {};
     PrepareRequest prepareReq = {transactionId:transactionId};
-    var j =? <json>prepareReq;
+    json j =? <json>prepareReq;
     req.setJsonPayload(j);
-    var res =? httpClient -> post("/prepare", req);
+    http:Response res =? httpClient -> post("/prepare", req);
     int statusCode = res.statusCode;
     if (statusCode == 404) {
         error err = {message:"Transaction-Unknown"};
         return err;
     } else if (statusCode == 200) {
-        var payload =? res.getJsonPayload();
-        var prepareRes =? <PrepareResponse>payload;
+        json payload =? res.getJsonPayload();
+        PrepareResponse prepareRes = <PrepareResponse>payload; //TODO: Change this this to use the safe assignment operator
         return prepareRes.message;
     } else {
         error err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
@@ -75,11 +75,11 @@ public function <Participant2pcClient client> notify (string transactionId, stri
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     http:Request req = {};
     NotifyRequest notifyReq = {transactionId:transactionId, message:message};
-    var j =? <json>notifyReq;
+    json j =? <json>notifyReq;
     req.setJsonPayload(j);
-    var res =? httpClient -> post("/notify", req);
-    var payload =? res.getJsonPayload();
-    var notifyRes =? <NotifyResponse>payload;
+    http:Response res =? httpClient -> post("/notify", req);
+    json payload =? res.getJsonPayload();
+    NotifyResponse notifyRes = <NotifyResponse>payload;  //TODO: Change this this to use the safe assignment operator
     string msg = notifyRes.message;
     int statusCode = res.statusCode;
     if (statusCode == 200) {

@@ -93,7 +93,7 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ParameterTypeNameList;
 import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
+import org.ballerinalang.plugins.idea.psi.ReturnParameterNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TransformerDefinitionNode;
@@ -2356,9 +2356,9 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<TypeNameNode> getReturnTypes(@NotNull PsiElement definitionNode) {
         List<TypeNameNode> results = new LinkedList<>();
-        // Parameters are in the ReturnParametersNode. So we first get the ReturnParametersNode from the definition
+        // Parameters are in the ReturnParameterNode. So we first get the ReturnParameterNode from the definition
         // node.
-        ReturnParametersNode node = PsiTreeUtil.findChildOfType(definitionNode, ReturnParametersNode.class);
+        ReturnParameterNode node = PsiTreeUtil.findChildOfType(definitionNode, ReturnParameterNode.class);
         if (node == null) {
             return results;
         }

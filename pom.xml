@@ -242,6 +242,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-codegen</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>protobuf-ballerina</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -926,7 +931,7 @@
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
-                <!--<module>misc/testerina</module>-->
+                <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/tracing-extensions</module>
 
@@ -1104,6 +1109,7 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
+                                <skip>true</skip>
                                 <configLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/checkstyle.xml
                                 </configLocation>
