@@ -347,6 +347,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
 
         request.setHeader(websub:X_HUB_UUID, util:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
+        request.setHeader("Link", buildWebSubLinkHeader(getHubUrl(), subscriptionDetails.topic));
         var contentDistributionRequest = callbackEp -> post("/", request);
         match (contentDistributionRequest) {
             http:Response response => { return; }
@@ -415,4 +416,13 @@ function <PendingSubscriptionChangeRequest pendingRequestOne> equals
     return pendingRequestOne.topic == pendingRequestTwo.topic
            && pendingRequestOne.callback == pendingRequestTwo.callback
            && pendingRequestOne.mode == pendingRequestTwo.mode;
+}
+
+@Description {value:"Function to build the link header for a request"}
+@Param {value:"hub: The hub publishing the update"}
+@Param {value:"topic: The canonical URL of the topic for which the update occurred"}
+@Return{value:"The link header content"}
+public function buildWebSubLinkHeader (string hub, string topic) returns (string) {
+    string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
+    return linkHeader;
 }
