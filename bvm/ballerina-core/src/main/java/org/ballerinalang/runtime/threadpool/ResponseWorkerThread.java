@@ -41,8 +41,6 @@ public class ResponseWorkerThread implements Runnable {
 //            bLangVM.run(context);
 //        } catch (Exception e) {
 //            logger.error("unhandled exception ", e);
-//        } finally {
-//            bTracer.finishSpan();
 //        }
     }
 }
