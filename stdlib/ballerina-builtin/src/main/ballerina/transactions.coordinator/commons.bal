@@ -138,6 +138,7 @@ function createTransactionContext (string coordinationType,
     } else {
         Transaction txn = createNewTransaction(coordinationType, transactionBlockId);
         string txnId = txn.transactionId;
+        txn.isInitiated = true;
         initiatedTransactions[txnId] = txn;
         TransactionContext txnContext = {transactionId:txnId,
                                             transactionBlockId:transactionBlockId,
@@ -194,6 +195,7 @@ function localParticipantProtocolFn (string transactionId,
                                      int transactionBlockId,
                                      string protocolAction) returns boolean {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+    log:printInfo("############# local participant proto fn called: " + protocolAction + "," + participatedTxnId);
     if (!participatedTransactions.hasKey(participatedTxnId)) {
         return false;
     }
@@ -201,7 +203,7 @@ function localParticipantProtocolFn (string transactionId,
     if (protocolAction == "prepare") {
         if (txn.state == TransactionState.ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
-            return true;
+            return false;
         } else {
             boolean successful = prepareResourceManagers(transactionId, transactionBlockId);
             if (successful) {
@@ -227,6 +229,7 @@ function localParticipantProtocolFn (string transactionId,
     }
     return false;
 }
+
 function removeParticipatedTransaction (string participatedTxnId) {
     boolean removed = participatedTransactions.remove(participatedTxnId);
     if (!removed) {

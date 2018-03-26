@@ -21,6 +21,7 @@ struct Transaction {
     string transactionId;
     int transactionBlockId;
     string coordinationType = "2pc";
+    boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants;
     Protocol[] coordinatorProtocols;
 }
