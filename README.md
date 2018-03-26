@@ -6,6 +6,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-lang/ballerina.svg)](https://github.com/ballerina-lang/ballerina/commits/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+___
 
 # Hello, I'm Ballerina
 
@@ -15,6 +16,8 @@ Ballerina is a simple programming language whose syntax and runtime addresses th
 
 Ballerina is created for and dedicated to developers who want to solve integration problems. Ballerina is inspired by Java, Go, and other languages, and leverages years of experience in the integration domain.
 
+___
+
 ## Table of contents
 
 - [Getting started](#getting-started)
@@ -22,6 +25,8 @@ Ballerina is created for and dedicated to developers who want to solve integrati
 - [Contributing to Ballerina](#contributing-to-ballerina)
 - [License](#license)
 - [Useful links](#useful-links)
+
+___
 
 ## Getting started
 
@@ -38,6 +43,8 @@ Once you are familiar with the basic language, you can also try out some more do
 * The Language Specification is a set of documents that explain more about the inner workings of the Ballerina language itself.
 
 [(Back to top)](#table-of-contents)
+
+___
 
 ## Download and install
 
@@ -75,6 +82,8 @@ Alternatively, you can install Ballerina from the source using the following ins
 
 [(Back to top)](#table-of-contents)
 
+___
+
 ## Contributing to Ballerina
 
 As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-lang/ballerina/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
@@ -83,11 +92,15 @@ Check the issue tracker for open issues that interest you. We look forward to re
 
 [(Back to top)](#table-of-contents)
 
+___
+
 ## License
 
 Ballerina code is distributed under [Apache license 2.0](https://github.com/ballerina-lang/ballerina/blob/master/LICENSE).
 
 [(Back to top)](#table-of-contents)
+
+___
 
 ## Useful links
 
