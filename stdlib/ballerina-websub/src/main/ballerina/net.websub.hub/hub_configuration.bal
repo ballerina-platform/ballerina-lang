@@ -1,6 +1,7 @@
 package ballerina.net.websub.hub;
 
 import ballerina/config;
+import ballerina/net.http;
 
 const string BASE_PATH = "/websub";
 const string HUB_PATH = "/hub";
@@ -28,12 +29,19 @@ const string hubDatabaseName = getStringConfig("hub.db.name", DEFAULT_DB_NAME);
 const string hubDatabaseUsername = getStringConfig("hub.db.username", DEFAULT_DB_USERNAME);
 const string hubDatabasePassword = getStringConfig("hub.db.password", DEFAULT_DB_PASSWORD);
 
+const boolean hubSslEnabled = isHubSslEnabled();
+http:ServiceSecureSocket|null serviceSecureSocket = getServiceSecureSocketConfig();
+http:SecureSocket|null secureSocket = getSecureSocketConfig();
+
 @Description {value:"Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to
                     send subscription/unsubscription requests."}
 @Return {value:"The WebSub Hub's URL"}
 function getHubUrl () returns (string) {
-    //TODO: HTTPS
-    return "http://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH;
+    if (typeof serviceSecureSocket == typeof null) {
+        return "http://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH;
+    } else {
+        return "https://" + hubHost + ":" + hubPort + BASE_PATH + HUB_PATH;
+    }
 }
 
 @Description {value:"Function to retrieve if hub persistence is enabled, from a config file, or set to false by default
@@ -78,4 +86,55 @@ function getIntConfig (string property, int defaultIfNotSet) returns (int) {
         int | null => configuration = defaultIfNotSet;
     }
     return configuration;
+}
+
+function isHubSslEnabled() returns (boolean) {
+    match (config:getAsString("hub.ssl.enabled")) {
+        string stringConfigFromFile => { return <boolean>stringConfigFromFile; }
+        null => { return true; } //enabled by default
+    }
+}
+
+function getServiceSecureSocketConfig() returns (http:ServiceSecureSocket|null) {
+    if (!hubSslEnabled) {
+        return null;
+    }
+
+    string keyStoreFilePath;
+    string keyStorePassword;
+
+    match (config:getAsString("hub.ssl.keyStore.filePath")) {
+        string stringConfigFromFile => { keyStoreFilePath = stringConfigFromFile; }
+        null => { keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12"; }
+    }
+    match (config:getAsString("hub.ssl.keyStore.password")) {
+        string stringConfigFromFile => { keyStorePassword = stringConfigFromFile; }
+        null => { keyStorePassword = "ballerina"; }
+    }
+
+    http:ServiceSecureSocket serviceSecureSocket =
+                                    { keyStore: { filePath: keyStoreFilePath, password: keyStorePassword } };
+    return serviceSecureSocket;
+}
+
+function getSecureSocketConfig() returns (http:SecureSocket|null) {
+    if (!hubSslEnabled) {
+       return null;
+    }
+
+    string trustStoreFilePath;
+    string trustStorePassword;
+
+    match (config:getAsString("hub.ssl.trustStore.filePath")) {
+        string stringConfigFromFile => { trustStoreFilePath = stringConfigFromFile; }
+        null => { trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12"; }
+    }
+    match (config:getAsString("hub.ssl.trustStore.password")) {
+        string stringConfigFromFile => { trustStorePassword = stringConfigFromFile; }
+        null => { trustStorePassword = "ballerina"; }
+    }
+
+    http:SecureSocket secureSocket = { trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
+                                         hostNameVerification: false};
+    return secureSocket;
 }
