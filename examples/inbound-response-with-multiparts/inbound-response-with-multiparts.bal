@@ -22,6 +22,10 @@ service<http:Service> test bind multipartEP {
         var returnResult = clientEP -> get("/multiparts/encode_out_response", outRequest);
         http:Response res = {};
         match returnResult {
+            http:HttpConnectorError connectionErr => {
+                res.statusCode = 500;
+                res.setStringPayload("Connection error");
+            }
             http:Response returnResponse => {
                 match returnResponse.getMultiparts() {
                     mime:EntityError err => {
@@ -40,33 +44,30 @@ service<http:Service> test bind multipartEP {
                     }
                 }
             }
-            http:HttpConnectorError connectionErr => {
-                res.statusCode = 500;
-                res.setStringPayload("Connection error");
-            }
         }
-
         _ = conn -> respond(res);
     }
 }
 
 //Given a parent part, get it's child parts.
 function handleNestedParts (mime:Entity parentPart) {
-
-    match parentPart.getBodyParts() {
-        mime:Entity[] childParts => {
-            int i = 0;
-            io:println("Nested Parts Detected!");
-            while (i < lengthof childParts) {
-                mime:Entity childPart = childParts[i];
-                handleContent(childPart);
-                i = i + 1;
+    string contentTypeOfParent = parentPart.contentType.toString();
+    if (contentTypeOfParent.hasPrefix("multipart/")) {
+        match parentPart.getBodyParts() {
+            mime:EntityError err => {
+                io:println("Error retrieving child parts!");
+            }
+            mime:Entity[] childParts => {
+                int i = 0;
+                io:println("Nested Parts Detected!");
+                while (i < lengthof childParts) {
+                    mime:Entity childPart = childParts[i];
+                    handleContent(childPart);
+                    i = i + 1;
+                }
             }
         }
-        mime:EntityError err => {
-            io:println("Error retrieving child parts!");
-        }
-     }
+    }
 }
 
 @Description {value:"Handling body part content logic varies according to user's requirement.."}
