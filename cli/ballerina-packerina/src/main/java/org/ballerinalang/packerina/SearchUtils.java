@@ -32,28 +32,12 @@ public class SearchUtils {
 
     /**
      * Search for packages in central.
-     * @param searchType query type searched for i.e. from text, org-name or package
      * @param argument arguments passed
      */
-    public static void searchInCentral(String searchType, String argument) {
+    public static void searchInCentral(String argument) {
         URI balxPath = URI.create(String.valueOf(SearchUtils.class.getClassLoader().getResource
                 ("ballerina.search.balx")));
-        String url = "";
-        switch (searchType) {
-            case "all":
-                break;
-            case "org":
-                url = "?org=" + argument;
-                break;
-            case "package":
-                url = "?package=" + argument;
-                break;
-            case "text":
-                url = "?query=" + argument;
-                break;
-            default:
-                throw new BLangCompilerException("invalid search query");
-        }
-        ExecutorUtils.execute(balxPath, BALLERINA_STAGING_URL, url);
+        String query = "?keyword=" + argument;
+        ExecutorUtils.execute(balxPath, BALLERINA_STAGING_URL, query);
     }
 }

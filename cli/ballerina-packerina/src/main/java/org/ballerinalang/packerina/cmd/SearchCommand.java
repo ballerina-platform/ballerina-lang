@@ -58,34 +58,20 @@ public class SearchCommand implements BLauncherCmd {
             return;
         }
 
-        // Enable remote debugging
         if (null != debugPort) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        String searchBy = "";
-        String searchArgs = "";
-
-        if (argList == null) {
-            searchBy = "all";
-        } else if (argList.size() > 1) {
-            throw new BLangCompilerException("too many arguments");
-        } else if (argList.size() == 0) {
-            String argument = argList.get(0);
-            if (argument.startsWith("@")) {
-                searchBy = "org";
-                searchArgs = argument.substring(argument.indexOf("@") + 1, argument.length());
-            } else if (argument.startsWith("#")) {
-                searchBy = "package";
-                searchArgs = argument.substring(argument.indexOf("#") + 1, argument.length());
-            } else {
-                searchBy = "text";
-                searchArgs = argument;
-            }
+        if (argList == null || argList.size() == 0) {
+            throw new BLangCompilerException("no keyword given");
         }
 
+        if (argList.size() > 1) {
+            throw new BLangCompilerException("too many arguments");
+        }
 
-        SearchUtils.searchInCentral(searchBy, searchArgs);
+        String searchArgs = argList.get(0);
+        SearchUtils.searchInCentral(searchArgs);
         Runtime.getRuntime().exit(0);
     }
 
