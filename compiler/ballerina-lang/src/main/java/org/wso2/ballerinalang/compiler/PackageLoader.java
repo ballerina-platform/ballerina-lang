@@ -106,8 +106,8 @@ public class PackageLoader {
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
+        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {

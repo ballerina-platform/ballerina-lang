@@ -38,21 +38,23 @@ service<http:Service> participant1 bind participant1EP {
             var forwardResult = ep -> forward("/task1", req);
             match forwardResult {
                 http:HttpConnectorError err => {
-                    sendErrorResponseToCaller(conn);
+                    io:print("Participant1 could not send get request to participant2/task1. Error:");
+                    sendErrorResponseToInitiator(conn);
                     abort;
                 }
                 http:Response forwardRes => {
                     var getResult = ep -> get("/task2", newReq);
                     match getResult {
                         http:HttpConnectorError err => {
-                            sendErrorResponseToCaller(conn);
+                            io:print("Participant1 could not send get request to participant2/task2. Error:");
+                            sendErrorResponseToInitiator(conn);
                             abort;
                         }
                         http:Response getRes => {
                             var forwardRes2 = conn -> forward(getRes);
                             match forwardRes2 {
                                 http:HttpConnectorError err => {
-                                    io:print("Could not forward response to caller:");
+                                    io:print("Participant1 could not forward response from participant2 to initiator. Error:");
                                     io:println(err);
                                 }
                             }
@@ -66,13 +68,13 @@ service<http:Service> participant1 bind participant1EP {
     }
 }
 
-function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
+function sendErrorResponseToInitiator(http:ServiceEndpoint conn) {
     endpoint http:ServiceEndpoint conn2 = conn;
     http:Response errRes = {statusCode: 500};
     var respondResult = conn2 -> respond(errRes);
     match respondResult {
         http:HttpConnectorError respondErr => {
-            io:print("Could not send error response to caller:");
+            io:print("Participant1 could not send error response to initiator. Error:");
             io:println(respondErr);
         }
     }

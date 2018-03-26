@@ -6,6 +6,7 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -38,6 +39,21 @@ public class Patten {
 
     public Patten(Part... parts) {
         this.parts = parts;
+    }
+
+    public Patten sibling(Part siblingPart) {
+        Part last = parts[parts.length - 1];
+        Part[] newParts;
+        if (last == WILDCARD_DIR || last == WILDCARD_SOURCE || last == WILDCARD_SOURCE_WITH_TEST) {
+            newParts = Arrays.copyOf(parts, parts.length);
+            newParts[newParts.length - 1] = siblingPart;
+        } else {
+            newParts = Arrays.copyOf(parts, parts.length + 1);
+            String[] newValues = Arrays.copyOf(last.values, last.values.length - 1);
+            newParts[newParts.length - 2] = new Part(newValues);
+            newParts[newParts.length - 1] = siblingPart;
+        }
+        return new Patten(newParts);
     }
 
     public static Part path(String... path) {

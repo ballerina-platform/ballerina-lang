@@ -109,13 +109,14 @@ import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
-
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -1849,12 +1850,12 @@ public class CPU {
             case InstructionCodes.ANY2B:
                 i = operands[0];
                 j = operands[1];
-                    sf.intRegs[j] = ((BBoolean) sf.refRegs[i]).booleanValue() ? 1 : 0;
+                sf.intRegs[j] = ((BBoolean) sf.refRegs[i]).booleanValue() ? 1 : 0;
                 break;
             case InstructionCodes.ANY2L:
                 i = operands[0];
                 j = operands[1];
-                    sf.byteRegs[j] = ((BBlob) sf.refRegs[i]).blobValue();
+                sf.byteRegs[j] = ((BBlob) sf.refRegs[i]).blobValue();
                 break;
             case InstructionCodes.ANY2JSON:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeJSON);
@@ -2436,7 +2437,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
-            BType targetType) {
+                                               BType targetType) {
         int i = operands[0];
         int j = operands[1];
 
@@ -2463,13 +2464,13 @@ public class CPU {
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-            String sourceTypeName, String targetTypeName) {
+                                                  String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
-            int errorRegIndex, String errorMessage) {
+                                                  int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         if (errorRegIndex == -1) {
@@ -2631,34 +2632,37 @@ public class CPU {
     }
 
     private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
-                                            int transactionBlockId, String protocol, boolean isInitiator) {
+                                                   int transactionBlockId, String protocol, boolean isInitiator) {
         BValue[] args = {
-                (glbalTransactionId == null? null : new BString(glbalTransactionId)) ,
+                (glbalTransactionId == null ? null : new BString(glbalTransactionId)),
                 new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        if (isInitiator) {
-            if (returns[1] != null) {
-                throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
-            }
-
-        }
+        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction start: ");
         return returns;
     }
 
     private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
                                              int transactionBlockId) {
-        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
+        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
-        if (returns[1] != null) {
-            throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
+        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction end: ");
+    }
+
+    private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
+        if (value.getType().getTag() == TypeTags.STRUCT_TAG) {
+            PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(PACKAGE_BUILTIN);
+            StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+            if (((BStruct) value).getType().structInfo.equals(errorStructInfo)) {
+                throw new BallerinaException(errMsg + ((BStruct) value).getStringField(0));
+            }
         }
     }
 
     private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
-                                        int transactionBlockId) {
-        BValue[] args = { new BString(globalTransactionId), new BInteger(transactionBlockId) };
+                                               int transactionBlockId) {
+        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 
@@ -2702,7 +2706,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-            BType[] types, int[] regs) {
+                                         BType[] types, int[] regs) {
         BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
         dataChannel.putData(vals);
@@ -2749,7 +2753,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-            BType[] types, int[] regs) {
+                                               BType[] types, int[] regs) {
         BRefType[] passedInValues = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValues != null) {
@@ -2768,23 +2772,23 @@ public class CPU {
             int regIndex = argRegs[i];
             BType paramType = paramTypes[i];
             switch (paramType.getTag()) {
-            case TypeTags.INT_TAG:
-                currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
-                break;
-            case TypeTags.FLOAT_TAG:
-                currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
-                break;
-            case TypeTags.STRING_TAG:
-                currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
-                break;
-            case TypeTags.BLOB_TAG:
-                currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
-                break;
-            default:
-                currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
+                case TypeTags.INT_TAG:
+                    currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
+                    break;
+                default:
+                    currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
             }
         }
     }
@@ -3403,7 +3407,7 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3602,14 +3606,14 @@ public class CPU {
         sf.longRegs[j] = newArray.size();
         return;
     }
-    
+
     private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx, int[] operands) {
         int futureReg = operands[0];
         int retValReg = operands[1];
         BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
         WorkerResponseContext respCtx = future.value();
         if (retValReg != -1) {
-            return respCtx.joinTargetContextInfo(ctx, new int[] { retValReg });
+            return respCtx.joinTargetContextInfo(ctx, new int[]{retValReg});
         } else {
             return respCtx.joinTargetContextInfo(ctx, new int[0]);
         }

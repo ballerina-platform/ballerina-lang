@@ -47,6 +47,9 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(names = {"-o"}, description = "write output to the given file")
     private String outputFileName;
 
+    @Parameter(names = {"--offline"})
+    private boolean offline;
+
     @Parameter(arity = 1)
     private List<String> argList;
 
@@ -80,7 +83,7 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = Paths.get(outputFileName);
         }
 
-        BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath, buildCompiledPkg);
+        BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath, buildCompiledPkg, offline);
         Runtime.getRuntime().exit(0);
     }
 
