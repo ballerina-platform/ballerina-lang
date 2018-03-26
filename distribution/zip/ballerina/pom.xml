@@ -168,6 +168,10 @@
             <artifactId>metrics-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jaeger-extension</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.uber.jaeger</groupId>
             <artifactId>jaeger-core</artifactId>
         </dependency>

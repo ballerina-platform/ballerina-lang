@@ -206,6 +206,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jaeger-extension</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-websub</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1002,6 +1007,7 @@
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
+                <module>misc/tracing-extensions</module>
 
                 <module>distribution/zip/ballerina</module>
 
