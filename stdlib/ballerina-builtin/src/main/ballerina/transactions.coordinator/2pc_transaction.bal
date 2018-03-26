@@ -104,14 +104,10 @@ function<TwoPhaseCommitTransaction txn> twoPhaseCommit () returns string|error {
 }
 
 documentation {
-    When an abort statement is executed, this function gets called. Depending on whether the transaction block
-    is an initiator or participant the flow will be different. An initiator will start the abort protocol. A participant
-    will notify the initiator that it aborted, which will prompt the initiator to start the abort protocol.
-
-    The initiator and participant being in the same process
-    has also been handled as a special case in order to avoid a network call in that case.
+    When an abort statement is executed, this function gets called. The transaction in concern will be marked for
+    abortion.
 }
-function<TwoPhaseCommitTransaction txn> abortTransaction () returns string|error {
+function<TwoPhaseCommitTransaction txn> markForAbortion () returns string|error {
     string transactionId = txn.transactionId;
     int transactionBlockId = txn.transactionBlockId;
 
