@@ -81,6 +81,7 @@ service<http:Service> hello bind listener {
     // 'caller' is the client invoking this resource 
     sayHello (endpoint caller, http:Request request) {
         http:Response response = {};
+        // A response is what you receive back from the service
         // Set the response payload
         response.setStringPayload("Hello Ballerina!\n");
         // Send a response back to caller
@@ -136,9 +137,18 @@ ___
 Now that your service is created, you can deploy this on Docker. To do this you need to import docker into your Ballerina program first. Add the following to the top of your program.
 
 ```
-import ballerinax/docker
+import ballerinax/docker;
 ```
 
+Add the following code snippet to your program.
+
+```
+// Docker configurations
+@docker:configuration {
+   name:"pizak/helloworld",
+   tag:"1.0.0"
+}
+```
 
 
 ___
