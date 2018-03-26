@@ -1,5 +1,3 @@
-
-
 function testMatchStatementBasics1() returns (string | int | boolean) {
     string | int | boolean a1 =  bar(true);
     string | int | boolean a2 =  bar(1234);
@@ -241,7 +239,3 @@ function testMatchStatementBasics21() returns (string | int | boolean | float) {
         any k => return "found any";
     }
 }
-
-
-
-

@@ -84,7 +84,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
@@ -117,8 +116,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -1184,7 +1181,6 @@ public class CPU {
         int i;
         int j;
         int k;
-        int lvIndex; // Index of the local variable
         int fieldIndex;
 
         BIntArray bIntArray;
@@ -1802,7 +1798,6 @@ public class CPU {
     private static void execTypeCastOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
-        int k;
         int cpIndex; // Index of the constant pool
 
         BRefType bRefTypeValue;
@@ -2825,7 +2820,8 @@ public class CPU {
         }
 
         // if lhs type is JSON
-        if (lhsType.getTag() == TypeTags.JSON_TAG && getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+        if (getElementType(lhsType).getTag() == TypeTags.JSON_TAG &&
+                getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
             return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
         }
 
@@ -3134,6 +3130,7 @@ public class CPU {
             return;
         }
 
+        sf.longRegs[j] = 0;
 //        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
@@ -3195,7 +3192,7 @@ public class CPU {
         }
 
         sf.stringRegs[j] = STRING_NULL_VALUE;
-//        handleTypeCastError(ctx, sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
+//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private static void castJSONToBoolean(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3226,7 +3223,7 @@ public class CPU {
 
         // Reset the value in the case of an error;
         sf.intRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
     private static boolean checkJSONEquivalency(JsonNode json, BJSONType sourceType, BJSONType targetType) {
@@ -3576,7 +3573,7 @@ public class CPU {
         BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
         WorkerResponseContext respCtx = future.value();
         if (retValReg != -1) {
-            return respCtx.joinTargetContextInfo(ctx, new int[]{retValReg});
+            return respCtx.joinTargetContextInfo(ctx, new int[] { retValReg });
         } else {
             return respCtx.joinTargetContextInfo(ctx, new int[0]);
         }

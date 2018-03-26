@@ -36,7 +36,7 @@ import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BFuture;
+import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.FunctionFlags;
@@ -278,7 +278,7 @@ public class BLangFunctions {
         /* create the future encapsulating the worker response context, and set it as the return value
          * to the parent */
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
-                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) },
+                new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
                 new BType[] { BTypes.typeFuture });
         return;
     }
@@ -331,7 +331,7 @@ public class BLangFunctions {
             respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx);
         }
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
-                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) },
+                new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
                 new BType[] { BTypes.typeFuture });
     }
     
