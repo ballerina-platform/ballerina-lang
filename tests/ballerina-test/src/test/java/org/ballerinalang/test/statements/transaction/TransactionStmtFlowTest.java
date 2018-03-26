@@ -314,7 +314,7 @@ public class TransactionStmtFlowTest {
         BValue[] returns = BRunUtil.invoke(programFile, "testSimpleNestedTransactionAbort");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start  inTrx inFailed inTrx inFailed inTrx inFailed inTrx inFailed end");
+                "start  inOuterTxstart  inInnerTxstart  abortingInnerTxstart  endOuterTxstart");
     }
 
     @Test(description = "Test transaction statement with errors")
