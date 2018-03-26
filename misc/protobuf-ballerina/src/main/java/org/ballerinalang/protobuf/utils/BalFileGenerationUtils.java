@@ -107,15 +107,16 @@ public class BalFileGenerationUtils {
     
     /**
      * Resolve proto folder path from Proto file path
+     *
      * @param protoPath Proto file path
      * @return
      */
-    public static String resolveProtoFloderPath(String protoPath){
-        int idx =protoPath.lastIndexOf
+    public static String resolveProtoFloderPath(String protoPath) {
+        int idx = protoPath.lastIndexOf
                 (BalGenerationConstants.FILE_SEPARATOR);
-        String protofolderPath ;
-        if(idx >0){
-            protofolderPath  = protoPath.substring(0, idx);
+        String protofolderPath;
+        if (idx > 0) {
+            protofolderPath = protoPath.substring(0, idx);
         } else {
             protofolderPath = EMPTY_STRING;
         }

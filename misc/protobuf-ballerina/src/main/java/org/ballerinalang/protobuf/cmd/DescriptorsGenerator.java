@@ -33,7 +33,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.createMetaFolder;
