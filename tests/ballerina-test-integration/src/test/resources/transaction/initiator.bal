@@ -49,6 +49,7 @@ service<http:Service> InitiatorService bind initiatorEP {
                             io:print("Initiator could not forward response from participant 1 to originating client. Error:");
                             io:print(err);
                         }
+                        null => io:print("");
                     }
                 }
             }
