@@ -110,26 +110,23 @@ documentation {
 function<TwoPhaseCommitTransaction txn> markForAbortion () returns string|error {
     string transactionId = txn.transactionId;
     int transactionBlockId = txn.transactionBlockId;
-
-    boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-    if (successful) {
-        string msg = "Marked initiated transaction for abortion";
-        if(!txn.isInitiated) {
-            string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-            msg = "Marked participated transaction for abort. Transaction:" + participatedTxnId;
-        }
-        log:printInfo(msg);
+    if(txn.isInitiated) {
         txn.state = TransactionState.ABORTED;
-        return ""; //TODO: check what will happen if nothing is returned
-    } else {
-        string msg = "Aborting local resource managers failed for initiated transaction:" + transactionId;
-        if(!txn.isInitiated) {
-            string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-            msg = "Aborting local resource managers failed for participated transaction:" + participatedTxnId;
-        }
-        error err = {message:msg};
-        return err;
+        log:printInfo("Marked initiated transaction for abortion");
+    } else { // participant
+       boolean successful = abortResourceManagers(transactionId, transactionBlockId);
+       string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+       if(successful) {
+           txn.state = TransactionState.ABORTED;
+           log:printInfo("Marked participated transaction for abort. Transaction:" + participatedTxnId);
+       } else {
+           string msg = "Aborting local resource managers failed for participated transaction:" + participatedTxnId;
+           log:printError(msg);
+           error err = {message:msg};
+           return err;
+       }
     }
+    return ""; //TODO: check what will happen if nothing is returned
 }
 
 function<TwoPhaseCommitTransaction txn> prepareParticipants (string protocol) returns boolean {
