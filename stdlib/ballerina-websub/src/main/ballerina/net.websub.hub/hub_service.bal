@@ -228,20 +228,34 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
     };
 
     sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.topic};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.callback};
     sql:Parameter[] sqlParams;
     if (mode == websub:MODE_SUBSCRIBE) {
+        sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.callback};
         sql:Parameter para3 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.secret};
         sql:Parameter para4 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.leaseSeconds};
         sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.createdAt};
         sqlParams = [para1, para2, para3, para4, para5, para3, para4, para5];
-        _ = subscriptionDbEp -> update("INSERT INTO subscriptions"
+        var updateStatus = subscriptionDbEp -> update("INSERT INTO subscriptions"
                                              + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
-                                             + "DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
+                                             + " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
                                              sqlParams);
+        match (updateStatus) {
+            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
+            sql:SQLConnectorError err => log:printError("Error occurred updating subscription data: " + err.message);
+        }
     } else {
+        string unsubscribingTopic = subscriptionDetails.callback;
+        if (!unsubscribingTopic.hasSuffix("/")) {
+            unsubscribingTopic = unsubscribingTopic + "/";
+        }
+        sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:unsubscribingTopic};
         sqlParams = [para1, para2];
-        _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
+        var updateStatus = subscriptionDbEp -> update(
+                                               "DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
+        match (updateStatus) {
+            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
+            sql:SQLConnectorError err => log:printError("Error occurred updating unsubscription data: " + err.message);
+        }
     }
     _ = subscriptionDbEp -> close();
 }
@@ -249,7 +263,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
 @Description {value:"Function to initiate set up activities on startup/restart"}
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        _ = addSubscriptionsOnStartup;
+        addSubscriptionsOnStartup();
     }
     return;
 }
@@ -284,7 +298,6 @@ function addSubscriptionsOnStartup() {
         match (<websub:SubscriptionDetails> dt.getNext()) {
             websub:SubscriptionDetails subscriptionDetails => {
                 websub:addSubscription(subscriptionDetails);
-                log:printError("Error");
             }
             error convError => {
                 log:printError("Error retreiving subscription details from the database: " + convError.message);
