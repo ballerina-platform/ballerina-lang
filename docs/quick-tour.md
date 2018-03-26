@@ -6,7 +6,8 @@ These are the available sections in this tour.
 
 - [Install Ballerina](#install-ballerina)
 - [Run HelloWorld](#run-helloworld)
-- [Write and Call a Service](#write-and-call-a-service)
+- [Setting up the Editor](#setting-up-the-editor)
+- [Write and Call an Integration Service](#write-and-call-an-integration-service)
 - [Deploying on Docker](#deploying-on-docker)
 - [Run the Composer](#run-the-composer)
 
@@ -15,8 +16,7 @@ ___
 ## Install Ballerina
 
 1. Go to [http://www.ballerinalang.org](http://www.ballerinalang.org) and click **Download**. 
-1. Download the Ballerina Tools distribution and unzip it on your computer. Ballerina Tools includes the Ballerina runtime plus the visual editor (Ballerina Composer) and other tools. 
-1. Add the `<ballerina_home>/bin` directory to your $PATH environment variable so that you can run the Ballerina commands from anywhere. 
+1. Download Ballerina for your OS and follow the instructions given to set it up. 
 
 > NOTE: Throughout this documentation, `<ballerina_home>` refers to the Ballerina directory you just installed. 
 
@@ -24,9 +24,7 @@ ___
 
 ## Run HelloWorld
 
-The Hello World program will show you how easy it is to run Ballerina, send it a request, and get a response. 
-
-Let's take a look at what the code looks like in the Ballerina programming language:
+Let's get started with a simple Hello World program in Ballerina. Create a file called `hello-world.bal` and copy the following code into it.
 
 ```
 import ballerina.io;
@@ -35,13 +33,7 @@ function main (string[] args) {
 }
 ``` 
 
-The above code doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line. To run this, copy the above code into a hello-world.bal file. You can use your [favourite editor to work on Ballerina code](tools-ides-ballerina-composer.md). Let's try this on VS Code.
-
-```
-code hello-world.bal
-```
-
-Now your file is created and you can add your code inside it. You can find a plugin for Ballerina in the VS Code marketplace. This helps read the `.bal` file using an ideal theme. At the command line, navigate to the directory that contains the hello-world.bal file and enter the following line:
+At the command line, navigate to the directory that contains the hello-world.bal file and enter the following command.
 
 ```
 $ ballerina run hello-world.bal
@@ -53,13 +45,23 @@ You will see the following response:
 Hello, World!
 ```
 
-You just started Ballerina, ran a simple code, and got a response within seconds. 
+You just started Ballerina, ran a simple code, and got a response within seconds.
+
+## Setting up the Editor
+
+To run this, copy the above code into a hello-world.bal file. You can use your [favourite editor to work on Ballerina code](tools-ides-ballerina-composer.md). Let's try this on VS Code.
+
+```
+code hello-world.bal
+```
+
+Now your file is created and you can add your code inside it. You can find a plugin for Ballerina in the VS Code marketplace. This helps read the `.bal` file using an ideal theme.  
 
 Pretty simple and straightforward, right? Now, let's look at running the same Hello World program as a service.
 
 ___
 
-## Write and Call a Service
+## Write and Call an Integration Service
 
 Now let's change the Hello World program to a service. Open the hello-world.bal file you just created and replace the existing code with the following.
 
@@ -104,21 +106,7 @@ ballerina: deploying service(s) in 'hello-world.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
 ```
 
-This means your service is up and running. 
-
-Now, in addition to running the program, let's build it as well. Run the following command to build the program.
-
-```
-ballerina build hello-world-service.bal
-```
-
-When you list the folders in the directory you can see there is a new executable file built with a `.balx` extension.
-
-```
-hello-world.bal		hello-world.balx
-```
-
-You can call the service by opening a new command line window and using the following cURL command.
+This means your service is up and running. You can call the service by opening a new command line window and using the following cURL command.
 
 ```
 curl http://localhost:9090/hello/sayHello
