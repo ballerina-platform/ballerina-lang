@@ -56,4 +56,15 @@ public class GeneratorConstants {
     public static final String DEFAULT_MOCK_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "mock";
     public static final String DEFAULT_CONNECTOR_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "connector";
 
+    public static final String[] RESERVED_KEYWORDS = { "package", "import", "as", "public", "private", "native",
+            "service", "resource", "function", "struct", "object", "annotation", "enum", "parameter", "const",
+            "transformer", "worker", "endpoint", "bind", "xmlns", "returns", "version", "documentation", "deprecated",
+            "from", "on", "group", "by", "having", "order", "where", "followed", "into", "set", "for", "window",
+            "query", "expired", "current", "every", "within", "snapshot", "inner", "outer", "right", "left", "full",
+            "unidirectional", "reduce", "whenever", "int", "float", "boolean", "string", "blob", "map", "json", "xml",
+            "table", "stream", "any", "typedesc", "type", "future", "var", "new", "if", "match", "else", "foreach",
+            "while", "next", "break", "fork", "join", "some", "all", "timeout", "try", "catch", "finally", "throw",
+            "return", "transaction", "abort", "fail", "onretry", "retries", "onabort", "oncommit", "lengthof", "typeof",
+            "with", "in", "lock", "untaint", "async", "await" };
+
 }

@@ -57,7 +57,7 @@ public class CodeGeneratorTest {
                 Assert.fail("Service was not generated");
             }
         } catch (IOException e) {
-            Assert.fail("Error while generating the service. " + e.getMessage());
+            Assert.fail("Error while writing the service. " + e.getMessage());
         } catch (BallerinaOpenApiException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
         }
