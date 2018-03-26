@@ -118,3 +118,4 @@ Testerina Data Provider
 Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
+Streams

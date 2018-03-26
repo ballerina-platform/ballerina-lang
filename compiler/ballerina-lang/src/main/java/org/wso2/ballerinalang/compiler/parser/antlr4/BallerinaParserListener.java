@@ -2060,15 +2060,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAggregationQuery(BallerinaParser.AggregationQueryContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#wheneverStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#foreverStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterWheneverStatement(BallerinaParser.WheneverStatementContext ctx);
+	void enterForeverStatement(BallerinaParser.ForeverStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#wheneverStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#foreverStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitWheneverStatement(BallerinaParser.WheneverStatementContext ctx);
+	void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#streamingQueryStatement}.
 	 * @param ctx the parse tree

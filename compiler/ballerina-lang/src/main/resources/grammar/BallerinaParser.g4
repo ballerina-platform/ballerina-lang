@@ -328,7 +328,7 @@ statement
     |   failStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   wheneverStatement
+    |   foreverStatement
     |   streamingQueryStatement
     ;
 
@@ -805,8 +805,8 @@ aggregationQuery
 
     ;
 
-wheneverStatement
-    :   WHENEVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+foreverStatement
+    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
 
 streamingQueryStatement
