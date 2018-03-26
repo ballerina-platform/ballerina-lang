@@ -1,6 +1,6 @@
 # Quick Tour
 
-Now that you know [a little bit about Ballerina](), let's take it for a spin! 
+Now that you know a little bit [about Ballerina](https://ballerinalang.org/), let's take it for a spin! 
 
 These are the available sections in this tour.
 
@@ -11,16 +11,12 @@ These are the available sections in this tour.
 - [Deploying on Docker](#deploying-on-docker)
 - [Run the Composer](#run-the-composer)
 
-___
-
 ## Install Ballerina
 
 1. Go to [http://www.ballerinalang.org](http://www.ballerinalang.org) and click **Download**. 
 1. Download Ballerina for your OS and follow the instructions given to set it up. 
 
 > NOTE: Throughout this documentation, `<ballerina_home>` refers to the Ballerina directory you just installed. 
-
-___
 
 ## Run HelloWorld
 
@@ -49,7 +45,7 @@ You just started Ballerina, ran a simple code, and got a response within seconds
 
 ## Setting up the Editor
 
-To run this, copy the above code into a hello-world.bal file. You can use your [favourite editor to work on Ballerina code](tools-ides-ballerina-composer.md). Let's try this on VS Code.
+To run this, copy the above code into a hello-world.bal file. Let's try this on VS Code.
 
 ```
 code hello-world.bal
@@ -57,13 +53,17 @@ code hello-world.bal
 
 Now your file is created and you can add your code inside it. You can find a plugin for Ballerina in the VS Code marketplace. This helps read the `.bal` file using an ideal theme.  
 
-Pretty simple and straightforward, right? Now, let's look at running the same Hello World program as a service.
+Check if annotations work by entering some text and seeing proposed suggestions.
 
-___
+![VS Code Annotations]()
+
+You can use your [favourite editor to work on Ballerina code](tools-ides-ballerina-composer.md).
+
+Now, let's look at running the same Hello World program you created earlier as a service.
 
 ## Write and Call an Integration Service
 
-Now let's change the Hello World program to a service. Open the hello-world.bal file you just created and replace the existing code with the following.
+Let's change the Hello World program to a service. Open the `hello-world.bal` file you created and replace the existing code with the following.
 
 ```
 import ballerina/net.http;
@@ -118,8 +118,6 @@ You get the following response.
 Hello Ballerina!
 ```
 
-___
-
 ## Deploying on Docker
 
 Now that your service is created, you can deploy this on Docker. 
@@ -141,9 +139,6 @@ Add the following code snippet to your program.
    tag:"1.0.0"
 }
 ```
-
-
-___
 
 ## Run the Composer
 
