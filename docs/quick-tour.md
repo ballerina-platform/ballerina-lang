@@ -55,7 +55,7 @@ Now your file is created and you can add your code inside it. You can find a plu
 
 Check if annotations work by entering some text and seeing proposed suggestions.
 
-![VS Code Annotations]()
+![VS Code Annotations](images/vscode_annotations.png)
 
 You can use your [favourite editor to work on Ballerina code](tools-ides-ballerina-composer.md).
 
