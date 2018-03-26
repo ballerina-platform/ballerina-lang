@@ -30,7 +30,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         match jsonLocatorReq {
             json zip => {
                 string zipCode;
-                zipCode =? <string>zip["ATMLocator"]["ZipCode"];
+                zipCode = extractFieldValue(zip["ATMLocator"]["ZipCode"]);
                 io:println("Zip Code " + zipCode);
                 json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
                 branchLocatorReq.BranchLocator.ZipCode = zipCode;
@@ -58,7 +58,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         match branchLocatorRes {
             json branch => {
                 string branchCode;
-                branchCode =? <string>branch.ABCBank.BranchCode;
+                branchCode = extractFieldValue(branch.ABCBank.BranchCode);
                 io:println("Branch Code " + branchCode);
                 json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
                 bankInfoReq.BranchInfo.BranchCode = branchCode;
@@ -100,7 +100,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
         match jsonRequest {
             json bankInfo => {
                 string branchCode;
-                branchCode =? <string>bankInfo.BranchInfo.BranchCode;
+                branchCode = extractFieldValue(bankInfo.BranchInfo.BranchCode);
                 json payload = {};
                 if (branchCode == "123") {
                     payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
@@ -135,7 +135,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
         match jsonRequest {
             json bankLocator => {
                 string zipCode;
-                zipCode =? <string>bankLocator.BranchLocator.ZipCode;
+                zipCode = extractFieldValue(bankLocator.BranchLocator.ZipCode);
                 json payload = {};
                 if (zipCode == "95999") {
                     payload = {"ABCBank":{"BranchCode":"123"}};
@@ -151,5 +151,16 @@ service<http:Service> Banklocator bind serviceEnpoint {
         }
 
         _ = outboundEP -> respond(res);
+    }
+}
+
+//Keep this until there's a simpler way to get a string value out of a json
+function extractFieldValue(json fieldValue) returns string {
+    match fieldValue {
+        int i => return "error";
+        string s => return s;
+        boolean b => return "error";
+        null  => return "error";
+        json j => return "error";
     }
 }
