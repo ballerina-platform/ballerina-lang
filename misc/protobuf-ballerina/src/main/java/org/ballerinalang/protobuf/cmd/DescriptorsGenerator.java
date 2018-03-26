@@ -33,11 +33,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.createMetaFolder;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.generateDescriptor;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.getDescriptorPath;
+import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.resolveProtoFloderPath;
 
 /**
  * Class for generate file descriptors for proto files.
@@ -58,9 +60,8 @@ public class DescriptorsGenerator {
                 createMetaFolder(path);
                 String protoPath;
                 if (!depPath.contains(GOOGLE_STANDARD_LIB)) {
-                    protoPath = new File(new File(parentProtoPath.substring(0, parentProtoPath
-                            .lastIndexOf(BalGenerationConstants.FILE_SEPARATOR))).toURI().getPath() + depPath)
-                            .toURI().getPath();
+                    protoPath = new File(new File(resolveProtoFloderPath(parentProtoPath)).toURI().getPath()
+                            + depPath).toURI().getPath();
                 } else {
                     //Get file from resources folder
                     File dependentDesc = new File(META_LOCATION + depPath);
@@ -83,8 +84,8 @@ public class DescriptorsGenerator {
                         throw new BalGenToolException("Error reading resource file '" + depPath + "'", e);
                     }
                 }
-                String command = new ProtocCommandBuilder(exePath, protoPath, protoPath.substring(0,
-                        protoPath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR))
+                
+                String command = new ProtocCommandBuilder(exePath, protoPath, resolveProtoFloderPath(protoPath)
                         , new File(getDescriptorPath(depPath)).getAbsolutePath()).build();
                 generateDescriptor(command);
                 File childFile = new File(path);
