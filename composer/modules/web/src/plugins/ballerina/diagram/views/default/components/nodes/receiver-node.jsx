@@ -73,7 +73,7 @@ class ReceiverNode extends React.Component {
         OverlayComponentsRenderingUtil.showStructsInPackageForBinding(node, x, y, this.getStructs());
         this.context.editor.update();
     }
-    render() {
+    render() {  
         const { x, y, model, showStructBinding } = this.props;
         const typeTextX = x + 25;
         const iconSize = 14;
@@ -103,18 +103,15 @@ class ReceiverNode extends React.Component {
                         > <title> Bind functions with structs </title> </image> </g>}
                 {structBindedFunction &&
                     <g>
-                        <polygon
-                            points={`${typeTextX - 25},${typeTextY}
-                            ${typeTextX - 15},${typeTextY - 10}
-                            ${typeTextX + receiverTypeWidth - 5},${typeTextY - 10}
-                            ${typeTextX + receiverTypeWidth + 5},${typeTextY}
-                            ${typeTextX + receiverTypeWidth - 5},${typeTextY + 10}
-                            ${typeTextX - 15},${typeTextY + 10}`
-                            }
+                        {/* <rect
+                            x={typeTextX - 20}
+                            y={typeTextY - 15}
+                            width={receiverTypeWidth + 15}
+                            height={29}
                             className='bound-box'
-                        />
+                        /> */}
                         <text
-                            x={typeTextX - 10}
+                            x={typeTextX + 50}
                             y={typeTextY + 5}
                             cursor='pointer'
                             onClick={e => this.showStructsInPackage(addBindingStructX, addBindingStructY)}

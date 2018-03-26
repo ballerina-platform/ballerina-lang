@@ -2,7 +2,7 @@
     width       : 100px !important;
     padding-left: 30px !important;
     height      : 28px;
-    margin      : 4px !important;
+    margin      : 4px 35px 4px 4px !important;
     
     .left-icon {
         position    : absolute;
@@ -11,18 +11,24 @@
     }
 }
 .menu-icon{
-    width       : 30px !important;
-    height      : 30px !important;
-    padding-top : 7px;
+    width       : 26px !important;
+    height      : 25px !important;
     color       : #222;
-    padding-left: 7px;
+    margin-top  : 7px !important; 
+    padding-left: 5px; 
+}
+
+.menu-icon:hover{
+    // background: red;
+    border-radius: 50%; 
 }
 .package-input{
     border      : 0 !important;
     padding     : 0 !important;
     
     input{
-        border  : 0 !important;
+        border      : 0 !important;
+        background  : #e7eaeb ! important;
     }
 }
 
