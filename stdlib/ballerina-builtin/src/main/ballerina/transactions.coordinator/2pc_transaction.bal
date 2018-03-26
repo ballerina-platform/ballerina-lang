@@ -140,6 +140,11 @@ function<TwoPhaseCommitTransaction txn> prepareParticipants (string protocol) re
                         // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Preparing local participant: " + participant.participantId);
                         if (!protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
+                            // Don't send notify to participants who have failed or rejected prepare
+                            boolean removed = txn.participants.remove(participant.participantId);
+                            if(!removed){
+                                log:printError("Removing participant from transaction failed");
+                            }
                             successful = false;
                         }
                     }
