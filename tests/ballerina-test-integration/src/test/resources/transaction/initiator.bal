@@ -68,5 +68,6 @@ function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
             io:print("Initiator could not send error response to originating client. Error:");
             io:println(respondErr);
         }
+        null => return;
     }
 }
