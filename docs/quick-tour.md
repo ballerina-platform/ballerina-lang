@@ -134,7 +134,11 @@ ___
 
 ## Deploying on Docker
 
-Now that your service is created, you can deploy this on Docker. To do this you need to import docker into your Ballerina program first. Add the following to the top of your program.
+Now that your service is created, you can deploy this on Docker. 
+
+> TIP: This was tested on the community edition version of Docker Edge with Kubernetes enabled and running in the background. Docker Edge comes with the option of enabling Kubernetes under Docker preferences.
+
+To do this deployment, you need to import docker into your Ballerina program first. Add the following to the top of your program.
 
 ```
 import ballerinax/docker;
