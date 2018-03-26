@@ -44,15 +44,12 @@ function testPipelineQuery () {
         => (Teacher [] emp) {
             preProcessedStatusCountStream.publish(emp);
         }
-    }
 
-    whenever{
         from preProcessedStatusCountStream window lengthBatch(3)
-        select status, count( status) as totalCount
-        group by status
+        select status, count( status) as totalCount group by status
         having totalCount > 1
         => (StatusCount [] emp) {
-                filteredStatusCountStream1.publish(emp);
+            filteredStatusCountStream1.publish(emp);
         }
     }
 }
