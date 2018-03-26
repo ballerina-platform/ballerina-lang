@@ -32,6 +32,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode.Type;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloat;
@@ -702,6 +703,7 @@ public class JSONUtils {
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
+        int blobRegIndex = -1;
 
         BStruct bStruct = new BStruct(structType);
         StructInfo structInfo = structType.structInfo;
@@ -762,6 +764,9 @@ public class JSONUtils {
                         }
                         // TODO: set the default value
                         bStruct.setRefField(++refRegIndex, null);
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        bStruct.setBlobField(++blobRegIndex, new byte[0]);
                         break;
                     default:
                         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
@@ -1012,6 +1017,10 @@ public class JSONUtils {
     }
     
     public static String getTypeName(JsonNode jsonValue) {
+        if(jsonValue == null) {
+            return "null";
+        }
+
         Type nodeType = jsonValue.getType();
         switch(nodeType) {
             case LONG:
