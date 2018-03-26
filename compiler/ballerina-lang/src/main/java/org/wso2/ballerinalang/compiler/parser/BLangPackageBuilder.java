@@ -699,6 +699,10 @@ public class BLangPackageBuilder {
     public void markLastEndpointAsPublic() {
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
+    
+    public void markLastInvocationAsAsync() {
+        ((BLangInvocation) this.exprNodeStack.peek()).async = true;
+    }
 
     public void addVariableDefStatement(DiagnosticPos pos,
                                         Set<Whitespace> ws,
@@ -764,7 +768,6 @@ public class BLangPackageBuilder {
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        invocationNode.async = false;
 
         objectInitNode.objectInitInvocation = invocationNode;
         this.addExpressionNode(objectInitNode);
@@ -914,8 +917,7 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(varRef);
     }
 
-    public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable,
-                                         boolean async) {
+    public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
@@ -929,7 +931,6 @@ public class BLangPackageBuilder {
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        invocationNode.async = async;
         addExpressionNode(invocationNode);
     }
 
@@ -954,11 +955,12 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
-    public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async) {
         BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
         invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
         invocationExpr.addWS(ws);
+        invocationExpr.async = async;
 
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
