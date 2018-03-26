@@ -43,7 +43,7 @@ public class ConfigAnnotationTest {
         runner.runTest("src/test/resources/annotations-test", new Path[]{Paths.get("config-test.bal")}, new
                 ArrayList<>());
         cleanup();
-        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 8);
+        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 9);
     }
 
     private void cleanup() {

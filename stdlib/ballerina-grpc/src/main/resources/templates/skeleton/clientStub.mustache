@@ -12,8 +12,7 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> initStub(grpc:Client clientE
     navStub.initStub(clientEndpoint, "{{stubType}}", descriptorKey, descriptorMap);
     stub.serviceStub = navStub;
 }
-{{/stubs}}
-{{#blockingFunctions}}
+{{/stubs}}{{#blockingFunctions}}
 function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}| error) {
     any | grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("{{methodId}}", req);
     match unionResp {
@@ -35,8 +34,7 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputData
             }
         }
 }
-{{/blockingFunctions}}
-{{#nonBlockingFunctions}}
+{{/blockingFunctions}}{{#nonBlockingFunctions}}
 function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error|null) {
     var err1 = stub.serviceStub.nonBlockingExecute("{{methodId}}", req, listener);
     if (err1 != null && err1.message != null) {
@@ -45,8 +43,7 @@ function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, type
     }
     return null;
 }
-{{/nonBlockingFunctions}}
-{{#streamingFunctions}}
+{{/nonBlockingFunctions}}{{#streamingFunctions}}
 function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
     var res = stub.serviceStub.streamingExecute("{{methodId}}", listener);
         match res {
@@ -59,8 +56,7 @@ function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns 
             }
         }
 }
-{{/streamingFunctions}}
-{{#client}}
+{{/streamingFunctions}}{{#client}}
 {{#stubObjects}}
 public struct {{connectorId}}{{stubTypeName}}Client {
     grpc:Client client;
@@ -89,7 +85,6 @@ struct {{structId}} {
 {{/struct}}
 const string descriptorKey = "{{rootDescriptorKey}}";
 map descriptorMap =
-{ {{#descriptors}}
-  "{{descriptorKey}}":"{{descriptorData}}"{{eoe}}
-{{/descriptors}} };
+{ {{#descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{eoe}}
+  {{/descriptors}} };
 
