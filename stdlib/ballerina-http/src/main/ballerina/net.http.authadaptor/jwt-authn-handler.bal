@@ -21,7 +21,7 @@ import ballerina/log;
 import ballerina/auth.jwtAuth;
 
 @Description {value:"JWT authenticator instance"}
-jwtAuth:JWTAuthenticator jwtAuthenticator;
+jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
 
 @Description {value:"Representation of JWT Auth handler for HTTP traffic"}
 @Field {value:"name: Authentication handler name"}
@@ -37,6 +37,7 @@ public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) 
     try {
         authHeader = req.getHeader(AUTH_HEADER);
     } catch (error e) {
+        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
         return false;
     }
     if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
