@@ -1,21 +1,26 @@
 # Quick Tour
 
-Now that you know [a little bit about Ballerina](index.md), let's take it for a spin! 
+Now that you know [a little bit about Ballerina](), let's take it for a spin! 
 
 These are the available sections in this tour.
 
 - [Install Ballerina](#install-ballerina)
 - [Run HelloWorld](#run-helloworld)
 - [Write and Call a Service](#write-and-call-a-service)
+- [Deploying on Docker](#deploying on docker)
+- [Run the Composer](#run-the-composer)
 
+___
 
 ## Install Ballerina
 
 1. Go to [http://www.ballerinalang.org](http://www.ballerinalang.org) and click **Download**. 
-1. Download the Ballerina Tools distribution and unzip it on your computer. Ballerina Tools includes the Ballerina runtime plus the visual editor (Composer) and other tools. 
+1. Download the Ballerina Tools distribution and unzip it on your computer. Ballerina Tools includes the Ballerina runtime plus the visual editor (Ballerina Composer) and other tools. 
 1. Add the `<ballerina_home>/bin` directory to your $PATH environment variable so that you can run the Ballerina commands from anywhere. 
 
->NOTE: Throughout this documentation, `<ballerina_home>` refers to the Ballerina directory you just installed. 
+> NOTE: Throughout this documentation, `<ballerina_home>` refers to the Ballerina directory you just installed. 
+
+___
 
 ## Run HelloWorld
 
@@ -30,9 +35,13 @@ function main (string[] args) {
 }
 ``` 
 
-The above code doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line. To run this, copy the above code into a hello-world.bal file.
+The above code doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line. To run this, copy the above code into a hello-world.bal file. You can use your [favourite editor to work on Ballerina code](tools-ides-ballerina-composer.md). Let's try this on VS Code.
 
-At the command prompt, navigate to the directory that contains the hello-world.bal file and enter the following line:
+```
+code hello-world.bal
+```
+
+Now your file is created and you can add your code inside it. You can find a plugin for Ballerina in the VS Code marketplace. This helps read the `.bal` file using an ideal theme. At the command line, navigate to the directory that contains the hello-world.bal file and enter the following line:
 
 ```
 $ ballerina run hello-world.bal
@@ -47,6 +56,8 @@ Hello, World!
 You just started Ballerina, ran a simple code, and got a response within seconds. 
 
 Pretty simple and straightforward, right? Now, let's look at running the same Hello World program as a service.
+
+___
 
 ## Write and Call a Service
 
@@ -117,6 +128,20 @@ You get the following response.
 ```
 Hello Ballerina!
 ```
+
+___
+
+## Deploying on Docker
+
+Now that your service is created, you can deploy this on Docker. To do this you need to import docker into your Ballerina program first. Add the following to the top of your program.
+
+```
+import ballerinax/docker
+```
+
+
+
+___
 
 ## Run the Composer
 
