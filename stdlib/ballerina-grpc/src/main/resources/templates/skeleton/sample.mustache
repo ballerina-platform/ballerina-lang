@@ -20,7 +20,7 @@ function main (string[] args) {
 service<grpc:Listener> {{connectorId}}MessageListener {
 
     onMessage (string message) {
-        io:println("Responce received from server: " + message);
+        io:println("Response received from server: " + message);
     }
 
     onError (grpc:ServerError err) {

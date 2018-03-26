@@ -29,7 +29,7 @@ service<grpc:Listener> helloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {
-        io:println("Responce received from server: " + message);
+        io:println("Response received from server: " + message);
     }
 
     // Resource registered to receive server error messages
