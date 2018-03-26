@@ -39,7 +39,7 @@ public class IsCancelled extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BFuture future = (BFuture) context.getRefArgument(0);
-        context.setReturnValues(new BBoolean(future.value().isCancelled()));
+        context.setReturnValues(new BBoolean(future.isCancelled()));
     }
     
 }
