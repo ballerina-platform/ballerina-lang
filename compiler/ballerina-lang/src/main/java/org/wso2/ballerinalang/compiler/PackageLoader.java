@@ -202,7 +202,7 @@ public class PackageLoader {
         return loadAndDefinePackage(pkgID);
     }
 
-    private BLangPackage loadAndDefinePackage(PackageID pkgId) {
+    public BLangPackage loadAndDefinePackage(PackageID pkgId) {
         BLangPackage bLangPackage = loadPackage(pkgId, null);
         if (bLangPackage == null) {
             return null;
