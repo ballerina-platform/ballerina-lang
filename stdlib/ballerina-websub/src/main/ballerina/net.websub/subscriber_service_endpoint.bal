@@ -17,6 +17,7 @@ public struct SubscriberServiceEndpointConfiguration {
     string host;
     int port;
     http:Filter[] filters;
+    http:ServiceSecureSocket|null secureSocket;
     //TODO: include header, topic-resource map
 }
 
@@ -33,7 +34,8 @@ public function <SubscriberServiceEndpoint ep> SubscriberServiceEndpoint() {
 @Description {value:"Gets called when the endpoint is being initialized during package init"}
 @Param {value:"config: The HTTP ServiceEndpointConfiguration of the endpoint"}
 public function <SubscriberServiceEndpoint ep> init (SubscriberServiceEndpointConfiguration config) {
-    http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port, filters:config.filters };
+    http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
+                                                          secureSocket:config.secureSocket, filters:config.filters };
     ep.serviceEndpoint.init(serviceConfig);
     ep.initWebSubSubscriberServiceEndpoint();
 }
