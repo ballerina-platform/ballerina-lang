@@ -32,43 +32,30 @@
     <name>Ballerina - Jaeger Tracing Extension</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <jaeger.version>0.24.0</jaeger.version>
-        <libthrift.version>0.10.0</libthrift.version>
-        <okhttp.version>3.9.1</okhttp.version>
-        <okio.version>1.13.0</okio.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-observe</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.uber.jaeger</groupId>
             <artifactId>jaeger-core</artifactId>
-            <version>${jaeger.version}</version>
         </dependency>
         <dependency>
             <groupId>com.uber.jaeger</groupId>
             <artifactId>jaeger-thrift</artifactId>
-            <version>${jaeger.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
-            <version>${libthrift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>${okhttp.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio</artifactId>
-            <version>${okio.version}</version>
         </dependency>
     </dependencies>
 

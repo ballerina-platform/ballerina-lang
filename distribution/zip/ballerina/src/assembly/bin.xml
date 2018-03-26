@@ -136,10 +136,6 @@
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
-                <include>org.ballerinalang:ballerina-observe:jar</include>
-                <include>org.ballerinalang:ballerina-trace:jar</include>
-                <include>io.opentracing:opentracing-api</include>
-                <include>io.opentracing:opentracing-util</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.transport.http:org.wso2.transport.http.netty</include>
@@ -195,6 +191,17 @@
                 <include>io.ballerina.messaging:broker-coordination</include>
                 <include>com.google.guava:guava</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
+
+                <!-- Observability Dependencies -->
+                <include>org.ballerinalang:ballerina-observe:jar</include>
+                <include>org.ballerinalang:ballerina-trace:jar</include>
+                <include>io.opentracing:opentracing-api</include>
+                <include>io.opentracing:opentracing-util</include>
+                <include>com.uber.jaeger:jaeger-core</include>
+                <include>com.uber.jaeger:jaeger-thrift</include>
+                <include>org.apache.thrift:libthrift</include>
+                <include>com.squareup.okhttp3:okhttp</include>
+                <include>com.squareup.okio:okio</include>
 
                 <!-- Siddhi Dependencies -->
                 <include>org.ballerinalang:siddhi-core:jar</include>
