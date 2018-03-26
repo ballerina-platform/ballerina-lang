@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
@@ -41,6 +42,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
+import org.ballerinalang.util.transactions.TransactionUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.io.BufferedReader;
@@ -1051,10 +1053,8 @@ public class SQLDatasourceUtils {
             return;
         }
 
-        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(TransactionConstants.COORDINATOR_MARK_FOR_ABORTION);
-        BLangFunctions.invokeCallable(functionInfo, args);
+        TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
+                transactionBlockId);
     }
 
     private static String getString(Calendar calendar, String type) {
