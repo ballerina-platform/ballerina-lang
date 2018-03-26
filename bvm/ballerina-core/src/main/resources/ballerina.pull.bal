@@ -1,8 +1,7 @@
-import ballerina/io;
-import ballerina/net.http;
-import ballerina/runtime;
 import ballerina/file;
+import ballerina/io;
 import ballerina/mime;
+import ballerina/net.http;
 
 function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
     endpoint http:ClientEndpoint httpEndpoint {
@@ -50,7 +49,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         if (res.hasHeader("content-length")) {
             contentLengthHeader = res.getHeader("content-length");
         } else {
-            error err = {message:"Unable to find the Content-Length header"};
+            error err = {message:"package size information is missing from the remote repository"};
             throw err;
         }
         int pkgSize;
@@ -76,7 +75,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         if (res.hasHeader("Link")) {
             linkHeaderVal = res.getHeader("Link");
         } else {
-            error err = {message:"Unable to find the Canonical Link header"};
+            error err = {message:"package version information is missing from the remote repository"};
             throw err;
         }
 
@@ -88,7 +87,9 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
 
         // Create the version directory
         destDirPath = destDirPath + fileSeparator + pkgVersion;
-        createDirectories(destDirPath);
+        if (!createDirectories(destDirPath)) {
+            return;
+        }
 
         string archiveFileName = pkgName + ".zip";
         string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
@@ -174,7 +175,6 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             }
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
-            runtime:sleepCurrentWorker(100);
             noOfBytesRead = totalCount + "/" + pkgSize;
             string bar = equals.subString(0, <int>(percentage * 10));
             string spaces = tabspaces.subString(0, 10 - <int>(percentage * 10));
@@ -219,14 +219,15 @@ function truncateString (string text) returns (string) {
     return text;
 }
 
-function createDirectories (string directoryPath) {
-    boolean folderCreated;
+function createDirectories (string directoryPath) returns (boolean) {
     file:File folder = {path:directoryPath};
     if (!folder.exists()) {
         var makeDirs = folder.mkdirs();
         match makeDirs {
-            boolean created => folderCreated = created;
+            boolean created => return created;
             error err => throw err;
         }
+    } else {
+        return false;
     }
 }
