@@ -12,7 +12,8 @@ import ballerina/util;
 
 endpoint http:ServiceEndpoint hubServiceEP {
     host:hubHost,
-    port:hubPort
+    port:hubPort,
+    secureSocket:serviceSecureSocket
 };
 
 PendingRequests pendingRequests = {};
@@ -139,7 +140,7 @@ function validateSubscriptionChangeRequest(map params) returns (boolean|string) 
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, map params) {
     endpoint http:ClientEndpoint callbackEp {
-        targets:[{ uri:callback }]
+        targets:[{ uri:callback, secureSocket: secureSocket }]
     };
 
     string mode = <string> params[websub:HUB_MODE];
@@ -299,7 +300,7 @@ function addSubscriptionsOnStartup() {
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:ClientEndpoint callbackEp {
-        targets:[{ uri:callback }]
+        targets:[{ uri:callback, secureSocket: secureSocket }]
     };
 
     http:Request request = {};

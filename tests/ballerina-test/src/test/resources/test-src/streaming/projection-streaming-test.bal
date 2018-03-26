@@ -38,7 +38,7 @@ stream<Teacher> teacherStream4 = {};
 
 function testProjectionQuery () {
 
-    whenever{
+    forever{
         from teacherStream4
         select name, age, status
         => (Employee [] emp) {

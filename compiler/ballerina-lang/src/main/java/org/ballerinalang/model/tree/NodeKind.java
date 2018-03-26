@@ -153,5 +153,5 @@ public enum NodeKind {
     WITHIN,
     PATTERN_CLAUSE,
     OUTPUT_RATE_LIMIT,
-    WHENEVER,
+    FOREVER,
 }

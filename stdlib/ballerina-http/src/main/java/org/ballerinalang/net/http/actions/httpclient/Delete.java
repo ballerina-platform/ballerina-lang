@@ -27,6 +27,8 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -69,6 +71,11 @@ public class Delete extends AbstractHTTPAction {
         // Extract Argument values
         HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
         cMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
+
+        Tracer tracer = TraceUtil.getParentTracer(context.getParentWorkerExecutionContext());
+        HttpUtil.injectHeaders(cMsg, tracer.getProperties());
+        tracer.addTags(HttpUtil.extractTraceTags(cMsg));
+
         return cMsg;
     }
 }
