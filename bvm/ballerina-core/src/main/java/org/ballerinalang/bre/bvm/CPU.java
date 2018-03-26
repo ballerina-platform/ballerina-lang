@@ -2603,15 +2603,12 @@ public class CPU {
                     }
                 }
             } else if (status == TransactionStatus.ABORTED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionAbort();
-                if (notifyCoordinator) {
-                    if (isGlobalTransactionEnabled) {
-                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                                transactionBlockId);
-                    } else {
-                        TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                    }
+                if (isGlobalTransactionEnabled) {
+                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                            transactionBlockId);
+                } else {
+                    TransactionResourceManager.getInstance()
+                            .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
                 }
             } else if (status == TransactionStatus.SUCCESS.value()) {
                 //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
@@ -2623,10 +2620,12 @@ public class CPU {
                             .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                notifyCoordinator = localTransactionInfo.onTransactionEnd(transactionBlockId);
-                if (notifyCoordinator && isGlobalTransactionEnabled) {
+                boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
+                if (isGlobalTransactionEnabled) {
                     TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
                             transactionBlockId);
+                }
+                if (isOuterTx) {
                     BLangVMUtils.removeTransactionInfo(ctx);
                 }
             }

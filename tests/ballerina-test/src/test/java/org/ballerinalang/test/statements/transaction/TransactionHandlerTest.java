@@ -99,7 +99,7 @@ public class TransactionHandlerTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx inAboftFunction inFailed trxErr end");
+                "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx inFailed inAboftFunction trxErr end");
     }
 
     @Test
@@ -126,6 +126,6 @@ public class TransactionHandlerTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inFirstTrx inAboftFunction beforeRetry-First trxErr inSecondTrx inAboftFunctionSecond end");
+                "start inFirstTrx beforeRetry-First inAboftFunction trxErr inSecondTrx inAboftFunctionSecond end");
     }
 }
