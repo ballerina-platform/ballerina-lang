@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.math;
+import ballerina/io;
+import ballerina/math;
 
 function main (string[] args) {
 
