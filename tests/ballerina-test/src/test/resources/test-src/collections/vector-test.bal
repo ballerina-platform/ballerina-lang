@@ -1,6 +1,6 @@
-import ballerina.collections;
+import ballerina/collections;
 
-function testAdd (string[] values) (collections:Vector) {
+function testAdd (string[] values) returns (collections:Vector) {
     collections:Vector vector = {vec:[]};
     int i = 0;
 
@@ -12,29 +12,29 @@ function testAdd (string[] values) (collections:Vector) {
     return vector;
 }
 
-function testClear (int size) (collections:Vector, collections:Vector) {
+function testClear (int size) returns (collections:Vector, collections:Vector) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
 
     collections:Vector vectorRef = vector;
     vector.clear();
 
-    return vector, vectorRef;
+    return (vector, vectorRef);
 }
 
-function testGet (int size) (any x1, any x2, any x3, any x4) {
+function testGet (int size) returns (any, any, any, any) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
 
-    x1 = vector.get(0);
-    x2 = vector.get(2);
-    x3 = vector.get(4);
-    x4 = vector.get(6);
+    any x1 = vector.get(0);
+    any x2 = vector.get(2);
+    any x3 = vector.get(4);
+    any x4 = vector.get(6);
 
-    return;
+    return (x1, x2, x3, x4);
 }
 
-function testInsert (int[] values, int[] indices, int size) (collections:Vector) {
+function testInsert (int[] values, int[] indices, int size) returns (collections:Vector) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
 
@@ -47,10 +47,10 @@ function testInsert (int[] values, int[] indices, int size) (collections:Vector)
     return vector;
 }
 
-function testIsEmpty (int size) (boolean[] isEmpty) {
+function testIsEmpty (int size) returns (boolean[]) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
-    isEmpty = [];
+    boolean[] isEmpty = [];
     int i = 0;
 
     isEmpty[i] = vector.isEmpty();
@@ -68,13 +68,13 @@ function testIsEmpty (int size) (boolean[] isEmpty) {
     }
     isEmpty[i] = vector.isEmpty();
 
-    return;
+    return isEmpty;
 }
 
-function testSize (int[] addElems, int[] insertElems, int[] replaceElems, int nRemoveElems, int size) (int[] vecSizes) {
+function testSize (int[] addElems, int[] insertElems, int[] replaceElems, int nRemoveElems, int size) returns (int[]) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
-    vecSizes = [];
+    int[] vecSizes = [];
     int sizesIndex = 0;
 
     int i = 0;
@@ -109,21 +109,21 @@ function testSize (int[] addElems, int[] insertElems, int[] replaceElems, int nR
     vecSizes[sizesIndex] = vector.size();
     sizesIndex = sizesIndex + 1;
 
-    return;
+    return vecSizes;
 }
 
-function testRemove (int size) (collections:Vector vector, any x1, any x2, any x3) {
-    vector = {vec:[]};
+function testRemove (int size) returns (collections:Vector, any, any, any) {
+    collections:Vector vector = {vec:[]};
     populateVector(vector, size);
 
-    x1 = vector.remove(0);
-    x2 = vector.remove(2);
-    x3 = vector.remove(size - 3);
+    any x1 = vector.remove(0);
+    any x2 = vector.remove(2);
+    any x3 = vector.remove(size - 3);
 
-    return;
+    return (vector, x1, x2, x3);
 }
 
-function testReplace (int[] values, int[] indices, int size) (collections:Vector, any[]) {
+function testReplace (int[] values, int[] indices, int size) returns (collections:Vector, any[]) {
     collections:Vector vector = {vec:[]};
     any[] replacedVals = [];
     populateVector(vector, size);
@@ -134,14 +134,14 @@ function testReplace (int[] values, int[] indices, int size) (collections:Vector
         i = i + 1;
     }
 
-    return vector, replacedVals;
+    return (vector, replacedVals);
 }
 
-function testGetIndexOutOfRange (int[] indices, int size) (any[] vals, error[] errs) {
+function testGetIndexOutOfRange (int[] indices, int size) returns (any[], error[]) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
-    vals = [];
-    errs = [];
+    any[] vals = [];
+    error[] errs = [];
     int i = 0;
     int errIndex = 0;
 
@@ -154,13 +154,13 @@ function testGetIndexOutOfRange (int[] indices, int size) (any[] vals, error[] e
         }
         i = i + 1;
     }
-    return;
+    return (vals, errs);
 }
 
-function testInsertIndexOutOfRange (int[] values, int[] indices, int size) (collections:Vector vector, collections:IndexOutOfRangeError[] errs) {
-    vector = {vec:[]};
+function testInsertIndexOutOfRange (int[] values, int[] indices, int size) returns (collections:Vector, collections:IndexOutOfRangeError[]) {
+    collections:Vector vector = {vec:[]};
     populateVector(vector, size);
-    errs = [];
+    collections:IndexOutOfRangeError[] errs = [];
     int i = 0;
     int errIndex = 0;
 
@@ -174,14 +174,14 @@ function testInsertIndexOutOfRange (int[] values, int[] indices, int size) (coll
         i = i + 1;
     }
 
-    return vector, errs;
+    return (vector, errs);
 }
 
-function testRemoveIndexOutOfRange (int[] indices, int size) (collections:Vector vector, any[] removedVals, collections:IndexOutOfRangeError[] errs) {
-    vector = {vec:[]};
+function testRemoveIndexOutOfRange (int[] indices, int size) returns (collections:Vector, any[], collections:IndexOutOfRangeError[]) {
+    collections:Vector vector = {vec:[]};
     populateVector(vector, size);
-    removedVals = [];
-    errs = [];
+    any[] removedVals = [];
+    collections:IndexOutOfRangeError[] errs = [];
     int i = 0;
     int errIndex = 0;
 
@@ -195,13 +195,13 @@ function testRemoveIndexOutOfRange (int[] indices, int size) (collections:Vector
         i = i + 1;
     }
 
-    return;
+    return (vector, removedVals, errs);
 }
 
-function testReplaceIndexOutOfRange (int[] values, int[] indices, int size) (collections:Vector vector, collections:IndexOutOfRangeError[] errs) {
-    vector = {vec:[]};
+function testReplaceIndexOutOfRange (int[] values, int[] indices, int size) returns (collections:Vector, collections:IndexOutOfRangeError[]) {
+    collections:Vector vector = {vec:[]};
     populateVector(vector, size);
-    errs = [];
+    collections:IndexOutOfRangeError[] errs = [];
     int i = 0;
     int errIndex = 0;
 
@@ -215,7 +215,7 @@ function testReplaceIndexOutOfRange (int[] values, int[] indices, int size) (col
         i = i + 1;
     }
 
-    return vector, errs;
+    return (vector, errs);
 }
 
 function populateVector (collections:Vector vector, int size) {

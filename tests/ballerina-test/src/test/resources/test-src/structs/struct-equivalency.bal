@@ -69,7 +69,7 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     employee1 e = {age:14, name:"rat"};
     e.setSSN("234-56-7890");
 
-    person1 p = (person1)e;
+    person1 p = <person1>e;
 
     return p.getSSN();
 }
@@ -133,7 +133,7 @@ function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
     employee2 e = {age:14, name:"rat"};
     e.setSSN("234-56-7890");
 
-    person2 p = (person2)e;
+    person2 p = <person2>e;
 
     return p.getSSN();
 }
@@ -143,7 +143,7 @@ function testEqOfPublicStructs () returns (string) {
     eq:employee e = {age:14, name:"rat"};
     e.setSSN("234-56-7890");
 
-    eq:person p = (eq:person)e;
+    eq:person p = <eq:person>e;
 
     return p.getSSN();
 }
@@ -179,20 +179,20 @@ public function <employee3 e> getEmployeeId () returns (int) {
     return e.employeeId;
 }
 
-function testEqOfPublicStructs1 () (string) {
+function testEqOfPublicStructs1 () returns (string) {
     employee3 e = {age:14, name:"rat"};
     e.setSSN("234-56-1234");
 
-    eq:person p = (eq:person)e;
+    eq:person p = <eq:person>e;
 
     return p.getSSN();
 }
 
-function testEqOfPublicStructs2 () (string) {
+function testEqOfPublicStructs2 () returns (string) {
     eq2:employee e = {age:14, name:"rat"};
     e.setSSN("234-56-3345");
 
-    eq:person p = (eq:person)e;
+    eq:person p = <eq:person>e;
 
     return p.getSSN();
 }
@@ -243,17 +243,14 @@ function <userFoo u> getAge () returns (int) {
 }
 
 
-function testRuntimeEqPrivateStructsInSamePackage () (string) {
+function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
     userFoo uFoo = {age:10, name:"ttt", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = (userA)uFoo;
+    var uA = <userA>uFoo;
 
     // This is a unsafe cast
-    var uB, err = (userB)uA;
-    if (err != null) {
-        return err.message;
-    }
+    var uB =? <userB>uA;
     return uB.name;
 }
 
@@ -301,46 +298,46 @@ public function <userPFoo u> getAge () returns (int) {
 }
 
 
-function testRuntimeEqPublicStructsInSamePackage () (string) {
+function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = (userPA)uFoo;
+    var uA =? <userPA>uFoo;
 
     // This is a unsafe cast
-    var uB, err = (userPB)uA;
-    if (err != null) {
-        return err.message;
+    var uB = <userPB>uA;
+    match uB {
+        error err => return err.message;
+        userPB user=> return user.name;
     }
-    return uB.name;
 }
 
-function testRuntimeEqPublicStructs () (string) {
+function testRuntimeEqPublicStructs () returns (string) {
     req:userPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = (userPA)uFoo;
+    var uA =? <userPA>uFoo;
 
     // This is a unsafe cast
-    var uB, err = (userPB)uA;
-    if (err != null) {
-        return err.message;
+    var uB  = <userPB>uA;
+    match uB {
+        error err => return err.message;
+        userPB user=> return user.name;
     }
-    return uB.name;
 }
 
-function testRuntimeEqPublicStructs1 () (string) {
+function testRuntimeEqPublicStructs1 () returns (string) {
     req:userPFoo uFoo = {age:10, name:"Brandon", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = (userPA)uFoo;
+    var uA = <userPA>uFoo;
 
     // This is a unsafe cast
-    var uB, err = (req2:userPB)uA;
-    if (err != null) {
-        return err.message;
+    var uB  = <req2:userPB>uA;
+    match uB {
+        error err => return err.message;
+        userPB user=> return user.getName();
     }
-    return uB.getName();
 }
 
 struct personC {
@@ -389,10 +386,12 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
     // testing value passing.
     p.setContact(o);
     string result3 = p.getAddress();
-    return result1, result2, result3;
+    return (result1, result2, result3);
 }
 
-function testStructEquivalencyWithFunctionType () returns (string s1, string s2) {
+function testStructEquivalencyWithFunctionType () returns (string, string) {
+    string s1;
+    string s2;
     SomeOtherStruct x = {s:"sss"};
     AnyStruct aa = {};
     s1 = aa.shout(x);
@@ -402,18 +401,18 @@ function testStructEquivalencyWithFunctionType () returns (string s1, string s2)
     AnyStruct aaa = ss;
     s2 = aaa.shout(x);
     _ = aaa.call();
-    return;
+    return (s1,s2);
 }
 
 struct AnyStruct {
 }
 
 function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
-    var j, _ = <json>aa;
+    var j =? <json>aa;
     return "anyStruct" + j.toString();
 }
 
-function <AnyStruct a> call () returns (AnotherAnyStruct aa) {
+function <AnyStruct a> call () returns (AnotherAnyStruct) {
     return {} ;
 }
 
@@ -422,11 +421,11 @@ struct SomeStruct {
 }
 
 function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
-    var j, _ = <json>aa;
+    var j =? <json>aa;
     return "someStruct" + j.toString();
 }
 
-function <SomeStruct b> call () returns (SomeOtherStruct aa) {
+function <SomeStruct b> call () returns (SomeOtherStruct) {
     return { s : "return"};
 }
 

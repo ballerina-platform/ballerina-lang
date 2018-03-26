@@ -82,7 +82,6 @@ public class JWTAuthenticatorTest {
      * trustStorePassword=<trustStore password>
      */
 
-    private Path ballerinaConfCopyPath;
     private Path ballerinaKeyStoreCopyPath;
     private Path ballerinaTrustStoreCopyPath;
     private CompileResult compileResult;
@@ -98,7 +97,6 @@ public class JWTAuthenticatorTest {
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "jwt", BALLERINA_CONF);
-        ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
         Path ballerinaKeyStorePath = Paths
                 .get(resourceRoot, "datafiles", "security", "keyStore", KEY_STORE);
         ballerinaKeyStoreCopyPath = sourceRoot.resolve(KEY_STORE);
@@ -106,15 +104,13 @@ public class JWTAuthenticatorTest {
                 .get(resourceRoot, "datafiles", "security", "keyStore", TRUST_SORE);
         ballerinaTrustStoreCopyPath = sourceRoot.resolve(TRUST_SORE);
         // Copy test resources to source root before starting the tests
-        Files.copy(ballerinaConfPath, ballerinaConfCopyPath, new CopyOption[]{REPLACE_EXISTING});
         Files.copy(ballerinaKeyStorePath, ballerinaKeyStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
         Files.copy(ballerinaTrustStorePath, ballerinaTrustStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-authenticator-test.bal").toString());
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
+        registry.initRegistry(getRuntimeProperties(), ballerinaConfPath.toString(), null);
 
         jwtToken = generateJWT();
     }
@@ -132,12 +128,10 @@ public class JWTAuthenticatorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess", inputBValues);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertNull(returns[1]);
     }
 
     @AfterClass
     public void tearDown() throws Exception {
-        Files.deleteIfExists(ballerinaConfCopyPath);
         Files.deleteIfExists(ballerinaKeyStoreCopyPath);
         Files.deleteIfExists(ballerinaTrustStoreCopyPath);
     }

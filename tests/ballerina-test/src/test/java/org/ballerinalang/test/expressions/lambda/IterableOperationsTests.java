@@ -56,13 +56,13 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, 2, "undefined function 'int.foreach'", 6, 5);
         BAssertUtil.validateError(negative, 3, "undefined function 'string.map'", 8, 5);
         BAssertUtil.validateError(negative, 4, "variable assignment is required", 14, 5);
-        BAssertUtil.validateError(negative, 5, "not enough variables are defined for iterable type '(int,string)[]', " +
+        BAssertUtil.validateError(negative, 5, "not enough variables are defined for iterable type '(int,string)', " +
                 "" + "require at least '2' variables", 18, 15);
-        BAssertUtil.validateError(negative, 6, "function invocation on type '(string,string)[]' is not supported",
+        BAssertUtil.validateError(negative, 6, "function invocation on type '(string,string)' is not supported",
                 23, 21);
-        BAssertUtil.validateError(negative, 7, "incompatible types: expected 'string[]', found '(string,string)[]'",
+        BAssertUtil.validateError(negative, 7, "incompatible types: expected 'string[]', found '(string,string)'",
                 31, 24);
-        BAssertUtil.validateError(negative, 8, "incompatible types: expected 'map', found '(any)[]'", 35, 22);
+        BAssertUtil.validateError(negative, 8, "incompatible types: expected 'map', found '(any)'", 35, 22);
         BAssertUtil.validateError(negative, 9, "cannot assign return value of 'filter' operation here, use a reduce " +
                 "operation", 39, 22);
         BAssertUtil.validateError(negative, 10, "'foreach()' does not return a value;", 48, 19);
@@ -78,7 +78,6 @@ public class IterableOperationsTests {
                 14);
         BAssertUtil.validateError(negative, 19, "not enough return arguments are defined for operation 'filter'", 67,
                 14);
-
     }
 
     @Test

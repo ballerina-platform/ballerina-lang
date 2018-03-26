@@ -72,9 +72,11 @@ public class BJSONValueTest {
     }
 
     @Test
-    public void testJSONWithUnsupportedKey() {
-        CompileResult result = BCompileUtil.compile("test-src/types/jsontype/json-literal-invalid-key-negative.bal");
-        BAssertUtil.validateError(result, 0, "missing token ':' before '('", 2, 19);
+    public void testJSONWithExpressionKey() {
+        CompileResult result = BCompileUtil.compile("test-src/types/jsontype/json-literal-with-expr-key.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testJSONWithExpressionKey");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"a\":\"Lion\",\"key1\":\"Cat\",\"key2\":\"Dog\"}");
     }
 
     @Test(description = "Test initializing json with a string")
@@ -462,10 +464,8 @@ public class BJSONValueTest {
     @Test
     public void testJsonToJsonArrayInvalidCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
-        Assert.assertEquals(returns[0], null);
-
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        String errorMsg = ((BStruct) returns[1]).getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        String errorMsg = ((BStruct) returns[0]).getStringField(0);
         Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json[][][]'");
     }
 

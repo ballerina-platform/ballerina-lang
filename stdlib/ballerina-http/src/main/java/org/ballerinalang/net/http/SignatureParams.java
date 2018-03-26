@@ -45,7 +45,8 @@ public class SignatureParams {
     }
 
     void validate() {
-        if (resource.getEntityBodyAttributeValue() == null) {
+        if (resource.getEntityBodyAttributeValue() == null ||
+                resource.getEntityBodyAttributeValue().isEmpty()) {
             validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, paramDetails.size()));
         } else {
             int lastParamIndex = paramDetails.size() - 1;
@@ -56,7 +57,9 @@ public class SignatureParams {
 
     private void validatePathParam(List<ParamDetail> paramDetails) {
         for (ParamDetail param : paramDetails) {
-            if (param.getVarType().getTag() != TypeTags.STRING_TAG) {
+            int varTag = param.getVarType().getTag();
+            if (varTag != TypeTags.STRING_TAG && varTag != TypeTags.INT_TAG && varTag != TypeTags.BOOLEAN_TAG &&
+                    varTag != TypeTags.FLOAT_TAG) {
                 throw new BallerinaConnectorException("incompatible resource signature parameter type");
             }
             paramCount++;

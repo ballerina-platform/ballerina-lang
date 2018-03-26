@@ -1,8 +1,8 @@
 package bal.test.intercept.simpleAuth;
 
-import ballerina.lang.messages;
-import ballerina.lang.system;
-import ballerina.lang.errors;
+import ballerina/lang.messages;
+import ballerina/lang.system;
+import ballerina/lang.errors;
 
 function requestInterceptor (message msg) (boolean, message) {
     string username;

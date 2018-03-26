@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @since 0.966.0
  */
-public interface UnionTypeNode {
+public interface UnionTypeNode extends ReferenceTypeNode {
 
     List<? extends TypeNode> getMemberTypeNodes();
 }

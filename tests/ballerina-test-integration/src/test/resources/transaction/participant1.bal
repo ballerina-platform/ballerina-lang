@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
 endpoint http:ServiceEndpoint participant1EP {
     port:8889
@@ -34,13 +34,48 @@ service<http:Service> participant1 bind participant1EP {
         };
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
-        http:Response clientResponse2;
         transaction {
-            var clientResponse1, _ = ep -> forward("/task1", req);
-            clientResponse2, _ = ep -> get("/task2", newReq);
+            var forwardResult = ep -> forward("/task1", req);
+            match forwardResult {
+                http:HttpConnectorError err => {
+                    io:print("Participant1 could not send get request to participant2/task1. Error:");
+                    sendErrorResponseToInitiator(conn);
+                    abort;
+                }
+                http:Response forwardRes => {
+                    var getResult = ep -> get("/task2", newReq);
+                    match getResult {
+                        http:HttpConnectorError err => {
+                            io:print("Participant1 could not send get request to participant2/task2. Error:");
+                            sendErrorResponseToInitiator(conn);
+                            abort;
+                        }
+                        http:Response getRes => {
+                            var forwardRes2 = conn -> forward(getRes);
+                            match forwardRes2 {
+                                http:HttpConnectorError err => {
+                                    io:print("Participant1 could not forward response from participant2 to initiator. Error:");
+                                    io:println(err);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         } onretry {
             io:println("Participant1 failed");
         }
-        _ = conn -> forward(clientResponse2);
+    }
+}
+
+function sendErrorResponseToInitiator(http:ServiceEndpoint conn) {
+    endpoint http:ServiceEndpoint conn2 = conn;
+    http:Response errRes = {statusCode: 500};
+    var respondResult = conn2 -> respond(errRes);
+    match respondResult {
+        http:HttpConnectorError respondErr => {
+            io:print("Participant1 could not send error response to initiator. Error:");
+            io:println(respondErr);
+        }
     }
 }

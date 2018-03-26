@@ -4,11 +4,11 @@ function main(string[] args){
     // Invoke Some random Logic.
     int r = calculateExp1(p , q);
     p = p - q;
-    // Invoke anothe random Logic.
+    // Invoke another random Logic.
     string s = testCalculateExp2(p);
     s = "done";
 }
-function calculateExp1(int x, int y) (int) {
+function calculateExp1(int x, int y) returns (int) {
     int z = 0;
     while(x >= y) {
         y = y + 1;
@@ -20,7 +20,7 @@ function calculateExp1(int x, int y) (int) {
     }
     return z;
 }
-function calculateExp2(int a, int b, int c) (int, int) {
+function calculateExp2(int a, int b, int c) returns (int, int) {
     int x;
     x = 10;
     if ( a == b) {
@@ -33,12 +33,10 @@ function calculateExp2(int a, int b, int c) (int, int) {
          a = 400;
     }
     b = c;
-    return a + x, b + 1;
+    return (a + x, b + 1);
 }
-function testCalculateExp2(int x) (string) {
-    int v1;
-    int v2;
-    v1, v2 = calculateExp2(x, 9, 15);
+function testCalculateExp2 (int x) returns (string) {
+    var (v1, v2) = calculateExp2(x, 9, 15);
     if (v1 > 200) {
         return "large";
     } else {

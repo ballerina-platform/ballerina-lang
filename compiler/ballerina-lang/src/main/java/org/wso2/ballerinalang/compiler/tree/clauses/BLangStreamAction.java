@@ -19,15 +19,10 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of {@link StreamActionNode}.
@@ -35,25 +30,16 @@ import java.util.Map;
  * @since 0.965.0
  */
 public class BLangStreamAction extends BLangNode implements StreamActionNode {
+    private LambdaFunctionNode lambdaFunction;
 
-    private String identifierName;
+    @Override
+    public void setInvokableBody(LambdaFunctionNode lambdaFunction) {
+        this.lambdaFunction = lambdaFunction;
+    }
 
-    private String outputEventType;
-
-    private StreamActionType action;
-
-    private List<SetAssignmentNode> setAssignmentNodeList;
-
-    private ExpressionNode expressionNode;
-
-    private Map<String, StreamActionType> streamActionTypeMap = new HashMap<>();
-
-    public BLangStreamAction() {
-        streamActionTypeMap.put("insert", StreamActionType.INSERT);
-        streamActionTypeMap.put("delete", StreamActionType.DELETE);
-        streamActionTypeMap.put("update", StreamActionType.UPDATE);
-
-        action = StreamActionType.UNKNOWN;
+    @Override
+    public LambdaFunctionNode getInvokableBody() {
+        return this.lambdaFunction;
     }
 
     @Override
@@ -61,73 +47,13 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
         visitor.visit(this);
     }
 
+    /**
+     * Returns the kind of this node.
+     *
+     * @return the kind of this node.
+     */
     @Override
     public NodeKind getKind() {
         return NodeKind.STREAM_ACTION;
-    }
-
-    @Override
-    public void setStreamActionType(String streamActionType) {
-        if (streamActionTypeMap.containsKey(streamActionType)) {
-            action = streamActionTypeMap.get(streamActionType);
-        }
-    }
-
-    @Override
-    public void setIdentifier(String identifier) {
-        this.identifierName = identifier;
-    }
-
-    @Override
-    public void setSetClause(List<SetAssignmentNode> setAssignmentNodeList) {
-        this.setAssignmentNodeList = setAssignmentNodeList;
-    }
-
-    @Override
-    public void setExpression(ExpressionNode expressionNode) {
-        this.expressionNode = expressionNode;
-    }
-
-    @Override
-    public String getIdentifier() {
-        return identifierName;
-    }
-
-    @Override
-    public List<SetAssignmentNode> getSetClause() {
-        return setAssignmentNodeList;
-    }
-
-    @Override
-    public ExpressionNode getExpression() {
-        return expressionNode;
-    }
-
-    @Override
-    public String getActionType() {
-        return action.toString();
-    }
-
-    @Override
-    public String getOutputEventType() {
-        return outputEventType;
-    }
-
-    @Override
-    public void setOutputEventType(boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
-        if (isAllEvents) {
-            this.outputEventType = "all events";
-        } else if (isExpiredEvents) {
-            this.outputEventType = "expired events";
-        } else if (isCurrentEvents) {
-            this.outputEventType = "current events";
-        }
-    }
-
-    private enum StreamActionType {
-        INSERT,
-        DELETE,
-        UPDATE,
-        UNKNOWN
     }
 }

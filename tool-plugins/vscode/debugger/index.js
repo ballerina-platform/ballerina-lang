@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
- 
+
 class BallerinaDebugSession extends LoggingDebugSession {
     initializeRequest(response, args) {
         response.body = response.body || {};
@@ -32,6 +32,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this.packagePaths = {};
         this.dirPaths = {};
         this.debugManager = new DebugManager();
+        this.started = false;
 
         this.debugManager.on('debug-hit', debugArgs => {
             this.debugArgs = debugArgs;
@@ -99,6 +100,8 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 { cwd }
             );
     
+            this.startTimeout(args['debugServerTimeout']||5000);
+
             debugServer.on('error', (err) => {
                 this.terminate("Could not start the debug server.");
             });
@@ -107,7 +110,13 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 if (`${data}`.indexOf('Ballerina remote debugger is activated on port') > -1) {
                     this.debugManager.connect(`ws://127.0.0.1:${port}/debug`, () => {
                         this.sendResponse(response);
-                        this.sendEvent(new InitializedEvent());
+                        this.started = true;
+
+                        if (this.timedOut) {
+                            this.debugManager.kill();
+                        } else {
+                            this.sendEvent(new InitializedEvent());
+                        }
                     });
                 }
 
@@ -256,6 +265,16 @@ class BallerinaDebugSession extends LoggingDebugSession {
             this.debugServer.kill();
         }
         this.sendResponse(response);
+    }
+
+    // timeout waiting for the debug server
+    startTimeout(timeout=5000) {
+        setTimeout(() => {
+            if(!this.started) {
+                this.timedOut = true;
+                this.terminate('Timeout. Debug server did not start');
+            }
+        }, timeout);
     }
 
     terminate(msg) {

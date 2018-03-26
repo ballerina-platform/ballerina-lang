@@ -21,9 +21,12 @@ package org.ballerinalang.nativeimpl.io;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
@@ -41,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "read",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "nBytes", type = TypeKind.INT)},
@@ -67,7 +70,8 @@ public class Read implements NativeCallableUnit {
      * @return Once the callback is processed we further return back the result.
      */
     private static EventResult readResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct = null;
+        BStruct errorStruct;
+        BRefValueArray contentTuple = new BRefValueArray(new BArrayType(BTypes.typeAny));
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
@@ -76,8 +80,12 @@ public class Read implements NativeCallableUnit {
         byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
+        } else {
+            contentTuple.add(0, new BBlob(content));
+            contentTuple.add(1, new BInteger(numberOfBytes));
+            context.setReturnValues(contentTuple);
         }
-        context.setReturnValues(new BBlob(content), new BInteger(numberOfBytes), errorStruct);
         callback.notifySuccess();
         return result;
     }

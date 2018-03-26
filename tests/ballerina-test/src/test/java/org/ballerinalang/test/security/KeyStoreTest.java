@@ -23,14 +23,9 @@ import org.ballerinalang.nativeimpl.security.KeyStore;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class KeyStoreTest {
 
@@ -79,38 +74,21 @@ public class KeyStoreTest {
     }
 
     private KeyStore loadKeyStore() throws Exception {
-        ConfigRegistry defaultConfigRegistry = ConfigRegistry.getInstance();
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         KeyStore keyStore;
 
-        ConfigRegistry configRegistry = mock(ConfigRegistry.class);
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_LOCATION))
-                .thenReturn(getClass().getClassLoader().getResource(
-                        "datafiles/security/keyStore/ballerinaKeystore.p12").getPath());
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_PASSWORD))
-                .thenReturn("ballerina");
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_TYPE))
-                .thenReturn("pkcs12");
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION))
-                .thenReturn(getClass().getClassLoader().getResource(
-                        "datafiles/security/keyStore/ballerinaTruststore.p12").getPath());
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_PASSWORD))
-                .thenReturn("ballerina");
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_TYPE))
-                .thenReturn("pkcs12");
+        configRegistry.addConfiguration(KEY_STORE_CONFIG, KEY_STORE_LOCATION, getClass().getClassLoader().getResource(
+                "datafiles/security/keyStore/ballerinaKeystore.p12").getPath());
+        configRegistry.addConfiguration(KEY_STORE_CONFIG, KEY_STORE_PASSWORD, "ballerina");
+        configRegistry.addConfiguration(KEY_STORE_CONFIG, KEY_STORE_TYPE, "pkcs12");
 
-        Field field = ConfigRegistry.class.getDeclaredField("configRegistry");
-        field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(ConfigRegistry.class, configRegistry);
+        configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION,
+                                        getClass().getClassLoader().getResource(
+                                                "datafiles/security/keyStore/ballerinaTruststore.p12").getPath());
+        configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_PASSWORD, "ballerina");
+        configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_TYPE, "pkcs12");
+
         keyStore = KeyStore.getKeyStore();
-
-        field.set(ConfigRegistry.class, defaultConfigRegistry);
-        modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
-        modifiersField.setAccessible(false);
-        field.setAccessible(false);
-
         return keyStore;
     }
 }

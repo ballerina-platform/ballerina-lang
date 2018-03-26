@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
@@ -34,16 +35,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-
 /**
  * Creates the file at the path specified in the File struct.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "createNewFile",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT),
@@ -61,15 +59,16 @@ public class CreateNewFile extends BlockingNativeCallableUnit {
         Path newFile;
         try {
             newFile = Files.createFile(filePath);
-            context.setReturnValues(new BBoolean(Files.exists(newFile)), null, null);
-        } catch (IOException | UnsupportedOperationException e) {
-            String msg = "Failed to create the file: " + filePath.toString();
+            context.setReturnValues(new BBoolean(Files.exists(newFile)));
+        } catch (IOException | UnsupportedOperationException | SecurityException e) {
+            String msg;
+            if (e instanceof SecurityException) {
+                msg = "Permission denied. Failed to create the file: " + filePath.toString();
+            } else {
+                msg = "Failed to create the file: " + filePath.toString();   
+            }
             log.error(msg, e);
-            context.setReturnValues(new BBoolean(false), null, createIOError(context, msg));
-        } catch (SecurityException e) {
-            String msg = "Permission denied. Failed to create the file: " + filePath.toString();
-            log.error(msg, e);
-            context.setReturnValues(new BBoolean(false), createAccessDeniedError(context, msg), null);
+            context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
     }
 }

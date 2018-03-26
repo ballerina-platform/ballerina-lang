@@ -55,7 +55,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "createHttpClient",
         args = {@Argument(name = "uri", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
@@ -72,7 +72,6 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String url = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
-
         String scheme;
         if (url.startsWith("http://")) {
             scheme = HttpConstants.PROTOCOL_HTTP;
@@ -193,6 +192,11 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                     Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
                     clientParams.add(clientCiphers);
                 }
+                String enableSessionCreation = String.valueOf(secureSocket
+                        .getBooleanField(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
+                Parameter clientEnableSessionCreation = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+                        enableSessionCreation);
+                clientParams.add(clientEnableSessionCreation);
                 if (!clientParams.isEmpty()) {
                     senderConfiguration.setParameters(clientParams);
                 }

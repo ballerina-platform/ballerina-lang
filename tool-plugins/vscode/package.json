@@ -99,6 +99,11 @@
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
+                            },
+                            "debugServerTimeout": {
+                                "type": "integer",
+                                "default": 5000,
+                                "description": "How long to wait for the debug server to start up in miliseconds"
                             }
                         }
                     }
@@ -124,6 +129,7 @@
     "main": "./extension.js",
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install",
+        "build:grammar": "tsc -p syntaxes/build && node syntaxes/build/build.js",
         "test": "node ./node_modules/vscode/bin/test",
         "clean": "rimraf server-build target",
         "package": "vsce package"
@@ -136,6 +142,10 @@
         "ws": "^4.0.0"
     },
     "devDependencies": {
+        "@types/js-yaml": "^3.10.1",
+        "js-yaml": "^3.10.0",
+        "plist": "^2.1.0",
+        "typescript": "^2.7.2",
         "vsce": "^1.36.2"
     }
 }

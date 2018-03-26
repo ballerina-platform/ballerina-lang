@@ -93,7 +93,7 @@
             <!-- copy built-in ballerina sources to the jar -->
             <resource>
                 <directory>${generated.ballerina.source.directory}</directory>
-                <targetPath>META-INF/natives</targetPath>
+                <targetPath>META-INF/ballerina</targetPath>
             </resource>
         </resources>
 
@@ -133,5 +133,9 @@
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>
+            **/generated/**,
+            **/generated-sources/**
+        </maven.checkstyleplugin.excludes>
     </properties>
 </project>

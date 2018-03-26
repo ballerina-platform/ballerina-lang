@@ -45,7 +45,7 @@ public class StringTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "types/string/string-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/string-test.bal");
     }
 
     @Test
@@ -500,55 +500,5 @@ public class StringTest {
         BValue[] returns = BRunUtil.invoke(result, "toBlob", args);
         Assert.assertEquals(((BBlob) returns[0]).blobValue(), content.getBytes("UTF-8"),
                 "Produced Blob value is wrong");
-    }
-
-    @Test
-    public void nullInString() {
-        BValue[] returns = BRunUtil.invoke(result, "nullInString");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[0].stringValue());
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertNull(returns[1].stringValue());
-    }
-
-    @Test
-    public void concatNullString() {
-        BValue[] returns = BRunUtil.invoke(result, "concatNullString");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "nullnull");
-    }
-
-    @Test
-    public void compareNullStringWithNull() {
-        BValue[] returns = BRunUtil.invoke(result, "compareNullStringWithNull");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
-        Assert.assertTrue(returns[2] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
-        Assert.assertTrue(returns[3] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false);
-        Assert.assertTrue(returns[4] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
-        Assert.assertTrue(returns[5] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[5]).booleanValue(), true);
-        Assert.assertTrue(returns[6] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[6]).booleanValue(), false);
-        Assert.assertTrue(returns[7] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[7]).booleanValue(), false);
-    }
-
-    @Test
-    public void compareNotNullStringWithNull() {
-        BValue[] returns = BRunUtil.invoke(result, "compareNotNullStringWithNull");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
-        Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
-        Assert.assertTrue(returns[2] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
-        Assert.assertTrue(returns[3] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), true);
     }
 }

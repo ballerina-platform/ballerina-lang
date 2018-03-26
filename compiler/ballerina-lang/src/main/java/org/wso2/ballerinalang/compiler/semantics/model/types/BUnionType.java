@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Set;
 import java.util.StringJoiner;
@@ -31,13 +32,14 @@ import java.util.StringJoiner;
  * @since 0.966.0
  */
 public class BUnionType extends BType implements UnionType {
-    private String stringRep;
+    private boolean nullable;
 
     public Set<BType> memberTypes;
 
-    public BUnionType(int tag, BTypeSymbol tsymbol, Set<BType> memberTypes) {
-        super(tag, tsymbol);
+    public BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable) {
+        super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
+        this.nullable = nullable;
     }
 
     @Override
@@ -51,24 +53,30 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
 
     @Override
     public String toString() {
-        if (this.stringRep != null) {
-            return this.stringRep;
-        }
-
         StringJoiner joiner = new StringJoiner(getKind().typeName());
         this.memberTypes.forEach(memberType -> joiner.add(memberType.toString()));
-        this.stringRep = joiner.toString();
-        return this.stringRep;
+        return joiner.toString();
     }
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_ANY;
+        StringBuilder sig = new StringBuilder(TypeDescriptor.SIG_UNION + memberTypes.size() + ";");
+        memberTypes.forEach(memberType -> sig.append(memberType.getDesc()));
+        return sig.toString();
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 }

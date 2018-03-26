@@ -1,5 +1,5 @@
 
-function invalidJoinResultType() (int) {
+function invalidJoinResultType() returns int {
     int x = 10;
     fork {
 	   worker w1 {

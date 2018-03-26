@@ -34,7 +34,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
  * Native function ballerina.task:scheduleAppointment.
  */
 @BallerinaFunction(
-        packageName = "ballerina.task",
+        orgName = "ballerina", packageName = "task",
         functionName = "scheduleAppointment",
         args = {@Argument(name = "onTrigger", type = TypeKind.ANY),
                 @Argument(name = "onError", type = TypeKind.ANY),
@@ -64,9 +64,9 @@ public class BalScheduleAppointment extends BlockingNativeCallableUnit {
         try {
             Appointment appointment =
                     new Appointment(this, ctx, schedule, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            ctx.setReturnValues(new BString(appointment.getId()), null);
+            ctx.setReturnValues(new BString(appointment.getId()));
         } catch (SchedulingException e) {
-            ctx.setReturnValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));
+            ctx.setReturnValues(BLangVMErrors.createError(ctx, 0, e.getMessage()));
         }
     }
 }

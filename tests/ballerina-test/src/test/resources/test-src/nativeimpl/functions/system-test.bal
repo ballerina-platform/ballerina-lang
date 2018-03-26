@@ -1,4 +1,5 @@
-import ballerina.io;
+import ballerina/io;
+
 function testPrintAndPrintlnString(string s1, string s2){
     io:println(s1);
     io:print(s2);
@@ -36,7 +37,7 @@ function testPrintAndPrintlnFunctionPointer() {
     io:print(addFunction);
 }
 
-function testSprintf(string fmtStr, any[] fmtArgs) (string) {
+function testSprintf(string fmtStr, any[] fmtArgs) returns (string) {
     return io:sprintf(fmtStr, fmtArgs);
 }
 
@@ -44,9 +45,9 @@ function printNewline() {
     io:print("hello\n");
 }
 
-function func1 (int a, int b) (int c) {
-    c = a + b;
-    return;
+function func1 (int a, int b) returns (int) {
+    int c = a + b;
+    return c;
 }
 
 //connector Foo() {

@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 function test1(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach i, s, f in data {
@@ -59,7 +59,7 @@ function test7(){
 
 function test8(){
     json j = ["a" , "b", "c"];
-    var a,_ = <json[]> j;
+    var a =? <json[]> j;
     foreach x,y in a {
         io:print(x);
         io:println(y);

@@ -70,6 +70,7 @@ public class IOUtils {
      *
      * @param channel the channel the bytes should be written.
      * @param content content which should be written.
+     * @param context context of the native function call.
      * @param offset  the start index of the bytes which should be written.
      * @return the number of bytes written to the channel.
      * @throws ExecutionException   errors which occur during execution.
@@ -134,6 +135,7 @@ public class IOUtils {
      * Asynchronously reads bytes from the channel.
      *
      * @param content the initialized array which should be filled with the content.
+     * @param context context of the native function call.
      * @param channel the channel the content should be read into.
      * @throws InterruptedException during interrupt error.
      * @throws ExecutionException   errors which occurs while execution.

@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.time;
+import ballerina/io;
+import ballerina/time;
 
 struct Employee {
     int id;
@@ -34,22 +34,21 @@ Employee globalEmployee;
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-function testStreamPublishingAndSubscription () (Employee origEmployee, Employee publishedEmployee,
-                                                Employee newEmployee) {
-    origEmployee = globalEmployee;
+function testStreamPublishingAndSubscription () returns (Employee, Employee, Employee) {
+    Employee origEmployee = globalEmployee;
     stream<Employee> s1 = {};
     s1.subscribe(assignGlobalEmployee);
-    publishedEmployee = { id:1234, name:"Maryam" };
+    Employee publishedEmployee = { id:1234, name:"Maryam" };
     s1.publish(publishedEmployee);
     int startTime = time:currentTime().time;
     while (globalEmployee == null && time:currentTime().time - startTime <1000) {
         //allow for value update
     }
-    newEmployee = globalEmployee;
-    return;
+    Employee newEmployee = globalEmployee;
+    return (origEmployee, publishedEmployee, newEmployee);
 }
 
-function testStreamPublishingAndSubscriptionForMultipleEvents () (Employee[], Employee[]) {
+function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employee[], Employee[]) {
     stream<Employee> s1 = {};
     s1.subscribe(addToGlobalEmployeeArray);
     Employee e1 = { id:1234, name:"Maryam" };
@@ -63,12 +62,7 @@ function testStreamPublishingAndSubscriptionForMultipleEvents () (Employee[], Em
     while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 2000) {
         //allow for value update
     }
-    return publishedEmployees, globalEmployeeArray;
-}
-
-
-function printEmployeeName (Employee e) {
-    io:println(e.name);
+    return (publishedEmployees, globalEmployeeArray);
 }
 
 function printInteger (int i) {

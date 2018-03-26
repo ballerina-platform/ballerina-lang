@@ -1,6 +1,6 @@
-import ballerina.lang.datatables;
-import ballerina.data.sql;
-import ballerina.lang.errors;
+import ballerina/lang.datatables;
+import ballerina/data.sql;
+import ballerina/lang.errors;
 
 struct ResultCustomers {
     string FIRSTNAME;

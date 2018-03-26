@@ -289,7 +289,8 @@ public class HttpConstants {
     public static final String SSL_CONFIG_CIPHERS = "ciphers";
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
-    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerificationEnabled";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerification";
+    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "sessionCreation";
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";

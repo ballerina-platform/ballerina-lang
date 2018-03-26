@@ -32,39 +32,39 @@ public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase
         return getTestDataPath("psi/resolve/vars/global");
     }
 
-    public void testGlobalVariableInSameFileInConnector() {
-        doFileTest();
-    }
+    //    public void testGlobalVariableInSameFileInConnector() {
+    //        doFileTest();
+    //    }
 
     public void testGlobalVariableInSameFileInFunction() {
         doFileTest();
     }
 
-    public void testGlobalVariableInSameFileInService() {
-        doFileTest();
-    }
+    //    public void testGlobalVariableInSameFileInService() {
+    //        doFileTest();
+    //    }
 
-    public void testGlobalVariableInDifferentFileInConnector() throws IOException {
-        doFileTest(globalVariable);
-    }
+    //    public void testGlobalVariableInDifferentFileInConnector() throws IOException {
+    //        doFileTest(globalVariable);
+    //    }
 
     public void testGlobalVariableInDifferentFileInFunction() throws IOException {
         doFileTest(globalVariable);
     }
 
-    public void testGlobalVariableInDifferentFileInService() throws IOException {
-        doFileTest(globalVariable);
-    }
+    //    public void testGlobalVariableInDifferentFileInService() throws IOException {
+    //        doFileTest(globalVariable);
+    //    }
 
-    public void testGlobalVariableInDifferentPackageInConnector() throws IOException {
-        doFileTest(globalVariable, "org/test/test.bal");
-    }
+    //    public void testGlobalVariableInDifferentPackageInConnector() throws IOException {
+    //        doFileTest(globalVariable, "org/test/test.bal");
+    //    }
 
     public void testGlobalVariableInDifferentPackageInFunction() throws IOException {
         doFileTest(globalVariable, "org/test/test.bal");
     }
 
-    public void testGlobalVariableInDifferentPackageInService() throws IOException {
-        doFileTest(globalVariable, "org/test/test.bal");
-    }
+    //    public void testGlobalVariableInDifferentPackageInService() throws IOException {
+    //        doFileTest(globalVariable, "org/test/test.bal");
+    //    }
 }

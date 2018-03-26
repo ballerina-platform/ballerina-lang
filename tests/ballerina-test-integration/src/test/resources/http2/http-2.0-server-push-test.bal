@@ -1,32 +1,48 @@
-import ballerina.net.http;
-import ballerina.io;
+import ballerina/io;
+import ballerina/net.http;
 
-endpoint<http:Service> frontendEP {
+endpoint http:ServiceEndpoint frontendEP {
     port:9090
-}
+};
 
-endpoint<http:Client> backendClientEP {
-    serviceUri: "http://localhost:7090",
-    // HTTP version is set to 2.0
+endpoint http:ClientEndpoint backendClientEP {
+    targets: [
+        {
+            uri: "http://localhost:7090"
+        }
+    ],
+    // HTTP version is set to 2.0.
     httpVersion:"2.0"
-}
+};
 
-@http:serviceConfig {
-    basePath:"/frontend",
-    endpoints:[frontendEP]
+@http:ServiceConfig {
+    basePath:"/frontend"
 }
-service<http:Service> frontendHttpService {
+service<http:Service> frontendHttpService bind frontendEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource frontendHttpResource (http:ServerConnector conn, http:Request clientRequest) {
+    frontendHttpResource (endpoint client, http:Request clientRequest) {
 
         http:Request serviceReq = {};
         http:HttpHandle handle = {};
         // Submit a request
-        handle, _ = backendClientEP -> submit("GET","/backend/main", serviceReq);
+        var submissionResult = backendClientEP -> submit("GET", "/backend/main", serviceReq);
+        match submissionResult {
+            http:HttpConnectorError err => {
+                io:println("Error occurred while submitting a request");
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while submitting a request"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+                return;
+            }
+            http:HttpHandle resultantHandle => {
+                handle = resultantHandle;
+            }
+        }
 
         // Check whether promises exists
         http:PushPromise[] promises = [];
@@ -35,7 +51,21 @@ service<http:Service> frontendHttpService {
         while (hasPromise) {
             http:PushPromise pushPromise = {};
             // Get the next promise
-            pushPromise, _ = backendClientEP -> getNextPromise(handle);
+            var nextPromiseResult = backendClientEP -> getNextPromise(handle);
+            match nextPromiseResult {
+                http:PushPromise resultantPushPromise => {
+                    pushPromise = resultantPushPromise;
+                }
+                http:HttpConnectorError err => {
+                    io:println("Error occurred while fetching a push promise");
+                    http:Response errorResponse = {};
+                    json errMsg = {"error":"error occurred while fetching a push promise"};
+                    errorResponse.setJsonPayload(errMsg);
+                    _ = client -> respond(errorResponse);
+                    return;
+                }
+            }
+
             io:println("Received a promise for " + pushPromise.path);
             // Store required promises
             promises[promiseCount] = pushPromise;
@@ -47,82 +77,134 @@ service<http:Service> frontendHttpService {
             http:Response errorResponse = {};
             json errMsg = {"error":"expected number of promises not received"};
             errorResponse.setJsonPayload(errMsg);
-            _ = conn -> respond(errorResponse);
+            _ = client -> respond(errorResponse);
             return;
         }
         io:println("Number of promises received : " + promiseCount);
 
         // Get the requested resource
         http:Response res = {};
-        res, _ = backendClientEP -> getResponse(handle);
-        json responsePayload;
-        responsePayload, _ = res.getJsonPayload();
+        var result = backendClientEP -> getResponse(handle);
+        match result {
+            http:Response resultantResponse => {
+                res = resultantResponse;
+            }
+            http:HttpConnectorError err => {
+                io:println("Error occurred while fetching response");
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while fetching response"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+                return;
+            }
+        }
+
+        var responsePayload = res.getJsonPayload();
+        json responseJsonPayload = {};
+        match responsePayload {
+            json resultantJsonPayload => {
+                responseJsonPayload = resultantJsonPayload;
+            }
+            any | null => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"expected response message not received"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+                return;
+            }
+        }
         // Check whether correct response received
-        if (!(responsePayload.toString().contains("main"))) {
+        if (!(responseJsonPayload.toString().contains("main"))) {
             http:Response errorResponse = {};
             json errMsg = {"error":"expected response message not received"};
             errorResponse.setJsonPayload(errMsg);
-            _ = conn -> respond(errorResponse);
+            _ = client -> respond(errorResponse);
             return;
         }
-        io:println("Response : " + responsePayload.toString());
+        io:println("Response : " + responseJsonPayload.toString());
 
         // Fetch required promised responses
         foreach promise in promises {
             http:Response promisedResponse = {};
-            promisedResponse, _ = backendClientEP -> getPromisedResponse(promise);
-            json payload;
-            payload, _ = promisedResponse.getJsonPayload();
+            var promisedResponseResult = backendClientEP -> getPromisedResponse(promise);
+            match promisedResponseResult {
+                http:Response resultantPromisedResponse => {
+                    promisedResponse = resultantPromisedResponse;
+                }
+                http:HttpConnectorError err => {
+                    io:println("Error occurred while fetching promised response");
+                    http:Response errorResponse = {};
+                    json errMsg = {"error":"error occurred while fetching promised response"};
+                    errorResponse.setJsonPayload(errMsg);
+                    _ = client -> respond(errorResponse);
+                    return;
+                }
+            }
+
+            json promisedJsonPayload = {};
+            var promisedPayload = promisedResponse.getJsonPayload();
+            match promisedPayload {
+                json resultantJsonPayload => {
+                    promisedJsonPayload = resultantJsonPayload;
+                }
+                any | null => {
+                    http:Response errorResponse = {};
+                    json errMsg = {"error":"expected promised response not received"};
+                    errorResponse.setJsonPayload(errMsg);
+                    _ = client -> respond(errorResponse);
+                    return;
+                }
+            }
+
             // check whether expected
             string expectedVal = promise.path.subString(1, 10);
-            if (!(payload.toString().contains(expectedVal))) {
+            if (!(promisedJsonPayload.toString().contains(expectedVal))) {
                 http:Response errorResponse = {};
                 json errMsg = {"error":"expected promised response not received"};
                 errorResponse.setJsonPayload(errMsg);
-                _ = conn -> respond(errorResponse);
+                _ = client -> respond(errorResponse);
                 return;
             }
-            io:println("Promised resource : " + payload.toString());
+            io:println("Promised resource : " + promisedJsonPayload.toString());
         }
 
         // By this time everything has went well, hence send a success response
         http:Response successResponse = {};
         json successMsg = {"status":"successful"};
         successResponse.setJsonPayload(successMsg);
-        _ = conn -> respond(successResponse);
+        _ = client -> respond(successResponse);
     }
 }
 
-endpoint<http:Service> backendEP {
+endpoint http:ServiceEndpoint backendEP {
     port:7090,
     // HTTP version is set to 2.0
     httpVersion:"2.0"
-}
+};
 
-@http:serviceConfig {
-    basePath:"/backend",
-    endpoints:[backendEP]
+@http:ServiceConfig {
+    basePath:"/backend"
 }
-service<http:Service> backendHttp2Service {
+service<http:Service> backendHttp2Service bind backendEP {
 
-  @http:resourceConfig {
+  @http:ResourceConfig {
      path:"/main"
   }
-  resource backendHttp2Resource (http:ServerConnector conn, http:Request req) {
+  backendHttp2Resource (endpoint client, http:Request req) {
 
     io:println("Request received");
 
     // Send a Push Promise
     http:PushPromise promise1 = {path:"/resource1", method:"POST"};
-    _ = conn -> promise(promise1);
+    _ = client -> promise(promise1);
 
     // Send another Push Promise
     http:PushPromise promise2 = {path:"/resource2", method:"POST"};
-    _ = conn -> promise(promise2);
+    _ = client -> promise(promise2);
 
     // Send one more Push Promise
     http:PushPromise promise3 = {path:"/resource3", method:"POST"};
-    _ = conn -> promise(promise3);
+    _ = client -> promise(promise3);
 
     // Construct requested resource
     http:Response response = {};
@@ -130,7 +212,7 @@ service<http:Service> backendHttp2Service {
     response.setJsonPayload(msg);
 
     // Send the requested resource
-    _ = conn -> respond(response);
+    _ = client -> respond(response);
 
     // Construct promised resource1
     http:Response push1 = {};
@@ -138,20 +220,20 @@ service<http:Service> backendHttp2Service {
     push1.setJsonPayload(msg);
 
     // Push promised resource1
-    _ = conn -> pushPromisedResponse(promise1, push1);
+    _ = client -> pushPromisedResponse(promise1, push1);
 
     http:Response push2 = {};
     msg = {"push":{"name":"resource2"}};
     push2.setJsonPayload(msg);
 
     // Push promised resource2
-    _ = conn -> pushPromisedResponse(promise2, push2);
+    _ = client -> pushPromisedResponse(promise2, push2);
 
     http:Response push3 = {};
     msg = {"push":{"name":"resource3"}};
     push3.setJsonPayload(msg);
 
     // Push promised resource3
-    _ = conn -> pushPromisedResponse(promise3, push3);
+    _ = client -> pushPromisedResponse(promise3, push3);
   }
 }

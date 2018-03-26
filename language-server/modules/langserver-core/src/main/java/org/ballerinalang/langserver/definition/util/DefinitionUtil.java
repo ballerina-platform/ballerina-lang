@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.definition.util;
 import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -69,6 +70,12 @@ public class DefinitionUtil {
             case ContextConstants.STRUCT:
                 bLangNode = bLangPackage.structs.stream()
                         .filter(struct -> struct.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                break;
+            case ContextConstants.OBJECT:
+                bLangNode = bLangPackage.objects.stream()
+                        .filter(object -> object.name.getValue()
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
@@ -144,7 +151,7 @@ public class DefinitionUtil {
 
         Location l = new Location();
         TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = CommonUtil.getPath(position.getTextDocument().getUri()).getParent();
+        Path parentPath = CommonUtil.getPath(new LSDocument(position.getTextDocument().getUri())).getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths

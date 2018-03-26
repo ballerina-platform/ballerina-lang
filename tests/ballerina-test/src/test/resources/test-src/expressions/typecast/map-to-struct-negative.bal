@@ -11,7 +11,7 @@ struct Person {
     boolean alive;
 }
 
-function testMapToStruct() (Person) {
+function testMapToStruct() returns (Person) {
     int[] marks = [87,94,72];
     map m = { name:"Child", 
                age:25, 
@@ -33,6 +33,6 @@ function testMapToStruct() (Person) {
                score: 5.67,
                alive:true
              };
-    Person p = (Person) m;
+    Person p = <Person> m;
     return p;
 }
