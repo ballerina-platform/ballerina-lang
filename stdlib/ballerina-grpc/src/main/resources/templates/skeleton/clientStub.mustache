@@ -44,7 +44,7 @@ function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, type
     return null;
 }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
-function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
+function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:ClientConnection| error)  {
     var res = stub.serviceStub.streamingExecute("{{methodId}}", listener);
         match res {
             grpc:ConnectorError err => {
@@ -52,7 +52,8 @@ function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns 
                 return e;
             }
             grpc:Client con =>{
-                return con;
+                grpc:ClientConnection conConn= con.getClient();
+                return conConn;
             }
         }
 }
