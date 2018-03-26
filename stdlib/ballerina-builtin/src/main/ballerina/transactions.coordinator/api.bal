@@ -56,7 +56,6 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
 }
 
 function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
-    log:printInfo("########### abort called");
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
@@ -66,26 +65,6 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
         return txn.abortTransaction();
     } else {
         error err = {message:"Unknown transaction"};
-        throw err;
-    }
-}
-
-documentation {
-    Mark a transaction for abortion.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
-function markForAbortion (string transactionId, int transactionBlockId) {
-    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    if (participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[transactionId];
-        txn.state = TransactionState.ABORTED;
-    } else if (initiatedTransactions.hasKey(transactionId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
-        txn.state = TransactionState.ABORTED;
-    } else {
-        error err = {message:"Transaction: " + participatedTxnId + " not found"};
         throw err;
     }
 }
@@ -111,7 +90,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
-            return txn.abortTransaction();
+            return txn.abortInitiatorTransaction();
         } else {
             string|error ret = txn.twoPhaseCommit();
             removeInitiatedTransaction(transactionId);
