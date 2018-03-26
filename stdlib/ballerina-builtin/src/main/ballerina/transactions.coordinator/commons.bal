@@ -21,20 +21,6 @@ import ballerina/log;
 import ballerina/net.http;
 import ballerina/util;
 
-const string PROTOCOL_COMPLETION = "completion";
-const string PROTOCOL_VOLATILE = "volatile";
-const string PROTOCOL_DURABLE = "durable";
-
-enum Protocols {
-    COMPLETION, DURABLE, VOLATILE
-}
-
-public enum TransactionState {
-    ACTIVE, PREPARED, COMMITTED, ABORTED
-}
-
-const string TRANSACTION_CONTEXT_VERSION = "1.0";
-
 documentation {
     ID of the local participant used when registering with the initiator.
 }
@@ -201,7 +187,7 @@ function localParticipantProtocolFn (string transactionId,
         return false;
     }
     TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
-    if (protocolAction == "prepare") {
+    if (protocolAction == COMMAND_PREPARE) {
         if (txn.state == TransactionState.ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
             return false;
@@ -212,13 +198,13 @@ function localParticipantProtocolFn (string transactionId,
             }
             return successful;
         }
-    } else if (protocolAction == "notifycommit") {
+    } else if (protocolAction == COMMAND_COMMIT) {
         if (txn.state == TransactionState.PREPARED) {
             boolean successful = commitResourceManagers(transactionId, transactionBlockId);
             removeParticipatedTransaction(participatedTxnId);
             return successful;
         }
-    } else if (protocolAction == "notifyabort") {
+    } else if (protocolAction == COMMAND_ABORT) {
         if (txn.state == TransactionState.PREPARED) {
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             removeParticipatedTransaction(participatedTxnId);
