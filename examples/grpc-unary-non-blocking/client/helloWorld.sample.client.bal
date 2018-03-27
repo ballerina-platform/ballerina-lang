@@ -1,14 +1,15 @@
 // This is client implementation for unary non blocking scenario
 package client;
+
 import ballerina/io;
 
 int total = 0;
 function main (string[] args) {
      // Client endpoint configuration
      endpoint helloWorldClient helloWorldEp {
-            host: "localhost",
-            port: 9090
-        };
+         host: "localhost",
+         port: 9090
+     };
      // Executing unary non-blocking call registering server message listener.
      error | null result = helloWorldEp -> hello("WSO2", typeof helloWorldMessageListener);
      match result {

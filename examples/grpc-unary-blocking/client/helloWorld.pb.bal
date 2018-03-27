@@ -1,5 +1,6 @@
 // This is an auto generated client stub which is used to connect to gRPC server.
 package client;
+
 import ballerina/net.grpc;
 import ballerina/io;
 

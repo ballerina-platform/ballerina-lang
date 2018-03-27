@@ -1,5 +1,6 @@
 // This is an auto generated client stub which is used to communicate between gRPC client.
 package client;
+
 import ballerina/net.grpc;
 import ballerina/io;
 
@@ -17,15 +18,15 @@ function <chatStub stub> initStub(grpc:Client clientEndpoint) {
 
 function <chatStub stub> chat (typedesc listener) returns (grpc:Client| error)  {
     var res = stub.serviceStub.streamingExecute("chat/chat", listener);
-        match res {
-            grpc:ConnectorError err => {
-                error e = {message:err.message};
+    match res {
+        grpc:ConnectorError err => {
+            error e = {message:err.message};
                 return e;
-            }
-            grpc:Client con =>{
-                return con;
-            }
         }
+        grpc:Client con =>{
+                return con;
+        }
+    }
 }
 
 // Non-blocking client endpoint
