@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.wso2.transport.http.netty.config.ConfigurationBuilder;
@@ -33,6 +34,7 @@ import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,7 +68,13 @@ public class HttpConnectionManager {
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
         if (isHTTPTraceLoggerEnabled()) {
-            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+            } catch (IOException e) {
+                throw new BallerinaConnectorException("Invalid Http trace log parameters found.", e);
+            } catch (TraceLogConfigurationException e) {
+                throw new BallerinaConnectorException("Unsupported trace log configuration. " + e.getMessage(), e);
+            }
         }
     }
 
