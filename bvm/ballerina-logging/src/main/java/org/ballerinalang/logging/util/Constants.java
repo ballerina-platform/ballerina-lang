@@ -37,4 +37,6 @@ public class Constants {
     public static final String LOG_PUBLISH_PORT = "publish.port";
     public static final String LOG_TO_CONSOLE = "console";
     public static final String LOG_TO_SOCKET = "socket";
+    public static final String LOG_PUBLISH_DEFAULT_HOST = "localhost";
+    public static final int LOG_PUBLISH_DEFAULT_PORT = 5010;
 }

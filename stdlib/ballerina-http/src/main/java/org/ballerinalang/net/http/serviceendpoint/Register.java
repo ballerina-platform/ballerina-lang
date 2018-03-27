@@ -23,13 +23,22 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
+import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketServerConnectorListener;
 import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+
+import java.util.HashSet;
 
 /**
  * Get the ID of the connection.
@@ -50,19 +59,36 @@ public class Register extends AbstractHttpNativeFunction {
     @Override
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        Struct connectorEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
         // TODO: Check if this is valid.
         // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
         if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            getHttpServicesRegistry(connectorEndpoint).registerService(service);
+            httpServicesRegistry.registerService(service);
         }
-
         if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService webSocketService = new WebSocketService(service);
-            getWebSocketServicesRegistry(connectorEndpoint).registerService(webSocketService);
+            webSocketServicesRegistry.registerService(webSocketService);
         }
 
+        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
+        serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry,
+                filterHolder));
+        serverConnectorFuture
+                .setWSConnectorListener(new WebSocketServerConnectorListener(webSocketServicesRegistry));
+
+        serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
+        try {
+            serverConnectorFuture.sync();
+        } catch (Throwable ex) {
+            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
+                    + "': " + ex.getMessage(), ex);
+        }
         context.setReturnValues();
     }
 }

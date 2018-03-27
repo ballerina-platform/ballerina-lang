@@ -19,21 +19,9 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
-import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
-import org.ballerinalang.net.http.WebSocketServerConnectorListener;
-import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
-import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-
-import java.util.HashSet;
 
 /**
  * Get the ID of the connection.
@@ -52,21 +40,6 @@ public class Start extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
-        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
-        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
-        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
-        serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry,
-                filterHolder));
-        serverConnectorFuture
-                .setWSConnectorListener(new WebSocketServerConnectorListener(webSocketServicesRegistry));
-        // TODO: set startup server port binder. Do we really need it with new design?
-        ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
-        serverConnectorFuture.setPortBindingEventListener(
-                new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
-
         context.setReturnValues();
     }
 }

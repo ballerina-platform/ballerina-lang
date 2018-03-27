@@ -155,8 +155,10 @@ public class BLogManager extends LogManager {
             handler.setFormatter(new HTTPTraceLogFormatter());
         } else if (logToString.equalsIgnoreCase(Constants.LOG_TO_SOCKET)) {
             String host = configRegistry.getConfiguration(HTTP_TRACE_LOG, Constants.LOG_PUBLISH_HOST);
-            int port = Integer
-                    .parseInt(configRegistry.getConfiguration(HTTP_TRACE_LOG, Constants.LOG_PUBLISH_PORT));
+            host = (host != null && !host.isEmpty()) ? host : Constants.LOG_PUBLISH_DEFAULT_HOST;
+            String portString = configRegistry.getConfiguration(HTTP_TRACE_LOG, Constants.LOG_PUBLISH_PORT);
+            int port = (portString != null && !portString.isEmpty()) ?
+                    Integer.parseInt(portString) : Constants.LOG_PUBLISH_DEFAULT_PORT;
             handler = new SocketHandler(host, port);
             handler.setFormatter(new JsonLogFormatter());
         } else {

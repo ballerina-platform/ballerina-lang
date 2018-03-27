@@ -20,7 +20,7 @@ package org.ballerinalang.logging.exceptions;
 /**
  * This exception is thrown when an invalid configuration passed in to the Http trace logger.
  *
- * @since 0.966.0
+ * @since 0.970.0
  */
 public class TraceLogConfigurationException extends Exception {
 

@@ -29,7 +29,7 @@ import java.util.logging.LogRecord;
 /**
  * JSON log formatter for formatting HTTP trace log files.
  *
- * @since 0.966.0
+ * @since 0.970.0
  */
 public class JsonLogFormatter extends Formatter {
 
