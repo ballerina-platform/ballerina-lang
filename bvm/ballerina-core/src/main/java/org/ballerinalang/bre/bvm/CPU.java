@@ -2535,14 +2535,13 @@ public class CPU {
         }
 
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        boolean isInitiator = true;
         if (localTransactionInfo == null) {
             String globalTransactionId;
             String protocol = null;
             String url = null;
             if (isGlobalTransactionEnabled) {
                 BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
-                        TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
+                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
                 BStruct txDataStruct = (BStruct) returns[0];
                 globalTransactionId = txDataStruct.getStringField(1);
                 protocol = txDataStruct.getStringField(2);
@@ -2554,10 +2553,8 @@ public class CPU {
             ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
             if (isGlobalTransactionEnabled) {
-                isInitiator = false;
                 TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
-                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol(),
-                        isInitiator);
+                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
             }
         }
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
@@ -2566,7 +2563,7 @@ public class CPU {
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
                                          int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
+        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
             if (ctx.getError() == null) {
                 ctx.ip = startOfNoThrowEndIP;
             } else {
@@ -2587,7 +2584,7 @@ public class CPU {
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionFailed(transactionBlockId);
+                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
                 if (notifyCoordinator) {
                     if (isGlobalTransactionEnabled) {
                         TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
