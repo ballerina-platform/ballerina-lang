@@ -1,10 +1,10 @@
 $ ballerina run iniator.bal
-ballerina: deploying service(s) in 'initiator'
+ballerina: initiating service(s) in 'initiator'
 ballerina: started HTTP/WS server connector localhost:8080
 ballerina: started HTTP/WS server connector 10.100.1.182:53871
 
 $ ballerina run participant.bal
-ballerina: deploying service(s) in 'participant'
+ballerina: initiating service(s) in 'participant'
 ballerina: started HTTP/WS server connector 10.100.1.182:54774
 ballerina: started HTTP/WS server connector localhost:8889
 
