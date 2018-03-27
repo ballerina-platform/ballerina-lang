@@ -57,9 +57,6 @@ public class Start extends AbstractHttpNativeFunction {
     public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
-        if (isHTTPTraceLoggerEnabled()) {
-            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
-        }
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
@@ -74,11 +71,5 @@ public class Start extends AbstractHttpNativeFunction {
                 new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
 
         context.setReturnValues();
-    }
-
-    private boolean isHTTPTraceLoggerEnabled() {
-        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
-        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
-                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 }

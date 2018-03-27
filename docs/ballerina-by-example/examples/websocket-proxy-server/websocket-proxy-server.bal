@@ -2,10 +2,6 @@ import ballerina/io;
 import ballerina/net.http;
 
 const string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-endpoint http:WebSocketClient wsEndpoint {
-    url:"wss://echo.websocket.org",
-    callbackService:typeof ClientService
-};
 endpoint http:ServiceEndpoint serviceEndpoint {
     port:9090
 };
@@ -18,9 +14,13 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 
     @Description {value:"Create a client connection to remote server from ballerina when new client connects to this service endpoint."}
     onUpgrade (endpoint ep, http:Request req) {
+        endpoint http:WebSocketClient wsEndpoint {
+            url: remoteUrl,
+            callbackService:typeof ClientService
+        };
+        ep -> upgradeToWebSocket({"custom":"header"});
         var conn = ep.getClient();
         var clientConn = wsEndpoint.getClient();
-        ep -> upgradeToWebSocket({"custom":"header"});
         conn.attributes[ASSOCIATED_CONNECTION] = clientConn;
         clientConn.attributes[ASSOCIATED_CONNECTION] = conn;
     }
