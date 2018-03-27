@@ -2368,13 +2368,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWheneverStatement(BallerinaParser.WheneverStatementContext ctx) { }
+	@Override public void enterForeverStatement(BallerinaParser.ForeverStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWheneverStatement(BallerinaParser.WheneverStatementContext ctx) { }
+	@Override public void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

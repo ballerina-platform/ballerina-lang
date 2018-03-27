@@ -28,6 +28,9 @@ import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -91,9 +94,22 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         // invoke the request path filters
         invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource));
+
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
+        httpCarbonMessage.getHeaders().entries().stream()
+                .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+
+        Map<String, String> tags = new HashMap<>();
+        tags.put("component", "ballerina");
+        tags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
+        tags.put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
+        tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
+        tracer.addTags(tags);
+
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(httpResource.getBalResource(), callback, properties, signatureParams);
+        Executor.submit(httpResource.getBalResource(), callback, properties, tracer, signatureParams);
     }
 
     private BValue getRequestFilterContext(HttpResource httpResource) {

@@ -12,7 +12,8 @@ import ballerina/util;
 
 endpoint http:ServiceEndpoint hubServiceEP {
     host:hubHost,
-    port:hubPort
+    port:hubPort,
+    secureSocket:serviceSecureSocket
 };
 
 PendingRequests pendingRequests = {};
@@ -139,7 +140,7 @@ function validateSubscriptionChangeRequest(map params) returns (boolean|string) 
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, map params) {
     endpoint http:ClientEndpoint callbackEp {
-        targets:[{ uri:callback }]
+        targets:[{ uri:callback, secureSocket: secureSocket }]
     };
 
     string mode = <string> params[websub:HUB_MODE];
@@ -227,20 +228,34 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
     };
 
     sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.topic};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.callback};
     sql:Parameter[] sqlParams;
     if (mode == websub:MODE_SUBSCRIBE) {
+        sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.callback};
         sql:Parameter para3 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.secret};
         sql:Parameter para4 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.leaseSeconds};
         sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.createdAt};
         sqlParams = [para1, para2, para3, para4, para5, para3, para4, para5];
-        _ = subscriptionDbEp -> update("INSERT INTO subscriptions"
+        var updateStatus = subscriptionDbEp -> update("INSERT INTO subscriptions"
                                              + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
-                                             + "DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
+                                             + " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
                                              sqlParams);
+        match (updateStatus) {
+            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
+            sql:SQLConnectorError err => log:printError("Error occurred updating subscription data: " + err.message);
+        }
     } else {
+        string unsubscribingTopic = subscriptionDetails.callback;
+        if (!unsubscribingTopic.hasSuffix("/")) {
+            unsubscribingTopic = unsubscribingTopic + "/";
+        }
+        sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:unsubscribingTopic};
         sqlParams = [para1, para2];
-        _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
+        var updateStatus = subscriptionDbEp -> update(
+                                               "DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
+        match (updateStatus) {
+            int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
+            sql:SQLConnectorError err => log:printError("Error occurred updating unsubscription data: " + err.message);
+        }
     }
     _ = subscriptionDbEp -> close();
 }
@@ -248,7 +263,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
 @Description {value:"Function to initiate set up activities on startup/restart"}
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        _ = addSubscriptionsOnStartup;
+        addSubscriptionsOnStartup();
     }
     return;
 }
@@ -283,7 +298,6 @@ function addSubscriptionsOnStartup() {
         match (<websub:SubscriptionDetails> dt.getNext()) {
             websub:SubscriptionDetails subscriptionDetails => {
                 websub:addSubscription(subscriptionDetails);
-                log:printError("Error");
             }
             error convError => {
                 log:printError("Error retreiving subscription details from the database: " + convError.message);
@@ -299,7 +313,7 @@ function addSubscriptionsOnStartup() {
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:ClientEndpoint callbackEp {
-        targets:[{ uri:callback }]
+        targets:[{ uri:callback, secureSocket: secureSocket }]
     };
 
     http:Request request = {};
@@ -333,6 +347,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
 
         request.setHeader(websub:X_HUB_UUID, util:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
+        request.setHeader("Link", buildWebSubLinkHeader(getHubUrl(), subscriptionDetails.topic));
         var contentDistributionRequest = callbackEp -> post("/", request);
         match (contentDistributionRequest) {
             http:Response response => { return; }
@@ -401,4 +416,13 @@ function <PendingSubscriptionChangeRequest pendingRequestOne> equals
     return pendingRequestOne.topic == pendingRequestTwo.topic
            && pendingRequestOne.callback == pendingRequestTwo.callback
            && pendingRequestOne.mode == pendingRequestTwo.mode;
+}
+
+@Description {value:"Function to build the link header for a request"}
+@Param {value:"hub: The hub publishing the update"}
+@Param {value:"topic: The canonical URL of the topic for which the update occurred"}
+@Return{value:"The link header content"}
+public function buildWebSubLinkHeader (string hub, string topic) returns (string) {
+    string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
+    return linkHeader;
 }

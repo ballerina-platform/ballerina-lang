@@ -163,13 +163,12 @@ public class SignatureHelpUtil {
     private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol,
                                                              TextDocumentServiceContext signatureContext) {
         Map<String, String> paramDescMap = new HashMap<>();
-        Name packageName = bInvokableSymbol.pkgID.getName();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage bLangPackage = signatureContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY).
-                getPackageByName(compilerContext, packageName);
+                getPackageById(compilerContext, bInvokableSymbol.pkgID);
 
         BLangFunction blangFunction = bLangPackage.getFunctions().stream()
                 .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))

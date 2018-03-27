@@ -3,6 +3,7 @@ import ballerina/io;
 
 int i = 0;
 int j = 0;
+int k = 0;
 
 function reset () {
     i=0;
@@ -66,8 +67,14 @@ function test4 () {
 }
 
 @test:Config{
-    dependsOn: ["test3", "test4"]
+    dependsOn: ["test3", "test4", "test5"]
 }
 function testDependsOn1 () {
     test:assertTrue(j == 3, msg = "Expected j to be 3, but j = " +j);
+    test:assertTrue(k == 2, msg = "Expected k to be 2, but k = " +k);
+}
+
+@test:Config
+function test5 () {
+    k = k + 2;
 }

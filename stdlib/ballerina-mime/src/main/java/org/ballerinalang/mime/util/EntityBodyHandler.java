@@ -184,7 +184,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                return new BXMLItem();
+                throw new BallerinaIOException("Empty xml payload");
             }
             BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
             byteChannel.close();

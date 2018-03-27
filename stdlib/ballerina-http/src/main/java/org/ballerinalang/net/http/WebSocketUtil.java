@@ -89,9 +89,12 @@ public abstract class WebSocketUtil {
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                populateEndpoint(session, wsConnection);
+                populateWebSocketConnector(session, wsConnection);
+                BStruct serviceEndpoint = (BStruct) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_ENDPOINT);
                 wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                WebSocketConnectionManager.getInstance().addService(session.getId(), wsService);
+                WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
+                                                                                             serviceEndpoint);
+                WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
 
                 Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                 if (onOpenResource == null) {
@@ -100,9 +103,9 @@ public abstract class WebSocketUtil {
                 List<ParamDetail> paramDetails =
                         onOpenResource.getParamDetails();
                 BValue[] bValues = new BValue[paramDetails.size()];
-                bValues[0] = wsService.getServiceEndpoint();
+                bValues[0] = serviceEndpoint;
                 //TODO handle BallerinaConnectorException
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
             }
 
             @Override
@@ -112,7 +115,7 @@ public abstract class WebSocketUtil {
         });
     }
 
-    public static void populateEndpoint(Session session, BStruct endpoint) {
+    public static void populateWebSocketConnector(Session session, BStruct endpoint) {
         endpoint.setStringField(0, session.getId());
         endpoint.setStringField(1, session.getNegotiatedSubprotocol());
         endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);

@@ -22,8 +22,8 @@ stream<Teacher> teacherStream = {};
 
 function testAggregationQuery () {
 
-    //Create whenever statement block with respective streaming query.
-    whenever{
+    //Create forever statement block with respective streaming query.
+    forever{
         from teacherStream where age > 18 window lengthBatch(3)
         select status, count(status) as totalCount
         group by status
@@ -36,7 +36,7 @@ function testAggregationQuery () {
 
 function main (string[] args) {
 
-    //Invoke the method which contains the whenever streaming statement.
+    //Invoke the method which contains the forever streaming statement.
     testAggregationQuery();
 
     //Create some events to pump into the input stream 'teacherStream'.
