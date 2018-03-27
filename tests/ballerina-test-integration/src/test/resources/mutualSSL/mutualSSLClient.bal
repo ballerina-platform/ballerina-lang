@@ -32,7 +32,6 @@ function main (string[] args) {
              match (response.getStringPayload()) {
                 mime:EntityError payloadError => io:println(payloadError.message);
                 string res => io:println(res);
-                any | null => io:println("Error occured");
              }
         }
     }
