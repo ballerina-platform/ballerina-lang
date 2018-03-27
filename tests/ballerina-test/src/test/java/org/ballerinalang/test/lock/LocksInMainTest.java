@@ -170,7 +170,7 @@ public class LocksInMainTest {
 
     @Test(description = "Tests locking variables from different package within lock in workers")
     public void testLockPkgVarsWithinLockInWorkers() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/lock", "pkg.bc");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/lock/project", "pkg.bc");
 
         BValue[] returns =
                 BRunUtil.invoke(compileResult, "lockWithinLockInWorkers");
