@@ -31,10 +31,24 @@ public enum CircuitState {
    OPEN, CLOSED, HALF_OPEN
 }
 
+documentation {
+    Represents Circuit health of the Circuit Breaker.
+
+    F{{startTime}}  - Circuit Breaker start time.
+                             The threshold should be a value between 0 and 1.
+    F{{requestCount}} - Total request count from the start.
+    F{{errorCount}} - Total error count.
+    F{{lastErrorTime}}  - Time that the last error occurred.
+    F{{totalBuckets}} - Number of buckets fits to the time window.
+    F{{lastUsedBucketId}} - Id of the last bucket used in Circuit Breaker calculations.
+}
 public struct CircuitHealth {
+   time:Time startTime;
    int requestCount;
    int errorCount;
    time:Time lastErrorTime;
+   Bucket[] totalBuckets;
+   int lastUsedBucketId;
 }
 
 documentation {
@@ -43,19 +57,43 @@ documentation {
     F{{failureThreshold}}  - The threshold for request failures. When this threshold is crossed, the circuit will trip.
                              The threshold should be a value between 0 and 1.
     F{{resetTimeout}} - The time period to wait before attempting to make another request to the upstream service.
-    F{{httpStatusCodes}} - Array of http response status codes which considered as failure responses.
+    F{{statusCodes}} - Array of http response status codes which considered as failure responses.
 }
 public struct CircuitBreakerConfig {
+    RollingWindow rollingWindow;
     float failureThreshold;
     int resetTimeout;
-    int [] httpStatusCodes;
+    int[] statusCodes;
 }
 
+documentation {
+    Represents Circuit Breaker rolling window configuration.
+
+    F{{timeWindow}}  - Time period in which the failure threshold is calculated.
+    F{{bucketSize}} - The size of a sub unit that the timeWindow should be divided.
+}
+public struct RollingWindow {
+    int timeWindow;
+    int bucketSize;
+}
+
+documentation {
+    Represents Circuit Breaker sub window (Bucket).
+
+    F{{successCount}}  - Number of successes during sub window time frame.
+    F{{failureCount}} - Number of faiures during sub window time frame.
+}
+public struct Bucket {
+    int successCount;
+    int failureCount;
+}
 
 public struct CircuitBreakerInferredConfig {
    float failureThreshold;
    int resetTimeout;
-   boolean [] httpStatusCodes;
+   boolean[] statusCodes;
+   int noOfBuckets;
+   RollingWindow rollingWindow;
 }
 
 documentation {
@@ -405,10 +443,9 @@ public struct CircuitBreakerClient {
        return false;
    }
 
-public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
-
-   lock {
-
+public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState,
+                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
+    lock {
        if (currentState == CircuitState.OPEN) {
            time:Time currentT = time:currentTime();
            int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
@@ -433,8 +470,8 @@ public function updateCircuitState (CircuitHealth circuitHealth, CircuitState cu
        } else {
            float currentFailureRate = 0;
 
-           if (circuitHealth.requestCount > 0) {
-               currentFailureRate = (<float>circuitHealth.errorCount / circuitHealth.requestCount);
+           if (circuitHealth.requestCount > 0 && circuitHealth.errorCount > 0) {
+               currentFailureRate = getcurrentFailureRatio(circuitHealth);
            }
 
            if (currentFailureRate > circuitBreakerInferredConfig.failureThreshold) {
@@ -449,19 +486,43 @@ public function updateCircuitState (CircuitHealth circuitHealth, CircuitState cu
 function updateCircuitHealthFailure(CircuitHealth circuitHealth,
                              HttpConnectorError httpConnectorError, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
+        time:Time startTime = circuitHealth.startTime;
+        time:Time currentTime = time:currentTime();
+        int elapsedTime = (currentTime.time - startTime.time) % circuitBreakerInferredConfig.rollingWindow.timeWindow;
+        int currentBucketId = ((elapsedTime/circuitBreakerInferredConfig.rollingWindow.bucketSize) + 1 )
+                              % circuitBreakerInferredConfig.noOfBuckets;
+        if (currentBucketId != circuitHealth.lastUsedBucketId) {
+            resetBucketStats(circuitHealth, currentBucketId);
+            circuitHealth.lastUsedBucketId = currentBucketId;
+        }
+        circuitHealth.totalBuckets[currentBucketId].failureCount = circuitHealth.totalBuckets[currentBucketId].failureCount + 1;
+        int lastBucketId = currentBucketId;
         circuitHealth.requestCount = circuitHealth.requestCount + 1;
         circuitHealth.errorCount = circuitHealth.errorCount + 1;
         circuitHealth.lastErrorTime = time:currentTime();
     }
 }
 
-function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResponse, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
+function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResponse,
+                                            CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
-    circuitHealth.requestCount = circuitHealth.requestCount + 1;
-    if (circuitBreakerInferredConfig.httpStatusCodes[inResponse.statusCode] == true) {
-        circuitHealth.errorCount = circuitHealth.errorCount + 1;
-        circuitHealth.lastErrorTime = time:currentTime();
-    }
+        time:Time startTime = circuitHealth.startTime;
+        time:Time currentTime = time:currentTime();
+        int elapsedTime = (currentTime.time - startTime.time) % circuitBreakerInferredConfig.rollingWindow.timeWindow;
+        int currentBucketId = ((elapsedTime/circuitBreakerInferredConfig.rollingWindow.bucketSize) + 1 )
+                              % circuitBreakerInferredConfig.noOfBuckets;
+        if (currentBucketId != circuitHealth.lastUsedBucketId) {
+            resetBucketStats(circuitHealth, currentBucketId);
+            circuitHealth.lastUsedBucketId = currentBucketId;
+        }
+        circuitHealth.requestCount = circuitHealth.requestCount + 1;
+        if (circuitBreakerInferredConfig.statusCodes[inResponse.statusCode] == true) {
+            circuitHealth.totalBuckets[currentBucketId].failureCount = circuitHealth.totalBuckets[currentBucketId].failureCount + 1;
+            circuitHealth.errorCount = circuitHealth.errorCount + 1;
+            circuitHealth.lastErrorTime = time:currentTime();
+        } else {
+            circuitHealth.totalBuckets[currentBucketId].successCount = circuitHealth.totalBuckets[currentBucketId].successCount + 1;
+        }
     }
 }
 
@@ -485,4 +546,45 @@ function validateCircuitBreakerConfiguration (CircuitBreakerConfig circuitBreake
         error circuitBreakerConfigError = {message:errorMessage};
         throw circuitBreakerConfigError;
     }
+}
+
+documentation {
+    Calculate Failure at a given point.
+
+    P{{circuitHealth}}  - Circuit Breaker health status.
+}
+public function getcurrentFailureRatio(CircuitHealth circuitHealth) returns float {
+    int totalSuccess;
+    int totalFailures;
+
+    foreach bucket in circuitHealth.totalBuckets {
+        totalSuccess  =  totalSuccess + bucket.successCount;
+        totalFailures = totalFailures + bucket.failureCount;
+    }
+    float ratio = 0;
+    if (totalFailures > 0) {
+        ratio = <float> totalFailures / (totalSuccess + totalFailures);
+    }
+    return ratio;
+}
+
+documentation {
+    Reset the bucket values to default ones.
+
+    P{{circuitHealth}}  - Circuit Breaker health status.
+    P{{bucketId}}  - Id of the bucket should reset.
+}
+public function resetBucketStats (CircuitHealth circuitHealth, int bucketId) {
+    circuitHealth.totalBuckets[bucketId].successCount = 0;
+    circuitHealth.totalBuckets[bucketId].failureCount = 0;
+}
+
+documentation {
+    Initializes the RollingWindow struct with default values.
+
+    T{{rollingWindowConfig}}  - The RollingWindow struct to be initialized.
+}
+public function <RollingWindow rollingWindowConfig> RollingWindow() {
+    rollingWindowConfig.timeWindow = 60000;
+    rollingWindowConfig.bucketSize = 10000;
 }
