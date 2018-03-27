@@ -34,6 +34,7 @@ import java.util.List;
 public class File {
     private DescriptorProtos.FileDescriptorProto fileDescriptorProto;
     private List<Message> messageList = new ArrayList<>();
+    private List<UserDefinedEnumMessage> enumList = new ArrayList<UserDefinedEnumMessage>();
     private List<Service> serviceList = new ArrayList<>();
     private List<String> dependencyList = new ArrayList<>();
     
@@ -43,6 +44,10 @@ public class File {
     
     void setMessageList(List<Message> messageList) {
         this.messageList = messageList;
+    }
+    
+    void setEnumList(List<UserDefinedEnumMessage> enumList) {
+        this.enumList = enumList;
     }
     
     void setServiceList(List<Service> serviceList) {
@@ -88,6 +93,9 @@ public class File {
         for (Message message : messageList) {
             fileDefinition.append(message.getMessageDefinition());
         }
+        for (UserDefinedEnumMessage message : enumList) {
+            fileDefinition.append(message.getMessageDefinition());
+        }
         return fileDefinition.toString();
     }
     
@@ -99,6 +107,7 @@ public class File {
         public File build() {
             File file = new File(fileBuilder.build());
             file.setMessageList(messageList);
+            file.setEnumList(enumList);
             file.setServiceList(serviceList);
             file.setDependencyList(dependencyList);
             return file;
@@ -126,6 +135,11 @@ public class File {
             return this;
         }
         
+        public Builder setEnum(UserDefinedEnumMessage enumDefinition) {
+            fileBuilder.addEnumType(enumDefinition.getDescriptorProto());
+            enumList.add(enumDefinition);
+            return this;
+        }
         public Builder setDependeny(String dependency) {
             fileBuilder.addDependency(dependency);
             dependencyList.add(dependency);
@@ -147,6 +161,7 @@ public class File {
         
         private DescriptorProtos.FileDescriptorProto.Builder fileBuilder;
         private List<Message> messageList = new ArrayList<>();
+        private List<UserDefinedEnumMessage> enumList = new ArrayList<UserDefinedEnumMessage>();
         private List<Service> serviceList = new ArrayList<>();
         private List<String> dependencyList = new ArrayList<>();
     }
