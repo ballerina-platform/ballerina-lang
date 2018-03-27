@@ -39,7 +39,7 @@ public class IsDone extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BFuture future = (BFuture) context.getRefArgument(0);
-        context.setReturnValues(new BBoolean(future.value().isDone()));
+        context.setReturnValues(new BBoolean(future.isDone()));
     }
     
 }

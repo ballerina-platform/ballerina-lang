@@ -83,26 +83,17 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|err
 function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
     string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
     string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
+    json jwtHeaderJson = {};
+    json jwtPayloadJson = {};
 
-    json jwtHeaderJson = <json>jwtHeader;
-    json jwtPayloadJson = <json>jwtPayload;
-    // TODO remove safe casting.
-    //json jwtHeaderJson = {};
-    //match <json>jwtHeader {
-    //    json headerJson => jwtHeaderJson = headerJson;
-    //    error e1 => {
-    //        error err = {message:"Invalid JWT payload"};
-    //        return err;
-    //    }
-    //}
-    //json jwtPayloadJson = {};
-    //match <json>jwtPayload {
-    //    json payloadJson => jwtPayloadJson = payloadJson;
-    //    error e2 => {
-    //        error err = {message:"Invalid JWT payload"};
-    //        return err;
-    //    }
-    //}
+    match util:parseJson(jwtHeader) {
+        json result => jwtHeaderJson = result;
+        error err => return err;
+    }
+    match util:parseJson(jwtPayload) {
+        json result => jwtPayloadJson = result;
+        error err => return err;
+    }
     return (jwtHeaderJson, jwtPayloadJson);
 }
 

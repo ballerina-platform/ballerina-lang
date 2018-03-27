@@ -38,7 +38,7 @@ stream<Teacher> teacherStream2 = {};
 
 function testOutputRateLimitQuery () {
 
-    whenever{
+    forever{
         from teacherStream2
         select name, age, status
         output first every 3 events

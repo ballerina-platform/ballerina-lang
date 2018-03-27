@@ -43,7 +43,7 @@ stream<StockWithPrice> stockWithPriceStream = {};
 
 function testJoinQuery () {
 
-    whenever{
+    forever{
         from stockStream window time(1000)
         join twitterStream window time(1000)
         on stockStream.symbol == twitterStream.company

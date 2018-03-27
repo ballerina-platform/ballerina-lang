@@ -146,7 +146,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -182,7 +182,7 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
-    private static final String CREATE_WHENEVER = "startWhenever";
+    private static final String CREATE_FOREVER = "startForever";
 
     private SymbolTable symTable;
     private final PackageCache packageCache;
@@ -351,12 +351,12 @@ public class Desugar extends BLangNodeVisitor {
         result = serviceNode;
     }
 
-    public void visit(BLangWhenever wheneverStatement) {
-        siddhiQueryBuilder.visit(wheneverStatement);
+    public void visit(BLangForever foreverStatement) {
+        siddhiQueryBuilder.visit(foreverStatement);
         BLangExpressionStmt stmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        stmt.expr = createInvocationForWheneverBlock(wheneverStatement);
-        stmt.pos = wheneverStatement.pos;
-        stmt.addWS(wheneverStatement.getWS());
+        stmt.expr = createInvocationForForeverBlock(foreverStatement);
+        stmt.pos = foreverStatement.pos;
+        stmt.addWS(foreverStatement.getWS());
         result = rewrite(stmt, env);
     }
 
@@ -910,19 +910,19 @@ public class Desugar extends BLangNodeVisitor {
         result = tableLiteral;
     }
 
-    private BLangInvocation createInvocationForWheneverBlock(BLangWhenever whenever) {
+    private BLangInvocation createInvocationForForeverBlock(BLangForever forever) {
         List<BLangExpression> args = new ArrayList<>();
         List<BType> retTypes = new ArrayList<>();
         retTypes.add(symTable.noType);
-        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(whenever.pos, symTable.stringType, whenever
+        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType, forever
                 .getSiddhiQuery());
         args.add(streamingQueryLiteral);
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
-        addFunctionPointersToArgs(args, whenever.gettreamingQueryStatements());
-        return createInvocationNode(CREATE_WHENEVER, args, retTypes);
+        addFunctionPointersToArgs(args, forever.gettreamingQueryStatements());
+        return createInvocationNode(CREATE_FOREVER, args, retTypes);
     }
 
     private void addReferenceVariablesToArgs(List<BLangExpression> args, List<BLangExpression> varRefs) {
@@ -1081,8 +1081,11 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
-                result = new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs,
-                        iExpr.symbol, iExpr.types, iExpr.expr, iExpr.async);
+                final BLangAttachedFunctionInvocation attachedFunctionInvocation =
+                        new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs,
+                                iExpr.symbol, iExpr.types, iExpr.expr, iExpr.async);
+                attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
+                result = attachedFunctionInvocation;
                 break;
             case TypeTags.CONNECTOR:
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.requiredArgs);

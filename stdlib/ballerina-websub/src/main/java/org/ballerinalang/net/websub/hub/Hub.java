@@ -152,7 +152,6 @@ public class Hub {
                     hubPackageInfo.setProgramFile(hubProgramFile);
                     BLangProgramRunner.runService(hubProgramFile);
                     BValue[] args = {};
-                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
                     String webSubHubUrl = (BLangFunctions.invokeCallable(
                             hubPackageInfo.getFunctionInfo("getHubUrl"), args)[0])
                             .stringValue();
@@ -162,6 +161,7 @@ public class Hub {
                     hubUrl = webSubHubUrl;
                     setHubProgramFile(hubProgramFile);
                     started = true;
+                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
                 }
             }
         }

@@ -102,7 +102,7 @@ public abstract class WebSocketUtil {
                 BValue[] bValues = new BValue[paramDetails.size()];
                 bValues[0] = wsService.getServiceEndpoint();
                 //TODO handle BallerinaConnectorException
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
             }
 
             @Override
