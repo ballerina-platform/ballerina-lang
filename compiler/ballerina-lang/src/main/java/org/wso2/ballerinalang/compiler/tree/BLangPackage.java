@@ -1,23 +1,24 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
@@ -26,17 +27,20 @@ import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -46,7 +50,6 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
-
     public List<BLangCompilationUnit> compUnits;
     public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
@@ -55,17 +58,24 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangConnector> connectors;
-    public List<BLangStreamlet> streamlets;
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
+    public List<BLangObject> objects;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
-
-    public BPackageSymbol symbol;
     public List<TopLevelNode> topLevelNodes;
+
+    public PackageID packageID;
+    public BPackageSymbol symbol;
+    public PackageRepository packageRepository;
+
+    // TODO Revisit these instance variables
+    public Path loadedFilePath;
+    public boolean loadedFromProjectDir;
+    public RepoHierarchy repos;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
@@ -75,9 +85,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
         this.connectors = new ArrayList<>();
-        this.streamlets = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
+        this.objects = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
@@ -127,11 +137,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<? extends StreamletNode> getStreamlets() {
-        return streamlets;
-    }
-
-    @Override
     public List<BLangFunction> getFunctions() {
         return functions;
     }
@@ -139,6 +144,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangStruct> getStructs() {
         return structs;
+    }
+
+    @Override
+    public List<? extends ObjectNode> getObjects() {
+        return objects;
     }
 
     @Override
@@ -191,12 +201,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addStreamlet(StreamletNode streamletNode) {
-        this.streamlets.add((BLangStreamlet) streamletNode);
-        this.topLevelNodes.add(streamletNode);
-    }
-
-    @Override
     public void addFunction(FunctionNode function) {
         this.functions.add((BLangFunction) function);
         this.topLevelNodes.add(function);
@@ -206,6 +210,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addStruct(StructNode struct) {
         this.structs.add((BLangStruct) struct);
         this.topLevelNodes.add(struct);
+    }
+
+    @Override
+    public void addObject(ObjectNode object) {
+        this.objects.add((BLangObject) object);
+        this.topLevelNodes.add(object);
     }
 
     @Override

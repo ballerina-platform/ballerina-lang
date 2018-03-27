@@ -1,4 +1,4 @@
-import ballerina.reflect;
+import ballerina/reflect;
 
 // Start Structs
 struct SimplePerson {
@@ -7,7 +7,7 @@ struct SimplePerson {
     boolean married;
 }
 
-function testPrimitiveStructs() (boolean) {
+function testPrimitiveStructs() returns (boolean) {
     SimplePerson sp1 = {name: "Nick", age: 25, married: true};
     SimplePerson sp2 = {age: 25, married: true, name: "Nick"};
 
@@ -30,7 +30,7 @@ public struct ArrayedPerson {
     string[] address;
 }
 
-function testStructsWithArrays() (boolean) {
+function testStructsWithArrays() returns (boolean) {
     ArrayedPerson ap1 = {name: "Nick", married: true, address: ["20", "Palm Grove"]};
     ArrayedPerson ap2 = {name: "Nick", married: true, address: ["20", "Palm Grove"]};
 
@@ -59,7 +59,7 @@ public struct Car {
     Engine engine;
 }
 
-public function testNestedStructs() (boolean) {
+public function testNestedStructs() returns (boolean) {
     Car c1 = {name: "Charger",
                  engine: {model: "v8", capacity: 2000},
                  wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}]};
@@ -88,7 +88,7 @@ public function testNestedStructs() (boolean) {
 
 // Start Array of Arrays
 
-public function testArraysOfArrays() (boolean) {
+public function testArraysOfArrays() returns (boolean) {
     int[][] aa1 = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
     int[][] aa2 = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
 
@@ -104,7 +104,7 @@ public function testArraysOfArrays() (boolean) {
 
 // Start Maps
 
-public function testMaps () (boolean) {
+public function testMaps () returns (boolean) {
     map m1 = {line1:"No. 20", line2:"Palm Grove",
                  city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
     map m2 = {line1:"No. 20", line2:"Palm Grove",
@@ -135,7 +135,7 @@ public function testMaps () (boolean) {
 
 // Start Any
 
-public function testAnyType() (boolean) {
+public function testAnyType() returns (boolean) {
     any a1 = 5;
     any a2 = 5;
 
@@ -177,7 +177,7 @@ json jNull2 = null;
 json empty1 = {};
 json empty2 = {};
 
-public function testJSONString() (boolean) {
+public function testJSONString() returns (boolean) {
     return reflect:equals(jString1,jString2) &&
            !reflect:equals(jString1,jStringUnmatch) &&
            !reflect:equals(jString1,jIntUnmatch) &&
@@ -186,7 +186,7 @@ public function testJSONString() (boolean) {
            !reflect:equals(jString1,empty1);
 }
 
-public function testJSONInt() (boolean) {
+public function testJSONInt() returns (boolean) {
     return reflect:equals(jInt1,jInt2) &&
            !reflect:equals(jInt1,jStringUnmatch) &&
            !reflect:equals(jInt1,jIntUnmatch) &&
@@ -195,7 +195,7 @@ public function testJSONInt() (boolean) {
            !reflect:equals(jInt1,empty1);
 }
 
-public function testJSONBoolean() (boolean) {
+public function testJSONBoolean() returns (boolean) {
     return reflect:equals(jBoolean1,jBoolean2) &&
            !reflect:equals(jBoolean1,jStringUnmatch) &&
            !reflect:equals(jBoolean1,jIntUnmatch) &&
@@ -204,7 +204,7 @@ public function testJSONBoolean() (boolean) {
            !reflect:equals(jBoolean1,empty1);
 }
 
-public function testJSONNull() (boolean) {
+public function testJSONNull() returns (boolean) {
     return reflect:equals(jNull1,jNull2) &&
            !reflect:equals(jNull1,jStringUnmatch) &&
            !reflect:equals(jNull1,jIntUnmatch) &&
@@ -212,7 +212,7 @@ public function testJSONNull() (boolean) {
            !reflect:equals(jNull1,empty1);
 }
 
-public function testJSONEmpty() (boolean) {
+public function testJSONEmpty() returns (boolean) {
     return reflect:equals(empty1,empty2) &&
            !reflect:equals(empty1,jStringUnmatch) &&
            !reflect:equals(empty1,jIntUnmatch) &&
@@ -220,7 +220,7 @@ public function testJSONEmpty() (boolean) {
            !reflect:equals(empty1,jNull1);
 }
 
-public function testJSONObjects() (boolean) {
+public function testJSONObjects() returns (boolean) {
     json jObj1 = {name:"apple", price: 40.50, isNew: true};
     json jObj2 = {name:"apple", price: 40.50, isNew: true};
 
@@ -237,7 +237,7 @@ public function testJSONObjects() (boolean) {
 
 }
 
-public function testJSONArray() (boolean) {
+public function testJSONArray() returns (boolean) {
     json jArr1 = {primeNumebers: [2, 3, 5, 7, 11, 13]};
     json jArr2 = {primeNumebers: [2, 3, 5, 7, 11, 13]};
 
@@ -252,7 +252,7 @@ public function testJSONArray() (boolean) {
 
 }
 
-public function testJSONNested() (boolean) {
+public function testJSONNested() returns (boolean) {
     json jObj1 = {   name:"Target",
                      location:{
                                   address1:"19, sample road",

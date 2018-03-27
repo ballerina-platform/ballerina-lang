@@ -45,8 +45,8 @@ public class HTTPServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
     // Outer Map key=basePath
-    private final Map<String, HttpService> servicesInfoMap = new ConcurrentHashMap<>();
-    private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
+    protected final Map<String, HttpService> servicesInfoMap = new ConcurrentHashMap<>();
+    protected CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
     private final WebSocketServicesRegistry webSocketServicesRegistry;
 
     public HTTPServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
@@ -126,8 +126,9 @@ public class HTTPServicesRegistry {
                 websocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH));
         Value serviceType = websocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
         String uri = basePath.concat(upgradePath);
-        webSocketServicesRegistry.addUpgradableServiceByName(
-                new WebSocketService(BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType)), uri);
+        WebSocketService service = new WebSocketService(
+                BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType));
+        webSocketServicesRegistry.addUpgradableServiceByName(service, uri);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {

@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.lang.maps;
+import ballerina/lang.system;
+import ballerina/lang.maps;
 
 function main (string[] args) {
     //Here's how you create an empty map;

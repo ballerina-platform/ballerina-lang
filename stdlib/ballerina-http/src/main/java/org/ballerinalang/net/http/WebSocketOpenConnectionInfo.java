@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 
 /**
  * This class represent already opened WebSocket connection. Which include all necessary details needed after for
@@ -27,9 +27,9 @@ import org.ballerinalang.model.values.BConnector;
 public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
-    private final BConnector wsConnection;
+    private final BStruct wsConnection;
 
-    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BConnector wsConnection) {
+    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct wsConnection) {
         this.webSocketService = webSocketService;
         this.wsConnection = wsConnection;
     }
@@ -38,8 +38,7 @@ public class WebSocketOpenConnectionInfo {
         return webSocketService;
     }
 
-    public BConnector getWsConnection() {
+    public BStruct getWsConnection() {
         return wsConnection;
     }
-
 }

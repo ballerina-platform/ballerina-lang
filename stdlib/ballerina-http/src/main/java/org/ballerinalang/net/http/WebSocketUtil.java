@@ -26,9 +26,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -55,9 +53,9 @@ public abstract class WebSocketUtil {
         return new BMap<>();
     }
 
-    public static BConnector createAndGetConnector(Resource resource) {
-        return BLangConnectorSPIUtil.createBConnector(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
-                                                      WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
+    public static BStruct createAndGetBStruct(Resource resource) {
+        return BLangConnectorSPIUtil.createBStruct(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
+                                                   WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
     }
 
 
@@ -81,22 +79,22 @@ public abstract class WebSocketUtil {
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
-    public static void handleHandshake(WebSocketInitMessage initMessage, WebSocketService wsService,
-                                       BMap<String, BString> queryParams, HttpHeaders headers) {
+    public static void handleHandshake(WebSocketService wsService,
+                                       HttpHeaders headers, BStruct wsConnection) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
+        WebSocketInitMessage initMessage =
+                (WebSocketInitMessage) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BConnector wsConnection = WebSocketUtil.createAndGetConnector(wsService.getResources()[0]);
-                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                wsConnection.setNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, initMessage);
-                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
-                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(),
-                                                                       new WebSocketOpenConnectionInfo(wsService,
-                                                                                                       wsConnection));
+                populateWebSocketConnector(session, wsConnection);
+                BStruct serviceEndpoint = (BStruct) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_ENDPOINT);
+                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+                WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
+                                                                                             serviceEndpoint);
+                WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
 
                 Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                 if (onOpenResource == null) {
@@ -105,9 +103,9 @@ public abstract class WebSocketUtil {
                 List<ParamDetail> paramDetails =
                         onOpenResource.getParamDetails();
                 BValue[] bValues = new BValue[paramDetails.size()];
-                bValues[0] = wsConnection;
+                bValues[0] = serviceEndpoint;
                 //TODO handle BallerinaConnectorException
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
             }
 
             @Override
@@ -115,5 +113,12 @@ public abstract class WebSocketUtil {
                 ErrorHandlerUtils.printError(throwable);
             }
         });
+    }
+
+    public static void populateWebSocketConnector(Session session, BStruct endpoint) {
+        endpoint.setStringField(0, session.getId());
+        endpoint.setStringField(1, session.getNegotiatedSubprotocol());
+        endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
+        endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
     }
 }

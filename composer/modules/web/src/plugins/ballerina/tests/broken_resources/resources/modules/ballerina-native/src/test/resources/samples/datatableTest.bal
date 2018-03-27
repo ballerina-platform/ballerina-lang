@@ -1,9 +1,9 @@
-import ballerina.lang.datatables;
-import ballerina.data.sql;
-import ballerina.lang.errors;
-import ballerina.lang.xmls;
-import ballerina.lang.jsons;
-import ballerina.lang.blobs;
+import ballerina/lang.datatables;
+import ballerina/data.sql;
+import ballerina/lang.errors;
+import ballerina/lang.xmls;
+import ballerina/lang.jsons;
+import ballerina/lang.blobs;
 
 struct ResultPrimitive {
     int INT_TYPE;

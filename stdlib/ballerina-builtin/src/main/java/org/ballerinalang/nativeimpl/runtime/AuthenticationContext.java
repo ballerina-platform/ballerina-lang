@@ -18,83 +18,108 @@
 
 package org.ballerinalang.nativeimpl.runtime;
 
-import java.util.Arrays;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+
 import java.util.Map;
 
 /**
  * AuthenticationContext represents and holds the authenticated user information.
  *
- * @since 0.965.0
+ * @since 0.970.0
  */
 public class AuthenticationContext {
 
-    private String userId;
-    private String username;
-    private String[] groups;
-    private Map<String, String> claims;
-    private String[] scopes;
-    private String authType;
-    private String authToken;
+    public static final int USER_ID_STRING_FIELD_INDEX = 0;
+    public static final int USER_NAME_STRING_FIELD_INDEX = 1;
+    public static final int GROUPS_REF_FIELD_INDEX = 0;
+    public static final int CLAIMS_REF_FIELD_INDEX = 1;
+    public static final int SCOPES_REF_FIELD_INDEX = 2;
+    public static final int AUTH_TYPE_STRING_FIELD_INDEX = 2;
+    public static final int AUTH_TOKEN_STRING_FIELD_INDEX = 3;
+
+    private BStruct authContextStruct;
+
+    public AuthenticationContext(BStruct authContextStruct) {
+        this.authContextStruct = authContextStruct;
+    }
 
     public String getUserId() {
-        return userId;
+        return authContextStruct.getStringField(USER_ID_STRING_FIELD_INDEX);
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
+        authContextStruct.setStringField(USER_ID_STRING_FIELD_INDEX, userId);
     }
 
     public String getUsername() {
-        return username;
+        return authContextStruct.getStringField(USER_NAME_STRING_FIELD_INDEX);
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        authContextStruct.setStringField(USER_NAME_STRING_FIELD_INDEX, username);
     }
 
     public String[] getGroups() {
-        if (groups == null) {
-            return new String[0];
-        }
-        return Arrays.copyOf(groups, groups.length);
+        return getStringArrayField(authContextStruct.getRefField(GROUPS_REF_FIELD_INDEX));
     }
 
     public void setGroups(String[] groups) {
-        this.groups = Arrays.copyOf(groups, groups.length);
+        authContextStruct.setRefField(GROUPS_REF_FIELD_INDEX, new BStringArray(groups));
     }
 
     public Map<String, String> getClaims() {
-        return claims;
+        return getMapField(authContextStruct.getRefField(CLAIMS_REF_FIELD_INDEX));
     }
 
     public void setClaims(Map<String, String> claims) {
-        this.claims = claims;
+        BMap<String, BString> bMap = new BMap<>();
+        if (claims != null) {
+            claims.forEach((key, value) -> bMap.put(key, new BString(value)));
+        }
+        authContextStruct.setRefField(CLAIMS_REF_FIELD_INDEX, bMap);
     }
 
     public String[] getScopes() {
-        if (scopes == null) {
-            return new String[0];
-        }
-        return Arrays.copyOf(scopes, scopes.length);
+        return getStringArrayField(authContextStruct.getRefField(SCOPES_REF_FIELD_INDEX));
     }
 
     public void setScopes(String[] scopes) {
-        this.scopes = Arrays.copyOf(scopes, scopes.length);
+        authContextStruct.setRefField(SCOPES_REF_FIELD_INDEX, new BStringArray(scopes));
     }
 
     public String getAuthType() {
-        return authType;
+        return authContextStruct.getStringField(AUTH_TYPE_STRING_FIELD_INDEX);
     }
 
     public void setAuthType(String authType) {
-        this.authType = authType;
+        authContextStruct.setStringField(AUTH_TYPE_STRING_FIELD_INDEX, authType);
     }
 
     public String getAuthToken() {
-        return authToken;
+        return authContextStruct.getStringField(AUTH_TOKEN_STRING_FIELD_INDEX);
     }
 
     public void setAuthToken(String authToken) {
-        this.authToken = authToken;
+        authContextStruct.setStringField(AUTH_TOKEN_STRING_FIELD_INDEX, authToken);
+    }
+
+    public static String[] getStringArrayField(BValue bValue) {
+        if (bValue != null && bValue instanceof BStringArray) {
+            BStringArray bArray = (BStringArray) bValue;
+            return bArray.getStringArray();
+        }
+        return new String[0];
+    }
+
+    public static Map<String, String> getMapField(BValue bValue) {
+        if (bValue != null && bValue instanceof BMap) {
+            BMap bMap = (BMap) bValue;
+            return bMap.getMap();
+        }
+        return null;
     }
 }

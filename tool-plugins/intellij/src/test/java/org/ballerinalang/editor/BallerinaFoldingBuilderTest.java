@@ -28,21 +28,21 @@ public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTest
         return getTestDataPath("editor/folding");
     }
 
-    public void testConnector() {
-        doTest();
-    }
+    //    public void testConnector() {
+    //        doTest();
+    //    }
 
-    public void testFunction() {
-        doTest();
-    }
+    //    public void testFunction() {
+    //        doTest();
+    //    }
 
-    public void testService() {
-        doTest();
-    }
+    //    public void testService() {
+    //        doTest();
+    //    }
 
-    public void testStruct() {
-        doTest();
-    }
+    //    public void testStruct() {
+    //        doTest();
+    //    }
 
     public void testImport() {
         doTest();

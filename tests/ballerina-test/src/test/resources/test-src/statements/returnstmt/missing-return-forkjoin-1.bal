@@ -1,4 +1,4 @@
-function testNullInForkJoin () (string, string) {
+function testNullInForkJoin () returns (string, string) {
     string m = "";
     fork {
         worker foo {
@@ -13,6 +13,6 @@ function testNullInForkJoin () (string, string) {
     } join (all) (map allReplies) {
 
     } timeout (30000) (map msgs) {
-        return "", "";
+        return ("", "");
     }
 }

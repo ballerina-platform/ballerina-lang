@@ -40,10 +40,8 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
             BLangScheduler.errorThrown(this.targetCtx, signal.getSourceContext().getError());
             break;
         case HALT:
-            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         case RETURN:
-            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         default:
             break;

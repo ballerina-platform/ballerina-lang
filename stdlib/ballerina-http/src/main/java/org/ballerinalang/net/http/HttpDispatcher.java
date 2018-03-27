@@ -59,7 +59,7 @@ public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
 
-    private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
+    protected static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
             Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface();
 
@@ -121,7 +121,7 @@ public class HttpDispatcher {
         return interfaceId;
     }
 
-    private static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
+    protected static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace
@@ -262,7 +262,8 @@ public class HttpDispatcher {
         return null;
     }
 
-    public static boolean isDiffered(HttpResource httpResource) {
-        return httpResource != null && httpResource.getSignatureParams().getEntityBody() != null;
+    public static boolean shouldDiffer(HttpResource httpResource, boolean hasFilters) {
+        return ((httpResource != null && httpResource.getSignatureParams().getEntityBody() != null) || hasFilters);
     }
+
 }

@@ -33,11 +33,10 @@ public class BTypes {
     public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, null);
     public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, null);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
-    public static BType typeType = new BTypeType(TypeConstants.TYPE_TNAME, null);
+    public static BType typeDesc = new BTypeDesc(TypeConstants.TYPEDESC_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
     public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
     public static BType typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null);
-    public static BType typeStreamlet = new BStreamletType(TypeConstants.STREAMLET_TNAME, null);
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);

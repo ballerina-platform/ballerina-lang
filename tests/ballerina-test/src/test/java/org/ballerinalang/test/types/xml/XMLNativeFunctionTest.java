@@ -101,7 +101,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "element");
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertNull(returns[2].stringValue());
+        Assert.assertEquals(returns[2].stringValue(), "");
     }
 
     @Test
@@ -791,7 +791,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         
-        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 5);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 4);
         Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book-->     <bookId>001</bookId>" +
                 "<?word document=\"book.doc\" ?>");
         

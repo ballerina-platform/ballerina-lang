@@ -1,55 +1,62 @@
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
-endpoint<http:Service> echo {
+endpoint http:ServiceEndpoint echo {
     port:9095,
-    ssl : {
-            keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            keyStorePassword:"ballerina",
-            certPassword:"ballerina",
-            sslVerifyClient:"require",
-            trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            trustStorePassword:"ballerina",
-            ciphers:"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-            sslEnabledProtocols:"TLSv1.2,TLSv1.1"
+    secureSocket: {
+        keyStore: {
+            filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        },
+        trustStore: {
+            filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        },
+        protocols: {
+            protocolName: "TLSv1.2",
+            versions: "TLSv1.2,TLSv1.1"
+        },
+        ciphers:"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+        sslVerifyClient:"require"
+    }
+};
+
+@http:ServiceConfig {
+     endpoints:[echo],
+     basePath:"/echo"
+}
+
+service<http:Service> helloWorld bind echo {
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/"
+    }
+    sayHello (endpoint conn, http:Request req) {
+        http:Response res = {};
+        res. setStringPayload("hello world");
+        _ = conn -> respond( res);
+        io:println("successful");
     }
 }
 
-@http:serviceConfig {
-    endpoints:[echo],
-    basePath:"/echo"
-}
-service<http: Service > helloWorld {
-
-     @http:resourceConfig {
-         methods:["GET"],
-         path:"/"
-     }
-     resource sayHello (http:ServerConnector conn, http:Request req) {
-         http:Response res = {};
-         res. setStringPayload("hello world");
-         _ = conn -> respond( res);
-         io:println("successful");
-     }
-}
-
-endpoint<http:Service> echoDummy {
+endpoint http:ServiceEndpoint echoDummy {
     port:9090
-}
+};
 
-@http:serviceConfig {
-    endpoints:[echoDummy],
-    basePath:"/echoDummy"
+@http:ServiceConfig {
+      endpoints:[echoDummy],
+      basePath:"/echoDummy"
 }
-service<http:Service > echoDummyService {
+service<http:Service> echoDummyService bind echoDummy {
 
-     @http:resourceConfig {
-         methods:["POST"],
-         path:"/"
-     }
-     resource sayHello (http:ServerConnector conn, http:Request req) {
-         http:Response res = {};
-         res.setStringPayload("hello world");
-         _ = conn -> respond(res);
-     }
+    @http:ResourceConfig {
+        methods:["POST"],
+        path:"/"
+    }
+    sayHello (endpoint conn, http:Request req) {
+        http:Response res = {};
+        res.setStringPayload("hello world");
+        _ = conn -> respond(res);
+    }
 }

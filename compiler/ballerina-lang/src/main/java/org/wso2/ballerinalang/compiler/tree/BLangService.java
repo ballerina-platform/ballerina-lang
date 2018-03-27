@@ -170,7 +170,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public void bindToEndpoint(SimpleVariableReferenceNode endpointRef) {
         final BLangSimpleVarRef endpointVar = (BLangSimpleVarRef) endpointRef;
-        this.boundEndpoints.add(endpointVar);
+        this.boundEndpoints.add(0, endpointVar);
     }
 
     @Override

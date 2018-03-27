@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for Connector actions.
  */
+@Test(enabled = false)
 public class ConnectorActionTest {
     CompileResult result;
     CompileResult resultNegative;

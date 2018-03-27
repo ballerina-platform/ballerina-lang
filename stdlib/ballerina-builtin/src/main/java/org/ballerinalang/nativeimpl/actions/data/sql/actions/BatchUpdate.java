@@ -27,6 +27,14 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.TraceUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
 
 /**
  * {@code BatchUpdate} is the Batch update action implementation of the SQL Connector.
@@ -34,12 +42,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.6
  */
 @BallerinaFunction(
-        packageName = "ballerina.data.sql",
+        orgName = "ballerina", packageName = "data.sql",
         functionName = "batchUpdate",
         receiver = @Receiver(type = TypeKind.STRUCT,
                              structType = "ClientConnector",
                              structPackage = "ballerina.data.sql"),
-        args = {@Argument(name = "client", type = TypeKind.STRUCT),
+        args = {
+                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters",
                           type = TypeKind.ARRAY,
@@ -47,14 +56,30 @@ import org.ballerinalang.natives.annotations.ReturnType;
                           arrayDimensions = 2,
                           structType = "Parameter")
         },
-        returnType = { @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT) })
+        returnType = {
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class BatchUpdate extends AbstractSQLAction {
     @Override
     public void execute(Context context) {
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
-        String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-        executeBatchUpdate(context, datasource, query, parameters);
+        try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            String query = context.getStringArgument(0);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+
+            Map<String, String> tags = new HashMap<>();
+            tags.put(TAG_KEY_DB_STATEMENT, query);
+            tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+            TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
+
+            executeBatchUpdate(context, datasource, query, parameters);
+        } catch (Throwable e) {
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
     }
 }

@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,12 +61,13 @@ public class SwaggerConverterUtils {
         String filePath = bFile.getFilePath();
         String fileName = bFile.getFileName();
         String content = bFile.getContent();
+        Path fileRoot = Paths.get(filePath);
     
         org.wso2.ballerinalang.compiler.tree.BLangPackage model;
     
         // Sometimes we are getting Ballerina content without a file in the file-system.
         if (!Files.exists(Paths.get(filePath, fileName))) {
-            BallerinaFile ballerinaFile = ParserUtils.getBallerinaFileForContent(fileName, content,
+            BallerinaFile ballerinaFile = ParserUtils.getBallerinaFileForContent(fileRoot, fileName, content,
                     CompilerPhase.CODE_ANALYZE);
             model = ballerinaFile.getBLangPackage();
         

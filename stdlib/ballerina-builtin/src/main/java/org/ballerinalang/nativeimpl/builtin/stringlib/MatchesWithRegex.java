@@ -35,7 +35,7 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:matchesWithRegex.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.matchesWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
@@ -56,7 +56,7 @@ public class MatchesWithRegex extends AbstractRegexFunction {
             BBoolean matches = new BBoolean(matcher.matches());
             context.setReturnValues(matches);
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(BBoolean.FALSE, BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
     }
 }

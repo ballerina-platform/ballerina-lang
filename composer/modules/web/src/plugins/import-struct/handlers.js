@@ -115,15 +115,21 @@ export function getHandlerDefinitions(plugin) {
 
                 const onImport = (json, structName, removeDefaults) => {
                     let success = true;
+
+                    if (structName && structName !== ''){
+                        structNode.getName().setValue(structName, true);
+                        structNode.setName(structNode.getName(), false); 
+                    }
+                    if (json === '') {
+                        topLevelNodes.addTopLevelNodes(structNode);
+                        return success;
+                    }
+
                     const refExpr = TreeBuilder.build(
                         FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json))
                     );
                     if (!refExpr.error) {
                         success = processJSONStruct(structNode, refExpr.variable.initialExpression, removeDefaults);
-                        if (structName !== undefined && structName !== ''){
-                            structNode.getName().setValue(structName, true);
-                            structNode.setName(structNode.getName(), false); 
-                        }
                         topLevelNodes.addTopLevelNodes(structNode);
                     } else {
                         success = false;

@@ -34,11 +34,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -47,6 +48,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -54,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -158,6 +162,16 @@ class ASTBuilderUtil {
         return assignment;
     }
 
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, List<BLangExpression> varRefs,
+                                                BLangExpression rhsExpr, boolean declaredWithVar) {
+        final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignment.pos = pos;
+        assignment.varRefs = varRefs;
+        assignment.expr = rhsExpr;
+        assignment.declaredWithVar = declaredWithVar;
+        return assignment;
+    }
+
     static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         exprStmt.pos = pos;
@@ -182,6 +196,35 @@ class ASTBuilderUtil {
         final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         blockNode.pos = pos;
         return blockNode;
+    }
+
+    static BLangBlockStmt createBlockStmt(DiagnosticPos pos, List<BLangStatement> stmts) {
+        final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        blockNode.pos = pos;
+        blockNode.stmts = stmts;
+        return blockNode;
+    }
+
+    static BLangMatchStmtPatternClause createMatchStatementPattern(DiagnosticPos pos,
+                                                                   BLangVariable variable,
+                                                                   BLangBlockStmt body) {
+        BLangMatchStmtPatternClause patternClause =
+                (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
+        patternClause.pos = pos;
+        patternClause.variable = variable;
+        patternClause.body = body;
+        return patternClause;
+
+    }
+
+    static BLangMatch createMatchStatement(DiagnosticPos pos,
+                                           BLangExpression expr,
+                                           List<BLangMatchStmtPatternClause> patternClauses) {
+        BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
+        matchStmt.pos = pos;
+        matchStmt.expr = expr;
+        matchStmt.patternClauses = patternClauses;
+        return matchStmt;
     }
 
     static BLangUnaryExpr createUnaryExpr(DiagnosticPos pos) {
@@ -210,22 +253,18 @@ class ASTBuilderUtil {
         return typeofExpr;
     }
 
-    static BLangExpression generateCastExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPE) {
-            return varRef;
-        }
-        // Box value using cast expression.
-        final BLangTypeCastExpr implicitCastExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
-        implicitCastExpr.pos = varRef.pos;
-        implicitCastExpr.expr = varRef;
-        implicitCastExpr.type = target;
-        implicitCastExpr.types = Lists.of(target);
-        implicitCastExpr.castSymbol = (BOperatorSymbol) symResolver.resolveImplicitCastOperator(varRef.type, target);
-        return implicitCastExpr;
+    static BLangIndexBasedAccess createIndexBasesAccessExpr(DiagnosticPos pos, BType type, BVarSymbol varSymbol,
+                                                            BLangExpression indexExpr) {
+        final BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        arrayAccess.pos = pos;
+        arrayAccess.expr = createVariableRef(pos, varSymbol);
+        arrayAccess.indexExpr = indexExpr;
+        arrayAccess.type = type;
+        return arrayAccess;
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPE) {
+        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
             return varRef;
         }
         // Box value using cast expression.
@@ -233,7 +272,7 @@ class ASTBuilderUtil {
         conversion.pos = varRef.pos;
         conversion.expr = varRef;
         conversion.type = target;
-        conversion.types = Lists.of(target);
+        conversion.targetType = target;
         conversion.conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(varRef.type,
                 target);
         return conversion;
@@ -335,6 +374,21 @@ class ASTBuilderUtil {
         binaryExpr.opKind = opKind;
         binaryExpr.opSymbol = symbol;
         return binaryExpr;
+    }
+
+    static BLangIsAssignableExpr createIsAssignableExpr(DiagnosticPos pos,
+                                                        BLangExpression lhsExpr,
+                                                        BType targetType,
+                                                        BType type,
+                                                        Names names) {
+        final BLangIsAssignableExpr assignableExpr = new BLangIsAssignableExpr();
+        assignableExpr.pos = pos;
+        assignableExpr.lhsExpr = lhsExpr;
+        assignableExpr.targetType = targetType;
+        assignableExpr.type = type;
+        assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
+                null, targetType, null, InstructionCodes.IS_ASSIGNABLE);
+        return assignableExpr;
     }
 
     static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {

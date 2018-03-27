@@ -92,12 +92,12 @@ public class LocalTransactionInfo {
     }
 
     public boolean isRetryPossible(int transactionId) {
-        boolean retryPossible = false;
+        boolean retryPossible = true;
         int allowedRetryCount = getAllowedRetryCount(transactionId);
         int currentRetryCount = getCurrentRetryCount(transactionId);
         if (currentRetryCount >= allowedRetryCount) {
             if (currentRetryCount != 0) {
-                retryPossible = true;
+                retryPossible = false;
             }
         }
         return retryPossible;
@@ -110,7 +110,7 @@ public class LocalTransactionInfo {
             int allowedCount = getAllowedRetryCount(transactionBlockId);
             //local retry is attempted without notifying the coordinator. If all the attempts are failed, notify
             //the coordinator with transaction abort.
-            if (currentCount == allowedCount) {
+            if (allowedCount == 0 || currentCount == allowedCount) {
                 bNotifyCoordinator = true;
             } else {
                 transactionContextStore.clear();
@@ -120,20 +120,16 @@ public class LocalTransactionInfo {
         return bNotifyCoordinator;
     }
 
-    public boolean onTransactionAbort() {
-        return (transactionLevel == 1);
-    }
-
     public boolean onTransactionEnd(int transactionBlockId) {
-        boolean bNotifyCoordinator = false;
+        boolean isOuterTx = false;
         transactionBlockIdStack.pop();
         --transactionLevel;
         if (transactionLevel == 0) {
             TransactionResourceManager.getInstance().endXATransaction(globalTransactionId, transactionBlockId);
             resetTransactionInfo();
-            bNotifyCoordinator = true;
+            isOuterTx = true;
         }
-        return bNotifyCoordinator;
+        return isOuterTx;
 
     }
 

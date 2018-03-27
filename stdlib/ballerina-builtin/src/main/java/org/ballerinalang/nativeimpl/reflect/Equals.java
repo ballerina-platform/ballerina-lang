@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * The ballerina.reflect:equals function which checks equality among 2 values. Currently supports string, int, float,
  * boolean, type, structs, maps, arrays, any, JSON.
  */
-@BallerinaFunction(packageName = "ballerina.reflect",
+@BallerinaFunction(orgName = "ballerina", packageName = "reflect",
                    functionName = "equals",
                    args = {@Argument(name = "value1", type = TypeKind.ANY),
                            @Argument(name = "value2", type = TypeKind.ANY)},
@@ -105,7 +105,7 @@ public class Equals extends BlockingNativeCallableUnit {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
-            case TypeTags.TYPE_TAG:
+            case TypeTags.TYPEDESC_TAG:
                 BRefType lhsRef = (BRefType) lhsValue;
                 BRefType rhsRef = (BRefType) rhsValue;
                 if (null == lhsRef.value() && null == rhsRef.value()) {

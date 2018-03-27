@@ -64,16 +64,16 @@ public class Instruction {
 
         public int funcRefCPIndex;
         public FunctionInfo functionInfo;
-        public boolean async;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo, boolean async,
+        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo, int flags,
                         int[] argRegs, int[] retRegs) {
             super(opcode);
             this.funcRefCPIndex = funcRefCPIndex;
             this.functionInfo = functionInfo;
-            this.async = async;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -101,8 +101,8 @@ public class Instruction {
         public int receiverRegIndex;
 
         InstructionVCALL(int opcode, int receiverRegIndex, int funcRefCPIndex,
-                        FunctionInfo functionInfo, boolean async, int[] argRegs, int[] retRegs) {
-            super(opcode, funcRefCPIndex, functionInfo, async, argRegs, retRegs);
+                        FunctionInfo functionInfo, int flags, int[] argRegs, int[] retRegs) {
+            super(opcode, funcRefCPIndex, functionInfo, flags, argRegs, retRegs);
             this.receiverRegIndex = receiverRegIndex;
         }
 
@@ -130,16 +130,16 @@ public class Instruction {
 
         public int actionRefCPIndex;
         public String actionName;
-        public boolean async;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, boolean async, 
+        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, int flags, 
                 int[] argRegs, int[] retRegs) {
             super(opcode);
             this.actionRefCPIndex = actionRefCPIndex;
             this.actionName = actionName;
-            this.async = async;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -156,16 +156,16 @@ public class Instruction {
 
         public int transformerRefCPIndex;
         public TransformerInfo transformerInfo;
-        public boolean async;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, boolean async,
+        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, int flags,
                          int[] argRegs, int[] retRegs) {
             super(opcode);
             this.transformerRefCPIndex = transformerRefCPIndex;
             this.transformerInfo = transformerInfo;
-            this.async = async;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }

@@ -43,16 +43,6 @@ public class BLangPackageContext {
         builtInPackages.forEach(this::addPackage);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> List<T> getItems(Class type) {
-        if (type.equals(BLangFunction.class)) {
-            List<BLangFunction> functions = new ArrayList<>();
-            packageMap.forEach((pkgName, bLangPackage) -> functions.addAll(bLangPackage.getFunctions()));
-            return (List<T>) functions;
-        }
-        return null;
-    }
-
     /**
      * Get package by name.
      *
@@ -61,11 +51,28 @@ public class BLangPackageContext {
      * @return ballerina lang package
      */
     public BLangPackage getPackageByName(CompilerContext compilerContext, Name name) {
+        // TODO: We need to remove this method and instead use the getPackageById
         if (isPackageAvailable(name.getValue())) {
             return packageMap.get(name.getValue());
         } else {
             BLangPackage bLangPackage =
                     BallerinaPackageLoader.getPackageByName(compilerContext, name.getValue());
+            addPackage(bLangPackage);
+            return bLangPackage;
+        }
+    }
+
+    /**
+     * Get the package by Package ID.
+     * @param compilerContext       compiler context
+     * @param pkgId                 Package Id to lookup
+     * @return {@link BLangPackage} BLang Package resolved
+     */
+    public BLangPackage getPackageById(CompilerContext compilerContext, PackageID pkgId) {
+        if (isPackageAvailable(pkgId.getName().getValue())) {
+            return packageMap.get(pkgId.getName().getValue());
+        } else {
+            BLangPackage bLangPackage = BallerinaPackageLoader.getPackageById(compilerContext, pkgId);
             addPackage(bLangPackage);
             return bLangPackage;
         }

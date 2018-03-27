@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -39,7 +40,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
@@ -164,7 +165,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             }
-            context.setReturnValues(updatedCount, generatedKeys);
+            BRefValueArray tuple = new BRefValueArray(new BArrayType(BTypes.typeAny));
+            tuple.add(0, updatedCount);
+            tuple.add(1, generatedKeys);
+            context.setReturnValues(tuple);
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
@@ -200,7 +204,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
                 // returned result set or ref cursor OUT params we should cleanup the connection.
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
-                context.setReturnValues();
+                context.setReturnValues(null);
             }
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
@@ -210,7 +214,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private BRefValueArray createBRefValueArray(List<ResultSet> resultSets, TableResourceManager rm, Context context,
             BStructType structType) throws SQLException {
-        BRefValueArray bTableRefArray = new BRefValueArray();
+        BRefValueArray bTableRefArray = new BRefValueArray(new BArrayType(BTypes.typeTable));
         for (int i = 0; i < resultSets.size(); i++) {
             bTableRefArray.add(i, constructTable(rm, context, resultSets.get(i), structType));
         }
@@ -264,7 +268,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     protected BStructType getStructType(Context context) {
         BStructType structType = null;
-        BTypeValue type = (BTypeValue) context.getNullableRefArgument(2);
+        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(2);
         if (type != null) {
             structType = (BStructType) type.value();
         }
@@ -886,7 +890,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private BStructType getStructType(BStruct parameter) {
-        BTypeValue type = (BTypeValue) parameter.getRefField(3);
+        BTypeDescValue type = (BTypeDescValue) parameter.getRefField(3);
         BStructType structType = null;
         if (type != null) {
             structType = (BStructType) type.value();

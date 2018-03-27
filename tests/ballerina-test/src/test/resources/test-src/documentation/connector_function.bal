@@ -4,9 +4,9 @@ Example:
 ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
 T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 P{{accessMode}} read or write mode
-R{{successful}} boolean `true` or `false`
 }
-public function <File file> open (string accessMode) (boolean successful) {
+public function <File file> open (string accessMode) returns (boolean) {
+    boolean successful = false;
     return successful;
 }
 
@@ -18,21 +18,25 @@ public struct File {
 }
 
 documentation {Test Connector
-P{{url}} url for endpoint
-P{{path}} path for endpoint
+F{{url}} url for endpoint
+F{{path}} path for endpoint
 }
-connector TestConnector (string url, string path) {
+struct TestConnector {
+    string url;
+    string path;
+}
 
-    documentation {Test Connector action testAction R{{s}} which represent successful or not}
-    action testAction() (boolean s) {
-       boolean value;
-       return value;
-    }
+documentation {Test Connector action testAction}
+function <TestConnector t> testAction () returns (boolean) {
+    boolean value;
+    return value;
+}
 
-    documentation {Test Connector action testSend P{{ep}} which represent successful or not R{{s}} which represent successful or not}
-    action testSend(string ep) (boolean s) {
-        boolean value;
-        return value;
-    }
+documentation {Test Connector action testSend
+P{{ep}} which represent successful or not
+}
+function <TestConnector t> testSend (string ep) returns (boolean) {
+    boolean value;
+    return value;
 }
 

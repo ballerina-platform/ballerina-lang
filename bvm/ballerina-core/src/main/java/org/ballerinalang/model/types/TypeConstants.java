@@ -36,13 +36,12 @@ public class TypeConstants {
     public static final String JSON_TNAME = "json";
     public static final String C_JSON_TNAME = "c-json";
     public static final String CONNECTOR_TNAME = "connector";
-    public static final String STREAMLET_TNAME = "streamlet";
     public static final String STRUCT_TNAME = "struct";
     static final String ITERATOR_TNAME = "iterator";
     public static final String TABLE_TNAME = "table";
     public static final String STREAM_TNAME = "stream";
     public static final String ANY_TNAME = "any";
-    public static final String TYPE_TNAME = "type";
+    public static final String TYPEDESC_TNAME = "typedesc";
     public static final String NULL_TNAME = "null";
     public static final String VOID_TNAME = "void";
     public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";
@@ -56,7 +55,6 @@ public class TypeConstants {
     public static final String CONNECTOR_TSIG = "C";
     public static final String STRUCT_TSIG = "T";
     public static final String STREAM_TSIG = "H";
-    public static final String STREAMLET_TSIG = "M";
     public static final String ARRAY_TSIG = "[";
     public static final String VOID_TSIG = "V";
     public static final String ANY_TSIG = "A";

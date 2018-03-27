@@ -32,7 +32,7 @@ import java.io.File;
  * Moves a file from a given location to another.
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "move",
         args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
                 structPackage = "ballerina.file"),
