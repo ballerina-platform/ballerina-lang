@@ -24,16 +24,11 @@ import org.ballerinalang.util.tracer.factory.NoOpTracerFactory;
 import org.ballerinalang.util.tracer.factory.TracerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.tracer.TraceConstants.TRACER_MANAGER_CLASS;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
-
-import static java.util.Arrays.asList;
 
 /**
  * {@link TraceManagerWrapper} loads {@link TraceManager} implementation
@@ -43,7 +38,6 @@ import static java.util.Arrays.asList;
  */
 public class TraceManagerWrapper {
     private static final TraceManagerWrapper instance = new TraceManagerWrapper();
-    private Map<String, List<Tracer>> tracerRegistry = new HashMap<>();
     private TraceManager manager;
     private TracerFactory factory;
     private boolean enabled;
@@ -76,7 +70,6 @@ public class TraceManagerWrapper {
     public void startSpan(WorkerExecutionContext ctx) {
         Tracer aBTracer = TraceUtil.getTracer(ctx);
         Tracer rBTracer = TraceUtil.getParentTracer(ctx.parent);
-        addToRegistry(aBTracer);
 
         String service = aBTracer.getConnectorName();
         String resource = aBTracer.getActionName();
@@ -103,12 +96,7 @@ public class TraceManagerWrapper {
     }
 
     public void finishSpan(Tracer tracer) {
-        tracerRegistry.getOrDefault(tracer.getInvocationID(),
-                Collections.emptyList()).remove(tracer);
         manager.finishSpan(new ArrayList<>(tracer.getSpans().values()));
-        if (tracer.isRoot()) {
-            finishAll(tracer.getInvocationID());
-        }
     }
 
     public void finish(Tracer tracer) {
@@ -121,24 +109,6 @@ public class TraceManagerWrapper {
 
     public void addTags(Tracer tracer, Map<String, String> tags) {
         manager.addTags(new ArrayList<>(tracer.getSpans().values()), tags);
-    }
-
-    private void finishAll(String invocationId) {
-        List<Tracer> tracers = tracerRegistry.remove(invocationId);
-        if (tracers != null) {
-            for (Tracer tracer : tracers) {
-                finish(tracer);
-            }
-            tracers.clear();
-        }
-    }
-
-    private void addToRegistry(Tracer aBTracer) {
-        if (aBTracer.isRoot() || tracerRegistry.get(aBTracer.getInvocationID()) == null) {
-            tracerRegistry.put(aBTracer.getInvocationID(), new ArrayList<>(asList(aBTracer)));
-        } else {
-            tracerRegistry.get(aBTracer.getInvocationID()).add(aBTracer);
-        }
     }
 
     private static Map<String, String> addTracePrefix(Map<String, String> map) {
