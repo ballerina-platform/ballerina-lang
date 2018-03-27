@@ -22,7 +22,7 @@ These are the available sections in this tour.
 
 Let's get started with a simple Hello World program in Ballerina. Create a file called `hello-world.bal` and copy the following code into it.
 
-```
+```Ballerina
 import ballerina.io;
 function main (string[] args) {
     io:println("Hello, World!");
@@ -65,7 +65,7 @@ Now, let's look at running the same Hello World program you created earlier as a
 
 Let's change the Hello World program to a service. Open the `hello-world.bal` file you created and replace the existing code with the following.
 
-```
+```Ballerina
 import ballerina/net.http;
 import ballerina/io;
 
@@ -126,13 +126,13 @@ Now that your service is created, you can deploy this on Docker.
 
 To do this deployment, you need to import docker into your Ballerina program first. Add the following to the top of your program.
 
-```
+```Ballerina
 import ballerinax/docker;
 ```
 
 Add the following code snippet to your program.
 
-```
+```Ballerina
 // Docker configurations
 @docker:configuration {
    name:"pizak/helloworld",
