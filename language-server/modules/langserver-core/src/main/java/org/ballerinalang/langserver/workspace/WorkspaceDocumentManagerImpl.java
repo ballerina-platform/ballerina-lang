@@ -34,6 +34,15 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private Map<Path, WorkspaceDocument> documentList = new HashMap<>();
 
+    private static WorkspaceDocumentManagerImpl instance = new WorkspaceDocumentManagerImpl();
+
+    private WorkspaceDocumentManagerImpl() {
+    }
+    
+    public static WorkspaceDocumentManagerImpl getInstance() {
+        return instance;
+    }
+
     @Override
     public boolean isFileOpen(Path filePath) {
         return filePath != null && documentList.containsKey(filePath);
@@ -70,4 +79,5 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     public String getFileContent(Path filePath) {
         return isFileOpen(filePath) ? documentList.get(filePath).getContent() : null;
     }
+
 }
