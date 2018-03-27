@@ -391,3 +391,22 @@ function testTransactionStmtWithFail () returns (string) {
     a = a + " end";
     return a;
 }
+
+
+function testSimpleNestedTransactionAbort () returns (string) {
+    string a = "start ";
+    int i = 0;
+    transaction with retries=4 {
+        a = a + " inOuterTxstart ";
+        transaction {
+            a = a + " inInnerTxstart ";
+            if (i == 0) {
+                a = a + " abortingInnerTxstart ";
+                abort ;
+            }
+            a = a + " endInnerTxstart ";
+        }
+        a = a + " endOuterTxstart";
+    }
+    return a;
+}

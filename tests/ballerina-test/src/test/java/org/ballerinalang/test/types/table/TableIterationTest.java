@@ -89,7 +89,7 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
 
-    @Test(groups = "TableIterTest", description = "Check filter operation")
+    @Test(groups = "TableIterTest", description = "Check filter operation", enabled = false)
     public void testFilterTable() {
         BValue[] returns = BRunUtil.invoke(result, "testFilterTable");
         Assert.assertEquals(returns.length, 3);
@@ -98,7 +98,7 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
     }
 
-    @Test(groups = "TableIterTest", description = "Check filter operation")
+    @Test(groups = "TableIterTest", description = "Check filter operation", enabled = false)
     public void testFilterWithAnnonymousFuncOnTable() {
         BValue[] returns = BRunUtil.invoke(result, "testFilterWithAnnonymousFuncOnTable");
         Assert.assertEquals(returns.length, 3);
@@ -114,7 +114,7 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-    @Test(groups = "TableIterTest", description = "Check accessing data using foreach iteration")
+    @Test(groups = "TableIterTest", description = "Check accessing data using foreach iteration", enabled = false)
     public void testMapTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMapTable");
         Assert.assertEquals(returns.length, 1);
@@ -124,14 +124,14 @@ public class TableIterationTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(3), "Peter");
     }
 
-    @Test(groups = "TableIterTest", description = "Check map with filter operation")
+    @Test(groups = "TableIterTest", description = "Check map with filter operation", enabled = false)
     public void testMapWithFilterTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMapWithFilterTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "Peter");
     }
 
-    @Test(groups = "TableIterTest", description = "Check filter with map operation")
+    @Test(groups = "TableIterTest", description = "Check filter with map operation", enabled = false)
     public void testFilterWithMapTable() {
         BValue[] returns = BRunUtil.invoke(result, "testFilterWithMapTable");
         Assert.assertEquals(returns.length, 1);
@@ -145,28 +145,28 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(groups = "TableIterTest", description = "Check min operation")
+    @Test(groups = "TableIterTest", description = "Check min operation", enabled = false)
     public void testMinWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMinWithTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 100.25);
     }
 
-    @Test(groups = "TableIterTest", description = "Check max operation")
+    @Test(groups = "TableIterTest", description = "Check max operation", enabled = false)
     public void testMaxWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMaxWithTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 600.25);
     }
 
-    @Test(groups = "TableIterTest", description = "Check sum operation")
+    @Test(groups = "TableIterTest", description = "Check sum operation", enabled = false)
     public void testSumWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testSumWithTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1701.0);
     }
 
-    @Test(groups = "TableIterTest", description = "Check average operation")
+    @Test(groups = "TableIterTest", description = "Check average operation", enabled = false)
     public void testAverageWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testAverageWithTable");
         Assert.assertEquals(returns.length, 1);
@@ -180,7 +180,7 @@ public class TableIterationTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelect() {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertNotNull(returns);
@@ -189,7 +189,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelectCompatibleLambdaInput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInput");
         Assert.assertNotNull(returns);
@@ -198,7 +198,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelectCompatibleLambdaOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaOutput");
         Assert.assertNotNull(returns);
@@ -207,7 +207,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelectCompatibleLambdaInputOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInputOutput");
         Assert.assertNotNull(returns);

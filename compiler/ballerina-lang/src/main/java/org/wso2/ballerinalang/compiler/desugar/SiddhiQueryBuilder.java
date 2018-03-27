@@ -64,7 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -362,7 +362,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         varRef = invocationExpr.toString();
     }
 
-    public void visit(BLangWhenever wheneverStatement) {
+    public void visit(BLangForever foreverStatement) {
         siddhiQuery = new StringBuilder();
         streamDefinitionQuery = new StringBuilder();
         streamIds = new HashSet<>();
@@ -386,26 +386,26 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamActionClause = null;
         intRangeExpr = null;
 
-        List<VariableNode> globalVariables = wheneverStatement.getGlobalVariables();
+        List<VariableNode> globalVariables = foreverStatement.getGlobalVariables();
         if (globalVariables != null) {
             for (VariableNode variable : globalVariables) {
                 ((BLangVariable) variable).accept(this);
             }
         }
 
-        List<VariableSymbol> functionVariables = wheneverStatement.getFunctionVariables();
+        List<VariableSymbol> functionVariables = foreverStatement.getFunctionVariables();
         if (functionVariables != null) {
             for (VariableSymbol variable : functionVariables) {
                 getStreamDefintionForFuntionVariable((BVarSymbol) variable);
             }
         }
 
-        List<? extends StatementNode> statementNodes = wheneverStatement.gettreamingQueryStatements();
+        List<? extends StatementNode> statementNodes = foreverStatement.gettreamingQueryStatements();
         for (StatementNode statementNode : statementNodes) {
             ((BLangStatement) statementNode).accept(this);
         }
-        wheneverStatement.setSiddhiQuery(this.getSiddhiQuery());
-        wheneverStatement.setStreamIdsAsString(String.join(",", streamIds));
+        foreverStatement.setSiddhiQuery(this.getSiddhiQuery());
+        foreverStatement.setStreamIdsAsString(String.join(",", streamIds));
     }
 
     @Override
