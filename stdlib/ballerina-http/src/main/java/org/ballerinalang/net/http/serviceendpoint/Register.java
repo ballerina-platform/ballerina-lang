@@ -64,29 +64,22 @@ public class Register extends AbstractHttpNativeFunction {
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        HTTPServicesRegistry httpServicesRegistry = null;
-        WebSocketServicesRegistry webSocketServicesRegistry = null;
+
+        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
         // TODO: Check if this is valid.
         // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
         if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
             httpServicesRegistry.registerService(service, serviceEndpoint);
         }
-
         if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService webSocketService = new WebSocketService(service);
             webSocketService.setServiceEndpoint((BStruct) serviceEndpoint.getVMValue());
-            webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
             webSocketServicesRegistry.registerService(webSocketService);
         }
 
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
-        if (httpServicesRegistry == null && webSocketServicesRegistry == null) {
-            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
-                    + "': registered service count is zero");
-        }
-
         if (isHTTPTraceLoggerEnabled()) {
             ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
         }
