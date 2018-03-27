@@ -27,7 +27,7 @@ You can use one of the following options to try out Ballerina.
 * [Ballerina by Example](https://ballerinalang.org/docs/by-example/) 
 * [Ballerina by Guide](https://github.com/ballerina-guides)
 * [Editors, IDEs and the Ballerina Composer](https://github.com/ballerina-lang/ballerina/blob/master/docs/tools-ides-ballerina-composer.md)
-* Language Specification
+* [Language Specification](https://github.com/ballerina-lang/ballerina-specs/tree/master/language)
 * [Package and API Documentation](https://ballerinalang.org/docs/api/0.964.0/)
 
 ## Download and install
