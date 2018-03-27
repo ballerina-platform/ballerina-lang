@@ -134,31 +134,31 @@ public class BLogManager extends LogManager {
         String logTo = configRegistry.getConfiguration(HTTP_TRACE_LOG, LOG_TO);
 
         if (logTo == null) {
-            httpTraceLogger.addHandler(populateTraceHandlerConfiguration(LOG_TO_CONSOLE, configRegistry));
+            httpTraceLogger.addHandler(populateTraceHandlerConfiguration(LOG_TO_CONSOLE));
         } else {
             String[] logToStrings = logTo.split(",");
             for (String logToString : logToStrings) {
                 String logToStringTrim = logToString.trim();
                 if (!logToStringTrim.isEmpty()) {
-                    httpTraceLogger.addHandler(populateTraceHandlerConfiguration(logToStringTrim, configRegistry));
+                    httpTraceLogger.addHandler(populateTraceHandlerConfiguration(logToStringTrim));
                 }
             }
         }
         httpTraceLogger.setLevel(Level.FINEST);
     }
 
-    private Handler populateTraceHandlerConfiguration(String logToString, ConfigRegistry configRegistry)
+    private Handler populateTraceHandlerConfiguration(String logToString)
             throws IOException, TraceLogConfigurationException {
         Handler handler = null;
         if (logToString.equalsIgnoreCase(LOG_TO_CONSOLE)) {
             handler = new ConsoleHandler();
             handler.setFormatter(new HTTPTraceLogFormatter());
-        } else if (logToString.equalsIgnoreCase(Constants.LOG_TO_SOCKET)) {
-            String host = configRegistry.getConfiguration(HTTP_TRACE_LOG, Constants.LOG_PUBLISH_HOST);
-            host = (host != null && !host.isEmpty()) ? host : Constants.LOG_PUBLISH_DEFAULT_HOST;
-            String portString = configRegistry.getConfiguration(HTTP_TRACE_LOG, Constants.LOG_PUBLISH_PORT);
-            int port = (portString != null && !portString.isEmpty()) ?
-                    Integer.parseInt(portString) : Constants.LOG_PUBLISH_DEFAULT_PORT;
+        } else if (logToString.contains(Constants.LOG_TO_SOCKET)) {
+            String socketAddressString = logToString.substring(logToString.indexOf(";") + 1);
+            String host = socketAddressString.substring(0, socketAddressString.indexOf(":")).trim();
+            host = (!host.isEmpty()) ? host : Constants.LOG_PUBLISH_DEFAULT_HOST;
+            String portString = socketAddressString.substring(socketAddressString.indexOf(":") + 1).trim();
+            int port = (!portString.isEmpty()) ? Integer.parseInt(portString) : Constants.LOG_PUBLISH_DEFAULT_PORT;
             handler = new SocketHandler(host, port);
             handler.setFormatter(new JsonLogFormatter());
         } else {

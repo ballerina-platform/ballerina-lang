@@ -33,6 +33,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
+import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.websub.BallerinaWebSubConnectionListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
@@ -81,7 +82,9 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         serverConnectorFuture.setHttpConnectorListener(new BallerinaWebSubConnectionListener(webSubServicesRegistry,
                                                                                              filterHolder));
         // TODO: set startup server port binder. Do we really need it with new design?
-        serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
+        ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
+        serverConnectorFuture.setPortBindingEventListener(
+                new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
 
         context.setReturnValues();
     }

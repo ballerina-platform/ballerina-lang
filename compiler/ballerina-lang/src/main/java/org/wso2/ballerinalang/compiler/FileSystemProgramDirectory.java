@@ -91,10 +91,11 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     }
 
     @Override
-    public void saveCompiledProgram(InputStream source, String fileName) {
+    public Path saveCompiledProgram(InputStream source, String fileName) {
         Path targetFilePath = programDirPath.resolve(fileName);
         try {
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+            return targetFilePath;
         } catch (DirectoryNotEmptyException e) {
             throw new BLangCompilerException("A directory exists with the same name as the file name '" +
                     targetFilePath.toString() + "'");
