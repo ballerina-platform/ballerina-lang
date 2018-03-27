@@ -10,11 +10,11 @@ function main (string[] args) {
     io:println(addrMap);
 
     //You can retrieve a value of a key using an index based notation as follows.
-    var country =? <string>addrMap["country"];
+    var country = <string>addrMap["country"];
     io:println(country);
 
     //Another way to retrieve a value from a map.
-    var city =? <string>addrMap.city;
+    var city = <string>addrMap.city;
     io:println(city);
 
     //Here's how you can add or update the value of a key.
