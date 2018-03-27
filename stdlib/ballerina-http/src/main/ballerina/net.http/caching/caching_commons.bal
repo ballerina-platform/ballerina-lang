@@ -71,6 +71,8 @@ public struct RequestCacheControl {
     int minFresh;
 }
 
+@Description {value:"Initializes the fields of the RequestCacheControl struct to their default values."}
+@Param {value:"cacheControl: The struct to be initialized"}
 public function <RequestCacheControl cacheControl> RequestCacheControl () {
     cacheControl.noCache = false;
     cacheControl.noStore = false;
@@ -105,6 +107,8 @@ public struct ResponseCacheControl {
     string[] privateFields;
 }
 
+@Description {value:"Initializes the fields of the ResponseCacheControl struct to their default values."}
+@Param {value:"cacheControl: The struct to be initialized"}
 public function <ResponseCacheControl cacheControl> ResponseCacheControl () {
     cacheControl.mustRevalidate = false;
     cacheControl.noCache = false;

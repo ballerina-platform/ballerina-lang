@@ -21,8 +21,6 @@ import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 
-// HTTP CACHING CLIENT IMPLEMENTATION.
-// Adding this to http_client.bal temporarily, until issue #4865 gets fixed
 const string WARNING_AGENT = getWarningAgent();
 
 const string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
@@ -31,12 +29,12 @@ const string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Reva
 const string WEAK_VALIDATOR_TAG = "W/";
 const int STALE = 0;
 
-@Description {value:"Used for configuring the caching behaviour. Setting the cacheLevel field in the CacheConfig struct allows the user to control the caching behaviour."}
-@Field {value:"CACHE_CONTROL_AND_VALIDATORS: Restricts caching to instances where the Cache-Control header and either the ETag or Last-Modified header is present."}
-@Field {value:"SPECIFICATION: Caching behaviour is as specified by the RFC7234 specification."}
-public enum CachingLevel {
+@Description {value:"Used for configuring the caching behaviour. Setting the policy field in the CacheConfig struct allows the user to control the caching behaviour."}
+@Field {value:"CACHE_CONTROL_AND_VALIDATORS: This a more restricted mode of RFC 7234. This restricts caching to instances where the Cache-Control header and either the ETag or Last-Modified header are present."}
+@Field {value:"RFC_7234: Caching behaviour is as specified by the RFC 7234 specification."}
+public enum CachingPolicy {
     CACHE_CONTROL_AND_VALIDATORS,
-    SPECIFICATION
+    RFC_7234
 }
 
 @Description {value:"CacheConfig struct is used for providing the caching configurations necessary for the HTTP caching client."}
@@ -44,13 +42,13 @@ public enum CachingLevel {
 @Field {value:"expiryTimeMillis: The number of milliseconds to keep an entry in the cache"}
 @Field {value:"capacity: The capacity of the cache"}
 @Field {value:"evictionFactor: The fraction of entries to be removed when the cache is full. The value should be between 0 (exclusive) and 1 (inclusive)."}
-@Field {value:"cachingLevel: Gives the user some control over the caching behaviour. By default, this is set to CACHE_CONTROL_AND_VALIDATORS."}
+@Field {value:"policy: Gives the user some control over the caching behaviour. By default, this is set to CACHE_CONTROL_AND_VALIDATORS. The default behaviour is to allow caching only when the Cache-Control header and either the ETag or Last-Modified header are present."}
 public struct CacheConfig {
     boolean isShared;
     int expiryTimeMillis;
     int capacity; // 8MB
     float evictionFactor;
-    CachingLevel cachingLevel;
+    CachingPolicy policy;
 }
 
 @Description {value:"Initializes the CacheConfig struct to its default values"}
@@ -60,7 +58,7 @@ public function <CacheConfig cacheConfig> CacheConfig () {
     cacheConfig.expiryTimeMillis = 86400;
     cacheConfig.capacity = 8388608; // 8MB
     cacheConfig.evictionFactor = 0.2;
-    cacheConfig.cachingLevel = CachingLevel.CACHE_CONTROL_AND_VALIDATORS;
+    cacheConfig.policy = CachingPolicy.CACHE_CONTROL_AND_VALIDATORS;
 }
 
 @Description {value:"An HTTP caching client implementation which takes an HttpClient and wraps it with a caching layer."}
@@ -74,6 +72,7 @@ public struct HttpCachingClient {
     CacheConfig cacheConfig;
 }
 
+@Description {value:"Creates an HTTP client capable of caching HTTP responses."}
 public function createHttpCachingClient(string url, ClientEndpointConfiguration config, CacheConfig cacheConfig) returns HttpClient {
     HttpCachingClient httpCachingClient = {
                                        serviceUri: url,
@@ -84,9 +83,8 @@ public function createHttpCachingClient(string url, ClientEndpointConfiguration 
     log:printTrace("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
     return httpCachingClient;
 }
-//HttpCache cache = createHttpCache("http-cache", cacheConfig);
 
-@Description {value:"Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Description {value:"Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for POST requests invalidate the cached responses for the same resource."}
 @Param {value:"path: Resource path "}
 @Param {value:"req: An HTTP outbound request message"}
 @Return {value:"The inbound response message"}
@@ -127,12 +125,12 @@ public function <HttpCachingClient client> put (string path, Request req) return
     }
 }
 
-@Description {value:"Invokes an HTTP call with the specified HTTP verb. This is not a cacheable operation."}
+@Description {value:"Invokes an HTTP call with the specified HTTP method. This is not a cacheable operation, unless the HTTP method used is GET or HEAD."}
 @Param {value:"httpMethod: HTTP method to be used for the request"}
 @Param {value:"path: Resource path "}
 @Param {value:"req: An HTTP outbound request message"}
 @Return {value:"The inbound response message"}
-@Return {value:"Error occured during HTTP client invocation"}
+@Return {value:"Error occurred during HTTP client invocation"}
 public function <HttpCachingClient client> execute (string httpMethod, string path, Request req) returns (Response|HttpConnectorError) {
     if (httpMethod == GET || httpMethod == HEAD) {
         return getCachedResponse(client.cache, client.httpClient, req, httpMethod, path, client.cacheConfig.isShared);
@@ -148,7 +146,7 @@ public function <HttpCachingClient client> execute (string httpMethod, string pa
     }
 }
 
-@Description {value:"Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Description {value:"Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource."}
 @Param {value:"path: Resource path "}
 @Param {value:"req: An HTTP outbound request message"}
 @Return {value:"The inbound response message"}
@@ -164,7 +162,7 @@ public function <HttpCachingClient client> patch (string path, Request req) retu
     }
 }
 
-@Description {value:"Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Description {value:"Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for DELETE requests invalidate the cached responses for the same resource."}
 @Param {value:"path: Resource path "}
 @Param {value:"req: An HTTP outbound request message"}
 @Return {value:"The inbound response message"}
@@ -189,7 +187,7 @@ public function <HttpCachingClient client> get (string path, Request req) return
     return getCachedResponse(client.cache, client.httpClient, req, GET, path, client.cacheConfig.isShared);
 }
 
-@Description {value:"Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Description {value:"Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource."}
 @Param {value:"path: Request path"}
 @Param {value:"req: An HTTP outbound request message"}
 @Return {value:"The inbound response message"}
@@ -335,7 +333,7 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
 
 function getValidationResponse (HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
                                 time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
-returns (Response|HttpConnectorError) {
+                                returns (Response|HttpConnectorError) {
     // If the no-cache directive is set, always validate the response before serving
     Response validationResponse = {};
 
@@ -352,8 +350,7 @@ returns (Response|HttpConnectorError) {
             // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
             // This behaviour is based on the fact that currently HttpConnectorError structs are returned only
             // if the connection is refused or the connection times out.
-            // TODO: Verify that this behaviour is valid: returning a fresh response when 'no-cache' is present
-            // and origin server couldn't be reached.
+            // TODO: Verify that this behaviour is valid: returning a fresh response when 'no-cache' is present and origin server couldn't be reached.
             setAgeHeader(cachedResponse);
             if (!isFreshResponse) {
                 // If the origin server cannot be reached and a fresh response is unavailable, serve a stale

@@ -20,7 +20,7 @@ import ballerina/caching;
 
 struct HttpCache {
     caching:Cache cache;
-    CachingLevel cachingLevel;
+    CachingPolicy policy;
     boolean isShared;
 }
 
@@ -29,13 +29,13 @@ function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCach
     caching:Cache backingCache = caching:createCache(name, cacheConfig.expiryTimeMillis, cacheConfig.capacity,
                                                      cacheConfig.evictionFactor);
     httpCache.cache = backingCache;
-    httpCache.cachingLevel = cacheConfig.cachingLevel;
+    httpCache.policy = cacheConfig.policy;
     httpCache.isShared = cacheConfig.isShared;
     return httpCache;
 }
 
 function <HttpCache httpCache> isAllowedToCache (Response response) returns boolean {
-    if (httpCache.cachingLevel == CachingLevel.CACHE_CONTROL_AND_VALIDATORS) {
+    if (httpCache.policy == CachingPolicy.CACHE_CONTROL_AND_VALIDATORS) {
         return response.hasHeader(CACHE_CONTROL) && (response.hasHeader(ETAG) || response.hasHeader(LAST_MODIFIED));
     }
 
@@ -160,10 +160,6 @@ function addEntry (caching:Cache cache, string key, Response inboundResponse) {
 }
 
 function weakValidatorEquals (string etag1, string etag2) returns boolean {
-    //if (etag1 == null || etag2 == null) {
-    //    return false;
-    //}
-
     string validatorPortion1 = etag1.hasPrefix(WEAK_VALIDATOR_TAG) ? etag1.subString(2, lengthof etag1) : etag1;
     string validatorPortion2 = etag2.hasPrefix(WEAK_VALIDATOR_TAG) ? etag2.subString(2, lengthof etag2) : etag2;
 

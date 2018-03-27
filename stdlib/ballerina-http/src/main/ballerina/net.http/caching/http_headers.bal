@@ -26,22 +26,22 @@ public const string CACHE_CONTROL = "cache-control";
 @Description {value:"HTTP header key 'date'. The timestamp at the time the response was generated/received."}
 public const string DATE = "date";
 @Description {value:"HTTP header key 'etag'. A finger print for a resource which is used by HTTP caches to identify whether a resource representation has changed."}
-public const string ETAG = "ETag";
-@Description {value:"HTTP header key 'Expires'. Specifies the time at which the response becomes stale."}
-public const string EXPIRES = "Expires";
-@Description {value:"HTTP header key 'If-Match'"}
-public const string IF_MATCH = "If-Match";
-@Description {value:"HTTP header key 'If-Modified-Since'. Used when validating (with the origin server) whether a cached response is still valid. If the representation of the resource has modified since the timestamp in this field, a 304 response is returned."}
-public const string IF_MODIFIED_SINCE = "If-Modified-Since";
-@Description {value:"HTTP header key 'If-None-Match'. Used when validating (with the origin server) whether a cached response is still valid. If the ETag provided in this field matches the representation of the requested resource, a 304 response is returned."}
-public const string IF_NONE_MATCH = "If-None-Match";
-@Description {value:"HTTP header key 'If-Range'"}
-public const string IF_RANGE = "If-Range";
-@Description {value:"HTTP header key 'If-Unmodified-Since'"}
-public const string IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
-@Description {value:"HTTP header key 'Last-Modified'. The time at which the resource was last modified."}
-public const string LAST_MODIFIED = "Last-Modified";
-@Description {value:"HTTP header key 'Pragma'"}
-public const string PRAGMA = "Pragma";
-@Description {value:"HTTP header key 'Warning'. Specifies warnings generated when serving stale responses from HTTP caches."}
-public const string WARNING = "Warning";
+public const string ETAG = "etag";
+@Description {value:"HTTP header key 'expires'. Specifies the time at which the response becomes stale."}
+public const string EXPIRES = "expires";
+@Description {value:"HTTP header key 'if-match'"}
+public const string IF_MATCH = "if-match";
+@Description {value:"HTTP header key 'if-modified-since'. Used when validating (with the origin server) whether a cached response is still valid. If the representation of the resource has modified since the timestamp in this field, a 304 response is returned."}
+public const string IF_MODIFIED_SINCE = "if-modified-since";
+@Description {value:"HTTP header key 'if-none-match'. Used when validating (with the origin server) whether a cached response is still valid. If the ETag provided in this field matches the representation of the requested resource, a 304 response is returned."}
+public const string IF_NONE_MATCH = "if-none-match";
+@Description {value:"HTTP header key 'if-range'"}
+public const string IF_RANGE = "if-range";
+@Description {value:"HTTP header key 'if-unmodified-since'"}
+public const string IF_UNMODIFIED_SINCE = "if-unmodified-since";
+@Description {value:"HTTP header key 'last-modified'. The time at which the resource was last modified."}
+public const string LAST_MODIFIED = "last-modified";
+@Description {value:"HTTP header key 'pragma'"}
+public const string PRAGMA = "pragma";
+@Description {value:"HTTP header key 'warning'. Specifies warnings generated when serving stale responses from HTTP caches."}
+public const string WARNING = "warning";
