@@ -91,11 +91,14 @@ service<http:Service> sample bind sessionEP {
     echo5 (endpoint conn, http:Request req) {
 
         http:Response res = {};
-        string result = "chamil";
+        string result = "testValue";
         http:Session session = req.getSession();
-        any attribute = session.getAttribute("name");
-        io:println(attribute);
-        res.setStringPayload(result);
+        if (session != null) {
+            any attribute = session.getAttribute("name");
+            res.setStringPayload(<string>attribute);
+        } else {
+            res.setStringPayload(result);
+        }
         _ = conn -> respond(res);
     }
 
@@ -123,20 +126,6 @@ service<http:Service> sample bind sessionEP {
         path:"/hello"
     }
     hello (endpoint conn, http:Request req) {
-
-        //error err;
-        //var result, _ = req.getStringPayload();
-        //http:Session session = req.createSessionIfAbsent();
-        //any attribute = session.getAttribute("name");
-        //if (attribute != null) {
-        //    result = <string>attribute;
-        //} else {
-        //    session.setAttribute("name", result);
-        //}
-        //http:Response res = {};
-        //res.setStringPayload(result);
-        //_ = conn -> respond(res);
-
         http:Response res = {};
         string result;
         match req.getStringPayload() {
@@ -426,8 +415,10 @@ service<http:Service> sample2 bind sessionEP {
     id2 (endpoint conn, http:Request req) {
 
         http:Session session = req.getSession();
-        string id = session.getId();
-
+        string id;
+        if (session != null) {
+            id = session.getId();
+        }
         http:Response res = {};
         res.setStringPayload(id);
         _ = conn -> respond(res);
