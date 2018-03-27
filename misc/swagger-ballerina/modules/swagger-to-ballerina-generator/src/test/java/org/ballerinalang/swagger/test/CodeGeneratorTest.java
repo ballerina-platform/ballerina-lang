@@ -47,7 +47,7 @@ public class CodeGeneratorTest {
         generator.setApiPackage("org.ballerina.api");
 
         try {
-            generator.generate(GenType.SKELETON, definitionPath, testResourceRoot);
+            generator.generate(GenType.MOCK, definitionPath, testResourceRoot);
             File genFile = new File(outFile);
 
             if (genFile.exists()) {

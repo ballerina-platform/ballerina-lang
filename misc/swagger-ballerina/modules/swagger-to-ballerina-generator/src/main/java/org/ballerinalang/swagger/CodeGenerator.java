@@ -44,11 +44,10 @@ public class CodeGenerator {
 
     /**
      * Generates ballerina source for provided Open API Definition in <code>definitionPath</code>
-     * <p>Method can be user for generating Ballerina service skeletons, mock services and connectors</p>
+     * <p>Method can be user for generating Ballerina mock services and connectors</p>
      *
      * @param type           Output type. Following types are supported
      *                       <ul>
-     *                       <li>skeleton</li>
      *                       <li>mock</li>
      *                       <li>connector</li>
      *                       </ul>
@@ -68,15 +67,6 @@ public class CodeGenerator {
         String modelDestination = outPath + File.separator + GeneratorConstants.MODELS_FILE_NAME;
 
         switch (type) {
-            case SKELETON:
-                // Write ballerina definition
-                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_SKELETON_DIR,
-                        GeneratorConstants.SKELETON_TEMPLATE_NAME, destination);
-
-                // Write ballerina structs
-                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
-                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
-                break;
             case CONNECTOR:
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
                         GeneratorConstants.CONNECTOR_TEMPLATE_NAME, destination);
