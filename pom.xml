@@ -1030,6 +1030,7 @@
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/observability/ballerina-trace</module>
+                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
