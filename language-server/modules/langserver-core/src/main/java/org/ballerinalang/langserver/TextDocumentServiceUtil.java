@@ -113,11 +113,33 @@ public class TextDocumentServiceUtil {
     public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, LSDocument sourceRoot,
                                                          boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager) {
+        return prepareCompilerContext(packageRepository, sourceRoot, preserveWhitespace, documentManager,
+                CompilerPhase.CODE_ANALYZE);
+    }
+
+    /**
+     * Prepare the compiler context.
+     *
+     * @param packageRepository  Package Repository
+     * @param sourceRoot         LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @return {@link CompilerContext}     Compiler context
+     */
+    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, LSDocument sourceRoot,
+                                                         boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager,
+                                                         CompilerPhase compilerPhase) {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+
+        if (null == compilerPhase) {
+            throw new AssertionError("Compiler Phase can not be null.");
+        }
+
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         context.put(SourceDirectory.class,
                 new LangServerFSProjectDirectory(sourceRoot.getSourceRootPath(), documentManager));
