@@ -58,8 +58,8 @@ public class NullSourceDirectory implements SourceDirectory {
     }
 
     @Override
-    public void saveCompiledProgram(InputStream source, String fileName) {
-
+    public Path saveCompiledProgram(InputStream source, String fileName) {
+        return null;
     }
 
     @Override
