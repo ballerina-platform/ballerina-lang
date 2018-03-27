@@ -32,7 +32,7 @@ class List extends React.Component {
         return (
             <div className='logs-console-list'>
                 <Table celled inverted>
-                    <Table.Header>
+                    <Table.Header >
                         <Table.Row>
                             <Table.HeaderCell>Activity Id</Table.HeaderCell>
                             <Table.HeaderCell>Channel</Table.HeaderCell>

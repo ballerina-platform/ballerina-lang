@@ -18,6 +18,7 @@ package org.ballerinalang.composer.service.ballerina.launcher.service.util;
 
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +36,7 @@ public class LogAnalyzer {
     private static String getTimestamp(String logLine) {
         Matcher matcher = TIMESTAMP_PATTERN.matcher(logLine);
         if (matcher.find()) {
+            new SimpleDateFormat(matcher.group(1))
             return matcher.group(1);
         } else {
             return "";

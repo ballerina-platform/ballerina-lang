@@ -1,14 +1,32 @@
-#logs-console select{
-    color: #050505;
-    margin-right: 10px;
-}
-
-#logs-console label{
-    margin-right: 5px;
-}
-
-#logs-console .logs-console-toolbar{
-    height: 21px;
-    border-bottom: 1px solid #555;
-    border-top: 1px solid #555;
+#logs-console {
+    overflow: hidden;
+    .logs-console-toolbar{
+        height: 25px;
+        border-bottom: 1px solid #555;
+        border-top: 1px solid #555;
+    }
+    label{
+        margin-right: 5px;
+    }
+    select{
+        color: #050505;
+        margin-right: 10px;
+    }
+    .row{
+        padding: 5px;
+        border-bottom: 1px #5a5a5a solid;
+    }
+    .table-heading {
+        width: 100%;
+        margin: 0;
+        .row{
+            border-bottom: 1px solid #eee;
+            padding: 5px;
+        }
+    }
+    .table-content{
+        width: 100%;
+        overflow: auto; 
+        margin: 0;
+    }
 }

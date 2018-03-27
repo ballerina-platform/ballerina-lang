@@ -169,7 +169,7 @@ class DebuggerPlugin extends Plugin {
                     region: REGIONS.BOTTOM_PANEL,
                     // region specific options for bottom views
                     regionOptions: {
-                        panelTitle: 'HTTP Logs',
+                        panelTitle: 'Trace Logs',
                         panelActions: [
                             {
                                 icon: 'start',

@@ -17,43 +17,72 @@
  */
 
 import React from 'react';
-
+import _ from 'lodash';
+import { Dropdown, Menu, Button } from 'semantic-ui-react';
 /**
  *
  * @extends React.Component
  */
 class ToolBar extends React.Component {
 
+    onChangeFilter(key, filterBy) {
+        console.log(key, filterBy);
+        const filtered = this.props.messages.filter((item) => {
+            if (filterBy === 'all') {
+                return true;
+            }
+            return item[key] === filterBy;
+        });
+        this.props.onFilteredMessages(filtered);
+    }
+
     /**
      * @inheritdoc
      */
     render() {
+        const { filters, messages } = this.props;
+        console.log(filters)
+        const keys = _.keys(filters);
+        const groupedMessages = {};
+        messages.forEach((message) => {
+            keys.forEach((key) => {
+                groupedMessages[key] = groupedMessages[key] || [];
+                if (groupedMessages[key].indexOf(message[key]) === -1) {
+                    groupedMessages[key].push(message[key]);
+                }
+            });
+        });
+
         return (
             <div className='logs-console-toolbar'>
-                <div className='filter-service pull-right'>
-                    <label>Service</label>
-                    <select title='Dropdown' bsStyle='default' bsSize='small'>
-                        <option>All</option>
-                        <option>service 1</option>
-                        <option>service 2</option>
-                    </select>
-                </div>
-                <div className='filter-service pull-right'>
-                    <label>Channel</label>
-                    <select title='Dropdown' bsStyle='default' bsSize='small'>
-                        <option>All</option>
-                        <option>Inbound</option>
-                        <option>OutBound</option>
-                    </select>
-                </div>
-                <div className='filter-service pull-right'>
-                    <label>Activity Id</label>
-                    <select title='Dropdown' bsStyle='default' bsSize='small'>
-                        <option>All</option>
-                        <option>0x163f1842</option>
-                        <option>0x8fa952f4</option>
-                    </select>
-                </div>
+                {
+                    keys.map((key) => {
+                        const options = groupedMessages[key].map((option) => {
+                            return {
+                                key: option,
+                                text: option,
+                                value: option,
+                            }
+                        });
+                        options.unshift({
+                            key: 'all',
+                            text: 'All',
+                            value: 'all',
+                        });
+                        return (
+                            <div className={`filter-${key} pull-right`}>
+                                <label>{filters[key]}</label>
+                                <Button size='tiny' >
+                                    <Dropdown
+                                        placeholder='All'
+                                        options={options}
+                                        onChange={(e, data) => this.onChangeFilter(key, data.value)}
+                                    />
+                                </Button>
+                            </div>);
+                    })
+                }
+
             </div>
         );
     }

@@ -18,7 +18,8 @@
 
 import React from 'react';
 import _ from 'lodash';
-import { Table } from 'semantic-ui-react';
+import moment from 'moment';
+import { Table, Rail, Sticky, Grid } from 'semantic-ui-react';
 import ToolBar from './Toolbar';
 import './index.scss';
 
@@ -36,7 +37,9 @@ class LogsConsole extends React.Component {
         super();
         this.state = {
             messages: [],
+            filteredMessages: [],
         };
+        this.onFilteredMessages = this.onFilteredMessages.bind(this);
         this.debouncedSetState = _.debounce(nextState => this.setState({ messages: nextState }), 400);
     }
 
@@ -46,6 +49,85 @@ class LogsConsole extends React.Component {
      * @memberof LogsConsole
      */
     componentDidMount() {
+        const messages = [
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.upstream", "headers": ""
+            }, {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.upstream", "headers": ""
+            }
+            ,
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.upstream", "headers": ""
+            }, {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.upstream", "headers": ""
+            }
+            ,
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "Inbound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            },
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.upstream", "headers": ""
+            }, {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.upstream", "headers": ""
+            }
+            ,
+            {
+                "timestamp": "2018-03-16 19:37:45,292", "id": "0xbef1f7aa", "direction": "OutBound",
+                "stream": "tracelog.http.downstream", "headers": ""
+            }
+        ];
+        
+        this.setState({
+            messages,
+            filteredMessages: messages,
+        });
         let messageCache = [];
         this.props.LaunchManager.on('execution-started', () => {
             messageCache = [];
@@ -55,7 +137,21 @@ class LogsConsole extends React.Component {
         });
         this.props.LaunchManager.on('print-trace-message', (message) => {
             messageCache.push(JSON.parse(message.message));
-            this.debouncedSetState(messageCache);
+            const newMessage = messageCache.map((msg) => {
+                message.timestamp = moment(msg.timestamp).unix();
+                message.dateString = moment(msg.timestamp).toString();
+                return msg;
+            }).sort((msg1, msg2) => {
+                return msg1.timestamp - msg2.timestamp;
+            });
+
+            this.debouncedSetState(newMessage);
+        });
+    }
+
+    onFilteredMessages(filteredMessages) {
+        this.setState({
+            filteredMessages,
         });
     }
 
@@ -63,30 +159,51 @@ class LogsConsole extends React.Component {
      * @inheritdoc
      */
     render() {
+        const { height } = this.props;
         return (
-            <div id='logs-console'>
-                <ToolBar activity='' channel='' service='' />
-                <Table celled inverted>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>Activity Id</Table.HeaderCell>
-                            <Table.HeaderCell>stream</Table.HeaderCell>
-                            <Table.HeaderCell>headers</Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
+            <div id='logs-console' ref={(stickyContext) => { this.stickyContext = stickyContext; }}>
+                {
+                    this.state.messages.length > 0 &&
+                    <div>
+                        <ToolBar
+                            messages={this.state.messages}
+                            filters={{ id: 'Activity Id', direction: 'Direction', stream: 'Stream' }}
+                            onFilteredMessages={this.onFilteredMessages}
+                        />
+                        <div >
+                            <Grid columns={3} stretched style={{ width: '100%', margin: 0 }}>
+                                <Grid.Row className='table-heading'>
+                                    <Grid.Column>
+                                        Activity Id
+                                    </Grid.Column>
+                                    <Grid.Column>
+                                        Stream
+                                    </Grid.Column>
+                                    <Grid.Column>
+                                        Headers
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
+                            <Grid
+                                columns={3}
+                                className='table-content'
+                                style={{ maxHeight: height }} 
+                            >
+                                {this.state.filteredMessages.map((message) => {
+                                    return (
+                                        <Grid.Row
+                                        >
+                                            <Grid.Column>{message.id}</Grid.Column>
+                                            <Grid.Column>{message.stream}</Grid.Column>
+                                            <Grid.Column>{message.headers}</Grid.Column>
+                                        </Grid.Row>
+                                    );
+                                })}
+                            </Grid>
+                        </div>
+                    </div>
+                }
 
-                    <Table.Body>
-                        {this.state.messages.map((message) => {
-                            return (
-                                <Table.Row>
-                                    <Table.Cell>{message.id}</Table.Cell>
-                                    <Table.Cell>{message.stream}</Table.Cell>
-                                    <Table.Cell>{message.headers}</Table.Cell>
-                                </Table.Row>
-                            );
-                        })}
-                    </Table.Body>
-                </Table>
             </div>
         );
     }
