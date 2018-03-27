@@ -67,4 +67,5 @@ public class LauncherConstants {
     public static final String INFO = "INFO";
     public static final String ERROR = "ERROR";
     public static final String DATA = "DATA";
+    public static final String TRACE = "TRACE";
 }

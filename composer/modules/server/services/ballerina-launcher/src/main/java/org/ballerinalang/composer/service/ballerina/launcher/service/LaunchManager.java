@@ -23,6 +23,7 @@ import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.CommandDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.MessageDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
+import org.ballerinalang.composer.service.ballerina.launcher.service.util.LogAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +44,8 @@ public class LaunchManager {
     private static final String LAUNCHER_CONFIG_KEY = "launcher";
 
     private static final String SERVICE_TRY_URL_CONFIG = "serviceTryURL";
-
-    private ServerConfig serverConfig;
-
     private static LaunchManager launchManagerInstance;
-
+    private ServerConfig serverConfig;
     private Session launchSession;
 
     private Command command;
@@ -99,7 +97,7 @@ public class LaunchManager {
 
 
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
+                    String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
 
             if (command.isDebug()) {
                 MessageDTO debugMessage = new MessageDTO();
@@ -166,16 +164,34 @@ public class LaunchManager {
         }
     }
 
+    public void processLogLine(String logLine) {
+        pushMessageToClient(launchSession, LauncherConstants.OUTPUT,
+                LauncherConstants.TRACE, LogAnalyzer.parseLogLine(logLine));
+    }
+
     public void streamError() {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(
                     this.command.getProgram().getErrorStream(), Charset.defaultCharset()));
             String line = "";
+            StringBuilder logLineBuilder = new StringBuilder("");
             while ((line = reader.readLine()) != null) {
-                if (this.command.isErrorOutputEnabled()) {
-                    pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
+
+                if (line.matches("^\\[[0-9- :,]*] TRACE.*")) {
+                    // flush previous logs, and start new
+                    if (logLineBuilder.length() > 0) {
+                        processLogLine(logLineBuilder.toString());
+                    }
+                    logLineBuilder.setLength(0);
+                    logLineBuilder.append(line);
+                } else if (logLineBuilder.length() == 0 && this.command.isErrorOutputEnabled()) {
+                    pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, line);
+                } else {
+                    logLineBuilder.append("\n");
+                    logLineBuilder.append(line);
                 }
+
             }
         } catch (IOException e) {
             logger.error("Error while sending error stream to client.", e);
