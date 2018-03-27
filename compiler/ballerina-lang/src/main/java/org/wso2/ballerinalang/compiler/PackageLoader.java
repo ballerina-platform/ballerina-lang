@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -24,6 +25,9 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
+import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
@@ -55,6 +59,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,6 +81,7 @@ public class PackageLoader {
             new CompilerContext.Key<>();
     private final RepoHierarchy repos;
     private final boolean offline;
+    private final Manifest manifest;
 
     private CompilerOptions options;
     private Parser parser;
@@ -108,6 +114,7 @@ public class PackageLoader {
         this.names = Names.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
+        this.manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
@@ -160,11 +167,32 @@ public class PackageLoader {
     }
 
     private PackageEntity loadPackageEntity(PackageID pkgId) {
+        updateVersionFromToml(pkgId);
         Resolution resolution = repos.resolve(pkgId);
         if (resolution == Resolution.NOT_FOUND) {
             return null;
         }
         return new GenericPackageSource(pkgId, resolution.sources, resolution.resolvedBy);
+    }
+
+    private void updateVersionFromToml(PackageID pkgId) {
+        String orgName = pkgId.orgName.value;
+        String pkgName = pkgId.name.value;
+        String pkgAlias = orgName + "/" + pkgName;
+
+        // TODO: make getDependencies return a map
+        Optional<Dependency> dependency = manifest.getDependencies()
+                                                  .stream()
+                                                  .filter(d -> d.getPackageName().equals(pkgAlias))
+                                                  .findFirst();
+        if (dependency.isPresent()) {
+            if (pkgId.version.value.isEmpty()) {
+                pkgId.version = new Name(dependency.get().getVersion());
+            } else {
+                throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
+                                                 " with the version in the source for package " + pkgAlias);
+            }
+        }
     }
 
     public BLangPackage loadPackage(PackageID pkgId) {

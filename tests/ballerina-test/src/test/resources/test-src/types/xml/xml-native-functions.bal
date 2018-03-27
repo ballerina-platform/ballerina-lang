@@ -541,9 +541,9 @@ function testCopy() returns (xml, boolean, boolean, xml) {
 
 function testStrip() returns (xml, xml) {
     var x1 = xml `<!-- comment about the book-->`;
-    var x2 = xml `     `;
+    xml x2 = xml `     `;
     var x3 = xml `<bookId>001</bookId>`;
-    var x4 = xml ` `;
+    xml x4;
     var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
@@ -556,7 +556,7 @@ function testStripSingleton() returns (xml, xml) {
 }
 
 function testStripEmptySingleton() returns (xml, xml, boolean) {
-    var x1 = xml ` `;
+    xml x1;
     xml x2 = x1.strip();
     boolean isEmpty = x2.isEmpty();
     
@@ -644,7 +644,7 @@ function testToJsonForValue() returns (json) {
 }
 
 function testToJsonForEmptyValue() returns (json) {
-    var x = xml ` `;
+    xml x;
     return x.toJSON({});
 }
 
