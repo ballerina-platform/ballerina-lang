@@ -6,20 +6,20 @@ import ballerina/io;
 int total = 0;
 function main (string[] args) {
     // Client endpoint configuration
-     endpoint helloWorldClient helloWorldEp {
-         host: "localhost",
-         port: 9090
-     };
-     // Executing unary non-blocking call registering server message listener.
-     var result = helloWorldEp -> lotsOfReplies("Sam", typeof helloWorldMessageListener);
-     match result {
-         error payloadError => {
+    endpoint helloWorldClient helloWorldEp {
+        host:"localhost",
+        port:9090
+    };
+    // Executing unary non-blocking call registering server message listener.
+    var result = helloWorldEp -> lotsOfReplies("Sam", typeof helloWorldMessageListener);
+    match result {
+        error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
         }
-        any | null => {
+        any| null => {
             io:println("Connected successfully");
-          }
-     }
+        }
+    }
 
     while (total == 0) {}
     io:println("Client got response successfully.");
