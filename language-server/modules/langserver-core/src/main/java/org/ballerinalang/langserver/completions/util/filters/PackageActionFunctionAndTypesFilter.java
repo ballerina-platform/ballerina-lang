@@ -35,11 +35,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -320,7 +320,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         BType bType = variable.getScopeEntry().symbol.getType();
 
         if (bType instanceof BArrayType || bType instanceof BMapType || bType instanceof BJSONType
-                || bType instanceof BXMLType || bType instanceof BTableType || bType instanceof BTupleCollectionType) {
+                || bType instanceof BXMLType || bType instanceof BTableType
+                || bType instanceof BIntermediateCollectionType) {
             fillForeachIterableOperation(bType, symbolInfoList);
             fillMapIterableOperation(bType, symbolInfoList);
             fillFilterIterableOperation(bType, symbolInfoList);
