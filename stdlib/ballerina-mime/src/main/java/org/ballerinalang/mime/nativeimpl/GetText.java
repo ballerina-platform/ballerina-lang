@@ -50,7 +50,7 @@ public class GetText extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BString result = null;
+        BString result = new BString("");
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);

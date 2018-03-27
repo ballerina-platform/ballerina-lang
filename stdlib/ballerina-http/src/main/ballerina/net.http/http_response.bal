@@ -130,7 +130,7 @@ public function <Response response> getXmlPayload () returns (xml | mime:EntityE
 @Description {value:"Gets the response payload as a string"}
 @Param {value:"response: The response message"}
 @Return {value:"The string representation of the message payload"}
-public function <Response response> getStringPayload () returns (string | null | mime:EntityError) {
+public function <Response response> getStringPayload () returns (string | mime:EntityError) {
     var mimeEntity = response.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getText();
