@@ -2007,8 +2007,9 @@ public class BLangPackageBuilder {
         this.matchStmtStack.addFirst(matchStmt);
     }
 
-    public void completeMatchNode(Set<Whitespace> ws) {
+    public void completeMatchNode(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangMatch matchStmt = this.matchStmtStack.removeFirst();
+        matchStmt.pos = pos;
         matchStmt.addWS(ws);
         matchStmt.expr = (BLangExpression) this.exprNodeStack.pop();
         addStmtToCurrentBlock(matchStmt);
@@ -2022,6 +2023,8 @@ public class BLangPackageBuilder {
         BLangMatchStmtPatternClause patternClause =
                 (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
         patternClause.pos = pos;
+
+        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
         patternClause.addWS(ws);
 
         // Create a variable node
@@ -2030,6 +2033,7 @@ public class BLangPackageBuilder {
         var.pos = pos;
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
+        var.addWS(varDefWS);
         patternClause.variable = var;
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;

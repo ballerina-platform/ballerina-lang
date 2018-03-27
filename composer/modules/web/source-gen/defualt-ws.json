@@ -431,6 +431,30 @@
     "before value": "",
     "after value": ""
   },
+  "Match": {
+    "before match": "",
+    "after match": " ",
+    "before expression": "",
+    "after expression": "",
+    "before {": " ",
+    "after {": "",
+    "before patternClauses": "",
+    "after patternClauses": "",
+    "before }": "",
+    "after }": ""
+  },
+  "MatchPatternClause": {
+    "before variableNode": "",
+    "after variableNode": " ",
+    "before =>": " ",
+    "after =>": " ",
+    "before statement": "",
+    "after statement": "",
+    "before {": "",
+    "after {": "",
+    "before }": "",
+    "after }": ""
+  },
   "Next": {
     "before next": "",
     "after next": "",
