@@ -38,6 +38,7 @@ import java.util.Scanner;
  */
 public class BalGenToolTest {
     private static final String PACKAGE_NAME = ".";
+    private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
     private static Path resourceDir = Paths.get(
             BalGenToolTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     
@@ -58,27 +59,19 @@ public class BalGenToolTest {
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
         CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldClient"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldBlockingClient"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldBlockingStub"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldBlockingStub.hello"),
-                "Connector not found.");
+                        .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldStub.hello"),
-                "Connector not found.");
+                        .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldBlockingStub.bye"),
-                "Connector not found.");
+                        .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldStub.bye"),
-                "Connector not found.");
-        String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+                        .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
@@ -99,15 +92,12 @@ public class BalGenToolTest {
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
         CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldClientStreamingClient"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldClientStreamingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldClientStreamingStub"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldClientStreamingStub"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getFunctionInfo("helloWorldClientStreamingStub.LotsOfGreetings"),
                 "Connector not found.");
-        String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
@@ -128,15 +118,12 @@ public class BalGenToolTest {
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
         CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldServerStreamingClient"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldServerStreamingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldServerStreamingStub"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldServerStreamingStub"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getFunctionInfo("helloWorldServerStreamingStub.lotsOfReplies"),
                 "Connector not found.");
-        String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
@@ -157,27 +144,19 @@ public class BalGenToolTest {
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
         CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldClient"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldBlockingClient"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getStructInfo("helloWorldBlockingStub"),
-                "Connector not found.");
+                        .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldBlockingStub.hello"),
-                "Connector not found.");
+                        .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldStub.hello"),
-                "Connector not found.");
+                        .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldBlockingStub.bye"),
-                "Connector not found.");
+                        .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldStub.bye"),
-                "Connector not found.");
-        String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+                        .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     

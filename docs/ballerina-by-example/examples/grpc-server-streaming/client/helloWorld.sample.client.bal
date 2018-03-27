@@ -1,14 +1,15 @@
 // This is client implementation for server streaming scenario
 package client;
+
 import ballerina/io;
 
 int total = 0;
 function main (string[] args) {
     // Client endpoint configuration
      endpoint helloWorldClient helloWorldEp {
-            host: "localhost",
-            port: 9090
-        };
+         host: "localhost",
+         port: 9090
+     };
      // Executing unary non-blocking call registering server message listener.
      var result = helloWorldEp -> lotsOfReplies("Sam", typeof helloWorldMessageListener);
      match result {

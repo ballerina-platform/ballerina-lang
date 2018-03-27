@@ -1,4 +1,5 @@
 package {{packageName}};
+
 import ballerina/net.grpc;
 import ballerina/io;
 
@@ -46,15 +47,15 @@ function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, type
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
 function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
     var res = stub.serviceStub.streamingExecute("{{methodId}}", listener);
-        match res {
-            grpc:ConnectorError err => {
-                error e = {message:err.message};
-                return e;
-            }
-            grpc:Client con =>{
-                return con;
-            }
+    match res {
+        grpc:ConnectorError err => {
+            error e = {message:err.message};
+            return e;
         }
+        grpc:Client con =>{
+            return con;
+        }
+    }
 }
 {{/streamingFunctions}}{{#client}}
 {{#stubObjects}}

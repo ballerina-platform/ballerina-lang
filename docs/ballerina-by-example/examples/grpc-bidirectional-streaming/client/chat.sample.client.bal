@@ -1,5 +1,6 @@
 // This is client implementation for bidirectional streaming scenario
 package client;
+
 import ballerina/net.grpc;
 import ballerina/io;
 import ballerina/log;
@@ -9,9 +10,9 @@ int total = 0;
 function main (string[] args) {
 
      endpoint chatClient chatEp {
-            host: "localhost",
-            port: 9090
-        };
+         host: "localhost",
+         port: 9090
+     };
 
      endpoint grpc:Client ep;
      // Executing unary non-blocking call registering server message listener.

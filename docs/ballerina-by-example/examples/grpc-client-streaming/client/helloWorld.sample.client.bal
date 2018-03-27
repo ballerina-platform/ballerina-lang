@@ -1,5 +1,6 @@
 // This is client implementation for client streaming scenario
 package client;
+
 import ballerina/io;
 import ballerina/log;
 
