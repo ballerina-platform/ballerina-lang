@@ -125,10 +125,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             completionContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
-                        documentManager, false, CompletionCustomErrorStrategy.class,
-                        false).get(0);
+                        documentManager, false, CompletionCustomErrorStrategy.class, false).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         bLangPackage.symbol.getName().getValue());
+                completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 // Visit the package to resolve the symbols
                 TreeVisitor treeVisitor = new TreeVisitor(completionContext);
                 bLangPackage.accept(treeVisitor);
