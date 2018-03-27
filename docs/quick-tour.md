@@ -8,7 +8,7 @@ These are the available sections in this tour.
 - [Run HelloWorld](#run-helloworld)
 - [Set up the Editor](#set-up-the-editor)
 - [Write and Call an Integration Service](#write-and-call-an-integration-service)
-- [Deploying on Docker](#deploying-on-docker)
+- [Deploying on Kubernetes](#deploying-on-kubernetes)
 - [Run the Composer](#run-the-composer)
 
 ## Install Ballerina
@@ -118,26 +118,127 @@ You get the following response.
 Hello Ballerina!
 ```
 
-## Deploying on Docker
+## Deploying on Kubernetes
 
-Now that your service is created, you can deploy this on Docker. 
+Now that your service is created, you can deploy this on Kubernetes. 
 
 > TIP: This was tested on the community edition version of Docker Edge with Kubernetes enabled and running in the background. Docker Edge comes with the option of enabling Kubernetes under Docker preferences.
 
-To do this deployment, you need to import docker into your Ballerina program first. Add the following to the top of your program.
+First, as usual add the corresponding package:
 
-```Ballerina
-import ballerinax/docker;
+```
+import ballerinax/kubernetes;
 ```
 
-Add the following code snippet to your program.
+Now, let’s add the Kubernetes service annotation to our listener. This tells us that we want to expose it from Kubernetes (type is NodePort) under the name of ballerina-demo:
 
-```Ballerina
-// Docker configurations
-@docker:configuration {
-   name:"pizak/helloworld",
-   tag:"1.0.0"
+```
+@kubernetes:SVC{
+   serviceType:"NodePort",
+   name:"hello-world"
 }
+endpoint http:ServiceEndpoint listener {
+  port:9090
+};
+```
+
+Finally, add the generation of Kubernetes artifacts:
+
+```
+@kubernetes:Deployment {
+   image: "demo/ballerina-demo",
+   name: "ballerina-demo"
+}
+```
+
+This creates a docker image and a deployment into which it puts it.
+
+That is it - let’s go ahead and build it.
+
+```
+$ ballerina build hello-world.bal
+```
+
+Once you build it, you get the following response. This means the service is successfully deployed in Kubernetes.
+
+```
+@docker                                  - complete 3/3
+@kubernetes:Deployment                   - complete 1/1
+@kubernetes:Service                      - complete 1/1
+```
+
+Run following command to deploy Kubernetes artifacts:
+
+```
+kubectl apply -f /Users/DSotnikov/Documents/WSO2/Ballerina/Projects/KubTest/kubernetes/
+```
+
+You can see that it created a folder called kubernetes and put the deployment artifacts and the docker image in there:
+
+```
+$ ls kubernetes/
+```
+
+You can see the following files.
+
+```
+demo_deployment.yaml    demo_svc.yaml           docker
+```
+
+You can see that the docker image is there now:
+
+```
+$ docker images |grep demo
+```
+
+```
+demo/ballerina-demo                            latest     7bb8a49ef708        38 seconds ago      120MB
+```
+
+And you can deploy it to Kubernetes:
+
+```
+$ kubectl apply -f kubernetes
+```
+
+You see the following on your console.
+
+```
+deployment "ballerina-demo" created
+service "ballerina-demo" created
+```
+
+Let’s see if it is running:
+
+```
+$ kubectl get pods
+```
+
+```
+NAME                              READY     STATUS    RESTARTS   AGE
+ballerina-demo-74b6fb687c-mbrq2   1/1       Running   0          10s
+```
+
+
+```
+$ kubectl get svc
+```
+
+
+```
+NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)  AGE
+ballerina-demo   NodePort    10.98.238.0   <none>        9090:31977/TCP  24s
+kubernetes       ClusterIP   10.96.0.1     <none>        443/TCP  2d
+```
+
+We can now go ahead and invoke the service - I am using local Kubernetes but the same behavior would happen in the cloud one. Using the port 31977 that Kubernetes gave me:
+
+```
+$ curl -X POST  http://localhost:31977/demo
+```
+
+```
+Hello World!
 ```
 
 ## Run the Composer
