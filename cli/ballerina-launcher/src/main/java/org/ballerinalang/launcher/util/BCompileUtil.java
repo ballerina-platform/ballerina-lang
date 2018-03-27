@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -120,6 +121,7 @@ public class BCompileUtil {
             URL location = codeSource.getLocation();
             URI locationUri = location.toURI();
             Path pathLocation = Paths.get(locationUri);
+            createDotBallerinaFolder(pathLocation, sourceRoot);
             String filePath = concatFileName(sourceRoot, pathLocation);
             Path rootPath = Paths.get(filePath);
             Path packagePath = Paths.get(packageName);
@@ -146,6 +148,18 @@ public class BCompileUtil {
             }
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        }
+    }
+
+    private static void createDotBallerinaFolder(Path pathLocation, String sourceRoot) {
+        String balFolderLoc = sourceRoot + File.separator + ".ballerina";
+        String filePath = concatFileName(balFolderLoc, pathLocation);
+        Path balFolderPath = Paths.get(filePath);
+
+        File theDir = new File(balFolderPath.toAbsolutePath().toString());
+
+        if (!theDir.exists()) {
+            theDir.mkdir();
         }
     }
 
