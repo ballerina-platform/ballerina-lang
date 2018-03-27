@@ -580,6 +580,6 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "null");
+        Assert.assertEquals(responseMsgPayload, "testValue");
     }
 }

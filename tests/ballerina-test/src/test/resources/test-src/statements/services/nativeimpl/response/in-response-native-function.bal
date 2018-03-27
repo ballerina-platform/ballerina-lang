@@ -2,11 +2,9 @@ import ballerina/net.http;
 import ballerina/net.http.mock;
 import ballerina/mime;
 
-//Enable this once the getContentLength is added back
-//function testGetContentLength (http:Response res) returns (int) {
-//    int length = res.getContentLength();
-//    return length;
-//}
+function testGetContentLength (http:Response res) returns (string) {
+    return res.getHeader("content-length");
+}
 
 function testAddHeader (http:Response res, string key, string value) returns (http:Response) {
     res.addHeader(key, value);

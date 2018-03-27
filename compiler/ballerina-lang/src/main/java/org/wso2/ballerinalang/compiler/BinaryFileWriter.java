@@ -109,8 +109,8 @@ public class BinaryFileWriter {
             throw new BLangCompilerException("error writing program file '" + fileName + "'", e);
         }
 
-        this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS.toByteArray()), fileName);
-        final Path execFilePath = this.sourceDirectory.getPath().resolve(fileName);
+        final Path execFilePath = this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS
+                .toByteArray()), fileName);
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
             plugin.codeGenerated(execFilePath);

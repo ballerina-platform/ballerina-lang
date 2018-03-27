@@ -27,7 +27,7 @@ function main (string[] args) {
         // Get values received from worker 'w1'.
         any[] resW1 =? <any[]>results["w1"];
         int iW1 =? <int>resW1[0];
-        string sW1 =? <string>resW1[1];
+        string sW1 = <string>resW1[1];
         io:println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
         // Get values received from worker 'w2'.
         any[] resW2 =? <any[]>results["w2"];

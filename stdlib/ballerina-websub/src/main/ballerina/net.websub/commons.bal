@@ -210,9 +210,9 @@ public function addWebSubLinkHeaders (http:Response response, string[] hubs, str
     response = response == null ? {} : response;
     string hubLinkHeader = "";
     foreach hub in hubs {
-        hubLinkHeader = hubLinkHeader + "<" + hub + "> ; rel=\"hub\", ";
+        hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
-    response.setHeader("Link", hubLinkHeader + "<" + topic + "> ; rel=\"self\"");
+    response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
     return response;
 }
 
