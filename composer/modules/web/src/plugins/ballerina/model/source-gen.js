@@ -483,6 +483,21 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else {
                 return w() + node.value;
             }
+        case 'Match':
+            return dent() + w() + 'match' + a(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ') + '{' + indent()
+                 + join(node.patternClauses, pretty, replaceLambda, l, w, '') + outdent() + w()
+                 + '}';
+        case 'MatchPatternClause':
+            if (node.withoutCurlies && node.variableNode && node.statement) {
+                return getSourceOf(node.variableNode, pretty, l, replaceLambda) + w(' ')
+                 + '=>' + a(' ')
+                 + getSourceOf(node.statement, pretty, l, replaceLambda);
+            } else {
+                return dent() + getSourceOf(node.variableNode, pretty, l, replaceLambda)
+                 + w(' ') + '=>' + a(' ') + w() + '{' + indent()
+                 + getSourceOf(node.statement, pretty, l, replaceLambda) + outdent() + w() + '}';
+            }
         case 'Next':
             return dent() + w() + 'next' + w() + ';';
         case 'RecordLiteralExpr':
