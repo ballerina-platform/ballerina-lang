@@ -244,19 +244,31 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
     match cbConfig {
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
-            boolean [] httpStatusCodes = populateErrorCodeIndex(cb.httpStatusCodes);
-            CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
-                                                                            failureThreshold:cb.failureThreshold,
-                                                                            resetTimeout:cb.resetTimeout,
-                                                                            httpStatusCodes:httpStatusCodes
-                                                                        };
+            boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
             HttpClient cbHttpClient = createHttpClient(uri, configuration);
+            time:Time circuitStartTime = time:currentTime();
+            int numberOfBuckets = (cb.rollingWindow.timeWindow / cb.rollingWindow.bucketSize);
+            Bucket[] bucketArray = [];
+            int bucketIndex = 0;
+            while (bucketIndex < numberOfBuckets) {
+                bucketArray[bucketIndex] = {};
+                bucketIndex = bucketIndex + 1;
+            }
+
+            CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
+                                                                failureThreshold:cb.failureThreshold,
+                                                                resetTimeout:cb.resetTimeout,
+                                                                statusCodes:statusCodes,
+                                                                noOfBuckets:numberOfBuckets,
+                                                                rollingWindow:cb.rollingWindow
+                                                            };
+
             CircuitBreakerClient cbClient = {
                                                 serviceUri:uri,
                                                 config:configuration,
                                                 circuitBreakerInferredConfig:circuitBreakerInferredConfig,
                                                 httpClient:cbHttpClient,
-                                                circuitHealth:{},
+                                                circuitHealth:{startTime:circuitStartTime, totalBuckets: bucketArray},
                                                 currentCircuitState:CircuitState.CLOSED
                                             };
             HttpClient httpClient =  cbClient;
