@@ -1,14 +1,12 @@
 import ballerina/net.http;
 import ballerina/net.http.mock;
 
-endpoint mock:NonListeningService testEP {
+endpoint mock:NonListeningServiceEndpoint testEP {
     port:9090
 };
 
-
 @http:ServiceConfig {
     basePath:"/identifierLiteral",
-    endpoints:[testEP],
     cors: {
               allowOrigins :["http://www.m3.com", "http://www.hello.com"],
               allowCredentials : true,
@@ -17,8 +15,7 @@ endpoint mock:NonListeningService testEP {
               maxAge : 1
           }
 }
-
-service<http:Service> ^"sample Service" {
+service<http:Service> ^"sample Service" bind testEP{
 
     @http:ResourceConfig {
         methods:["GET"],

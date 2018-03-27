@@ -188,7 +188,7 @@ public class AssignStmtTest {
                 71, 5);
     }
 
-    @Test(description = "Test negative assignment statement with cast and conversion with var.")
+    @Test(description = "Test negative assignment statement with cast and conversion with var.", enabled = false)
     public void testCastAndConversionWithVar() {
         CompileResult result = BCompileUtil.compile("test-src/statements/assign/var-negative.bal");
         BAssertUtil.validateError(result, 0, "unknown type 'Foo'", 4, 17);

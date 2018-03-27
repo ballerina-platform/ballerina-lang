@@ -14,7 +14,7 @@ public struct employee01 {
 // Field name mismatch
 function testEqOfStructsInSamePackage01() returns (string) {
     employee01 e = {age:14, name:"rat"};
-    person01 p = (person01) e;
+    person01 p = <person01> e;
     return p.name;
 }
 
@@ -33,7 +33,7 @@ public struct employee02 {
 // Type name mismatch
 function testEqOfStructsInSamePackage02() returns (string) {
     employee02 e = {age:14, name:"rat"};
-    person02 p = (person02) e;
+    person02 p = <person02> e;
     return p.name;
 }
 
@@ -51,7 +51,7 @@ public struct employee03 {
 // Field count mismatch
 function testEqOfStructsInSamePackage03() returns (string) {
     employee03 e = {age:14, name:"rat"};
-    person03 p = (person03) e;
+    person03 p = <person03> e;
     return p.name;
 }
 
@@ -73,7 +73,7 @@ public struct employee04 {
 // Private fields in RHS struct name mismatch
 function testEqOfStructsInSamePackage04() returns (string) {
     employee04 e = {age:14, name:"rat"};
-    person04 p = (person04) e;
+    person04 p = <person04> e;
     return p.name;
 }
 
@@ -97,7 +97,7 @@ public struct employee05 {
 // Private fields in LHS struct name mismatch
 function testEqOfStructsInSamePackage05() returns (string) {
     employee05 e = {age:14, name:"rat"};
-    person05 p = (person05) e;
+    person05 p = <person05> e;
     return p.name;
 }
 
@@ -119,7 +119,7 @@ struct employee06 {
 // Private structs type mismatch
 function testEqOfStructsInSamePackage06() returns (string) {
     employee06 e = {age:14, name:"rat"};
-    person06 p = (person06) e;
+    person06 p = <person06> e;
     return p.name;
 }
 
@@ -163,7 +163,7 @@ public function <employee07 e> getAge() returns (int) {
 // Public structs attached function count mismatch
 function testEqOfStructsInSamePackage07() returns (string) {
     employee07 e = {age:14, name:"rat"};
-    person07 p = (person07) e;
+    person07 p = <person07> e;
     return p.name;
 }
 
@@ -211,7 +211,7 @@ public function <employee08 e> getSSN() returns (string) {
 // Public structs attached function visibility mismatch
 function testEqOfStructsInSamePackage08() returns (string) {
     employee08 e = {age:14, name:"rat"};
-    person08 p = (person08) e;
+    person08 p = <person08> e;
     return p.name;
 }
 
@@ -259,6 +259,6 @@ public function <employee09 e> getSSN() returns (string) {
 // Public structs attached function signature mismatch
 function testEqOfStructsInSamePackage09() returns (string) {
     employee09 e = {age:14, name:"rat"};
-    person09 p = (person09) e;
+    person09 p = <person09> e;
     return p.name;
 }

@@ -1883,12 +1883,11 @@ public class CPU {
 
                 bRefTypeValue = sf.refRegs[i];
 
-                if (bRefTypeValue == null) {
-                    sf.refRegs[j] = null;
-                } else if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
+                if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
-                    handleTypeCastError(ctx, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
+                            typeRefCPEntry.getType());
                 }
                 break;
             case InstructionCodes.IS_ASSIGNABLE:
@@ -2859,7 +2858,10 @@ public class CPU {
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType) {
-        BType rhsType = rhsValue.getType();
+        BType rhsType = BTypes.typeNull;
+        if (rhsValue != null) {
+            rhsType = rhsValue.getType();
+        }
 
         if (rhsType.equals(lhsType)) {
             return true;
