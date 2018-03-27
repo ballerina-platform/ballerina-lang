@@ -107,7 +107,7 @@ public function <Response res> getCopyOfAllHeaders () returns (map) {
 
 @Description {value:"Gets the response payload in JSON format"}
 @Param {value:"response: The response message"}
-@Return {value:"The JSON reresentation of the message payload"}
+@Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
 public function <Response response> getJsonPayload () returns (json | PayloadError) {
     match response.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -122,7 +122,7 @@ public function <Response response> getJsonPayload () returns (json | PayloadErr
 
 @Description {value:"Gets the response payload in XML format"}
 @Param {value:"response: The response message"}
-@Return {value:"The XML representation of the message payload"}
+@Return {value:"The XML representation of the message payload or 'PayloadError' in case of errors"}
 public function <Response response> getXmlPayload () returns (xml | PayloadError) {
     match response.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -137,7 +137,7 @@ public function <Response response> getXmlPayload () returns (xml | PayloadError
 
 @Description {value:"Gets the response payload as a string"}
 @Param {value:"response: The response message"}
-@Return {value:"The string representation of the message payload"}
+@Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
 public function <Response response> getStringPayload () returns (string | PayloadError) {
     match response.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -152,7 +152,7 @@ public function <Response response> getStringPayload () returns (string | Payloa
 
 @Description {value:"Gets the response payload in blob format"}
 @Param {value:"response: The response message"}
-@Return {value:"The blob representation of the message payload"}
+@Return {value:"The blob representation of the message payload or 'PayloadError' in case of errors"}
 public function <Response response> getBinaryPayload () returns (blob | PayloadError) {
     match response.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -168,7 +168,7 @@ public function <Response response> getBinaryPayload () returns (blob | PayloadE
 @Description {value:"Gets the response payload as a byte channel except for multiparts. In case of multiparts,
 please use 'getMultiparts()' instead."}
 @Param {value:"response: The response message"}
-@Return {value:"A byte channel as the message payload"}
+@Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
 public function <Response response> getByteChannel () returns (io:ByteChannel | PayloadError) {
     match response.getEntity() {
         mime:EntityError err => return <PayloadError>err;

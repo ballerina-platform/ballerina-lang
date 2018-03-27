@@ -144,7 +144,7 @@ public function <Request req> expects100Continue () returns (boolean) {
 
 @Description {value:"Gets the request payload in JSON format"}
 @Param {value:"request: The request message"}
-@Return {value:"The JSON reresentation of the message payload"}
+@Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
 public function <Request request> getJsonPayload () returns (json | PayloadError) {
     match request.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -159,7 +159,7 @@ public function <Request request> getJsonPayload () returns (json | PayloadError
 
 @Description {value:"Gets the request payload in XML format"}
 @Param {value:"request: The request message"}
-@Return {value:"The XML representation of the message payload"}
+@Return {value:"The XML representation of the message payload or 'PayloadError' in case of errors"}
 public function <Request request> getXmlPayload () returns (xml | PayloadError) {
     match request.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -174,7 +174,7 @@ public function <Request request> getXmlPayload () returns (xml | PayloadError) 
 
 @Description {value:"Gets the request payload as a string"}
 @Param {value:"request: request message"}
-@Return {value:"The string representation of the message payload"}
+@Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
 public function <Request request> getStringPayload () returns (string | PayloadError) {
     match request.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -189,7 +189,7 @@ public function <Request request> getStringPayload () returns (string | PayloadE
 
 @Description {value:"Gets the request payload in blob format"}
 @Param {value:"request: The request message"}
-@Return {value:"The blob representation of the message payload"}
+@Return {value:"The blob representation of the message payload or 'PayloadError' in case of errors"}
 public function <Request request> getBinaryPayload () returns (blob | PayloadError) {
     match request.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -205,7 +205,7 @@ public function <Request request> getBinaryPayload () returns (blob | PayloadErr
 @Description {value:"Get the request payload as a byte channel except for multiparts. In case of multiparts,
 please use 'getMultiparts()' instead."}
 @Param {value:"request: The request message"}
-@Return {value:"A byte channel as the message payload"}
+@Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
 public function <Request request> getByteChannel () returns (io:ByteChannel | PayloadError) {
     match request.getEntity() {
         mime:EntityError err => return <PayloadError>err;
@@ -220,7 +220,7 @@ public function <Request request> getByteChannel () returns (io:ByteChannel | Pa
 
 @Description {value:"Gets the form parameters from the HTTP request as a map"}
 @Param {value:"req: The request message"}
-@Return {value:"The map of form params"}
+@Return {value:"The map of form params or 'PayloadError' in case of errors"}
 public function <Request request> getFormParams () returns (map | PayloadError) {
     var mimeEntity = request.getEntity();     
     match mimeEntity {
