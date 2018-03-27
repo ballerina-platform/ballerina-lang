@@ -259,12 +259,9 @@ public class ForeachArrayTests {
 
     @Test
     public void testThrow1() {
-        try {
-            BRunUtil.invoke(program, "testThrow1");
-            Assert.fail();
-        } catch (BLangRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("message: d1 found"));
-        }
+        BValue[] returns = BRunUtil.invoke(program, "testThrow1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 d1 found");
     }
 
     @Test

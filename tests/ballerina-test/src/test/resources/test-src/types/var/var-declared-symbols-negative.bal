@@ -1,7 +1,10 @@
-function testVarDeclarationWithAllDeclaredSymbols () (int, error) {
+function testVarDeclarationWithAllDeclaredSymbols () returns (int, string) {
     int a;
-    error err;
-    string s = "10";
-    var a, err = <int>s;
-    return a, err;
+    string s;
+    var (a, s) = unionReturnTest();
+    return (a, s);
+}
+
+function unionReturnTest() returns (int, string) {
+    return (5, "hello");
 }

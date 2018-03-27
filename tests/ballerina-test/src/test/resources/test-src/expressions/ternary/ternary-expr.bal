@@ -40,11 +40,10 @@ function test6 (string s) returns (string) {
     return p.name;
 }
 
-function test7 (string s) returns (string, int) {
-    map m = {"data" : s == "one" ? <string>1 : 2};
-    var x =? <string>m["data"];
+function test7 (string s) returns (int) {
+    map m = {"data" : s == "one" ? 1 : 2};
     var y =? <int>m["data"];
-    return (x, y);
+    return y;
 }
 
 function test8 (string s) returns (string) {
