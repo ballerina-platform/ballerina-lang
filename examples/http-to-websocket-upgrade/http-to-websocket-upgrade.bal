@@ -23,16 +23,12 @@ service<http:Service> httpService bind servicEp {
         http:Response resp = {};
         var payload = req.getStringPayload();
         match payload {
-            string val => {
-                io:println(payload);
-                resp.setStringPayload("I received");
-            }
-            mime:EntityError payloadError => {
+            http:PayloadError payloadError => {
                 io:println(payloadError.message);
                 resp.setStringPayload(payloadError.message);
                 resp.statusCode = 500;
             }
-            any => {
+            string val => {
                 io:println(payload);
                 resp.setStringPayload("I received");
             }

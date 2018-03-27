@@ -29,7 +29,7 @@ service<http:Service> infoService {
                 xml name =? <xml>payload;
                 res.setXmlPayload(name);
             }
-            mime:EntityError payloadError => {
+            http:PayloadError payloadError => {
                 res.statusCode = 500;
                 res.setStringPayload(payloadError.message);
 
