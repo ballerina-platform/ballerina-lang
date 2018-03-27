@@ -50,7 +50,7 @@ public class GetText extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BString result = new BString("");
+        BString result;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
@@ -58,12 +58,10 @@ public class GetText extends BlockingNativeCallableUnit {
                 result = new BString(dataSource.getMessageAsString());
             } else {
                 StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
-                if (stringDataSource != null) {
-                    result = new BString(stringDataSource.getMessageAsString());
-                    EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                }
+                result = new BString(stringDataSource.getMessageAsString());
+                EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
+                //Set byte channel to null, once the message data source has been constructed
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,
