@@ -46,6 +46,7 @@ documentation {
     F{{retry}} - Retry related options
     F{{proxy}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
+    F{{cacheConfig}} - The configurations for controlling the caching behaviour
 }
 public struct SimpleClientEndpointConfiguration {
     string url;
@@ -60,6 +61,7 @@ public struct SimpleClientEndpointConfiguration {
     Retry|null retry;
     Proxy|null proxy;
     ConnectionThrottling|null connectionThrottling;
+    CacheConfig|null cacheConfig;
 }
 
 documentation {
@@ -103,6 +105,7 @@ public function <SimpleClientEndpoint ep> init(SimpleClientEndpointConfiguration
     ep.httpEP.config.retry = simpleConfig.retry;
     ep.httpEP.config.proxy = simpleConfig.proxy;
     ep.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
+    ep.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
 
     ep.httpEP.httpClient = createHttpClient(url, ep.httpEP.config);
 }

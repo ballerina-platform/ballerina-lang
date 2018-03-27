@@ -142,8 +142,7 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
                     }
                 } else {
                     ep.httpClient = createCircuitBreakerClient(uri, config);                    
-                }   
-                
+                }
             }
         }
     }
@@ -252,7 +251,13 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-            HttpClient cbHttpClient = createHttpClient(uri, configuration);
+
+            HttpClient cbHttpClient = {};
+            match configuration.cacheConfig {
+                CacheConfig cacheConfig => cbHttpClient = createHttpCachingClient(uri, configuration, cacheConfig);
+                int| null => cbHttpClient = createHttpClient(uri, configuration);
+            }
+
             time:Time circuitStartTime = time:currentTime();
             int numberOfBuckets = (cb.rollingWindow.timeWindow / cb.rollingWindow.bucketSize);
             Bucket[] bucketArray = [];
@@ -283,7 +288,10 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         }
         int | null => {
             //remove following once we can ignore
-            return createHttpClient(uri, configuration);
+            match configuration.cacheConfig {
+                CacheConfig cacheConfig => return createHttpCachingClient(uri, configuration, cacheConfig);
+                int| null => return createHttpClient(uri, configuration);
+            }
         }
     }
 }
@@ -314,16 +322,3 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
         HttpClient foClient = failover;
         return foClient;
 }
-
-//function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
-//    HttpClient[] clients = createHttpClientArray(config);
-//    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
-//    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
-//                                          failoverCodesIndex : failoverCodes,
-//                                          failoverInterval : config.failoverConfig.interval};
-//
-//    Failover failover = {serviceUri:config.targets[0].uri, config:config,
-//                            failoverInferredConfig:failoverInferredConfig};
-//    var httpClient, _ = (HttpClient) failover;
-//    return httpClient;
-//}
