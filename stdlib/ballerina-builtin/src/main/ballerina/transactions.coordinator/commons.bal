@@ -101,6 +101,7 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
         http:HttpConnectorError respondErr => {
             log:printErrorCause("Could not send Bad Request error response to caller", respondErr);
         }
+        null => return;
     }
 }
 

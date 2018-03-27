@@ -35,13 +35,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * {@code Start} is the function to start the whenever runtime.
+ * {@code Start} is the function to start the forever runtime.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
-        functionName = "startWhenever",
+        functionName = "startForever",
         args = {
                 @Argument(name = "streamQuery", type = TypeKind.STRING),
                 @Argument(name = "inStreamRef", type = TypeKind.ARRAY),
@@ -52,7 +52,7 @@ import java.util.Set;
         },
         returnType = {@ReturnType(type = TypeKind.NONE)},
         isPublic = true)
-public class StartWhenever extends BlockingNativeCallableUnit {
+public class StartForever extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

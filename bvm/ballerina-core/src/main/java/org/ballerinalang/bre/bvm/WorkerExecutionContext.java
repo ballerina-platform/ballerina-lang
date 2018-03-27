@@ -45,7 +45,7 @@ public class WorkerExecutionContext {
     
     public Map<String, Object> globalProps;
     
-    public Map<String, Object> localProps = new HashMap<>();
+    public Map<String, Object> localProps;
     
     public int ip;
     
@@ -121,7 +121,7 @@ public class WorkerExecutionContext {
         this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;
-        this.globalProps = parent.globalProps;;
+        this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         if (this.ip < 0) {
             throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +

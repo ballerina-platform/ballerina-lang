@@ -52,17 +52,17 @@ service<http:Service> test bind multipartEP {
         //multipart media type. eg:- multipart/mixed, multipart/related etc... Just pass the content type that suit
         //your requirement.
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
-            var returnResponse = clientEP -> post("/multiparts/decode_in_request", request);
-            match returnResponse {
-                http:HttpConnectorError err => {
-                    http:Response resp1 = {};
-                    io:println(err);
-                    resp1.setStringPayload("Error occurred while sending multipart request!");
-                    resp1.statusCode = 500;
-                    _ = conn -> respond(resp1);
-                }
-                http:Response returnResult => {_ = conn -> forward(returnResult);}
+        var returnResponse = clientEP -> post("/multiparts/decode_in_request", request);
+        match returnResponse {
+            http:HttpConnectorError err => {
+                http:Response resp1 = {};
+                io:println(err);
+                resp1.setStringPayload("Error occurred while sending multipart request!");
+                resp1.statusCode = 500;
+                _ = conn -> respond(resp1);
             }
+            http:Response returnResult => {_ = conn -> forward(returnResult);}
+        }
     }
 }
 

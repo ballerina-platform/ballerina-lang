@@ -46,10 +46,16 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
 
     // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
     // extract the header value
-    string basicAuthHeaderValue = extractBasicAuthHeaderValue(req);
-    if (basicAuthHeaderValue.length() == 0) {
-        log:printError("Error in extracting basic authentication header");
-        return false;
+    var basicAuthHeader = extractBasicAuthHeaderValue(req);
+    string basicAuthHeaderValue;
+    match basicAuthHeader {
+        string basicAuthHeaderStr => {
+            basicAuthHeaderValue = basicAuthHeaderStr;
+        }
+        any|null => {
+            log:printError("Error in extracting basic authentication header");
+            return false;
+        }
     }
 
     var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
@@ -106,7 +112,8 @@ public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:Request req)
     try {
         basicAuthHeader = req.getHeader(AUTH_HEADER);
     } catch (error e) {
-       return false;
+        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
+        return false;
     }
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
         return true;

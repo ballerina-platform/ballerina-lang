@@ -141,7 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -1631,6 +1631,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (iExpr.async) {
             flags = FunctionFlags.markAsync(flags);
         }
+        if (iExpr.actionInvocation) {
+            flags = FunctionFlags.markObserved(flags);
+        }
         operands[i++] = getOperand(flags);
         operands[i++] = getOperand(nArgRegs);
 
@@ -2437,7 +2440,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitInvokableNode(actionNode, currentCallableUnitInfo, actionEnv);
     }
 
-    public void visit(BLangWhenever wheneverStatement) {
+    public void visit(BLangForever foreverStatement) {
         /* ignore */
     }
 

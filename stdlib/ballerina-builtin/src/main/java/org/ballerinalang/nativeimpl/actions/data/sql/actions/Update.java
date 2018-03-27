@@ -27,6 +27,14 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.TraceUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
 
 /**
  * {@code Update} is the Update action implementation of the SQL Connector.
@@ -57,6 +65,12 @@ public class Update extends AbstractSQLAction {
             String query = context.getStringArgument(0);
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+
+            Map<String, String> tags = new HashMap<>();
+            tags.put(TAG_KEY_DB_STATEMENT, query);
+            tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+            TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
+
             executeUpdate(context, datasource, query, parameters);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));

@@ -107,9 +107,6 @@ public class Sprintf extends BlockingNativeCallableUnit {
                     case 'f':
                         result.append(String.format("%" + padding + "f", args.get(k).value()));
                         break;
-                    case 's':
-                        result.append(String.format("%" + padding + "s", args.get(k).value()));
-                        break;
                     case 'x':
                         result.append(String.format("%" + padding + "x", args.get(k).value()));
                         break;
@@ -129,6 +126,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                     case 't':
                     case 'r':
                     case 'a':
+                    case 's':
                         result.append(String.format("%" + padding + "s", args.get(k).stringValue()));
                         break;
                     case '%':

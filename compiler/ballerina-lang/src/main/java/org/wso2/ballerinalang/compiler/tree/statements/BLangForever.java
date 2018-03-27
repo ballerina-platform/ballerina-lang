@@ -21,7 +21,7 @@ import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
-import org.ballerinalang.model.tree.statements.WheneverNode;
+import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * @since 0.95.0
  */
-public class BLangWhenever extends BLangExpressionStmt implements WheneverNode {
+public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     private List<VariableNode> globalVariables = new ArrayList<>();
@@ -47,7 +47,7 @@ public class BLangWhenever extends BLangExpressionStmt implements WheneverNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WHENEVER;
+        return NodeKind.FOREVER;
     }
 
     @Override

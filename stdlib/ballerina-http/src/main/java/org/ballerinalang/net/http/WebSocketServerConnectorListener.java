@@ -31,6 +31,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -101,6 +104,12 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = serviceEndpoint;
             bValues[1] = inRequest;
+
+            Tracer tracer = TraceManagerWrapper.newTracer(null, false);
+            upgradeHeaders.entrySet().stream()
+                    .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                    .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
                 public void notifySuccess() {
@@ -113,7 +122,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     semaphore.release();
                 }
-            }, null, bValues);
+            }, null, tracer, bValues);
+
             try {
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled() &&
