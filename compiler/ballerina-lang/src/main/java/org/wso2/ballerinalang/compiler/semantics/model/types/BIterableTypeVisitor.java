@@ -117,4 +117,48 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, op.collectionType, count);
     }
 
+    /**
+     * Type checker for Simple terminal operations.
+     *
+     * @since 0.970.0
+     */
+    public static abstract class TerminalOperationTypeChecker extends BIterableTypeVisitor {
+
+        public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
+            super(dlog, symTable);
+        }
+
+        @Override
+        public List<BType> visit(BMapType t, Operation operation) {
+            return Lists.of(calculateType(operation, t.constraint));
+        }
+
+        @Override
+        public List<BType> visit(BXMLType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
+        public List<BType> visit(BJSONType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
+        public List<BType> visit(BArrayType t, Operation operation) {
+            return Lists.of(calculateType(operation, t.eType));
+        }
+
+        @Override
+        public List<BType> visit(BIntermediateCollectionType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
+        public List<BType> visit(BTableType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        public abstract BType calculateType(Operation operation, BType type);
+    }
+
 }

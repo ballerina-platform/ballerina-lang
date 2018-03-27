@@ -174,6 +174,7 @@ public enum DiagnosticCode {
     ITERABLE_TOO_MANY_RETURN_VARIABLES("iterable.too.many.return.args"),
     ITERABLE_NOT_ENOUGH_RETURN_VARIABLES("iterable.not.enough.return.args"),
     ITERABLE_LAMBDA_REQUIRED("iterable.lambda.required"),
+    ITERABLE_LAMBDA_TUPLE_REQUIRED("iterable.lambda.tuple.required"),
     ITERABLE_NO_ARGS_REQUIRED("iterable.no.args.required"),
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
