@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.workspace.repository;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -49,7 +50,7 @@ public class NullSourceDirectory implements SourceDirectory {
 
     @Override
     public InputStream getManifestContent() {
-        return null;
+        return new ByteArrayInputStream("".getBytes());
     }
 
     @Override
