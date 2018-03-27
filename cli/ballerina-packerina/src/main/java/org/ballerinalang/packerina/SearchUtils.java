@@ -17,10 +17,11 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.ExecutorUtils;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * This class provides util methods when searching for Ballerina packages in the central.
@@ -32,11 +33,16 @@ public class SearchUtils {
 
     /**
      * Search for packages in central.
+     *
      * @param argument arguments passed
      */
     public static void searchInCentral(String argument) {
-        URI balxPath = URI.create(String.valueOf(SearchUtils.class.getClassLoader().getResource
-                ("ballerina.search.balx")));
+        URI balxPath = null;
+        try {
+            URL resource = SearchUtils.class.getClassLoader().getResource("ballerina.search.balx");
+            balxPath = resource.toURI();
+        } catch (URISyntaxException ignore) {
+        }
         String query = "?keyword=" + argument;
         ExecutorUtils.execute(balxPath, BALLERINA_STAGING_URL, query);
     }
