@@ -8,8 +8,8 @@ int total = 0;
 function main (string[] args) {
     // Client endpoint configuration
     endpoint helloWorldClient helloWorldEp {
-        host: "localhost",
-        port: 9090
+        host:"localhost",
+        port:9090
     };
 
     endpoint grpc:Client ep;

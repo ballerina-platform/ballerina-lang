@@ -10,16 +10,16 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {rpcEndpoint:"chat",
-                     clientStreaming:true,
-                     serverStreaming:true,
-                     generateClientConnector:false}
+    clientStreaming:true,
+    serverStreaming:true,
+    generateClientConnector:false}
 service<grpc:Endpoint> chat bind ep {
     map consMap = {};
     onOpen (endpoint client) {
         consMap[<string>client.getClient().getID()] = client;
     }
 
-    onMessage (endpoint client,  ChatMessage chatMsg) {
+    onMessage (endpoint client, ChatMessage chatMsg) {
         endpoint grpc:Service con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
@@ -27,8 +27,8 @@ service<grpc:Endpoint> chat bind ep {
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con =? <grpc:Service> consMap[conKeys[i]];
-            grpc:ConnectorError err =  con -> send(msg);
+            con =? <grpc:Service>consMap[conKeys[i]];
+            grpc:ConnectorError err = con -> send(msg);
             if (err != null) {
                 io:println("Error at onMessage : " + err.message);
             }
@@ -46,12 +46,12 @@ service<grpc:Endpoint> chat bind ep {
         endpoint grpc:Service con;
         string msg = string `{{client.getClient().getID()}} left the chat`;
         io:println(msg);
-        var v=consMap.remove(<string>client.getClient ().getID());
+        var v = consMap.remove(<string>client.getClient().getID());
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con =? <grpc:Service> consMap[conKeys[i]];
+            con =? <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
             if (err != null) {
                 io:println("Error at onComplete send message : " + err.message);
