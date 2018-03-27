@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -175,7 +178,31 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 : 0);
         CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
                 userDefinedType.pkgAlias.value);
-        if (HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+        if (userDefinedType.type instanceof BUnionType &&
+                HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+            try {
+                BUnionType bUnionType = (BUnionType) userDefinedType.type;
+                for (BType type : bUnionType.memberTypes) {
+                    if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
+                            .typeName.getValue())) {
+                        this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
+                        this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+                        this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                        this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, type.tsymbol.pkgID);
+                        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, type.tsymbol.kind.name());
+                        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, type.tsymbol.kind.name());
+                        this.context.put(NodeContextKeys.NODE_OWNER_KEY, type.tsymbol.owner.name.getValue());
+                        this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, type.tsymbol.owner.pkgID);
+                        this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                        setTerminateVisitor(true);
+                        break;
+                    }
+                }
+            } catch (ClassCastException e) {
+                // Ignores
+            }
+        } else if (userDefinedType.type.tsymbol != null &&
+                HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
             this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
             this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
@@ -804,6 +831,30 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (objectNode.receiver != null) {
             this.acceptNode(objectNode.receiver);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        setPreviousNode(matchNode);
+        if (matchNode.expr != null) {
+            this.acceptNode(matchNode.expr);
+        }
+
+        if (!matchNode.patternClauses.isEmpty()) {
+            matchNode.patternClauses.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
+        setPreviousNode(patternClauseNode);
+        if (patternClauseNode.variable != null) {
+            this.acceptNode(patternClauseNode.variable);
+        }
+
+        if (patternClauseNode.body != null) {
+            this.acceptNode(patternClauseNode.body);
         }
     }
 
