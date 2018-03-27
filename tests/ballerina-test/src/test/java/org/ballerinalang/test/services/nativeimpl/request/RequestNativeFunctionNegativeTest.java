@@ -68,7 +68,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
-        Assert.assertEquals(Integer.parseInt(returnVals[0].stringValue()), -1);
+        Assert.assertEquals(returnVals[0].stringValue(), "Content-length is not found");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] inputArg = {inRequest, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertNull(((BString) returnVals[0]).value());
+        Assert.assertEquals(((BString) returnVals[0]).value(), "Header not found!");
     }
 
     @Test(description = "Test method without json payload")
@@ -103,20 +103,9 @@ public class RequestNativeFunctionNegativeTest {
 
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
-        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("Error occurred while" +
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("Error occurred while" +
                 " extracting json data from entity: failed to create json: unrecognized token 'ballerina'"));
-    }
-
-    @Test
-    public void testGetProperty() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BString propertyName = new BString("wso2");
-        BValue[] inputArg = {inRequest, propertyName};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "Test getEntity method on a outRequest without a entity")
@@ -134,7 +123,7 @@ public class RequestNativeFunctionNegativeTest {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        Assert.assertNull(returnVals[0].stringValue());
+        Assert.assertNull(returnVals[0]);
     }
 
     @Test
@@ -142,7 +131,8 @@ public class RequestNativeFunctionNegativeTest {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        Assert.assertTrue(returnVals[0].stringValue().contains("{message:\"Error occurred while retrieving xml data " +
+                "from entity : Empty xml payload\", cause:null}"));
     }
 
     @Test
@@ -154,7 +144,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetMethod", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
+        Assert.assertEquals(returnVals[0].stringValue(), "");
     }
 
     @Test

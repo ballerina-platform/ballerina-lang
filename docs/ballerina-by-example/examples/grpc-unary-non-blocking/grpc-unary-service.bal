@@ -4,8 +4,8 @@ import ballerina/net.grpc;
 
 // Server endpoint configuration
 endpoint grpc:Service ep {
-  host:"localhost",
-  port:9090
+    host:"localhost",
+    port:9090
 };
 
 @grpc:serviceConfig {generateClientConnector:false}

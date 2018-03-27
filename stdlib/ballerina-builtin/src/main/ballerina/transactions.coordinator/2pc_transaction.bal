@@ -13,7 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 package ballerina.transactions.coordinator;
+
 import ballerina/io;
 import ballerina/log;
 
@@ -32,7 +34,7 @@ struct TwoPhaseCommitTransaction {
 function<TwoPhaseCommitTransaction txn> twoPhaseCommit () returns string|error {
     string transactionId = txn.transactionId;
     int transactionBlockId = txn.transactionBlockId;
-    log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:$i", [transactionId, transactionBlockId]));
+    log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", [transactionId, transactionBlockId]));
     string|error ret = "";
 
     // Prepare local resource managers
@@ -102,71 +104,29 @@ function<TwoPhaseCommitTransaction txn> twoPhaseCommit () returns string|error {
 }
 
 documentation {
-    When an abort statement is executed, this function gets called. Depending on whether the transaction block
-    is an initiator or participant the flow will be different. An initiator will start the abort protocol. A participant
-    will notify the initiator that it aborted, which will prompt the initiator to start the abort protocol.
-
-    The initiator and participant being in the same process
-    has also been handled as a special case in order to avoid a network call in that case.
+    When an abort statement is executed, this function gets called. The transaction in concern will be marked for
+    abortion.
 }
-function<TwoPhaseCommitTransaction txn> abortTransaction () returns string|error {
-    log:printInfo("########### abort called");
+function<TwoPhaseCommitTransaction txn> markForAbortion () returns string|error {
     string transactionId = txn.transactionId;
     int transactionBlockId = txn.transactionBlockId;
-
-    if (txn.isInitiated) {
-        return txn.abortInitiatorTransaction();
-    } else {
-        string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-        if (!successful) {
-            error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
-            log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
-            return err;
-        } else {
-            txn.state = TransactionState.ABORTED;
-            log:printInfo("Local participant aborted transaction: " + participatedTxnId);
-            return ""; //TODO: check what will happen if nothing is returned
-        }
+    if(txn.isInitiated) {
+        txn.state = TransactionState.ABORTED;
+        log:printInfo("Marked initiated transaction for abortion");
+    } else { // participant
+       boolean successful = abortResourceManagers(transactionId, transactionBlockId);
+       string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+       if(successful) {
+           txn.state = TransactionState.ABORTED;
+           log:printInfo("Marked participated transaction for abort. Transaction:" + participatedTxnId);
+       } else {
+           string msg = "Aborting local resource managers failed for participated transaction:" + participatedTxnId;
+           log:printError(msg);
+           error err = {message:msg};
+           return err;
+       }
     }
-
-    //string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    //if (initiatedTransactions.hasKey(transactionId)) {
-    //    if (participatedTransactions.hasKey(participatedTxnId)) {
-    //
-    //        log:printInfo("########### aborting local participant transaction");
-    //
-    //        boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-    //        if (!successful) {
-    //            error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
-    //            return err;
-    //        }
-    //        string participantId = getParticipantId(transactionBlockId);
-    //        // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
-    //        // and then call abort on the initiator
-    //        boolean removed = txn.participants.remove(participantId);
-    //        if (!removed) {
-    //            error err = {message:"Participant: " + participantId + " removal failed"};
-    //            throw err;
-    //        }
-    //        string ret =? txn.abortInitiatorTransaction();
-    //        txn.state = TransactionState.ABORTED;
-    //        return ret;
-    //    } else {
-    //        return txn.abortInitiatorTransaction();
-    //    }
-    //} else {
-    //    boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-    //    if (!successful) {
-    //        error err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
-    //        log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
-    //        return err;
-    //    } else {
-    //        txn.state = TransactionState.ABORTED;
-    //        log:printInfo("Local participant aborted transaction: " + participatedTxnId);
-    //        return ""; //TODO: check what will happen if nothing is returned
-    //    }
-    //}
+    return ""; //TODO: check what will happen if nothing is returned
 }
 
 function<TwoPhaseCommitTransaction txn> prepareParticipants (string protocol) returns boolean {
@@ -180,6 +140,11 @@ function<TwoPhaseCommitTransaction txn> prepareParticipants (string protocol) re
                         // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Preparing local participant: " + participant.participantId);
                         if (!protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
+                            // Don't send notify to participants who have failed or rejected prepare
+                            boolean removed = txn.participants.remove(participant.participantId);
+                            if(!removed){
+                                log:printError("Removing participant from transaction failed");
+                            }
                             successful = false;
                         }
                     }
@@ -375,7 +340,7 @@ function<TwoPhaseCommitTransaction txn> notifyRemoteParticipant (Participant par
 function<TwoPhaseCommitTransaction txn> abortInitiatorTransaction () returns string|error {
     string transactionId = txn.transactionId;
     int transactionBlockId = txn.transactionBlockId;
-    log:printInfo(io:sprintf("Aborting transaction: %s:$i", [transactionId, transactionBlockId]));
+    log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", [transactionId, transactionBlockId]));
     // return response to the initiator. ( Aborted | Mixed )
     string|error ret = txn.notifyAbort();
     txn.state = TransactionState.ABORTED;

@@ -58,7 +58,7 @@ public class TransactionHandlerTest {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionAbortStmtWithAbortHandler");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inAboftFunction end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inAbortFunction end");
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TransactionHandlerTest {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionAbortStmtWithAllHandlers");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx inAboftFunction end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx inAbortFunction end");
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TransactionHandlerTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx inAboftFunction inFailed trxErr end");
+                "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx inFailed inAbortFunction trxErr end");
     }
 
     @Test
@@ -126,6 +126,6 @@ public class TransactionHandlerTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inFirstTrx inAboftFunction beforeRetry-First trxErr inSecondTrx inAboftFunctionSecond end");
+                "start inFirstTrx beforeRetry-First inAbortFunction trxErr inSecondTrx inAbortFunctionSecond end");
     }
 }

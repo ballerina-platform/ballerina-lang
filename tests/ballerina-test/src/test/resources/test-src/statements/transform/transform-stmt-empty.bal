@@ -13,9 +13,9 @@ struct Employee {
 
 function emptyTransform() returns (Employee) {
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
-    Employee e = <Employee> p;
+    Employee e = <Employee, foo()> p;
     return e;
 }
 
-transformer <Person p, Employee e> {
+transformer <Person p, Employee e> foo() {
 }

@@ -132,7 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -1180,8 +1180,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     //Streaming related methods.
 
-    public void visit(BLangWhenever wheneverStatement) {
-        for (StreamingQueryStatementNode streamingQueryStatement : wheneverStatement.gettreamingQueryStatements()) {
+    public void visit(BLangForever foreverStatement) {
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.gettreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
@@ -1190,7 +1190,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (BLangVariable variable : globalVariableList) {
                 if (((variable).type.tsymbol) != null) {
                     if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                        wheneverStatement.addGlobalVariable(variable);
+                        foreverStatement.addGlobalVariable(variable);
                     }
                 }
             }
@@ -1199,7 +1199,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BVarSymbol> functionParameterList = ((BInvokableSymbol) this.env.scope.owner).getParameters();
         for (BVarSymbol varSymbol : functionParameterList) {
             if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
-                wheneverStatement.addFunctionVariable(varSymbol);
+                foreverStatement.addFunctionVariable(varSymbol);
             }
         }
     }
@@ -1476,10 +1476,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-            if (rhsTypes.get(0) != symTable.errType) {
+            if (rhsTypes.get(0) != symTable.errType && (rhsTypes.get(0).tag == TypeTags.TUPLE)) {
                 BTupleType tupleType = (BTupleType) rhsTypes.get(0);
                 rhsTypes = tupleType.tupleTypes;
             } else {
+                dlog.error(assignNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsTypes.get(0));
                 rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
             }
         }

@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.964.1-SNAPSHOT</version>
+    <version>0.970.0-alpha1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -176,6 +176,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-trace</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -192,6 +197,16 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-logging</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observe</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jaeger-extension</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -791,6 +806,49 @@
                 <artifactId>broker-core</artifactId>
                 <version>${broker.version}</version>
             </dependency>
+
+            <!-- Observability dependency-->
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-api</artifactId>
+                <version>${open.tracing.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-util</artifactId>
+                <version>${open.tracing.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-mock</artifactId>
+                <version>${open.tracing.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.uber.jaeger</groupId>
+                <artifactId>jaeger-core</artifactId>
+                <version>${jaeger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.uber.jaeger</groupId>
+                <artifactId>jaeger-thrift</artifactId>
+                <version>${jaeger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libthrift</artifactId>
+                <version>${libthrift.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio</artifactId>
+                <version>${okio.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -883,12 +941,14 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
+                <module>stdlib/observability/ballerina-trace</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
+                <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
@@ -897,18 +957,23 @@
 
                 <module>tests/ballerina-test</module>
 
+                <module>docs/ballerina-by-example</module>
+
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
+                <module>misc/tracing-extensions</module>
+
                 <module>composer</module>
 
                 <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
 
                 <module>tool-plugins/intellij</module>
@@ -924,27 +989,31 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
+                <module>stdlib/observability/ballerina-trace</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
+                <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
-
+                <module>docs/ballerina-by-example</module>
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
-                <!--<module>misc/docerina</module>-->
+                <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
+                <module>misc/tracing-extensions</module>
 
                 <module>distribution/zip/ballerina</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
             </modules>
         </profile>
@@ -960,12 +1029,14 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
+                <module>stdlib/observability/ballerina-trace</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
+                <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
@@ -975,18 +1046,23 @@
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
+                <module>docs/ballerina-by-example</module>
+
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
+                <module>misc/tracing-extensions</module>
+
                 <module>composer</module>
 
                 <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
 
                 <!-- Intellij build disabled in default build -->
@@ -1305,7 +1381,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.964.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-alpha1-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1330,7 +1406,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.116</transport.http.version>
+        <transport.http.version>6.0.117</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1437,6 +1513,14 @@
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <guava.version>19.0</guava.version>
         <metrics.version>3.1.0</metrics.version>
+
+        <!-- Observability -->
+        <open.tracing.version>0.31.0</open.tracing.version>
+        <jaeger.version>0.24.0</jaeger.version>
+        <libthrift.version>0.10.0</libthrift.version>
+        <okhttp.version>3.9.1</okhttp.version>
+        <okio.version>1.13.0</okio.version>
+
     </properties>
 
 </project>
