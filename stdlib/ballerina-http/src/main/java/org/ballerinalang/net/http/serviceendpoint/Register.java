@@ -77,24 +77,15 @@ public class Register extends AbstractHttpNativeFunction {
             webSocketServicesRegistry.registerService(webSocketService);
         }
 
-        if (isHTTPTraceLoggerEnabled()) {
-            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
-        }
-
-        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         if (!isConnectorStarted(serviceEndpoint)) {
-            startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry, serverConnector);
+            startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);
         }
         context.setReturnValues();
     }
 
-    private boolean isHTTPTraceLoggerEnabled() {
-        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
-        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
-                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
-    }
-
-    private void startServerConnector(Struct serviceEndpoint, HTTPServicesRegistry httpServicesRegistry, WebSocketServicesRegistry webSocketServicesRegistry, ServerConnector serverConnector) {
+    private void startServerConnector(Struct serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,
+                                      WebSocketServicesRegistry webSocketServicesRegistry) {
+        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
         serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry,
