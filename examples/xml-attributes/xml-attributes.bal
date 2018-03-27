@@ -17,7 +17,7 @@ function main (string[] args) {
     // An attribute that is not bound to a namespace can be accessed using the string representation of the name.
     io:println(x1@["count"]);
 
-    // Accessing an attribute using a dynamic name.
+    // Access an attribute using a dynamic name.
     string attributeName = "count";
     io:println(x1@[attributeName]);
 
