@@ -22,14 +22,27 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
+import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketServerConnectorListener;
 import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+
+import java.util.HashSet;
+import java.util.logging.LogManager;
 
 /**
  * Get the ID of the connection.
@@ -50,20 +63,53 @@ public class Register extends AbstractHttpNativeFunction {
     @Override
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        Struct connectorEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        HTTPServicesRegistry httpServicesRegistry = null;
+        WebSocketServicesRegistry webSocketServicesRegistry = null;
 
         // TODO: Check if this is valid.
         // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
         if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            getHttpServicesRegistry(connectorEndpoint).registerService(service, connectorEndpoint);
+            httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+            httpServicesRegistry.registerService(service, serviceEndpoint);
         }
 
         if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService webSocketService = new WebSocketService(service);
-            webSocketService.setServiceEndpoint((BStruct) connectorEndpoint.getVMValue());
-            getWebSocketServicesRegistry(connectorEndpoint).registerService(webSocketService);
+            webSocketService.setServiceEndpoint((BStruct) serviceEndpoint.getVMValue());
+            webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+            webSocketServicesRegistry.registerService(webSocketService);
         }
 
+        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+        if (httpServicesRegistry == null && webSocketServicesRegistry == null) {
+            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
+                    + "': registered service count is zero");
+        }
+
+        if (isHTTPTraceLoggerEnabled()) {
+            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+        }
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
+        serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry,
+                filterHolder));
+        serverConnectorFuture
+                .setWSConnectorListener(new WebSocketServerConnectorListener(webSocketServicesRegistry));
+
+        serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
+        try {
+            serverConnectorFuture.sync();
+        } catch (Throwable ex) {
+            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
+                    + "': " + ex.getMessage(), ex);
+        }
         context.setReturnValues();
+    }
+
+    private boolean isHTTPTraceLoggerEnabled() {
+        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
+        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
+                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 }
