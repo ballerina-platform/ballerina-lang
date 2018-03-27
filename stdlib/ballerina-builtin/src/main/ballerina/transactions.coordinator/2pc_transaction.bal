@@ -117,7 +117,7 @@ function<TwoPhaseCommitTransaction txn> markForAbortion () returns string|error 
        boolean successful = abortResourceManagers(transactionId, transactionBlockId);
        string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
        if(successful) {
-           txn.state = TransactionState.ABORTED`;
+           txn.state = TransactionState.ABORTED;
            log:printInfo("Marked participated transaction for abort. Transaction:" + participatedTxnId);
        } else {
            string msg = "Aborting local resource managers failed for participated transaction:" + participatedTxnId;

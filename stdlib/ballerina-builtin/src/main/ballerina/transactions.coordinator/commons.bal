@@ -182,7 +182,6 @@ function localParticipantProtocolFn (string transactionId,
                                      int transactionBlockId,
                                      string protocolAction) returns boolean {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    log:printInfo("############# local participant proto fn called: " + protocolAction + "," + participatedTxnId);
     if (!participatedTransactions.hasKey(participatedTxnId)) {
         return false;
     }
@@ -205,11 +204,9 @@ function localParticipantProtocolFn (string transactionId,
             return successful;
         }
     } else if (protocolAction == COMMAND_ABORT) {
-        if (txn.state == TransactionState.PREPARED) {
-            boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-            removeParticipatedTransaction(participatedTxnId);
-            return successful;
-        }
+        boolean successful = abortResourceManagers(transactionId, transactionBlockId);
+        removeParticipatedTransaction(participatedTxnId);
+        return successful;
     } else {
         error err = {message:"Invalid protocol action:" + protocolAction};
         throw err;

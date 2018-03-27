@@ -21,12 +21,13 @@ package org.ballerinalang.test.transaction;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * Testing micro transaction header behaviour.
@@ -57,8 +58,86 @@ public class MicroTransactionTestCase {
     @Test(description = "Test participant1 transaction id")
     public void testParticipantTransactionId() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp(""));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "equal id", "payload mismatched");
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertEquals(response.getData(), "equal id", "payload mismatched");
+    }
+
+    @Test(dependsOnMethods = {"testParticipantTransactionId"})
+    public void testInitiatorAbort() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testInitiatorAbort"));
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+
+        HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
+
+        assertEquals(initiatorStateRes.getData(),
+                "abortedByInitiator=true,abortedByLocalParticipant=false,abortedFunctionCalled=true," +
+                        "committedFunctionCalled=false,localParticipantCommittedFunctionCalled=false," +
+                        "localParticipantAbortedFunctionCalled=true",
+                "Invalid initiator state");
+
+        HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
+        assertEquals(participant1StateRes.getData(),
+                "abortedByParticipant=false,abortedFunctionCalled=true,committedFunctionCalled=false",
+                "Invalid participant1 state");
+    }
+
+    @Test(dependsOnMethods = {"testInitiatorAbort"})
+    public void testRemoteParticipantAbort() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testRemoteParticipantAbort"));
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+
+        HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
+
+        assertEquals(initiatorStateRes.getData(),
+                "abortedByInitiator=false,abortedByLocalParticipant=false,abortedFunctionCalled=true," +
+                        "committedFunctionCalled=false,localParticipantCommittedFunctionCalled=false," +
+                        "localParticipantAbortedFunctionCalled=true",
+                "Invalid initiator state");
+
+        HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
+        assertEquals(participant1StateRes.getData(),
+                "abortedByParticipant=true,abortedFunctionCalled=true,committedFunctionCalled=false",
+                "Invalid participant1 state");
+    }
+
+    @Test(dependsOnMethods = {"testRemoteParticipantAbort"})
+    public void testLocalParticipantSuccess() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testLocalParticipantSuccess"));
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+//        Assert.assertEquals(response.getData(), "equal id", "payload mismatched");
+    }
+
+    @Test(dependsOnMethods = {"testLocalParticipantSuccess"})
+    public void testLocalParticipantAbort() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testLocalParticipantAbort"));
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+
+        HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
+
+        assertEquals(initiatorStateRes.getData(),
+                "abortedByInitiator=false,abortedByLocalParticipant=true,abortedFunctionCalled=true," +
+                        "committedFunctionCalled=false,localParticipantCommittedFunctionCalled=false," +
+                        "localParticipantAbortedFunctionCalled=true",
+                "Invalid initiator state");
+
+        HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
+        assertEquals(participant1StateRes.getData(),
+                "abortedByParticipant=false,abortedFunctionCalled=true,committedFunctionCalled=false",
+                "Invalid participant1 state");
+    }
+
+    @Test(dependsOnMethods = {"testLocalParticipantAbort"})
+    public void testTransactionInfectableFalse() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testTransactionInfectableFalse"));
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+//        Assert.assertEquals(response.getData(), "equal id", "payload mismatched");
+    }
+
+    @Test(dependsOnMethods = {"testTransactionInfectableFalse"})
+    public void testTransactionInfectableTrue() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testTransactionInfectableTrue"));
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+//        Assert.assertEquals(response.getData(), "equal id", "payload mismatched");
     }
 
     @AfterClass
