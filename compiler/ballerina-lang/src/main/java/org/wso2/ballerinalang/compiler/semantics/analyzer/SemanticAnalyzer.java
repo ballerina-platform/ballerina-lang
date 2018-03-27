@@ -1476,10 +1476,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-            if (rhsTypes.get(0) != symTable.errType) {
+            if (rhsTypes.get(0) != symTable.errType && (rhsTypes.get(0).tag == TypeTags.TUPLE)) {
                 BTupleType tupleType = (BTupleType) rhsTypes.get(0);
                 rhsTypes = tupleType.tupleTypes;
             } else {
+                dlog.error(assignNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsTypes.get(0));
                 rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
             }
         }
