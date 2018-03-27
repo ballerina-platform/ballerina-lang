@@ -69,9 +69,9 @@ public class StructInitializerTest {
         Assert.assertEquals(2, result.getErrorCount());
         BAssertUtil.validateError(result, 0,
                 "explicit invocation of 'init.negative:person' struct initializer is not allowed",
-                23, 5);
+                24, 5);
         BAssertUtil.validateError(result, 1,
-                "attempt to create a struct with a non-public initializer ", 27, 21);
+                "attempt to create a struct with a non-public initializer ", 28, 21);
 
     }
 }

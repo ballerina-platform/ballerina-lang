@@ -166,6 +166,13 @@ class TreeBuilder {
                 node.timeoutBody.position = node.timeOutExpression.position;
             }
         }
+
+        // Check if sorrounded by curlies
+        if (node.kind === 'MatchPatternClause') {
+            if (node.ws.length < 3) {
+                node.withoutCurlies = true;
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {

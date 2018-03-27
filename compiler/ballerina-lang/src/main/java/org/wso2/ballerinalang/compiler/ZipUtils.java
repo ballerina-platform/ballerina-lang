@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,14 +53,14 @@ class ZipUtils {
     static void generateBalo(BLangPackage bLangPackage, String projectPath, Stream<Path> paths) {
         PackageID packageID = bLangPackage.packageID;
         Path destPath = Paths.get(projectPath).resolve(".ballerina").resolve("repo")
-                .resolve(packageID.getOrgName().getValue()).resolve(packageID.getName().getValue())
-                .resolve(packageID.getPackageVersion().getValue());
+                             .resolve(packageID.getOrgName().getValue()).resolve(packageID.getName().getValue())
+                             .resolve(packageID.getPackageVersion().getValue());
         if (!Files.exists(destPath)) {
             try {
                 Files.createDirectories(destPath);
             } catch (IOException e) {
                 throw new BLangCompilerException("Error occurred when creating directories in " +
-                        "./ballerina/repo/ to save the generated balo");
+                                                         "./ballerina/repo/ to save the generated balo");
             }
         }
         String fileName = packageID.getName() + ".zip";
@@ -80,9 +81,9 @@ class ZipUtils {
         URI zipFileURI;
         try {
             zipFileURI = new URI("jar:" + filepath.getScheme(),
-                    filepath.getUserInfo(), filepath.getHost(), filepath.getPort(),
-                    filepath.getPath() + "!/",
-                    filepath.getQuery(), filepath.getFragment());
+                                 filepath.getUserInfo(), filepath.getHost(), filepath.getPort(),
+                                 filepath.getPath() + "!/",
+                                 filepath.getQuery(), filepath.getFragment());
         } catch (URISyntaxException ignore) {
             throw new BLangCompilerException("error creating artifact" + outFileName);
         }
@@ -103,9 +104,15 @@ class ZipUtils {
     private static void addFileToArchive(Stream<Path> filesToBeArchived, FileSystem zipFS, String outFileName) {
         filesToBeArchived.forEach((path) -> {
             Path root = zipFS.getPath(SRC_DIR);
-            Path dest = zipFS.getPath(root.toString(), path.getFileName().toString());
+            String fileName = path.getFileName().toString();
+            Path dest = zipFS.getPath(root.toString(), fileName);
+            if (path.getFileName().toString().equals("Ballerina.md")) {
+                dest = zipFS.getPath(File.separator, fileName);
+            }
             try {
-                copyFileToArchive(new FileInputStream(path.toString()), dest);
+                if (Files.exists(path)) {
+                    copyFileToArchive(new FileInputStream(path.toString()), dest);
+                }
             } catch (IOException e) {
                 throw new BLangCompilerException("error generating artifact " + outFileName);
             }

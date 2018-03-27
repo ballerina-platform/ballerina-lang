@@ -87,7 +87,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
-        boolean isTransactionInfectable = httpResource.getParentService().isTransactionInfectable();
+        boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
