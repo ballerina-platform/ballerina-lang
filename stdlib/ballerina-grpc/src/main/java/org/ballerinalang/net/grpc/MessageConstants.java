@@ -35,10 +35,11 @@ public class MessageConstants {
     public static final Context.Key<String> CONTENT_TYPE_KEY = Context.key("content-type");
     public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
             ASCII_STRING_MARSHALLER);
-
+    
     //gRPC package name.
-    public static final String PROTOCOL_PACKAGE_GRPC = "ballerina.net.grpc";
-
+    public static final String PROTOCOL_PACKAGE_GRPC = "net.grpc";
+    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina.net.grpc";
+    public static final String ORG_NAME = "ballerina";
     //server side endpoint constants.
     public static final String SERVICE_BUILDER = "SERVICE_BUILDER";
     public static final String GRPC_SERVER = "SERVER";
@@ -48,7 +49,7 @@ public class MessageConstants {
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;
     public static final int RESPONSE_MESSAGE_REF_INDEX = 1;
-
+    
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
     public static final String DEFAULT_HOSTNAME = "localhost";
@@ -64,21 +65,23 @@ public class MessageConstants {
     public static final String REQUEST_SENDER = "REQUEST_SENDER";
     public static final String CLIENT_CONNECTION = "ClientConnection";
     public static final String REQUEST_MESSAGE_DEFINITION = "REQUEST_DEFINITION";
-
+    
     // Names of error structs registered in gRPC package.
     public static final String CONNECTOR_ERROR = "ConnectorError";
     public static final String SERVER_ERROR = "ServerError";
     public static final String CLIENT_ERROR = "ClientError";
-
+    public static final String CLIENT = "Client";
     public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
-
+    public static final String EMPTY_STRING = "";
+    public static final String TRUST_FILE = "trustStoreFile";
+    public static final String KEY_FILE = "keyStoreFile";
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
     // Request Message Param index in service resource.
     public static final int REQUEST_MESSAGE_PARAM_INDEX = 1;
-
+    
     // Response Message Param index in callback service
     public static final int CALLBACK_MESSAGE_PARAM_INDEX = 0;
-
+    
     public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
     
     static {
@@ -101,6 +104,7 @@ public class MessageConstants {
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, 2);
         WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);
     }
+    
     public static final String COMPONENT_IDENTIFIER = "grpc";
     // Server Streaming method resources.
     public static final String ON_OPEN_RESOURCE = "onOpen";

@@ -1,9 +1,9 @@
-import ballerina.io;
-import ballerina.net.websub;
-import ballerina.runtime;
+import ballerina/io;
+import ballerina/net.websub;
+import ballerina/runtime;
 
 endpoint websub:HubClientEndpoint websubHubClientEP {
-    uri: "http://localhost:9999/websub/hub"
+    uri: "https://localhost:9999/websub/hub"
 };
 
 function main (string [] args) {

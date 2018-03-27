@@ -7,6 +7,8 @@ lexer grammar BallerinaLexer;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
     boolean inSiddhiInsertQuery = false;
+    boolean inSiddhiTimeScaleQuery = false;
+    boolean inSiddhiOutputRateLimit = false;
 }
 
 // Reserved words
@@ -20,8 +22,8 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STREAMLET   : 'streamlet' { inSiddhi = true; } ;
 STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
@@ -36,7 +38,7 @@ VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  } ;
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -58,16 +60,24 @@ CURRENT     : 'current' ;
 EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
 EVERY       : 'every' ;
 WITHIN      : 'within' ;
-LAST        : {inSiddhi}? 'last' { inSiddhi = false; } ;
-FIRST       : {inSiddhi}? 'first' { inSiddhi = false; } ;
+LAST        : {inSiddhiOutputRateLimit}? 'last' { inSiddhiOutputRateLimit = false; } ;
+FIRST       : {inSiddhiOutputRateLimit}? 'first' { inSiddhiOutputRateLimit = false; } ;
 SNAPSHOT    : 'snapshot' ;
-OUTPUT      : {inSiddhi}? 'output' { inSiddhi = false; } ;
+OUTPUT      : {inSiddhiOutputRateLimit}? 'output' { inSiddhiTimeScaleQuery = true; } ;
 INNER       : 'inner' ;
 OUTER       : 'outer' ;
 RIGHT       : 'right' ;
 LEFT        : 'left' ;
 FULL        : 'full' ;
 UNIDIRECTIONAL  : 'unidirectional' ;
+REDUCE      : 'reduce' ;
+SECOND      : {inSiddhiTimeScaleQuery}? 'second' { inSiddhiTimeScaleQuery = false; } ;
+MINUTE      : {inSiddhiTimeScaleQuery}? 'minute' { inSiddhiTimeScaleQuery = false; } ;
+HOUR        : {inSiddhiTimeScaleQuery}? 'hour' { inSiddhiTimeScaleQuery = false; } ;
+DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; } ;
+MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
+YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
+FOREVER     : 'forever' ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -79,9 +89,9 @@ TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
-TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
 TYPE_DESC       : 'typedesc' ;
+TYPE_TYPE       : 'type' ;
 TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;
@@ -105,6 +115,7 @@ THROW       : 'throw' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
+FAIL        : 'fail' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
 ONABORT     : 'onabort' ;
@@ -122,6 +133,7 @@ AWAIT       : 'await' ;
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
@@ -172,6 +184,10 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
+
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
 
 // Post Arithmetic operators.
 

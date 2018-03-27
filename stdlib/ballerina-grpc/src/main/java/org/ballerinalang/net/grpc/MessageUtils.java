@@ -105,7 +105,7 @@ public class MessageUtils {
     
     public static BStruct getConnectorError(Context context, Throwable throwable) {
         PackageInfo grpcPackageInfo = context.getProgramFile()
-                .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
+                .getPackageInfo(MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC);
         StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
         return getConnectorError(errorStructInfo.getType(), throwable);
     }

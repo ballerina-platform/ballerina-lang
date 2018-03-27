@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description {value:"Workers in ballerina allow users to delegate tasks to a new worker thread."}
 function main (string[] args) {

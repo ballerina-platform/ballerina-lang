@@ -1,152 +1,152 @@
-function intToFloat (int value) (float) {
+function intToFloat (int value) returns (float) {
     float result;
     result = <float>value;
     return result;
 }
 
-function intToString (int value) (string) {
+function intToString (int value) returns (string) {
     string result;
     result = <string>value;
     return result;
 }
 
-function intToBoolean (int value) (boolean) {
+function intToBoolean (int value) returns (boolean) {
     boolean result;
     result = <boolean>value;
     return result;
 }
 
-function intToAny (int value) (any) {
+function intToAny (int value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
-function floatToInt (float value) (int) {
+function floatToInt (float value) returns (int) {
     int result;
     result = <int>value;
     return result;
 }
 
-function floatToString(float value)(string) {
+function floatToString(float value) returns (string) {
     string result;
     result = <string>value;
     return result;
 }
 
-function floatToBoolean (float value) (boolean) {
+function floatToBoolean (float value) returns (boolean) {
     boolean result;
     result = <boolean>value;
     return result;
 }
 
-function floatToAny (float value) (any) {
+function floatToAny (float value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
-function stringToInt(string value)(int) {
+function stringToInt(string value) returns (int) {
     int result;
-    result, _ = <int>value;
+    result =? <int>value;
     return result;
 }
 
-function stringToFloat(string value)(float) {
+function stringToFloat(string value) returns (float) {
     float result;
-    result, _ = <float>value;
+    result =? <float>value;
     return result;
 }
 
-function stringToBoolean(string value)(boolean) {
+function stringToBoolean(string value) returns (boolean) {
     boolean result;
-    result, _ = <boolean>value;
+    result = <boolean>value;
     return result;
 }
 
-function stringToAny(string value)(any) {
+function stringToAny(string value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
-function booleanToInt(boolean value)(int) {
+function booleanToInt(boolean value) returns (int) {
     int result;
     result = <int>value;
     return result;
 }
 
-function booleanToFloat(boolean value)(float) {
+function booleanToFloat(boolean value) returns (float) {
     float result;
     result = <float>value;
     return result;
 }
 
-function booleanToString(boolean value)(string) {
+function booleanToString(boolean value) returns (string) {
     string result;
     result = <string>value;
     return result;
 }
 
-function booleanToAny(boolean value)(any) {
+function booleanToAny(boolean value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
-function blobToAny(blob value)(any) {
+function blobToAny(blob value) returns (any) {
     any result;
-    result = (any)value;
+    result = <any>value;
     return result;
 }
 
-function anyToInt () (int) {
+function anyToInt () returns (int) {
     int i = 5;
     any a = i;
     int value;
-    value, _ = (int)a;
+    value =? <int>a;
     return value;
 }
 
-function anyToFloat () (float) {
+function anyToFloat () returns (float) {
     float f = 5.0;
     any a = f;
     float value;
-    value, _ = (float)a;
+    value =? <float>a;
     return value;
 }
 
-function anyToString () (string) {
+function anyToString () returns (string) {
     string s = "test";
     any a = s;
     string value;
-    value, _ = (string)a;
+    value = <string>a;
     return value;
 }
 
-function anyToBoolean () (boolean) {
+function anyToBoolean () returns (boolean) {
     boolean b;
     any a = b;
     boolean value;
-    value, _ = (boolean)a;
+    value =? <boolean>a;
     return value;
 }
 
-function anyToBlob (blob data) (blob) {
+function anyToBlob (blob data) returns (blob) {
     blob b = data;
     any a = b;
     blob value;
-    value, _ = (blob)a;
+    value =? <blob>a;
     return value;
 }
 
-function booleanappendtostring(boolean value)(string) {
+function booleanappendtostring(boolean value) returns (string) {
     string result;
     result = value + "-append-" + value;
     return result;
 }
 
-function intarrtofloatarr()(float[]) {
+function intarrtofloatarr() returns (float[]) {
     float[] numbers;
     numbers = [999,95,889];
     return numbers;

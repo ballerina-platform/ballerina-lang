@@ -1,7 +1,7 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-service<http> serviceName{
-    resource resourceName (http:Connection conn, http:Request req) {
+service<http:Service> hello {
+    sayHello (endpoint client, http:Request request) {
         testStruct1 myStr = {};
         myStr.
     }

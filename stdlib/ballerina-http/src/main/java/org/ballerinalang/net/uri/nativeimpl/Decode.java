@@ -36,7 +36,7 @@ import java.net.URLDecoder;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.uri",
+        orgName = "ballerina", packageName = "net.uri",
         functionName = "decode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
@@ -50,10 +50,10 @@ public class Decode extends BlockingNativeCallableUnit {
         String url = context.getStringArgument(0);
         String charset = context.getStringArgument(1);
         try {
-            context.setReturnValues(new BString(URLDecoder.decode(url, charset)), null);
+            context.setReturnValues(new BString(URLDecoder.decode(url, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(null,
-                    HttpUtil.getGenericError(context, "Error occurred while decoding the url. " + e.getMessage()));
+            context.setReturnValues(HttpUtil.getGenericError(context, "Error occurred while decoding the url. " + e
+                    .getMessage()));
         }
     }
 }

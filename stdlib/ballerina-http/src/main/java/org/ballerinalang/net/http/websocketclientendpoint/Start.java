@@ -31,6 +31,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketClientConnectorListener;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -48,7 +49,7 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),
@@ -76,20 +77,18 @@ public class Start extends BlockingNativeCallableUnit {
         WebSocketService wsService = (WebSocketService) serviceConfig;
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(
-                new WsHandshakeListener(clientEndpointConfig, context, wsService, clientConnectorListener));
+                new WsHandshakeListener(context, wsService, clientConnectorListener));
         context.setReturnValues();
     }
 
     static class WsHandshakeListener implements HandshakeListener {
 
-        Struct clientEndpointConfig;
         Context context;
         WebSocketService wsService;
         WebSocketClientConnectorListener clientConnectorListener;
 
-        WsHandshakeListener(Struct clientEndpointConfig, Context context, WebSocketService wsService,
+        WsHandshakeListener(Context context, WebSocketService wsService,
                             WebSocketClientConnectorListener clientConnectorListener) {
-            this.clientEndpointConfig = clientEndpointConfig;
             this.context = context;
             this.wsService = wsService;
             this.clientConnectorListener = clientConnectorListener;
@@ -97,13 +96,15 @@ public class Start extends BlockingNativeCallableUnit {
 
         @Override
         public void onSuccess(Session session) {
-            BStruct endpoint = (BStruct) context.getRefArgument(0);
-            wsService.setServiceEndpoint(endpoint);
+            //using only one service endpoint in the client as there can be only one connection.
+            BStruct serviceEndpoint = ((BStruct) context.getRefArgument(0));
             BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
-            clientEndpointConfig.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
             wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            clientConnectorListener.setWebSocketService(wsService);
-            endpoint.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
+            WebSocketUtil.populateWebSocketConnector(session, wsConnection);
+            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
+                                                                                         serviceEndpoint);
+            clientConnectorListener.setConnectionInfo(connectionInfo);
+            serviceEndpoint.setRefField(0, wsConnection);
             context.setReturnValues();
         }
 

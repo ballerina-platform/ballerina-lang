@@ -38,7 +38,7 @@ import org.ballerinalang.net.http.WebSocketService;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
@@ -60,7 +60,6 @@ public class Register extends AbstractHttpNativeFunction {
 
         if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService webSocketService = new WebSocketService(service);
-            webSocketService.setServiceEndpoint((BStruct) connectorEndpoint.getVMValue());
             getWebSocketServicesRegistry(connectorEndpoint).registerService(webSocketService);
         }
 

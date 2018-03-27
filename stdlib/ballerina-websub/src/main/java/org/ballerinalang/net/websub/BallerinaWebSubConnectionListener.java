@@ -20,6 +20,7 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
+import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
@@ -44,7 +45,17 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     @Override
     public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
         try {
-            HttpResource httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
+            HttpResource httpResource;
+            if (accessed(httpCarbonMessage)) {
+                httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
+                extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+                return;
+            }
+            httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
+            if (HttpDispatcher.shouldDiffer(httpResource, hasFilters())) {
+                httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
+                return;
+            }
             extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
         } catch (BallerinaException ex) {
             HttpUtil.handleFailure(httpCarbonMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));

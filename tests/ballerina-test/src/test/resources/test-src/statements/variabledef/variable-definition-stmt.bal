@@ -1,23 +1,23 @@
-function variableDefaultValue () (int, boolean, string, float) {
+function variableDefaultValue () returns (int, boolean, string, float) {
     int i;
     boolean b;
     string s;
     float f;
 
-    return i, b, s, f;
+    return (i, b, s, f);
 }
 
-function inlineVarInit () (int, boolean, string, float) {
+function inlineVarInit () returns (int, boolean, string, float) {
     int i = 10;
     boolean b = true;
     string s = "hello";
     float f = 2.6;
 
-    return i, b, s, f;
+    return (i, b, s, f);
 }
 
 
-function updateDefaultValue (int v1, boolean v3, string v4, float v5) (int, boolean, string, float) {
+function updateDefaultValue (int v1, boolean v3, string v4, float v5) returns (int, boolean, string, float) {
     int i;
     boolean b;
     string s;
@@ -28,11 +28,11 @@ function updateDefaultValue (int v1, boolean v3, string v4, float v5) (int, bool
     s = v4;
     f = v5;
 
-    return i, b, s, f;
+    return (i, b, s, f);
 }
 
 
-function updateVarValue (int v1, boolean v3, string v4, float v5) (int, boolean, string, float) {
+function updateVarValue (int v1, boolean v3, string v4, float v5) returns (int, boolean, string, float) {
     int i = 10;
     boolean b = true;
     string s = "hello";
@@ -43,5 +43,5 @@ function updateVarValue (int v1, boolean v3, string v4, float v5) (int, boolean,
     s = v4;
     f = v5;
 
-    return i, b, s, f;
+    return (i, b, s, f);
 }

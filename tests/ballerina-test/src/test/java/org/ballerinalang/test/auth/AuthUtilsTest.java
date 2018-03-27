@@ -26,19 +26,11 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class AuthUtilsTest {
 
@@ -46,30 +38,18 @@ public class AuthUtilsTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
-    private Path ballerinaConfCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "auth", "caching", BALLERINA_CONF);
-        ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
-        // Copy the ballerina.conf to the source root before starting the tests
-        Files.copy(ballerinaConfPath, ballerinaConfCopyPath, new CopyOption[] { REPLACE_EXISTING });
         compileResult = BCompileUtil.compile(sourceRoot.resolve("auth-utils.bal").toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-    }
-
-    private Map<String, String> getRuntimeProperties() {
-        Map<String, String> runtimeConfigs = new HashMap<>();
-        runtimeConfigs.put(BALLERINA_CONF,
-                Paths.get(resourceRoot, "datafiles", "config", "auth", "caching", BALLERINA_CONF).toString());
-        return runtimeConfigs;
+        registry.initRegistry(null, ballerinaConfPath.toString(), null);
     }
 
     @Test(description = "Test case for creating a cache which is disabled from configs")
@@ -92,10 +72,8 @@ public class AuthUtilsTest {
     public void testExtractBasicAuthCredentialsFromInvalidHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthCredentialsFromInvalidHeader");
         Assert.assertTrue(returns != null);
-        Assert.assertTrue(returns[0].stringValue() == null);
-        Assert.assertTrue(returns[1].stringValue() == null);
         // an error should be returned
-        Assert.assertTrue(returns[2] != null);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
     }
 
     @Test(description = "Test case for extracting credentials from basic auth header")
@@ -103,14 +81,7 @@ public class AuthUtilsTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthCredentials");
         Assert.assertTrue(returns != null);
         // username and password should ne returned
-        Assert.assertTrue(returns[0].stringValue() != null);
-        Assert.assertTrue(returns[1].stringValue() != null);
-        // no error should be returned
-        Assert.assertTrue(returns[2] == null);
-    }
-
-    @AfterClass
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(ballerinaConfCopyPath);
+        Assert.assertEquals(returns[0].stringValue(), "isuru");
+        Assert.assertEquals(returns[1].stringValue(), "xxx");
     }
 }

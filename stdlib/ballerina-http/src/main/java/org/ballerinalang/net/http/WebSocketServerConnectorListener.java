@@ -31,6 +31,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -49,6 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ENDPOINT;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -71,12 +75,18 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         HTTPCarbonMessage msg = new HTTPCarbonMessage(
                 ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpRequest());
         WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage, msg);
-        BStruct serviceEndpoint = wsService.getServiceEndpoint();
+        BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
+                wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, WEBSOCKET_ENDPOINT);
         BStruct serverConnector = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, serverConnector);
-
+        serverConnector.addNativeData(WEBSOCKET_ENDPOINT, serviceEndpoint);
+        Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
+        BMap<String, BString> bUpgradeHeaders = new BMap<>();
+        upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
+        serverConnector.setRefField(1, bUpgradeHeaders);
         Resource onUpgradeResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_UPGRADE);
         if (onUpgradeResource != null) {
             Semaphore semaphore = new Semaphore(0);
@@ -94,15 +104,16 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
             HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, msg);
 
-            // Creating map
-            Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
-            BMap<String, BString> bUpgradeHeaders = new BMap<>();
-            upgradeHeaders.forEach((headerKey, headerVal) -> bUpgradeHeaders.put(headerKey, new BString(headerVal)));
-            serverConnector.setRefField(0, bUpgradeHeaders);
             List<ParamDetail> paramDetails = onUpgradeResource.getParamDetails();
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = serviceEndpoint;
             bValues[1] = inRequest;
+
+            Tracer tracer = TraceManagerWrapper.newTracer(null, false);
+            upgradeHeaders.entrySet().stream()
+                    .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                    .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
                 public void notifySuccess() {
@@ -115,44 +126,45 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     semaphore.release();
                 }
-            }, null, bValues);
+            }, null, tracer, bValues);
+
             try {
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled() &&
                         !webSocketInitMessage.isHandshakeStarted()) {
-                    WebSocketUtil.handleHandshake(webSocketInitMessage, wsService, null, serverConnector);
+                    WebSocketUtil.handleHandshake(wsService, null, serverConnector);
                 }
             } catch (InterruptedException e) {
                 throw new BallerinaConnectorException("Connection interrupted during handshake");
             }
 
         } else {
-            WebSocketUtil.handleHandshake(webSocketInitMessage, wsService, null, serverConnector);
+            WebSocketUtil.handleHandshake(wsService, null, serverConnector);
         }
     }
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(webSocketTextMessage.getSessionID());
-        WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
+        WebSocketDispatcher.dispatchTextMessage(
+                connectionManager.getConnectionInfo(webSocketTextMessage.getSessionID()), webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(webSocketBinaryMessage.getSessionID());
-        WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
+        WebSocketDispatcher.dispatchBinaryMessage(
+                connectionManager.getConnectionInfo(webSocketBinaryMessage.getSessionID()), webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(webSocketControlMessage.getSessionID());
-        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
+        WebSocketDispatcher.dispatchControlMessage(
+                connectionManager.getConnectionInfo(webSocketControlMessage.getSessionID()), webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketService wsService = connectionManager.removeConnection(webSocketCloseMessage.getSessionID());
-        WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
+        WebSocketDispatcher.dispatchCloseMessage(
+                connectionManager.getConnectionInfo(webSocketCloseMessage.getSessionID()), webSocketCloseMessage);
     }
 
     @Override
@@ -162,8 +174,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(controlMessage.getSessionID());
-        WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
+        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(controlMessage.getSessionID()),
+                                                controlMessage);
     }
 
 }

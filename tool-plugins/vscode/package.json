@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": " Ballerina is a flexible, powerful, beautiful programming language designed for integration",
-    "version": "0.964.1-SNAPSHOT",
+    "version": "0.970.0-alpha1-SNAPSHOT",
     "publisher": "WSO2",
     "repository": {
         "type": "git",
@@ -99,6 +99,11 @@
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
+                            },
+                            "debugServerTimeout": {
+                                "type": "integer",
+                                "default": 5000,
+                                "description": "How long to wait for the debug server to start up in miliseconds"
                             }
                         }
                     }

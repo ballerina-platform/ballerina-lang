@@ -1,4 +1,4 @@
-import ballerina.lang.errors;
+import ballerina/lang.errors;
 
 function floattoint(float value)(int) {
     int result;
@@ -376,7 +376,7 @@ function testAnyNullToStruct() (Person) {
 function testAnyNullToMap() (map) {
     any a;
     map value;
-    value, _ = (map) a;
+    value =? (map) a;
     return value;
 }
 

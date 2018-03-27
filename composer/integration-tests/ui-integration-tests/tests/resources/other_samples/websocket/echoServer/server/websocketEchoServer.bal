@@ -1,6 +1,6 @@
-import ballerina.lang.system;
-import ballerina.lang.messages;
-import ballerina.net.ws;
+import ballerina/lang.system;
+import ballerina/lang.messages;
+import ballerina/net.ws;
 
 @http:BasePath("/ws-echo-server")
 @ws:WebSocketUpgradePath("/")

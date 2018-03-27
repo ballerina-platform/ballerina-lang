@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
-import ballerina.io;
+import ballerina/net.http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint initiatorEP {
     port:8888
@@ -33,13 +33,41 @@ service<http:Service> InitiatorService bind initiatorEP {
         endpoint http:ClientEndpoint ep {
             targets: [{uri: "http://localhost:8889/participant1"}]
         };
-        http:Request newReq = {};
-        http:Response clientResponse1;
         transaction {
-            clientResponse1, _ = ep -> get("/", newReq);
+            http:Request newReq = {};
+            var getResult = ep -> get("/", newReq);
+            match getResult {
+                http:HttpConnectorError err => {
+                    io:print("Initiator could not send get request to participant. Error:");
+                    sendErrorResponseToCaller(conn);
+                    abort;
+                }
+                http:Response participant1Res => {
+                    var fwdResult = conn -> forward(participant1Res); 
+                    match fwdResult {
+                        http:HttpConnectorError err => {
+                            io:print("Initiator could not forward response from participant 1 to originating client. Error:");
+                            io:print(err);
+                        }
+                        null => io:print("");
+                    }
+                }
+            }
         } onretry {
             io:println("Intiator failed");
         }
-        _ = conn -> forward(clientResponse1);
+    }
+}
+
+function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
+    endpoint http:ServiceEndpoint conn2 = conn;
+    http:Response errRes = {statusCode: 500};
+    var respondResult = conn2 -> respond(errRes);
+    match respondResult {
+        http:HttpConnectorError respondErr => {
+            io:print("Initiator could not send error response to originating client. Error:");
+            io:println(respondErr);
+        }
+        null => return;
     }
 }

@@ -126,8 +126,9 @@ public class HTTPServicesRegistry {
                 websocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH));
         Value serviceType = websocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
         String uri = basePath.concat(upgradePath);
-        webSocketServicesRegistry.addUpgradableServiceByName(
-                new WebSocketService(BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType)), uri);
+        WebSocketService service = new WebSocketService(
+                BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType));
+        webSocketServicesRegistry.addUpgradableServiceByName(service, uri);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {

@@ -39,7 +39,7 @@ public class TypeOfOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions/unaryoperations/typeof-operation.bal");
+        result = BCompileUtil.compile("test-src/expressions/unaryoperations/typeof-operation.bal");
     }
 
     @Test(description = "Test reference type access expression trivial equality positive case")
@@ -592,5 +592,13 @@ public class TypeOfOperatorTest {
         int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 1;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void testTypeOfNullString() {
+        BValue[] args = { new BString(null) };
+        BValue[] returns = BRunUtil.invoke(result, "testTypeOfNullString", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].stringValue(), "null");
     }
 }

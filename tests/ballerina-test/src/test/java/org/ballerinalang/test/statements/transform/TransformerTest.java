@@ -36,7 +36,7 @@ public class TransformerTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "statements/transform/transform-stmt.bal");
+        result = BCompileUtil.compile("test-src/statements/transform/transform-stmt.bal");
     }
 
     @Test(description = "Test empty transformation")
@@ -45,23 +45,17 @@ public class TransformerTest {
         Assert.assertEquals(result.getErrorCount(), 0);
         BValue[] values = BRunUtil.invoke(result, "emptyTransform");
         Assert.assertNotEquals(values[0], null);
-        Assert.assertEquals(values[0].stringValue(), "{name:\"null\", age:0, address:\"null\"}");
+        Assert.assertEquals(values[0].stringValue(), "{name:\"\", age:0, address:\"\"}");
     }
 
     @Test(description = "Test simple unnamed transformer")
     public void unnamedTransform() {
         BValue[] returns = BRunUtil.invoke(result, "unnamedTransform");
 
-        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns.length, 1);
 
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "John");
-
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
-
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "London");
+        Assert.assertEquals(returns[0].stringValue(), "John30London");
     }
 
     @Test(description = "Test simple named transformer")
@@ -313,7 +307,7 @@ public class TransformerTest {
         BAssertUtil.validateError(resNegative, i++, "'next' statement is not allowed inside a transformer", 86, 5);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTransformerPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/statements/transform/", "a.b");
         BValue[] returns = BRunUtil.invoke(result, "a.b", "testTransformer");
@@ -332,8 +326,7 @@ public class TransformerTest {
     @Test(description = "Test iterable operations inside transformer")
     public void testTransformIterableOperations() {
         BValue[] args = {};
-        CompileResult result = BCompileUtil.compile(this, "test-src",
-                "statements/transform/transform-iterable-operations.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/transform/transform-iterable-operations.bal");
         BValue[] returns = BRunUtil.invoke(result, "testTransformerIterableOperations", args);
         Assert.assertEquals(returns.length, 3);
 

@@ -9,8 +9,8 @@ struct B {
 
 function testCastingWithTooManyReturns() {
     B b = {x: "x-valueof-b"};
-    A a;
+    A a = {};
     int i;
-    error err;
-    a, err, i = (A) b;
+    error err = {};
+    a, err, i =? <A> b;
 }

@@ -54,6 +54,6 @@ public class BLangVariableDef extends BLangStatement implements VariableDefiniti
     
     @Override
     public String toString() {
-        return "BLangVariableDef: " + this.var;
+        return this.var.toString();
     }
 }

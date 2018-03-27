@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.ArrayList;
@@ -33,8 +34,33 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     
     private boolean errored;
     
-    public AsyncInvocableWorkerResponseContext(BType[] responseTypes, int workerCount) {
-        super(responseTypes, workerCount);
+    private List<WorkerExecutionContext> workerExecutionContexts;
+    
+    private CallableUnitInfo callableUnitInfo;
+    
+    private boolean cancelled;
+    
+    public AsyncInvocableWorkerResponseContext(CallableUnitInfo callableUnitInfo, int workerCount) {
+        super(callableUnitInfo.getRetParamTypes(), workerCount);
+        this.callableUnitInfo = callableUnitInfo;
+    }
+    
+    public AsyncInvocableWorkerResponseContext(CallableUnitInfo callableUnitInfo) {
+        super(callableUnitInfo.getRetParamTypes(), 1);
+        this.callableUnitInfo = callableUnitInfo;
+    }
+    
+    public void setWorkerExecutionContexts(List<WorkerExecutionContext> workerExecutionContexts) {
+        this.workerExecutionContexts = workerExecutionContexts;
+    }
+    
+    @Override
+    public synchronized WorkerExecutionContext signal(WorkerSignal signal) {
+        if (this.cancelled) {
+            return null;
+        } else {
+            return super.signal(signal);
+        }
     }
     
     @Override
@@ -70,7 +96,7 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
             return null;
         }
         TargetContextInfo info = this.targetContextInfos.get(0);
-        WorkerExecutionContext runInCallerCtx = this.onFulfillment(info.targetCtx, info.retRegIndexes, true);
+        WorkerExecutionContext runInCallerCtx = this.onFulfillment(info.targetCtx, info.retRegIndexes, runInCaller);
         for (int i = 1; i < this.targetContextInfos.size(); i++) {
             info = this.targetContextInfos.get(i);
             this.onFulfillment(info.targetCtx, info.retRegIndexes, false);
@@ -91,13 +117,43 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
             this.propagateErrorToTarget(this.targetContextInfos.get(i).targetCtx, false);
         }
         return runInCallerCtx;
-        
     }
     
     private WorkerExecutionContext propagateErrorToTarget(WorkerExecutionContext targetCtx, boolean runInCaller) {
         WorkerExecutionContext ctx = this.onFinalizedError(targetCtx, 
                 BLangVMErrors.createCallFailedException(targetCtx, this.getWorkerErrors()));
         return BLangScheduler.resume(ctx, runInCaller);
+    }
+    
+    public boolean isDone() {
+        return this.isFulfilled() || this.errored || this.isCancelled();
+    }
+    
+    public boolean isCancelled() {
+        return cancelled;
+    }
+    
+    public synchronized boolean cancel() {
+        if (this.isDone()) {
+            return false;
+        }
+        /* only non-native workers can be cancelled */
+        if (this.workerExecutionContexts != null) {
+            for (WorkerExecutionContext ctx: this.workerExecutionContexts) {
+                BLangScheduler.stopWorker(ctx);
+            }
+            this.sendAsyncCancelErrorSignal();
+            this.cancelled = true;
+        }
+        return this.cancelled;
+    }
+    
+    private void sendAsyncCancelErrorSignal() {
+        WorkerData result = BLangVMUtils.createWorkerData(this.callableUnitInfo.retWorkerIndex);
+        BStruct error = BLangVMErrors.createCallCancelledException(this.callableUnitInfo);
+        WorkerExecutionContext ctx = this.signal(new WorkerSignal(
+                new WorkerExecutionContext(error), SignalType.ERROR, result));
+        BLangScheduler.resume(ctx);
     }
     
     /**

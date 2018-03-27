@@ -39,12 +39,12 @@ public class TreeUtils {
         stringTypeKindMap.put("xml", TypeKind.XML);
         stringTypeKindMap.put("table", TypeKind.TABLE);
         stringTypeKindMap.put("stream", TypeKind.STREAM);
-        stringTypeKindMap.put("streamlet", TypeKind.STREAMLET);
         stringTypeKindMap.put("any", TypeKind.ANY);
         stringTypeKindMap.put("map", TypeKind.MAP);
         stringTypeKindMap.put("future", TypeKind.FUTURE);
         stringTypeKindMap.put("typedesc", TypeKind.TYPEDESC);
         stringTypeKindMap.put("message", TypeKind.MESSAGE);
+        stringTypeKindMap.put("null", TypeKind.NULL);
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

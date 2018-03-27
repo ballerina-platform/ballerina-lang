@@ -18,6 +18,7 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -336,7 +337,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext formatContext = new TextDocumentServiceContext();
             formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
 
-            String fileContent = documentManager.getFileContent(CommonUtil.getPath(params.getTextDocument().getUri()));
+            LSDocument document = new LSDocument(params.getTextDocument().getUri());
+            String fileContent = documentManager.getFileContent(CommonUtil.getPath(document));
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
@@ -376,7 +378,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             renameContext.put(DocumentServiceKeys.POSITION_KEY,
                     new TextDocumentPositionParams(params.getTextDocument(), params.getPosition()));
             List<Location> contents = new ArrayList<>();
-            
+
             try {
                 List<BLangPackage> bLangPackages =
                         TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false,
@@ -414,7 +416,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        Path openedPath = CommonUtil.getPath(params.getTextDocument().getUri());
+        LSDocument document = new LSDocument(params.getTextDocument().getUri());
+        Path openedPath = CommonUtil.getPath(document);
         if (openedPath == null) {
             return;
         }
@@ -422,12 +425,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         String content = params.getTextDocument().getText();
         this.documentManager.openFile(openedPath, content);
 
-        compileAndSendDiagnostics(content, openedPath);
+        compileAndSendDiagnostics(content, document, openedPath);
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        Path changedPath = CommonUtil.getPath(params.getTextDocument().getUri());
+        LSDocument document = new LSDocument(params.getTextDocument().getUri());
+        Path changedPath = CommonUtil.getPath(document);
         if (changedPath == null) {
             return;
         }
@@ -438,18 +442,21 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         this.diagPushDebouncer.call(new Runnable() {
             @Override
             public void run() {
-                compileAndSendDiagnostics(content, changedPath);
+                compileAndSendDiagnostics(content, document, changedPath);
             }
         });
     }
 
-    private void compileAndSendDiagnostics(String content, Path path) {
+    private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(content);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path, pkgName);
+        LSDocument sourceDocument = new LSDocument();
+        sourceDocument.setUri(document.getURIString());
+        sourceDocument.setSourceRoot(sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
-                false);
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
+                false, documentManager);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
@@ -530,12 +537,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
-        Path closedPath = CommonUtil.getPath(params.getTextDocument().getUri());
+        LSDocument document = new LSDocument(params.getTextDocument().getUri());
+        Path closedPath = CommonUtil.getPath(document);
         if (closedPath == null) {
             return;
         }
 
-        this.documentManager.closeFile(CommonUtil.getPath(params.getTextDocument().getUri()));
+        this.documentManager.closeFile(CommonUtil.getPath(document));
     }
 
     @Override
