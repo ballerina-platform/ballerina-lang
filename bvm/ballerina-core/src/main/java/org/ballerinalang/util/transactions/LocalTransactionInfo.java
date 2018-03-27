@@ -31,7 +31,6 @@ public class LocalTransactionInfo {
     private String globalTransactionId;
     private String url;
     private String protocol;
-    private boolean infectious;
 
     private int transactionLevel;
     private Map<Integer, Integer> allowedTransactionRetryCounts;
@@ -39,11 +38,10 @@ public class LocalTransactionInfo {
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private Stack<Integer> transactionBlockIdStack;
 
-    public LocalTransactionInfo(String globalTransactionId, String url, String protocol, boolean infectious) {
+    public LocalTransactionInfo(String globalTransactionId, String url, String protocol) {
         this.globalTransactionId = globalTransactionId;
         this.url = url;
         this.protocol = protocol;
-        this.infectious = infectious;
         this.transactionLevel = 0;
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();

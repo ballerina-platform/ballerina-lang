@@ -135,12 +135,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
         if (!isInfectable || httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID) == null ||
                 httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL) == null) {
-            properties.put(Constants.TRANSACTION_INFECTIOUS, false);
             return properties;
         }
         properties.put(Constants.GLOBAL_TRANSACTION_ID, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID));
         properties.put(Constants.TRANSACTION_URL, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL));
-        properties.put(Constants.TRANSACTION_INFECTIOUS, true);
         return properties;
     }
 

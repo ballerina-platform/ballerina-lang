@@ -2549,7 +2549,7 @@ public class CPU {
             } else {
                 globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
             }
-            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol, true);
+            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
             ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
             if (isGlobalTransactionEnabled) {

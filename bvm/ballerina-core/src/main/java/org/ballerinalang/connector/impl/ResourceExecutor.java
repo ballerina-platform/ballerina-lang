@@ -59,22 +59,15 @@ public class ResourceExecutor {
         WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
         if (properties != null) {
             context.globalProps.putAll(properties);
-            context.setLocalTransactionInfo(createLocalTransactionInfo(properties));
+            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
+                context.setLocalTransactionInfo(new LocalTransactionInfo(
+                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
+                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
+            }
         }
 
         BLangVMUtils.initServerConnectorTrace(context, resource, tracer);
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);
-    }
-
-    private static LocalTransactionInfo createLocalTransactionInfo(Map<String, Object> properties) {
-        LocalTransactionInfo localTransactionInfo;
-        if ((boolean) properties.get(Constants.TRANSACTION_INFECTIOUS)) {
-            localTransactionInfo = new LocalTransactionInfo(properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
-                    properties.get(Constants.TRANSACTION_URL).toString(), "2pc", true);
-        } else {
-            localTransactionInfo = new LocalTransactionInfo("", "", "", false);
-        }
-        return localTransactionInfo;
     }
 }
