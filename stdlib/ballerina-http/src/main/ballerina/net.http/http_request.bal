@@ -142,16 +142,6 @@ public function <Request req> expects100Continue () returns (boolean) {
     return req.getHeader(HEADER_KEY_EXPECT) ==  HEADER_VAL_100_CONTINUE;
 }
 
-//@Description {value:"Gets the Content-Length header from the request"}
-//@Param {value:"req: The request message"}
-//@Return {value:"length of the message"}
-//public function <Request request> getContentLength () returns (int) {
-//    match request.getHeader(CONTENT_LENGTH) {
-//        string contentLengthVal => return getContentLengthIntValue(contentLengthVal);
-//        any | null => return -1;
-//    }
-//}
-
 @Description {value:"Gets the request payload in JSON format"}
 @Param {value:"request: The request message"}
 @Return {value:"The JSON reresentation of the message payload"}
