@@ -275,44 +275,43 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
     //Response cachedResponse = {};
     req.parseCacheControlHeader();
 
-    match cache.get(getCacheKey(httpMethod, path)) {
-        Response cachedResponse => {
-            // Based on https://tools.ietf.org/html/rfc7234#section-4
-            log:printTrace("Cached response found for: '" + httpMethod + " " + path + "'");
+    if (cache.hasKey(getCacheKey(httpMethod, path))) {
+        Response cachedResponse = cache.get(getCacheKey(httpMethod, path));
+        // Based on https://tools.ietf.org/html/rfc7234#section-4
+        log:printTrace("Cached response found for: '" + httpMethod + " " + path + "'");
 
-            if (isFreshResponse(cachedResponse, isShared)) {
-                // If the no-cache directive is not set, responses can be served straight from the cache, without
-                // validating with the origin server.
-                if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache && !req.hasHeader(PRAGMA)) {
-                    setAgeHeader(cachedResponse);
-                    log:printTrace("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", [cachedResponse]));
-                    return cachedResponse;
-                } else {
-                    log:printTrace("Serving a cached fresh response after validating with the origin server");
-                    return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
-                }
+        if (isFreshResponse(cachedResponse, isShared)) {
+            // If the no-cache directive is not set, responses can be served straight from the cache, without
+            // validating with the origin server.
+            if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache && !req.hasHeader(PRAGMA)) {
+                setAgeHeader(cachedResponse);
+                log:printTrace("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", [cachedResponse]));
+                return cachedResponse;
+            } else {
+                log:printTrace("Serving a cached fresh response after validating with the origin server");
+                return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
             }
-
-            // If a fresh response is not available, serve a stale response, provided that it is not prohibited by
-            // a directive and is explicitly allowed in the request.
-            if (isAllowedToBeServedStale(req.cacheControl, cachedResponse, isShared)) {
-
-                // If the no-cache directive is not set, responses can be served straight from the cache, without
-                // validating with the origin server.
-                if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache
-                                                  && !req.hasHeader(PRAGMA)) {
-                    log:printTrace("Serving cached stale response without validating with the origin server");
-                    setAgeHeader(cachedResponse);
-                    cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
-                    return cachedResponse;
-                }
-            }
-
-            log:printTrace("Validating a stale response for '" + path + "' with the origin server.");
-            return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false);
         }
 
-        null => {log:printTrace("Cached response not found for: '" + httpMethod + " " + path + "'");}
+        // If a fresh response is not available, serve a stale response, provided that it is not prohibited by
+        // a directive and is explicitly allowed in the request.
+        if (isAllowedToBeServedStale(req.cacheControl, cachedResponse, isShared)) {
+
+            // If the no-cache directive is not set, responses can be served straight from the cache, without
+            // validating with the origin server.
+            if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache
+                                              && !req.hasHeader(PRAGMA)) {
+                log:printTrace("Serving cached stale response without validating with the origin server");
+                setAgeHeader(cachedResponse);
+                cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
+                return cachedResponse;
+            }
+        }
+
+        log:printTrace("Validating a stale response for '" + path + "' with the origin server.");
+        return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false);
+    } else {
+        log:printTrace("Cached response not found for: '" + httpMethod + " " + path + "'");
     }
 
     log:printTrace("Sending new request to: " + path);

@@ -69,16 +69,15 @@ function <HttpCache httpCache> put (string key, RequestCacheControl requestCache
     }
 }
 
-function <HttpCache httpCache> get (string key) returns (Response|null) {
-    try {
-        match <Response[]>httpCache.cache.get(key) {
-            Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
-            error err => return null;
-        }
-    } catch (error e) {
-        return null;
+function <HttpCache httpCache> hasKey (string key) returns boolean {
+    return httpCache.cache.hasKey(key);
+}
+
+function <HttpCache httpCache> get (string key) returns Response {
+    match <Response[]>httpCache.cache.get(key) {
+        Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
+        error err => throw err;
     }
-    return null;
 }
 
 function <HttpCache httpCache> getAll (string key) returns (Response[]|null) {
