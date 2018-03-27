@@ -120,21 +120,25 @@ public class CryptoTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 
-    // CRC32 generation for JSON is not supported yet
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*message: failed to generate hash: unsupported data type: json.*")
+    @Test(description = "Testing CRC32 generation for JSON")
     public void testCRC32ForJSON() {
         String payload = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
+        String expectedCRC32Hash = "ce5879b2";
 
-        BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON", new BValue[]{new BJSON(payload)});
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON",
+                                                new BValue[]{new BJSON(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 
-    // CRC32 generation for XML is not supported yet
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*message: failed to generate hash: unsupported data type: xml.*")
+    @Test(description = "Testing CRC32 generation for XML")
     public void testCRC32ForXML() {
         String payload = "<foo>hello</foo>";
+        String expectedCRC32Hash = "748efc2";
 
-        BRunUtil.invoke(compileResult, "testHashWithCRC32ForXML", new BValue[]{new BXMLItem(payload)});
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForXML",
+                                                new BValue[]{new BXMLItem(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 }

@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.security.crypto;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
@@ -36,7 +38,7 @@ import java.util.zip.Checksum;
 /**
  * Function for generating CRC32 hashes.
  *
- * @since 0.965.0
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "security.crypto",
@@ -53,20 +55,19 @@ public class GetCRC32 extends BlockingNativeCallableUnit {
         byte[] bytes;
         long checksumVal;
 
-        if (value instanceof BString) {
+        BType argType = value.getType();
+        if (argType == BTypes.typeJSON || argType == BTypes.typeXML || argType == BTypes.typeString) {
             // TODO: Look at the possibility of making the encoding configurable
             bytes = value.stringValue().getBytes(StandardCharsets.UTF_8);
-            checksum.update(bytes, 0, bytes.length);
-            checksumVal = checksum.getValue();
-        } else if (value instanceof BBlob) {
+        } else if (argType == BTypes.typeBlob) {
             bytes = ((BBlob) value).blobValue();
-            checksum.update(bytes, 0, bytes.length);
-            checksumVal = checksum.getValue();
         } else {
             throw new BallerinaException(
                     "failed to generate hash: unsupported data type: " + value.getType().getName());
         }
 
+        checksum.update(bytes, 0, bytes.length);
+        checksumVal = checksum.getValue();
         context.setReturnValues(new BString(Long.toHexString(checksumVal)));
     }
 }
