@@ -219,7 +219,6 @@ public class HttpConstants {
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
 
-    public static final String CONNECTION_HEADER = "Connection";
     // ResponseCacheControl struct indices
     public static final int RES_CACHE_CONTROL_MUST_REVALIDATE_INDEX = 0;
     public static final int RES_CACHE_CONTROL_NO_CACHE_INDEX = 1;

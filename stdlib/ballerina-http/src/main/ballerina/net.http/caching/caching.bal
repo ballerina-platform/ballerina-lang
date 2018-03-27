@@ -62,13 +62,23 @@ public const int MAX_STALE_ANY_AGE = 9223372036854775807;
 @Field {value:"maxStale: Represents the max-stale directive"}
 @Field {value:"minFresh: Represents the min-fresh directive"}
 public struct RequestCacheControl {
-    boolean noCache = false;
-    boolean noStore = false;
-    boolean noTransform = true;
-    boolean onlyIfCached = false;
-    int maxAge = -1;
-    int maxStale = -1;
-    int minFresh = -1;
+    boolean noCache;
+    boolean noStore;
+    boolean noTransform;
+    boolean onlyIfCached;
+    int maxAge;
+    int maxStale;
+    int minFresh;
+}
+
+public function <RequestCacheControl cacheControl> RequestCacheControl () {
+    cacheControl.noCache = false;
+    cacheControl.noStore = false;
+    cacheControl.noTransform = true;
+    cacheControl.onlyIfCached = false;
+    cacheControl.maxAge = -1;
+    cacheControl.maxStale = -1;
+    cacheControl.minFresh = -1;
 }
 
 @Description {value:"Cache control directives configuration for responses"}
@@ -83,21 +93,34 @@ public struct RequestCacheControl {
 @Field {value:"noCacheFields: Optional fields for no-cache directive. If sending any of the listed fields in a response, they must validated with the origin server."}
 @Field {value:"privateFields: Optional fields for private directive. A cache can omit the fields specified and store the rest of the response."}
 public struct ResponseCacheControl {
-    boolean mustRevalidate = false;
-    boolean noCache = false;
-    boolean noStore = false;
-    boolean noTransform = true;
-    boolean isPrivate = false;
-    boolean proxyRevalidate = false;
-    int maxAge = -1;
-    int sMaxAge = -1;
+    boolean mustRevalidate;
+    boolean noCache;
+    boolean noStore;
+    boolean noTransform;
+    boolean isPrivate;
+    boolean proxyRevalidate;
+    int maxAge;
+    int sMaxAge;
     string[] noCacheFields;
     string[] privateFields;
 }
 
+public function <ResponseCacheControl cacheControl> ResponseCacheControl () {
+    cacheControl.mustRevalidate = false;
+    cacheControl.noCache = false;
+    cacheControl.noStore = false;
+    cacheControl.noTransform = true;
+    cacheControl.isPrivate = false;
+    cacheControl.proxyRevalidate = false;
+    cacheControl.maxAge = -1;
+    cacheControl.sMaxAge = -1;
+    cacheControl.noCacheFields = [];
+    cacheControl.privateFields = [];
+}
+
 @Description {value:"Build the cache control directives string from the current request cache control configurations"}
 @Param {value:"cacheControl: The request cache control"}
-public function <RequestCacheControl cacheControl> buildCacheControlDirectives () (string) {
+public function <RequestCacheControl cacheControl> buildCacheControlDirectives () returns string {
     string[] directives = [];
     int i = 0;
 
@@ -144,7 +167,7 @@ public function <RequestCacheControl cacheControl> buildCacheControlDirectives (
 
 @Description {value:"Build the cache control directives string from the current response cache control configurations"}
 @Param {value:"cacheControl: The response cache control"}
-public function <ResponseCacheControl cacheControl> buildCacheControlDirectives () (string) {
+public function <ResponseCacheControl cacheControl> buildCacheControlDirectives () returns string {
     string[] directives = [];
     int i = 0;
 
@@ -193,15 +216,15 @@ public function <ResponseCacheControl cacheControl> buildCacheControlDirectives 
     return buildCommaSeparatedString(directives);
 }
 
-function <InRequest request> parseInReqCacheControlHeader () {
-    string cacheControl = request.getHeader(CACHE_CONTROL);
+function <Request request> parseCacheControlHeader () {
     request.cacheControl = {};
 
     // If the request doesn't contain a cache-control header, resort to default cache control settings
-    if (cacheControl == null) {
+    if (!request.hasHeader(CACHE_CONTROL)) {
         return;
     }
 
+    string cacheControl = request.getHeader(CACHE_CONTROL);
     string[] directives = cacheControl.split(",");
 
     foreach directive in directives {
@@ -227,48 +250,14 @@ function <InRequest request> parseInReqCacheControlHeader () {
     }
 }
 
-function <OutRequest request> parseOutReqCacheControlHeader () {
-    string cacheControl = request.getHeader(CACHE_CONTROL);
-    request.cacheControl = {};
-
-    // If the request doesn't contain a cache-control header, resort to default cache control settings
-    if (cacheControl == null) {
-        return;
-    }
-
-    string[] directives = cacheControl.split(",");
-
-    foreach directive in directives {
-        directive = directive.trim();
-        if (directive == NO_CACHE) {
-            request.cacheControl.noCache = true;
-        } else if (directive == NO_STORE) {
-            request.cacheControl.noStore = true;
-        } else if (directive == NO_TRANSFORM) {
-            request.cacheControl.noTransform = true;
-        } else if (directive == ONLY_IF_CACHED) {
-            request.cacheControl.onlyIfCached = true;
-        } else if (directive.hasPrefix(MAX_AGE)) {
-            request.cacheControl.maxAge = getExpirationDirectiveValue(directive);
-        } else if (directive == MAX_STALE) {
-            request.cacheControl.maxStale = MAX_STALE_ANY_AGE;
-        } else if (directive.hasPrefix(MAX_STALE)) {
-            request.cacheControl.maxStale = getExpirationDirectiveValue(directive);
-        } else if (directive.hasPrefix(MIN_FRESH)) {
-            request.cacheControl.minFresh = getExpirationDirectiveValue(directive);
-        }
-        // non-standard directives are ignored
-    }
-}
-
-function appendFields (string[] fields) (string) {
-    if (fields != null && lengthof fields > 0) {
+function appendFields (string[] fields) returns string {
+    if (lengthof fields > 0) {
         return "=\"" + buildCommaSeparatedString(fields) + "\"";
     }
     return "";
 }
 
-function buildCommaSeparatedString (string[] values) (string) {
+function buildCommaSeparatedString (string[] values) returns string {
     string delimitedValues = values[0];
 
     int i = 1;
@@ -280,7 +269,7 @@ function buildCommaSeparatedString (string[] values) (string) {
     return delimitedValues;
 }
 
-function getExpirationDirectiveValue (string directive) (int) {
+function getExpirationDirectiveValue (string directive) returns int {
     string[] directiveParts = directive.split("=");
 
     // Disregarding the directive if a value isn't provided
@@ -288,10 +277,8 @@ function getExpirationDirectiveValue (string directive) (int) {
         return -1;
     }
 
-    int age;
-    error err;
-    age, err = <int>directiveParts[1];
-
-    // Disregarding the directive if the value cannot be parsed
-    return err == null ? age : -1;
+    match <int>directiveParts[1] {
+        int age => return age;
+        error => return -1; // Disregarding the directive if the value cannot be parsed
+    }
 }

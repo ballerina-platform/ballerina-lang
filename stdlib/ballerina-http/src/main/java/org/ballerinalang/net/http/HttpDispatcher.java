@@ -187,8 +187,9 @@ public class HttpDispatcher {
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
 
-        BStruct cacheControlStruct = ConnectorUtils.createStruct(httpResource.getBalResource(), PROTOCOL_PACKAGE_HTTP,
-                                                                 REQUEST_CACHE_CONTROL);
+        BStruct cacheControlStruct = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, REQUEST_CACHE_CONTROL);
         RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
 
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, connection);

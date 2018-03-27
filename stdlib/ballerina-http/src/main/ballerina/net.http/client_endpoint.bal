@@ -73,6 +73,7 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     string|FailoverConfig lbMode;
+    CacheConfig|null cacheConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -98,14 +99,17 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
         FailoverConfig failoverConfig => {
             if (lengthof config.targets > 1) {
                 ep.config = config;
-                ep. httpClient = createFailOverClient(config, failoverConfig);
+                ep.httpClient = createFailOverClient(config, failoverConfig);
             } else {
                 if (uri.hasSuffix("/")) {
                     int lastIndex = uri.length() - 1;
                     uri = uri.subString(0, lastIndex);
                 }
                 ep.config = config;
-                ep.httpClient = createHttpClient(uri, config);
+                match config.cacheConfig {
+                    CacheConfig cacheConfig => ep.httpClient = createHttpCachingClient(uri, config, cacheConfig);
+                    int|null => ep.httpClient = createHttpClient(uri, config);
+                }
             }
         }
 
@@ -132,7 +136,10 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
                     }
                 }   
                 if (httpClientRequired) {
-                    ep.httpClient = createHttpClient(uri, config);
+                    match config.cacheConfig {
+                        CacheConfig cacheConfig => ep.httpClient = createHttpCachingClient(uri, config, cacheConfig);
+                        int|null => ep.httpClient = createHttpClient(uri, config);
+                    }
                 } else {
                     ep.httpClient = createCircuitBreakerClient(uri, config);                    
                 }   

@@ -39,7 +39,7 @@ import java.util.zip.Checksum;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.security.crypto",
+        orgName = "ballerina", packageName = "security.crypto",
         functionName = "getCRC32",
         args = {@Argument(name = "content", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

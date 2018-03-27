@@ -19,6 +19,10 @@ public struct Request {
     RequestCacheControl cacheControl;
 }
 
+public function <Request request> Request() {
+    request.cacheControl = {};
+}
+
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////

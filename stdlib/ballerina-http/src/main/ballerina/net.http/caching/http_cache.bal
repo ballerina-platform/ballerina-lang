@@ -16,7 +16,7 @@
 
 package ballerina.net.http;
 
-import ballerina.caching;
+import ballerina/caching;
 
 struct HttpCache {
     caching:Cache cache;
@@ -24,7 +24,7 @@ struct HttpCache {
     boolean isShared;
 }
 
-function createHttpCache (string name, CacheConfig cacheConfig) (HttpCache) {
+function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCache {
     HttpCache httpCache = {};
     caching:Cache backingCache = caching:createCache(name, cacheConfig.expiryTimeMillis, cacheConfig.capacity,
                                                      cacheConfig.evictionFactor);
@@ -34,10 +34,9 @@ function createHttpCache (string name, CacheConfig cacheConfig) (HttpCache) {
     return httpCache;
 }
 
-function <HttpCache httpCache> isAllowedToCache (Response response) (boolean) {
+function <HttpCache httpCache> isAllowedToCache (Response response) returns boolean {
     if (httpCache.cachingLevel == CachingLevel.CACHE_CONTROL_AND_VALIDATORS) {
-        map headers = response.getAllHeaders();
-        return headers[CACHE_CONTROL] != null && (headers[ETAG] != null || headers[LAST_MODIFIED] != null);
+        return response.hasHeader(CACHE_CONTROL) && (response.hasHeader(ETAG) || response.hasHeader(LAST_MODIFIED));
     }
 
     return true;
@@ -53,7 +52,7 @@ function <HttpCache httpCache> put (string key, RequestCacheControl requestCache
 
     // Based on https://tools.ietf.org/html/rfc7234#page-6
     // TODO: Consider cache control extensions as well here
-    if (inboundResponse.getHeader(EXPIRES) != null ||
+    if (inboundResponse.hasHeader(EXPIRES) ||
         inboundResponse.cacheControl.maxAge >= 0 ||
         (inboundResponse.cacheControl.sMaxAge >= 0 && httpCache.isShared) ||
         isCacheableStatusCode(inboundResponse.statusCode) ||
@@ -61,25 +60,48 @@ function <HttpCache httpCache> put (string key, RequestCacheControl requestCache
 
         // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream will
         // be read by the client and the response will be after the first cache hit.
-        _, _ = inboundResponse.getBinaryPayload();
+        match inboundResponse.getBinaryPayload() {
+        // TODO: remove these dummy assignments once empty blocks are supported
+            blob => {int x = 0;}
+            mime:EntityError => {int x = 0;}
+        }
         addEntry(httpCache.cache, key, inboundResponse);
     }
 }
 
-function <HttpCache httpCache> get (string key) (Response) {
-    var cacheEntry, _ = (Response[])httpCache.cache.get(key);
-    return (cacheEntry == null) ? null : cacheEntry[lengthof cacheEntry - 1];
+function <HttpCache httpCache> get (string key) returns (Response|null) {
+    try {
+        match <Response[]>httpCache.cache.get(key) {
+            Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
+            error err => return null;
+        }
+    } catch (error e) {
+        return null;
+    }
+    return null;
 }
 
-function <HttpCache httpCache> getAll (string key) (Response[]) {
-    var cacheEntry, _ = (Response[])httpCache.cache.get(key);
-    return cacheEntry;
+function <HttpCache httpCache> getAll (string key) returns (Response[]|null) {
+    try {
+        match <Response[]>httpCache.cache.get(key) {
+            Response[] cacheEntry => return cacheEntry;
+            error err => return null;
+        }
+    } catch (error e) {
+        return null;
+    }
+    return null;
 }
 
-function <HttpCache httpCache> getAllByETag (string key, string etag) (Response[]) {
-    Response[] cachedResponses = httpCache.getAll(key);
+function <HttpCache httpCache> getAllByETag (string key, string etag) returns Response[] {
+    Response[] cachedResponses = [];
     Response[] matchingResponses = [];
     int i = 0;
+
+    match httpCache.getAll(key) {
+        Response[] responses => cachedResponses = responses;
+        int| null => cachedResponses = [];
+    }
 
     foreach cachedResp in cachedResponses {
         if (cachedResp.getHeader(ETAG) == etag && !etag.hasPrefix(WEAK_VALIDATOR_TAG)) {
@@ -91,13 +113,18 @@ function <HttpCache httpCache> getAllByETag (string key, string etag) (Response[
     return matchingResponses;
 }
 
-function <HttpCache httpCache> getAllByWeakETag (string key, string etag) (Response[]) {
-    Response[] cachedResponses = httpCache.getAll(key);
+function <HttpCache httpCache> getAllByWeakETag (string key, string etag) returns Response[] {
+    Response[] cachedResponses = [];
     Response[] matchingResponses = [];
     int i = 0;
 
+    match httpCache.getAll(key) {
+        Response[] responses => cachedResponses = responses;
+        int| null => cachedResponses = [];
+    }
+
     foreach cachedResp in cachedResponses {
-        if (weakValidatorEquals(etag, cachedResp.getHeader(ETAG))) {
+        if (cachedResp.hasHeader(ETAG) && weakValidatorEquals(etag, cachedResp.getHeader(ETAG))) {
             matchingResponses[i] = cachedResp;
             i = i + 1;
         }
@@ -110,7 +137,7 @@ function <HttpCache httpCache> remove (string key) {
     httpCache.cache.remove(key);
 }
 
-function isCacheableStatusCode (int statusCode) (boolean) {
+function isCacheableStatusCode (int statusCode) returns boolean {
     return statusCode == RESPONSE_200_OK || statusCode == RESPONSE_203_NON_AUTHORITATIVE_INFORMATION ||
            statusCode == RESPONSE_204_NO_CONTENT || statusCode == RESPONSE_206_PARTIAL_CONTENT ||
            statusCode == RESPONSE_300_MULTIPLE_CHOICES || statusCode == RESPONSE_301_MOVED_PERMANENTLY ||
@@ -120,20 +147,22 @@ function isCacheableStatusCode (int statusCode) (boolean) {
 }
 
 function addEntry (caching:Cache cache, string key, Response inboundResponse) {
-    var existingResponses = cache.get(key);
-    if (existingResponses == null) {
+    try {
+        var existingResponses = cache.get(key);
+        match <Response[]>existingResponses {
+            Response[] cachedRespArray => cachedRespArray[lengthof cachedRespArray] = inboundResponse;
+            error err => throw err;
+        }
+    } catch (error e) {
         Response[] cachedResponses = [inboundResponse];
         cache.put(key, cachedResponses);
-    } else {
-        var cachedRespArray, _ = (Response[])existingResponses;
-        cachedRespArray[lengthof cachedRespArray] = inboundResponse;
     }
 }
 
-function weakValidatorEquals (string etag1, string etag2) (boolean) {
-    if (etag1 == null || etag2 == null) {
-        return false;
-    }
+function weakValidatorEquals (string etag1, string etag2) returns boolean {
+    //if (etag1 == null || etag2 == null) {
+    //    return false;
+    //}
 
     string validatorPortion1 = etag1.hasPrefix(WEAK_VALIDATOR_TAG) ? etag1.subString(2, lengthof etag1) : etag1;
     string validatorPortion2 = etag2.hasPrefix(WEAK_VALIDATOR_TAG) ? etag2.subString(2, lengthof etag2) : etag2;
@@ -141,6 +170,6 @@ function weakValidatorEquals (string etag1, string etag2) (boolean) {
     return validatorPortion1 == validatorPortion2;
 }
 
-function getCacheKey (string httpMethod, string url) (string) {
+function getCacheKey (string httpMethod, string url) returns string {
     return httpMethod + " " + url;
 }

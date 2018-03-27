@@ -57,6 +57,15 @@ public class ResponseCacheControlStruct {
         responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
     }
 
+    public ResponseCacheControlStruct(BStruct responseCacheControl) {
+        this.responseCacheControl = responseCacheControl;
+
+        // Initialize the struct fields to default values we use
+        responseCacheControl.setBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
+        responseCacheControl.setIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX, -1);
+        responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
+    }
+
     public BStruct getStruct() {
         return responseCacheControl;
     }

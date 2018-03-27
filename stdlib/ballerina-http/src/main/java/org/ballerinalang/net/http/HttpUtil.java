@@ -91,18 +91,17 @@ import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
+import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
-import static org.ballerinalang.net.http.HttpConstants.IN_REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.IN_REQUEST_CACHE_CONTROL_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_SERVER_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 
 /**
  * Utility class providing utility methods.
@@ -496,7 +495,7 @@ public class HttpUtil {
         if (inboundRequestMsg.getHeader(CACHE_CONTROL.toString()) != null) {
             requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL.toString()));
         }
-        inboundRequestStruct.setRefField(IN_REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
+        inboundRequestStruct.setRefField(REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
@@ -616,7 +615,7 @@ public class HttpUtil {
     }
 
     private static boolean isRequestStruct(BStruct struct) {
-        return struct.getType().getName().equals(HttpConstants.REQUEST);
+        return struct.getType().getName().equals(REQUEST);
     }
 
     private static boolean isResponseStruct(BStruct struct) {
@@ -641,15 +640,15 @@ public class HttpUtil {
 
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage outboundResponseMsg, BStruct struct) {
         if (isResponseStruct(struct)) {
-            if (struct.getIntField(HttpConstants
-                    .RESPONSE_STATUS_CODE_INDEX) != 0) {
+            if (struct.getIntField(
+                    RESPONSE_STATUS_CODE_INDEX) != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(
-                        struct.getIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX)));
+                        struct.getIntField(RESPONSE_STATUS_CODE_INDEX)));
             }
-            if (struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX) != null && !struct
-                    .getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
+            if (struct.getStringField(RESPONSE_REASON_PHRASE_INDEX) != null && !struct
+                    .getStringField(RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE,
-                        struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX));
+                        struct.getStringField(RESPONSE_REASON_PHRASE_INDEX));
             }
         }
     }
