@@ -15,6 +15,10 @@ service<http:Service> test bind multipartEP {
     nestedPartReceiver (endpoint conn, http:Request req)  {
         http:Response res = {};
         match req.getMultiparts() {
+            mime:EntityError err => {
+                res.setStringPayload("Error occurred while decoding parent parts!");
+                res.statusCode = 500;
+            }
             mime:Entity[] parentParts => {
                 int i = 0;
                 while (i < lengthof parentParts) {
@@ -24,10 +28,6 @@ service<http:Service> test bind multipartEP {
                 }
                 res.setStringPayload("Nested Parts Received!");
             }
-            mime:EntityError err => {
-                res.setStringPayload("Error occurred while decoding parent parts!");
-                res.statusCode = 500;
-            }
         }
         _ = conn -> respond(res);
     }
@@ -35,19 +35,21 @@ service<http:Service> test bind multipartEP {
 
 //Given a parent part, get it's child parts.
 function handleNestedParts (mime:Entity parentPart) {
-
-    match parentPart.getBodyParts() {
-        mime:Entity[] childParts => {
+    string contentTypeOfParent = parentPart.contentType.toString();
+    if (contentTypeOfParent.hasPrefix("multipart/")) {
+        match parentPart.getBodyParts() {
+            mime:EntityError err => {
+                io:println("Error retrieving child parts!");
+            }
+            mime:Entity[] childParts => {
             int i = 0;
             io:println("Nested Parts Detected!");
-            while (i < lengthof childParts) {
-                mime:Entity childPart = childParts[i];
-                handleContent(childPart);
-                i = i + 1;
+                while (i < lengthof childParts) {
+                    mime:Entity childPart = childParts[i];
+                    handleContent(childPart);
+                    i = i + 1;
+                }
             }
-        }
-        mime:EntityError err => {
-            io:println("Error retrieving child parts!");
         }
     }
 }
