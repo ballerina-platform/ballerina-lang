@@ -2,5 +2,5 @@
 # and execute the following command from `$BALLERINA_HOME/bin`.
 $ ballerina run http-load-balancer.bal
 # Service deployment:
-ballerina: deploying service(s) in 'http-load-balancer.bal'
+ballerina: initiating service(s) in 'http-load-balancer.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
