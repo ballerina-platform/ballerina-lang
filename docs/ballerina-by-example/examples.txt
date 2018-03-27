@@ -120,3 +120,4 @@ Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
 Streams
+Streams within services
