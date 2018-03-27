@@ -2,9 +2,9 @@ import ballerina/io;
 function successfulXmlCasting() returns (string) {
   any abc = jsonReturnFunction();
   json jsonVal;
-  jsonVal, _ = (json)abc;
+  jsonVal =? <json> abc;
   string strVal;
-  strVal, _ = (string)jsonVal.PropertyName;
+  strVal =? <string>jsonVal.PropertyName;
   return strVal;
 }
 
