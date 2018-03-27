@@ -522,7 +522,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a null stored as any to struct",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be cast to 'Person'.*")
     public void testAnyNullToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToStruct");
         Assert.assertNull(returns[0]);
