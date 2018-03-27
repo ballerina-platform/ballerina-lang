@@ -21,6 +21,7 @@ Arrays
 Array of Arrays
 Vector
 Table
+SQL queries on tables
 Lengthof
 Identifier Literals
 JSON
