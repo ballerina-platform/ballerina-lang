@@ -52,7 +52,7 @@ function testMapVariableAccessInJSONInit () returns (json) {
     //outside the json init
     string val2;
     int intVal;
-    val2 =? <string> myMap["stirngVal"];
+    val2 = <string> myMap["stirngVal"];
     intVal =? <int> myMap["intVal"];
     msg = {"val1":val2, "val2":intVal};
     return msg;
