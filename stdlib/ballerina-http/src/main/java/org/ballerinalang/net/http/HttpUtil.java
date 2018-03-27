@@ -1132,12 +1132,10 @@ public class HttpUtil {
 
     public static Map<String, String> extractTraceTags(HTTPCarbonMessage msg) {
         Map<String, String> tags = new HashMap<>();
-        tags.put(TAG_KEY_COMPONENT, TAG_COMPONENT_BALLERINA);
         tags.put(TAG_KEY_HTTP_METHOD, String.valueOf(msg.getProperty(HttpConstants.HTTP_METHOD)));
         tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
         tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(HTTP_HOST)));
         tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(HTTP_PORT)));
-        tags.put(TAG_KEY_PROTOCOL, String.valueOf(msg.getProperty(HttpConstants.PROTOCOL)));
         return tags;
     }
 
