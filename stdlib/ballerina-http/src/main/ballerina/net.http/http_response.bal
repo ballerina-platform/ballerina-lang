@@ -29,22 +29,10 @@ public native function <Response res> getEntity () returns (mime:Entity | mime:E
 @Return {value:"Entity of the response"}
 public native function <Response res> getEntityWithoutBody () returns (mime:Entity);
 
-//@Description {value:"Retrieve a response property"}
-//@Param {value:"res: The response message"}
-//@Param {value:"propertyName: The name of the property"}
-//@Return {value:"The property value"}
-//public native function <Response res> getProperty (string propertyName) returns (string);
-
 @Description {value:"Set the entity to response"}
 @Param {value:"res: The response message"}
 @Return {value:"Entity of the response"}
 public native function <Response res> setEntity (mime:Entity entity);
-
-//@Description {value:"Sets a response property"}
-//@Param {value:"res: The response message"}
-//@Param {value:"propertyName: The name of the property"}
-//@Param {value:"propertyValue: The value of the property"}
-//public native function <Response res> setProperty (string propertyName, string propertyValue);
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -117,16 +105,6 @@ public function <Response res> getCopyOfAllHeaders () returns (map) {
     return entity.getCopyOfAllHeaders();
 }
 
-//@Description {value:"Gets the Content-Length header value from the response"}
-//@Param {value:"response: The response message"}
-//@Return {value:"length of the message"}
-//public function <Response response> getContentLength () returns int {
-//    match response.getHeader(CONTENT_LENGTH) {
-//        string contentLengthVal => return getContentLengthIntValue(contentLengthVal);
-//        any | null => return -1;
-//    }
-//}
-
 @Description {value:"Gets the response payload in JSON format"}
 @Param {value:"response: The response message"}
 @Return {value:"The JSON reresentation of the message payload"}
@@ -191,7 +169,6 @@ public function <Response response> getMultiparts () returns mime:Entity[] | mim
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
-        //any | null => return null;
     }
 }
 

@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ENDPOINT;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -74,11 +75,14 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         HTTPCarbonMessage msg = new HTTPCarbonMessage(
                 ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpRequest());
         WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage, msg);
-        BStruct serviceEndpoint = wsService.getServiceEndpoint();
+        BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
+                wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, WEBSOCKET_ENDPOINT);
         BStruct serverConnector = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, serverConnector);
+        serverConnector.addNativeData(WEBSOCKET_ENDPOINT, serviceEndpoint);
         Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
         BMap<String, BString> bUpgradeHeaders = new BMap<>();
         upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
@@ -141,26 +145,26 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(webSocketTextMessage.getSessionID());
-        WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
+        WebSocketDispatcher.dispatchTextMessage(
+                connectionManager.getConnectionInfo(webSocketTextMessage.getSessionID()), webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(webSocketBinaryMessage.getSessionID());
-        WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
+        WebSocketDispatcher.dispatchBinaryMessage(
+                connectionManager.getConnectionInfo(webSocketBinaryMessage.getSessionID()), webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(webSocketControlMessage.getSessionID());
-        WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
+        WebSocketDispatcher.dispatchControlMessage(
+                connectionManager.getConnectionInfo(webSocketControlMessage.getSessionID()), webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketService wsService = connectionManager.removeConnection(webSocketCloseMessage.getSessionID());
-        WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
+        WebSocketDispatcher.dispatchCloseMessage(
+                connectionManager.getConnectionInfo(webSocketCloseMessage.getSessionID()), webSocketCloseMessage);
     }
 
     @Override
@@ -170,8 +174,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketService wsService = connectionManager.getWebSocketService(controlMessage.getSessionID());
-        WebSocketDispatcher.dispatchIdleTimeout(wsService, controlMessage);
+        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(controlMessage.getSessionID()),
+                                                controlMessage);
     }
 
 }

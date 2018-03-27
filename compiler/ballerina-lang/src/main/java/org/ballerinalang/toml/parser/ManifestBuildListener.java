@@ -28,6 +28,7 @@ import org.ballerinalang.toml.util.SingletonStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
@@ -106,7 +107,23 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     @Override
     public void enterStdTable(TomlParser.StdTableContext ctx) {
-        addHeader(ctx.key().getText());
+        List<String> tableHeading = new ArrayList<>();
+        TomlParser.DottedKeyContext dottedKeyContext = ctx.key().dottedKey();
+        if (dottedKeyContext != null) {
+            for (int i = 0; i < (dottedKeyContext.getChildCount() + 1) / 2; i++) {
+                TomlParser.SimpleKeyContext simpleKeyContext = dottedKeyContext.simpleKey(i);
+                TomlParser.QuotedKeyContext quotedKeyContext = simpleKeyContext.quotedKey();
+                if (quotedKeyContext != null) {
+                    tableHeading.add(quotedKeyContext.basicString().basicStringValue().getText());
+                } else {
+                    tableHeading.add(simpleKeyContext.unquotedKey().getText());
+                }
+            }
+        } else {
+            tableHeading.add(ctx.key().getText());
+        }
+
+        addHeader(tableHeading);
     }
 
     /**
@@ -207,12 +224,14 @@ public class ManifestBuildListener extends TomlBaseListener {
      *
      * @param key key specified in the header
      */
-    private void addHeader(String key) {
-        currentHeader = key;
-        if (key.split("\\.").length > 1) {
-            currentHeader = key.substring(0, key.indexOf("."));
-            String pkgName = key.substring(key.indexOf(".") + 1);
-            createDependencyObject(pkgName);
+    private void addHeader(List<String> key) {
+        currentHeader = key.get(0);
+        if (key.size() > 1) {
+            StringJoiner joiner = new StringJoiner(".");
+            for (int i = 1; i < key.size(); i++) {
+                joiner.add(key.get(i));
+            }
+            createDependencyObject(joiner.toString());
         }
     }
 
@@ -258,7 +277,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      */
     private void createDependencyObject(String packageName) {
         dependency = new Dependency();
-        DependencyField dependencyField = DependencyField.valueOfLowerCase("name");
+        DependencyField dependencyField = DependencyField.NAME;
         if (dependencyField != null) {
             dependencyField.setValueTo(dependency, packageName);
         }

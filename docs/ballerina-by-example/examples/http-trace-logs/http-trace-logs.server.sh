@@ -1,7 +1,7 @@
 # As the name suggests, trace logs are logged at TRACE level. So the log level of trace logs has to be set to TRACE for the trace logs to be enabled.
 # This is done by setting the runtime argument: <br> '-etracelog.http.level=TRACE'. <br>
 $ ballerina run http-trace-logs.bal -etracelog.http.level=TRACE
-ballerina: deploying service(s) in 'http-trace-logs.bal'
+ballerina: initiating service(s) in 'http-trace-logs.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
 # In the logs, http.downstream refers to HTTP traffic flowing between the client and Ballerina, while http.upstream refers to HTTP traffic flowing between Ballerina and the backend.
 [2017-12-19 10:41:38,638] TRACE {tracelog.http.downstream} - [id: 0x1aac3b78] REGISTERED

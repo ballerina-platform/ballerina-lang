@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
@@ -81,7 +82,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
 
     @Override
     public InputStream getManifestContent() {
-        throw new UnsupportedOperationException("manifest file is not available in a program directory");
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override

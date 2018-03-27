@@ -1,9 +1,10 @@
 function testXmlNull () returns (xml|null, xml|null, int) {
     xml|null x1 = null;
     xml|null x2 = null;
-    int a = 0;
+    int a;
     match (x2){
         null => a = 5;
+        any => a = 0;
     }
 
     return (x1, x2, a);
@@ -22,9 +23,10 @@ function testJsonNull () returns (json, json, int) {
 function testStructNull () returns (Person|null, Person|null, int) {
     Person|null p1 = null;
     Person|null p2 = null;
-    int a = 0;
+    int a;
     match (p1){
         null => a = 7;
+        any => a = 0;
     }
 
     return (p1, p2, a);
@@ -139,7 +141,7 @@ function testNullInForkJoin () returns (json, json) {
         temp =? <any[]>allReplies["foo"];
         json m1;
         m1 =? <json>temp[0];
-        temp = <any[]>allReplies["bar"];
+        temp =? <any[]>allReplies["bar"];
         json m2;
         m2 =? <json>temp[0];
         return (m1, m2);
@@ -148,14 +150,14 @@ function testNullInForkJoin () returns (json, json) {
     }
 }
 
-function testArrayOfNulls () returns (Person[]) {
-    Person p1 = {};
-    Person p2;
-    Person | null p3 = null;
-    Person p4 = {};
-    Person[] personArray = [p1, p2, p3, p4];
-    return personArray;
-}
+//function testArrayOfNulls () returns (Person|null []) {
+//    Person p1 = {};
+//    Person p2 = {};
+//    Person | null p3 = null;
+//    Person p4 = {};
+//    Person|null [] personArray = [p1, p2, p3, p4];
+//    return personArray;
+//}
 
 function testMapOfNulls () returns (map) {
     string x1 = "<x1>test xml1</x1>";
