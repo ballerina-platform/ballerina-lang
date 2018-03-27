@@ -68,6 +68,7 @@ public class GetText extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));
+            return;
         }
         context.setReturnValues(result);
     }
