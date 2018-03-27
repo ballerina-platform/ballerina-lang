@@ -34,7 +34,7 @@ function createHttpCache (string name, CacheConfig cacheConfig) (HttpCache) {
     return httpCache;
 }
 
-function <HttpCache httpCache> isAllowedToCache (InResponse response) (boolean) {
+function <HttpCache httpCache> isAllowedToCache (Response response) (boolean) {
     if (httpCache.cachingLevel == CachingLevel.CACHE_CONTROL_AND_VALIDATORS) {
         map headers = response.getAllHeaders();
         return headers[CACHE_CONTROL] != null && (headers[ETAG] != null || headers[LAST_MODIFIED] != null);
@@ -43,7 +43,7 @@ function <HttpCache httpCache> isAllowedToCache (InResponse response) (boolean) 
     return true;
 }
 
-function <HttpCache httpCache> put (string key, RequestCacheControl requestCacheControl, InResponse inboundResponse) {
+function <HttpCache httpCache> put (string key, RequestCacheControl requestCacheControl, Response inboundResponse) {
     if (inboundResponse.cacheControl.noStore ||
         requestCacheControl.noStore ||
         (inboundResponse.cacheControl.isPrivate && httpCache.isShared)) {
@@ -66,19 +66,19 @@ function <HttpCache httpCache> put (string key, RequestCacheControl requestCache
     }
 }
 
-function <HttpCache httpCache> get (string key) (InResponse) {
-    var cacheEntry, _ = (InResponse[])httpCache.cache.get(key);
+function <HttpCache httpCache> get (string key) (Response) {
+    var cacheEntry, _ = (Response[])httpCache.cache.get(key);
     return (cacheEntry == null) ? null : cacheEntry[lengthof cacheEntry - 1];
 }
 
-function <HttpCache httpCache> getAll (string key) (InResponse[]) {
-    var cacheEntry, _ = (InResponse[])httpCache.cache.get(key);
+function <HttpCache httpCache> getAll (string key) (Response[]) {
+    var cacheEntry, _ = (Response[])httpCache.cache.get(key);
     return cacheEntry;
 }
 
-function <HttpCache httpCache> getAllByETag (string key, string etag) (InResponse[]) {
-    InResponse[] cachedResponses = httpCache.getAll(key);
-    InResponse[] matchingResponses = [];
+function <HttpCache httpCache> getAllByETag (string key, string etag) (Response[]) {
+    Response[] cachedResponses = httpCache.getAll(key);
+    Response[] matchingResponses = [];
     int i = 0;
 
     foreach cachedResp in cachedResponses {
@@ -91,9 +91,9 @@ function <HttpCache httpCache> getAllByETag (string key, string etag) (InRespons
     return matchingResponses;
 }
 
-function <HttpCache httpCache> getAllByWeakETag (string key, string etag) (InResponse[]) {
-    InResponse[] cachedResponses = httpCache.getAll(key);
-    InResponse[] matchingResponses = [];
+function <HttpCache httpCache> getAllByWeakETag (string key, string etag) (Response[]) {
+    Response[] cachedResponses = httpCache.getAll(key);
+    Response[] matchingResponses = [];
     int i = 0;
 
     foreach cachedResp in cachedResponses {
@@ -119,13 +119,13 @@ function isCacheableStatusCode (int statusCode) (boolean) {
            statusCode == RESPONSE_501_NOT_IMPLEMENTED;
 }
 
-function addEntry (caching:Cache cache, string key, InResponse inboundResponse) {
+function addEntry (caching:Cache cache, string key, Response inboundResponse) {
     var existingResponses = cache.get(key);
     if (existingResponses == null) {
-        InResponse[] cachedResponses = [inboundResponse];
+        Response[] cachedResponses = [inboundResponse];
         cache.put(key, cachedResponses);
     } else {
-        var cachedRespArray, _ = (InResponse[])existingResponses;
+        var cachedRespArray, _ = (Response[])existingResponses;
         cachedRespArray[lengthof cachedRespArray] = inboundResponse;
     }
 }

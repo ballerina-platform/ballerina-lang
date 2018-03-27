@@ -20,76 +20,6 @@ import ballerina.log;
 import ballerina.runtime;
 import ballerina.time;
 
-@Description {value:"HTTP client connector for outbound HTTP requests"}
-@Param {value:"serviceUri: URI of the service"}
-@Param {value:"connectorOptions: Connector options"}
-public connector HttpClient (string serviceUri, Options connectorOptions) {
-
-    @Description {value:"The POST action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action post (string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"The HEAD action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action head (string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"The PUT action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
-    @Param {value:"httpVerb: HTTP verb value"}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"The PATCH action implementation of the HTTP Connector."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action patch (string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"The DELETE action implementation of the HTTP connector"}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action delete (string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"GET action implementation of the HTTP Connector"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action get (string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"OPTIONS action implementation of the HTTP Connector"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action options (string path, OutRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP inbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
-}
-
 // HTTP CACHING CLIENT IMPLEMENTATION.
 // Adding this to http_client.bal temporarily, until issue #4865 gets fixed
 const string WARNING_AGENT = getWarningAgent();
@@ -131,132 +61,190 @@ public function <CacheConfig cacheConfig> CacheConfig () {
 @Description {value:"An HTTP caching client implementation which takes an HttpClient and wraps it with a caching layer."}
 @Param {value:"httpClient: The underlying HTTP client which will be making the actual network calls"}
 @Param {value:"cacheConfig: Caching configurations for the HTTP cache"}
-public connector HttpCachingClient (HttpClient httpClient, CacheConfig cacheConfig) {
-
-    endpoint<HttpClient> httpEP {
-        httpClient;
-    }
-
-    HttpCache cache = createHttpCache("http-cache", cacheConfig);
-
-    @Description {value:"Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action post (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        InResponse inboundResponse;
-        HttpConnectorError err;
-        inboundResponse, err = httpEP.post(path, req);
-        invalidateResponses(cache, inboundResponse, path);
-        return inboundResponse, err;
-    }
-
-    @Description {value:"Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable response cannot be found will the request be directed to the origin server."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action head (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return getCachedResponse(cache, httpClient, req, HTTP_HEAD, path, cacheConfig.isShared);
-    }
-
-    @Description {value:"Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the origin server. In addition, PUT requests invalidate the currently stored responses for the given path."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action put (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        InResponse inboundResponse;
-        HttpConnectorError err;
-        inboundResponse, err = httpEP.put(path, req);
-        invalidateResponses(cache, inboundResponse, path);
-        return inboundResponse, err;
-    }
-
-    @Description {value:"Invokes an HTTP call with the specified HTTP verb. This is not a cacheable operation."}
-    @Param {value:"httpMethod: HTTP method to be used for the request"}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action execute (string httpMethod, string path, OutRequest req) (InResponse, HttpConnectorError) {
-        if (httpMethod == HTTP_GET || httpMethod == HTTP_HEAD) {
-            return getCachedResponse(cache, httpClient, req, httpMethod, path, cacheConfig.isShared);
-        }
-        InResponse inboundResponse;
-        HttpConnectorError err;
-        inboundResponse, err = httpEP.execute(httpMethod, path, req);
-        invalidateResponses(cache, inboundResponse, path);
-        return inboundResponse, err;
-    }
-
-    @Description {value:"Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action patch (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        InResponse inboundResponse;
-        HttpConnectorError err;
-        inboundResponse, err = httpEP.patch(path, req);
-        invalidateResponses(cache, inboundResponse, path);
-        return inboundResponse, err;
-    }
-
-    @Description {value:"Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
-    @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action delete (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        InResponse inboundResponse;
-        HttpConnectorError err;
-        inboundResponse, err = httpEP.delete(path, req);
-        invalidateResponses(cache, inboundResponse, path);
-        return inboundResponse, err;
-    }
-
-    @Description {value:"Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable response cannot be found will the request be directed to the origin server."}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action get (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        return getCachedResponse(cache, httpClient, req, HTTP_GET, path, cacheConfig.isShared);
-    }
-
-    @Description {value:"Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action options (string path, OutRequest req) (InResponse, HttpConnectorError) {
-        InResponse inboundResponse;
-        HttpConnectorError err;
-        inboundResponse, err = httpEP.options(path, req);
-        invalidateResponses(cache, inboundResponse, path);
-        return inboundResponse, err;
-    }
-
-    @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of GET and HEAD HTTP method types are cacheable."}
-    @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP inbound request message"}
-    @Return {value:"The inbound response message"}
-    @Return {value:"Error occured during HTTP client invocation"}
-    action forward (string path, InRequest req) (InResponse, HttpConnectorError) {
-        // TODO: handle response caching for forwarded GET and HEAD requests.
-        return httpEP.forward(path, req);
-    }
+public struct HttpCachingClient {
+    string serviceUri;
+    ClientEndpointConfiguration config;
+    HttpClient httpClient;
+    HttpCache cache;
+    CacheConfig cacheConfig;
 }
 
-function getCachedResponse (HttpCache cache, HttpClient httpClient, OutRequest req, string httpMethod, string path,
-                            boolean isShared) (InResponse, HttpConnectorError) {
-    endpoint<HttpClient> httpEP {
-        httpClient;
+
+    //HttpCache cache = createHttpCache("http-cache", cacheConfig);
+
+@Description {value:"Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Param {value:"path: Resource path "}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> post (string path, Request req) (Response, HttpConnectorError) {
+    Response inboundResponse;
+    HttpConnectorError err;
+    inboundResponse, err = client.post(path, req);
+    invalidateResponses(client.cache, inboundResponse, path);
+    return inboundResponse, err;
+}
+
+@Description {value:"Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable response cannot be found will the request be directed to the origin server."}
+@Param {value:"path: Resource path "}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> head (string path, Request req) (Response, HttpConnectorError) {
+    return getCachedResponse(client.cache, client.httpClient, req, HTTP_HEAD, path, client.cacheConfig.isShared);
+}
+
+@Description {value:"Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the origin server. In addition, PUT requests invalidate the currently stored responses for the given path."}
+@Param {value:"path: Resource path "}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> put (string path, Request req) (Response, HttpConnectorError) {
+    Response inboundResponse;
+    HttpConnectorError err;
+    inboundResponse, err = client.put(path, req);
+    invalidateResponses(client.cache, inboundResponse, path);
+    return inboundResponse, err;
+}
+
+@Description {value:"Invokes an HTTP call with the specified HTTP verb. This is not a cacheable operation."}
+@Param {value:"httpMethod: HTTP method to be used for the request"}
+@Param {value:"path: Resource path "}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> execute (string httpMethod, string path, Request req) (Response, HttpConnectorError) {
+    if (httpMethod == HTTP_GET || httpMethod == HTTP_HEAD) {
+        return getCachedResponse(client.cache, client.httpClient, req, httpMethod, path, client.cacheConfig.isShared);
     }
+    Response inboundResponse;
+    HttpConnectorError err;
+    inboundResponse, err = client.execute(httpMethod, path, req);
+    invalidateResponses(client.cache, inboundResponse, path);
+    return inboundResponse, err;
+}
+
+@Description {value:"Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Param {value:"path: Resource path "}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> patch (string path, Request req) (Response, HttpConnectorError) {
+    Response inboundResponse;
+    HttpConnectorError err;
+    inboundResponse, err = client.patch(path, req);
+    invalidateResponses(client.cache, inboundResponse, path);
+    return inboundResponse, err;
+}
+
+@Description {value:"Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Param {value:"path: Resource path "}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> delete (string path, Request req) (Response, HttpConnectorError) {
+    Response inboundResponse;
+    HttpConnectorError err;
+    inboundResponse, err = client.delete(path, req);
+    invalidateResponses(client.cache, inboundResponse, path);
+    return inboundResponse, err;
+}
+
+@Description {value:"Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable response cannot be found will the request be directed to the origin server."}
+@Param {value:"path: Request path"}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> get (string path, Request req) (Response, HttpConnectorError) {
+    return getCachedResponse(client.cache, client.httpClient, req, HTTP_GET, path, client.cacheConfig.isShared);
+}
+
+@Description {value:"Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
+@Param {value:"path: Request path"}
+@Param {value:"req: An HTTP outbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> options (string path, Request req) (Response, HttpConnectorError) {
+    Response inboundResponse;
+    HttpConnectorError err;
+    inboundResponse, err = client.options(path, req);
+    invalidateResponses(client.cache, inboundResponse, path);
+    return inboundResponse, err;
+}
+
+@Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of GET and HEAD HTTP method types are cacheable."}
+@Param {value:"path: Request path"}
+@Param {value:"req: An HTTP inbound request message"}
+@Return {value:"The inbound response message"}
+@Return {value:"Error occured during HTTP client invocation"}
+public function <HttpCachingClient client> forward (string path, Request req) (Response, HttpConnectorError) {
+    // TODO: handle response caching for forwarded GET and HEAD requests.
+    return client.forward(path, req);
+}
+
+@Description { value:"Submits an HTTP request to a service with the specified HTTP verb."}
+@Param { value:"httpVerb: The HTTP verb value" }
+@Param { value:"path: The Resource path " }
+@Param { value:"req: An HTTP outbound request message" }
+@Return { value:"The Handle for further interactions" }
+@Return { value:"The Error occured during HTTP client invocation" }
+public function <HttpCachingClient client> submit(string httpVerb, string path, Request req) (HttpHandle, HttpConnectorError) {
+    HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported action";
+    return null, httpConnectorError;
+}
+
+@Description { value:"Retrieves response for a previously submitted request."}
+@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Return { value:"The HTTP response message" }
+@Return { value:"The Error occured during HTTP client invocation" }
+public function <HttpCachingClient client> getResponse(HttpHandle handle) (Response, HttpConnectorError) {
+    HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported action";
+    return null, httpConnectorError;
+}
+
+@Description { value:"Checks whether server push exists for a previously submitted request."}
+@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Return { value:"Whether push promise exists" }
+public function <HttpCachingClient client> hasPromise(HttpHandle handle) (boolean) {
+    return false;
+}
+
+@Description { value:"Retrieves the next available push promise for a previously submitted request."}
+@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Return { value:"The HTTP Push Promise message" }
+@Return { value:"The Error occured during HTTP client invocation" }
+public function <HttpCachingClient client> getNextPromise(HttpHandle handle) (PushPromise, HttpConnectorError) {
+    HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported action";
+    return null, httpConnectorError;
+}
+
+@Description { value:"Retrieves the promised server push response."}
+@Param { value:"promise: The related Push Promise message" }
+@Return { value:"HTTP The Push Response message" }
+@Return { value:"The Error occured during HTTP client invocation" }
+public function <HttpCachingClient client> getPromisedResponse(PushPromise promise) (Response, HttpConnectorError) {
+    HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported action";
+    return null, httpConnectorError;
+}
+
+@Description { value:"Rejects a push promise."}
+@Param { value:"promise: The Push Promise need to be rejected" }
+@Return { value:"Whether operation is successful" }
+public function <HttpCachingClient client> rejectPromise(PushPromise promise) (boolean) {
+    return false;
+}
+
+function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
+                            boolean isShared) (Response, HttpConnectorError) {
+    //endpoint<HttpClient> httpEP {
+    //    httpClient;
+    //}
     time:Time currentT = time:currentTime();
-    InResponse cachedResponse = cache.get(getCacheKey(httpMethod, path));
+    Response cachedResponse = cache.get(getCacheKey(httpMethod, path));
     req.parseOutReqCacheControlHeader();
 
     // Based on https://tools.ietf.org/html/rfc7234#section-4
@@ -296,10 +284,10 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, OutRequest r
         return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false);
     }
 
-    InResponse newResponse;
+    Response newResponse;
     HttpConnectorError err;
     log:printTrace("Sending new request to: " + path);
-    newResponse, err = httpEP.get(path, req);
+    newResponse, err = httpClient.get(path, req);
     if (newResponse != null && cache.isAllowedToCache(newResponse)) {
         newResponse.requestTime = currentT.time;
         newResponse.receivedTime = time:currentTime().time;
@@ -308,11 +296,11 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, OutRequest r
     return newResponse, err;
 }
 
-function getValidationResponse (HttpClient httpClient, OutRequest req, InResponse cachedResponse, HttpCache cache,
+function getValidationResponse (HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
                                 time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
-(InResponse, HttpConnectorError) {
+(Response, HttpConnectorError) {
     // If the no-cache directive is set, always validate the response before serving
-    InResponse validationResponse;
+    Response validationResponse;
     HttpConnectorError validationErr;
 
     if (isFreshResponse) {
@@ -360,15 +348,15 @@ function getValidationResponse (HttpClient httpClient, OutRequest req, InRespons
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
-function handle304Response (InResponse validationResponse, InResponse cachedResponse, HttpCache cache, string path,
-                            string httpMethod) (InResponse, HttpConnectorError) {
+function handle304Response (Response validationResponse, Response cachedResponse, HttpCache cache, string path,
+                            string httpMethod) (Response, HttpConnectorError) {
     log:printTrace("304 response received");
     string etag = validationResponse.getHeader(ETAG);
 
     if (etag != null) {
         if (isAStrongValidator(etag)) {
             // Assuming ETags are the only strong validators
-            InResponse[] matchingCachedResponses = cache.getAllByETag(getCacheKey(httpMethod, path), etag);
+            Response[] matchingCachedResponses = cache.getAllByETag(getCacheKey(httpMethod, path), etag);
 
             foreach resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
@@ -378,7 +366,7 @@ function handle304Response (InResponse validationResponse, InResponse cachedResp
         } else if (hasAWeakValidator(validationResponse, etag)) {
             // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
             if (etag != null) {
-                InResponse[] matchingCachedResponses = cache.getAllByWeakETag(getCacheKey(httpMethod, path), etag);
+                Response[] matchingCachedResponses = cache.getAllByWeakETag(getCacheKey(httpMethod, path), etag);
 
                 foreach resp in matchingCachedResponses {
                     updateResponse(resp, validationResponse);
@@ -400,7 +388,7 @@ function handle304Response (InResponse validationResponse, InResponse cachedResp
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.4
-function invalidateResponses (HttpCache httpCache, InResponse inboundResponse, string path) {
+function invalidateResponses (HttpCache httpCache, Response inboundResponse, string path) {
     // TODO: Improve this logic in accordance with the spec
     if (inboundResponse != null && (isCacheableStatusCode(inboundResponse.statusCode) &&
                                     inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400)) {
@@ -410,7 +398,7 @@ function invalidateResponses (HttpCache httpCache, InResponse inboundResponse, s
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.1
-function getFreshnessLifetime (InResponse cachedResponse, boolean isSharedCache) (int) {
+function getFreshnessLifetime (Response cachedResponse, boolean isSharedCache) (int) {
     // TODO: Ensure that duplicate directives are not counted towards freshness lifetime.
     if (isSharedCache && cachedResponse.cacheControl.sMaxAge >= 0) {
         return cachedResponse.cacheControl.sMaxAge;
@@ -439,14 +427,14 @@ function getFreshnessLifetime (InResponse cachedResponse, boolean isSharedCache)
     return STALE;
 }
 
-function isFreshResponse (InResponse cachedResponse, boolean isSharedCache) (boolean) {
+function isFreshResponse (Response cachedResponse, boolean isSharedCache) (boolean) {
     int currentAge = getAgeValue(cachedResponse.getHeader(AGE));
     int freshnessLifetime = getFreshnessLifetime(cachedResponse, isSharedCache);
     return freshnessLifetime >= currentAge;
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isAllowedToBeServedStale (RequestCacheControl requestCacheControl, InResponse cachedResponse,
+function isAllowedToBeServedStale (RequestCacheControl requestCacheControl, Response cachedResponse,
                                    boolean isSharedCache) (boolean) {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
     if (isServingStaleProhibited(requestCacheControl, cachedResponse.cacheControl)) {
@@ -467,7 +455,7 @@ function isServingStaleProhibited (RequestCacheControl requestCacheControl,
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isStaleResponseAccepted (RequestCacheControl requestCacheControl, InResponse cachedResponse, boolean isSharedCache) (boolean) {
+function isStaleResponseAccepted (RequestCacheControl requestCacheControl, Response cachedResponse, boolean isSharedCache) (boolean) {
     if (requestCacheControl.maxStale == MAX_STALE_ANY_AGE) {
         return true;
     } else if (requestCacheControl.maxStale >=
@@ -478,11 +466,11 @@ function isStaleResponseAccepted (RequestCacheControl requestCacheControl, InRes
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest (HttpClient httpClient, string path, InResponse cachedResponse) (InResponse, HttpConnectorError) {
-    endpoint<HttpClient> httpEP {
-        httpClient;
-    }
-    OutRequest validationRequest = {};
+function sendValidationRequest (HttpClient httpClient, string path, Response cachedResponse) (Response, HttpConnectorError) {
+    //endpoint<HttpClient> httpEP {
+    //    httpClient;
+    //}
+    Request validationRequest = {};
     string etagHeader = cachedResponse.getHeader(ETAG);
     string lastModifiedHeader = cachedResponse.getHeader(LAST_MODIFIED);
 
@@ -496,19 +484,19 @@ function sendValidationRequest (HttpClient httpClient, string path, InResponse c
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    InResponse validationResponse;
+    Response validationResponse;
     HttpConnectorError err;
 
-    validationResponse, err = httpEP.get(path, validationRequest);
+    validationResponse, err = httpClient.get(path, validationRequest);
     return validationResponse, err;
 }
 
-function setAgeHeader (InResponse cachedResponse) {
+function setAgeHeader (Response cachedResponse) {
     cachedResponse.setHeader(AGE, "" + calculateCurrentResponseAge(cachedResponse));
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.3
-function calculateCurrentResponseAge (InResponse cachedResponse) (int) {
+function calculateCurrentResponseAge (Response cachedResponse) (int) {
     int ageValue = getAgeValue(cachedResponse.getHeader(AGE));
     int dateValue = getDateValue(cachedResponse);
     int now = time:currentTime().time;
@@ -527,7 +515,7 @@ function calculateCurrentResponseAge (InResponse cachedResponse) (int) {
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
-function updateResponse (InResponse cachedResponse, InResponse validationResponse) {
+function updateResponse (Response cachedResponse, Response validationResponse) {
     // 1 - delete warning headers with warn codes 1xx
     // 2 - retain warning headers with warn codes 2xx
     // 3 - use other headers in validation response to replace corresponding headers in cached response
@@ -536,7 +524,7 @@ function updateResponse (InResponse cachedResponse, InResponse validationRespons
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
-function hasAWeakValidator (InResponse validationResponse, string etag) (boolean) {
+function hasAWeakValidator (Response validationResponse, string etag) (boolean) {
     return (validationResponse.getHeader(LAST_MODIFIED) != null || (etag != null && !isAStrongValidator(etag)));
 }
 
@@ -552,7 +540,7 @@ function isAStrongValidator (string etag) (boolean) {
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
-function replaceHeaders (InResponse cachedResponse, InResponse validationResponse) {
+function replaceHeaders (Response cachedResponse, Response validationResponse) {
     map uptodateHeaders = validationResponse.getAllHeaders();
 
     foreach headerName, headerValues in uptodateHeaders {
@@ -570,7 +558,7 @@ function replaceHeaders (InResponse cachedResponse, InResponse validationRespons
     }
 }
 
-function retain2xxWarnings (InResponse cachedResponse) {
+function retain2xxWarnings (Response cachedResponse) {
     string[] warningHeaders = cachedResponse.getHeaders(WARNING);
 
     if (warningHeaders != null) {
@@ -597,7 +585,7 @@ function getAgeValue (string ageHeader) (int) {
     return err == null ? ageValue : 0;
 }
 
-function getDateValue (InResponse inboundResponse) (int) {
+function getDateValue (Response inboundResponse) (int) {
     string dateHeader = inboundResponse.getHeader(DATE);
 
     // Based on https://tools.ietf.org/html/rfc7231#section-7.1.1.2
