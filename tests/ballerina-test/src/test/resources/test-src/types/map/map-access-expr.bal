@@ -6,8 +6,8 @@ function mapAccessTest(int x, int y) returns (int) {
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx, _ = (int) testMap["first"];
-    yy, _ = (int) testMap["second"];
+    xx =? <int> testMap["first"];
+    yy =? <int> testMap["second"];
 
     return xx + yy;
 }
@@ -24,7 +24,7 @@ function testArrayAccessAsIndexOfMapt() returns (string) {
     map namesMap = {fname:"Supun",lname:"Setunga"};
     string[] keys = ["fname","lname"];
     string key;
-    key, _ = (string)namesMap[keys[0]];
+    key = <string> namesMap[keys[0]];
     return key;
 }
 
@@ -43,7 +43,7 @@ function constructString(map m) returns (string) {
     string returnStr = "";
     while (i < len) {
         string key = keys[i];
-        var val, e = (string) m[key];
+        string val = <string> m[key];
         returnStr = returnStr + key + ":" + val + ", ";
         i = i + 1;
     }
@@ -84,9 +84,9 @@ function testGetMapValues () returns (string, string) {
                   finfo:j
                 };
     any[] values = m.values();
-    var nam, _ = (string) values[0];
-    var jsn, _ = (json) values[8];
-    var city, _ = (string) jsn.city;
+    var nam = <string> values[0];
+    var jsn =? <json> values[8];
+    var city =? <string> jsn.city;
     return (nam, city);
 }
 
