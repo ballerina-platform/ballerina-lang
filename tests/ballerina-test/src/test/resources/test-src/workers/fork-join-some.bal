@@ -14,12 +14,12 @@ function testForkJoinAny() returns string[] {
             if (airlineResponses["ABC_Airline"] != null) {
                 any[] abc;
                 abc =? <any[]> airlineResponses["ABC_Airline"];
-                results[0] =? <string> abc[0];
+                results[0] = <string> abc[0];
             }
             if (airlineResponses["XYZ_Airline"] != null) {
                 any[] xyz;
                 xyz =? <any[]> airlineResponses["XYZ_Airline"];
-                results[0] =? <string> xyz[0];
+                results[0] = <string> xyz[0];
             }
             return results;
         } timeout (30000) (map airlineResponses) {
