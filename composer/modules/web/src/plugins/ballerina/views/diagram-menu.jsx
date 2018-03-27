@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import { Icon, Input, Button, Menu, Dropdown } from 'semantic-ui-react';
 import CompilationUnitNode from '../model/tree/compilation-unit-node';
 import AddDefinitionMenu from './add-definition-menu';
+import DefinitionViewMenu from './definition-view-menu';
 
 class DiagramMenu extends React.Component {
 
@@ -38,6 +39,7 @@ class DiagramMenu extends React.Component {
                 }
                 { !this.props.fitToWidth &&
                 <Menu.Menu position='right'>
+                    <DefinitionViewMenu model={this.props.model} />
                     { this.props.mode === 'action' &&
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'default', fitToWidth: false }); }}>
                         <Icon name='fw fw-zoom-in menu-icon' />

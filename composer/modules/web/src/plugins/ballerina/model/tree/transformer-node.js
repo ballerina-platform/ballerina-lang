@@ -29,6 +29,11 @@ class TransformerNode extends AbstractTransformerNode {
         return `<${this.getSource().getSource()}, ${returnParams}> ${this.name.value} ${params}`;
     }
 
+    getHeader() {
+        const returnParams = _.join(this.getReturnParameters().map(ret => ret.getTypeNode().symbolType[0]), ',');
+        return `<${this.getSource().getTypeNode().symbolType[0]},${returnParams}>`;
+    }
+
 }
 
 export default TransformerNode;
