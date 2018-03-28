@@ -29,6 +29,14 @@ export default {
                 }
             `);
     },
+    createHTTPEndpointDef: () => {
+        return FragmentUtils.createTopLevelNodeFragment(
+            `
+                endpoint http:ServiceEndpoint serviceEp {
+                    port:9090
+                };
+            `);
+    },
     createWSServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `

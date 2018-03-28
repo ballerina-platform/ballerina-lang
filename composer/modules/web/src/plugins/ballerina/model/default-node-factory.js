@@ -127,32 +127,33 @@ function getPackageDefinition(fullPackageName) {
 class DefaultNodeFactory {
 
     createHTTPServiceDef() {
-        const node = getStaticDefaultNode('createHTTPServiceDef');
-        node.setFullPackageName('ballerina.net.http');
-        return node;
+        const service = getStaticDefaultNode('createHTTPServiceDef');
+        const endpoint = getStaticDefaultNode('createHTTPEndpointDef');
+        service.setFullPackageName('ballerina/net.http');
+        return [ endpoint, service];
     }
 
     createWSServiceDef() {
         const node = getStaticDefaultNode('createWSServiceDef');
-        node.setFullPackageName('ballerina.net.ws');
+        node.setFullPackageName('ballerina/net.ws');
         return node;
     }
 
     createJMSServiceDef() {
         const node = getStaticDefaultNode('createJMSServiceDef');
-        node.setFullPackageName('ballerina.net.jms');
+        node.setFullPackageName('ballerina/net.jms');
         return node;
     }
 
     createFSServiceDef() {
         const node = getStaticDefaultNode('createFSServiceDef');
-        node.setFullPackageName('ballerina.net.fs');
+        node.setFullPackageName('ballerina/net.fs');
         return node;
     }
 
     createFTPServiceDef() {
         const node = getStaticDefaultNode('createFTPServiceDef');
-        node.setFullPackageName('ballerina.net.ftp');
+        node.setFullPackageName('ballerina/net.ftp');
         return node;
     }
 
