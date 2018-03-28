@@ -6,10 +6,10 @@ struct Employee {
 }
 
 public function main (string[] args) {
-    testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);
+    testSelectWithUntaintedQueryProducingTaintedReturn(args);
 }
 
-public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
+public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args) {
     endpoint sql:Client testDB {
         database: sql:DB.MYSQL,
         host: "localhost",
@@ -20,18 +20,24 @@ public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(strin
         options: {maximumPoolSize:5}
     };
 
-    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
-    while (dt.hasNext()) {
-        var rs = <Employee>dt.getNext();
-        match rs {
-            Employee emp => testFunction(emp.name, emp.name);
-            error => return;
-        }
+    var output = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    match output {
+	table dt => {
+            while (dt.hasNext()) {
+                var rs = <Employee>dt.getNext();
+                match rs {
+                    Employee emp => testFunction(emp.name);
+                    error => return;
+                }
+            }
+	}
+        sql:SQLConnectorError => return;
     }
-    testDB -> close();
+    var closeStatus = testDB -> close();
     return;
 }
 
-public function testFunction (@sensitive string sensitiveValue, string anyValue) {
+public function testFunction (@sensitive string anyValue) {
 
 }
+
