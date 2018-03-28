@@ -20,7 +20,6 @@ package org.ballerinalang.test.services.nativeimpl.connection;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -29,7 +28,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test cases for ballerina.net.http.response native functions.
@@ -54,41 +52,5 @@ public class ConnectionNativeFunctionTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 301);
         Assert.assertEquals(response.getHeader("Location"), "location1");
-    }
-
-    @Test(description = "Test the protocol value of connection struct within a service")
-    public void testGetProtocolConnectionStruct() {
-        String protocolValue = "http";
-        String path = "/hello/protocol";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
-
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("protocol").asText(), protocolValue);
-    }
-
-    @Test(description = "Test the local struct values of the connection struct within a service")
-    public void testLocalStructInConnection() {
-        String expectedMessage = "{\"local\":{\"host\":\"0.0.0.0\",\"port\":9090}}";
-        String expectedHost = "0.0.0.0";
-        String expectedPort = "9090";
-        String path = "/hello/local";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
-
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.getMessageAsString(), expectedMessage, "Local address does not populated correctly.");
-
-        String host = ((BJSON) bJson).value().get("local").get("host").asText();
-        String port = ((BJSON) bJson).value().get("local").get("port").asText();
-
-        Assert.assertEquals(host, expectedHost, "Host does not populated correctly.");
-        Assert.assertEquals(port, expectedPort, "Port does not populated correctly.");
     }
 }

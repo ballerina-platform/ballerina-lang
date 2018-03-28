@@ -94,13 +94,10 @@ import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.util.tracer.TraceConstants.HTTP_HOST;
 import static org.ballerinalang.util.tracer.TraceConstants.HTTP_PORT;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_COMPONENT_BALLERINA;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_COMPONENT;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_HOST;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_PORT;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_PROTOCOL;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -518,11 +515,21 @@ public class HttpUtil {
     /**
      * Populate connection information.
      *
-     * @param connection Represent an connection struct
-     * @param cMsg Represent carbon message.
-     * @param httpResource Represent carbon Http Resource.
+     * @param connection Represent the connection struct
+     * @param inboundMsg Represent carbon message.
      */
-    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg, HttpResource httpResource) {
+    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage inboundMsg) {
+        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
+    }
+
+    /**
+     * Populate serviceEndpoint information.
+     *
+     * @param serviceEndpoint Represent the serviceEndpoint struct
+     * @param inboundMsg Represent carbon message.
+     * @param httpResource Represent Http Resource.
+     */
+    public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg, HttpResource httpResource) {
         BStruct remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
@@ -530,7 +537,7 @@ public class HttpUtil {
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
-        Object remoteSocketAddress = cMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
+        Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
 
         if (remoteSocketAddress != null && remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
@@ -539,9 +546,9 @@ public class HttpUtil {
             remote.setStringField(HttpConstants.REMOTE_HOST_INDEX, remoteHost);
             remote.setIntField(HttpConstants.REMOTE_PORT_INDEX, remotePort);
         }
-        connection.setRefField(HttpConstants.REMOTE_STRUCT_INDEX, remote);
+        serviceEndpoint.setRefField(HttpConstants.REMOTE_STRUCT_INDEX, remote);
 
-        Object localSocketAddress = cMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
+        Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
 
         if (localSocketAddress != null && localSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
@@ -550,10 +557,9 @@ public class HttpUtil {
             local.setStringField(HttpConstants.LOCAL_HOST_INDEX, localHost);
             local.setIntField(HttpConstants.LOCAL_PORT_INDEX, localPort);
         }
-        connection.setRefField(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        connection.setStringField(HttpConstants.CONNECTION_PROTOCOL_INDEX,
-                (String) cMsg.getProperty(HttpConstants.PROTOCOL));
-        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
+        serviceEndpoint.setRefField(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        serviceEndpoint.setStringField(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_INDEX,
+                (String) inboundMsg.getProperty(HttpConstants.PROTOCOL));
     }
 
     /**
