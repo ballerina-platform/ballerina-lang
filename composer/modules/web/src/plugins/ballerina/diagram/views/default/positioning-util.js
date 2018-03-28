@@ -50,8 +50,8 @@ class PositioningUtil {
                 variableRefName = node.expression.expression.variableName.value;
             }
             const allVisibleEndpoints = TreeUtil.getAllVisibleEndpoints(node.parent);
-            const endpoint = _.find(allVisibleEndpoints, (varDef) => {
-                return varDef.variable.name.value === variableRefName;
+            const endpoint = _.find(allVisibleEndpoints, (endpoint) => {
+                return endpoint.name.value === variableRefName;
             });
 
             // Move the x cordinates to centre align the action invocation statement
@@ -319,16 +319,14 @@ class PositioningUtil {
             });
         }
 
-        // Position Connectors
-        const statements = node.body.statements;
-        statements.forEach((statement) => {
-            if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                statement.viewState.bBox.x = xindex;
-                statement.viewState.bBox.y = cmp.defaultWorker.y;
-                xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
-                if (statement.viewState.showOverlayContainer) {
-                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
-                }
+        // Position Endpoints
+        const endpoints = node.endpointNodes;
+        endpoints.forEach((endpointNode) => {
+            endpointNode.viewState.bBox.x = xindex;
+            endpointNode.viewState.bBox.y = cmp.defaultWorker.y;
+            xindex += endpointNode.viewState.bBox.w + this.config.lifeLine.gutter.h;
+            if (endpointNode.viewState.showOverlayContainer) {
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(endpointNode);
             }
         });
     }
