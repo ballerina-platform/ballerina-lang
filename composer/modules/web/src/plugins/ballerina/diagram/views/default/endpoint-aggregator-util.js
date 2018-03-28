@@ -22,7 +22,7 @@ import SimpleBBox from './../../../model/view/simple-bounding-box';
 
 class EndpointAggregatorUtil {
     /**
-     * Calculate dimention of AnnotationAttachment nodes.
+     * Aggregate the all visible endpoints for the function node.
      *
      * @param {object} node
      *
@@ -31,6 +31,12 @@ class EndpointAggregatorUtil {
         this.aggregateAllVisibleEndpoints(node);
     }
 
+    /**
+     * Aggregate the all visible endpoints for the resource node.
+     *
+     * @param {object} node
+     *
+     */
     aggregateResourceNode(node) {
         this.aggregateAllVisibleEndpoints(node);
     }
