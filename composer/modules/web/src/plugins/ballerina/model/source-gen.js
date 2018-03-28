@@ -483,6 +483,21 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else {
                 return w() + node.value;
             }
+        case 'Match':
+            return dent() + w() + 'match' + a(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ') + '{' + indent()
+                 + join(node.patternClauses, pretty, replaceLambda, l, w, '') + outdent() + w()
+                 + '}';
+        case 'MatchPatternClause':
+            if (node.withoutCurlies && node.variableNode && node.statement) {
+                return getSourceOf(node.variableNode, pretty, l, replaceLambda) + w(' ')
+                 + '=>' + a(' ')
+                 + getSourceOf(node.statement, pretty, l, replaceLambda);
+            } else {
+                return dent() + getSourceOf(node.variableNode, pretty, l, replaceLambda)
+                 + w(' ') + '=>' + a(' ') + w() + '{' + indent()
+                 + getSourceOf(node.statement, pretty, l, replaceLambda) + outdent() + w() + '}';
+            }
         case 'Next':
             return dent() + w() + 'next' + w() + ';';
         case 'RecordLiteralExpr':
@@ -509,13 +524,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Service':
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + w() + '<'
-                 + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w() + '>'
-                 + w(' ') + node.name.valueWithBar + w() + 'bind'
-                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{'
-                 + indent() + join(node.variables, pretty, replaceLambda, l, w, '')
-                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent()
-                 + w() + '}';
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + a(' ') + w() + '<'
+                 + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w()
+                 + '>' + w(' ') + node.name.valueWithBar + a(' ') + w() + 'bind'
+                 + a(' ')
+                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{' + indent()
+                 + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
         case 'SimpleVariableRef':
             if (node.inTemplateLiteral && node.packageAlias.valueWithBar
                          && node.variableName.valueWithBar) {

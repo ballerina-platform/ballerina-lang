@@ -37,7 +37,7 @@ public class WorkspaceDocumentManagerTest {
 
     @BeforeClass
     public void setup() {
-        documentManager = new WorkspaceDocumentManagerImpl();
+        documentManager = WorkspaceDocumentManagerImpl.getInstance();
     }
 
     @Test

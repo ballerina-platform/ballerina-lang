@@ -20,9 +20,11 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
@@ -31,13 +33,13 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.websub.BallerinaWebSubConnectionListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.logging.LogManager;
 
@@ -64,7 +66,13 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
 
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         if (isHTTPTraceLoggerEnabled()) {
-            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+            } catch (IOException e) {
+                throw new BallerinaConnectorException("Invalid HTTP trace log parameters found.", e);
+            } catch (TraceLogConfigurationException e) {
+                throw new BallerinaConnectorException("Unsupported HTTP trace log configuration. " + e.getMessage(), e);
+            }
         }
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
@@ -72,10 +80,7 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
         serverConnectorFuture.setHttpConnectorListener(new BallerinaWebSubConnectionListener(webSubServicesRegistry,
                                                                                              filterHolder));
-        // TODO: set startup server port binder. Do we really need it with new design?
-        ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
-        serverConnectorFuture.setPortBindingEventListener(
-                new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
+        serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
 
         context.setReturnValues();
     }

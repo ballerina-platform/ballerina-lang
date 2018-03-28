@@ -34,7 +34,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@Parameters(commandNames = "push", commandDescription = " pushes a package source and binaries available" +
+@Parameters(commandNames = "push", commandDescription = "pushes a package source and binaries available" +
         "locally to ballerina central,")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;

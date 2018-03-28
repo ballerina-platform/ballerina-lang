@@ -8,5 +8,5 @@ function handleUser(foo:user u) returns (string) {
 
 function testStructEqViewFromThirdPackage() returns (string) {
     bar:userBar ub = {name:"ball"};
-    return handleUser((foo:userFoo)ub);
+    return handleUser(<foo:userFoo>ub);
 }

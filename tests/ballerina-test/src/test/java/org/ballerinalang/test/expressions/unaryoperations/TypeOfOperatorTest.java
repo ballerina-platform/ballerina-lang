@@ -551,7 +551,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[5].stringValue(), "boolean");
     }
 
-    @Test(description = "Test type of json")
+    @Test(description = "Test type of json", enabled = false)
     public void testCheckTypeOfJson() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckTypeOfJson");
         Assert.assertSame(returns[0].getClass(), BJSON.class);
