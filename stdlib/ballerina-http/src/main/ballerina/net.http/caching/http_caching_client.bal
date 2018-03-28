@@ -93,7 +93,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfiguration 
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> post (string path, Request req) returns (Response|HttpConnectorError) {
-    match client.post(path, req) {
+    match client.httpClient.post(path, req) {
         Response inboundResponse => {
             invalidateResponses(client.cache, inboundResponse, path);
             return inboundResponse;
@@ -118,7 +118,7 @@ public function <HttpCachingClient client> head (string path, Request req) retur
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> put (string path, Request req) returns (Response|HttpConnectorError) {
-    match client.put(path, req) {
+    match client.httpClient.put(path, req) {
         Response inboundResponse => {
             invalidateResponses(client.cache, inboundResponse, path);
             return inboundResponse;
@@ -139,7 +139,7 @@ public function <HttpCachingClient client> execute (string httpMethod, string pa
         return getCachedResponse(client.cache, client.httpClient, req, httpMethod, path, client.cacheConfig.isShared);
     }
 
-    match client.execute(httpMethod, path, req) {
+    match client.httpClient.execute(httpMethod, path, req) {
         Response inboundResponse => {
             invalidateResponses(client.cache, inboundResponse, path);
             return inboundResponse;
@@ -155,7 +155,7 @@ public function <HttpCachingClient client> execute (string httpMethod, string pa
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> patch (string path, Request req) returns (Response|HttpConnectorError) {
-    match client.patch(path, req) {
+    match client.httpClient.patch(path, req) {
         Response inboundResponse => {
             invalidateResponses(client.cache, inboundResponse, path);
             return inboundResponse;
@@ -171,7 +171,7 @@ public function <HttpCachingClient client> patch (string path, Request req) retu
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> delete (string path, Request req) returns (Response|HttpConnectorError) {
-    match client.delete(path, req) {
+    match client.httpClient.delete(path, req) {
         Response inboundResponse => {
             invalidateResponses(client.cache, inboundResponse, path);
             return inboundResponse;
@@ -187,7 +187,6 @@ public function <HttpCachingClient client> delete (string path, Request req) ret
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> get (string path, Request req) returns (Response|HttpConnectorError) {
-    log:printInfo("SENDING REQUEST");
     return getCachedResponse(client.cache, client.httpClient, req, GET, path, client.cacheConfig.isShared);
 }
 
@@ -197,7 +196,7 @@ public function <HttpCachingClient client> get (string path, Request req) return
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> options (string path, Request req) returns (Response|HttpConnectorError) {
-    match client.options(path, req) {
+    match client.httpClient.options(path, req) {
         Response inboundResponse => {
             invalidateResponses(client.cache, inboundResponse, path);
             return inboundResponse;
@@ -217,7 +216,7 @@ public function <HttpCachingClient client> forward (string path, Request req) re
         return getCachedResponse(client.cache, client.httpClient, req, req.method, path, client.cacheConfig.isShared);
     }
 
-    match client.forward(path, req) {
+    match client.httpClient.forward(path, req) {
         Response inboundResponse => {
             invalidateResponses(client.cache, inboundResponse, path);
             return inboundResponse;
