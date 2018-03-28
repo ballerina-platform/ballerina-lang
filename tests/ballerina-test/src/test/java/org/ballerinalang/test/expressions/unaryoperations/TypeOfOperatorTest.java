@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,7 +39,7 @@ public class TypeOfOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions/unaryoperations/typeof-operation.bal");
+        result = BCompileUtil.compile("test-src/expressions/unaryoperations/typeof-operation.bal");
     }
 
     @Test(description = "Test reference type access expression trivial equality positive case")
@@ -377,8 +377,8 @@ public class TypeOfOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "typeToAnyImplicitCast", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
-        Assert.assertSame(returns[1].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[0].getClass(), BTypeDescValue.class);
+        Assert.assertSame(returns[1].getClass(), BTypeDescValue.class);
         Assert.assertEquals(returns[0], returns[1]);
     }
 
@@ -388,9 +388,9 @@ public class TypeOfOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "typeToAnyExplicitCast", args);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
-        Assert.assertSame(returns[1].getClass(), BTypeValue.class);
-        Assert.assertSame(returns[2].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[0].getClass(), BTypeDescValue.class);
+        Assert.assertSame(returns[1].getClass(), BTypeDescValue.class);
+        Assert.assertSame(returns[2].getClass(), BTypeDescValue.class);
         Assert.assertEquals(returns[0], returns[1]);
         Assert.assertEquals(returns[1], returns[2]);
     }
@@ -401,8 +401,8 @@ public class TypeOfOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "anyToTypeExplicitCast", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
-        Assert.assertSame(returns[1].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[0].getClass(), BTypeDescValue.class);
+        Assert.assertSame(returns[1].getClass(), BTypeDescValue.class);
 
         Assert.assertEquals(returns[0], returns[1]);
     }
@@ -413,7 +413,7 @@ public class TypeOfOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "getTypeStringValue", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[0].getClass(), BTypeDescValue.class);
 
         String typeString = returns[0].stringValue();
         String typeStringExpected = "int";
@@ -426,7 +426,7 @@ public class TypeOfOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "getStructTypeStringValue", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
+        Assert.assertSame(returns[0].getClass(), BTypeDescValue.class);
 
         String typeString = returns[0].stringValue();
         String typeStringExpected = "Person";
@@ -551,7 +551,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[5].stringValue(), "boolean");
     }
 
-    @Test(description = "Test type of json")
+    @Test(description = "Test type of json", enabled = false)
     public void testCheckTypeOfJson() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckTypeOfJson");
         Assert.assertSame(returns[0].getClass(), BJSON.class);
@@ -592,5 +592,13 @@ public class TypeOfOperatorTest {
         int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 1;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void testTypeOfNullString() {
+        BValue[] args = { new BString(null) };
+        BValue[] returns = BRunUtil.invoke(result, "testTypeOfNullString", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].stringValue(), "null");
     }
 }

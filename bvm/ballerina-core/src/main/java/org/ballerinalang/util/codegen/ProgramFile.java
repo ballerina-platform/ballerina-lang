@@ -63,6 +63,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private boolean servicesAvailable = false;
 
     private Debugger debugger;
+    private boolean distributedTransactionEnabled = false;
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
@@ -122,14 +123,24 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         return servicesAvailable;
     }
 
+    public void setDistributedTransactionEnabled(boolean distributedTransactionEnabled) {
+        this.distributedTransactionEnabled = distributedTransactionEnabled;
+    }
+
+    public boolean isDistributedTransactionEnabled() {
+        return distributedTransactionEnabled;
+    }
+
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
     }
 
+    @Deprecated
     public ServerConnectorRegistry getServerConnectorRegistry() {
         return serverConnectorRegistry;
     }
 
+    @Deprecated
     public void setServerConnectorRegistry(ServerConnectorRegistry serverConnectorRegistry) {
         this.serverConnectorRegistry = serverConnectorRegistry;
     }
@@ -213,18 +224,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     @Override
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
-    }
-
-    public List<AnnAttributeValue> getUnresolvedAnnAttrValues() {
-        return unresolvedAnnAttrValues;
-    }
-
-    public void setUnresolvedAnnAttrValues(List<AnnAttributeValue> unresolvedAnnAttrValues) {
-        this.unresolvedAnnAttrValues = unresolvedAnnAttrValues;
-    }
-
-    public void addUnresolvedAnnAttrValue(AnnAttributeValue annAttributeValue) {
-        unresolvedAnnAttrValues.add(annAttributeValue);
     }
 
     public void setDebugger(Debugger debugManager) {

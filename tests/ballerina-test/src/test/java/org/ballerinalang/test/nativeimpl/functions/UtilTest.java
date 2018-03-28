@@ -20,7 +20,9 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -35,7 +37,7 @@ public class UtilTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src", "nativeimpl/functions/util-test.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/util-test.bal");
     }
 
     @Test
@@ -118,5 +120,22 @@ public class UtilTest {
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testParseJson() {
+        String jsonString = "{\"name\":\"apple\",\"color\":\"red\",\"price\":25}";
+        BValue[] args = new BValue[]{new BString(jsonString)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testParseJson", args);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+    }
+
+    @Test
+    public void testParseInvalidJson() {
+        String jsonString = "{\"name\":\"apple\",\"color\":\"red\",\"price\":25} sample invalid json";
+        BValue[] args = new BValue[]{new BString(jsonString)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testParseJson", args);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(((BStruct) returns[0]).getStringField(0).contains("Failed to parse json string:"));
     }
 }

@@ -19,14 +19,13 @@
 package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -37,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "json.toXML",
         args = {@Argument(name = "j", type = TypeKind.JSON),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
@@ -45,23 +44,24 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = { @ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.STRUCT) },
         isPublic = true
 )
-public class ToXML extends AbstractNativeFunction {
+public class ToXML extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         BXML<?> xml = null;
         BStruct error = null;
         try {
             // Accessing Parameters
-            BJSON json = (BJSON) getRefArgument(ctx, 0);
-            BStruct optionsStruct = ((BStruct) getRefArgument(ctx, 1));
+            BJSON json = (BJSON) ctx.getRefArgument(0);
+            BStruct optionsStruct = ((BStruct) ctx.getRefArgument(1));
             String attributePrefix = optionsStruct.getStringField(0);
             String arrayEntryTag = optionsStruct.getStringField(1);
             //Converting to xml.
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
+            ctx.setReturnValues(xml);
         } catch (Throwable e) {
             error = Utils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
+            ctx.setReturnValues(error);
         }
-        return getBValues(xml, error);
     }
 }

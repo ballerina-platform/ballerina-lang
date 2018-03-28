@@ -2,7 +2,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>language-server</artifactId>
-        <version>0.963.1-SNAPSHOT</version>
+        <version>0.970.0-alpha1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -63,6 +63,7 @@
     </build>
 
     <properties>
+        <maven.checkstyleplugin.excludes>**/SourceGen.java</maven.checkstyleplugin.excludes>
         <mavan.spotbugsplugin.exclude.file>spotbugs-exclude.xml</mavan.spotbugsplugin.exclude.file>
     </properties>
 </project>

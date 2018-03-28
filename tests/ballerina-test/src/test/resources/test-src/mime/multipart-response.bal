@@ -1,13 +1,19 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.file;
+import ballerina/net.http;
+import ballerina/net.http.mock;
+import ballerina/mime;
+import ballerina/file;
 
-service<http> multipart {
-    @http:resourceConfig {
+endpoint mock:NonListeningServiceEndpoint mockEP {
+    port:9090
+};
+
+@http:ServiceConfig {basePath:"/multipart"}
+service<http:Service> test bind mockEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartOutResponse (http:Connection conn, http:InRequest request) {
+    multipartOutResponse (endpoint conn, http:Request request) {
 
         //Create a body part with json content.
         mime:Entity bodyPart1 = {};
@@ -39,23 +45,28 @@ service<http> multipart {
         mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];
 
         //Set the body parts to outbound response.
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
         outResponse.setMultiparts(bodyParts, contentType);
 
-        _ = conn.respond(outResponse);
+        _ = conn -> respond(outResponse);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/nested_parts_in_outresponse"
     }
-    resource nestedPartsInOutResponse (http:Connection conn, http:InRequest request) {
-
-        mime:Entity[] bodyParts = request.getMultiparts();
+    nestedPartsInOutResponse (endpoint conn, http:Request request) {
         string contentType = request.getHeader("content-type");
-        http:OutResponse outResponse = {};
-        outResponse.setMultiparts(bodyParts, contentType);
-        _ = conn.respond(outResponse);
+        http:Response outResponse = {};
+        match (request.getMultiparts()) {
+            mime:EntityError err => {
+                outResponse.setStringPayload(err.message);
+            }
+            mime:Entity[] bodyParts => {
+                outResponse.setMultiparts(bodyParts, contentType);
+            }
+        }
+        _ = conn -> respond(outResponse);
     }
 }

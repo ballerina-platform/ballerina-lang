@@ -1,6 +1,6 @@
 package servicechaining.samples;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/branchlocator"}
 service<http> Banklocator {
@@ -8,19 +8,23 @@ service<http> Banklocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection conn, http:InRequest req) {
-        json jsonRequest = req.getJsonPayload();
-        string zipCode;
-        zipCode, _ = (string)jsonRequest.BranchLocator.ZipCode;
-        json payload = {};
-        if (zipCode == "95999") {
-            payload = {"ABCBank":{"BranchCode":"123"}};
+    resource product (http:Connection conn, http:Request req) {
+        var jsonRequest, payloadError = req.getJsonPayload();
+        http:Response res = {};
+        if (payloadError == null) {
+            string zipCode;
+            zipCode, _ = (string)jsonRequest.BranchLocator.ZipCode;
+            json payload = {};
+            if (zipCode == "95999") {
+                payload = {"ABCBank":{"BranchCode":"123"}};
+            } else {
+                payload = {"ABCBank":{"BranchCode":"-1"}};
+            }
+            res.setJsonPayload(payload);
         } else {
-            payload = {"ABCBank":{"BranchCode":"-1"}};
+            res.statusCode = 500;
+            res.setStringPayload(payloadError.message);
         }
-
-        http:OutResponse res = {};
-        res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
 }

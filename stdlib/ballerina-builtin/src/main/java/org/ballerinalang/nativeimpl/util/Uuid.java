@@ -17,10 +17,9 @@
 package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -32,16 +31,16 @@ import java.util.UUID;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.util",
+        orgName = "ballerina", packageName = "util",
         functionName = "uuid",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Uuid extends AbstractNativeFunction {
+public class Uuid extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         String randomString = UUID.randomUUID().toString().replaceAll("-", "");
-        return getBValues(new BString(randomString));
+        context.setReturnValues(new BString(randomString));
     }
 }

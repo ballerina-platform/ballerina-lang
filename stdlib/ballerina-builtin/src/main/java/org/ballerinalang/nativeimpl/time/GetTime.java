@@ -18,10 +18,11 @@
 package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina", packageName = "time",
         functionName = "Time.getTime",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
                           structPackage = "ballerina.time")},
@@ -45,9 +46,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetTime extends AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return getBValues(new BInteger(getHour(timeStruct)), new BInteger(getMinute(timeStruct)),
-                new BInteger(getSecond(timeStruct)), new BInteger(getMilliSecond(timeStruct)));
+    public void execute(Context context) {
+        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        BRefValueArray time = new BRefValueArray(BTypes.typeInt);
+        time.add(0, new BInteger(getHour(timeStruct)));
+        time.add(1, new BInteger(getMinute(timeStruct)));
+        time.add(2, new BInteger(getSecond(timeStruct)));
+        time.add(3, new BInteger(getMilliSecond(timeStruct)));
+        context.setReturnValues(time);
     }
 }

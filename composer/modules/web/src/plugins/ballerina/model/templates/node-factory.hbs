@@ -23,17 +23,17 @@ import {{ kind }}Node from './tree/{{ fileName }}';{{/each}}
 class NodeFactory {
 
 {{#each this}}
-    create{{kind}}(json = {}){
+    create{{kind}}(json = {}) {
         json.kind = '{{kind}}';
         let node = new {{ kind }}Node();{{#each attributes}}{{#if isNode}}
         node.{{property}} = new {{returnType}}();{{/if}}{{#if list}}
         node.{{property}} = [];{{/if}}{{/each}}
         node = Object.assign(node, json);
-        // Set any aditional default properties below. 
+        // Set any aditional default properties below.
         return node;
     }
 {{/each}}
 
 }
 
-export default new NodeFactory;
+export default new NodeFactory();

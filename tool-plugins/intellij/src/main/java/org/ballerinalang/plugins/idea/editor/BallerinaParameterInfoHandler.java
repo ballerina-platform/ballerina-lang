@@ -47,8 +47,9 @@ import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ParameterTypeName;
+import org.ballerinalang.plugins.idea.psi.ParameterTypeNameList;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
-import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -448,9 +449,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 if (definitionNode instanceof ParameterNode) {
                     boolean isLambda = BallerinaPsiImplUtil.isALambdaFunction(resolvedElement);
                     if (isLambda) {
-                        TypeListNode typeListNode = PsiTreeUtil.findChildOfType(definitionNode, TypeListNode.class);
-                        if (typeListNode != null) {
-                            list.add(typeListNode);
+                        ParameterTypeNameList parameterTypeNameList = PsiTreeUtil.findChildOfType(definitionNode,
+                                ParameterTypeNameList.class);
+                        if (parameterTypeNameList != null) {
+                            list.add(parameterTypeNameList);
                         }
                     }
                 } else {
@@ -687,9 +689,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // Call setupUIComponentPresentation with necessary arguments.
             return context.setupUIComponentPresentation(builder.toString(), start, end, false, false, false,
                     context.getDefaultParameterColor());
-        } else if (p instanceof TypeListNode) {
+        } else if (p instanceof ParameterTypeNameList) {
             // Caste the object.
-            TypeListNode element = (TypeListNode) p;
+            ParameterTypeNameList element = (ParameterTypeNameList) p;
             // Get the parameter presentations.
             List<String> parameterPresentations = getParameterPresentations(element);
             // These will be used to identify which parameter is selected. This will be highlighted in the popup.
@@ -757,15 +759,19 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         return params;
     }
 
-    public static List<String> getParameterPresentations(TypeListNode node) {
+    public static List<String> getParameterPresentations(ParameterTypeNameList node) {
         List<String> params = new LinkedList<>();
         if (node == null) {
             return params;
         }
         // Get type name nodes.
-        Collection<TypeNameNode> typeNameNodes = PsiTreeUtil.findChildrenOfType(node, TypeNameNode.class);
-        for (TypeNameNode typeNameNode : typeNameNodes) {
-            params.add(typeNameNode.getText());
+        Collection<ParameterTypeName> parameterTypeNames = PsiTreeUtil.findChildrenOfType(node,
+                ParameterTypeName.class);
+        for (ParameterTypeName parameterTypeName : parameterTypeNames) {
+            TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(parameterTypeName, TypeNameNode.class);
+            if (typeNameNode != null) {
+                params.add(parameterTypeName.getText());
+            }
         }
         return params;
     }

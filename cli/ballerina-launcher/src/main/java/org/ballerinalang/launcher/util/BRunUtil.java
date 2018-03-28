@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.launcher.util;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -55,7 +56,7 @@ public class BRunUtil {
      */
     public static BValue[] invokeStateful(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         return invokeStateful(compileResult, compileResult.getProgFile().getEntryPkgName(), functionName, args);
     }
@@ -85,7 +86,7 @@ public class BRunUtil {
     public static BValue[] invokeStateful(CompileResult compileResult, String packageName,
                                           String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
@@ -99,7 +100,10 @@ public class BRunUtil {
         if (functionInfo.getParamTypes().length != args.length) {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
-        return BLangFunctions.invokeFunction(programFile, functionInfo, args, compileResult.getContext());
+
+        BValue[] response = BLangFunctions.invokeCallable(functionInfo,
+                compileResult.getContext(), args);
+        return spreadToBValueArray(response);
     }
 
 //    Package init helpers
@@ -108,9 +112,9 @@ public class BRunUtil {
      *
      * @param compileResult CompileResult instance
      */
-    protected static void invokePackageInit(CompileResult compileResult) {
+    public static void invokePackageInit(CompileResult compileResult) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         invokePackageInit(compileResult, compileResult.getProgFile().getEntryPkgName());
     }
@@ -123,15 +127,15 @@ public class BRunUtil {
      */
     protected static void invokePackageInit(CompileResult compileResult, String packageName) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-        Context context = new Context(programFile);
+        WorkerExecutionContext context = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
-        BLangFunctions.invokePackageInitFunction(programFile, packageInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokePackageInitFunction(packageInfo.getInitFunctionInfo(), context);
     }
 
     /**
@@ -145,12 +149,15 @@ public class BRunUtil {
      */
     public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, packageName, functionName, args);
+
+        BValue[] response = BLangFunctions.invokeEntrypointCallable(programFile,
+                packageName, functionName, args);
+        return spreadToBValueArray(response);
     }
 
     /**
@@ -176,32 +183,53 @@ public class BRunUtil {
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
+
+        BValue[] response = BLangFunctions.invokeEntrypointCallable(programFile,
+                programFile.getEntryPkgName(), functionName, args);
+        return spreadToBValueArray(response);
     }
 
     /**
-     * Invoke a ballerina function.
+     * Invoke a ballerina function to get BReference Value Objects.
      *
      * @param compileResult CompileResult instance
      * @param functionName  Name of the function to invoke
      * @param args          Input parameters for the function
-     * @param context       context for function invocation
      * @return return values of the function
      */
-    public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args, Context context) {
+    public static BValue[] invokeFunction(CompileResult compileResult, String functionName, BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("compilation contains errors.");
+            throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args, context);
+
+        BValue[] response = BLangFunctions.invokeEntrypointCallable(programFile,
+                programFile.getEntryPkgName(), functionName, args);
+        return response;
     }
+
+
+    private static BValue[] spreadToBValueArray(BValue[] response) {
+        if (!(response != null && response.length > 0 && response[0] instanceof BRefValueArray)) {
+            return response;
+        }
+
+        BRefValueArray refValueArray = (BRefValueArray) response[0];
+        int length = (int) refValueArray.size();
+        BValue[] arr = new BValue[length];
+        for (int i = 0; i < length; i++) {
+            arr[i] = refValueArray.get(i);
+        }
+        return arr;
+    }
+
 
     /**
      * Invoke a ballerina function.
@@ -222,9 +250,10 @@ public class BRunUtil {
      * @param initFuncInfo Function to invoke.
      * @param context invocation context.
      */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, Context context) {
+    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo,
+            WorkerExecutionContext context) {
         Debugger debugger = new Debugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
-        BLangFunctions.invokeFunction(compileResult.getProgFile(), initFuncInfo, context);
+        BLangFunctions.invokeCallable(initFuncInfo, context);
     }
 }

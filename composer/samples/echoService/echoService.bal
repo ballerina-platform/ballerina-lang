@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/echo"}
 service<http> echo {
@@ -7,10 +7,16 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
-        http:OutResponse resp = {};
-        string payload = req.getStringPayload();
-        resp.setStringPayload(payload);
+    resource echo (http:Connection conn, http:Request req) {
+        http:Response resp = {};
+        var payload, payloadError = req.getStringPayload();
+        if (payloadError == null) {
+            resp.setStringPayload(payload);
+        } else {
+            resp.statusCode = 500;
+            resp.setStringPayload(payloadError.message);
+        }
+
         _ = conn.respond(resp);
     }
 }

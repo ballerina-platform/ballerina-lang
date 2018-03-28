@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -30,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina", packageName = "time",
         functionName = "createTime",
         args = {@Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),
@@ -47,17 +46,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class CreateTime extends AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        int years = (int) getIntArgument(context, 0);
-        int months = (int) getIntArgument(context, 1);
-        int dates = (int) getIntArgument(context, 2);
-        int hours = (int) getIntArgument(context, 3);
-        int minutes = (int) getIntArgument(context, 4);
-        int seconds = (int) getIntArgument(context, 5);
-        int milliSeconds = (int) getIntArgument(context, 6);
-        String zoneId = getStringArgument(context, 0);
-        return new BValue[] {
-                createDateTime(context, years, months, dates, hours, minutes, seconds, milliSeconds, zoneId)
-        };
+    public void execute(Context context) {
+        int years = (int) context.getIntArgument(0);
+        int months = (int) context.getIntArgument(1);
+        int dates = (int) context.getIntArgument(2);
+        int hours = (int) context.getIntArgument(3);
+        int minutes = (int) context.getIntArgument(4);
+        int seconds = (int) context.getIntArgument(5);
+        int milliSeconds = (int) context.getIntArgument(6);
+        String zoneId = context.getStringArgument(0);
+        context.setReturnValues(
+                createDateTime(context, years, months, dates, hours, minutes, seconds, milliSeconds, zoneId));
     }
 }

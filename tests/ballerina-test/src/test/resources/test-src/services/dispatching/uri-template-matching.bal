@@ -1,387 +1,419 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-@http:configuration {basePath:"/hello"}
-service<http> echo11 {
+endpoint mock:NonListeningServiceEndpoint testEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {
+    basePath:"/hello",
+    endpoints:[testEP]
+}
+service<http:Service> echo11 {
+
+    @http:ResourceConfig {
         methods:["GET"],
         path:"echo2"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo5":"echo5"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}-{xyz}"
     }
-    resource echo2 (http:Connection conn, http:InRequest req, string abc, string xyz) {
-        http:OutResponse res = {};
+    echo2 (endpoint conn, http:Request req, string abc, string xyz) {
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}"
     }
-    resource echo3 (http:Connection conn, http:InRequest req, string abc, string xyz) {
-        http:OutResponse res = {};
+    echo3 (endpoint conn, http:Request req, string abc, string xyz) {
+        http:Response res = {};
         json responseJson = {"first":xyz, "second":abc};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}"
     }
-    resource echo4 (http:Connection conn, http:InRequest req, string abc) {
-        http:OutResponse res = {};
+    echo4 (endpoint conn, http:Request req, string abc) {
+        http:Response res = {};
         json responseJson = {"echo3":abc};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
-    resource echo5 (http:Connection conn, http:InRequest req, string abc, string xyz) {
-        http:OutResponse res = {};
+    echo5 (endpoint conn, http:Request req, string abc, string xyz) {
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz, "echo4":"echo4"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/{bar}"
     }
-    resource echo6 (http:Connection conn, http:InRequest req, string abc, string xyz, string bar) {
-        http:OutResponse res = {};
+    echo6 (endpoint conn, http:Request req, string abc, string xyz, string bar) {
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz, "echo4":bar};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/*"
     }
-    resource echo7 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo7 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo5":"any"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
-    resource echo8 (http:Connection conn, http:InRequest req, string abc, string xyz) {
-        http:OutResponse res = {};
+    echo8 (endpoint conn, http:Request req, string abc, string xyz) {
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz, "echo8":"echo8"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo3/{abc}+{xyz}"
     }
-    resource echo9 (http:Connection conn, http:InRequest req, string abc, string xyz) {
+    echo9 (endpoint conn, http:Request req, string abc, string xyz) {
         map params = req.getQueryParams();
         string foo;
-        foo, _ = (string)params.foo;
+        foo = <string>params.foo;
         json responseJson = {"first":abc, "second":xyz, "third":foo, "echo9":"echo9"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource echo10 (http:Connection conn, http:InRequest req) {
+    echo10 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
-        foo, _ = (string)params.foo;
+        foo = <string>params.foo;
         json responseJson = {"third":foo, "echo10":"echo10"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    resource echo11 (http:Connection conn, http:InRequest req) {
+    echo11 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
-        foo, _ = (string)params.foo;
+        foo = <string>params.foo;
         json responseJson = {"third":foo, "echo11":"echo11"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo12/{abc}/bar"
     }
-    resource echo12 (http:Connection conn, http:InRequest req, string abc) {
-        http:OutResponse res = {};
+    echo12 (endpoint conn, http:Request req, string abc) {
+        http:Response res = {};
         json responseJson = {"echo12":abc};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo125"
     }
-    resource echo125 (http:Connection conn, http:InRequest req) {
+    echo125 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string bar;
-        bar, _ = (string)params.foo;
+        bar = <string>params.foo;
         json responseJson = {"echo125":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"/paramNeg"
-    }
-    resource paramNeg (http:Connection conn, http:InRequest req) {
-        map params = req.getQueryParams();
-        error err;
-        string bar;
-        bar, err = (string)params.foo;
-        json responseJson = {"echo125":bar, "error":err.message};
-
-        http:OutResponse res = {};
-        res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo13"
     }
-    resource echo13 (http:Connection conn, http:InRequest req) {
+    echo13 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string barStr;
         int bar;
-        barStr, _ = (string)params.foo;
-        bar, _ = <int>barStr;
+        barStr = <string>params.foo;
+        bar =? <int>barStr;
         json responseJson = {"echo13":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo14"
     }
-    resource echo14 (http:Connection conn, http:InRequest req) {
+    echo14 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string barStr;
         float bar;
-        barStr, _ = (string)params.foo;
-        bar, _ = <float>barStr;
+        barStr = <string>params.foo;
+        bar =? <float>barStr;
         json responseJson = {"echo14":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo15"
     }
-    resource echo15 (http:Connection conn, http:InRequest req) {
+    echo15 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string barStr;
         boolean bar;
-        barStr, _ = (string) params.foo;
-        bar, _ = <boolean> barStr;
+        barStr = <string>params.foo;
+        bar = <boolean>barStr;
         json responseJson = {"echo15":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/so2"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
+    echo (endpoint conn, http:Request req) {
     }
 }
 
-@http:configuration {basePath:"/hello/world"}
-service<http> echo22 {
+@http:ServiceConfig {
+    basePath:"/hello/world",
+    endpoints:[testEP]
+}
+service<http:Service> echo22 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    echo1 (endpoint conn, http:Request req) {
         json responseJson = {"echo1":"echo1"};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/*"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo2 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo2":"echo2"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2/foo/bar"
     }
-    resource echo3 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo3 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo3":"echo3"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/"}
-service<http> echo33 {
-    resource echo1 (http:Connection conn, http:InRequest req) {
+@http:ServiceConfig {
+    basePath:"/",
+    endpoints:[testEP]
+}
+service<http:Service> echo33 {
+    echo1 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
-        foo, _ = (string)params.foo;
+        foo = <string>params.foo;
         json responseJson = {"third":foo, "echo33":"echo1"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-service<http> echo44 {
+@http:ServiceConfig {
+    endpoints:[testEP]
+}
+service<http:Service> echo44 {
 
-
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"echo2"
     }
-    resource echo221 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo221 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"first":"zzz"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    echo1 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
-        var foo, _ = (string)params.foo;
+        var foo =? <string>params.foo;
         json responseJson = {"first":foo, "echo44":"echo1"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"echo2"
     }
-    resource echo222 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo222 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"first":"bar"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/echo55"}
-service<http> echo55 {
-    @http:resourceConfig {
+@http:ServiceConfig {
+    endpoints:[testEP]
+}
+service<http:Service> echo55 {
+    @http:ResourceConfig {
         path:"/foo/bar"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    echo1 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
-        foo, _ = (string)params.foo;
+        foo = <string>params.foo;
         json responseJson = {"echo55":"echo55"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/*"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo2 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo55":"default"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/foo/*"
     }
-    resource echo5 (http:Connection conn, http:InRequest req) {
+    echo5 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
-        foo, _ = (string)params.foo;
+        foo = <string>params.foo;
         json responseJson = {"echo55":"/foo/*"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/echo66"}
-service<http> echo66 {
-    @http:resourceConfig {
+@http:ServiceConfig {
+    endpoints:[testEP]
+}
+service<http:Service> echo66 {
+    @http:ResourceConfig {
         path:"/a/*"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        json responseJson = {"echo66": req.extraPathInfo};
+    echo1 (endpoint conn, http:Request req) {
+        http:Response res = {};
+        json responseJson = {"echo66":req.extraPathInfo};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/a"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    echo2 (endpoint conn, http:Request req) {
+        http:Response res = {};
         if (req.extraPathInfo == null) {
             req.extraPathInfo = "empty";
         }
-        json responseJson = {"echo66": req.extraPathInfo};
+        json responseJson = {"echo66":req.extraPathInfo};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
+    }
+}
+
+@http:ServiceConfig {
+    basePath:"/uri",
+    endpoints:[testEP]
+}
+service<http:Service> WildcardService {
+
+    @http:ResourceConfig {
+        path:"/{id}",
+        methods:["POST"]
+    }
+    pathParamResource (endpoint conn, http:Request req) {
+        http:Response res = {};
+        json responseJson = {message:"Path Params Resource is invoked."};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        path:"/*"
+    }
+    wildcardResource (endpoint conn, http:Request req) {
+        http:Response res = {};
+        json responseJson = {message:"Wildcard Params Resource is invoked."};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
     }
 }

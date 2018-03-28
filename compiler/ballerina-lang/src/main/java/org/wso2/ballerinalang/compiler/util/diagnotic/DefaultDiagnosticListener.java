@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
@@ -33,7 +34,7 @@ public class DefaultDiagnosticListener implements DiagnosticListener {
     @Override
     public void received(Diagnostic diagnostic) {
         BDiagnostic diag = (BDiagnostic) diagnostic;
-        DiagnosticPos pos = ((BDiagnostic) diagnostic).pos;
+        DiagnosticPosition pos = ((BDiagnostic) diagnostic).pos;
         Kind kind = diag.kind;
         switch (kind) {
             case ERROR:

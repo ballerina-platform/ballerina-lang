@@ -17,11 +17,10 @@ package org.ballerinalang.nativeimpl.user;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -33,17 +32,17 @@ import org.ballerinalang.util.codegen.StructInfo;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.user",
+        orgName = "ballerina", packageName = "user",
         functionName = "getLocale",
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Locale",
                                   structPackage = "ballerina.utils")},
         isPublic = true
 )
-public class GetLocale extends AbstractNativeFunction {
+public class GetLocale extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        return new BValue[]{createLocale(context)};
+    public void execute(Context context) {
+        context.setReturnValues(createLocale(context));
     }
 
     private BStruct createLocale(Context context) {

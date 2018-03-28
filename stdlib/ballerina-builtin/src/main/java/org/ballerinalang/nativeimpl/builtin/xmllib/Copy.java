@@ -19,11 +19,11 @@
 package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -31,27 +31,27 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Make a deep copy of an XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "xml.copy",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Copy extends AbstractNativeFunction {
+public class Copy extends BlockingNativeCallableUnit {
 
 private static final String OPERATION = "get children from xml";
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
+            BXML value = (BXML) ctx.getRefArgument(0);
             result = value.copy();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
 
         // Setting output value.
-        return getBValues(result);
+        ctx.setReturnValues(result);
     }
 }

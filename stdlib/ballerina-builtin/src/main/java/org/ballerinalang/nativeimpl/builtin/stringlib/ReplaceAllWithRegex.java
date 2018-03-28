@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,7 +35,7 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:replaceAllWithRegex.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.replaceAllWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
@@ -48,20 +47,20 @@ import java.util.regex.PatternSyntaxException;
 public class ReplaceAllWithRegex extends AbstractRegexFunction {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
 
-        String mainString = getStringArgument(context, 0);
-        String replaceWith = getStringArgument(context, 1);
+        String mainString = context.getStringArgument(0);
+        String replaceWith = context.getStringArgument(1);
 
-        BStruct regexStruct = (BStruct) getRefArgument(context, 0);
+        BStruct regexStruct = (BStruct) context.getRefArgument(0);
         try {
             Pattern pattern = validatePattern(regexStruct);
 
             Matcher matcher = pattern.matcher(mainString);
             String replacedString = matcher.replaceAll(replaceWith);
-            return getBValues(new BString(replacedString));
+            context.setReturnValues(new BString(replacedString));
         } catch (PatternSyntaxException e) {
-            return getBValues(new BString(""), BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
     }
 }

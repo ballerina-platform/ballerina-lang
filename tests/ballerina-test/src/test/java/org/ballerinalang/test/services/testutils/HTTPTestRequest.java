@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 public class HTTPTestRequest extends HTTPCarbonMessage {
 
-    private TestHttpFutureListener futureListener;
+    private TestCallableUnitCallback callback;
     private HTTPCarbonMessage httpCarbonMessage;
 
     public HTTPTestRequest() {
@@ -39,21 +39,17 @@ public class HTTPTestRequest extends HTTPCarbonMessage {
     @Override
     public TestHttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         this.httpCarbonMessage = httpCarbonMessage;
-        if (this.getFutureListener() != null) {
-            getFutureListener().setResponseMsg(httpCarbonMessage);
+        if (callback != null) {
+            callback.setResponseMsg(httpCarbonMessage);
             this.httpCarbonMessage = null;
         }
         return new TestHttpResponseStatusFuture();
     }
 
-    public TestHttpFutureListener getFutureListener() {
-        return futureListener;
-    }
-
-    public void setFutureListener(TestHttpFutureListener futureListener) {
-        this.futureListener = futureListener;
+    public void setCallback(TestCallableUnitCallback callback) {
+        this.callback = callback;
         if (httpCarbonMessage != null) {
-            this.futureListener.setResponseMsg(httpCarbonMessage);
+            this.callback.setResponseMsg(httpCarbonMessage);
         }
     }
 }

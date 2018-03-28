@@ -16,10 +16,9 @@
 package org.ballerinalang.nativeimpl.os;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -30,27 +29,28 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.os",
+        orgName = "ballerina", packageName = "os",
         functionName = "getMultivaluedEnv",
         args = {@Argument(name = "name", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetMultivaluedEnv extends AbstractNativeFunction {
+public class GetMultivaluedEnv extends BlockingNativeCallableUnit {
 
     private static final String PROPERTY_NAME = "path.separator";
 
     @Override
-    public BValue[] execute(Context context) {
-        String str = getStringArgument(context, 0);
+    public void execute(Context context) {
+        String str = context.getStringArgument(0);
         String value = System.getenv(str);
         String separator = System.getProperty(PROPERTY_NAME);
         if (value == null || separator == null) {
             BStringArray valueArray = new BStringArray();
-            return getBValues(valueArray);
+            context.setReturnValues(valueArray);
+            return;
         }
         String[] values = value.split(separator);
         BStringArray valueArray = new BStringArray(values);
-        return getBValues(valueArray);
+        context.setReturnValues(valueArray);
     }
 }

@@ -53,32 +53,18 @@ class ServerConnectorProperties extends React.Component {
      */
     render() {
         const bBox = this.props.bBox;
-        const titleHeight = panel.heading.height;
-        const iconSize = 14;
-        const protocolOffset = 50;
-        let protocolClassName = 'protocol-rect';
         if (!_.isEmpty(this.props.model.viewState.overlayContainer)) {
             protocolClassName = 'protocol-rect-clicked';
         }
         return (
             <g id='serviceDefProps' onClick={this.handleShowModal}>
-                <polygon
-                    points={`${bBox.x + 35},${bBox.y - 15} 
-                    ${bBox.x + 35 + 10},${bBox.y - 10 - 15} 
-                    ${bBox.x + 35 + 40},${bBox.y - 10 - 15} 
-                    ${bBox.x + 35 + 40 + 10},${bBox.y - 15} 
-                    ${bBox.x + 35 + 40},${bBox.y + 10 - 15} 
-                    ${bBox.x + 35 + 10},${bBox.y + 10 - 15}`
-                    }
-                    className='protocol-box'
-                />
                 <text
-                    x={bBox.x + 60}
-                    y={bBox.y - 15}
+                    x={bBox.x + 205}
+                    y={bBox.y - 13}
                     alignmentBaseline='middle'
                     textAnchor='middle'
                     className='protocol-label'
-                >{this.props.model.getProtocolPackageIdentifier().value}</text>
+                >{this.props.model.getType()}</text>
             </g>
         );
     }

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEConfig;
@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
@@ -67,7 +67,7 @@ public class MultipartDecoder {
                 populateBallerinaParts(context, entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error occurred while decoding body parts from inputstream");
+            throw new BallerinaException("Error occurred while decoding body parts from inputstream " + e.getMessage());
         }
     }
 
@@ -126,8 +126,8 @@ public class MultipartDecoder {
      * @param mediaType  Represent the content type of the body part
      */
     private static void populateBodyPart(Context context, MIMEPart mimePart, BStruct partStruct, BStruct mediaType) {
-        partStruct.setRefField(ENTITY_HEADERS_INDEX, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(),
-                new BMap<>()));
+        partStruct.addNativeData(ENTITY_HEADERS, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(),
+                new DefaultHttpHeaders()));
         populateContentLength(mimePart, partStruct);
         populateContentId(mimePart, partStruct);
         populateContentType(mimePart, partStruct, mediaType);

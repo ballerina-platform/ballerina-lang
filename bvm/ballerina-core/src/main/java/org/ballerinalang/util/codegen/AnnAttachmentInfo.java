@@ -25,6 +25,7 @@ import java.util.Map;
  *
  * @since 0.87
  */
+@Deprecated
 public class AnnAttachmentInfo {
 
     protected int pkgPathCPIndex;

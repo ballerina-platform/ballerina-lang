@@ -14,20 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/io;
 
-@http:configuration {
+endpoint http:ServiceEndpoint participant2EP {
     port:8890
+};
+
+@http:ServiceConfig {
+    basePath:"/"
 }
-service<http> participant2 {
-    resource task1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+service<http:Service> participant2 bind participant2EP {
+    task1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("Resource is invoked");
-        _ = conn.respond(res);
+        var forwardRes = conn -> respond(res);  
+        match forwardRes {
+            http:HttpConnectorError err => {
+                io:print("Participant2 could not send response to participant1. Error:");
+                io:println(err);
+            }
+            null => io:print("");
+        }
     }
 
-    resource task2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    task2 (endpoint conn, http:Request req) {
+        http:Response res = {};
         string result = "incorrect id";
         transaction {
             if (req.getHeader("X-XID") == req.getHeader("participant-id")) {
@@ -35,6 +47,13 @@ service<http> participant2 {
             }
         }
         res.setStringPayload(result);
-        _ = conn.respond(res);
+        var forwardRes = conn -> respond(res);  
+        match forwardRes {
+            http:HttpConnectorError err => {
+                io:print("Participant2 could not send response to participant1. Error:");
+                io:println(err);
+            }
+            null => io:print("");
+        }
     }
 }

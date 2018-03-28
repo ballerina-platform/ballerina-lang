@@ -19,11 +19,11 @@
 package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -34,30 +34,30 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "xml.slice",
         args = { @Argument(name = "startIndex", type = TypeKind.INT),
                 @Argument(name = "endIndex", type = TypeKind.INT) },
         returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
 )
-public class Slice extends AbstractNativeFunction {
+public class Slice extends BlockingNativeCallableUnit {
 
     private static final String OPERATION = "slice xml";
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
-            long startIndex = getIntArgument(ctx, 0);
-            long endIndex = getIntArgument(ctx, 1);
+            BXML value = (BXML) ctx.getRefArgument(0);
+            long startIndex = ctx.getIntArgument(0);
+            long endIndex = ctx.getIntArgument(1);
             result = value.slice(startIndex, endIndex);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
         
         // Setting output value.
-        return getBValues(result);
+        ctx.setReturnValues(result);
     }
 }

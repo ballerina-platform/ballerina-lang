@@ -1,40 +1,40 @@
-function negativeIntTest() (int, int) {
+function negativeIntTest() returns (int, int) {
     int x;
     int y;
     x = -5;
     y = -x;
 
-    return x,y;
+    return (x,y);
 }
 
-function positiveIntTest() (int, int) {
+function positiveIntTest() returns (int, int) {
     int x;
     int y;
     x = +5;
     y = +x;
 
-    return x,y;
+    return (x,y);
 }
 
-function negativeFloatTest() (float, float) {
+function negativeFloatTest() returns (float, float) {
     float x;
     float y;
     x = -5.0;
     y = -x;
 
-    return x,y;
+    return (x,y);
 }
 
-function positiveFloatTest() (float, float) {
+function positiveFloatTest() returns (float, float) {
     float x;
     float y;
     x = +5.0;
     y = +x;
 
-    return x,y;
+    return (x,y);
 }
 
-function booleanNotTest() (boolean, boolean, boolean) {
+function booleanNotTest() returns (boolean, boolean, boolean) {
     boolean x;
     boolean y;
     boolean z;
@@ -42,10 +42,10 @@ function booleanNotTest() (boolean, boolean, boolean) {
     y = !x;
     z = !false;
 
-    return x,y,z;
+    return (x,y,z);
 }
 
-function unaryExprInIfConditionTest() (boolean) {
+function unaryExprInIfConditionTest() returns (boolean) {
     boolean x;
     x = false;
     if(!x) {
@@ -55,10 +55,10 @@ function unaryExprInIfConditionTest() (boolean) {
     }
 }
 
-function unaryNegationTest(int a, int b) (int) {
-    return a--b;
+function unaryNegationTest(int a, int b) returns (int) {
+    return a-(-b);
 }
 
-function unaryPositiveNegationTest(int a) (int) {
+function unaryPositiveNegationTest(int a) returns (int) {
     return +-a;
 }

@@ -29,17 +29,18 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test the hidden <init> function invocation in connectors.
+ * Test the hidden 'init' function invocation in connectors.
  *
  * @since 0.8.0
  */
+@Test(enabled = false)
 public class ConnectorInitTest {
 
     CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src/", "connectors/init");
+        result = BCompileUtil.compile(this, "test-src/", "connectors.init");
     }
 
     @Test(description = "Test Connector int functionality")

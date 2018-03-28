@@ -1,7 +1,7 @@
-import ballerina.lang.system;
-import ballerina.lang.datatables;
-import ballerina.data.sql;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/lang.datatables;
+import ballerina/data.sql;
+import ballerina/doc;
 
 @doc:Description {value:"This is the Employee struct. The field names of the this should match column names of the table. The field types should match with sql types."}
 struct Employee {

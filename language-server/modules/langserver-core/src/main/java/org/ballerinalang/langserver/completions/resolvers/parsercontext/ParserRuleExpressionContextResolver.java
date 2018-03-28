@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 
@@ -35,6 +36,10 @@ public class ParserRuleExpressionContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
         ParserRuleContext contextParent = completionContext
                 .get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getParent();
+        // TODO: Specially add the check in case of binary expressions
+        if (contextParent instanceof BallerinaParser.BinaryEqualExpressionContext) {
+            contextParent = contextParent.getParent();
+        }
         if (contextParent != null) {
             return CompletionItemResolver.getResolverByClass(contextParent.getClass()).resolveItems(completionContext);
         }

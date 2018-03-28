@@ -38,7 +38,6 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
@@ -71,7 +70,6 @@ import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
@@ -90,7 +88,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class Util {
     private static final Logger log = LoggerFactory.getLogger(Util.class);
 
-    private static final String REQUEST_STRUCT = HttpConstants.IN_REQUEST;
+    private static final String REQUEST_STRUCT = HttpConstants.REQUEST;
     private static final String PROTOCOL_PACKAGE_HTTP = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private static final String PACKAGE_MIME = org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
     private static final String ENTITY_STRUCT = HttpConstants.ENTITY;
@@ -172,10 +170,8 @@ public class Util {
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
-            BMap<String, BValue> headerMap = new BMap<>();
-            headerMap.put(HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString(),
-                          new BStringArray(new String[]{contentTransferEncoding}));
-            bodyPart.setRefField(ENTITY_HEADERS_INDEX, headerMap);
+            HeaderUtil.setHeaderToEntity(bodyPart, HttpHeaderNames.CONTENT_TRANSFER_ENCODING.toString(),
+                    contentTransferEncoding);
             return bodyPart;
         } catch (IOException e) {
             log.error("Error occurred while creating a temp file for json file part in getTextFilePart",
@@ -489,8 +485,8 @@ public class Util {
             contentHolder.setContentType(MimeUtil.getBaseType(bodyPart));
             contentHolder.setBodyPartFormat(org.ballerinalang.mime.util.Constants.BodyPartForm.INPUTSTREAM);
             String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart,
-                                                                          HttpHeaderNames.CONTENT_TRANSFER_ENCODING
-                                                                                  .toString());
+                    HttpHeaderNames.CONTENT_TRANSFER_ENCODING
+                            .toString());
             if (contentTransferHeaderValue != null) {
                 contentHolder.setContentTransferEncoding(contentTransferHeaderValue);
             }

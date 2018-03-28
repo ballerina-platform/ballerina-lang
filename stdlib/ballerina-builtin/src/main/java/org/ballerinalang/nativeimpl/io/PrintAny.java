@@ -18,12 +18,11 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 
 import java.io.PrintStream;
 
@@ -32,31 +31,23 @@ import java.io.PrintStream;
  * Native function print.
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "print",
         args = {@Argument(name = "a", type = TypeKind.ANY)},
         isPublic = true
 )
-public class PrintAny extends AbstractNativeFunction {
+public class PrintAny extends BlockingNativeCallableUnit {
 
 
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
         PrintStream out = System.out;
-        BValue result = getRefArgument(ctx, 0);
+        BValue result = ctx.getNullableRefArgument(0);
         if (result != null) {
             out.print(result.stringValue());
         } else {
             out.print((Object) null);
         }
-        return VOID_RETURN;
-    }
-
-    @Override
-    public BValue getRefArgument(Context context, int index) {
-        if (index > -1) {
-            return context.getControlStack().getCurrentFrame().getRefRegs()[index];
-        }
-        throw new ArgumentOutOfRangeException(index);
+        ctx.setReturnValues();
     }
 }

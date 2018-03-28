@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for the Circuit Breaker
+ * Test cases for the Circuit Breaker.
  */
 public class CircuitBreakerTest {
 

@@ -31,37 +31,34 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         return getTestDataPath("formatting");
     }
 
-    public void testEchoService() {
-        doTest();
-    }
+    //    public void testEchoService() {
+    //        doTest();
+    //    }
 
-    public void testHelloWorld() {
-        doTest();
-    }
+    //    public void testHelloWorld() {
+    //        doTest();
+    //    }
 
-    public void testHelloWorldService() {
-        doTest();
-    }
+    //    public void testHelloWorldService() {
+    //        doTest();
+    //    }
 
-    public void testTweetMediumFeed() {
-        doTest();
-    }
+    //    public void testTweetMediumFeed() {
+    //        doTest();
+    //    }
+    //
+    //    public void testTweetOpenPR() {
+    //        doTest();
+    //    }
+    //
+    //    public void testTwitterConnector() {
+    //        doTest();
+    //    }
+    //
+    //    public void testAnnotationDefinition() {
+    //        doTest();
+    //    }
 
-    public void testTweetOpenPR() {
-        doTest();
-    }
-
-    public void testTwitterConnector() {
-        doTest();
-    }
-
-    public void testAnnotationDefinition() {
-        doTest();
-    }
-
-    public void testConnectorDefinition() {
-        doTest();
-    }
 
     public void testConstant() {
         doTest();
@@ -71,49 +68,49 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         doTest();
     }
 
-    public void testForkJoin() {
-        doTest();
-    }
-
-    public void testFunctionDefinition() {
-        doTest();
-    }
+    //    public void testForkJoin() {
+    //        doTest();
+    //    }
+    //
+    //    public void testFunctionDefinition() {
+    //        doTest();
+    //    }
 
     public void testGlobalVariable() {
         doTest();
     }
 
-    public void testLambdaFunction() {
-        doTest();
-    }
+    //    public void testLambdaFunction() {
+    //        doTest();
+    //    }
+    //
+    //    public void testNative() {
+    //        doTest();
+    //    }
 
-    public void testNative() {
-        doTest();
-    }
+    //    public void testServiceDefinition() {
+    //        doTest();
+    //    }
 
-    public void testServiceDefinition() {
-        doTest();
-    }
+    //    public void testStatement() {
+    //        doTest();
+    //    }
 
-    public void testStatement() {
-        doTest();
-    }
+    //    public void testStruct() {
+    //        doTest();
+    //    }
 
-    public void testStruct() {
-        doTest();
-    }
-
-    public void testTransaction() {
-        doTest();
-    }
-
-    public void testTypeName() {
-        doTest();
-    }
-
-    public void testWorker() {
-        doTest();
-    }
+    //    public void testTransaction() {
+    //        doTest();
+    //    }
+    //
+    //    public void testTypeName() {
+    //        doTest();
+    //    }
+    //
+    //    public void testWorker() {
+    //        doTest();
+    //    }
 
     private void doTest() {
         doTest(null);

@@ -1,6 +1,6 @@
-import ballerina.math;
-import ballerina.net.http;
-import ballerina.log;
+import ballerina/math;
+import ballerina/net.http;
+import ballerina/log;
 
 // This is the initiator of the distributed transaction
 @http:configuration {
@@ -14,8 +14,8 @@ service<http> InitiatorService {
         methods:["GET"],
         path:"/"
     }
-    resource init (http:Connection conn, http:InRequest req) {
-        http:OutResponse res;
+    resource init (http:Connection conn, http:Request req) {
+        http:Response res;
         log:printInfo("Initiating transaction...");
 
         // When the transaction statement starts, a distributed transaction context will be created.
@@ -64,7 +64,7 @@ public connector BizClient () {
         endpoint<http:HttpClient> bizEP {
             create http:HttpClient("http://" + host + ":" + port + "/stockquote/update", {});
         }
-        http:OutRequest req = {};
+        http:Request req = {};
         req.setJsonPayload(bizReq);
         var res, e = bizEP.post("", req);
         log:printInfo("Got response from bizservice");
@@ -72,7 +72,10 @@ public connector BizClient () {
             if (res.statusCode != 200) {
                 err = {message:"Error occurred"};
             } else {
-                jsonRes = res.getJsonPayload();
+                jsonRes, payloadError = res.getJsonPayload();
+                if (payloadError != null) {
+                    err = (error)payloadError;
+                }
             }
         } else {
             err = (error)e;

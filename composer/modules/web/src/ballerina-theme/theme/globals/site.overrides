@@ -79,7 +79,28 @@ code {
   font-weight: 900;
   src: local("Roboto Black"), local("Roboto-Black"), url(../fonts/Roboto/Roboto-Black.woff2) format("woff2"), url(../fonts/Roboto/Roboto-Black.woff) format("woff"), url(../fonts/Roboto/Roboto-Black.ttf) format("truetype"), url(../fonts/Roboto/Roboto-Black.eot), url(../fonts/Roboto/Roboto-Black.eot?#iefix) format("embedded-opentype"), url(../fonts/Roboto/Roboto-Black.svg#Roboto) format("svg");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000; }
+
 h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child {
     margin-top: 20px;
     margin-bottom: 10px;
+}
+
+/*-------------------
+        Text
+--------------------*/
+h3 {
+    font-weight : 400;
+}
+
+p {
+  margin        : @paragraphMargin;
+  line-height   : @paragraphLineHeight;
+}
+
+p:first-child {
+  margin-top    : 0em;
+}
+
+p:last-child {
+  margin-bottom : 0em;
 }

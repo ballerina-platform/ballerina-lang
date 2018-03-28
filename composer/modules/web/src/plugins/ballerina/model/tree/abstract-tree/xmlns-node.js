@@ -48,6 +48,7 @@ class AbstractXmlnsNode extends Node {
     }
 
 
+
     setNamespaceURI(newValue, silent, title) {
         const oldValue = this.namespaceURI;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractXmlnsNode extends Node {
     getNamespaceURI() {
         return this.namespaceURI;
     }
+
 
 
 }

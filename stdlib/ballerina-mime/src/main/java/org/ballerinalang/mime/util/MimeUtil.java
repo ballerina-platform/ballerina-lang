@@ -21,6 +21,7 @@ package org.ballerinalang.mime.util;
 
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Set;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
@@ -53,6 +55,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_ERROR;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -60,6 +63,7 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
@@ -364,6 +368,19 @@ public class MimeUtil {
         String contentTypeOfChildPart = MimeUtil.getBaseType(bodyPart);
         return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
                 bodyPart.getNativeData(BODY_PARTS) != null;
+    }
+
+    /**
+     * Get entity error as a ballerina struct.
+     *
+     * @param context Represent ballerina context
+     * @param msg     Error message in string form
+     * @return Ballerina struct with entity error
+     */
+    public static BStruct createEntityError(Context context, String msg) {
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_MIME);
+        StructInfo entityErrInfo = filePkg.getStructInfo(ENTITY_ERROR);
+        return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 
     /**

@@ -78,9 +78,9 @@ public class HttpResourceDispatcher {
         if (cMsg.getHeader(HttpHeaderNames.ALLOW.toString()) != null) {
             response.setHeader(HttpHeaderNames.ALLOW.toString(), cMsg.getHeader(HttpHeaderNames.ALLOW.toString()));
         } else if (service.getBasePath().equals(cMsg.getProperty(HttpConstants.TO))
-                && !service.getAllAllowMethods().isEmpty()) {
+                && !service.getAllAllowedMethods().isEmpty()) {
             response.setHeader(HttpHeaderNames.ALLOW.toString(),
-                               DispatcherUtil.concatValues(service.getAllAllowMethods(), false));
+                               DispatcherUtil.concatValues(service.getAllAllowedMethods(), false));
         } else {
             cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
             throw new BallerinaConnectorException("no matching resource found for path : "

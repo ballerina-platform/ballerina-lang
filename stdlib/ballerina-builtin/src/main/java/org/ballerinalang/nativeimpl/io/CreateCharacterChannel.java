@@ -19,19 +19,18 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.io#createCharacterChannel.
@@ -39,17 +38,19 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "createCharacterChannel",
         args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT, structType = "ByteChannel",
-                    structPackage = "ballerina.io"),
+                structPackage = "ballerina.io"),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT,
-                structType = "CharacterChannel",
-                structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "CharacterChannel",
+                structPackage = "ballerina.io"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CreateCharacterChannel extends AbstractNativeFunction {
+public class CreateCharacterChannel extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateCharacterChannel.class);
     /**
      * Specifies the index of the character channel in ballerina.io#createCharacterChannel.
      */
@@ -59,10 +60,6 @@ public class CreateCharacterChannel extends AbstractNativeFunction {
      * Specifies the index of the encoding in ballerina.io#createCharacterChannel.
      */
     private static final int ENCODING_INDEX = 0;
-    /**
-     * represents the information related to the byte channel.
-     */
-    private StructInfo characterChannelStructInfo;
 
     /**
      * The package path of the byte channel.
@@ -75,44 +72,26 @@ public class CreateCharacterChannel extends AbstractNativeFunction {
     private static final String STRUCT_TYPE = "CharacterChannel";
 
     /**
-     * Gets the struct related to AbstractChannel.
-     *
-     * @param context invocation context.
-     * @return the struct related to AbstractChannel.
-     */
-    private StructInfo getCharacterChannelStructInfo(Context context) {
-        StructInfo result = characterChannelStructInfo;
-        if (result == null) {
-            PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(CHAR_CHANNEL_PACKAGE);
-            characterChannelStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE);
-        }
-        return characterChannelStructInfo;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        BStruct characterChannelInfo;
+    public void execute(Context context) {
+        BStruct byteChannelInfo;
         BStruct characterChannel;
-        BValue[] bValues;
         String encoding;
         try {
             //File which holds access to the channel information
-            characterChannelInfo = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            encoding = getStringArgument(context, ENCODING_INDEX);
-            characterChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
-            //Will get the relevant byte channel and will create a character channel
-            AbstractChannel byteChannel = (AbstractChannel) characterChannelInfo.getNativeData(IOConstants
-                    .BYTE_CHANNEL_NAME);
+            byteChannelInfo = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            encoding = context.getStringArgument(ENCODING_INDEX);
+            characterChannel = BLangConnectorSPIUtil.createBStruct(context, CHAR_CHANNEL_PACKAGE, STRUCT_TYPE);
+            Channel byteChannel = (Channel) byteChannelInfo.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
-            bValues = getBValues(characterChannel);
+            context.setReturnValues(characterChannel);
         } catch (Throwable e) {
             String message = "Error occurred while converting byte channel to character channel:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
         }
-        return bValues;
     }
 }

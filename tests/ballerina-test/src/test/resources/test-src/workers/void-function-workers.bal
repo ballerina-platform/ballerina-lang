@@ -1,8 +1,8 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 int i = 0;
 
-function testVoidFunction()(int){
+function testVoidFunction() returns int {
     testVoid();
     return i;
 }
@@ -14,6 +14,7 @@ function testVoid() {
     }
     worker w2 {
          int x = i + 10;
+         i = 5;
     }
 }
 

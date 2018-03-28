@@ -19,12 +19,11 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -40,23 +39,23 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(packageName = "ballerina.mime",
+@BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class SetByteChannel extends AbstractNativeFunction {
+public class SetByteChannel extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-        BStruct byteChannel = (BStruct) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
+    public void execute(Context context) {
+        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BStruct byteChannel = (BStruct) context.getRefArgument(SECOND_PARAMETER_INDEX);
         entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
                 (IOConstants.BYTE_CHANNEL_NAME));
         MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
             entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
         }
-        return AbstractNativeFunction.VOID_RETURN;
+        context.setReturnValues();
     }
 }

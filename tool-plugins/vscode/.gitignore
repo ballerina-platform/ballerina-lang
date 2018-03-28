@@ -20,3 +20,5 @@ server-build
 .vscode
 .idea/
 *.iml
+
+syntaxes/build/build.js

@@ -1,88 +1,134 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/io;
+import ballerina/mime;
 
-@http:configuration {basePath:"/cbr"}
-service<http> contentBasedRouting {
+endpoint http:ServiceEndpoint serviceEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+endpoint http:ClientEndpoint nasdaqEP {
+    targets: [{uri:"http://localhost:9090/nasdaqStocks"}]
+};
+
+endpoint http:ClientEndpoint nyseEP {
+    targets: [{uri:"http://localhost:9090/nyseStocks"}]
+};
+
+@http:ServiceConfig {basePath:"/cbr"}
+service<http:Service> contentBasedRouting bind serviceEP{
+
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource cbrResource (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> nasdaqEP {
-            create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
-        }
-        endpoint<http:HttpClient> nyseEP {
-            create http:HttpClient("http://localhost:9090/nyseStocks", {});
-        }
+    cbrResource (endpoint conn, http:Request req) {
         string nyseString = "nyse";
-        json jsonMsg = req.getJsonPayload();
-        var nameString, _ = (string)jsonMsg.name;
-
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
-        http:HttpConnectorError err;
-        if (nameString == nyseString) {
-            clientResponse, err = nyseEP.post("/stocks", clientRequest);
-        } else {
-            clientResponse, err = nasdaqEP.post("/stocks", clientRequest);
+        var jsonMsg = req.getJsonPayload();
+        string nameString;
+        match jsonMsg {
+            mime:EntityError payloadError => io:println("Error getting payload");
+            json payload =>  {
+                nameString = extractFieldValue(payload.name);
+            }
         }
-        _ = conn.forward(clientResponse);
+        http:Request clientRequest = {};
+        http:Response clientResponse = {};
+        if (nameString == nyseString) {
+            var result = nyseEP -> post("/stocks", clientRequest);
+            match result {
+                http:HttpConnectorError err => {
+                    clientResponse.statusCode = 500;
+                    clientResponse.setStringPayload("Error sending request");
+                    _ = conn -> respond(clientResponse);
+                }
+                http:Response returnResponse => _ = conn -> forward(returnResponse);
+            }
+        } else {
+            var result = nasdaqEP -> post("/stocks", clientRequest);
+            match result {
+                http:HttpConnectorError err => {
+                    clientResponse.statusCode = 500;
+                    clientResponse.setStringPayload("Error sending request");
+                    _ = conn -> respond(clientResponse);
+                }
+                http:Response returnResponse => _ = conn -> forward(returnResponse);
+            }
+        }
     }
 }
 
-@http:configuration {basePath:"/hbr"}
-service<http> headerBasedRouting {
+@http:ServiceConfig {basePath:"/hbr"}
+service<http:Service> headerBasedRouting bind serviceEP{
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource hbrResource (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> nasdaqEP {
-            create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
-        }
-        endpoint<http:HttpClient> nyseEP {
-            create http:HttpClient("http://localhost:9090/nyseStocks", {});
-        }
+    hbrResource (endpoint conn, http:Request req) {
         string nyseString = "nyse";
         var nameString = req.getHeader("name");
 
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
-        http:HttpConnectorError err;
+        http:Request clientRequest = {};
+        http:Response clientResponse = {};
         if (nameString == nyseString) {
-            clientResponse, err = nyseEP.post("/stocks", clientRequest);
+            var result = nyseEP -> post("/stocks", clientRequest);
+            match result {
+                http:HttpConnectorError err => {
+                    clientResponse.statusCode = 500;
+                    clientResponse.setStringPayload("Error sending request");
+                    _ = conn -> respond(clientResponse);
+                }
+                http:Response returnResponse => _ = conn -> forward(returnResponse);
+            }
         } else {
-            clientResponse, err = nasdaqEP.post("/stocks", clientRequest);
+            var result = nasdaqEP -> post("/stocks", clientRequest);
+            match result {
+                http:HttpConnectorError err => {
+                    clientResponse.statusCode = 500;
+                    clientResponse.setStringPayload("Error sending request");
+                    _ = conn -> respond(clientResponse);
+                }
+                http:Response returnResponse => _ = conn -> forward(returnResponse);
+            }
         }
-        _ = conn.forward(clientResponse);
     }
 }
 
-@http:configuration {basePath:"/nasdaqStocks"}
-service<http> nasdaqStocksQuote {
+@http:ServiceConfig {basePath:"/nasdaqStocks"}
+service<http:Service> nasdaqStocksQuote bind serviceEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource stocks (http:Connection conn, http:InRequest req) {
+    stocks (endpoint conn, http:Request req) {
         json payload = {"exchange":"nasdaq", "name":"IBM", "value":"127.50"};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/nyseStocks"}
-service<http> nyseStockQuote {
+@http:ServiceConfig {basePath:"/nyseStocks"}
+service<http:Service> nyseStockQuote bind serviceEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource stocks (http:Connection con, http:InRequest req) {
+    stocks (endpoint conn, http:Request req) {
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
-        _ = con.respond(res);
+        _ = conn -> respond(res);
+    }
+}
+
+//Keep this until there's a simpler way to get a string value out of a json
+function extractFieldValue(json fieldValue) returns string {
+    match fieldValue {
+        int i => return "error";
+        string s => return s;
+        boolean b => return "error";
+        null  => return "error";
+        json j => return "error";
     }
 }

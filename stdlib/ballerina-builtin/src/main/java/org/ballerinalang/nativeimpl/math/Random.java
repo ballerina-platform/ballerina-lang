@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.math;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -31,14 +30,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.math",
+        orgName = "ballerina", packageName = "math",
         functionName = "random",
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class Random extends AbstractNativeFunction {
+public class Random extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        return getBValues(new BFloat(Math.random()));
+    public void execute(Context ctx) {
+        ctx.setReturnValues(new BFloat(Math.random()));
     }
 }

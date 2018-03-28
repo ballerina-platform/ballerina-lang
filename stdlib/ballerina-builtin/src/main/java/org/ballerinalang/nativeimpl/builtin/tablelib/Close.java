@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -31,16 +30,16 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "table.close",
         args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         isPublic = true
 )
-public class Close extends AbstractNativeFunction {
+public class Close extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        BTable table = (BTable) getRefArgument(ctx, 0);
+    public void execute(Context ctx) {
+        BTable table = (BTable) ctx.getRefArgument(0);
         table.close(ctx.isInTransaction());
-        return VOID_RETURN;
+        ctx.setReturnValues();
     }
 }

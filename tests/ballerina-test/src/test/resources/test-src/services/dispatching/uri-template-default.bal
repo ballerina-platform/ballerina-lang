@@ -1,51 +1,58 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-@http:configuration {
-    allowCredentials : true
+endpoint mock:NonListeningServiceEndpoint testEP {
+    port:9090
+};
+
+@http:ServiceConfig {
+    cors: {
+        allowCredentials: true
+    }
 }
-service<http> serviceName {
+service<http:Service> serviceName bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:""
     }
-    resource test1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    test1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"dispatched to service name"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {
-    basePath:""
+@http:ServiceConfig {
+    basePath:"/"
 }
-service<http> serviceEmptyName {
+service<http:Service> serviceEmptyName bind testEP {
 
-    resource test1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    test1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"dispatched to empty service name"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/*"
     }
-    resource proxy (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    proxy (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"dispatched to a proxy service"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-service<http> serviceWithNoAnnotation {
+service<http:Service> serviceWithNoAnnotation bind testEP {
 
-    resource test1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    test1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

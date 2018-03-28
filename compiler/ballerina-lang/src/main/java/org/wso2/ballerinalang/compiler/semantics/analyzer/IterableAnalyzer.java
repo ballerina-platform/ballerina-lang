@@ -30,11 +30,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.Collections;
@@ -53,7 +54,7 @@ public class IterableAnalyzer {
     private SymbolTable symTable;
     private Types types;
     private TypeChecker typeChecker;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     private final BIterableTypeVisitor lambdaTypeChecker, terminalInputTypeChecker, terminalTypeChecker;
 
@@ -61,7 +62,7 @@ public class IterableAnalyzer {
         context.put(ITERABLE_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
 
         this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable);
@@ -106,6 +107,7 @@ public class IterableAnalyzer {
             operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
+        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
         operation.resultTypes = operation.collectionType.accept(terminalTypeChecker, operation);
         operation.argTypes = operation.collectionType.accept(terminalInputTypeChecker, operation);
         if (operation.kind.isTerminal()) {
@@ -120,6 +122,12 @@ public class IterableAnalyzer {
             return;
         }
 
+        if (operation.kind == IterableKind.SELECT && operation.collectionType.tag != TypeTags.TABLE) {
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, IterableKind.SELECT.getKind());
+            operation.resultTypes = Lists.of(symTable.errType);
+            return;
+        }
+
         final List<BType> bTypes = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), operation.env);
         if (bTypes.size() != 1 || bTypes.get(0).tag != TypeTags.INVOKABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
@@ -127,6 +135,7 @@ public class IterableAnalyzer {
             return;
         }
 
+        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
         operation.lambdaType = (BInvokableType) bTypes.get(0);
         operation.arity = operation.lambdaType.getParameterTypes().size();
         final List<BType> givenArgTypes = operation.lambdaType.getParameterTypes(); // given args type of lambda.
@@ -137,6 +146,7 @@ public class IterableAnalyzer {
         final List<BType> supportedRetTypes;    // calculated lambda's return types. (By looking operation type)
         switch (operation.kind) {
             case MAP:
+            case SELECT:
                 supportedRetTypes = givenRetTypes;
                 break;
             case FILTER:
@@ -164,8 +174,11 @@ public class IterableAnalyzer {
             if (givenTypes.get(i).tag == TypeTags.ERROR) {
                 return;
             }
-            types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
+            BType result = types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
                     DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
+            if (result.tag == TypeTags.ERROR && operation.resultTypes == null) {
+                operation.resultTypes = Lists.of(symTable.errType);
+            }
         }
     }
 
@@ -220,7 +233,7 @@ public class IterableAnalyzer {
      */
     private static class LambdaBasedTypeChecker extends BIterableTypeVisitor {
 
-        LambdaBasedTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+        LambdaBasedTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
@@ -291,6 +304,11 @@ public class IterableAnalyzer {
         }
 
         @Override
+        public List<BType> visit(BUnionType t, Operation s) {
+            return null;
+        }
+
+        @Override
         public List<BType> visit(BTupleCollectionType type, Operation op) {
             if (type.tupleTypes.size() == op.arity) {
                 return type.tupleTypes;
@@ -311,7 +329,7 @@ public class IterableAnalyzer {
      */
     private static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
 
-        TerminalOperationTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+        TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
@@ -343,6 +361,11 @@ public class IterableAnalyzer {
         @Override
         public List<BType> visit(BTableType t, Operation operation) {
             return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
+        public List<BType> visit(BUnionType t, Operation s) {
+            return null;
         }
 
         BType calculateType(Operation operation, BType type) {
@@ -389,7 +412,7 @@ public class IterableAnalyzer {
      */
     private static class TerminalOperationInputTypeChecker extends TerminalOperationTypeChecker {
 
-        TerminalOperationInputTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+        TerminalOperationInputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
@@ -458,6 +481,7 @@ public class IterableAnalyzer {
             dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
             return;
         }
+        // resultTypes holds the return values of the lambda function
         if (resultTypes.get(0).tag == TypeTags.TUPLE_COLLECTION) {
             final BTupleCollectionType tupleType = (BTupleCollectionType) resultTypes.get(0);
             if (expectedTypes.get(0).tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
@@ -468,6 +492,23 @@ public class IterableAnalyzer {
                     && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
                 context.resultType = symTable.mapType;
                 lastOperation.resultTypes = Lists.of(context.resultType);
+                return;
+            } else if (expectedTypes.get(0).tag == TypeTags.TABLE) {
+                // expectedTypes hold the types of expected return values (types of references) of the iterable
+                // function call.
+                // Here we validate,
+                // 1. whether number of return values of the lambda function is 1.
+                // 2. Whether it is a struct that is returned
+                // 3. Whether the returned struct is compatible with the constraint struct of the expected type(table)
+                if (tupleType.getTupleTypes().size() == 1 && tupleType.getTupleTypes().get(0).tag == TypeTags.STRUCT
+                        && types.isAssignable(tupleType.getTupleTypes().get(0), ((BTableType) expectedTypes.get(0))
+                        .constraint)) {
+                    context.resultType = symTable.tableType;
+                    lastOperation.resultTypes = Lists.of(context.resultType);
+                } else {
+                    context.resultType = types.checkType(lastOperation.pos, resultTypes.get(0),
+                            ((BTableType) expectedTypes.get(0)).constraint, DiagnosticCode.INCOMPATIBLE_TYPES);
+                }
                 return;
             } else if (expectedTypes.get(0).tag == TypeTags.ANY) {
                 context.resultType = symTable.errType;

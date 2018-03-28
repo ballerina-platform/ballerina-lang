@@ -1,17 +1,23 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.file;
+import ballerina/net.http;
+import ballerina/mime;
+import ballerina/file;
+import ballerina/io;
 
-@http:configuration {port:9092}
-service<http> multiparts {
-    @http:resourceConfig {
+endpoint http:ClientEndpoint clientEP {
+    targets:[{uri:"http://localhost:9090"}]
+};
+
+endpoint http:ServiceEndpoint multipartEP {
+    port:9092
+};
+
+@http:ServiceConfig {basePath:"/multiparts"}
+service<http:Service> test bind multipartEP {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource encodeMultiparts (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> httpEndpoint {
-            create http:HttpClient("http://localhost:9090", {});
-        }
+    encodeMultiparts (endpoint conn, http:Request req) {
 
         //Create a json body part.
         mime:Entity jsonBodyPart = {};
@@ -25,7 +31,9 @@ service<http> multiparts {
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         xmlFilePart.contentType = contentTypeOfFilePart;
         xmlFilePart.contentDisposition = getContentDispositionForFormData("xml file part");
-        file:File fileHandler = {path:"/home/user/Downloads/test.xml"};
+        //This file path is relative to where the ballerina is running. If your file is located outside, please
+        //give the absolute file path instead.
+        file:File fileHandler = {path:"./files/test.xml"};
         xmlFilePart.setFileAsEntityBody(fileHandler);
 
         //Create a xml body part.
@@ -39,20 +47,26 @@ service<http> multiparts {
         //Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [xmlBodyPart, xmlFilePart, jsonBodyPart];
 
-        http:OutRequest request = {};
+        http:Request request = {};
         //Set body parts to request. Here the content-type is set as multipart form data. This also works with any other
         //multipart media type. eg:- multipart/mixed, multipart/related etc... Just pass the content type that suit
         //your requirement.
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
-
-        http:InResponse resp1 = {};
-        resp1, _ = httpEndpoint.post("/multiparts/receivableParts", request);
-
-        _ = conn.forward(resp1);
+        var returnResponse = clientEP -> post("/multiparts/decode_in_request", request);
+        match returnResponse {
+            http:HttpConnectorError err => {
+                http:Response resp1 = {};
+                io:println(err);
+                resp1.setStringPayload("Error occurred while sending multipart request!");
+                resp1.statusCode = 500;
+                _ = conn -> respond(resp1);
+            }
+            http:Response returnResult => {_ = conn -> forward(returnResult);}
+        }
     }
 }
 
-function getContentDispositionForFormData(string partName) (mime:ContentDisposition){
+function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
     mime:ContentDisposition contentDisposition = {};
     contentDisposition.name =  partName;
     contentDisposition.disposition = "form-data";

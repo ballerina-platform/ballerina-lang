@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
@@ -31,10 +31,10 @@ import java.util.List;
  */
 public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, List<BType>> {
 
-    protected final DiagnosticLog dlog;
+    protected final BLangDiagnosticLog dlog;
     protected SymbolTable symTable;
 
-    public BIterableTypeVisitor(DiagnosticLog dlog, SymbolTable symTable) {
+    public BIterableTypeVisitor(BLangDiagnosticLog dlog, SymbolTable symTable) {
         this.dlog = dlog;
         this.symTable = symTable;
     }
@@ -73,6 +73,16 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     }
 
     @Override
+    public List<BType> visit(BTupleType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
+    public List<BType> visit(BStreamType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
+    @Override
     public List<BType> visit(BConnectorType type, Operation op) {
         return visit((BType) type, op);
     }
@@ -87,6 +97,10 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         return visit((BType) type, op);
     }
 
+    @Override
+    public List<BType> visit(BFutureType type, Operation op) {
+        return visit((BType) type, op);
+    }
 
     /* Util functions */
 

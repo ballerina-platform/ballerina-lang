@@ -26,6 +26,7 @@ public class Message {
 
     private String code;
     private String message;
+    //Todo - change to workerId
     private String threadId;
     private BreakPoint location;
     private List<Frame> frames = new ArrayList<>();

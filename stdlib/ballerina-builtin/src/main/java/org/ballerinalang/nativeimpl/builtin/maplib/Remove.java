@@ -19,29 +19,32 @@
 package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "map.remove",
         args = {@Argument(name = "m", type = TypeKind.MAP),
                 @Argument(name = "key", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Remove extends AbstractNativeFunction {
+public class Remove extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        BMap map = (BMap) getRefArgument(ctx, 0);
-        map.remove(getStringArgument(ctx, 0));
-        return VOID_RETURN;
+    public void execute(Context ctx) {
+        BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
+        boolean isRemoved = map.remove(ctx.getStringArgument(0));
+        ctx.setReturnValues(new BBoolean(isRemoved));
     }
 }

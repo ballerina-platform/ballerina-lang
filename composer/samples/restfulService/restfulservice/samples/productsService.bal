@@ -1,7 +1,7 @@
 package restfulservice.samples;
 
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/productsservice"}
 service<http> productmgt {
@@ -12,11 +12,11 @@ service<http> productmgt {
         methods:["GET"],
         path:"/{prodId}"
     }
-    resource product (http:Connection conn, http:InRequest req, string prodId) {
+    resource product (http:Connection conn, http:Request req, string prodId) {
         json payload;
         payload, _ = (json)productsMap[prodId];
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -25,13 +25,17 @@ service<http> productmgt {
         methods:["POST"],
         path:"/"
     }
-    resource addProduct (http:Connection conn, http:InRequest req) {
-        json jsonReq = req.getJsonPayload();
-        var productId, _ = (string)jsonReq.Product.ID;
-        productsMap[productId] = jsonReq;
-        json payload = {"Status":"Product is successfully added."};
-
-        http:OutResponse res = {};
+    resource addProduct (http:Connection conn, http:Request req) {
+        var jsonReq, payloadError = req.getJsonPayload();
+        json payload;
+        if (payloadError == null) {
+            var productId, _ = (string)jsonReq.Product.ID;
+            productsMap[productId] = jsonReq;
+            payload = {"Status":"Product is successfully added."};
+        } else {
+            payload = {"Status":"An error occurred while retrieving json payload."};
+        }
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }

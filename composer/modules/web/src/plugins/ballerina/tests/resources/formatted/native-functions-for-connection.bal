@@ -1,4 +1,4 @@
-import ballerina.net.ws;
+import ballerina/net.ws;
 
 function testGetID (ws:Connection conn) (string) {
     return ws:getID(conn);

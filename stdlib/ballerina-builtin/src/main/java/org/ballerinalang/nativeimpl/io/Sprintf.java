@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -35,7 +34,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "sprintf",
         args = {@Argument(name = "format", type = TypeKind.STRING),
                 @Argument(name = "args", type = TypeKind.ARRAY)},
@@ -49,11 +48,11 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  *      sprintf("%s is awesome!", ["Ballerina"]) -> "Ballerina is awesome!"
  *      sprintf("%10.2f", [12.5678]) -> "     12.57"
  */
-public class Sprintf extends AbstractNativeFunction {
+public class Sprintf extends BlockingNativeCallableUnit {
     @Override
-    public final BValue[] execute(final Context context) {
-        String format = getStringArgument(context, 0);
-        BRefValueArray args = (BRefValueArray) getRefArgument(context, 0);
+    public final void execute(final Context context) {
+        String format = context.getStringArgument(0);
+        BRefValueArray args = (BRefValueArray) context.getRefArgument(0);
         StringBuilder result = new StringBuilder();
 
         /* Special chars in case additional formatting is required later
@@ -108,9 +107,6 @@ public class Sprintf extends AbstractNativeFunction {
                     case 'f':
                         result.append(String.format("%" + padding + "f", args.get(k).value()));
                         break;
-                    case 's':
-                        result.append(String.format("%" + padding + "s", args.get(k).value()));
-                        break;
                     case 'x':
                         result.append(String.format("%" + padding + "x", args.get(k).value()));
                         break;
@@ -130,6 +126,7 @@ public class Sprintf extends AbstractNativeFunction {
                     case 't':
                     case 'r':
                     case 'a':
+                    case 's':
                         result.append(String.format("%" + padding + "s", args.get(k).stringValue()));
                         break;
                     case '%':
@@ -152,6 +149,6 @@ public class Sprintf extends AbstractNativeFunction {
             // no match, copy and continue
             result.append(format.charAt(i));
         }
-        return getBValues(new BString(result.toString()));
+        context.setReturnValues(new BString(result.toString()));
     }
 }

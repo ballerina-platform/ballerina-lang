@@ -1,18 +1,50 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
-  title: Swagger Petstore YAML
+  title: Swagger Petstore
   license:
     name: MIT
 servers:
-  - url: http://petstore.swagger.io/v1
+  - url: http://petstore.{host}.io/v1
+    description: The production API server
+    variables:
+      host:
+        default: openapi
+        description: this value is assigned by the service provider
+  - url: https://{subdomain}.swagger.io:{port}/{basePath}
+    description: The production API server
+    variables:
+      subdomain:
+        default: petstore
+        description: this value is assigned by the service provider
+      port:
+        enum:
+          - '8443'
+          - '443'
+        default: '443'
+      basePath:
+        default: v2
+tags:
+  - name: pets
+    description: Pets Tag
+  - name: list
+    description: List Tag
+security:
+- petstore_auth:
+  - write:pets
+  - read:pets
+- user_auth:
+  - read:user
+
 paths:
   /pets:
     get:
       summary: List all pets
+      description: Show a list of pets in the system
       operationId: listPets
       tags:
         - pets
+        - list
       parameters:
         - name: limit
           in: query

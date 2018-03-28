@@ -34,7 +34,7 @@ public class CryptoTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src", "nativeimpl/functions/crypto-test.bal");
+        compileResult = BCompileUtil.compile("test-src/nativeimpl/functions/crypto-test.bal");
     }
 
     @Test

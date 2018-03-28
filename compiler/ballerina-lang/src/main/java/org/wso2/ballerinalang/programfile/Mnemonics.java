@@ -63,12 +63,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
-        mnemonics[InstructionCodes.ISTORE] = "istore";
-        mnemonics[InstructionCodes.FSTORE] = "fstore";
-        mnemonics[InstructionCodes.SSTORE] = "sstore";
-        mnemonics[InstructionCodes.BSTORE] = "bstore";
-        mnemonics[InstructionCodes.LSTORE] = "lstore";
-        mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
         mnemonics[InstructionCodes.SASTORE] = "sastore";
@@ -206,6 +200,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
+        mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
 
         // Transactions
         mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";
@@ -214,6 +209,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKSEND] = "wrksend";
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
+        
+        mnemonics[InstructionCodes.AWAIT] = "await";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
@@ -229,6 +226,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
+        mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
 
         mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
@@ -255,6 +253,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
         mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
         mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
+        mnemonics[InstructionCodes.NEWXMLSEQ] = "newxmlseq";
         mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.S2JSONX] = "s2jsonx";

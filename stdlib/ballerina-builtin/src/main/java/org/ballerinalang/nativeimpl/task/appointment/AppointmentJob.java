@@ -19,9 +19,8 @@
 package org.ballerinalang.nativeimpl.task.appointment;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerContext;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.quartz.Job;
@@ -40,8 +39,8 @@ public class AppointmentJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        AbstractNativeFunction fn =
-                (AbstractNativeFunction) jobDataMap.get(AppointmentConstants.BALLERINA_FUNCTION);
+        NativeCallableUnit fn =
+                (NativeCallableUnit) jobDataMap.get(AppointmentConstants.BALLERINA_FUNCTION);
         Context balParentContext =
                 (Context) jobDataMap.get(AppointmentConstants.BALLERINA_PARENT_CONTEXT);
         FunctionRefCPEntry onTriggerFunction =
@@ -50,9 +49,6 @@ public class AppointmentJob implements Job {
                 (FunctionRefCPEntry) jobDataMap.get(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION);
 
         ProgramFile programFile = balParentContext.getProgramFile();
-        //Create new instance of the context and set required properties.
-        Context newContext = new WorkerContext(programFile, balParentContext);
-
-        TaskExecutor.execute(fn, balParentContext, onTriggerFunction, onErrorFunction, programFile, newContext);
+        TaskExecutor.execute(fn, balParentContext, onTriggerFunction, onErrorFunction, programFile);
     }
 }

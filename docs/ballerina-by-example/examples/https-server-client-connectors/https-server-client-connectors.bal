@@ -1,47 +1,60 @@
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/mime;
 
-@http:configuration {
-    basePath:"/hello",
-    httpsPort:9095,
-    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-    keyStorePassword:"ballerina",
-    certPassword:"ballerina"
+endpoint http:ServiceEndpoint helloWorldEP {
+    port:9095,
+    secureSocket: {
+        keyStore: {
+            filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+};
+
+
+@http:ServiceConfig {
+    endpoints:[helloWorldEP],
+    basePath:"/hello"
 }
 
-service<http> helloWorld {
-    @http:resourceConfig {
+service<http:Service> helloWorld bind helloWorldEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
 
-    resource sayHello (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    sayHello (endpoint conn, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("Successful");
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
+endpoint http:ClientEndpoint clientEP {
+    targets: [{
+        uri: "https://localhost:9095",
+        secureSocket: {
+            trustStore: {
+                filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            }
+        }
+    }]
+};
 @Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a 1-way ssl connection, client needs to provide trustStoreFile and trustStorePassword."}
 function main (string[] args) {
-    endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient("https://localhost:9095", getConnectorConfigs());
-    }
     //Creates an outbound request.
-    http:OutRequest req = {};
-    http:InResponse resp = {};
-    resp, _ = httpEndpoint.get("/hello/", req);
-    io:println("Response code: " + resp.statusCode);
-    io:println("Response: " + resp.getStringPayload());
-}
-
-function getConnectorConfigs() (http:Options) {
-    http:Options option = {
-          ssl: {
-                 trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                 trustStorePassword:"ballerina"
-               },
-          followRedirects: {}
-    };
-    return option;
+    http:Request req = {};
+    var resp = clientEP -> get("/hello/", req);
+    match resp {
+        http:HttpConnectorError err => io:println(err.message);
+        http:Response response => {
+            match (response.getStringPayload()) {
+                mime:EntityError payloadError => io:println(payloadError.message);
+                string res => io:println(res);
+                any | null => io:println("Error occured");
+            }
+        }
+    }
 }

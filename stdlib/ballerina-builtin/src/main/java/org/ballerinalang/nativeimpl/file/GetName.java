@@ -19,11 +19,10 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -37,18 +36,18 @@ import java.nio.file.Paths;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "getName",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetName extends AbstractNativeFunction {
+public class GetName extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct fileStruct = (BStruct) context.getRefArgument(0);
         Path fileName = Paths.get(fileStruct.getStringField(0)).getFileName();
-        return getBValues(new BString(fileName == null ? "" : fileName.toString()));
+        context.setReturnValues(new BString(fileName == null ? "" : fileName.toString()));
     }
 }

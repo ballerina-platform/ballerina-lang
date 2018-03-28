@@ -31,10 +31,10 @@
 
 # Writing plugins for Ballerina Composer
 
-A Componser front-end plugin is a javascript class which is extended from [Plugin](./../../modules/web/src/core/plugin/plugin.js) class and it should provide a no arg constructor. Each plugin should also provide a unique ID via `getID()` method. A plugin can contribute to various [extension points available](#available-extension-points) in composer front-end by
+A Composer front-end plugin is a javascript class which is extended from [Plugin](./../../modules/web/src/core/plugin/plugin.js) class and it should provide a no arg constructor. Each plugin should also provide a unique ID via `getID()` method. A plugin can contribute to various [extension points available](#available-extension-points) in composer front-end by
 providing contributions via `getContributions()` method.
 
-Main components of Composer front-end are also developed as plugins. However, comapared to other plugins, they are treated differently while initializing. They are the first set of plugins to be initialized and their startup order is enforced by Composer.
+Main components of Composer front-end are also developed as plugins. However, compared to other plugins, they are treated differently while initializing. They are the first set of plugins to be initialized and their startup order is enforced by Composer.
 
 ```javascript
 // bare minimum code required for a plugin
@@ -186,11 +186,11 @@ class WorkspacePlugin extends Plugin {
 
 ### After Initial Render
 
-This is the life cycle hook for post initial render completion. This method of each plugin, will be invoked by composer after layout manager completes rendering the application. This gurantees that all the active views, contributed by all the plugins, are now completely rendered.
+This is the life cycle hook for post initial render completion. This method of each plugin, will be invoked by composer after layout manager completes rendering the application. This guarantees that all the active views, contributed by all the plugins, are now completely rendered.
 
 Signature of the method : `onAfterInitialRender()`
 
-Inside this method, you can execute logic which needs above mentioned gurantee. 
+Inside this method, you can execute logic which needs above mentioned guarantee. 
 
 [Here's how](./../../modules/web/src/plugins/welcome-tab/plugin.js#L72) welcome-page plugin uses this hook to open welcome page if there are no active editors (from history) upon composer open.
 
@@ -311,7 +311,7 @@ Please note that contribution schemas are defined using syntax of  [proptypes](h
 
 ## command
 
-Commands allow plugins to define an executable action identified by a unique ID. It allows shortcut keys to be binded to dispatch that action. Or to dispatch the command programatically you can use `appContext.command.dispatch(cmdId, argObject)` method.
+Commands allow plugins to define an executable action identified by a unique ID. It allows shortcut keys to be binded to dispatch that action. Or to dispatch the command programmatically you can use `appContext.command.dispatch(cmdId, argObject)` method.
 
 In a command definition, provide argTypes object to validate commands arguments at dispatch time using [proptypes](https://www.npmjs.com/package/prop-types) library.
 
@@ -388,7 +388,7 @@ Handlers allow plugins to register a piece of code which will be executed upon a
 
 Menus allow plugins to contribute menu items for top menu. New menu items can be added to existing menus or new root menus can be added. 
 
-There are three diffrent menu types possible.
+There are three different menu types possible.
 
 - ROOT : A root menu means an isolated drop down menu such as file/view etc.
 - GROUP : A sub menu which opens a new drop down to right side
@@ -768,7 +768,7 @@ All the components contributed as views will receive two implicit props called `
     },
 },
 ```
-Unlike left or bottom panel views, cutom editor tab views are not rendered by default. To show them - or render them within editor tabs - you need to dispatach SHOW_VIEW command from layout manager. 
+Unlike left or bottom panel views, custom editor tab views are not rendered by default. To show them - or render them within editor tabs - you need to dispatch SHOW_VIEW command from layout manager. 
 
 [Example Show Welome Page](./../../modules/web/src/plugins/welcome-tab/handlers.js#L34)
 
@@ -782,7 +782,7 @@ By contributing an editor for a certain file extension, plugins are able to cont
 
 In future, if we are going to support editing other file types with composer, we have provided the bare minimum capabilities to bind a custom editor to a file extension. There are plenty of improvements possible with regards to this.
 
-The react component for editor area will implicitely receive below props from composer. Similar to dialogs/other views, they can have a custom prop provider too. 
+The react component for editor area will implicitly receive below props from composer. Similar to dialogs/other views, they can have a custom prop provider too. 
 
 ```javascript
 
@@ -915,7 +915,7 @@ Menu items can have a handler function which can be used to execute some logic u
 
 [ScrollBarsWithContextAPI](./../../modules/web/src/core/view/scroll-bars/ScrollBarsWithContextAPI.jsx) is a wrapper component for [react-custom-scrollbars](https://github.com/malte-wessel/react-custom-scrollbars) and it exposes several methods to work with scrollbar via React Context.
 
-[Here](./../../modules/web/src/core/view/tree-view/TreeNode.jsx#L87) is how TreeNode uses these helper methods to scroll to a particular node programtically if it is not already visible.
+[Here](./../../modules/web/src/core/view/tree-view/TreeNode.jsx#L87) is how TreeNode uses these helper methods to scroll to a particular node programmatically if it is not already visible.
 
 Below is the complete list of available methods.
 

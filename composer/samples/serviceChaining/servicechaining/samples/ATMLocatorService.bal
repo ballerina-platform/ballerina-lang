@@ -1,7 +1,7 @@
 package servicechaining.samples;
 
-import ballerina.io;
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/ABCBank"}
 service<http> ATMLocator {
@@ -9,7 +9,7 @@ service<http> ATMLocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource locator (http:Connection conn, http:InRequest req) {
+    resource locator (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> bankInfoService {
             create http:HttpClient("http://localhost:9090/bankinfo/product", {});
         }
@@ -17,9 +17,9 @@ service<http> ATMLocator {
             create http:HttpClient("http://localhost:9090/branchlocator/product", {});
         }
 
-        http:OutRequest backendServiceReq = {};
+        http:Request backendServiceReq = {};
         http:HttpConnectorError err;
-        json jsonLocatorReq = req.getJsonPayload();
+        var jsonLocatorReq, _ = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string)jsonLocatorReq["ATMLocator"]["ZipCode"];
         io:println("Zip Code " + zipCode);
@@ -27,9 +27,9 @@ service<http> ATMLocator {
         branchLocatorReq.BranchLocator.ZipCode = zipCode;
         backendServiceReq.setJsonPayload(branchLocatorReq);
 
-        http:InResponse locatorResponse = {};
+        http:Response locatorResponse = {};
         locatorResponse, err = branchLocatorService.post("", backendServiceReq);
-        json branchLocatorRes = locatorResponse.getJsonPayload();
+        var branchLocatorRes, _ = locatorResponse.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)branchLocatorRes.ABCBank.BranchCode;
         io:println("Branch Code " + branchCode);
@@ -37,7 +37,7 @@ service<http> ATMLocator {
         bankInfoReq.BranchInfo.BranchCode = branchCode;
         backendServiceReq.setJsonPayload(bankInfoReq);
 
-        http:InResponse infoResponse = {};
+        http:Response infoResponse = {};
         infoResponse, err = bankInfoService.post("", backendServiceReq);
         _ = conn.forward(infoResponse);
     }

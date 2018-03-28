@@ -19,11 +19,11 @@
 package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -34,29 +34,29 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "xml.select",
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Select extends AbstractNativeFunction {
+public class Select extends BlockingNativeCallableUnit {
 
     private static final String OPERATION = "select elements from xml";
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getRefArgument(ctx, 0);
-            String qname = getStringArgument(ctx, 0);
+            BXML value = (BXML) ctx.getRefArgument(0);
+            String qname = ctx.getStringArgument(0);
             result = value.elements(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
 
         // Setting output value.
-        return getBValues(result);
+        ctx.setReturnValues(result);
     }
 }

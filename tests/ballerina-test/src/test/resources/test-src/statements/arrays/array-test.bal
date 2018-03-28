@@ -1,36 +1,34 @@
-function testFloatArrayLength(float[] arg)(int, int){
+function testFloatArrayLength(float[] arg) returns (int, int){
     float[] defined;
     defined = [10.1, 11.1];
     defined[2] = 12.1;
-    return lengthof arg , lengthof defined;
+    return (lengthof arg , lengthof defined);
 }
 
-function testIntArrayLength(int[] arg)(int, int){
+function testIntArrayLength(int[] arg) returns (int, int){
     int[] defined;
     defined = [ 1, 2, 3];
     defined[3] = 4;
-    return lengthof arg , lengthof defined;
+    return (lengthof arg , lengthof defined);
 }
 
-function testStringArrayLength(string[] arg)(int, int){
+function testStringArrayLength(string[] arg) returns (int, int){
     string[] defined;
     defined = [ "hello" , "world", "I", "am"];
     defined[4] = "Ballerina";
-    return lengthof arg , lengthof defined;
+    return (lengthof arg , lengthof defined);
 }
 
-function testXMLArrayLength()(int){
+function testXMLArrayLength() returns (int){
     xml[] defined;
-    xml v1;
-    xml v2;
-    v1, _ = <xml> "<test>a</test>";
-    v2, _ = <xml> "<test>b</test>";
+    xml v1 = xml `<test>a</test>`;
+    xml v2 = xml `<test>b</test>`;
     defined = [v1, v2];
-    defined[2], _ = <xml> "<test>c</test>";
+    defined[2] = xml `<test>c</test>`;
     return lengthof defined;
 }
 
-function testJSONArrayLength()(int, int){
+function testJSONArrayLength() returns (int, int){
     json[] arg = [{"test": 1}, {"test" : 1}];
     json[] defined;
     json v1;
@@ -39,5 +37,5 @@ function testJSONArrayLength()(int, int){
     v2 = { "test" : "2"};
     defined = [v1, v2];
     defined[2] = { "test" : "3"};
-    return lengthof arg , lengthof defined;
+    return (lengthof arg , lengthof defined);
 }

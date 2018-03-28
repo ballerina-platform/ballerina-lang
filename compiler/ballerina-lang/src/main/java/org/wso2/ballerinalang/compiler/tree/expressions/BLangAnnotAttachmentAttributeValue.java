@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
+@Deprecated
 public class BLangAnnotAttachmentAttributeValue extends BLangExpression
         implements AnnotationAttachmentAttributeValueNode {
 

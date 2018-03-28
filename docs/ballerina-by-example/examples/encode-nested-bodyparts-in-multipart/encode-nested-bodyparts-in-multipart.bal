@@ -1,17 +1,23 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.file;
+import ballerina/net.http;
+import ballerina/mime;
+import ballerina/file;
+import ballerina/io;
 
-@http:configuration {port:9092}
-service<http> nestedparts {
-    @http:resourceConfig {
+endpoint http:ClientEndpoint clientEP {
+    targets:[{uri:"http://localhost:9090"}]
+};
+
+endpoint http:ServiceEndpoint multipartEP {
+    port:9092
+};
+
+@http:ServiceConfig {basePath:"/nestedparts"}
+service<http:Service> test bind multipartEP {
+      @http:ResourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource nestedPartSender (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> httpEndpoint {
-            create http:HttpClient("http://localhost:9093", {});
-        }
+    nestedPartSender (endpoint conn, http:Request req) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
@@ -28,7 +34,9 @@ service<http> nestedparts {
         mime:Entity childPart2 = {};
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         childPart2.contentType = contentTypeOfFilePart;
-        file:File fileHandler = {path:"/home/user/Downloads/test.xml"};
+        //This file path is relative to where the ballerina is running. If your file is located outside, please
+        //give the absolute file path instead.
+        file:File fileHandler = {path:"./files/test.xml"};
         childPart2.setFileAsEntityBody(fileHandler);
 
         //Create an array to hold child parts.
@@ -39,12 +47,19 @@ service<http> nestedparts {
 
         //Create an array to hold the parent part and set it to request.
         mime:Entity[] immediatePartsToRequest = [parentPart];
-        http:OutRequest request = {};
+        http:Request request = {};
         request.setMultiparts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
 
-        http:InResponse resp1 = {};
-        resp1, _ = httpEndpoint.post("/nestedparts/decoder", request);
-
-        _ = conn.forward(resp1);
+        var returnResponse = clientEP -> post("/nestedparts/decoder", request);
+        match returnResponse {
+            http:HttpConnectorError err => {
+                http:Response resp1 = {};
+                io:println(err);
+                resp1.setStringPayload("Error occurred while sending multipart request!");
+                resp1.statusCode = 500;
+                _ = conn -> respond(resp1);
+            }
+            http:Response returnResult =>  _ = conn -> forward(returnResult);
+        }
     }
 }

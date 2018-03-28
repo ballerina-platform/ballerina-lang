@@ -225,9 +225,9 @@ class HttpClient extends React.Component {
      * @param {Object} event The change event.
      * @memberof HttpClient
      */
-    onHttpMethodChanged(event) {
+    onHttpMethodChanged(event, data) {
         this.setState({
-            httpMethod: event.target.value,
+            httpMethod: data.value,
         });
     }
 
@@ -372,7 +372,7 @@ class HttpClient extends React.Component {
                 }
             } else {
                 const responseHeaders = JSON.parse(this.state.responseHeaders);
-                const contentType = responseHeaders['Content-Type'];
+                const contentType = responseHeaders['Content-Type'] || [];
                 if (contentType.includes('json')) {
                     return 'json';
                 } else if (contentType.includes('xml')) {
@@ -508,7 +508,7 @@ class HttpClient extends React.Component {
                     >
                         <Form.Group inline>
                             <Form.Field >
-                                <Form.Select
+                                <Select
                                     search
                                     selection
                                     options={this.state.httpMethods}
@@ -517,8 +517,8 @@ class HttpClient extends React.Component {
                                 />
                             </Form.Field>
                             <Form.Field>
-                                <label style={{ fontSize: 16 }} htmlFor='service'>
-                                    {httpBaseUrl}
+                                <label htmlFor='service'>
+                                    <span>{httpBaseUrl}</span>
                                     <span className='url-separator'> / </span>
                                 </label>
                             </Form.Field>
@@ -531,7 +531,7 @@ class HttpClient extends React.Component {
                             <Form.Field>
                                 <Form.Input type='text' action>
                                     <Input
-                                        label={`${httpBaseUrl} / `}
+                                        label={`${httpBaseUrl} `}
                                         value={this.state.appendUrl}
                                         onChange={this.onAppendUrlChange}
                                     />
@@ -635,7 +635,7 @@ class HttpClient extends React.Component {
                                                     </Form.Group>
                                                 </Form>
                                                 <Form.Field width={16}>
-                                                    <span className='section-header'>Headers</span>
+                                                    <h3>Headers</h3>
                                                     <Divider />
                                                     <div className='current-headers'>
                                                         {
@@ -651,7 +651,7 @@ class HttpClient extends React.Component {
                                                         }
                                                     </div>
                                                 </Form.Field>
-                                                <Form.Field className='http-client-body-wrapper'>
+                                                <Form.Field width={16} className='http-client-body-wrapper'>
                                                     <label htmlFor='http-body'>Body</label>
                                                     <Divider />
                                                     <div className='ACE-editor-wrapper'>
@@ -691,15 +691,15 @@ class HttpClient extends React.Component {
                                                 <Form>
                                                     <Form.Group>
                                                         <Form.Field className='http-client-response-attributes'>
-                                                            <strong>Request URL :
+                                                            <p>Request URL :
                                                                 <span
                                                                     className={cn('attribute-value',
                                                                         this.getStatusCodeClass(this.state.responseCode))}
                                                                 >
                                                                     {this.state.requestUrl}
                                                                 </span>
-                                                            </strong>
-                                                            <strong>Reponse Code :
+                                                            </p>
+                                                            <p>Reponse Code :
                                                                 <span
                                                                     className={cn('attribute-value',
                                                                         this.getStatusCodeClass(
@@ -707,8 +707,8 @@ class HttpClient extends React.Component {
                                                                 >
                                                                     {this.state.responseCode}
                                                                 </span>
-                                                            </strong>
-                                                            <strong>Request HTTP Method :
+                                                            </p>
+                                                            <p>Request HTTP Method :
                                                                 <span
                                                                     className={cn('attribute-value',
                                                                         this.getStatusCodeClass(
@@ -716,8 +716,8 @@ class HttpClient extends React.Component {
                                                                 >
                                                                     {this.state.responseHttpMethod}
                                                                 </span>
-                                                            </strong>
-                                                            <strong>Time Consumed :
+                                                            </p>
+                                                            <p>Time Consumed :
                                                                 <span
                                                                     className={cn('attribute-value',
                                                                         this.getStatusCodeClass(
@@ -725,73 +725,66 @@ class HttpClient extends React.Component {
                                                                 >
                                                                     {this.state.timeConsumed} ms
                                                                 </span>
-                                                            </strong>
+                                                            </p>
                                                         </Form.Field>
                                                     </Form.Group>
                                                     <Form.Group>
-                                                        <Form.Field className='http-client-response-content'>
-                                                            <div className='header-wrapper'>
-                                                                <div className='header-title section-header'>
-                                                                    Headers
-                                                                </div>
-                                                                <div className='header-content'>
-                                                                    <div
-                                                                        className='response-headers'
-                                                                    >
-                                                                        <span
-                                                                            className='response-header-title'
-                                                                        >
-                                                                            Response Headers
-                                                                        </span>
-                                                                        {this.state.responseHeaders.length > 0 ? (
-                                                                            <div>
-                                                                                {
-                                                                                    Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
-                                                                                        return (<div className='header-attribute' key={`response-${key}`}>
-                                                                                            <div className='key'>{key}</div>
-                                                                                            :
-                                                                                            <div className='value'>{value}</div>
-                                                                                        </div>);
-                                                                                    })}
-                                                                            </div>
-                                                                        ) : (
-                                                                            <Message
-                                                                                warning
-                                                                                list={[
-                                                                                    'Hit the send button to see the headers.',
-                                                                                ]}
-                                                                            />
-                                                                            )}
+                                                        <Form.Field width={16}>
+                                                            <h3> Headers </h3>
+                                                            <Divider />
+                                                            <div className='header-content'>
+                                                                <div
+                                                                    className='response-headers'
+                                                                >
+                                                                    <h4>Response Headers </h4>
+                                                                    {this.state.responseHeaders.length > 0 ? (
+                                                                        <div>
+                                                                            {
+                                                                                Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
+                                                                                    return (<div className='header-attribute' key={`response-${key}`}>
+                                                                                        <div className='key'>{key}</div>
+                                                                                        :
+                                                                                        <div className='value'>{value}</div>
+                                                                                    </div>);
+                                                                                })}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Message
+                                                                            warning
+                                                                            list={[
+                                                                                'Hit the send button to see the headers.',
+                                                                            ]}
+                                                                        />
+                                                                    )}
 
-                                                                    </div>
-                                                                    <div className='request-headers'>
-                                                                        <span className='request-headers-title'>Request Headers</span>
-                                                                        {this.state.returnedRequestHeaders.length > 0 ? (
-                                                                            <div>
-                                                                                {
-                                                                                    Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
-                                                                                        return (<div className='header-attribute' key={`returned-request-${key}`}>
-                                                                                            <div className='key'>{key}</div>
-                                                                                            :
-                                                                                            <div className='value'>{value}</div>
-                                                                                        </div>);
-                                                                                    })}
-                                                                            </div>
-                                                                        ) : (
-                                                                            <Message
-                                                                                warning
-                                                                                list={[
-                                                                                    'Hit the send button to see the headers.',
-                                                                                ]}
-                                                                            />
-                                                                            )}
-                                                                    </div>
+                                                                </div>
+                                                                <div className='request-headers'>
+                                                                    <h4>Request Headers</h4>
+                                                                    {this.state.returnedRequestHeaders.length > 0 ? (
+                                                                        <div>
+                                                                            {
+                                                                                Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
+                                                                                    return (<div className='header-attribute' key={`returned-request-${key}`}>
+                                                                                        <div className='key'>{key}</div>
+                                                                                        :
+                                                                                        <div className='value'>{value}</div>
+                                                                                    </div>);
+                                                                                })}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Message
+                                                                            warning
+                                                                            list={[
+                                                                                'Hit the send button to see the headers.',
+                                                                            ]}
+                                                                        />
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </Form.Field>
                                                     </Form.Group>
                                                     <Form.Group>
-                                                        <Form.Field className='http-client-response-attributes'>
+                                                        <Form.Field width={16} className='http-client-response-attributes'>
                                                             <label htmlFor='body-content'>Body</label>
                                                             <Divider />
                                                             <div className='body-content'>

@@ -18,10 +18,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import EventChannel from 'event_channel';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
 import ControllerOverlay from './views/default/components/decorators/controller-overlay';
 import PositionVisitor from './visitors/position-visitor';
+import EndpointAggregatorVisitor from './visitors/endpoint-aggregator-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
 import ErrorRenderer from './visitors/error-rendering-visitor';
 import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visitor';
@@ -32,6 +32,7 @@ import {
     getComponentForNodeArray,
     getSizingUtil,
     getPositioningUtil,
+    getEndpointAggregatorUtil,
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getConfig,
@@ -39,7 +40,6 @@ import {
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
 
 const padding = 5;
 
@@ -60,6 +60,7 @@ class Diagram extends React.Component {
         super(props);
         this.dimentionVisitor = new DimensionVisitor();
         this.positionCalc = new PositionVisitor();
+        this.endpointAggregator = new EndpointAggregatorVisitor();
         this.errorRenderer = new ErrorRenderer();
         this.workerInvocationSynVisitor = new WorkerInvocationSyncVisitor();
         this.invocationArrowPositionVisitor = new InvocationArrowPositionVisitor();
@@ -88,6 +89,9 @@ class Diagram extends React.Component {
         // 1 First clear any intermediate state we have set.
         this.props.model.accept(new Clean());
 
+        this.endpointAggregator.setAggregatorUtil(getEndpointAggregatorUtil(this.props.mode));
+        this.props.model.accept(this.endpointAggregator);
+        
         // 2. We will visit the model tree and calculate width and height of all
         //    the elements. We will run the DimensionVisitor.
         this.dimentionVisitor.setSizingUtil(getSizingUtil(this.props.mode));
@@ -106,6 +110,7 @@ class Diagram extends React.Component {
             width: this.props.width - padding,
             height: this.props.height - padding,
         };
+        
         // 5. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
         this.positionCalc.setPositioningUtil(getPositioningUtil(this.props.mode));
@@ -145,7 +150,6 @@ class Diagram extends React.Component {
             disabled={this.props.disabled}
         >
             { children }
-            <TopLevelNodes model={this.props.model} />
         </CanvasDecorator>);
     }
 }

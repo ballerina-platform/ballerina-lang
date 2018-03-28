@@ -17,7 +17,6 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,7 @@ public class CharacterChannel {
     /**
      * Channel implementation to read/write characters.
      */
-    private AbstractChannel channel;
+    private Channel channel;
 
     /**
      * Decodes the specified bytes when reading.
@@ -95,7 +94,7 @@ public class CharacterChannel {
     private static final int MAX_CHAR_COUNT_PER_READ = 1024;
 
 
-    public CharacterChannel(AbstractChannel channel, String encoding) {
+    public CharacterChannel(Channel channel, String encoding) {
         this.channel = channel;
         bytesDecoder = Charset.forName(encoding).newDecoder();
         byteEncoder = Charset.forName(encoding).newEncoder();
@@ -202,39 +201,69 @@ public class CharacterChannel {
     }
 
     /**
+     * Reads bytes asynchronously from the channel.
+     *
+     * @param numberOfBytesRequired number of bytes required from the channel.
+     * @param numberOfCharsRequired number of characters required.
+     * @throws IOException errors occur while reading and encoding characters.
+     */
+    private void asyncReadBytesFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
+            throws IOException {
+        ByteBuffer buffer;
+        int numberOfCharsProcessed = 0;
+        CharBuffer intermediateCharacterBuffer;
+        //Provided at this point any remaining character left in the buffer is copied
+        charBuffer = CharBuffer.allocate(numberOfBytesRequired);
+        do {
+            buffer = contentBuffer.get(numberOfBytesRequired, channel);
+            intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+            numberOfCharsProcessed = numberOfCharsProcessed + intermediateCharacterBuffer.limit();
+            charBuffer.put(intermediateCharacterBuffer);
+        } while (!channel.hasReachedEnd() && numberOfCharsProcessed < numberOfCharsRequired);
+        //We make the char buffer ready to read
+        charBuffer.flip();
+        processChars(numberOfCharsRequired, buffer, numberOfCharsProcessed);
+    }
+
+    /**
      * <p>
-     * Reads the required number of bytes into the buffer from channel.
+     * When processing characters, there will be instances where due to unavailability of bytes the characters gets
+     * marked as malformed.
+     * <p>
+     * There will also be instances where the actual characters in the original content is malformed.
+     * <p>
+     * This function will distinguished between these two, if the last character processed is malformed this will
+     * return the character as malformed. Since there will be no more bytes left to be read from the channel.
+     * <p>
+     * If the channel does not return EoL there will be a possibility where conjunction between the remaining bytes
+     * will produce the content required.
      * </p>
      *
-     * @param numberOfBytesRequired the number of bytes which should be read.
-     * @param numberOfCharsRequired number of characters which is expected from the read.
-     * @throws CharacterCodingException when an error occurs during encoding.
+     * @param numberOfCharsRequired  total number of characters required.
+     * @param buffer                 the buffer which will hold the content.
+     * @param numberOfCharsProcessed number of characters processed.
      */
-    private void readBytesIntoBufferFromChannel(int numberOfBytesRequired, int numberOfCharsRequired)
-            throws CharacterCodingException {
-        ByteBuffer byteBuffer = contentBuffer.get(numberOfBytesRequired, channel);
-        charBuffer = bytesDecoder.decode(byteBuffer);
-        int numberOfCharsProcessed = charBuffer.limit();
+    private void processChars(int numberOfCharsRequired, ByteBuffer buffer, int numberOfCharsProcessed) {
         final int minimumNumberOfCharsRequired = 0;
         if (numberOfCharsProcessed > minimumNumberOfCharsRequired) {
             int lastCharacterIndex = numberOfCharsProcessed - 1;
             char lastCharacterProcessed = charBuffer.get(lastCharacterIndex);
             if (numberOfCharsRequired < numberOfCharsProcessed && isMalformedCharacter(lastCharacterProcessed)) {
                 int numberOfBytesWithoutTheLastChar = getNumberOfBytesInContent(lastCharacterIndex);
-                int numberOfBytesAllocatedForLastChar = byteBuffer.capacity() - numberOfBytesWithoutTheLastChar;
+                int numberOfBytesAllocatedForLastChar = buffer.capacity() - numberOfBytesWithoutTheLastChar;
                 contentBuffer.reverse(numberOfBytesAllocatedForLastChar);
             }
         }
     }
 
     /**
-     * Reads specified number of characters from a given channel.
+     * Read asynchronously from channel.
      *
-     * @param numberOfCharacters the number of characters which should be retrieved.
-     * @return the sequence of characters as a string.
-     * @throws BallerinaIOException I/O errors.
+     * @param numberOfCharacters number of characters which needs to be read.
+     * @return characters which were read.
+     * @throws IOException during I/O error.
      */
-    public String read(int numberOfCharacters) throws BallerinaIOException {
+    public String read(int numberOfCharacters) throws IOException {
         StringBuilder content;
         try {
             //Will identify the number of characters required
@@ -254,7 +283,7 @@ public class CharacterChannel {
             if (log.isDebugEnabled()) {
                 log.debug("Number of chars required to be get from the channel " + charsRequiredToBeReadFromChannel);
             }
-            readBytesIntoBufferFromChannel(numberOfBytesRequired, numberOfCharacters);
+            asyncReadBytesFromChannel(numberOfBytesRequired, numberOfCharacters);
             //We need to ensure that the required amount of characters are available in the buffer
             if (charBuffer.limit() < charsRequiredToBeReadFromChannel) {
                 //This means the amount of chars required are not available
@@ -262,7 +291,7 @@ public class CharacterChannel {
             }
             appendCharsToString(content, charsRequiredToBeReadFromChannel);
         } catch (IOException e) {
-            throw new BallerinaIOException("Error occurred while reading characters from buffer", e);
+            throw new IOException("Error occurred while reading characters from buffer", e);
         }
         return content.toString();
     }
@@ -271,8 +300,10 @@ public class CharacterChannel {
      * Reads all content from the I/O source.
      *
      * @return all content which is read.
+     * @throws IOException during I/O error.
      */
-    public String readAll() {
+    @Deprecated
+    public String readAll() throws IOException {
         StringBuilder response = new StringBuilder();
         String value;
         do {
@@ -288,31 +319,35 @@ public class CharacterChannel {
      * @param content the string content to be written.
      * @param offset  the offset which should be used for writing.
      * @return the number of bytes/characters written.
-     * @throws BallerinaIOException during I/O error.
+     * @throws IOException during I/O error.
      */
-    public int write(String content, int offset) throws BallerinaIOException {
+    public int write(String content, int offset) throws IOException {
         try {
-            int numberOfBytesWritten = -1;
+            int numberOfBytesWritten = 0;
             if (channel != null) {
                 char[] characters = content.toCharArray();
                 CharBuffer characterBuffer = CharBuffer.wrap(characters);
                 characterBuffer.position(offset);
                 ByteBuffer encodedBuffer = byteEncoder.encode(characterBuffer);
-                numberOfBytesWritten = channel.write(encodedBuffer);
+                do {
+                    numberOfBytesWritten = numberOfBytesWritten + channel.write(encodedBuffer);
+                } while (encodedBuffer.hasRemaining());
             } else {
                 log.warn("The channel has already being closed");
             }
             return numberOfBytesWritten;
         } catch (CharacterCodingException e) {
             String message = "Error occurred while writing bytes to the channel " + channel.hashCode();
-            throw new BallerinaIOException(message, e);
+            throw new IOException(message, e);
         }
     }
 
     /**
      * Closes the given channel.
+     *
+     * @throws IOException errors occur while trying to close the connection.
      */
-    public void close() {
+    public void close() throws IOException {
         channel.close();
     }
 }

@@ -17,8 +17,11 @@
 */
 package org.ballerinalang.util.transactions;
 
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * {@code LocalTransactionInfo} stores the transaction related information.
@@ -35,6 +38,7 @@ public class LocalTransactionInfo {
     private Map<Integer, Integer> allowedTransactionRetryCounts;
     private Map<Integer, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
+    private Stack<Integer> transactionBlockIdStack;
 
     public LocalTransactionInfo(String globalTransactionId, String url, String protocol) {
         this.globalTransactionId = globalTransactionId;
@@ -44,10 +48,19 @@ public class LocalTransactionInfo {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
+        transactionBlockIdStack = new Stack<>();
     }
 
     public String getGlobalTransactionId() {
         return this.globalTransactionId;
+    }
+
+    public int getCurrentTransactionBlockId() {
+        return transactionBlockIdStack.peek();
+    }
+
+    public boolean hasTransactionBlock() {
+        return !transactionBlockIdStack.empty();
     }
 
     public String getURL() {
@@ -59,6 +72,7 @@ public class LocalTransactionInfo {
     }
 
     public void beginTransactionBlock(int localTransactionID, int retryCount) {
+        transactionBlockIdStack.push(localTransactionID);
         allowedTransactionRetryCounts.put(localTransactionID, retryCount);
         currentTransactionRetryCounts.put(localTransactionID, 0);
         ++transactionLevel;
@@ -79,48 +93,49 @@ public class LocalTransactionInfo {
         transactionContextStore.put(connectorid, txContext);
     }
 
-    public boolean isRetryPossible(int transactionId) {
-        boolean retryPossible = false;
+    public boolean isRetryPossible(WorkerExecutionContext context, int transactionId) {
         int allowedRetryCount = getAllowedRetryCount(transactionId);
         int currentRetryCount = getCurrentRetryCount(transactionId);
         if (currentRetryCount >= allowedRetryCount) {
             if (currentRetryCount != 0) {
-                retryPossible = true;
+                return false; //Retry count exceeded
             }
         }
-        return retryPossible;
-    }
 
-    public boolean onTransactionFailed(int transactionId) {
-        boolean bNotifyCoordinator = false;
-        if (transactionLevel == 1) {
-            int currentCount = getCurrentRetryCount(transactionId);
-            int allowedCount = getAllowedRetryCount(transactionId);
-            //local retry is attempted without notifying the coordinator. If all the attempts are failed, notify
-            //the coordinator with transaction abort.
-            if (currentCount == allowedCount) {
-                bNotifyCoordinator = true;
-            } else {
-                transactionContextStore.clear();
-                TransactionResourceManager.getInstance().rollbackTransaction(globalTransactionId);
-            }
+        //Participant transactions/nested transactions are not allowed to retry. That is because participant tx
+        //cannot start running 2pc protocol and it is done only via initiator. Also with participant retries, the number
+        //of retries become very large.
+        boolean isGlobalTransactionEnabled = context.getGlobalTransactionEnabled();
+        if (!isGlobalTransactionEnabled) {
+            return true;
         }
-        return bNotifyCoordinator;
+        if (currentRetryCount != 0 && !TransactionUtils.isInitiator(context, globalTransactionId, transactionId)) {
+            return false;
+        }
+        return true;
     }
 
-    public boolean onTransactionAbort() {
-        return (transactionLevel == 1);
-    }
-
-    public boolean onTransactionEnd() {
+    public boolean onTransactionFailed(WorkerExecutionContext context, int transactionBlockId) {
         boolean bNotifyCoordinator = false;
-        --transactionLevel;
-        if (transactionLevel == 0) {
-            TransactionResourceManager.getInstance().endXATransaction(globalTransactionId);
-            resetTransactionInfo();
+        if (isRetryPossible(context, transactionBlockId)) {
+            transactionContextStore.clear();
+            TransactionResourceManager.getInstance().rollbackTransaction(globalTransactionId, transactionBlockId);
+        } else {
             bNotifyCoordinator = true;
         }
         return bNotifyCoordinator;
+    }
+
+    public boolean onTransactionEnd(int transactionBlockId) {
+        boolean isOuterTx = false;
+        transactionBlockIdStack.pop();
+        --transactionLevel;
+        if (transactionLevel == 0) {
+            TransactionResourceManager.getInstance().endXATransaction(globalTransactionId, transactionBlockId);
+            resetTransactionInfo();
+            isOuterTx = true;
+        }
+        return isOuterTx;
 
     }
 

@@ -40,18 +40,18 @@ import static org.ballerinalang.net.http.HttpConstants.SESSION_ID;
  */
 public class HTTPSessionSubMethodsTest {
 
+    private static final String TEST_ENDPOINT_NAME = "sessionEP";
     CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/session/http-session-test.bal");
+        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/session/http-session-test.bal");
     }
 
     @Test(description = "Test for GetId Function")
     public void testGetIdFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/id1", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
@@ -66,20 +66,19 @@ public class HTTPSessionSubMethodsTest {
     @Test(description = "Test for null session GetId Function")
     public void testNullSessionGetIdFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/id2", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertTrue(responseMsgPayload.contains("ballerina.runtime:NullReferenceException\n" +
-                "\tat .:sample2.id2(http-session-test.bal:392)"));
+        Assert.assertEquals(responseMsgPayload, "");
     }
 
     @Test(description = "Test for isNew Function")
     public void testIsNewFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
@@ -92,7 +91,7 @@ public class HTTPSessionSubMethodsTest {
     @Test(description = "Test for isNew Function two attempts")
     public void testIsNewFunctiontwoAttempts() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
@@ -105,7 +104,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invokeNew(compileResult, cMsg);
+        response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         responseMsgPayload = StringUtils
@@ -117,7 +116,7 @@ public class HTTPSessionSubMethodsTest {
     @Test(description = "Test for GetCreateTime Function")
     public void testGetCreateTimeFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
@@ -130,7 +129,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invokeNew(compileResult, cMsg);
+        response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         responseMsgPayload = StringUtils
@@ -143,20 +142,19 @@ public class HTTPSessionSubMethodsTest {
     @Test(description = "Test for GetCreateTime Function error")
     public void testGetCreateTimeFunctionError() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new3", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(38, 94);
-        Assert.assertTrue(error.contains("No such session in progress"));
+        Assert.assertTrue(responseMsgPayload.contains("No such session in progress"));
     }
 
     @Test(description = "Test for GetLastAccessedTime Function")
     public void testGetLastAccessedTimeFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
@@ -170,7 +168,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invokeNew(compileResult, cMsg);
+        response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         responseMsgPayload = StringUtils
@@ -181,7 +179,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invokeNew(compileResult, cMsg);
+        response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         responseMsgPayload = StringUtils
@@ -194,20 +192,19 @@ public class HTTPSessionSubMethodsTest {
     @Test(description = "Test for GetLastAccessed Function error")
     public void testGetLastAccessedTimeFunctionError() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new5", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(38, 99);
-        Assert.assertTrue(error.contains("No such session in progress"));
+        Assert.assertTrue(responseMsgPayload.contains("No such session in progress"));
     }
 
     @Test(description = "Test for setMaxInactiveInterval and getMaxInactiveInterval Function")
     public void testSetMaxInactiveIntervalFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
@@ -221,7 +218,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invokeNew(compileResult, cMsg);
+        response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         responseMsgPayload = StringUtils
@@ -234,20 +231,19 @@ public class HTTPSessionSubMethodsTest {
     @Test(description = "Test for SetMaxInactiveInterval Function error")
     public void testSetMaxInactiveIntervalFunctionError() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new7", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(38, 98);
-        Assert.assertTrue(error.contains("No such session in progress"));
+        Assert.assertTrue(responseMsgPayload.contains("No such session in progress"));
     }
 
     @Test(description = "Test for negative timeout setMaxInactiveInterval")
     public void testSetMaxInactiveIntervalNegativeTimeoutFunction() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
@@ -261,7 +257,7 @@ public class HTTPSessionSubMethodsTest {
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
-        response = Services.invokeNew(compileResult, cMsg);
+        response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
 
         responseMsgPayload = StringUtils
