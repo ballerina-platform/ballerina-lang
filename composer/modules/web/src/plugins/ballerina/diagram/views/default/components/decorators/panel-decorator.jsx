@@ -267,10 +267,10 @@ class PanelDecorator extends React.Component {
         const iconSize = 14;
         const iconWidth = 40;
         const collapsed = this.props.model.viewState.collapsed || false;
+        const titleHead = 105;
 
         // const titleComponents = this.getTitleComponents(this.props.titleComponentData);
         const titleWidth = new SizingUtils().getTextWidth(this.state.editingTitle);
-        const hTitleWidth = new SizingUtils().getTextWidth(this.state.editingTitle);
 
         // calculate the panel bBox;
         const panelBBox = new SimpleBBox();
@@ -342,9 +342,9 @@ class PanelDecorator extends React.Component {
                 {allowPublicPrivateFlag && <g>
                     <rect
                         className='publicPrivateRectHolder'
-                        x={bBox.x + 20}
+                        x={bBox.x}
                         y={bBox.y}
-                        width='45'
+                        width={titleHead}
                         height='30'
                     />
                     <text
@@ -354,7 +354,7 @@ class PanelDecorator extends React.Component {
                         height={iconSize}
                         fontFamily='font-ballerina'
                         fontSize={iconSize}
-                    >{ImageUtil.getCodePoint(this.props.model.public ? 'public' : 'lock')}
+                    > {ImageUtil.getCodePoint(this.props.model.public ? 'public' : 'lock')}
                     </text>
                     <text
                         x={bBox.x + 30}
@@ -377,9 +377,9 @@ class PanelDecorator extends React.Component {
                 
                 {!wsResourceDef && !lambda && <g>
                     <rect
-                        x={titleWidth.w - 15}
+                        x={titleHead}
                         y={bBox.y}
-                        width={titleWidth.w}
+                        width={titleHead}
                         height={titleHeight - 1}
                         className='title-bg'
                     />

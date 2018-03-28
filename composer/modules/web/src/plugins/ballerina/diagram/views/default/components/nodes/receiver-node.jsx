@@ -93,23 +93,18 @@ class ReceiverNode extends React.Component {
             <g className='statement-body'>
                 { (showStructBinding && this.getStructs().length > 0 && !structBindedFunction) &&
                     <g>
-                        <image
+                        <text
                             x={addBindingStructX}
                             y={addBindingStructY}
                             width={iconSize}
                             height={iconSize}
-                            xlinkHref={ImageUtil.getSVGIconString('bind')}
+                            fontFamily='font-ballerina'
+                            fontSize={iconSize}
+                            xlinkHref={ImageUtil.getCodePoint('bind')}
                             onClick={e => this.showStructsInPackage(addBindingStructX, addBindingStructY)}
-                        > <title> Bind functions with structs </title> </image> </g>}
+                        > <title> Bind functions with structs </title> </text> </g>}
                 {structBindedFunction &&
                     <g>
-                        {/* <rect
-                            x={typeTextX - 20}
-                            y={typeTextY - 15}
-                            width={receiverTypeWidth + 15}
-                            height={29}
-                            className='bound-box'
-                        /> */}
                         <text
                             x={typeTextX + 50}
                             y={typeTextY + 5}

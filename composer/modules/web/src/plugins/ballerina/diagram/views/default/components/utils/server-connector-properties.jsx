@@ -59,7 +59,7 @@ class ServerConnectorProperties extends React.Component {
         return (
             <g id='serviceDefProps' onClick={this.handleShowModal}>
                 <text
-                    x={bBox.x + 105}
+                    x={bBox.x + 205}
                     y={bBox.y - 13}
                     alignmentBaseline='middle'
                     textAnchor='middle'
