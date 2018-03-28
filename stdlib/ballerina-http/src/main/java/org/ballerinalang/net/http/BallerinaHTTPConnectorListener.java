@@ -87,7 +87,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
-        boolean isTransactionInfectable = httpResource.getParentService().isTransactionInfectable();
+        boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
@@ -101,9 +101,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
 
         Map<String, String> tags = new HashMap<>();
-        tags.put("component", "ballerina");
         tags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
-        tags.put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
         tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
         tracer.addTags(tags);
 

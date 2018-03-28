@@ -38,6 +38,8 @@ public class UtilSymbolKeys {
 
 
     public static final String ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN = "%params%";
+    
+    public static final String ANON_STRUCT_CHECKER = "$anon";
 
     public static final String CREATE_KEYWORD_KEY = "create";
 
@@ -58,4 +60,6 @@ public class UtilSymbolKeys {
     public static final String TRANSFORMER_KEYWORD_KEY = "transformer";
 
     public static final String STRUCT_KEYWORD_KEY = "struct";
+
+    public static final String MATCH_KEYWORD_KEY = "match";
 }

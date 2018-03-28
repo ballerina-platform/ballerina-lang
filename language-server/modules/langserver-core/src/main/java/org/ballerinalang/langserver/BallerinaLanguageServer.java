@@ -45,7 +45,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
-        WorkspaceDocumentManagerImpl documentManager = new WorkspaceDocumentManagerImpl();
+        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
         BLangPackageContext bLangPackageContext = new BLangPackageContext();
         textService = new BallerinaTextDocumentService(this, documentManager, bLangPackageContext);
         workspaceService = new BallerinaWorkspaceService(this, documentManager, bLangPackageContext);

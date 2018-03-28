@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
@@ -113,11 +113,33 @@ public class TextDocumentServiceUtil {
     public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, LSDocument sourceRoot,
                                                          boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager) {
+        return prepareCompilerContext(packageRepository, sourceRoot, preserveWhitespace, documentManager,
+                CompilerPhase.CODE_ANALYZE);
+    }
+
+    /**
+     * Prepare the compiler context.
+     *
+     * @param packageRepository  Package Repository
+     * @param sourceRoot         LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @return {@link CompilerContext}     Compiler context
+     */
+    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, LSDocument sourceRoot,
+                                                         boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager,
+                                                         CompilerPhase compilerPhase) {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+
+        if (null == compilerPhase) {
+            throw new AssertionError("Compiler Phase can not be null.");
+        }
+
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         context.put(SourceDirectory.class,
                 new LangServerFSProjectDirectory(sourceRoot.getSourceRootPath(), documentManager));
@@ -161,7 +183,8 @@ public class TextDocumentServiceUtil {
                 File[] files = projectDir.listFiles();
                 if (files != null) {
                     for (File file : files) {
-                        if (!file.getName().equals(".ballerina")) {
+                        if ((file.isDirectory() && !file.getName().startsWith(".")) ||
+                                (!file.isDirectory() && file.getName().endsWith(".bal"))) {
                             Compiler compiler = getCompiler(context, fileName, packageRepository, sourceDocument,
                                     preserveWhitespace, customErrorStrategy, docManager);
                             packages.add(compiler.compile(file.getName()));

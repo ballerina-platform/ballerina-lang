@@ -1285,7 +1285,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.completeMatchNode(getWS(ctx));
+        this.pkgBuilder.completeMatchNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
