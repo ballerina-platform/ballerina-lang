@@ -42,6 +42,7 @@ public enum DiagnosticCode {
     UNDEFINED_PARAMETER("undefined.parameter"),
     
     INCOMPATIBLE_TYPES("incompatible.types"),
+    INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),

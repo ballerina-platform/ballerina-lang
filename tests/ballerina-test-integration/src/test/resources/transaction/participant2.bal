@@ -22,6 +22,7 @@ endpoint http:ServiceEndpoint participant2EP {
 };
 
 @http:ServiceConfig {
+    basePath:"/"
 }
 service<http:Service> participant2 bind participant2EP {
     task1 (endpoint conn, http:Request req) {
