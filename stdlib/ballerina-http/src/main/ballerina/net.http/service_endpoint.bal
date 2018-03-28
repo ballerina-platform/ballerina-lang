@@ -4,7 +4,7 @@ package ballerina.net.http;
 /// HTTP Service Endpoint ///
 /////////////////////////////
 documentation {
-    Represents service endpoint.
+    Represents service endpoint where one or more services can be registered. so that ballerina program can offer service through this endpoint.
 
     F{{conn}}  - Service endpoint connection.
     F{{config}} - ServiceEndpointConfiguration configurations.

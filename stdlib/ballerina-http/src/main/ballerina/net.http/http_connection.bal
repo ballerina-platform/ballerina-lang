@@ -6,7 +6,7 @@ public const string CONTENT_LENGTH = "content-length";
 const string HEADER_KEY_LOCATION = "Location";
 
 documentation {
-    Represents HTTP connection.
+    Represents HTTP connection which can be used to comminicate either with client or with other service.
 }
 public struct Connection {
 }

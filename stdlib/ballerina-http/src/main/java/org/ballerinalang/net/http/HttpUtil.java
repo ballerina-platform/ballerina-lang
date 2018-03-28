@@ -538,7 +538,6 @@ public class HttpUtil {
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
-
         if (remoteSocketAddress != null && remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
             String remoteHost = inetSocketAddress.getHostName();
@@ -549,7 +548,6 @@ public class HttpUtil {
         serviceEndpoint.setRefField(HttpConstants.REMOTE_STRUCT_INDEX, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
-
         if (localSocketAddress != null && localSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
             String localHost = inetSocketAddress.getHostName();
