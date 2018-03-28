@@ -113,7 +113,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
                     zoneId.toString());
 
         } catch (DateTimeParseException e) {
-            throw new BallerinaException("parse date " + dateValue + " for the format " + pattern  + " failed ");
+            throw new BallerinaException("parse date \"" + dateValue + "\" for the format \"" + pattern  + "\" failed");
         } catch (IllegalArgumentException e) {
             throw new BallerinaException("invalid pattern for parsing " + pattern);
         }
@@ -208,7 +208,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         return dateTime.getDayOfWeek().toString();
     }
 
-    private ZonedDateTime getZonedDateTime(BStruct timeStruct) {
+    protected ZonedDateTime getZonedDateTime(BStruct timeStruct) {
         ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
         if (dateTime != null) {
             return dateTime;
