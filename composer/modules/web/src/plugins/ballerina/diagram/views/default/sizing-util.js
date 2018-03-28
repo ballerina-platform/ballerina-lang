@@ -1429,10 +1429,10 @@ class SizingUtil {
         let nodeHeight = viewState.bBox.h;
         let nodeWidth = viewState.bBox.w;
 
-        if (node.failedBody) {
-            nodeHeight += node.failedBody.viewState.components['statement-box'].h;
+        if (node.onRetryBody) {
+            nodeHeight += node.onRetryBody.viewState.components['statement-box'].h;
             nodeHeight -= this.config.compoundStatement.padding.top;
-            nodeWidth += node.failedBody.viewState.bBox.w;
+            nodeWidth += node.onRetryBody.viewState.bBox.w;
         }
 
         node.viewState.bBox.h = nodeHeight;
