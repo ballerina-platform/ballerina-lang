@@ -100,8 +100,6 @@ public class PassThroughHttpsTestCase {
 
     private static void setSslSystemProperties() {
         Properties systemProps = System.getProperties();
-        systemProps.put("javax.net.ssl.keyStorePassword", TestUtil.KEY_STORE_PASSWORD);
-        systemProps.put("javax.net.ssl.keyStore", TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         systemProps.put("javax.net.ssl.trustStore", TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
         systemProps.put("javax.net.ssl.trustStorePassword", TestUtil.KEY_STORE_PASSWORD);
         System.setProperties(systemProps);
