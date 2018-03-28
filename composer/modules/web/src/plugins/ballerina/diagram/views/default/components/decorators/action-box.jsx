@@ -90,26 +90,26 @@ class ActionBox extends React.Component {
             <text
                 width={iconSize}
                 height={iconSize}
+                x={bBox.x + horizontalGap}
+                y={y + iconSize}
                 fontFamily='font-ballerina'
                 fontSize={iconSize}
                 className={this.props.disableButtons.delete ? 'property-pane-action-button-delete-disabled'
                     : 'property-pane-action-button-delete'}
                 onClick={this.props.disableButtons.delete ? () => {} : this.props.onDelete}
-                x={bBox.x + horizontalGap}
-                y={y}
             >{ImageUtil.getCodePoint('delete')}
                 <title>Delete</title> </text> }
             <text
                 width={iconSize}
                 height={iconSize}
+                x={bBox.x + (iconSize * (numIcons - 1)) + (horizontalGap * numIcons)}
+                y={y + iconSize}
                 fontFamily='font-ballerina'
                 fontSize={iconSize}
                 className={this.props.disableButtons.jump ? 'property-pane-action-button-jump-disabled'
                     : 'property-pane-action-button-jump'}
-                x={bBox.x + (iconSize * (numIcons - 1)) + (horizontalGap * numIcons)}
-                y={y}
                 onClick={this.props.disableButtons.jump ? () => {} : this.props.onJumptoCodeLine}
-            >{ImageUtil.getCodePoint('code-design')}
+            >{ImageUtil.getCodePoint('code-view')}
                 <title>Jump to Source</title> </text>
         </g>);
     }

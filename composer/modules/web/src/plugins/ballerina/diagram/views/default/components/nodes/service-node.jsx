@@ -154,7 +154,7 @@ class ServiceNode extends React.Component {
                 component: PanelDecoratorButton,
                 props: {
                     key: `${model.getID()}-swagger-button`,
-                    icon: ImageUtil.getSVGIconString('swagger'),
+                    icon: ImageUtil.getCodePoint('swagger'),
                     tooltip: 'Swagger Source',
                     onClick: () => this.onSwaggerButtonClicked(),
                 },

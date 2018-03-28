@@ -42,6 +42,12 @@ $white:#fff;
   stroke-width: 0.75;
 }
 
+.statement-title-rect {
+  fill: $white;
+  stroke:$primary-line-bgcolor;
+  stroke-width: 0.75;
+}
+
 .flowchart-true-text,
 .flowchart-false-text,
 .action-invocation-text {
@@ -197,10 +203,7 @@ $white:#fff;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
         }
-        .statement-title-rect {
-          fill: #f9f9f9;
-          stroke:$primary-line-bgcolor;
-        }
+        
         .statement-title-text,
         .condition-text {
           text-anchor: middle;
@@ -268,6 +271,9 @@ $white:#fff;
           cursor: default;
         }
       }
+    }
+    .title-text, .condition-text{
+      fill: #555 !important;
     }
   }
   .bottom-right-controls-container {
@@ -492,8 +498,7 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .top-menu {
   position: fixed;
-  padding: 0 26px !important;
-  
+  padding: 3px 26px 6px !important;
 }
 
 .top-bar{

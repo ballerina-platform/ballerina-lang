@@ -18,3 +18,9 @@
 .statement-body {
     cursor: pointer;
 }
+
+.statement-text{
+    fill: #555;
+    font-weight:300;
+    font-size: 12px;
+}
