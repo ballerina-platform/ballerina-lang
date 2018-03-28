@@ -10,14 +10,18 @@
   "Import": {
     "before import": "",
     "after import": " ",
+    "before orgName": "",
+    "after orgName": "",
+    "before /": "",
+    "after /": "",
     "before packageName": "",
     "after packageName": "",
-    "before ;": "",
-    "after ;": "",
     "before as": " ",
     "after as": "",
     "before alias": " ",
-    "after alias": ""
+    "after alias": "",
+    "before ;": "",
+    "after ;": ""
   },
   "Identifier": {
     "before value": "",
