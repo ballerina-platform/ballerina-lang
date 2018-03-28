@@ -79,18 +79,14 @@ class FunctionNode extends React.Component {
             textClass: 'default-worker-icon',
         };
 
-        const connectors = this.props.model.body.statements
-            .filter((element) => {
-                const typeNode = _.get(element, 'variable.typeNode');
-                return typeNode && TreeUtil.isEndpointType(typeNode);
-            }).map((statement) => {
-                return (
-                    <EndpointDecorator
-                        model={statement}
-                        title={statement.variable.name.value}
-                        bBox={statement.viewState.bBox}
-                    />);
-            });
+        const connectors = this.props.model.endpointNodes.map((endpointNode) => {
+            return (
+                <EndpointDecorator
+                    model={endpointNode}
+                    title={endpointNode.name.value}
+                    bBox={endpointNode.viewState.bBox}
+                />);
+        });
         const nodeDetails = ({ x, y }) => (
             <ReceiverNode
                 x={x}
