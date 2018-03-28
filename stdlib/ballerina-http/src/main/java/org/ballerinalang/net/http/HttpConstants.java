@@ -152,6 +152,8 @@ public class HttpConstants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
     public static final String CONNECTION = "Connection";
+    public static final String REMOTE = "Remote";
+    public static final String LOCAL = "Local";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
     public static final String HTTP_HANDLE = "HttpHandle";
@@ -305,4 +307,16 @@ public class HttpConstants {
     public static final String CLIENT_EP_RETRY = "retry";
     public static final String RETRY_COUNT = "count";
     public static final String RETRY_INTERVAL = "interval";
+
+    public static final int SERVICE_ENDPOINT_PROTOCOL_INDEX = 0;
+
+    //Remote struct indexes
+    public static final int REMOTE_STRUCT_INDEX = 2;
+    public static final int REMOTE_HOST_INDEX = 0;
+    public static final int REMOTE_PORT_INDEX = 0;
+
+    //Local struct indexes
+    public static final int LOCAL_STRUCT_INDEX = 3;
+    public static final int LOCAL_HOST_INDEX = 0;
+    public static final int LOCAL_PORT_INDEX = 0;
 }
