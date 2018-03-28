@@ -28,10 +28,10 @@ endpoint endpoints:ApiEndpoint ep {
 // Authentication can be enabled by setting 'authentication:{enabled:true}' annotation attribute.
 // Authorization is based on scopes, where a scope maps to one or more groups.
 // For a user to access a resource, the user should be in the same groups as the scope.
-// To specify a scope of a resource, the annotation attribute 'scope' would be used.
+// To specify one or more scope of a resource, the annotation attribute 'scopes' can be used.
 @auth:Config {
     authentication:{enabled:true},
-    scope:"xxx"
+    scopes:["xxx"]
 }
 service<http:Service> echo bind ep {
     @http:ResourceConfig {
@@ -42,7 +42,7 @@ service<http:Service> echo bind ep {
     // The hello resource would inherit the authentication:{enabled:true} flag from the
     // service level, and override scope defined in service level (xxx) with scope2.
     @auth:Config {
-        scope:"scope2"
+        scopes:["scope2"]
     }
     hello (endpoint client, http:Request req) {
         http:Response res = {};
