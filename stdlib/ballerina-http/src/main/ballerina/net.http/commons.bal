@@ -115,7 +115,11 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, config);
         } else {
-            httpClients[i] = createHttpClient(uri, config);
+            if (config.cacheConfig.enabled) {
+                httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+            } else {
+                httpClients[i] = createHttpClient(uri, config);
+            }
         }
         httpClients[i].config = config;
         i = i+1;

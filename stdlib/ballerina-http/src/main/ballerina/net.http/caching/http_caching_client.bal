@@ -38,12 +38,14 @@ public enum CachingPolicy {
 }
 
 @Description {value:"CacheConfig struct is used for providing the caching configurations necessary for the HTTP caching client."}
+@Field {value:"enabled: Specifies whether HTTP caching is enabled. Caching is enabled by default."}
 @Field {value:"isShared: Specifies whether the HTTP caching client should behave as a public cache or a private cache"}
 @Field {value:"expiryTimeMillis: The number of milliseconds to keep an entry in the cache"}
 @Field {value:"capacity: The capacity of the cache"}
 @Field {value:"evictionFactor: The fraction of entries to be removed when the cache is full. The value should be between 0 (exclusive) and 1 (inclusive)."}
 @Field {value:"policy: Gives the user some control over the caching behaviour. By default, this is set to CACHE_CONTROL_AND_VALIDATORS. The default behaviour is to allow caching only when the Cache-Control header and either the ETag or Last-Modified header are present."}
 public struct CacheConfig {
+    boolean enabled;
     boolean isShared;
     int expiryTimeMillis;
     int capacity; // 8MB
@@ -54,6 +56,7 @@ public struct CacheConfig {
 @Description {value:"Initializes the CacheConfig struct to its default values"}
 @Param {value:"cacheConfig: The CacheConfig struct to be initialized"}
 public function <CacheConfig cacheConfig> CacheConfig () {
+    cacheConfig.enabled = true;
     cacheConfig.isShared = false;
     cacheConfig.expiryTimeMillis = 86400;
     cacheConfig.capacity = 8388608; // 8MB

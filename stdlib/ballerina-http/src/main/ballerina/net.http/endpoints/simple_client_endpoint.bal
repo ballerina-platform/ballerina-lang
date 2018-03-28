@@ -61,7 +61,7 @@ public struct SimpleClientEndpointConfiguration {
     Retry|null retry;
     Proxy|null proxy;
     ConnectionThrottling|null connectionThrottling;
-    CacheConfig|null cacheConfig;
+    CacheConfig cacheConfig;
 }
 
 documentation {
@@ -76,6 +76,7 @@ public function <SimpleClientEndpointConfiguration config> SimpleClientEndpointC
     config.forwarded = "disable";
     config.endpointTimeout = 60000;
     config.keepAlive = true;
+    config.cacheConfig = {};
 }
 
 documentation {
@@ -106,13 +107,11 @@ public function <SimpleClientEndpoint ep> init(SimpleClientEndpointConfiguration
     ep.httpEP.config.proxy = simpleConfig.proxy;
     ep.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 
-    match simpleConfig.cacheConfig {
-        CacheConfig cacheConfig => {
-            ep.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
-            ep.httpEP.httpClient = createHttpCachingClient(url, ep.httpEP.config, cacheConfig);
-        }
-
-        int|null => ep.httpEP.httpClient = createHttpClient(url, ep.httpEP.config);
+    if (simpleConfig.cacheConfig.enabled) {
+        ep.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
+        ep.httpEP.httpClient = createHttpCachingClient(url, ep.httpEP.config, ep.httpEP.config.cacheConfig);
+    } else {
+        ep.httpEP.httpClient = createHttpClient(url, ep.httpEP.config);
     }
 }
 

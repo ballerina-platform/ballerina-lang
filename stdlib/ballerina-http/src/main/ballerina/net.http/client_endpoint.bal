@@ -59,6 +59,7 @@ public struct TargetService {
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
+@Field {value:"cacheConfig: HTTP caching related configurations"}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
     int endpointTimeout;
@@ -73,7 +74,7 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     string|FailoverConfig lbMode;
-    CacheConfig|null cacheConfig;
+    CacheConfig cacheConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -86,6 +87,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.endpointTimeout = 60000;
     config.keepAlive = true;
     config.lbMode = ROUND_ROBIN;
+    config.cacheConfig = {};
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
@@ -106,9 +108,11 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
                     uri = uri.subString(0, lastIndex);
                 }
                 ep.config = config;
-                match config.cacheConfig {
-                    CacheConfig cacheConfig => ep.httpClient = createHttpCachingClient(uri, config, cacheConfig);
-                    int|null => ep.httpClient = createHttpClient(uri, config);
+
+                if (config.cacheConfig.enabled) {
+                    ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
+                } else{
+                    ep.httpClient = createHttpClient(uri, config);
                 }
             }
         }
@@ -136,9 +140,10 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
                     }
                 }   
                 if (httpClientRequired) {
-                    match config.cacheConfig {
-                        CacheConfig cacheConfig => ep.httpClient = createHttpCachingClient(uri, config, cacheConfig);
-                        int|null => ep.httpClient = createHttpClient(uri, config);
+                    if (config.cacheConfig.enabled) {
+                        ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
+                    } else{
+                        ep.httpClient = createHttpClient(uri, config);
                     }
                 } else {
                     ep.httpClient = createCircuitBreakerClient(uri, config);                    
@@ -253,9 +258,10 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
 
             HttpClient cbHttpClient = {};
-            match configuration.cacheConfig {
-                CacheConfig cacheConfig => cbHttpClient = createHttpCachingClient(uri, configuration, cacheConfig);
-                int| null => cbHttpClient = createHttpClient(uri, configuration);
+            if (configuration.cacheConfig.enabled) {
+                cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else{
+                cbHttpClient = createHttpClient(uri, configuration);
             }
 
             time:Time circuitStartTime = time:currentTime();
@@ -288,9 +294,10 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         }
         int | null => {
             //remove following once we can ignore
-            match configuration.cacheConfig {
-                CacheConfig cacheConfig => return createHttpCachingClient(uri, configuration, cacheConfig);
-                int| null => return createHttpClient(uri, configuration);
+            if (configuration.cacheConfig.enabled) {
+                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else {
+                return createHttpClient(uri, configuration);
             }
         }
     }
