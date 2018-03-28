@@ -1086,7 +1086,7 @@ class PositioningUtil {
      * @param {object} node Transaction object
      */
     positionTransactionNode(node) {
-        const failedBody = node.failedBody;
+        const onRetryBody = node.onRetryBody;
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
@@ -1104,13 +1104,13 @@ class PositioningUtil {
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
         }
 
-        // Set the position of the failed body
-        if (failedBody) {
-            failedBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
+        // Set the position of the retry body
+        if (onRetryBody) {
+            onRetryBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
                 transactionBody.viewState.bBox.w;
-            failedBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
+            onRetryBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
                 transactionBody.viewState.components['statement-box'].h - this.config.compoundStatement.padding.top;
-            this.positionCompoundStatementComponents(failedBody);
+            this.positionCompoundStatementComponents(onRetryBody);
         }
     }
 
@@ -1126,7 +1126,7 @@ class PositioningUtil {
      *
      * @param {object} node Transaction Failed object
      */
-    positionFailedNode(node) {
+    positionNode(node) {
         // Not implemented.
     }
 
