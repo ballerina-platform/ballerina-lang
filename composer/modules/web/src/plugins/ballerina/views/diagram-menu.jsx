@@ -31,10 +31,11 @@ class DiagramMenu extends React.Component {
 
     render() {
         return (
-            <Menu style={{ position: 'fixed', width: this.props.width }}>
+            <Menu className='top-menu' style={{ width: this.props.width }}>
                 { !this.props.fitToWidth &&
                 <Menu.Item>
                     <Input className='package-input' icon='fw fw-package' iconPosition='left' placeholder='Package...' />
+                    <AddDefinitionMenu model={this.props.model} />
                 </Menu.Item>
                 }
                 { !this.props.fitToWidth &&
@@ -51,11 +52,10 @@ class DiagramMenu extends React.Component {
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: true }); }}>
                         <Icon name='resize horizontal menu-icon' />
                     </Menu.Item>
-                    <AddDefinitionMenu model={this.props.model} />
                 </Menu.Menu>
                 }
                 { this.props.fitToWidth &&
-                <Menu.Menu position='right'>
+                <Menu.Menu position='left'>
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }} className='menu-button'>
                         <Icon name='fw fw-edit' />
                         Edit

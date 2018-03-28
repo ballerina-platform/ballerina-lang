@@ -49,7 +49,10 @@ $panel-body-border-color: $panel-header-border-color;
 $panel-body-dropzone-bgcolor: #fff;
 
 $package-configs-bgcolor: #eee;
-$worker-life-line-color: #000;
+$worker-color: #0070af;
+$connector-color:#26A69A;
+$package-definition-color: #fff;
+
 $package-definition-color: #000;
 
 $btn-primary-bgcolor: $brand-primary;
@@ -68,9 +71,9 @@ $modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
 $modal-btn-primary-hover-color: #fff;
 
 $primary-line-bgcolor: #666769;
-$default-worker-lifeline-color: #0070af;
-$worker-lifeline-color: #0070af;
-$connector-lifeline-color: #26A69A;
+$default-worker-lifeline-color: $worker-color;
+$worker-lifeline-color: $worker-color;
+$connector-lifeline-color: $connector-color;
 
 $annotation-wrapper-bgcolor: #eee;
 $annotation-wrapper-text-color: #666769;
