@@ -21,21 +21,85 @@ endpoint http:ServiceEndpoint participant1EP {
     port:8889
 };
 
+endpoint http:ClientEndpoint participant2EP {
+    targets: [{uri: "http://localhost:8890"}]
+};
+
 @http:ServiceConfig {
+    basePath:"/"
 }
 service<http:Service> participant1 bind participant1EP {
+
+    getState(endpoint ep, http:Request req) {
+        string result = io:sprintf("abortedByParticipant=%b,abortedFunctionCalled=%b,committedFunctionCalled=%s," +
+                                    "localParticipantAbortedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s",
+                                    [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
+                                    localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled]);
+
+        http:Response res = {};
+        res.setStringPayload(result);
+        _ = ep -> respond(res);
+    }
+
+    testRemoteParticipantAbort(endpoint ep, http:Request req) {
+        reset();
+        transaction with oncommit=onCommit, onabort=onAbort {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+            }
+            abortedByParticipant = true;
+            abort;
+        }
+        http:Response res = {statusCode: 200};
+        _ = ep -> respond(res);
+    }
+
+    noOp(endpoint ep, http:Request req) {
+        reset();
+        transaction with oncommit=onCommit, onabort=onAbort {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+            }
+        }
+        http:Response res = {statusCode: 200};
+        _ = ep -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        transactionInfectable: false
+    }
+    nonInfectable(endpoint ep, http:Request req) {
+        reset();
+        transaction with oncommit=onCommit, onabort=onAbort {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+                abort;
+            }
+        }
+        http:Response res = {statusCode: 200};
+        _ = ep -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        transactionInfectable: true
+    }
+    infectable(endpoint ep, http:Request req) {
+        reset();
+        transaction with oncommit=onCommit, onabort=onAbort {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+                abort;
+            }
+        }
+        http:Response res = {statusCode: 200};
+        _ = ep -> respond(res);
+    }
 
     @http:ResourceConfig {
         path:"/"
     }
     member (endpoint conn, http:Request req) {
-        endpoint http:ClientEndpoint ep {
-            targets: [{uri: "http://localhost:8890/participant2"}]
-        };
+        reset();
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
         transaction {
-            var forwardResult = ep -> forward("/task1", req);
+            var forwardResult = participant2EP -> forward("/task1", req);
             match forwardResult {
                 http:HttpConnectorError err => {
                     io:print("Participant1 could not send get request to participant2/task1. Error:");
@@ -43,7 +107,7 @@ service<http:Service> participant1 bind participant1EP {
                     abort;
                 }
                 http:Response forwardRes => {
-                    var getResult = ep -> get("/task2", newReq);
+                    var getResult = participant2EP -> get("/task2", newReq);
                     match getResult {
                         http:HttpConnectorError err => {
                             io:print("Participant1 could not send get request to participant2/task2. Error:");
@@ -80,4 +144,34 @@ function sendErrorResponseToInitiator(http:ServiceEndpoint conn) {
         }
         null => return;
     }
+}
+
+function onAbort() {
+    abortedFunctionCalled = true;
+}
+
+function onCommit() {
+    committedFunctionCalled = true;
+}
+
+function onLocalParticipantAbort() {
+    localParticipantAbortedFunctionCalled = true;
+}
+
+function onLocalParticipantCommit() {
+    localParticipantCommittedFunctionCalled = true;
+}
+
+boolean abortedByParticipant;
+boolean abortedFunctionCalled;
+boolean committedFunctionCalled;
+boolean localParticipantAbortedFunctionCalled;
+boolean localParticipantCommittedFunctionCalled;
+
+function reset() {
+    abortedByParticipant = false;
+    abortedFunctionCalled = false;
+    committedFunctionCalled = false;
+    localParticipantAbortedFunctionCalled = false;
+    localParticipantCommittedFunctionCalled = false;
 }
