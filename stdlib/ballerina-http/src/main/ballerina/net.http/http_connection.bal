@@ -5,7 +5,40 @@ public const string CONTENT_LENGTH = "content-length";
 
 const string HEADER_KEY_LOCATION = "Location";
 
+documentation {
+    Represents HTTP connection.
+
+    F{{remote}}  - Circuit Breaker start time.
+                             The threshold should be a value between 0 and 1.
+    F{{local}} - Total request count from the start.
+    F{{protocol}} - The protocol associated with the connection.
+}
 public struct Connection {
+    Remote remote;
+    Local local;
+    string protocol;
+}
+
+documentation {
+    Represents the details of remote address.
+
+    F{{host}}  - The remote server host.
+    F{{port}} - The remote server port.
+}
+public struct Remote {
+    string host;
+    int port;
+}
+
+documentation {
+    Represents the details of local address.
+
+    F{{host}}  - The local server host.
+    F{{port}} - The local server port.
+}
+public struct Local {
+    string host;
+    int port;
 }
 
 //////////////////////////////

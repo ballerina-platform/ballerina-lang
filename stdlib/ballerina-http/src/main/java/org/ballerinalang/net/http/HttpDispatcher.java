@@ -185,8 +185,8 @@ public class HttpDispatcher {
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
 
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, httpResource);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();

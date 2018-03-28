@@ -68,6 +68,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -514,7 +515,44 @@ public class HttpUtil {
         }
     }
 
-    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
+    /**
+     * Populate connection information.
+     *
+     * @param connection Represent an connection struct
+     * @param cMsg Represent carbon message.
+     * @param httpResource Represent carbon Http Resource.
+     */
+    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg, HttpResource httpResource) {
+        BStruct remote = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
+        BStruct local = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
+
+        Object remoteSocketAddress = cMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
+
+        if (remoteSocketAddress != null && remoteSocketAddress instanceof InetSocketAddress) {
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
+            String remoteHost = inetSocketAddress.getHostName();
+            long remotePort = inetSocketAddress.getPort();
+            remote.setStringField(HttpConstants.REMOTE_HOST_INDEX, remoteHost);
+            remote.setIntField(HttpConstants.REMOTE_PORT_INDEX, remotePort);
+        }
+        connection.setRefField(HttpConstants.REMOTE_STRUCT_INDEX, remote);
+
+        Object localSocketAddress = cMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
+
+        if (localSocketAddress != null && localSocketAddress instanceof InetSocketAddress) {
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
+            String localHost = inetSocketAddress.getHostName();
+            long localPort = inetSocketAddress.getPort();
+            local.setStringField(HttpConstants.LOCAL_HOST_INDEX, localHost);
+            local.setIntField(HttpConstants.LOCAL_PORT_INDEX, localPort);
+        }
+        connection.setRefField(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        connection.setStringField(HttpConstants.CONNECTION_PROTOCOL_INDEX,
+                (String) cMsg.getProperty(HttpConstants.PROTOCOL));
         connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
     }
 
