@@ -52,3 +52,61 @@ function testElvisRefTypeNestedCaseTwo () returns (int|string) {
     return b;
 }
 
+struct Person {
+    string name;
+    int age;
+}
+
+function testElvisStructTypePositive () returns (string, int) {
+    Person|null xP = {name:"Jim", age:100};
+    Person dP = {name:"default", age:0};
+    Person b = {};
+    b = xP ?: dP;
+    return (b.name, b.age);
+}
+
+function testElvisStructTypeNegative () returns (string, int) {
+    Person|null xP = null;
+    Person dP = {name:"default", age:0};
+    Person b = {};
+    b = xP ?: dP;
+    return (b.name, b.age);
+}
+
+function testElvisTupleTypePositive () returns (string, int) {
+    (string, int)|null xT = ("Jack", 23);
+    (string, int) dT = ("default", 0);
+    var rT = xT ?: dT;
+    return rT;
+}
+
+function testElvisTupleTypeNegative () returns (string, int) {
+    (string, int)|null xT = null;
+    (string, int) dT = ("default", 0);
+    var rT = xT ?: dT;
+    return rT;
+}
+
+function testElvisNestedTupleTypeCaseOne () returns (string, int) {
+    (string, int)|null xT = ("Jack", 23);
+    (string, int)|null x2T = ("Jill", 77);
+    (string, int) dT = ("default", 0);
+    var rT = xT ?: (x2T ?: dT);
+    return rT;
+}
+
+function testElvisNestedTupleTypeCaseTwo () returns (string, int) {
+    (string, int)|null xT = null;
+    (string, int)|null x2T = ("Jill", 77);
+    (string, int) dT = ("default", 0);
+    var rT = xT ?: (x2T ?: dT);
+    return rT;
+}
+
+function testElvisNestedTupleTypeCaseThree () returns (string, int) {
+    (string, int)|null xT = null;
+    (string, int)|null x2T = null;
+    (string, int) dT = ("default", 0);
+    var rT = xT ?: (x2T ?: dT);
+    return rT;
+}

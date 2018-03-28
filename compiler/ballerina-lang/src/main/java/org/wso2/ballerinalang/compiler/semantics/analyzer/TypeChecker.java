@@ -665,7 +665,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (rhsReturnType == symTable.errType || lhsReturnType == symTable.errType) {
             resultTypes = Lists.of(symTable.errType);
         } else if (expTypes.get(0) == symTable.noType) {
-            if (types.isAssignable(rhsReturnType, lhsReturnType)) {
+            if (types.isSameType(rhsReturnType, lhsReturnType)) {
                 resultTypes = Lists.of(lhsReturnType);
             } else {
                 dlog.error(elvisExpr.rhsExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsReturnType, rhsReturnType);
