@@ -220,8 +220,8 @@ public class TimeTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*parse date 2017-06-26T09:46:22.444-0500 for the format "
-                  + "yyyy-MM-dd failed.*")
+          expectedExceptionsMessageRegExp = ".*parse date \"2017-06-26T09:46:22.444-0500\" for the format "
+                  + "\"yyyy-MM-dd\" failed.*")
     public void testParseTimenFormatMismatch() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testParseTimenFormatMismatch", args);
