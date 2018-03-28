@@ -134,9 +134,10 @@ class DefaultNodeFactory {
     }
 
     createWSServiceDef() {
-        const node = getStaticDefaultNode('createWSServiceDef');
-        node.setFullPackageName('ballerina/net.ws');
-        return node;
+        const service = getStaticDefaultNode('createWSServiceDef');
+        const endpoint = getStaticDefaultNode('createWSEndpointDef');
+        service.setFullPackageName('ballerina/net.http');
+        return [ endpoint, service];
     }
 
     createJMSServiceDef() {
