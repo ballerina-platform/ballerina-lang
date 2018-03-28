@@ -131,12 +131,18 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
             properties.put(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        if (!isInfectable || httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID) == null ||
-                httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL) == null) {
+        String txnId = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID);
+        String registerAtUrl = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL);
+        //Return 500 if txn context is received when transactionInfectable=false
+        if (!isInfectable && txnId != null) {
+            throw new BallerinaConnectorException("Cannot create transaction context: " +
+                    "resource is not transactionInfectable");
+        }
+        if (isInfectable && txnId != null && registerAtUrl != null) {
+            properties.put(Constants.GLOBAL_TRANSACTION_ID, txnId);
+            properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;
         }
-        properties.put(Constants.GLOBAL_TRANSACTION_ID, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID));
-        properties.put(Constants.TRANSACTION_URL, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL));
         return properties;
     }
 

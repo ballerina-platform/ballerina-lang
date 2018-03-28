@@ -72,26 +72,30 @@ class DefinitionViewMenu extends React.Component {
             endpoints = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isEndpoint(node); });
         }
         return (
-            <Popup
-                trigger={
-                    <Button as='div' labelPosition='right'>
-                        <Button icon>
+            <Popup 
+                trigger={ 
+                    <Button as='div' labelPosition='right' className='top-bar'>
+                        <Button icon divided>
                             <Icon name={'fw fw-struct'} />
                         </Button>
+                        <Label>Structs</Label>
                         <Label as='a' basic pointing='left'>{structs.length}</Label>
                         <Button icon>
                             <Icon name={'fw fw-type-converter'} />
                         </Button>
+                        <Label>Transformers</Label>
                         <Label as='a' basic pointing='left'>{transformers.length}</Label>
                         <Button icon>
                             <Icon name={'fw fw-endpoint'} />
                         </Button>
+                        <Label>Endpoints</Label>
                         <Label as='a' basic pointing='left'>{endpoints.length}</Label>
                     </Button>
                     }
                 flowing
                 hoverable
                 wide
+                position='bottom center'
                 open={this.state.isOpen}
                 onClose={this.handleClose}
                 onOpen={this.handleOpen}
@@ -99,7 +103,6 @@ class DefinitionViewMenu extends React.Component {
                 {
                     <Grid divided columns={3}>
                         <Grid.Row>
-                            { structs.length > 0 &&
                             <Grid.Column>
                                 <Header as='h5'>
                                     <Icon size='mini' name={'fw fw-struct'} />
@@ -112,8 +115,6 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                            }
-                            { transformers.length > 0 &&
                             <Grid.Column stretched>
                                 <Header as='h5'>
                                     <Icon size='mini' name={'fw fw-type-converter'} />
@@ -127,8 +128,6 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                            }
-                            { endpoints.length > 0 &&
                             <Grid.Column>
                                 <Header as='h5'>
                                     <Icon size='mini' name={'fw fw-endpoint'} />
@@ -141,7 +140,6 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                            }
                         </Grid.Row>
                     </Grid>
             }

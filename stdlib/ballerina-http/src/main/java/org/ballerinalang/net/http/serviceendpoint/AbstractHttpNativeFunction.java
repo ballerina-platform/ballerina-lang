@@ -38,4 +38,8 @@ public abstract class AbstractHttpNativeFunction extends BlockingNativeCallableU
         return (LinkedHashSet<FilterHolder>) serviceEndpoint.getNativeData(HttpConstants.FILTERS);
     }
 
+    protected boolean isConnectorStarted(Struct serviceEndpoint) {
+        return serviceEndpoint.getNativeData(HttpConstants.CONNECTOR_STARTED) != null;
+    }
+
 }

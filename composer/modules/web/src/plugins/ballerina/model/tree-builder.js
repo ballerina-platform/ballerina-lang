@@ -134,6 +134,11 @@ class TreeBuilder {
                     node.userDefinedAlias = true;
                 }
             }
+            if (node.packageName.length === 2 
+                && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator' ) {
+                
+                node.isInternal = true
+            }
         }
 
         if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
