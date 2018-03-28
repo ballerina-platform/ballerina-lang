@@ -166,6 +166,14 @@ Literal
    | <value>
    ;
 
+Match
+   : match <expression.source> { <patternClauses>* }
+   ;
+
+MatchPatternClause
+   : <withoutCurlies?> <variableNode.source> =>   <statement.source>
+   :                   <variableNode.source> => { <statement.source> }
+
 Next
    : next ;
    ;

@@ -481,3 +481,17 @@ $diagram-background: #f9f9f9;
   margin-top: 6px;
   padding-right: 8px;
 }
+
+.definition-icon {
+  opacity:0 !important;
+  
+}
+
+.definition-name:hover .definition-icon{
+  padding-left: 5px;
+  opacity:1 !important;
+}
+
+.definition-name {
+  cursor: pointer;
+}
