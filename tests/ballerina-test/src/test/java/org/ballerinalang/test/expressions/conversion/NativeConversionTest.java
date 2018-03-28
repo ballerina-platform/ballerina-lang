@@ -93,7 +93,7 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(2), 91);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMapToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStruct");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -173,8 +173,7 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(1), 79);
     }
 
-    @Test (enabled = false)
-    //TODO enable this. 
+    @Test
     public void testStructToJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -187,7 +186,7 @@ public class NativeConversionTest {
         Assert.assertEquals(parent.get("name").stringValue(), "Parent");
         Assert.assertEquals(parent.get("age").longValue(), 50);
         Assert.assertTrue(parent.get("parent").isNull());
-        Assert.assertTrue(parent.get("info").isNull());
+        Assert.assertEquals(parent.get("info").toString(), "{}");
         Assert.assertTrue(parent.get("address").isNull());
         Assert.assertTrue(parent.get("marks").isNull());
 
@@ -208,15 +207,9 @@ public class NativeConversionTest {
         Assert.assertEquals(marks.get(2).longValue(), 72);
     }
 
-    @Test(description = "Test converting a struct to a struct")
-    public void testStructToStruct() {
-        BAssertUtil.validateError(negativeResult, 0,
-                "incompatible types: expected 'Student', found 'Student|error'", 26, 17);
-    }
-
     @Test(description = "Test converting a map to json")
     public void testMapToJsonConversionError() {
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'map' cannot be convert to 'json'", 36, 15);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'map' cannot be convert to 'json'", 36, 15);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -226,7 +219,7 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testIncompatibleMapToStruct");
     }
 
-    @Test(description = "Test converting a map with missing field to a struct")
+    @Test(description = "Test converting a map with missing field to a struct", enabled = false)
     public void testMapWithMissingFieldsToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapWithMissingFieldsToStruct");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -246,13 +239,10 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleArrayToStruct");
     }
 
-    // TODO With the latest changes introduced to BLangVM, this test does not return an error
-    // TODO Because Student struct is compatible with Person struct.
-//    @Test(description = "Test converting a map with incompatible inner struct to a struct",
-//            expectedExceptions = { BLangRuntimeException.class },
-//            expectedExceptionsMessageRegExp = ".*cannot cast 'map' to type 'Employee:
-// error while mapping 'partner':" +
-//            " incompatible types: expected 'Person', found 'Student'.*")
+    @Test(description = "Test converting a map with incompatible inner struct to a struct",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Employee: error while mapping" +
+                    " 'partner': incompatible types: expected 'Person', found 'Student'.*")
     public void testMapWithIncompatibleStructToStruct() {
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleStructToStruct");
     }
@@ -265,12 +255,13 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testIncompatibleJsonToStruct");
     }
 
-    @Test(description = "Test converting a incompatible JSON to a struct",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*cannot convert 'json' to type 'Person': error while mapping " +
-                    "'parent': no such field found in json.*")
+    @Test(description = "Test converting a incompatible JSON to a struct")
     public void testJsonToStructWithMissingFields() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructWithMissingFields");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", age:25, parent:null, " +
+                "info:{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " +
+                "marks:[87, 94, 72], a:null, score:0.0, alive:false, children:null}");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct",
@@ -315,9 +306,10 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
     }
 
-    @Test(description = "Test converting a struct with map of blob to a JSON")
+    // TODO: certain types can be validated during the compile time. Validate those and throw semantic errors
+    @Test(description = "Test converting a struct with map of blob to a JSON", enabled = false)
     public void testStructWithIncompatibleTypeToJson() {
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: 'Info' cannot be convert to 'json'", 48, 10);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'Info' cannot be convert to 'json'", 48, 10);
     }
 
     @Test(description = "Test converting a JSON array to any array")
@@ -385,14 +377,14 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array",
             expectedExceptions = { BLangRuntimeException.class }/*,
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*"*/)
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*"*/, enabled = false)
     //TODO fix expectedExceptionsMessageRegExp
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test(description = "Test converting a JSON null to string array")
+    @Test(description = "Test converting a JSON null to string array", enabled = false)
     public void testNullJsonArrayToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonArrayToArray");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -410,17 +402,14 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testNonArrayJsonToArray");
     }
 
-    @Test(description = "Test converting a null JSON to struct", expectedExceptions = { BLangRuntimeException.class }/*,
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*"*/)
-    //TODO fix expectedExceptionsMessageRegExp
+    @Test(description = "Test converting a null JSON to struct", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*", enabled = false)
     public void testNullJsonToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToStruct");
-        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test converting a null map to Struct", expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*", enabled = false)
-    //TODO enable test
     public void testNullMapToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullMapToStruct");
         Assert.assertNull(returns[0]);
@@ -428,7 +417,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a null Struct to json", expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*", enabled = false)
-    //TODO enable test
     public void testNullStructToJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullStructToJson");
         Assert.assertNull(returns[0]);
@@ -436,7 +424,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a null Struct to map", expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*", enabled = false)
-    //TODO enable test
     public void testNullStructToMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullStructToMap");
         Assert.assertNull(returns[0]);
@@ -460,7 +447,7 @@ public class NativeConversionTest {
     }
 
     // Todo - Fix casting issue
-    @Test
+    @Test(enabled = false)
     public void testStructToMapWithRefTypeArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToMapWithRefTypeArray");
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
@@ -495,21 +482,29 @@ public class NativeConversionTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\",\"Doe\"]}");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testEmptyJSONtoStructWithDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "cannot convert 'json' to type " +
-                "'StructWithDefaults': error while mapping 's': no such field found in json");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "string value");
+        Assert.assertEquals(((BStruct) returns[0]).getIntField(0), 45);
+        Assert.assertEquals(((BStruct) returns[0]).getFloatField(0), 5.3);
+        Assert.assertEquals(((BStruct) returns[0]).getBooleanField(0), 1);
+        Assert.assertEquals(((BStruct) returns[0]).getRefField(0), null);
+        Assert.assertEquals(((BStruct) returns[0]).getBlobField(0).length, 0);
     }
 
-    @Test
+    @Test//(enabled = false)
     public void testEmptyJSONtoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithoutDefaults");
 
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "cannot convert 'json' to type " +
-                "'StructWithoutDefaults': error while mapping 's': no such field found in json");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "");
+        Assert.assertEquals(((BStruct) returns[0]).getIntField(0), 0);
+        Assert.assertEquals(((BStruct) returns[0]).getFloatField(0), 0.0);
+        Assert.assertEquals(((BStruct) returns[0]).getBooleanField(0), 0);
+        Assert.assertEquals(((BStruct) returns[0]).getRefField(0), null);
+        Assert.assertEquals(((BStruct) returns[0]).getBlobField(0).length, 0);
     }
 
     @Test
@@ -534,32 +529,12 @@ public class NativeConversionTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
     }
     
-    @Test
+    @Test(enabled = false)
     public void testErrorOnConversions() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testErrorOnConversions");
         Assert.assertNull(returns[0]);
         Assert.assertNull(returns[1]);
         Assert.assertNull(returns[2]);
-    }
-    
-    @Test
-    public void testNullStringToOtherTypes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNullStringToOtherTypes");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'string' cannot be converted to 'int'");
-
-        Assert.assertTrue(returns[2] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0);
-        Assert.assertEquals(((BStruct) returns[3]).getStringField(0), "'string' cannot be converted to 'float'");
-
-        Assert.assertTrue(returns[4] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
-        Assert.assertNull(returns[5]);
-
-        Assert.assertNull(returns[6]);
-        
-        //Assert.assertNull(returns[8]);  //TODO check this
     }
 
     @Test

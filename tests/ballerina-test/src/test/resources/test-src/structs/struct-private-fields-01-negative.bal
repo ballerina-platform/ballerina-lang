@@ -18,12 +18,12 @@ public function testRuntimeStructEqNegative() returns (string) {
     foo:user u = foo:newUser();
 
     // This is a safe cast
-    var uA = (userA) u;
+    var uA =? <userA> u;
 
     // This is a unsafe cast
-    var uB, err = (userB) uA;
-    if (err != null) {
-        return err.message;
+    var uB = <userB> uA;
+    match uB {
+        error err => return err.message;
+        userB user => return user.zipcode;
     }
-    return uB.zipcode;
 }

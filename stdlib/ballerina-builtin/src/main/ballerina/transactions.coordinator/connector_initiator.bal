@@ -55,15 +55,15 @@ function <InitiatorClient client> register (string transactionId,
     RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
     regReq.participantProtocols = participantProtocols;
 
-    json j = <json, regRequestToJson()>regReq;
+    json reqPayload = regRequestToJson(regReq);
     http:Request req = {};
-    req.setJsonPayload(j);
-    var res =? httpClient -> post("", req);
+    req.setJsonPayload(reqPayload);
+    http:Response res =? httpClient -> post("", req);
     int statusCode = res.statusCode;
     if (statusCode != 200) {
         error err = {message:"Registration for transaction: " + transactionId + " failed"};
         return err;
     }
-    var payload =? res.getJsonPayload();
-    return <RegistrationResponse, jsonToRegResponse()>(payload);
+    json resPayload =? res.getJsonPayload();
+    return jsonToRegResponse(resPayload);
 }

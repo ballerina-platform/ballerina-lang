@@ -84,7 +84,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
@@ -109,6 +108,7 @@ import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
+import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -187,7 +187,6 @@ public class CPU {
             int[] operands = instruction.getOperands();
             ctx.ip++;
             WorkerData sf = ctx.workerLocal;
-
             switch (opcode) {
                 case InstructionCodes.ICONST:
                     cpIndex = operands[0];
@@ -362,8 +361,9 @@ public class CPU {
                 case InstructionCodes.TYPEOF:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.refRegs[i] == null) {
-                        handleNullRefError(ctx);
+                    BValue val = sf.refRegs[i];
+                    if (val == null || (val instanceof BString && ((BString) val).value() == null)) {
+                        sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
                         break;
                     }
                     sf.refRegs[j] = new BTypeDescValue(sf.refRegs[i].getType());
@@ -529,6 +529,7 @@ public class CPU {
                 case InstructionCodes.JSON2B:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.IS_ASSIGNABLE:
+                case InstructionCodes.CHECK_CONVERSION:
                     execTypeCastOpcodes(ctx, sf, opcode, operands);
                     break;
 
@@ -1180,7 +1181,6 @@ public class CPU {
         int i;
         int j;
         int k;
-        int lvIndex; // Index of the local variable
         int fieldIndex;
 
         BIntArray bIntArray;
@@ -1798,7 +1798,6 @@ public class CPU {
     private static void execTypeCastOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
-        int k;
         int cpIndex; // Index of the constant pool
 
         BRefType bRefTypeValue;
@@ -1848,12 +1847,12 @@ public class CPU {
             case InstructionCodes.ANY2B:
                 i = operands[0];
                 j = operands[1];
-                    sf.intRegs[j] = ((BBoolean) sf.refRegs[i]).booleanValue() ? 1 : 0;
+                sf.intRegs[j] = ((BBoolean) sf.refRegs[i]).booleanValue() ? 1 : 0;
                 break;
             case InstructionCodes.ANY2L:
                 i = operands[0];
                 j = operands[1];
-                    sf.byteRegs[j] = ((BBlob) sf.refRegs[i]).blobValue();
+                sf.byteRegs[j] = ((BBlob) sf.refRegs[i]).blobValue();
                 break;
             case InstructionCodes.ANY2JSON:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeJSON);
@@ -1884,12 +1883,11 @@ public class CPU {
 
                 bRefTypeValue = sf.refRegs[i];
 
-                if (bRefTypeValue == null) {
-                    sf.refRegs[j] = null;
-                } else if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
+                if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
-                    handleTypeCastError(ctx, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
+                            typeRefCPEntry.getType());
                 }
                 break;
             case InstructionCodes.IS_ASSIGNABLE:
@@ -1928,6 +1926,12 @@ public class CPU {
             case InstructionCodes.NULL2S:
                 j = operands[1];
                 sf.stringRegs[j] = null;
+                break;
+            case InstructionCodes.CHECK_CONVERSION:
+                i = operands[0];
+                j = operands[1];
+                bRefTypeValue = sf.refRegs[i];
+                sf.refRegs[j] = JSONUtils.convertUnionTypeToJSON(bRefTypeValue);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2429,7 +2433,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
-            BType targetType) {
+                                               BType targetType) {
         int i = operands[0];
         int j = operands[1];
 
@@ -2456,13 +2460,13 @@ public class CPU {
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
-            String sourceTypeName, String targetTypeName) {
+                                                  String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
-            int errorRegIndex, String errorMessage) {
+                                                  int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         if (errorRegIndex == -1) {
@@ -2530,14 +2534,13 @@ public class CPU {
         }
 
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        boolean isInitiator = true;
         if (localTransactionInfo == null) {
             String globalTransactionId;
             String protocol = null;
             String url = null;
             if (isGlobalTransactionEnabled) {
-                BValue[] returns = notifyTransactionBegin(ctx, null, null, transactionBlockId,
-                        TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
+                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
+                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
                 BStruct txDataStruct = (BStruct) returns[0];
                 globalTransactionId = txDataStruct.getStringField(1);
                 protocol = txDataStruct.getStringField(2);
@@ -2549,10 +2552,8 @@ public class CPU {
             ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
             if (isGlobalTransactionEnabled) {
-                isInitiator = false;
-                notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
-                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol(),
-                        isInitiator);
+                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
+                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
             }
         }
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
@@ -2561,7 +2562,7 @@ public class CPU {
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
                                          int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
+        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
             if (ctx.getError() == null) {
                 ctx.ip = startOfNoThrowEndIP;
             } else {
@@ -2582,24 +2583,23 @@ public class CPU {
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionFailed(transactionBlockId);
+                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
                 if (notifyCoordinator) {
                     if (isGlobalTransactionEnabled) {
-                        notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                                transactionBlockId);
                     } else {
                         TransactionResourceManager.getInstance()
                                 .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
                     }
                 }
             } else if (status == TransactionStatus.ABORTED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionAbort();
-                if (notifyCoordinator) {
-                    if (isGlobalTransactionEnabled) {
-                        notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-                    } else {
-                        TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                    }
+                if (isGlobalTransactionEnabled) {
+                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                            transactionBlockId);
+                } else {
+                    TransactionResourceManager.getInstance()
+                            .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
                 }
             } else if (status == TransactionStatus.SUCCESS.value()) {
                 //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
@@ -2611,9 +2611,12 @@ public class CPU {
                             .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                notifyCoordinator = localTransactionInfo.onTransactionEnd(transactionBlockId);
-                if (notifyCoordinator && isGlobalTransactionEnabled) {
-                    notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
+                if (isGlobalTransactionEnabled) {
+                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
+                            transactionBlockId);
+                }
+                if (isOuterTx) {
                     BLangVMUtils.removeTransactionInfo(ctx);
                 }
             }
@@ -2621,43 +2624,6 @@ public class CPU {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
             handleError(ctx);
         }
-    }
-
-    private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
-                                            int transactionBlockId, String protocol, boolean isInitiator) {
-        BValue[] args = {
-                new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
-                new BString(protocol)
-        };
-        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        if (isInitiator) {
-            if (returns[1] != null) {
-                throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
-            }
-
-        }
-        return returns;
-    }
-
-    private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
-                                             int transactionBlockId) {
-        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
-        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
-        if (returns[1] != null) {
-            throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
-        }
-    }
-
-    private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
-                                        int transactionBlockId) {
-        BValue[] args = { new BString(globalTransactionId), new BInteger(transactionBlockId) };
-        invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
-    }
-
-    private static BValue[] invokeCoordinatorFunction(WorkerExecutionContext ctx, String functionName, BValue[] args) {
-        PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
-        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
-        return BLangFunctions.invokeCallable(functionInfo, args);
     }
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
@@ -2688,13 +2654,12 @@ public class CPU {
         BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-
         return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, flags);
     }
 
     @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-            BType[] types, int[] regs) {
+                                         BType[] types, int[] regs) {
         BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
         dataChannel.putData(vals);
@@ -2741,7 +2706,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-            BType[] types, int[] regs) {
+                                               BType[] types, int[] regs) {
         BRefType[] passedInValues = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValues != null) {
@@ -2760,23 +2725,23 @@ public class CPU {
             int regIndex = argRegs[i];
             BType paramType = paramTypes[i];
             switch (paramType.getTag()) {
-            case TypeTags.INT_TAG:
-                currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
-                break;
-            case TypeTags.FLOAT_TAG:
-                currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
-                break;
-            case TypeTags.STRING_TAG:
-                currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
-                break;
-            case TypeTags.BLOB_TAG:
-                currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
-                break;
-            default:
-                currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
+                case TypeTags.INT_TAG:
+                    currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                case TypeTags.BLOB_TAG:
+                    currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
+                    break;
+                default:
+                    currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
             }
         }
     }
@@ -2850,7 +2815,8 @@ public class CPU {
         }
 
         // if lhs type is JSON
-        if (lhsType.getTag() == TypeTags.JSON_TAG && getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+        if (getElementType(lhsType).getTag() == TypeTags.JSON_TAG &&
+                getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
             return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
         }
 
@@ -2882,12 +2848,20 @@ public class CPU {
             return true;
         }
 
+        if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG &&
+                lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
+            return true;
+        }
+
         // TODO Union types, tuple types
         return false;
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType) {
-        BType rhsType = rhsValue.getType();
+        BType rhsType = BTypes.typeNull;
+        if (rhsValue != null) {
+            rhsType = rhsValue.getType();
+        }
 
         if (rhsType.equals(lhsType)) {
             return true;
@@ -3107,6 +3081,9 @@ public class CPU {
         }
 
         // TODO Support function types, json/map constrained types etc.
+        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
+            return lhsType.equals(rhsType);
+        }
 
         return false;
     }
@@ -3147,17 +3124,17 @@ public class CPU {
         }
 
         if (jsonNode.isLong()) {
-            sf.refRegs[j] = new BInteger(jsonNode.longValue());
+            sf.longRegs[j] = jsonNode.longValue();
             return;
         }
 
-        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
+        sf.longRegs[j] = 0;
+//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
     private static void castJSONToFloat(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
-        int k = operands[2];
 
         BJSON jsonValue = (BJSON) sf.refRegs[i];
         if (jsonValue == null) {
@@ -3178,18 +3155,16 @@ public class CPU {
 
         if (jsonNode.isDouble()) {
             sf.doubleRegs[j] = jsonNode.doubleValue();
-            sf.refRegs[k] = null;
             return;
         }
 
         sf.doubleRegs[j] = 0;
-        handleTypeCastError(ctx, sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
+//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
     private static void castJSONToString(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
-        int k = operands[2];
 
         BJSON jsonValue = (BJSON) sf.refRegs[i];
         if (jsonValue == null) {
@@ -3211,18 +3186,16 @@ public class CPU {
 
         if (jsonNode.isString()) {
             sf.stringRegs[j] = jsonNode.stringValue();
-            sf.refRegs[k] = null;
             return;
         }
 
         sf.stringRegs[j] = STRING_NULL_VALUE;
-        handleTypeCastError(ctx, sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
+//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private static void castJSONToBoolean(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
-        int k = operands[2];
 
         BJSON jsonValue = (BJSON) sf.refRegs[i];
         if (jsonValue == null) {
@@ -3243,13 +3216,12 @@ public class CPU {
 
         if (jsonNode.isBoolean()) {
             sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
-            sf.refRegs[k] = null;
             return;
         }
 
         // Reset the value in the case of an error;
         sf.intRegs[j] = 0;
-        handleTypeCastError(ctx, sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
     private static boolean checkJSONEquivalency(JsonNode json, BJSONType sourceType, BJSONType targetType) {
@@ -3377,7 +3349,6 @@ public class CPU {
     private static void convertStructToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
-        int k = operands[2];
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
@@ -3388,14 +3359,13 @@ public class CPU {
         try {
             sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct);
         } catch (Exception e) {
-            sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + BTypes.typeJSON + "': " +
                     e.getMessage();
-            handleTypeConversionError(ctx, sf, k, errorMsg);
+            handleTypeConversionError(ctx, sf, j, errorMsg);
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3594,7 +3564,7 @@ public class CPU {
         sf.longRegs[j] = newArray.size();
         return;
     }
-    
+
     private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx, int[] operands) {
         int futureReg = operands[0];
         int retValReg = operands[1];

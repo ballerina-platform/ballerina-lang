@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
@@ -94,7 +95,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public InputStream getManifestContent() {
-        return null;
+        Path tomlFilePath = projectDirPath.resolve("Ballerina.toml");
+        if (Files.exists(tomlFilePath)) {
+            try {
+                return Files.newInputStream(tomlFilePath);
+            } catch (IOException ignore) {
+            }
+        }
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override
@@ -103,10 +111,11 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     }
 
     @Override
-    public void saveCompiledProgram(InputStream source, String fileName) {
+    public Path saveCompiledProgram(InputStream source, String fileName) {
         Path targetFilePath = ensureAndGetTargetDirPath().resolve(fileName);
         try {
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+            return targetFilePath;
         } catch (DirectoryNotEmptyException e) {
             throw new BLangCompilerException("A directory exists with the same name as the file name '" +
                     targetFilePath.toString() + "'");

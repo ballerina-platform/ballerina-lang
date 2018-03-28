@@ -18,9 +18,12 @@
 package org.ballerinalang.logging;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
 import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
 import org.ballerinalang.logging.formatters.HttpAccessLogFormatter;
+import org.ballerinalang.logging.formatters.JsonLogFormatter;
 import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.logging.util.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +38,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.logging.SocketHandler;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +47,8 @@ import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
 import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
+import static org.ballerinalang.logging.util.Constants.LOG_TO;
+import static org.ballerinalang.logging.util.Constants.LOG_TO_CONSOLE;
 
 /**
  * Java util logging manager for ballerina which overrides the readConfiguration method to replace placeholders
@@ -113,19 +119,54 @@ public class BLogManager extends LogManager {
         return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
     }
 
-    public void setHttpTraceLogHandler() {
-        Handler handler = new ConsoleHandler();
-        handler.setFormatter(new HTTPTraceLogFormatter());
-        handler.setLevel(Level.FINEST);
-
+    /**
+     * Sets the Http trace log handler.
+     *
+     * @throws IOException                    if there is I/O exception while creating a socket.
+     * @throws TraceLogConfigurationException if there is any misconfiguration found.
+     */
+    public void setHttpTraceLogHandler() throws IOException, TraceLogConfigurationException {
         if (httpTraceLogger == null) {
             // keep a reference to prevent this logger from being garbage collected
             httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOG);
         }
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        String logTo = configRegistry.getConfiguration(HTTP_TRACE_LOG, LOG_TO);
 
-        removeHandlers(httpTraceLogger);
-        httpTraceLogger.addHandler(handler);
+        if (logTo == null) {
+            httpTraceLogger.addHandler(populateTraceHandlerConfiguration(LOG_TO_CONSOLE));
+        } else {
+            String[] logToStrings = logTo.split(",");
+            for (String logToString : logToStrings) {
+                String logToStringTrim = logToString.trim();
+                if (!logToStringTrim.isEmpty()) {
+                    httpTraceLogger.addHandler(populateTraceHandlerConfiguration(logToStringTrim));
+                }
+            }
+        }
         httpTraceLogger.setLevel(Level.FINEST);
+    }
+
+    private Handler populateTraceHandlerConfiguration(String logToString)
+            throws IOException, TraceLogConfigurationException {
+        Handler handler = null;
+        if (logToString.equalsIgnoreCase(LOG_TO_CONSOLE)) {
+            handler = new ConsoleHandler();
+            handler.setFormatter(new HTTPTraceLogFormatter());
+        } else if (logToString.contains(Constants.LOG_TO_SOCKET)) {
+            String socketAddressString = logToString.substring(logToString.indexOf(";") + 1);
+            String host = socketAddressString.substring(0, socketAddressString.indexOf(":")).trim();
+            host = (!host.isEmpty()) ? host : Constants.LOG_PUBLISH_DEFAULT_HOST;
+            String portString = socketAddressString.substring(socketAddressString.indexOf(":") + 1).trim();
+            int port = (!portString.isEmpty()) ? Integer.parseInt(portString) : Constants.LOG_PUBLISH_DEFAULT_PORT;
+            handler = new SocketHandler(host, port);
+            handler.setFormatter(new JsonLogFormatter());
+        } else {
+            throw new TraceLogConfigurationException(
+                    logToString + " is unsupported logto value in Http trace logging configuration.");
+        }
+        handler.setLevel(Level.FINEST);
+        return handler;
     }
 
     /**

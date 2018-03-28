@@ -38,14 +38,6 @@ public class StructWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in struct 'org.foo:person'", 9, 18);
     }
 
-    @Test(description = "Test private field access")
-    public void testCompileTimeStructEq() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-private-fields-02-negative.bal");
-
-        BAssertUtil.validateError(compileResult, 2,
-                "unsafe cast from 'personFoo' to 'org.foo:person', use multi-return cast expression", 22, 20);
-    }
-
     @Test(description = "Test runtime struct equivalence  field access")
     public void testRuntimeStructEqNegative() {
         CompileResult compileResult = BCompileUtil.compile(

@@ -38,7 +38,7 @@ stream<Teacher> teacherStream3 = {};
 
 function testPipelineQuery () {
 
-    whenever{
+    forever{
         from teacherStream3 where age > 18
         select *
         => (Teacher [] emp) {
@@ -46,7 +46,7 @@ function testPipelineQuery () {
         }
     }
 
-    whenever{
+    forever{
         from preProcessedStatusCountStream window lengthBatch(3)
         select status, count( status) as totalCount
         group by status

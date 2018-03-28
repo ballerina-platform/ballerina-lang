@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.964.1-SNAPSHOT</version>
+        <version>0.970.0-alpha1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -124,6 +124,9 @@
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
+                        <observability-test-natives.jar>
+                            ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar
+                        </observability-test-natives.jar>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
                     </systemPropertyVariables>
@@ -137,5 +140,11 @@
     <properties>
         <!-- Path to the generated natives ballerina files temp directory -->
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>
+            **/protobuf/java/org/ballerinalang/test/util/grpc/**,
+            **/protobuf/grpc-java/org/ballerinalang/test/util/grpc/**,
+            **/generated/**,
+            **/generated-sources/**
+        </maven.checkstyleplugin.excludes>
     </properties>
 </project>

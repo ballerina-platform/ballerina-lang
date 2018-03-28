@@ -199,9 +199,7 @@ class PositioningUtil {
         let height = this.config.canvas.padding.top;
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isConnector(child)
-                || TreeUtil.isTransformer(child);
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child);
         });
 
         children.forEach((child) => {

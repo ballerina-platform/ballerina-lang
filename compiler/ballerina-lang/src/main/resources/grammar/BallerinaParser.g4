@@ -328,7 +328,7 @@ statement
     |   failStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   wheneverStatement
+    |   foreverStatement
     |   streamingQueryStatement
     ;
 
@@ -499,7 +499,7 @@ workerReply
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   functionInvocation                                                      # functionInvocationReference
+    |   ASYNC? functionInvocation                                               # functionInvocationReference
     |   awaitExpression                                                         # awaitExpressionReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
@@ -520,7 +520,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : ASYNC? nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -538,7 +538,7 @@ invocationArg
     ;
 
 actionInvocation
-    : nameReference RARROW functionInvocation
+    : ASYNC? nameReference RARROW functionInvocation
     ;
 
 expressionList
@@ -806,8 +806,8 @@ aggregationQuery
 
     ;
 
-wheneverStatement
-    :   WHENEVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+foreverStatement
+    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
 
 streamingQueryStatement

@@ -37,7 +37,7 @@ stream<Employee> employeeStream = {};
 stream<Teacher> teacherStream1 = {};
 
 function testFilterQuery () {
-    whenever{
+    forever{
         from teacherStream1
         where age > 30
         select name, age, status

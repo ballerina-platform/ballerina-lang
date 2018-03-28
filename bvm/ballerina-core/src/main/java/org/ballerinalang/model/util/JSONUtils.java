@@ -32,6 +32,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode.Type;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloat;
@@ -310,7 +311,7 @@ public class JSONUtils {
 
         return bjson;
     }
-
+    
     /**
      * Convert {@link BTable} to {@link BJSON}.
      *
@@ -702,36 +703,47 @@ public class JSONUtils {
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
+        int blobRegIndex = -1;
 
         BStruct bStruct = new BStruct(structType);
         StructInfo structInfo = structType.structInfo;
+        boolean fieldExists;
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             BType fieldType = fieldInfo.getFieldType();
             String fieldName = fieldInfo.getName();
             try {
-                if (!jsonNode.has(fieldName)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD_IN_JSON, fieldName);
-                }
-
+                fieldExists = jsonNode.has(fieldName);
                 JsonNode jsonValue = jsonNode.get(fieldName);
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        bStruct.setIntField(++longRegIndex, jsonNodeToInt(jsonValue));
+                        longRegIndex++;
+                        if (fieldExists) {
+                            bStruct.setIntField(longRegIndex, jsonNodeToInt(jsonValue));
+                        }
                         break;
                     case TypeTags.FLOAT_TAG:
-                        bStruct.setFloatField(++doubleRegIndex, jsonNodeToFloat(jsonValue));
+                        doubleRegIndex++;
+                        if (fieldExists) {
+                            bStruct.setFloatField(doubleRegIndex, jsonNodeToFloat(jsonValue));
+                        }
                         break;
                     case TypeTags.STRING_TAG:
+                        stringRegIndex++;
                         String stringVal;
-                        if (jsonValue.isString()) {
+                        if (!fieldExists) {
+                            stringVal = "";
+                        } else if (jsonValue.isString()) {
                             stringVal = jsonValue.stringValue();
                         } else {
                             stringVal = jsonValue.toString();
                         }
-                        bStruct.setStringField(++stringRegIndex, stringVal);
+                        bStruct.setStringField(stringRegIndex, stringVal);
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        bStruct.setBooleanField(++booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
+                        booleanRegIndex++;
+                        if (fieldExists) {
+                            bStruct.setBooleanField(booleanRegIndex, jsonNodeToBool(jsonValue) ? 1 : 0);
+                        }
                         break;
                     case TypeTags.UNION_TAG:
                     case TypeTags.STRUCT_TAG:
@@ -740,7 +752,21 @@ public class JSONUtils {
                     case TypeTags.ARRAY_TAG:
                     case TypeTags.MAP_TAG:
                     case TypeTags.NULL_TAG:
-                        bStruct.setRefField(++refRegIndex, (BRefType<?>) convertJSON(jsonValue, fieldType));
+                        refRegIndex++;
+                        if (fieldExists) {
+                            bStruct.setRefField(refRegIndex, (BRefType<?>) convertJSON(jsonValue, fieldType));
+                        }
+                        break;
+                    case TypeTags.FUNCTION_POINTER_TAG:
+                        if (fieldExists) {
+                            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                                    fieldName, getTypeName(jsonValue));
+                        }
+                        // TODO: set the default value
+                        bStruct.setRefField(++refRegIndex, null);
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        bStruct.setBlobField(++blobRegIndex, new byte[0]);
                         break;
                     default:
                         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
@@ -827,6 +853,34 @@ public class JSONUtils {
             keys.add(keysItr.next());
         }
         return new BStringArray(keys.toArray(new String[keys.size()]));
+    }
+
+    public static BRefType<?> convertUnionTypeToJSON(BRefType<?> source) {
+        if (source == null) {
+            return null;
+        }
+
+        switch (source.getType().getTag()) {
+            case TypeTags.INT_TAG:
+                return new BJSON(new JsonNode(((BInteger) source).intValue()));
+            case TypeTags.FLOAT_TAG:
+                return new BJSON(new JsonNode(((BFloat) source).floatValue()));
+            case TypeTags.STRING_TAG:
+                return new BJSON(new JsonNode(((BString) source).stringValue()));
+            case TypeTags.BOOLEAN_TAG:
+                return new BJSON(new JsonNode(((BBoolean) source).booleanValue()));
+            case TypeTags.NULL_TAG:
+                return null;
+            case TypeTags.MAP_TAG:
+                return convertMapToJSON((BMap<String, BValue>) source);
+            case TypeTags.STRUCT_TAG:
+                return convertStructToJSON((BStruct) source);
+            case TypeTags.JSON_TAG:
+                return source;
+            default:
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                        BTypes.typeJSON, source.getType());
+        }
     }
 
     /**
@@ -963,6 +1017,10 @@ public class JSONUtils {
     }
     
     public static String getTypeName(JsonNode jsonValue) {
+        if(jsonValue == null) {
+            return "null";
+        }
+
         Type nodeType = jsonValue.getType();
         switch(nodeType) {
             case LONG:

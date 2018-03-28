@@ -323,25 +323,21 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 (Collectors.toList());
         for (Test test : suite.getTests()) {
             if (test.getTestName() != null && functionNames.contains(test.getTestName())) {
-                //TODO handle missing func case
                 test.setTestFunction(functions.stream().filter(e -> e.getName().equals(test
                         .getTestName())).findFirst().get());
             }
 
             if (test.getBeforeTestFunction() != null && functionNames.contains(test.getBeforeTestFunction())) {
-                //TODO handle missing func case
                 test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getBeforeTestFunction())).findFirst().get());
             }
 
             if (test.getAfterTestFunction() != null && functionNames.contains(test.getAfterTestFunction())) {
-                //TODO handle missing func case
                 test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getAfterTestFunction())).findFirst().get());
             }
 
             if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
-                // TODO handle missing func case
                 String dataProvider = test.getDataProvider();
                 test.setDataProviderFunction(functions.stream().filter(e -> e.getName().equals(test.getDataProvider()
                 )).findFirst().map(func -> {
@@ -367,11 +363,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     }
                     return func;
                 }).get());
+
+                if (test.getDataProviderFunction() == null) {
+                    String message = String.format("Data provider function [%s] cannot be found.", dataProvider);
+                    throw new BallerinaException(message);
+                }
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                 //TODO handle missing func case
-                test.addDependsOnTestFunction(suite.getTests().stream().filter(e -> e.getTestFunction().getName()
-                        .equals(dependsOnFn)).findFirst().get().getTestFunction());
+                test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
+                        .findFirst().get());
             }
         }
 

@@ -21,7 +21,7 @@ import ballerina/log;
 import ballerina/auth.jwtAuth;
 
 @Description {value:"JWT authenticator instance"}
-jwtAuth:JWTAuthenticator jwtAuthenticator;
+jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
 
 @Description {value:"Representation of JWT Auth handler for HTTP traffic"}
 @Field {value:"name: Authentication handler name"}
@@ -33,7 +33,13 @@ public struct HttpJwtAuthnHandler {
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) returns (boolean) {
-    string authHeader = req.getHeader(AUTH_HEADER);
+    string authHeader;
+    try {
+        authHeader = req.getHeader(AUTH_HEADER);
+    } catch (error e) {
+        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
+        return false;
+    }
     if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
         if (lengthof authHeaderComponents == 2) {
@@ -61,7 +67,6 @@ public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) ret
             return false;
         }
     }
-    return false;
 }
 
 function extractJWTToken (http:Request req) returns (string) {

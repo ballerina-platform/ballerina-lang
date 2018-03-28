@@ -22,10 +22,10 @@ public abstract class NonSysRepo<I> implements Repo<I> {
         // TODO: remove pkg name check, only org should be checked.
         if ("ballerina".equals(pkg.getOrgName().getValue()) ||
                 pkg.getName().getValue().startsWith("ballerina.")) {
-            return Patten.NULL;
+             return Patten.NULL;
         } else {
-            return calculateNonSysPkg(pkg);
         }
+        return calculateNonSysPkg(pkg);
     }
 
     @Override

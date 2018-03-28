@@ -141,6 +141,7 @@ public function <WebSocketEndpoint ep> WebSocketService() {
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
 public function <WebSocketEndpoint ep> init(ServiceEndpointConfiguration config) {
+    ep.httpEndpoint = {};
     ep.httpEndpoint.init(config);
 }
 

@@ -81,6 +81,24 @@ public class PattenTest {
     }
 
     @Test
+    public void testSiblingWildcard() {
+        Patten subject = new Patten(path("first", "second"), Patten.WILDCARD_DIR);
+
+        Patten result = subject.sibling(path("third"));
+
+        Assert.assertEquals("$/first/second/third", result.toString());
+    }
+
+    @Test
+    public void testSiblingPath() {
+        Patten subject = new Patten(path("first", "second", "third-a"));
+
+        Patten result = subject.sibling(path("third-b"));
+
+        Assert.assertEquals("$/first/second/third-b", result.toString());
+    }
+
+    @Test
     public void testBalExpansion() {
         Converter<String> mock = mockResolver("project-dir",
                                               null,

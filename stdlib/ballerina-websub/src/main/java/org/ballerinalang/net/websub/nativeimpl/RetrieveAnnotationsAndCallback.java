@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -82,10 +83,22 @@ public class RetrieveAnnotationsAndCallback extends AbstractHttpNativeFunction {
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET)));
 
         //TODO: intro methods to return host+port and change instead of using connector ID, and fix http:// hack
-        String callback = getServerConnector(serviceEndpoint).getConnectorID() + httpService.getBasePath()
-                        + httpService.getResources().get(0).getPath();
+        String callback = httpService.getBasePath() + httpService.getResources().get(0).getPath();
+        BStruct serviceEndpointConfig = ((BStruct) ((BStruct) serviceEndpoint.getVMValue()).getRefField(1));
+        if (!serviceEndpointConfig.getStringField(0).equals("") &&
+                serviceEndpointConfig.getIntField(0) != 0) {
+            callback = serviceEndpointConfig.getStringField(0) + ":"
+                        + serviceEndpointConfig.getIntField(0) + callback;
+        } else {
+            callback = getServerConnector(serviceEndpoint).getConnectorID() + callback;
+        }
+
         if (!callback.contains("://")) {
-            callback = ("http://").concat(callback);
+            if (serviceEndpointConfig.getRefField(3) != null) { //if secure socket is specified
+                callback = ("https://").concat(callback);
+            } else {
+                callback = ("http://").concat(callback);
+            }
         }
         subscriptionDetails.put("callback", new BString(callback));
         context.setReturnValues(subscriptionDetails);

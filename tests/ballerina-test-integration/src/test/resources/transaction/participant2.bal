@@ -22,6 +22,7 @@ endpoint http:ServiceEndpoint participant2EP {
 };
 
 @http:ServiceConfig {
+    basePath:"/"
 }
 service<http:Service> participant2 bind participant2EP {
     task1 (endpoint conn, http:Request req) {
@@ -30,9 +31,10 @@ service<http:Service> participant2 bind participant2EP {
         var forwardRes = conn -> respond(res);  
         match forwardRes {
             http:HttpConnectorError err => {
-                io:print("Could not forward response to caller:");
+                io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
+            null => io:print("");
         }
     }
 
@@ -48,9 +50,10 @@ service<http:Service> participant2 bind participant2EP {
         var forwardRes = conn -> respond(res);  
         match forwardRes {
             http:HttpConnectorError err => {
-                io:print("Could not forward response to caller:");
+                io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
+            null => io:print("");
         }
     }
 }

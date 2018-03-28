@@ -76,7 +76,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.statements.WheneverNode;
+import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -178,7 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -318,7 +318,7 @@ public class BLangPackageBuilder {
 
     private Stack<StreamingQueryStatementNode> streamingQueryStatementStack = new Stack<>();
 
-    private Stack<WheneverNode> wheneverNodeStack = new Stack<>();
+    private Stack<ForeverNode> foreverNodeStack = new Stack<>();
 
     private Stack<OutputRateLimitNode> outputRateLimitStack = new Stack<>();
 
@@ -700,6 +700,10 @@ public class BLangPackageBuilder {
     public void markLastEndpointAsPublic() {
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
+    
+    public void markLastInvocationAsAsync() {
+        ((BLangInvocation) this.exprNodeStack.peek()).async = true;
+    }
 
     public void addVariableDefStatement(DiagnosticPos pos,
                                         Set<Whitespace> ws,
@@ -765,7 +769,6 @@ public class BLangPackageBuilder {
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        invocationNode.async = false;
 
         objectInitNode.objectInitInvocation = invocationNode;
         this.addExpressionNode(objectInitNode);
@@ -915,8 +918,7 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(varRef);
     }
 
-    public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable,
-                                         boolean async) {
+    public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
@@ -930,7 +932,6 @@ public class BLangPackageBuilder {
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        invocationNode.async = async;
         addExpressionNode(invocationNode);
     }
 
@@ -955,11 +956,12 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
-    public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async) {
         BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
         invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
         invocationExpr.addWS(ws);
+        invocationExpr.async = async;
 
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
@@ -2015,8 +2017,9 @@ public class BLangPackageBuilder {
         this.matchStmtStack.addFirst(matchStmt);
     }
 
-    public void completeMatchNode(Set<Whitespace> ws) {
+    public void completeMatchNode(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangMatch matchStmt = this.matchStmtStack.removeFirst();
+        matchStmt.pos = pos;
         matchStmt.addWS(ws);
         matchStmt.expr = (BLangExpression) this.exprNodeStack.pop();
         addStmtToCurrentBlock(matchStmt);
@@ -2030,6 +2033,8 @@ public class BLangPackageBuilder {
         BLangMatchStmtPatternClause patternClause =
                 (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
         patternClause.pos = pos;
+
+        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
         patternClause.addWS(ws);
 
         // Create a variable node
@@ -2038,6 +2043,7 @@ public class BLangPackageBuilder {
         var.pos = pos;
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
+        var.addWS(varDefWS);
         patternClause.variable = var;
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
@@ -2963,27 +2969,27 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void startWheneverNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        WheneverNode wheneverNode = TreeBuilder.createWheneverNode();
-        ((BLangWhenever) wheneverNode).pos = pos;
-        wheneverNode.addWS(ws);
-        this.wheneverNodeStack.push(wheneverNode);
+    public void startForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        ForeverNode foreverNode = TreeBuilder.createForeverNode();
+        ((BLangForever) foreverNode).pos = pos;
+        foreverNode.addWS(ws);
+        this.foreverNodeStack.push(foreverNode);
     }
 
-    public void endWheneverNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        WheneverNode wheneverNode = this.wheneverNodeStack.pop();
-        ((BLangWhenever) wheneverNode).pos = pos;
-        wheneverNode.addWS(ws);
+    public void endForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        ForeverNode foreverNode = this.foreverNodeStack.pop();
+        ((BLangForever) foreverNode).pos = pos;
+        foreverNode.addWS(ws);
 
         if (!this.varListStack.empty()) {
-            this.varListStack.pop().forEach(wheneverNode::addParameter);
+            this.varListStack.pop().forEach(foreverNode::addParameter);
         }
 
         Collections.reverse(streamingQueryStatementStack);
         while (!streamingQueryStatementStack.empty()) {
-            wheneverNode.addStreamingQueryStatement(streamingQueryStatementStack.pop());
+            foreverNode.addStreamingQueryStatement(streamingQueryStatementStack.pop());
         }
 
-        addStmtToCurrentBlock(wheneverNode);
+        addStmtToCurrentBlock(foreverNode);
     }
 }

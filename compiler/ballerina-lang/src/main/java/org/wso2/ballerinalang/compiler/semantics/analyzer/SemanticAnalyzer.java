@@ -132,7 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -1180,8 +1180,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     //Streaming related methods.
 
-    public void visit(BLangWhenever wheneverStatement) {
-        for (StreamingQueryStatementNode streamingQueryStatement : wheneverStatement.gettreamingQueryStatements()) {
+    public void visit(BLangForever foreverStatement) {
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.gettreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
@@ -1190,7 +1190,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (BLangVariable variable : globalVariableList) {
                 if (((variable).type.tsymbol) != null) {
                     if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                        wheneverStatement.addGlobalVariable(variable);
+                        foreverStatement.addGlobalVariable(variable);
                     }
                 }
             }
@@ -1199,7 +1199,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BVarSymbol> functionParameterList = ((BInvokableSymbol) this.env.scope.owner).getParameters();
         for (BVarSymbol varSymbol : functionParameterList) {
             if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
-                wheneverStatement.addFunctionVariable(varSymbol);
+                foreverStatement.addFunctionVariable(varSymbol);
             }
         }
     }
@@ -1476,10 +1476,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-            if (rhsTypes.get(0) != symTable.errType) {
+            if (rhsTypes.get(0) != symTable.errType && (rhsTypes.get(0).tag == TypeTags.TUPLE)) {
                 BTupleType tupleType = (BTupleType) rhsTypes.get(0);
                 rhsTypes = tupleType.tupleTypes;
             } else {
+                dlog.error(assignNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsTypes.get(0));
                 rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
             }
         }
@@ -1593,21 +1594,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // Collect all the rhs types from the union type
+        boolean isErrorFound = false;
         BUnionType unionType = (BUnionType) rhsType;
-        List<BType> rhsTypeList = new ArrayList<>(unionType.memberTypes);
-        for (BType type : rhsTypeList) {
+        Set<BType> rhsTypeSet = new HashSet<>(unionType.memberTypes);
+        for (BType type : unionType.memberTypes) {
             if (types.isAssignable(type, symTable.errStructType)) {
-                unionType.memberTypes.remove(type);
+                rhsTypeSet.remove(type);
+                isErrorFound = true;
             }
         }
 
-        if (unionType.memberTypes.isEmpty()) {
+        if (rhsTypeSet.isEmpty() || !isErrorFound) {
             dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
             return symTable.noType;
-        } else if (unionType.memberTypes.size() == 1) {
-            return unionType.memberTypes.toArray(new BType[0])[0];
+        } else if (rhsTypeSet.size() == 1) {
+            return rhsTypeSet.toArray(new BType[0])[0];
         }
 
-        return unionType;
+        return new BUnionType(null, rhsTypeSet, rhsTypeSet.contains(symTable.nullType));
     }
 }

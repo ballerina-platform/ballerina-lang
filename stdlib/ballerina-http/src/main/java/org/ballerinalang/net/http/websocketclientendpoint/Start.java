@@ -31,6 +31,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketClientConnectorListener;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -95,13 +96,15 @@ public class Start extends BlockingNativeCallableUnit {
 
         @Override
         public void onSuccess(Session session) {
-            BStruct endpoint = (BStruct) context.getRefArgument(0);
-            wsService.setServiceEndpoint(endpoint);
+            //using only one service endpoint in the client as there can be only one connection.
+            BStruct serviceEndpoint = ((BStruct) context.getRefArgument(0));
             BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
             wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            WebSocketUtil.populateEndpoint(session, wsConnection);
-            clientConnectorListener.setWebSocketService(wsService);
-            endpoint.setRefField(0, wsConnection);
+            WebSocketUtil.populateWebSocketConnector(session, wsConnection);
+            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
+                                                                                         serviceEndpoint);
+            clientConnectorListener.setConnectionInfo(connectionInfo);
+            serviceEndpoint.setRefField(0, wsConnection);
             context.setReturnValues();
         }
 
