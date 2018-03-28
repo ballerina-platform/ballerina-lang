@@ -20,6 +20,7 @@ package org.wso2.transport.http.netty.passthrough;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -53,11 +54,12 @@ public class PassthroughHttpsMessageProcessorListener implements HttpConnectorLi
     @Override
     public void onMessage(HTTPCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, testValue, "");
+            HTTPCarbonMessage outboundRequest = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, testValue, "");
+            outboundRequest.setProperty(Constants.SRC_HANDLER, httpRequestMessage.getProperty(Constants.SRC_HANDLER));
             try {
                 clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
-                HttpResponseFuture future = clientConnector.send(msg);
+                HttpResponseFuture future = clientConnector.send(outboundRequest);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
