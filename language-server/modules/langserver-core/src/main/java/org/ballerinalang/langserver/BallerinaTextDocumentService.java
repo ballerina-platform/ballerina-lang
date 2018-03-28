@@ -448,8 +448,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
-        String pkgName = TextDocumentServiceUtil.getPackageFromContent(content);
-        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path, pkgName);
+        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
+        String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
         LSDocument sourceDocument = new LSDocument();
         sourceDocument.setUri(document.getURIString());
         sourceDocument.setSourceRoot(sourceRoot);
