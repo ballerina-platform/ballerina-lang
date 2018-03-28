@@ -15,7 +15,8 @@ function testAuthzFailure () returns (boolean) {
     mime:Entity requestEntity = {};
     requestEntity.setHeader("123Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
-    return authzHandlerChain.handle(inRequest, "scope2", "sayHello");
+    string[] scopes = ["scope2"];
+    return authzHandlerChain.handle(inRequest, scopes, "sayHello");
 }
 
 function testAuthzFailureNonMatchingScope () returns (boolean) {
@@ -26,16 +27,30 @@ function testAuthzFailureNonMatchingScope () returns (boolean) {
     mime:Entity requestEntity = {};
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
-    return authzHandlerChain.handle(inRequest, "scope2", "sayHello");
+    string[] scopes = ["scope2"];
+    return authzHandlerChain.handle(inRequest, scopes, "sayHello");
 }
 
 function testAuthzSucess () returns (boolean) {
     authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
     mime:Entity requestEntity = {};
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
-    return authzHandlerChain.handle(inRequest, "scope2", "sayHello");
+    string[] scopes = ["scope2"];
+    return authzHandlerChain.handle(inRequest, scopes, "sayHello");
+}
+
+function testAuthzSucessWithMultipleScopes () returns (boolean) {
+    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
+    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    string basicAutheaderValue = "Basic aXN1cnU6eHh4";
+    mime:Entity requestEntity = {};
+    requestEntity.setHeader("Authorization", basicAutheaderValue);
+    inRequest.setEntity(requestEntity);
+    string[] scopes = ["scope2", "scope1"];
+    return authzHandlerChain.handle(inRequest, scopes, "sayHello");
 }
