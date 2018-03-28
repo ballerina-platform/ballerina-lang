@@ -36,7 +36,7 @@ public class LogAnalyzer {
     private static String getTimestamp(String logLine) {
         Matcher matcher = TIMESTAMP_PATTERN.matcher(logLine);
         if (matcher.find()) {
-            new SimpleDateFormat(matcher.group(1))
+            new SimpleDateFormat(matcher.group(1));
             return matcher.group(1);
         } else {
             return "";

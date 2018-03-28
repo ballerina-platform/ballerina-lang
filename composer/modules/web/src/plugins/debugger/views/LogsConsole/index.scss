@@ -1,6 +1,6 @@
 #logs-console {
     overflow: hidden;
-    .logs-console-toolbar{
+    .logs-console-toolbar {
         height: 25px;
         border-bottom: 1px solid #555;
         border-top: 1px solid #555;
@@ -9,26 +9,65 @@
             line-height: 24px;
         }
     }
-    label{
+    label {
         margin-right: 5px;
     }
-    select{
+    select {
         color: #050505;
         margin-right: 10px;
     }
-    .row{
+    .row {
         padding: 5px;
         border-bottom: 1px #5a5a5a solid;
+        .clickable{
+            cursor: pointer;
+        }
     }
-    .table-heading.row{
+    .table-heading.row {
         width: 100%;
         margin: 0;
         border-bottom: 2px solid #717171;
         padding: 5px;
     }
-    .table-content{
+    .table-content {
         width: 100%;
-        overflow: auto; 
+        overflow: auto;
         margin: 0;
+        .wrap-text{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow:ellipsis;
+        }
+        .icon.fw.fw-down-arrow {
+            color: #3bff00;
+        }
+        .icon.fw.fw-up-arrow {
+            color: #ff7a00;
+        }
+        .row:nth-child(odd) {
+            background-color: #444;
+        }
+        
+    }
+    .detail-view {
+        .close {
+            // position: absolute;
+            // left: -18px;
+            // top: -3px;
+            cursor: pointer;
+        }
+        .accordion {
+            .title {
+                padding: 0;
+                color: white;
+                background: #333;
+                font-size: 12px;
+                border-bottom: 1px solid #797979;
+            }
+            .content {
+                background: #333;
+            }
+        }
+
     }
 }

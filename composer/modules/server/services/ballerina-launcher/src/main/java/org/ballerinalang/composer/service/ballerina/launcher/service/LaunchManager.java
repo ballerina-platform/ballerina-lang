@@ -31,6 +31,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import javax.websocket.Session;
 
@@ -73,56 +75,38 @@ public class LaunchManager {
         return launchManagerInstance;
     }
 
+    public void readTraceLogs() {
+        try {
+            ServerSocket listenSocket = new ServerSocket(5010);
+            Socket dataSocket = listenSocket.accept();
+            BufferedReader in = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
+            String line = "";
+            StringBuilder logLineBuilder = new StringBuilder("");
+            while ((line = in.readLine()) != null) {
+                processLogLine(line);
+//                if (line.matches("^\\[[0-9- :,]*] TRACE.*")) {
+//                    // flush previous logs, and start new
+//                    if (logLineBuilder.length() > 0) {
+//                        processLogLine(logLineBuilder.toString());
+//                    }
+//                    logLineBuilder.setLength(0);
+//                    logLineBuilder.append(line);
+//                } else {
+//                    logLineBuilder.append("\n");
+//                    logLineBuilder.append(line);
+//                }
+
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
     private void run(Command command) {
         Process program = null;
         this.command = command;
         // send a message if ballerina home is not set
-        if (null == serverConfig.getBallerinaHome()) {
-            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
-                    .INVALID_BAL_PATH_MESSAGE);
-            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
-                    .SET_BAL_PATH_MESSAGE);
-            return;
-        }
-
-        try {
-            String[] cmdArray = command.getCommandArray();
-            if (command.getPackageDir() == null) {
-                program = Runtime.getRuntime().exec(cmdArray);
-            } else {
-                program = Runtime.getRuntime().exec(cmdArray, null, new File(command.getPackageDir()));
-            }
-
-            command.setProgram(program);
-
-
-            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                    String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
-
-            if (command.isDebug()) {
-                MessageDTO debugMessage = new MessageDTO();
-                debugMessage.setCode(LauncherConstants.DEBUG);
-                debugMessage.setPort(command.getPort());
-                pushMessageToClient(launchSession, debugMessage);
-            }
-
-            // start a new thread to stream command output.
-            Runnable output = new Runnable() {
-                public void run() {
-                    LaunchManager.this.streamOutput();
-                }
-            };
-            (new Thread(output)).start();
-            Runnable error = new Runnable() {
-                public void run() {
-                    LaunchManager.this.streamError();
-                }
-            };
-            (new Thread(error)).start();
-
-        } catch (IOException e) {
-            pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
-        }
+        readTraceLogs();
     }
 
     public void streamOutput() {
@@ -166,7 +150,7 @@ public class LaunchManager {
 
     public void processLogLine(String logLine) {
         pushMessageToClient(launchSession, LauncherConstants.OUTPUT,
-                LauncherConstants.TRACE, LogAnalyzer.parseLogLine(logLine));
+                LauncherConstants.TRACE, logLine);
     }
 
     public void streamError() {
@@ -177,21 +161,7 @@ public class LaunchManager {
             String line = "";
             StringBuilder logLineBuilder = new StringBuilder("");
             while ((line = reader.readLine()) != null) {
-
-                if (line.matches("^\\[[0-9- :,]*] TRACE.*")) {
-                    // flush previous logs, and start new
-                    if (logLineBuilder.length() > 0) {
-                        processLogLine(logLineBuilder.toString());
-                    }
-                    logLineBuilder.setLength(0);
-                    logLineBuilder.append(line);
-                } else if (logLineBuilder.length() == 0 && this.command.isErrorOutputEnabled()) {
-                    pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, line);
-                } else {
-                    logLineBuilder.append("\n");
-                    logLineBuilder.append(line);
-                }
-
+                pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, line);
             }
         } catch (IOException e) {
             logger.error("Error while sending error stream to client.", e);

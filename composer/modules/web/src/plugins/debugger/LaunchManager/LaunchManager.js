@@ -130,6 +130,7 @@ class LaunchManager extends EventChannel {
             return;
         }
         if (message.type === 'TRACE') {
+            message.message = JSON.parse(message.message);
             this.trigger('print-trace-message', message);
             // return;
         }

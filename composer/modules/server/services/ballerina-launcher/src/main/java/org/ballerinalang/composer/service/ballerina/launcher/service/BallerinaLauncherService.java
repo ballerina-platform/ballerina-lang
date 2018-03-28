@@ -31,6 +31,10 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * Micro service for ballerina launcher.
@@ -43,10 +47,27 @@ public class BallerinaLauncherService implements ComposerService {
     private ServerConfig serverConfig;
 
     public BallerinaLauncherService() {
+
+    }
+
+    public void readTraceLogs() {
+        try {
+            ServerSocket listenSocket = new ServerSocket(5010);
+            Socket dataSocket = listenSocket.accept();
+            BufferedReader in = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
+            String line = "";
+            StringBuilder logLineBuilder = new StringBuilder("");
+            while ((line = in.readLine()) != null) {
+                LaunchManager.getInstance(serverConfig).processLogLine(line);
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
     }
 
     public BallerinaLauncherService(ServerConfig serverConfig) {
         this.serverConfig = serverConfig;
+//        readTraceLogs();
     }
 
     @OnOpen
