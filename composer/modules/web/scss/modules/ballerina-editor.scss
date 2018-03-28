@@ -140,7 +140,7 @@ $white:#fff;
         .panel-header-controls-wrapper {
           fill: rgba(255, 255, 255, 0.1);
         }
-        text, .title-text, .statement-text {
+        text, .title-text {
           fill: #333 !important;
         }
 
@@ -498,8 +498,7 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .top-menu {
   position: fixed;
-  padding: 0 26px !important;
-  
+  padding: 3px 26px 6px !important;
 }
 
 .top-bar{

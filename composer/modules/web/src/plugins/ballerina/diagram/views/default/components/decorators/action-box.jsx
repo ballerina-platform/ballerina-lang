@@ -109,7 +109,7 @@ class ActionBox extends React.Component {
                 x={bBox.x + (iconSize * (numIcons - 1)) + (horizontalGap * numIcons)}
                 y={y}
                 onClick={this.props.disableButtons.jump ? () => {} : this.props.onJumptoCodeLine}
-            >{ImageUtil.getCodePoint('code-design')}
+            >{ImageUtil.getCodePoint('code-view')}
                 <title>Jump to Source</title> </text>
         </g>);
     }
