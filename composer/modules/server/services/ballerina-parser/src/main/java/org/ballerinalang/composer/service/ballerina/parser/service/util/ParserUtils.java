@@ -812,12 +812,16 @@ public class ParserUtils {
      */
     public static BLangCompilationUnit compileFragment(String content) {
         Path unsaved = Paths.get(untitledProject.toString(), UNTITLED_BAL);
-        documentManager.openFile(unsaved, content);
-        BallerinaFile model = compile(content, unsaved, CompilerPhase.DEFINE);
-        documentManager.closeFile(unsaved);
-        if (model.getBLangPackage() != null) {
-            return model.getBLangPackage().getCompilationUnits().stream().
-                    filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
+        synchronized (ParserUtils.class) {
+            // Since we use the same file name for all the fragment passes we need to make sure following -
+            // does not run parallelly.
+            documentManager.openFile(unsaved, content);
+            BallerinaFile model = compile(content, unsaved, CompilerPhase.DEFINE);
+            documentManager.closeFile(unsaved);
+            if (model.getBLangPackage() != null) {
+                return model.getBLangPackage().getCompilationUnits().stream().
+                        filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
+            }
         }
         return null;
     }
