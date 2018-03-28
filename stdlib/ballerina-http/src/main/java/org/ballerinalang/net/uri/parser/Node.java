@@ -130,9 +130,15 @@ public abstract class Node<DataType, InboundMsgType> {
 
     private Node<DataType, InboundMsgType> getMatchingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
                                                        List<Node<DataType, InboundMsgType>> existingChildren) {
+        boolean isExpression = prospectiveChild instanceof Expression;
         String prospectiveChildToken = prospectiveChild.getToken();
 
         for (Node<DataType, InboundMsgType> existingChild : existingChildren) {
+            if (isExpression && existingChild instanceof Expression) {
+//                ((Expression) existingChild).variableList.add(prospectiveChildToken);
+//                existingChild.token = existingChild.getToken() + "+" + prospectiveChildToken;
+                return existingChild;
+            }
             if (existingChild.getToken().equals(prospectiveChildToken)) {
                 return existingChild;
             }

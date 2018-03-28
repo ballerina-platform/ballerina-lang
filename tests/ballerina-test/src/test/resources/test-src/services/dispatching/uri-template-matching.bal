@@ -299,7 +299,8 @@ service<http:Service> echo44 {
 
     echo1 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
-        var foo =? <string>params.foo;
+        //string foo;
+        string foo = <string>params.foo;
         json responseJson = {"first":foo, "echo44":"echo1"};
 
         http:Response res = {};
