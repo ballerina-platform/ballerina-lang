@@ -16,10 +16,6 @@
 
 package ballerina.net.http;
 
-// TODO: Need to move this to the ballerina.time package. Currently cannot do so due to a bug.
-@Description {value:"This date/time format can be used for formatting date/time according to the RFC1123 specification."}
-public const string RFC_1123_DATE_TIME_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
-
 // Cache-control directives
 @Description {value:"Forces the cache to validate a cached response with the origin server before serving."}
 public const string NO_CACHE = "no-cache";

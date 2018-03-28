@@ -80,7 +80,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfiguration 
                                        cache: createHttpCache("http-cache", cacheConfig),
                                        cacheConfig: cacheConfig
                                    };
-    log:printTrace("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
+    log:printDebug("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
     return httpCachingClient;
 }
 
@@ -184,6 +184,7 @@ public function <HttpCachingClient client> delete (string path, Request req) ret
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> get (string path, Request req) returns (Response|HttpConnectorError) {
+    log:printInfo("SENDING REQUEST");
     return getCachedResponse(client.cache, client.httpClient, req, GET, path, client.cacheConfig.isShared);
 }
 
@@ -209,8 +210,18 @@ public function <HttpCachingClient client> options (string path, Request req) re
 @Return {value:"The inbound response message"}
 @Return {value:"Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> forward (string path, Request req) returns (Response|HttpConnectorError) {
-    // TODO: handle response caching for forwarded GET and HEAD requests.
-    return client.forward(path, req);
+    if (req.method == GET || req.method == HEAD) {
+        return getCachedResponse(client.cache, client.httpClient, req, req.method, path, client.cacheConfig.isShared);
+    }
+
+    match client.forward(path, req) {
+        Response inboundResponse => {
+            invalidateResponses(client.cache, inboundResponse, path);
+            return inboundResponse;
+        }
+
+        HttpConnectorError err => return err;
+    }
 }
 
 @Description {value:"Submits an HTTP request to a service with the specified HTTP verb."}
@@ -278,17 +289,17 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
     if (cache.hasKey(getCacheKey(httpMethod, path))) {
         Response cachedResponse = cache.get(getCacheKey(httpMethod, path));
         // Based on https://tools.ietf.org/html/rfc7234#section-4
-        log:printTrace("Cached response found for: '" + httpMethod + " " + path + "'");
+        log:printDebug("Cached response found for: '" + httpMethod + " " + path + "'");
 
         if (isFreshResponse(cachedResponse, isShared)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
             if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache && !req.hasHeader(PRAGMA)) {
                 setAgeHeader(cachedResponse);
-                log:printTrace("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", [cachedResponse]));
+                log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", [cachedResponse]));
                 return cachedResponse;
             } else {
-                log:printTrace("Serving a cached fresh response after validating with the origin server");
+                log:printDebug("Serving a cached fresh response after validating with the origin server");
                 return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
             }
         }
@@ -301,20 +312,20 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
             // validating with the origin server.
             if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache
                                               && !req.hasHeader(PRAGMA)) {
-                log:printTrace("Serving cached stale response without validating with the origin server");
+                log:printDebug("Serving cached stale response without validating with the origin server");
                 setAgeHeader(cachedResponse);
                 cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
                 return cachedResponse;
             }
         }
 
-        log:printTrace("Validating a stale response for '" + path + "' with the origin server.");
+        log:printDebug("Validating a stale response for '" + path + "' with the origin server.");
         return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false);
     } else {
-        log:printTrace("Cached response not found for: '" + httpMethod + " " + path + "'");
+        log:printDebug("Cached response not found for: '" + httpMethod + " " + path + "'");
     }
 
-    log:printTrace("Sending new request to: " + path);
+    log:printDebug("Sending new request to: " + path);
     match httpClient.get(path, req) {
         Response newResponse => {
             if (cache.isAllowedToCache(newResponse)) {
@@ -337,12 +348,11 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
     Response validationResponse = {};
 
     if (isFreshResponse) {
-        log:printTrace("Sending validation request for a fresh response");
+        log:printDebug("Sending validation request for a fresh response");
     } else {
-        log:printTrace("Sending validation request for a stale response");
+        log:printDebug("Sending validation request for a stale response");
     }
 
-    //validationResponse, validationErr =
     match sendValidationRequest(httpClient, path, cachedResponse) {
         Response resp => validationResponse = resp;
         HttpConnectorError validationErr => {
@@ -355,15 +365,15 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
                 // If the origin server cannot be reached and a fresh response is unavailable, serve a stale
                 // response (unless it is prohibited through a directive).
                 cachedResponse.setHeader(WARNING, WARNING_111_REVALIDATION_FAILED);
-                log:printTrace("Cannot reach origin server. Serving a stale response");
+                log:printDebug("Cannot reach origin server. Serving a stale response");
             } else {
-                log:printTrace("Cannot reach origin server. Serving a fresh response");
+                log:printDebug("Cannot reach origin server. Serving a fresh response");
             }
             return validationErr;
         }
     }
 
-    log:printTrace("Response for validation request received");
+    log:printDebug("Response for validation request received");
     // Based on https://tools.ietf.org/html/rfc7234#section-4.3.3
     if (validationResponse.statusCode == RESPONSE_304_NOT_MODIFIED) {
         return handle304Response(validationResponse, cachedResponse, cache, path, httpMethod);
@@ -376,7 +386,7 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
         // Forward the received response and replace the stored responses
         validationResponse.requestTime = currentT.time;
         cache.put(getCacheKey(httpMethod, path), req.cacheControl, validationResponse);
-        log:printTrace("Received a full response. Storing it in cache and forwarding to the client");
+        log:printDebug("Received a full response. Storing it in cache and forwarding to the client");
         return validationResponse;
     }
 }
@@ -384,7 +394,7 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function handle304Response (Response validationResponse, Response cachedResponse, HttpCache cache, string path,
                             string httpMethod) returns (Response|HttpConnectorError) {
-    log:printTrace("304 response received");
+    log:printDebug("304 response received");
 
     if (validationResponse.hasHeader(ETAG)) {
         string etag = validationResponse.getHeader(ETAG);
@@ -396,7 +406,7 @@ function handle304Response (Response validationResponse, Response cachedResponse
             foreach resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
-            log:printTrace("304 response received. Strong validator. Response(s) updated");
+            log:printDebug("304 response received. Strong validator. Response(s) updated");
             return cachedResponse;
         } else if (hasAWeakValidator(validationResponse, etag)) {
             // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
@@ -405,7 +415,7 @@ function handle304Response (Response validationResponse, Response cachedResponse
             foreach resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
-            log:printTrace("304 response received. Weak validator. Response(s) updated");
+            log:printDebug("304 response received. Weak validator. Response(s) updated");
             return cachedResponse;
 
             // TODO: check if last modified date can be used here as a weak validator
@@ -415,7 +425,7 @@ function handle304Response (Response validationResponse, Response cachedResponse
     if (!cachedResponse.hasHeader(ETAG) && !cachedResponse.hasHeader(LAST_MODIFIED)) {
         updateResponse(cachedResponse, validationResponse);
     }
-    log:printTrace("304 response received. No validators. Returning cached response");
+    log:printDebug("304 response received. No validators. Returning cached response");
     // TODO: Check if this behaviour is the expected one
     return cachedResponse;
 }
@@ -446,13 +456,14 @@ function getFreshnessLifetime (Response cachedResponse, boolean isSharedCache) r
     if (cachedResponse.hasHeader(EXPIRES)) {
         string[] expiresHeader = cachedResponse.getHeaders(EXPIRES);
 
-        if (lengthof expiresHeader == 1 && expiresHeader[0] != null) {
+        if (lengthof expiresHeader == 1) {
             if (cachedResponse.hasHeader(DATE)) {
                 string[] dateHeader = cachedResponse.getHeaders(DATE);
 
-                if (lengthof dateHeader == 1 && dateHeader[0] != null) {
-                    int freshnessLifetime = (time:parse(expiresHeader[0], RFC_1123_DATE_TIME_FORMAT).time
-                                             - time:parse(dateHeader[0], RFC_1123_DATE_TIME_FORMAT).time) / 1000;
+                if (lengthof dateHeader == 1) {
+                    // TODO: See if time parsing errors need to be handled
+                    int freshnessLifetime = (time:parseTo(expiresHeader[0], time:TimeFormat.RFC_1123).time
+                                             - time:parseTo(dateHeader[0], time:TimeFormat.RFC_1123).time) / 1000;
                     return freshnessLifetime;
                 }
             }
@@ -505,15 +516,13 @@ function isStaleResponseAccepted (RequestCacheControl requestCacheControl, Respo
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
 function sendValidationRequest (HttpClient httpClient, string path, Response cachedResponse) returns (Response|HttpConnectorError) {
     Request validationRequest = {};
-    string etagHeader = cachedResponse.getHeader(ETAG);
-    string lastModifiedHeader = cachedResponse.getHeader(LAST_MODIFIED);
 
-    if (etagHeader != null) {
-        validationRequest.setHeader(IF_NONE_MATCH, etagHeader);
+    if (cachedResponse.hasHeader(ETAG)) {
+        validationRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
     }
 
-    if (lastModifiedHeader != null) {
-        validationRequest.setHeader(IF_MODIFIED_SINCE, lastModifiedHeader);
+    if (cachedResponse.hasHeader(LAST_MODIFIED)) {
+        validationRequest.setHeader(IF_MODIFIED_SINCE, cachedResponse.getHeader(LAST_MODIFIED));
     }
 
     // TODO: handle cases where neither of the above 2 headers are present
@@ -598,7 +607,7 @@ function retain2xxWarnings (Response cachedResponse) {
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
         foreach warningHeader in warningHeaders {
             if (warningHeader.contains("214") || warningHeader.contains("299")) {
-                log:printTrace("Adding warning header: " + warningHeader);
+                log:printDebug("Adding warning header: " + warningHeader);
                 cachedResponse.addHeader(WARNING, warningHeader);
                 next;
             }
@@ -620,14 +629,15 @@ function getResponseAge (Response cachedResponse) returns int {
 function getDateValue (Response inboundResponse) returns int {
     // Based on https://tools.ietf.org/html/rfc7231#section-7.1.1.2
     if (!inboundResponse.hasHeader(DATE)) {
+        log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, currentT.format(RFC_1123_DATE_TIME_FORMAT));
+        inboundResponse.setHeader(DATE, currentT.formatTo(time:TimeFormat.RFC_1123));
         return currentT.time;
     }
 
     string dateHeader = inboundResponse.getHeader(DATE);
     // TODO: May need to handle invalid date headers
-    time:Time dateHeaderTime = time:parse(dateHeader, RFC_1123_DATE_TIME_FORMAT);
+    time:Time dateHeaderTime = time:parseTo(dateHeader, time:TimeFormat.RFC_1123);
     return dateHeaderTime.time;
 }
 
