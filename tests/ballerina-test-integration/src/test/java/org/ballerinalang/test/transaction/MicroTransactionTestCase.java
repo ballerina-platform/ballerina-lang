@@ -73,11 +73,11 @@ public class MicroTransactionTestCase {
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
         InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
         assertTrue(initiatorState.abortedByInitiator);
-        assertFalse(initiatorState.abortedByLocalParticipant);
         assertTrue(initiatorState.abortedFunctionCalled);
+        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
+        assertFalse(initiatorState.abortedByLocalParticipant);
         assertFalse(initiatorState.committedFunctionCalled);
         assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
-        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
         ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
@@ -128,10 +128,10 @@ public class MicroTransactionTestCase {
         InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
         assertFalse(initiatorState.abortedByInitiator);
         assertTrue(initiatorState.abortedByLocalParticipant);
+        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
         assertTrue(initiatorState.abortedFunctionCalled);
         assertFalse(initiatorState.committedFunctionCalled);
         assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
-        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
         ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
@@ -142,29 +142,31 @@ public class MicroTransactionTestCase {
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
-    @Test(dependsOnMethods = {"testLocalParticipantAbort"})
+//    @Test(dependsOnMethods = {"testLocalParticipantAbort"})
+    @Test
     public void testTransactionInfectableFalse() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testTransactionInfectableFalse"));
-        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        assertEquals(response.getData(), "cannot create transaction context: resource is not transactionInfectable");
 
         // Initiator has committed even though participant1 has aborted because participant1 is non-infectable
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
         InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
-        assertFalse(initiatorState.abortedByInitiator);
+        assertTrue(initiatorState.abortedByInitiator);
+        assertTrue(initiatorState.abortedFunctionCalled);
+        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
         assertFalse(initiatorState.abortedByLocalParticipant);
-        assertFalse(initiatorState.abortedFunctionCalled);
-        assertTrue(initiatorState.committedFunctionCalled);
-        assertTrue(initiatorState.localParticipantCommittedFunctionCalled);
-        assertFalse(initiatorState.localParticipantAbortedFunctionCalled);
+        assertFalse(initiatorState.committedFunctionCalled);
+        assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
 
         // Since the participant is non-infectable, it will not participate in the coordination, and its abort will not
         // affect the initiator. Here the "participant" has aborted.
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
         ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
         assertFalse(participantState.abortedByParticipant);
-        assertTrue(participantState.abortedFunctionCalled);
+        assertFalse(participantState.abortedFunctionCalled);
         assertFalse(participantState.committedFunctionCalled);
-        assertTrue(participantState.localParticipantAbortedFunctionCalled);
+        assertFalse(participantState.localParticipantAbortedFunctionCalled);
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
