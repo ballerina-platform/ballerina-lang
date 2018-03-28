@@ -174,7 +174,7 @@ export default {
         ],
         
         matchBody: [
-            ['}', '@pop'],
+            ['(?=\})',  { token: 'delimiter.curly', next: '@pop'}],
             ['=>', {token:'keyword', next: '@matchedStatement'}],
             [`\\b${identifier}\\b`, {token:'type', next: '@varDefStatement'}],
             {include: 'root'},
