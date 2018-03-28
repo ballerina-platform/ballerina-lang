@@ -985,10 +985,8 @@ public class Types {
 
             Set<BType> sourceTypes = new HashSet<>();
             Set<BType> targetTypes = new HashSet<>();
-
             sourceTypes.addAll(sUnionType.memberTypes);
             targetTypes.addAll(tUnionType.memberTypes);
-
 
             boolean notSameType = sourceTypes
                     .stream()
