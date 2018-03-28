@@ -230,6 +230,7 @@ public class HttpConstants {
     public static final String HTTP_SERVER_CONNECTOR = "HTTP_SERVER_CONNECTOR";
     public static final String HTTP_SERVICE_REGISTRY = "HTTP_SERVICE_REGISTRY";
     public static final String WS_SERVICE_REGISTRY = "WS_SERVICE_REGISTRY";
+    public static final String CONNECTOR_STARTED = "CONNECTOR_STARTED";
 
     //Service Endpoint
     public static final int SERVICE_ENDPOINT_NAME_INDEX = 0;

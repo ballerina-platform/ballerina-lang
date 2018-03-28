@@ -198,7 +198,7 @@ class ServiceNode extends React.Component {
                 onMouseEnter={this.onMouseEnter}
             >
                 <PanelDecorator
-                    icon='tool-icons/service'
+                    icon='service'
                     title={title}
                     bBox={bBox}
                     model={model}
