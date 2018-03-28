@@ -3,8 +3,10 @@ PackageDeclaration
 
 Import
    : <isInternal?>
-   : <userDefinedAlias?>    import <packageName-joined-by.>* as <alias.value> ;
-   :                        import <packageName-joined-by.>* ;
+   : <userDefinedAlias?> import <orgName.value> / <packageName-joined-by.>* as <alias.value> ;
+   : <userDefinedAlias?> import                   <packageName-joined-by.>* as <alias.value> ;
+   :                     import <orgName.value> / <packageName-joined-by.>* ;
+   :                     import                   <packageName-joined-by.>* ;
 
 Identifier
    : <valueWithBar>
