@@ -22,8 +22,8 @@ export default {
     createHTTPServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                service<http> service1 {
-                    resource echo1 (http:Connection conn, http:Request req) {
+                service<http:Service> serviceName bind serviceEp {
+                    resourceName (endpoint conn, http:Request req) {
 
                     }
                 }
@@ -32,17 +32,20 @@ export default {
     createWSServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                service<ws> service1 {
-                    resource onOpen(ws:Connection conn) {
+            service<http:WebSocketService> SimpleSecureServer bind ep {
             
-                    }
-                    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-            
-                    }
-                    resource onClose(ws:Connection conn, ws:CloseFrame frame) {
-            
-                    }
+                onOpen (endpoint ep) {
+
                 }
+            
+                onTextMessage (endpoint conn, http:TextFrame frame) {
+
+                }
+            
+                onClose (endpoint conn, http:CloseFrame closeFrame) {
+
+                }
+            }
             `);
     },
     createJMSServiceDef: () => {
@@ -59,7 +62,7 @@ export default {
         return FragmentUtils.createTopLevelNodeFragment(
             `
             service<fs> service1 {
-                resource echo1 (fs:FileSystemEvent m) {
+                echo1 (fs:FileSystemEvent m) {
 
                 }
             }
@@ -69,7 +72,7 @@ export default {
         return FragmentUtils.createTopLevelNodeFragment(
             `
             service<ftp> service1 {
-                resource echo1 (ftp:FTPServerEvent m) {
+                echo1 (ftp:FTPServerEvent m) {
 
                 }
             }
@@ -84,51 +87,35 @@ export default {
     },
     createFunction: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
-                    function function1() {
-
-                    }
-                `);
-    },
-    createConnector: () => {
-        return FragmentUtils.createTopLevelNodeFragment(`
-            connector ClientConnector(string url) {
-                action action1(){
-
-                }
-            }
-        `);
-    },
-    createConnectorAction: () => {
-        return FragmentUtils.createConnectorActionFragment(`
-            action action1(){
+            function function1() {
 
             }
         `);
     },
     createHTTPResource: () => {
         return FragmentUtils.createServiceResourceFragment(`
-            resource echo1 (http:Connection conn, http:Request req) {
+            echo1 (http:Connection conn, http:Request req) {
 
             }
         `);
     },
     createFSResource: () => {
         return FragmentUtils.createServiceResourceFragment(`
-            resource echo1 (fs:FileSystemEvent m) {
+            echo1 (fs:FileSystemEvent m) {
 
             }
         `);
     },
     createFTPResource: () => {
         return FragmentUtils.createServiceResourceFragment(`
-            resource echo1 (ftp:FTPServerEvent m) {
+            echo1 (ftp:FTPServerEvent m) {
 
             }
         `);
     },
     createJMSResource: () => {
         return FragmentUtils.createServiceResourceFragment(`
-            resource echo1 (jms:JMSMessage request) {
+            echo1 (jms:JMSMessage request) {
 
             }
         `);
@@ -159,12 +146,7 @@ export default {
             }
         `);
     },
-    createAnnotation: () => {
-        return FragmentUtils.createTopLevelNodeFragment(`
-            annotation annotation1 {
-            }
-        `);
-    },
+
     createAssignmentStmt: () => {
         return FragmentUtils.createStatementFragment('var a = 1;');
     },
@@ -204,16 +186,6 @@ export default {
             while(true) {
 
             }
-        `);
-    },
-    createBreak: () => {
-        return FragmentUtils.createStatementFragment(`
-            break;
-        `);
-    },
-    createNext: () => {
-        return FragmentUtils.createStatementFragment(`
-            next;
         `);
     },
     createTry: () => {
@@ -272,18 +244,6 @@ export default {
             
             } timeout(100)(map results1) {
             
-            }
-        `);
-    },
-    createXmlns: () => {
-        return FragmentUtils.createStatementFragment(`
-            xmlns "namespace.uri" as xn;
-        `);
-    },
-    createEnum: () => {
-        return FragmentUtils.createTopLevelNodeFragment(`
-            enum name {
-                ENUMERATOR
             }
         `);
     },
