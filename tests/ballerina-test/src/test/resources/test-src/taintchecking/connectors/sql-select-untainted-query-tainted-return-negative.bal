@@ -6,10 +6,10 @@ struct Employee {
 }
 
 public function main (string[] args) {
-    testSelectWithUntaintedQueryProducingTaintedReturn(args);
+    testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);
 }
 
-public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args) {
+public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
     endpoint sql:Client testDB {
         database: sql:DB.MYSQL,
         host: "localhost",
