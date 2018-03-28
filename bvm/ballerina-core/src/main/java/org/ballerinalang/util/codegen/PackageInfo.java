@@ -37,8 +37,8 @@ import java.util.Map;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
-    private int pkgNameCPIndex;
-    private String pkgPath;
+    public int nameCPIndex;
+    public String pkgPath;
     private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
@@ -64,19 +64,14 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-    
+
     private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
     // cache values.
     ProgramFile programFile;
 
-    public PackageInfo(int packageNameCPIndex, String packageName) {
-        this.pkgNameCPIndex = packageNameCPIndex;
-        this.pkgPath = packageName;
-    }
-
     public int getPkgNameCPIndex() {
-        return pkgNameCPIndex;
+        return nameCPIndex;
     }
 
     public String getPkgPath() {
@@ -239,16 +234,16 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     /**
      * This gets the line number info given the IP. The following example can be taken as a reference
      * to explain the below algorithm.
-     * 
+     *
      *     Code Line                           IP
      *     =======================================
      *     int a = 1 + 1;                      136
      *     runtime:CallStackElement trace1;    138
      *     runtime:CallStackElement trace2;    138
      *     myFunc(a + 1);                      138
-     *     int x = 1 + 2;                      140 
+     *     int x = 1 + 2;                      140
      *     int g = 1 + 3;                      142
-     * 
+     *
      * @param currentIP the current IP
      * @return the resolved line number information
      */

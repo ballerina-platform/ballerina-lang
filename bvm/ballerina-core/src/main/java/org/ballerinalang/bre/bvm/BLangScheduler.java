@@ -17,9 +17,15 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
+import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 0.965.0
  */
 public class BLangScheduler {
-
+    
     private static AtomicInteger workerCount = new AtomicInteger(0);
     
     private static Semaphore workersDoneSemaphore = new Semaphore(1);
@@ -118,6 +124,10 @@ public class BLangScheduler {
         }
     }
     
+    public static void stopWorker(WorkerExecutionContext ctx) {
+        ctx.stop = true;
+    }
+    
     public static void workerDone(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.DONE;
         workerCountDown();
@@ -156,6 +166,24 @@ public class BLangScheduler {
         }
     }
     
+    public static AsyncInvocableWorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
+            Context nativeCtx) {
+        CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
+        AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
+        NativeCallExecutor exec = new NativeCallExecutor(nativeCallable, nativeCtx, respCtx);
+        ThreadPoolFactory.getInstance().getWorkerExecutor().submit(exec);
+        return respCtx;
+    }
+    
+    public static AsyncInvocableWorkerResponseContext executeNonBlockingNativeAsync(NativeCallableUnit nativeCallable,
+            Context nativeCtx) {
+        CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
+        AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
+        BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
+        nativeCallable.execute(nativeCtx, callback);
+        return respCtx;
+    }
+    
     /**
      * This represents the thread used to execute a runnable worker.
      */
@@ -172,6 +200,94 @@ public class BLangScheduler {
             CPU.exec(this.ctx);
         }
         
+    }
+    
+    /**
+     * This represents the thread used to run a blocking native call in async mode.
+     */
+    private static class NativeCallExecutor implements Runnable {
+
+        private NativeCallableUnit nativeCallable;
+        
+        private Context nativeCtx;
+        
+        private WorkerResponseContext respCtx;
+        
+        public NativeCallExecutor(NativeCallableUnit nativeCallable, Context nativeCtx, 
+                WorkerResponseContext respCtx) {
+            this.nativeCallable = nativeCallable;
+            this.nativeCtx = nativeCtx;
+            this.respCtx = respCtx;
+            /* worker count needs to be incremented, since this represents a new execution, similar to
+             * scheduling a worker execution context. Afterwards, we should not call workerCountDown,
+             * since it will be automatically be called by the signals sent to response context */
+            workerCountUp();
+        }
+        
+        @Override
+        public void run() {
+            WorkerExecutionContext runInCaller = null;
+            CallableUnitInfo cui = this.nativeCtx.getCallableUnitInfo();
+            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
+            BType[] retTypes = cui.getRetParamTypes();
+            try {
+                this.nativeCallable.execute(this.nativeCtx, null);
+                BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
+                runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
+            } catch (BLangNullReferenceException e) {
+                BStruct error = BLangVMErrors.createNullRefException(this.nativeCtx.getCallableUnitInfo());
+                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
+                        SignalType.ERROR, result));
+            } catch (Throwable e) {
+                BStruct error = BLangVMErrors.createError(this.nativeCtx.getCallableUnitInfo(), e.getMessage());
+                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
+                        SignalType.ERROR, result));
+            } finally {
+                workerCountDown();
+            }
+            executeNow(runInCaller);
+        }
+        
+    }
+    
+    /**
+     * This class represents the callback functionality for async non-blocking native calls.
+     */
+    public static class BLangAsyncCallableUnitCallback implements CallableUnitCallback {
+
+        private WorkerResponseContext respCtx;
+        
+        private Context nativeCallCtx;
+
+        public BLangAsyncCallableUnitCallback(WorkerResponseContext respCtx, Context nativeCallCtx) {
+            this.respCtx = respCtx;
+            this.nativeCallCtx = nativeCallCtx;
+            workerCountUp();
+        }
+        
+        @Override
+        public synchronized void notifySuccess() {
+            CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
+            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
+            BType[] retTypes = cui.getRetParamTypes();
+            BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
+            WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
+            workerCountDown();
+            BLangScheduler.resume(ctx);
+        }
+
+        @Override
+        public synchronized void notifyFailure(BStruct error) {
+            CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
+            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
+            BType[] retTypes = cui.getRetParamTypes();
+            BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
+            WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(
+                    new WorkerExecutionContext(error), SignalType.ERROR, result));
+            workerCountDown();
+            BLangScheduler.resume(ctx);
+        }
+
     }
     
 }

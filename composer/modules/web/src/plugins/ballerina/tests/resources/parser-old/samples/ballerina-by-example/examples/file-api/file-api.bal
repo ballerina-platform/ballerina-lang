@@ -1,7 +1,7 @@
-import ballerina.lang.files;
-import ballerina.lang.blobs;
-import ballerina.lang.system;
-import ballerina.lang.strings;
+import ballerina/lang.files;
+import ballerina/lang.blobs;
+import ballerina/lang.system;
+import ballerina/lang.strings;
 
 function main (string[] args) {
     //Create 'File' struct and open for writing.

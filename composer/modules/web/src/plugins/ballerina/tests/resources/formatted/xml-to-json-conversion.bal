@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.lang.xmls;
+import ballerina/lang.system;
+import ballerina/lang.xmls;
 
 function main (string[] args) {
     //Create xml

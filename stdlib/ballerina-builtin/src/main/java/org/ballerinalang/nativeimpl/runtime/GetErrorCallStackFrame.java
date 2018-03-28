@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.runtime",
+        orgName = "ballerina", packageName = "runtime",
         functionName = "getErrorCallStackFrame"
 )
 public class GetErrorCallStackFrame extends BlockingNativeCallableUnit {

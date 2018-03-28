@@ -1,7 +1,7 @@
 package sample.websocket.proxyserver;
 
-import ballerina.io;
-import ballerina.net.ws;
+import ballerina/io;
+import ballerina/net.ws;
 
 @ws:configuration {
     basePath:"/proxy/ws",
@@ -32,6 +32,6 @@ service<ws> SimpleProxyServer {
     resource onClose (ws:Connection conn, ws:CloseFrame frame) {
         var clientConn, _ = (ws:Connection)clientConnMap[conn.getID()];
         clientConn.closeConnection(1001, "Client closing connection");
-        clientConnMap.remove(conn.getID());
+        _ = clientConnMap.remove(conn.getID());
     }
 }

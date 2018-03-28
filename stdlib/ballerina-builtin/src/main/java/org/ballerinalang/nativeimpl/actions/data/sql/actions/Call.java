@@ -20,40 +20,63 @@ package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.TraceUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
 
 /**
  * {@code Call} is the Call action implementation of the SQL Connector.
  *
  * @since 0.8.0
  */
-@BallerinaAction(
-        packageName = "ballerina.data.sql",
-        actionName = "call",
-        connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
-                @Argument(name = "query", type = TypeKind.STRING),
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "data.sql",
+        functionName = "call",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        args = {
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.TABLE) },
-        connectorArgs = {
-                @Argument(name = "options", type = TypeKind.MAP)
-        })
+                          structType = "Parameter")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.TABLE),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class Call extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
-        String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-        BStructType structType = getStructType(context);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-        executeProcedure(context, datasource, query, parameters, structType);
+        try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            String query = context.getStringArgument(0);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            BStructType structType = getStructType(context);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+
+            Map<String, String> tags = new HashMap<>();
+            tags.put(TAG_KEY_DB_STATEMENT, query);
+            tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+            TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
+
+            executeProcedure(context, datasource, query, parameters, structType);
+        } catch (Throwable e) {
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
     }
 }

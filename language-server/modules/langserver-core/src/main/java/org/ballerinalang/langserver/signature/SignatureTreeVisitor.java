@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.tree.Node;
@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
 /**
  * Tree visitor to traverse through the ballerina node tree and find the scope of a given cursor position.
  */
-public class SignatureTreeVisitor extends NodeVisitor {
+public class SignatureTreeVisitor extends LSNodeVisitor {
     private SymbolEnv symbolEnv;
     private SymbolResolver symbolResolver;
     private boolean terminateVisitor = false;
@@ -216,9 +216,9 @@ public class SignatureTreeVisitor extends NodeVisitor {
         this.acceptNode(transactionNode.transactionBody, symbolEnv);
         this.blockOwnerStack.pop();
 
-        if (transactionNode.failedBody != null) {
+        if (transactionNode.onRetryBody != null) {
             this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.failedBody, symbolEnv);
+            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
             this.blockOwnerStack.pop();
         }
     }

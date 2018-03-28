@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen.attributes;
 
-import org.ballerinalang.util.codegen.StructFieldDefaultValue;
+import org.ballerinalang.util.codegen.DefaultValue;
 
 /**
  * {@code DefaultValueAttributeInfo} contains default value details.
@@ -29,14 +29,14 @@ public class DefaultValueAttributeInfo implements AttributeInfo {
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
 
-    private StructFieldDefaultValue defaultValue;
+    private DefaultValue defaultValue;
 
-    public DefaultValueAttributeInfo(int attributeNameIndex, StructFieldDefaultValue defaultValue) {
+    public DefaultValueAttributeInfo(int attributeNameIndex, DefaultValue defaultValue) {
         this.defaultValue = defaultValue;
         this.attributeNameIndex = attributeNameIndex;
     }
 
-    public StructFieldDefaultValue getDefaultValue() {
+    public DefaultValue getDefaultValue() {
         return defaultValue;
     }
 

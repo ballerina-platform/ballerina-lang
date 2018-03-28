@@ -39,7 +39,7 @@ public class BStringType extends BType {
 
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getZeroValue() {
-        return (V) new BString(BLangConstants.STRING_NULL_VALUE);
+        return (V) new BString(BLangConstants.STRING_EMPTY_VALUE);
     }
 
     @Override

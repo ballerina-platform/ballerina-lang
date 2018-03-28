@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function main (string[] args) {
     //Variables defined without an initial value are zero-valued. For example, the zero value for an int is 0.

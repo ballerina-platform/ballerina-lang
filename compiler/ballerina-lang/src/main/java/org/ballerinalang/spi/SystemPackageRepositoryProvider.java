@@ -18,19 +18,31 @@
 package org.ballerinalang.spi;
 
 import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * This represents the Java SPI interface for a Ballerina system package repository provider.
- * 
+ *
  * @since 0.94
  */
 public interface SystemPackageRepositoryProvider {
 
+    static URI getClassUri(Object obj) {
+        try {
+            return obj.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+        } catch (URISyntaxException ignore) {
+            return null;
+        }
+    }
+
     /**
      * Loads the system package repository exposed by this service.
-     * 
-     * @return the loaded {@link PackageRepository} object 
+     *
+     * @return the loaded {@link PackageRepository} object
      */
-    PackageRepository loadRepository();
-    
+    Repo loadRepository();
+
 }

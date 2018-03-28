@@ -46,7 +46,7 @@ import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_PORT_OPT
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "openSocket",
         args = {@Argument(name = "host", type = TypeKind.STRING),
                 @Argument(name = "port", type = TypeKind.INT),
@@ -112,11 +112,11 @@ public class OpenSocket extends BlockingNativeCallableUnit {
             socketStruct.setStringField(0, socket.getInetAddress().getHostAddress());
             socketStruct.setStringField(1, socket.getLocalAddress().getHostAddress());
             socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
-            context.setReturnValues(socketStruct, null);
+            context.setReturnValues(socketStruct);
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
         }
     }
 }

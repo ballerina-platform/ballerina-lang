@@ -42,11 +42,13 @@ public class Timer {
     /**
      * Triggers the timer.
      *
+     * @param fn                Trigger function
      * @param ctx               The ballerina context.
      * @param delay             The initial delay.
      * @param interval          The interval between two task executions.
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
+     * @throws SchedulingException if cannot create the scheduler
      */
     public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval,
                  FunctionRefCPEntry onTriggerFunction,

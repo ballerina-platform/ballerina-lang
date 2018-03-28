@@ -48,7 +48,7 @@ function join(arr, sep, indent) {
 }
 
 
-const stream = fs.createWriteStream(path.join(__dirname, '..', 'src', 'plugins', 'ballerina','model', 'source-gen.js'));
+const stream = fs.createWriteStream(path.join(__dirname, '..', 'src', 'plugins', 'ballerina', 'model', 'source-gen.js'));
 stream.once('open', () => {
     const gPath = path.join(__dirname, 'tree.g');
     const grammar = fs.readFileSync(gPath, 'utf8');

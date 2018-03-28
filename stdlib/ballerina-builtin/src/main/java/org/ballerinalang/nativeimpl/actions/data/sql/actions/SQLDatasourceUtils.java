@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,7 +35,15 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
+import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionConstants;
+import org.ballerinalang.util.transactions.TransactionUtils;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -70,6 +81,9 @@ import java.util.TimeZone;
  * @since 0.8.0
  */
 public class SQLDatasourceUtils {
+
+    private static final String ORACLE_DATABASE_NAME = "oracle";
+    private static final int ORACLE_CURSOR_TYPE = -10;
 
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Integer val = null;
@@ -607,6 +621,27 @@ public class SQLDatasourceUtils {
         }
     }
 
+    public static void setRefCursorValue(Connection connection, PreparedStatement stmt, int index, int direction,
+            String databaseName) {
+        try {
+            if (Constants.QueryParamDirection.OUT == direction) {
+                if (ORACLE_DATABASE_NAME.equals(databaseName)) {
+                    // Since oracle does not support general java.sql.Types.REF_CURSOR in manipulating ref cursors it
+                    // is required to use oracle.jdbc.OracleTypes.CURSOR here. In order to avoid oracle driver being
+                    // a runtime dependency always, we have directly used the value(-10) of general oracle.jdbc
+                    // .OracleTypes.CURSOR here.
+                    ((CallableStatement) stmt).registerOutParameter(index + 1, ORACLE_CURSOR_TYPE);
+                } else {
+                    ((CallableStatement) stmt).registerOutParameter(index + 1, Types.REF_CURSOR);
+                }
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in setting ref cursor value to statement: " + e.getMessage(), e);
+        }
+    }
+
     public static void setArrayValue(Connection conn, PreparedStatement stmt, BValue value, int index, int direction,
             int sqlType) {
         Object[] arrayData = getArrayData(value);
@@ -976,12 +1011,50 @@ public class SQLDatasourceUtils {
         if (udt.getAttributes() != null) {
             StringJoiner sj = new StringJoiner(",", "{", "}");
             Object[] udtValues = udt.getAttributes();
-            for (int i = 0; i < udtValues.length; i++) {
-                sj.add(String.valueOf(udtValues[i]));
+            for (Object obj : udtValues) {
+                sj.add(String.valueOf(obj));
             }
             return sj.toString();
         }
         return null;
+    }
+
+    public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
+        PackageInfo sqlPackageInfo = context.getProgramFile()
+                .getPackageInfo(Constants.SQL_PACKAGE_PATH);
+        StructInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
+        BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
+        if (throwable.getMessage() == null) {
+            sqlConnectorError.setStringField(0, Constants.SQL_EXCEPTION_OCCURED);
+        } else {
+            sqlConnectorError.setStringField(0, throwable.getMessage());
+        }
+        return sqlConnectorError;
+    }
+
+    public static void handleErrorOnTransaction(Context context) {
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            return;
+        }
+        SQLDatasourceUtils.notifyTxMarkForAbort(context, localTransactionInfo);
+        throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
+    }
+
+    public static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
+        String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
+        int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
+
+        if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
+            return;
+        }
+
+        if (!CompilerUtils.isDistributedTransactionsEnabled()) {
+            return;
+        }
+
+        TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
+                transactionBlockId);
     }
 
     private static String getString(Calendar calendar, String type) {

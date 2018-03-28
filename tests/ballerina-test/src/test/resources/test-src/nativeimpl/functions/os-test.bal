@@ -1,29 +1,29 @@
-import ballerina.os;
+import ballerina/os;
 
-function testValidEnv () (string) {
+function testValidEnv () returns (string) {
     return os:getEnv("JAVA_HOME");
 }
 
-function testEmptyEnv () (string) {
+function testEmptyEnv () returns (string) {
     return os:getEnv("JAVA_XXXX");
 }
 
-function testValidMultivaluedEnv () (string[]) {
+function testValidMultivaluedEnv () returns (string[]) {
     return os:getMultivaluedEnv("PATH");
 }
 
-function testEmptyMultivaluedEnv () (string[]) {
+function testEmptyMultivaluedEnv () returns (string[]) {
     return os:getMultivaluedEnv("XXXX");
 }
 
-function testGetName () (string) {
+function testGetName () returns (string) {
     return os:getName();
 }
 
-function testGetVersion () (string) {
+function testGetVersion () returns (string) {
     return os:getVersion();
 }
 
-function testGetArchitecture () (string) {
+function testGetArchitecture () returns (string) {
     return os:getArchitecture();
 }

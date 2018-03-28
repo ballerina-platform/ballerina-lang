@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.services.nativeimpl.response;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -26,9 +27,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -50,7 +49,7 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -92,8 +91,8 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertEquals(map.get(headerName).get(0), headerValue);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(headerName), headerValue);
     }
 
     @Test(description = "Test addHeader function within a service")
@@ -146,7 +145,7 @@ public class ResponseNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
+        Assert.assertEquals(String.valueOf(payload.length()), returnVals[0].stringValue());
     }
 
     @Test
@@ -171,8 +170,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test(description = "Test GetHeader function within a service")
     public void testServiceGetHeader() {
-        String value = "x-www-form-urlencoded";
-        String path = "/hello/getHeader/" + HttpHeaderNames.CONTENT_TYPE.toString() + "/" + value;
+        String value = "test-header-value";
+        String path = "/hello/getHeader/" + "test-header-name" + "/" + value;
         HTTPTestRequest inRequest = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequest);
 
@@ -232,36 +231,6 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertNotNull(responseMsg, "Response message not found");
         Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream()).stringValue(),
                 value);
-    }
-
-    @Test
-    public void testGetProperty() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        inResponseMsg.setProperty(propertyName, propertyValue);
-        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-        BString name = new BString(propertyName);
-        BValue[] inputArg = {inResponse, name};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
-    }
-
-    @Test(description = "Test GetProperty function within a service")
-    public void testServiceGetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        String path = "/hello/GetProperty/" + propertyName + "/" + propertyValue;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), propertyValue);
     }
 
     @Test
@@ -364,10 +333,9 @@ public class ResponseNativeFunctionSuccessTest {
         String headerValue = "100-continue";
         BString key = new BString(expect);
 
-        BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(expect, new BStringArray(new String[]{headerValue}));
-        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
-        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        httpHeaders.add(expect, headerValue);
+        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
 
         BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
@@ -375,8 +343,8 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertNull(map.get("100-continue"));
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("100-continue"));
     }
 
     @Test(description = "Test RemoveHeader function within a service")
@@ -399,10 +367,11 @@ public class ResponseNativeFunctionSuccessTest {
         String expect = "Expect";
         String range = "Range";
 
-        BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(expect, new BStringArray(new String[]{"100-continue"}));
-        headersMap.put(range, new BStringArray(new String[]{"bytes=500-999"}));
-        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        httpHeaders.add(expect, "100-continue");
+        httpHeaders.add(expect, "bytes=500-999");
+        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
+
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {outResponse};
 
@@ -411,9 +380,9 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertNull(map.get(expect));
-        Assert.assertNull(map.get(range));
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get(expect));
+        Assert.assertNull(returnHeaders.get(range));
     }
 
     @Test(description = "Test RemoveAllHeaders function within a service")
@@ -449,8 +418,8 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertEquals(map.get(range).get(0), rangeValue);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(range), rangeValue);
     }
 
     @Test
@@ -464,21 +433,6 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct entity = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
         BJSON bJson = (BJSON) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
-    }
-
-    @Test
-    public void testSetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        BString name = new BString(propertyName);
-        BString value = new BString(propertyValue);
-        BValue[] inputArg = {name, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage responseMsg = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(responseMsg.getProperty(propertyName), propertyValue);
     }
 
     @Test

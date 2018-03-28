@@ -33,7 +33,7 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.transactions.coordinator",
+        orgName = "ballerina", packageName = "transactions.coordinator",
         functionName = "abortResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING),
                 @Argument(name = "transactionBlockId", type = TypeKind.INT)},
@@ -45,7 +45,7 @@ public class AbortResourceManagers extends BlockingNativeCallableUnit {
         String transactionId = ctx.getStringArgument(0);
         int transactionBlockId = (int) ctx.getIntArgument(0);
         boolean abortSuccessful =
-                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
+                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId, false);
         ctx.setReturnValues(new BBoolean(abortSuccessful));
     }
 }

@@ -210,7 +210,7 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test empty string resource path")
     public void testEmptyStringResourcepath() {
-        String path = "/ecommerceservice";
+        String path = "/ecommerceservice/echo1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 

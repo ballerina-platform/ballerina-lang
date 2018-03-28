@@ -6,6 +6,6 @@ public function main (string[] args) {
     secureFunction(data1[0][0], data1[0][0]);
 }
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }

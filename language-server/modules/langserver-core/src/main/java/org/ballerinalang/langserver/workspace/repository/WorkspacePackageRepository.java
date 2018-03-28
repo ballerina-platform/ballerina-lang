@@ -6,6 +6,7 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -31,12 +32,12 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID) {
-        Path path = this.generatePathOld(pkgID);
+        Path path = this.generatePath(pkgID);
         return new WorkspacePackageSource(pkgID, path);
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
-        Path path = this.generatePathOld(pkgID);
+        Path path = this.generatePath(pkgID);
         try {
             return new WorkspacePackageSource(pkgID, path, entryName);
         } catch (FSPackageEntityNotAvailableException e) {
@@ -115,6 +116,11 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
                 }
             }
             return this.cachedEntryNames;
+        }
+
+        @Override
+        public RepoHierarchy getRepoHierarchy() {
+            return null;
         }
 
         @Override

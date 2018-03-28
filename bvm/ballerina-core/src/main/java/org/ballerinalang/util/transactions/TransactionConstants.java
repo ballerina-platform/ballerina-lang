@@ -27,6 +27,7 @@ public class TransactionConstants {
     public static final String COORDINATOR_BEGIN_TRANSACTION = "beginTransaction";
     public static final String COORDINATOR_END_TRANSACTION = "endTransaction";
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
+    public static final String COORDINATOR_IS_INITIATOR = "isInitiator";
 
     public static final String COORDINATOR_PACKAGE = "ballerina.transactions.coordinator";
 

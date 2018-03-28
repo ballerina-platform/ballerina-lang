@@ -47,7 +47,7 @@ public class BNullType extends BType {
 
     @Override
     public TypeSignature getSig() {
-        return null;
+        return new TypeSignature(TypeSignature.SIG_NULL);
     }
 
     @Override

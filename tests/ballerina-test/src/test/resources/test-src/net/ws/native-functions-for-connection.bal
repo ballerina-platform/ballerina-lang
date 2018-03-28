@@ -1,34 +1,34 @@
-import ballerina.net.ws;
+import ballerina/net.ws;
 
-function testGetID(ws:Connection conn) (string) {
+function testGetID(ws:Connection conn) returns (string) {
     return conn.getID();
 }
 
-function testGetNegotiatedSubProtocols(ws:Connection conn) (string)  {
+function testGetNegotiatedSubProtocols(ws:Connection conn) returns (string)  {
     return conn.getNegotiatedSubProtocol();
 }
 
-function testIsSecure(ws:Connection conn) (boolean) {
+function testIsSecure(ws:Connection conn) returns (boolean) {
     return conn.isSecure();
 }
 
-function testIsOpen(ws:Connection conn) (boolean) {
+function testIsOpen(ws:Connection conn) returns (boolean) {
     return conn.isOpen();
 }
 
-function testGetUpgradeHeader(ws:Connection conn, string key) (string) {
+function testGetUpgradeHeader(ws:Connection conn, string key) returns (string) {
     return conn.getUpgradeHeader(key);
 }
 
-function testGetUpgradeHeaders (ws:Connection  conn) (map) {
+function testGetUpgradeHeaders (ws:Connection  conn) returns (map) {
     return conn.getUpgradeHeaders();
 }
 
-function testGetParentConnection(ws:Connection conn) (ws:Connection) {
+function testGetParentConnection(ws:Connection conn) returns (ws:Connection) {
     return conn.getParentConnection();
 }
 
-function testGetQueryParams(ws:Connection conn) (map) {
+function testGetQueryParams(ws:Connection conn) returns (map) {
     return conn.getQueryParams();
 }
 

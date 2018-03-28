@@ -27,8 +27,10 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +44,7 @@ import java.util.Set;
 public abstract class BLangInvokableNode extends BLangNode implements InvokableNode {
 
     public BLangIdentifier name;
-    public List<BLangVariable> params;
+    public List<BLangVariable> requiredParams;
     public List<BLangVariable> retParams;
     public BLangBlockStmt body;
     public Set<Flag> flagSet;
@@ -51,11 +53,13 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public List<BLangEndpoint> endpoints;
     public List<BLangWorker> workers;
+    public List<BLangVariableDef> defaultableParams;
+    public BLangVariable restParam;
 
     public BInvokableSymbol symbol;
 
     public BLangInvokableNode() {
-        this.params = new ArrayList<>();
+        this.requiredParams = new ArrayList<>();
         this.retParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.endpoints = new ArrayList<>();
@@ -63,6 +67,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.workers = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
+        this.defaultableParams = new ArrayList<>();
     }
 
     @Override
@@ -77,7 +82,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     @Override
     public List<BLangVariable> getParameters() {
-        return params;
+        return requiredParams;
     }
 
     @Override
@@ -156,13 +161,33 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
+    public List<BLangVariableDef> getDefaultableParameters() {
+        return defaultableParams;
+    }
+
+    @Override
+    public void addDefaultableParameter(VariableDefinitionNode param) {
+        this.defaultableParams.add((BLangVariableDef) param);
+    }
+
+    @Override
+    public VariableNode getRestParameters() {
+        return restParam;
+    }
+
+    @Override
+    public void setRestParameter(VariableNode restParam) {
+        this.restParam = (BLangVariable) restParam;
+    }
+
+    @Override
     public List<? extends EndpointNode> getEndpointNodes() {
         return endpoints;
     }
 
     @Override
     public String toString() {
-        return this.flagSet + " " + this.getName() + " (" + this.params +
+        return this.flagSet + " " + this.getName() + " (" + this.requiredParams + 
                 ") (" + this.retParams + ") Body: {" + this.body + "}"
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }

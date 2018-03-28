@@ -1,6 +1,6 @@
 package restfulservice.samples;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {

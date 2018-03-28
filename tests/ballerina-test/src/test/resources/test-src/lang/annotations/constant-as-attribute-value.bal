@@ -6,10 +6,12 @@ function foo () {
     // do nothing
 }
 
-annotation Args {
+struct Argument {
     string value;
 }
 
-function getString()(string) {
+annotation Args Argument;
+
+function getString() returns (string) {
     return "sample";
 }

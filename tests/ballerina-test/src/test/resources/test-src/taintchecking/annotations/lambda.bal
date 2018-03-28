@@ -1,6 +1,6 @@
 public function main (string[] args) {
     function (string, string) returns (string) testLambda =
-    function (sensitive string x,sensitive  string y) returns (tainted string) {
+    function (@sensitive string x,@sensitive  string y) returns (@tainted string) {
         string r = x + y;
         return r;
     };
@@ -8,6 +8,6 @@ public function main (string[] args) {
     secureFunctionFirstParamSensitive(testLambda("Hello ", "world.!!!"));
 }
 
-public function secureFunctionFirstParamSensitive (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunctionFirstParamSensitive (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }

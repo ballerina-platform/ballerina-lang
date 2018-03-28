@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.HttpUtil;
  * Ballerina function to get a message property.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "getProperty",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
                              structPackage = "ballerina.net.http"),

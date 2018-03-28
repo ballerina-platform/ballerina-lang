@@ -25,6 +25,7 @@ import org.ballerinalang.plugins.idea.debugger.dto.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -32,56 +33,77 @@ import java.util.List;
  */
 public class BallerinaSuspendContext extends XSuspendContext {
 
-    @NotNull
-    private final BallerinaExecutionStack myStack;
+    private List<BallerinaExecutionStack> myExecutionStacks = new LinkedList<>();
+    private BallerinaExecutionStack myActiveStack;
 
     public BallerinaSuspendContext(@NotNull BallerinaDebugProcess process, @NotNull Message message) {
-        myStack = new BallerinaExecutionStack(process, message.getThreadId(), message.getFrames());
+        addToExecutionStack(process, message);
+    }
+
+    public void addToExecutionStack(@NotNull BallerinaDebugProcess process, @NotNull Message message) {
+        BallerinaExecutionStack stack = new BallerinaExecutionStack(process, this, message.getThreadId(),
+                message.getFrames());
+        myExecutionStacks.add(stack);
+        myActiveStack = stack;
     }
 
     @Nullable
     @Override
-    public XExecutionStack getActiveExecutionStack() {
-        return myStack;
+    public BallerinaExecutionStack getActiveExecutionStack() {
+        return myActiveStack;
+    }
+
+    public void setMyActiveStack(BallerinaExecutionStack stack) {
+        myActiveStack = stack;
     }
 
     @NotNull
     @Override
     public XExecutionStack[] getExecutionStacks() {
-        return new XExecutionStack[]{myStack};
+        return myExecutionStacks.toArray(new BallerinaExecutionStack[myExecutionStacks.size()]);
     }
 
     static class BallerinaExecutionStack extends XExecutionStack {
 
-        private final String threadId;
+        private final String myWorkerID;
         @NotNull
         private final BallerinaDebugProcess myProcess;
         @NotNull
-        private final List<BallerinaStackFrame> myStack;
+        private final List<BallerinaStackFrame> myStacks;
 
-        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process, String threadId, List<Frame> frames) {
-            super("Thread #" + threadId);
-            this.threadId = threadId;
+        private final BallerinaSuspendContext myContext;
+
+        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process, BallerinaSuspendContext context,
+                                       String myWorkerID, List<Frame> frames) {
+            super(" Worker #" + myWorkerID);
+            this.myWorkerID = myWorkerID;
+            this.myContext = context;
             this.myProcess = process;
-            this.myStack = ContainerUtil.newArrayListWithCapacity(frames.size());
+            this.myStacks = ContainerUtil.newArrayListWithCapacity(frames.size());
             for (Frame frame : frames) {
-                myStack.add(new BallerinaStackFrame(myProcess, frame));
+                myStacks.add(new BallerinaStackFrame(myProcess, frame));
             }
         }
 
         @Nullable
         @Override
         public XStackFrame getTopFrame() {
-            return ContainerUtil.getFirstItem(myStack);
+            return ContainerUtil.getFirstItem(myStacks);
         }
 
         @Override
         public void computeStackFrames(int firstFrameIndex, @NotNull XStackFrameContainer container) {
-            container.addStackFrames(myStack, true);
+            // Note - Need to add an empty list if the index is not 0. Otherwise will not work properly.
+            if (firstFrameIndex == 0) {
+                container.addStackFrames(myStacks, true);
+            } else {
+                container.addStackFrames(new LinkedList<>(), true);
+            }
+            myContext.setMyActiveStack(this);
         }
 
-        public String getThreadId() {
-            return threadId;
+        public String getMyWorkerID() {
+            return myWorkerID;
         }
     }
 }

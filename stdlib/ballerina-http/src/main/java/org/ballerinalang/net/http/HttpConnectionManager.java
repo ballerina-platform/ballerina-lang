@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.wso2.transport.http.netty.config.ConfigurationBuilder;
@@ -33,6 +34,7 @@ import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,7 +68,13 @@ public class HttpConnectionManager {
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
         if (isHTTPTraceLoggerEnabled()) {
-            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+            } catch (IOException e) {
+                throw new BallerinaConnectorException("Invalid HTTP trace log parameters found.", e);
+            } catch (TraceLogConfigurationException e) {
+                throw new BallerinaConnectorException("Unsupported HTTP trace log configuration. " + e.getMessage(), e);
+            }
         }
     }
 
@@ -211,20 +219,11 @@ public class HttpConnectionManager {
 //        HTTPServicesRegistry httpServicesRegistry = httpServerConnector.getHttpServicesRegistry();
 //        WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
 //        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
-//        connectorFuture.setWSConnectorListener(new BallerinaWebSocketServerConnectorListener
+//        connectorFuture.setWSConnectorListener(new WebSocketServerConnectorListener
 //        (webSocketServicesRegistry));
 //        connectorFuture.setPortBindingEventListener(
 //                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
 //    }
-
-    /**
-     * Gets the access logto value if available.
-     * @return the access logto value from the ConfigRegistry
-     */
-    public String getHttpAccessLoggerConfig() {
-        return ConfigRegistry.getInstance().getInstanceConfigValue(HTTP_ACCESS_LOG, LOG_TO);
-    }
-
 
     private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
         int noOfExceptions = startupSyncer.getNoOfFailedConnectors();
@@ -250,6 +249,14 @@ public class HttpConnectionManager {
         // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
         return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
                 org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
+    }
+
+    /**
+     * Gets the access logto value if available.
+     * @return the access logto value from the ConfigRegistry
+     */
+    public String getHttpAccessLoggerConfig() {
+        return ConfigRegistry.getInstance().getConfiguration(HTTP_ACCESS_LOG, LOG_TO);
     }
 
     private String makeFirstLetterLowerCase(String str) {

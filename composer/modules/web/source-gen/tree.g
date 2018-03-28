@@ -89,7 +89,7 @@ Deprecated
    ;
 
 Endpoint
-   :  <annotationAttachments>* endpoint < <endPointType.source> > <name.value> <configurationExpression.source>
+   :  <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
    ;
 
 EndpointType
@@ -166,6 +166,14 @@ Literal
    | <value>
    ;
 
+Match
+   : match <expression.source> { <patternClauses>* }
+   ;
+
+MatchPatternClause
+   : <withoutCurlies?> <variableNode.source> =>   <statement.source>
+   :                   <variableNode.source> => { <statement.source> }
+
 Next
    : next ;
    ;
@@ -180,7 +188,7 @@ RecordLiteralKeyValue
    ;
 
 Resource
-   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 Return
@@ -188,7 +196,7 @@ Return
    ;
 
 Service
-   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <endpointType.source> > <name.value> { <variables>* <resources>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <boundEndpoints-joined-by,>* { <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -267,6 +275,7 @@ ValueType
 Variable
    : <endpoint?>                                                                                                  endpoint <typeNode.source> <name.value> { <initialExpression.source> ; }
    | <endpoint?>                                                                                                  endpoint <typeNode.source> <name.value> { }
+   | <serviceEndpoint?>                                                                                                             endpoint <name.value> 
    | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
    | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                               <typeNode.source> <name.value>                              ;
    |                                                                                                                       <typeNode.source> <name.value> = <initialExpression.source>

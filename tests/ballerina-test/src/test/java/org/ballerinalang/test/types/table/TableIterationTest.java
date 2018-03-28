@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -37,13 +38,28 @@ import java.io.File;
 public class TableIterationTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
     private static final String DB_NAME = "TEST_DATA_TABLE__ITR_DB";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-iteration.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table-iteration-negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
+    }
+
+    @Test(groups = "TableIterTest", description = "Negative tests for select operation")
+    public void testNegative() {
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 24, 29);
+        BAssertUtil.validateError(resultNegative, 1,
+                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 55,
+                41);
+        BAssertUtil.validateError(resultNegative, 2,
+                "incompatible types: expected 'EmployeeSalary', found '" + "(EmployeeSalaryIncompatible)'", 62, 41);
+        BAssertUtil.validateError(resultNegative, 3,
+                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 69,
+                41);
     }
 
     @Test(groups = "TableIterTest", description = "Check accessing data using foreach iteration")
@@ -73,7 +89,7 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
 
-    @Test(groups = "TableIterTest", description = "Check filter operation")
+    @Test(groups = "TableIterTest", description = "Check filter operation", enabled = false)
     public void testFilterTable() {
         BValue[] returns = BRunUtil.invoke(result, "testFilterTable");
         Assert.assertEquals(returns.length, 3);
@@ -82,7 +98,7 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
     }
 
-    @Test(groups = "TableIterTest", description = "Check filter operation")
+    @Test(groups = "TableIterTest", description = "Check filter operation", enabled = false)
     public void testFilterWithAnnonymousFuncOnTable() {
         BValue[] returns = BRunUtil.invoke(result, "testFilterWithAnnonymousFuncOnTable");
         Assert.assertEquals(returns.length, 3);
@@ -98,7 +114,7 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-    @Test(groups = "TableIterTest", description = "Check accessing data using foreach iteration")
+    @Test(groups = "TableIterTest", description = "Check accessing data using foreach iteration", enabled = false)
     public void testMapTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMapTable");
         Assert.assertEquals(returns.length, 1);
@@ -108,14 +124,14 @@ public class TableIterationTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(3), "Peter");
     }
 
-    @Test(groups = "TableIterTest", description = "Check map with filter operation")
+    @Test(groups = "TableIterTest", description = "Check map with filter operation", enabled = false)
     public void testMapWithFilterTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMapWithFilterTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "Peter");
     }
 
-    @Test(groups = "TableIterTest", description = "Check filter with map operation")
+    @Test(groups = "TableIterTest", description = "Check filter with map operation", enabled = false)
     public void testFilterWithMapTable() {
         BValue[] returns = BRunUtil.invoke(result, "testFilterWithMapTable");
         Assert.assertEquals(returns.length, 1);
@@ -129,28 +145,28 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(groups = "TableIterTest", description = "Check min operation")
+    @Test(groups = "TableIterTest", description = "Check min operation", enabled = false)
     public void testMinWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMinWithTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 100.25);
     }
 
-    @Test(groups = "TableIterTest", description = "Check max operation")
+    @Test(groups = "TableIterTest", description = "Check max operation", enabled = false)
     public void testMaxWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMaxWithTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 600.25);
     }
 
-    @Test(groups = "TableIterTest", description = "Check sum operation")
+    @Test(groups = "TableIterTest", description = "Check sum operation", enabled = false)
     public void testSumWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testSumWithTable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1701.0);
     }
 
-    @Test(groups = "TableIterTest", description = "Check average operation")
+    @Test(groups = "TableIterTest", description = "Check average operation", enabled = false)
     public void testAverageWithTable() {
         BValue[] returns = BRunUtil.invoke(result, "testAverageWithTable");
         Assert.assertEquals(returns.length, 1);
@@ -162,6 +178,42 @@ public class TableIterationTest {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(enabled = false)
+    public void testSelect() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelect");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+    }
+
+    @Test(enabled = false)
+    public void testSelectCompatibleLambdaInput() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+    }
+
+    @Test(enabled = false)
+    public void testSelectCompatibleLambdaOutput() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaOutput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+    }
+
+    @Test(enabled = false)
+    public void testSelectCompatibleLambdaInputOutput() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInputOutput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
     @AfterSuite

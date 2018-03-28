@@ -15,18 +15,3 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-export const iconForTool = {
-    height: 300,
-    width: 300,
-    padding: {
-        left: 5,
-    },
-};
-
-export const connectorDeclaration = {
-    gutter: {
-        v: 400,
-        h: 400,
-    },
-};

@@ -5,6 +5,6 @@ public function main (string[] args) {
     secureFunction(data);
 }
 
-function secureFunction (@sensitive{} string secureIn) {
+function secureFunction (@sensitive string secureIn) {
 
 }

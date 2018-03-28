@@ -23,11 +23,11 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -49,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -76,6 +78,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
+    private PackageCache packageCache;
     private SymbolResolver symResolver;
     private Names names;
     private BLangDiagnosticLog dlog;
@@ -99,6 +102,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         context.put(COMPILER_PLUGIN_RUNNER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -170,7 +174,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         List<BLangAnnotationAttachment> attachmentList = serviceNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(serviceNode, list));
-        notifyEndpointProcessors(((BServiceSymbol) serviceNode.symbol).endpointType, attachmentList,
+        notifyEndpointProcessors(serviceNode.endpointType, attachmentList,
                 (processor, list) -> processor.process(serviceNode, list));
         serviceNode.resources.forEach(resource -> resource.accept(this));
         serviceNode.endpoints.forEach(endpoint -> endpoint.accept(this));
@@ -179,6 +183,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangStruct structNode) {
         List<BLangAnnotationAttachment> attachmentList = structNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(structNode, list));
+    }
+
+    public void visit(BLangObject objectNode) {
+//        List<BLangAnnotationAttachment> attachmentList = objectNode.getAnnotationAttachments();
+//        notifyProcessors(attachmentList, (processor, list) -> processor.process(objectNode, list));
     }
 
     public void visit(BLangVariable varNode) {
@@ -213,6 +222,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                 (processor, list) -> processor.process(endpointNode, list));
     }
 
+    public void visit(BLangForever foreverStatement) {
+        /* ignore */
+    }
+
     // private methods
 
     private void loadPlugins() {
@@ -245,7 +258,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
         for (String annPackage : annotationPkgs) {
             // Check whether each annotation type definition is available in the AST.
-            List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage, plugin);
+            List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage);
             annotationSymbols.forEach(annSymbol -> {
                 DefinitionID definitionID = new DefinitionID(annSymbol.pkgID.name.value, annSymbol.name.value);
                 List<CompilerPlugin> processorList = processorMap.computeIfAbsent(
@@ -255,11 +268,14 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
     }
 
-    private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage, CompilerPlugin plugin) {
+    private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage) {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
-        PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
-        BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+
+        BLangPackage pkgNode = this.packageCache.get(annPackage);
+        if (pkgNode == null) {
+            return annotationSymbols;
+        }
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         if (pkgEnv != null) {
             for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
                 annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
@@ -318,11 +334,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     private boolean isValidEndpoints(DefinitionID endpoint, CompilerPlugin plugin) {
         PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(endpoint.pkgName), Names.EMPTY);
-        BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
-        if (pkgSymbol == null) {
+        BLangPackage pkgNode = this.packageCache.get(pkdID);
+        if (pkgNode == null) {
             return false;
         }
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         final BSymbol bSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(endpoint.name), SymTag.VARIABLE_NAME);
         return bSymbol != symTable.notFoundSymbol;
     }

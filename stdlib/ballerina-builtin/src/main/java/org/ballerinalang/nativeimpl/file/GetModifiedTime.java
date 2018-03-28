@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
@@ -37,8 +38,6 @@ import java.time.ZonedDateTime;
 
 import static org.ballerinalang.nativeimpl.Utils.getTimeStructInfo;
 import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
 
 /**
  * Retrieves the last modified time of the specified file.
@@ -46,7 +45,7 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "getModifiedTime",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT),
@@ -68,15 +67,16 @@ public class GetModifiedTime extends BlockingNativeCallableUnit {
             ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
             lastModifiedStruct = Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
                     lastModified.toMillis(), zonedDateTime.getZone().toString());
-            context.setReturnValues(lastModifiedStruct, null, null);
-        } catch (IOException e) {
-            String msg = "Error in reading file: " + path;
+            context.setReturnValues(lastModifiedStruct);
+        } catch (IOException | SecurityException e) {
+            String msg;
+            if (e instanceof IOException) {
+                msg = "Error in reading file: " + path;
+            } else {
+                msg = "Read permission denied for file: " + path;
+            }
             log.error(msg, e);
-            context.setReturnValues(null, null, createIOError(context, msg));
-        } catch (SecurityException e) {
-            String msg = "Read permission denied for file: " + path;
-            log.error(msg, e);
-            context.setReturnValues(null, createAccessDeniedError(context, msg), null);
+            context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
     }
 }

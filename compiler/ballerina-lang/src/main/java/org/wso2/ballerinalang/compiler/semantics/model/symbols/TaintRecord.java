@@ -29,11 +29,11 @@ import java.util.List;
  * @since 0.965.0
  */
 public class TaintRecord {
-    public List<Boolean> retParamTaintdStatus;
+    public List<Boolean> retParamTaintedStatus;
     public List<TaintError> taintError;
 
-    public TaintRecord(List<Boolean> retParamTaintdStatus, List<TaintError> taintError) {
-        this.retParamTaintdStatus = retParamTaintdStatus;
+    public TaintRecord(List<Boolean> retParamTaintedStatus, List<TaintError> taintError) {
+        this.retParamTaintedStatus = retParamTaintedStatus;
         this.taintError = taintError;
     }
 
@@ -49,6 +49,34 @@ public class TaintRecord {
             this.pos = pos;
             this.paramName = paramName;
             this.diagnosticCode = diagnosticCode;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            TaintError that = (TaintError) o;
+
+            if (!pos.toString().equals(that.pos.toString())) {
+                return false;
+            }
+            if (!paramName.equals(that.paramName)) {
+                return false;
+            }
+            return diagnosticCode == that.diagnosticCode;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = pos.toString().hashCode();
+            result = 31 * result + paramName.hashCode();
+            result = 31 * result + diagnosticCode.hashCode();
+            return result;
         }
     }
 }

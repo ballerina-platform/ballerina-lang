@@ -4,15 +4,15 @@ struct Person {
     function (string, string) returns (string) getName;
 }
 
-function getFullName (string f, string l) returns (string r){
+function getFullName (string f, string l) returns (string){
     return l + ", " + f;
 }
 
-function test1()(string x, string y){
+function test1() returns (string, string){
     Person bob = {fname:"bob", lname:"white"};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};
 
-    x = bob.getName(bob.fname, bob.lname );
-    y = tom.getName(tom.fname, tom );
-    return;
+    string x = bob.getName(bob.fname, bob.lname );
+    string y = tom.getName(tom.fname, tom );
+    return (x, y);
 }

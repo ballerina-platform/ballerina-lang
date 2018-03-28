@@ -6,37 +6,39 @@ lexer grammar BallerinaLexer;
     boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
+    boolean inSiddhiInsertQuery = false;
+    boolean inSiddhiTimeScaleQuery = false;
+    boolean inSiddhiOutputRateLimit = false;
 }
 
 // Reserved words
 
-PACKAGE         : 'package';
-IMPORT          : 'import';
-AS              : 'as';
-PUBLIC          : 'public';
-PRIVATE         : 'private';
-NATIVE          : 'native';
-SERVICE         : 'service';
-RESOURCE        : 'resource';
-FUNCTION        : 'function';
-STREAMLET       : 'streamlet' { inSiddhi = true; } ;
-CONNECTOR       : 'connector';
-ACTION          : 'action';
-STRUCT          : 'struct';
-ANNOTATION      : 'annotation';
-ENUM            : 'enum' ;
-PARAMETER       : 'parameter';
-CONST           : 'const';
-TRANSFORMER     : 'transformer';
-WORKER          : 'worker';
-ENDPOINT        : 'endpoint';
-XMLNS           : 'xmlns';
-RETURNS         : 'returns';
-VERSION         : 'version';
-DOCUMENTATION   : 'documentation';
-DEPRECATED      : 'deprecated';
+PACKAGE     : 'package' ;
+IMPORT      : 'import' ;
+AS          : 'as' ;
+PUBLIC      : 'public' ;
+PRIVATE     : 'private' ;
+NATIVE      : 'native' ;
+SERVICE     : 'service' ;
+RESOURCE    : 'resource' ;
+FUNCTION    : 'function' ;
+STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
+ANNOTATION  : 'annotation' ;
+ENUM        : 'enum' ;
+PARAMETER   : 'parameter' ;
+CONST       : 'const' ;
+TRANSFORMER : 'transformer' ;
+WORKER      : 'worker' ;
+ENDPOINT    : 'endpoint' ;
+BIND        : 'bind' ;
+XMLNS       : 'xmlns' ;
+RETURNS     : 'returns';
+VERSION     : 'version';
+DOCUMENTATION  : 'documentation';
+DEPRECATED  :  'deprecated';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; } ;
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -52,126 +54,162 @@ DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' ;
 WINDOW      : 'window' ;
-QUERY       : {inSiddhi}? 'query' { inSiddhi = false; }  ;
+QUERY       : 'query' ;
+EXPIRED     : 'expired' ;
+CURRENT     : 'current' ;
+EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
+EVERY       : 'every' ;
+WITHIN      : 'within' ;
+LAST        : {inSiddhiOutputRateLimit}? 'last' { inSiddhiOutputRateLimit = false; } ;
+FIRST       : {inSiddhiOutputRateLimit}? 'first' { inSiddhiOutputRateLimit = false; } ;
+SNAPSHOT    : 'snapshot' ;
+OUTPUT      : {inSiddhiOutputRateLimit}? 'output' { inSiddhiTimeScaleQuery = true; } ;
+INNER       : 'inner' ;
+OUTER       : 'outer' ;
+RIGHT       : 'right' ;
+LEFT        : 'left' ;
+FULL        : 'full' ;
+UNIDIRECTIONAL  : 'unidirectional' ;
+REDUCE      : 'reduce' ;
+SECOND      : {inSiddhiTimeScaleQuery}? 'second' { inSiddhiTimeScaleQuery = false; } ;
+MINUTE      : {inSiddhiTimeScaleQuery}? 'minute' { inSiddhiTimeScaleQuery = false; } ;
+HOUR        : {inSiddhiTimeScaleQuery}? 'hour' { inSiddhiTimeScaleQuery = false; } ;
+DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; } ;
+MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
+YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
+WHENEVER     : 'whenever' ;
 
-TYPE_INT        : 'int';
-TYPE_FLOAT      : 'float';
-TYPE_BOOL       : 'boolean';
-TYPE_STRING     : 'string';
-TYPE_BLOB       : 'blob';
-TYPE_MAP        : 'map';
-TYPE_JSON       : 'json';
-TYPE_XML        : 'xml';
-TYPE_TABLE      : 'table';
-TYPE_STREAM     : 'stream';
-TYPE_AGGREGTION : 'aggergation';
-TYPE_ANY        : 'any';
-TYPE_TYPE       : 'type';
+TYPE_INT        : 'int' ;
+TYPE_FLOAT      : 'float' ;
+TYPE_BOOL       : 'boolean' ;
+TYPE_STRING     : 'string' ;
+TYPE_BLOB       : 'blob' ;
+TYPE_MAP        : 'map' ;
+TYPE_JSON       : 'json' ;
+TYPE_XML        : 'xml' ;
+TYPE_TABLE      : 'table' ;
+TYPE_STREAM     : 'stream' ;
+TYPE_ANY        : 'any' ;
+TYPE_DESC       : 'typedesc' ;
+TYPE_TYPE       : 'type' ;
+TYPE_FUTURE     : 'future' ;
 
-VAR             : 'var';
-CREATE          : 'create';
-ATTACH          : 'attach';
-IF              : 'if';
-ELSE            : 'else';
-FOREACH         : 'foreach';
-WHILE           : 'while';
-NEXT            : 'next';
-BREAK           : 'break';
-FORK            : 'fork';
-JOIN            : 'join';
-SOME            : 'some';
-ALL             : 'all';
-TIMEOUT         : 'timeout';
-TRY             : 'try';
-CATCH           : 'catch';
-FINALLY         : 'finally';
-THROW           : 'throw';
-RETURN          : 'return';
-TRANSACTION     : 'transaction';
-ABORT           : 'abort';
-FAILED          : 'failed';
-RETRIES         : 'retries';
-LENGTHOF        : 'lengthof';
-TYPEOF          : 'typeof';
-WITH            : 'with';
-BIND            : 'bind';
-IN              : 'in';
-LOCK            : 'lock';
+VAR         : 'var' ;
+NEW         : 'new' ;
+IF          : 'if' ;
+MATCH       : 'match' ;
+ELSE        : 'else' ;
+FOREACH     : 'foreach' ;
+WHILE       : 'while' ;
+NEXT        : 'next' ;
+BREAK       : 'break' ;
+FORK        : 'fork' ;
+JOIN        : 'join' ;
+SOME        : 'some' ;
+ALL         : 'all' ;
+TIMEOUT     : 'timeout' ;
+TRY         : 'try' ;
+CATCH       : 'catch' ;
+FINALLY     : 'finally' ;
+THROW       : 'throw' ;
+RETURN      : 'return' ;
+TRANSACTION : 'transaction' ;
+ABORT       : 'abort' ;
+FAIL        : 'fail' ;
+ONRETRY     : 'onretry' ;
+RETRIES     : 'retries' ;
+ONABORT     : 'onabort' ;
+ONCOMMIT    : 'oncommit' ;
+LENGTHOF    : 'lengthof' ;
+TYPEOF      : 'typeof' ;
+WITH        : 'with' ;
+IN          : 'in' ;
+LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
+ASYNC       : 'async' ;
+AWAIT       : 'await' ;
 
 // Separators
 
-SEMICOLON           : ';';
-COLON               : ':';
-DOT                 : '.';
-COMMA               : ',';
-LEFT_BRACE          : '{';
-RIGHT_BRACE         : '}';
-LEFT_PARENTHESIS    : '(';
-RIGHT_PARENTHESIS   : ')';
-LEFT_BRACKET        : '[';
-RIGHT_BRACKET       : ']';
-QUESTION_MARK       : '?';
+SEMICOLON           : ';' ;
+COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
+DOT                 : '.' ;
+COMMA               : ',' ;
+LEFT_BRACE          : '{' ;
+RIGHT_BRACE         : '}' ;
+LEFT_PARENTHESIS    : '(' ;
+RIGHT_PARENTHESIS   : ')' ;
+LEFT_BRACKET        : '[' ;
+RIGHT_BRACKET       : ']' ;
+QUESTION_MARK       : '?' ;
 
 // Arithmetic operators
 
-ASSIGN          : '=';
-ADD             : '+';
-SUB             : '-';
-MUL             : '*';
-DIV             : '/';
-POW             : '^';
-MOD             : '%';
+ASSIGN  : '=' ;
+ADD     : '+' ;
+SUB     : '-' ;
+MUL     : '*' ;
+DIV     : '/' ;
+POW     : '^' ;
+MOD     : '%';
 
 // Relational operators
 
-NOT         : '!';
-EQUAL       : '==';
-NOT_EQUAL   : '!=';
-GT          : '>';
-LT          : '<';
-GT_EQUAL    : '>=';
-LT_EQUAL    : '<=';
-AND         : '&&';
-OR          : '||';
+NOT         : '!' ;
+EQUAL       : '==' ;
+NOT_EQUAL   : '!=' ;
+GT          : '>' ;
+LT          : '<' ;
+GT_EQUAL    : '>=' ;
+LT_EQUAL    : '<=' ;
+AND         : '&&' ;
+OR          : '||' ;
 
 // Additional symbols
 
 RARROW      : '->' ;
-LARROW      : '<-';
-AT          : '@';
-BACKTICK    : '`';
-RANGE       : '..';
+LARROW      : '<-' ;
+AT          : '@' ;
+BACKTICK    : '`' ;
+RANGE       : '..' ;
+ELLIPSIS    : '...' ;
+PIPE        : '|' ;
+EQUAL_GT    : '=>' ;
 
 TILDE           : '~';
 BITAND          : '&';
 BITOR           : '|';
 DOUBLEQUOTE     : '"';
 
-// §3.10.1 Integer Literals
-IntegerLiteral
-    :   DecimalIntegerLiteral
-    |   HexIntegerLiteral
-    |   OctalIntegerLiteral
-    |   BinaryIntegerLiteral
-    ;
+// Compound Assignment operators.
 
-fragment
+COMPOUND_ADD   : '+=' ;
+COMPOUND_SUB   : '-=' ;
+COMPOUND_MUL   : '*=' ;
+COMPOUND_DIV   : '/=' ;
+
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
+
+// Post Arithmetic operators.
+
+INCREMENT      : '++' ;
+DECREMENT      : '--' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 HexIntegerLiteral
     :   HexNumeral IntegerTypeSuffix?
     ;
 
-fragment
 OctalIntegerLiteral
     :   OctalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 BinaryIntegerLiteral
     :   BinaryNumeral IntegerTypeSuffix?
     ;
@@ -448,16 +486,16 @@ WS  :  [ \t\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> channel(HIDDEN)
+    :   '//' ~[\r\n]*   -> channel(HIDDEN)
     ;
 
 fragment
 IdentifierLiteral
-    : '|' IdentifierLiteralChar+ '|' ;
+    : '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|\\\b\f\n\r\t]
+    : ~[|"\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
@@ -506,6 +544,7 @@ fragment
 XMLEscapedSequence
     :   '\\\\'
     |   '\\{{'
+    |   '\\}}'
     ;
 
 fragment
