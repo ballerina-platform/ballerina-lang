@@ -37,6 +37,11 @@ class TracersStore {
     private List<TracerGenerator> tracers;
     private Map<String, Map<String, Tracer>> tracerStore;
 
+    TracersStore() {
+        this.tracers = new ArrayList<>();
+        this.tracerStore = new HashMap<>();
+    }
+
     TracersStore(OpenTracingConfig openTracingConfig) {
         this.tracers = new ArrayList<>();
         this.tracerStore = new HashMap<>();

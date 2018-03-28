@@ -23,11 +23,10 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -51,24 +50,17 @@ public class ExtractTraceContext extends BlockingNativeCallableUnit {
         String group = context.getStringArgument(0) == null ? DEFAULT_USER_API_GROUP : context.getStringArgument(0);
         Iterator<Map.Entry<String, String>> headerMap = Utils.toStringMap(header).entrySet().iterator();
 
-        Map<String, String> spanHeaders = new HashMap<>();
+        BMap<String, BString> spanHeaders = new BMap<>();
 
         while (headerMap.hasNext()) {
             Map.Entry<String, String> headers = headerMap.next();
             if (headers.getKey().startsWith(group)) {
-                spanHeaders.put(headers.getKey().substring(group.length()), headers.getValue());
-            } else {
-                spanHeaders.put(headers.getKey(), headers.getValue());
+                spanHeaders.put(headers.getKey().substring(group.length()), new BString(headers.getValue()));
             }
         }
-
-        String spanId = OpenTracerBallerinaWrapper.getInstance().extract(spanHeaders);
-
-        if (spanId != null) {
-            context.setReturnValues(new BString(spanId));
-        } else {
-            throw new BallerinaException("Can not use tracing API when tracing is disabled. " +
-                    "Check tracing configurations and dependencies.");
-        }
+        BStruct spanContextStruct = Utils.createSpanContextStruct(context, spanHeaders);
+        spanContextStruct.setRefField(0, spanHeaders);
+        context.setReturnValues(spanContextStruct);
     }
+
 }

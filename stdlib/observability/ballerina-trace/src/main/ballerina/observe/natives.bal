@@ -36,6 +36,10 @@ public struct Span {
     string spanName;
 }
 
+public struct SpanContext {
+    map contextMap;
+}
+
 @Description {value:"Starts a span and sets the specified reference to parentSpanId"}
 @Param {value:"serviceName: The service name of the process"}
 @Param {value:"spanName: The name of the span"}
@@ -43,14 +47,8 @@ public struct Span {
 @Param {value:"reference: childOf, followsFrom, root"}
 @Param {value:"parentSpanId: The Id of the parent span. If root reference, then parentSpanId will not be used"}
 @Return {value:"The span struct"}
-public function startSpan (string serviceName, string spanName, map tags, ReferenceType reference,
-                           string parentSpanId) returns (Span) {
-    Span span = {};
-    span.spanId = init(serviceName, spanName, tags, reference, parentSpanId);
-    span.serviceName = serviceName;
-    span.spanName = spanName;
-    return span;
-}
+public native function startSpan (string serviceName, string spanName, map tags, ReferenceType reference,
+                                  Span parentSpan) returns (Span);
 
 @Description {value:"Builds a span and sets the specified reference to parentSpanId"}
 @Param {value:"serviceName: The service name of the process"}
@@ -59,8 +57,8 @@ public function startSpan (string serviceName, string spanName, map tags, Refere
 @Param {value:"reference: childOf, followsFrom"}
 @Param {value:"parentSpanId: The Id of the parent span"}
 @Return {value:"String value of the span id that was generated"}
-native function init (string serviceName, string spanName, map tags, ReferenceType reference,
-                      string parentSpanId) returns (string);
+public native function startSpanWithParentContext (string serviceName, string spanName, map tags, ReferenceType reference,
+                                                   SpanContext parentSpanContext) returns (Span);
 
 @Description {value:"Finish the span specified by the spanId"}
 @Param {value:"spanId: The ID of the span to be finished"}
@@ -98,13 +96,13 @@ public native function <Span span> injectTraceContext (string traceGroup) return
 @Param {value:"headers: The map of headers"}
 @Param {value:"traceGroup: The kind of error. e.g. DBError"}
 @Return {value:""}
-public native function extractTraceContext (map headers, string traceGroup) returns (string);
+public native function extractTraceContext (map headers, string traceGroup) returns (SpanContext);
 
 @Description {value:"Method to save the parent span and extract the span Id"}
 @Param {value:"req: The http request that contains the header maps"}
 @Param {value:"traceGroup: The group to which this span belongs to"}
 @Return {value:"The id of the parent span passed in from an external function"}
-public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) returns (string) {
+public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) returns (SpanContext) {
     map headers = req.getCopyOfAllHeaders();
     return extractTraceContext(headers, traceGroup);
 }
