@@ -49,39 +49,17 @@ public native function <Counter counter> count() returns (float);
 public struct Gauge {
     string name;
     string description;
-    map tags
+    map tags;
 }
 
 @Description {value:"Create and register the gauge."}
 @Param {value:"gauge: The gauge instance to be registered."}
 public native function <Gauge gauge> register();
 
-@Description {value:"Increment the gauge by one."}
-@Param {value:"gauge: The gauge instance to be incremented by one."}
-public native function <Gauge gauge> incrementByOne();
-
-@Description {value:"Increment the gauge by the given amount."}
-@Param {value:"gauge: The gauge instance to be incremented by 'amount'."}
-@Param {value:"amount: float to be added with the gauge value."}
-public native function <Gauge gauge> increment(float amount);
-
-@Description {value:"Decrement the gauge by one."}
-@Param {value:"gauge: The gauge instance to be decremented by one."}
-public native function <Gauge gauge> decrementByOne();
-
-@Description {value:"Decrement the gauge by the given amount."}
-@Param {value:"gauge: The gauge instance to be decremented by 'amount'."}
-@Param {value:"amount: float to be added with the gauge value."}
-public native function <Gauge gauge> decrement(float amount);
-
 @Description {value:"Set the gauge to the given value."}
 @Param {value:"gauge: The gauge instance to be set."}
 @Param {value:"value: value to be set to the gauge."}
 public native function <Gauge gauge> setValue(float value);
-
-@Description {value:"Set the gauge to the current unix time."}
-@Param {value:"gauge: The gauge instance to be set."}
-public native function <Gauge gauge> setToCurrentTime();
 
 @Description {value:"Get the value of the gauge."}
 @Param {value:"gauge: The gauge instance to be returned."}
@@ -109,12 +87,30 @@ public native function <Summary summary> max() returns (float);
 @Return {value: ""}
 public native function <Summary summary> mean() returns (float);
 
+@Description {value: ""}
+@Param {value: "summary: "}
+@Param {value: "percentile "}
+@Return {value: ""}
 public native function <Summary summary> percentile(float percentile) returns (float);
 
+@Description {value: ""}
+@Param {value: "summary: "}
+@Param {value: "amount "}
 public native function <Summary summary> record(float amount);
 
+@Description {value: ""}
+@Param {value: "summary: "}
+@Return {value: ""}
 public native function <Summary summary> count() returns (float);
 
+@Description {value: ""}
+@Field {value: "NANOSECONDS: "}
+@Field {value: "MICROSECONDS: "}
+@Field {value: "MILLISECONDS: "}
+@Field {value: "SECONDS: "}
+@Field {value: "MINUTES: "}
+@Field {value: "HOURS: "}
+@Field {value: "DAYS: "}
 public enum TimeUnit {
     NANOSECONDS,
     MICROSECONDS,
@@ -125,20 +121,47 @@ public enum TimeUnit {
     DAYS
 }
 
+@Description {value: ""}
+@Field {value: "name: "}
+@Field {value: "description: "}
+@Field {value: "baseTimeUnit: "}
 public struct Timer {
     string name;
     string description;
     TimeUnit baseTimeUnit;
 }
 
+@Description {value: ""}
+@Param {value: "timer: "}
 public native function <Timer timer> register();
 
+@Description {value: ""}
+@Param {value: "timer: "}
+@Param {value: "timeUnit: "}
+@Return {value: ""}
 public native function <Timer timer> max(TimeUnit timeUnit) returns (float);
 
-public native function <Timer timer> mean(TimeUnit timeUnit) returns (int);
+@Description {value: ""}
+@Param {value: "timer: "}
+@Param {value: "timeUnit: "}
+@Return {value: ""}
+public native function <Timer timer> mean(TimeUnit timeUnit) returns (float);
 
+@Description {value: ""}
+@Param {value: "timer: "}
+@Param {value: "percentiles: "}
+@Param {value: "timeUnit: "}
+@Return {value: ""}
 public native function <Timer timer> percentile(float percentiles, TimeUnit timeUnit) returns (float);
 
-public native function <Timer timer> record(int amount, TimeUnit timeUnit) returns (int);
+@Description {value: ""}
+@Param {value: "timer: "}
+@Param {value: "amount: "}
+@Param {value: "timeUnit: "}
+@Param {value: ""}
+public native function <Timer timer> record(float amount, TimeUnit timeUnit);
 
-public native function <Timer timer> count() returns (int);
+@Description {value: ""}
+@Param {value: "timer: "}
+@Return {value: ""}
+public native function <Timer timer> count() returns (float);
