@@ -125,7 +125,7 @@ class ResourceNode extends React.Component {
         return (
             <g>
                 <PanelDecorator
-                    icon='tool-icons/resource'
+                    icon='resource'
                     title={name}
                     bBox={bBox}
                     model={this.props.model}

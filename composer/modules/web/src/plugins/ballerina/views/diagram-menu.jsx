@@ -56,7 +56,7 @@ class DiagramMenu extends React.Component {
                 }
                 { this.props.fitToWidth &&
                 <Menu.Menu position='right'>
-                    <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }}>
+                    <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }} className='menu-button'>
                         <Icon name='fw fw-edit' />
                         Edit
                     </Menu.Item>
