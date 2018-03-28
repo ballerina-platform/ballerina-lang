@@ -130,9 +130,14 @@ First, as usual add the corresponding package:
 import ballerinax/kubernetes;
 ```
 
-Now, let’s add the Kubernetes service annotation to our listener. This tells us that we want to expose it from Kubernetes (type is NodePort) under the name of ballerina-demo:
+Now, let’s add the code you need to run the service in Kubernetes.
 
 ```
+// Kubernetes configurations
+// This is the Kubernetes service annotation added to our listener 
+// This tells us that we want to expose it from Kubernetes 
+// The type is NodePort under the name of hello-world:
+
 @kubernetes:SVC{
    serviceType:"NodePort",
    name:"hello-world"
@@ -140,20 +145,17 @@ Now, let’s add the Kubernetes service annotation to our listener. This tells u
 endpoint http:ServiceEndpoint listener {
   port:9090
 };
-```
 
-Finally, add the generation of Kubernetes artifacts:
 
-```
+// This creates a docker image and a deployment into which it puts it.
+
 @kubernetes:Deployment {
-   image: "demo/ballerina-demo",
-   name: "ballerina-demo"
+   image: "hello/hello-world",
+   name: "hello-world"
 }
 ```
 
-This creates a docker image and a deployment into which it puts it.
-
-That is it - let’s go ahead and build it.
+That's it - let’s go ahead and build it.
 
 ```
 $ ballerina build hello-world.bal
@@ -167,25 +169,13 @@ Once you build it, you get the following response. This means the service is suc
 @kubernetes:Service                      - complete 1/1
 ```
 
-Run following command to deploy Kubernetes artifacts:
+Run the following command to deploy Kubernetes artifacts:
 
 ```
-kubectl apply -f /Users/DSotnikov/Documents/WSO2/Ballerina/Projects/KubTest/kubernetes/
+kubectl apply -f /Users/Sam/Documents/Micropatch/Ballerina/QuickTour/KubTest/kubernetes/
 ```
 
-You can see that it created a folder called kubernetes and put the deployment artifacts and the docker image in there:
-
-```
-$ ls kubernetes/
-```
-
-You can see the following files.
-
-```
-demo_deployment.yaml    demo_svc.yaml           docker
-```
-
-You can see that the docker image is there now:
+This creates a folder called kubernetes and puts the deployment artifacts and the docker image inside it.
 
 ```
 $ docker images |grep demo
