@@ -1,5 +1,5 @@
-$ curl http://localhost:9090/chunkingSample/
+$ curl http://localhost:9092/chunkingSample/
 {"Outbound request content":"Lenght-18"}
 
-Try setting true to enableChunking in Options
+To enable chunking, try changing the chunking option of the clientEndpoint to http:Chunking.ALWAYS.
 {"Outbound request content":"chunked"}
