@@ -18,7 +18,7 @@ service<http:Service> echo bind ep {
     }
     @auth:Config {
         authentication:{enabled:true},
-        scope:"scope2"
+        scopes:["scope2"]
     }
     echo (endpoint client, http:Request req) {
         http:Response res = {};

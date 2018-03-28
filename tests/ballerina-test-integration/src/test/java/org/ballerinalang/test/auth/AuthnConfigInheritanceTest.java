@@ -56,7 +56,7 @@ public class AuthnConfigInheritanceTest extends IntegrationTestCase {
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headersMap);
         Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
     @Test(description = "Authn and authz failure test case")
