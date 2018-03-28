@@ -43,7 +43,7 @@ function testElvisRefTypeNested () returns (int|string) {
     return b;
 }
 
-function testElvisRefTypeCaseTwo () returns (int|string) {
+function testElvisRefTypeNestedCaseTwo () returns (int|string) {
     int|string|null x = null;
     int|string|null y = "kevin";
     int|string b;

@@ -45,7 +45,7 @@ public class ElvisExpressionTest {
         negativeResult = BCompileUtil.compile("test-src/expressions/elvis/elvis-expr-negative.bal");
     }
 
-    @Test
+    @Test(description = "Test Elvis operator on expression evaluated to value type positive.")
     public void testElvisValueTypePositive() {
         BValue[] results = BRunUtil.invoke(compileResult, "testElvisValueTypePositive");
         Assert.assertEquals(results.length, 1);
@@ -53,7 +53,7 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 120);
     }
 
-    @Test
+    @Test(description = "Test Elvis operator on expression evaluated to value type negative.")
     public void testElvisValueTypeNegative() {
         BValue[] results = BRunUtil.invoke(compileResult, "testElvisValueTypeNegative");
         Assert.assertEquals(results.length, 1);
@@ -61,7 +61,7 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 111);
     }
 
-    @Test
+    @Test(description = "Test Elvis operator on nested expressions evaluated to value type.")
     public void testElvisValueTypeNested() {
         BValue[] results = BRunUtil.invoke(compileResult, "testElvisValueTypeNested");
         Assert.assertEquals(results.length, 1);
@@ -69,7 +69,7 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 3000);
     }
 
-    @Test
+    @Test(description = "Test Elvis operator on expression evaluated to ref type positive.")
     public void testElvisRefTypePositive() {
         BValue[] results = BRunUtil.invoke(compileResult, "testElvisRefTypePositive");
         Assert.assertEquals(results.length, 1);
@@ -77,7 +77,7 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 2300);
     }
 
-    @Test
+    @Test(description = "Test Elvis operator on expression evaluated to ref type negative.")
     public void testElvisRefTypeNegative() {
         BValue[] results = BRunUtil.invoke(compileResult, "testElvisRefTypeNegative");
         Assert.assertEquals(results.length, 1);
@@ -85,7 +85,7 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 111);
     }
 
-    @Test
+    @Test(description = "Test Elvis operator on nested expressions evaluated to ref type.")
     public void testElvisRefTypeNested() {
         BValue[] results = BRunUtil.invoke(compileResult, "testElvisRefTypeNested");
         Assert.assertEquals(results.length, 1);
@@ -93,15 +93,15 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 4000);
     }
 
-    @Test
-    public void testElvisRefTypeCaseTwo() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testElvisRefTypeCaseTwo");
+    @Test(description = "Test Elvis operator on nested expressions evaluated to ref type case two.")
+    public void testElvisRefTypeNestedCaseTwo() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testElvisRefTypeNestedCaseTwo");
         Assert.assertEquals(results.length, 1);
         Assert.assertTrue(results[0] instanceof BString);
         Assert.assertEquals(results[0].stringValue(), "kevin");
     }
 
-    @Test
+    @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int|null'", 5, 14);
