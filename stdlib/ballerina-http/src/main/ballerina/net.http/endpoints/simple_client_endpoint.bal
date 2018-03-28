@@ -105,9 +105,15 @@ public function <SimpleClientEndpoint ep> init(SimpleClientEndpointConfiguration
     ep.httpEP.config.retry = simpleConfig.retry;
     ep.httpEP.config.proxy = simpleConfig.proxy;
     ep.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
-    ep.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
 
-    ep.httpEP.httpClient = createHttpClient(url, ep.httpEP.config);
+    match simpleConfig.cacheConfig {
+        CacheConfig cacheConfig => {
+            ep.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
+            ep.httpEP.httpClient = createHttpCachingClient(url, ep.httpEP.config, cacheConfig);
+        }
+
+        int|null => ep.httpEP.httpClient = createHttpClient(url, ep.httpEP.config);
+    }
 }
 
 documentation {
