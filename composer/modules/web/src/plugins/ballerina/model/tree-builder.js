@@ -122,7 +122,7 @@ class TreeBuilder {
 
         if (kind === 'Identifier') {
             if (node.literal) {
-                node.valueWithBar = '|' + node.value + '|';
+                node.valueWithBar = '^"' + node.value + '"';
             } else {
                 node.valueWithBar = node.value;
             }
@@ -152,8 +152,11 @@ class TreeBuilder {
 
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
-            node.parameters[0].serviceEndpoint = true;
-            node.parameters[0].name.setValue(node.parameters[0].name.getValue().replace('$', ''));
+            const endpointParam = node.parameters[0];
+            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value
+            endpointParam.serviceEndpoint = true;
+            endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
+            endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
         }
 
         // Add the positions for the join and timeout bodies.

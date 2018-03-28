@@ -524,13 +524,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Service':
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + w() + '<'
-                 + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w() + '>'
-                 + w(' ') + node.name.valueWithBar + w() + 'bind'
-                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{'
-                 + indent() + join(node.variables, pretty, replaceLambda, l, w, '')
-                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent()
-                 + w() + '}';
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + a(' ') + w() + '<'
+                 + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w()
+                 + '>' + w(' ') + node.name.valueWithBar + a(' ') + w() + 'bind'
+                 + a(' ')
+                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{' + indent()
+                 + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
         case 'SimpleVariableRef':
             if (node.inTemplateLiteral && node.packageAlias.valueWithBar
                          && node.variableName.valueWithBar) {
