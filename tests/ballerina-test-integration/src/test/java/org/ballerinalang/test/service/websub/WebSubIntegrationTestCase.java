@@ -74,7 +74,7 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
         });
 
         //Allow to bring up the hub
-        Thread.sleep(15000);
+        Thread.sleep(10000);
 
         String subscriberBal = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "websub"
