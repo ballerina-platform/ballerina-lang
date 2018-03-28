@@ -191,6 +191,14 @@ public class MicroTransactionTestCase {
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
+    public void testSaveToDatabaseSuccessfulInParticipant() {
+
+    }
+
+    public void testSaveToDatabaseFailedInParticipant() {
+
+    }
+
     @AfterClass
     private void cleanup() throws Exception {
         initiator.stopServer();
@@ -214,7 +222,6 @@ public class MicroTransactionTestCase {
                     Field field = this.getClass().getDeclaredField(nvPair[0]);
                     field.set(this, Boolean.parseBoolean(nvPair[1]));
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             }
