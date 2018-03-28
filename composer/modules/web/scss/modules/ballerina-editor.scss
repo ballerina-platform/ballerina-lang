@@ -1,14 +1,16 @@
-$diagram-background: #f9f9f9;
+$diagram-background: #e7eaeb;
+$white:#fff;
+
 
 .editor-area {
   .rc-tabs-tab-active {
     .tab-title-wrapper {
       &.ballerina-design-view {
-        background-color: #f9f9f9;
+        background-color: #e7eaeb;
         color: #7D7D7D;
         .close-tab {
           color: #7D7D7D ;
-          background-color: #f9f9f9;
+          background-color: #e7eaeb;
 
           &:hover {
             color: #474747;
@@ -36,24 +38,26 @@ $diagram-background: #f9f9f9;
       Default lines
 ---------------------------*/
 
-.client-line-header, .client-life-line, .worker-life-line, .client-invocation-arrow,
+.client-line-header, .client-life-line, .worker-life-line, .client-invocation-arrow, .action-arrow
 .statement-title-rect   {
     stroke: #555;
-    stroke-width: 1px;
+    stroke-width: 0.5;
 }
 
 .flowchart-true-text, .flowchart-false-text, .action-invocation-text{
   fill: #555;
+  font-weight: 300;
 }
 
 .client-line-header, .statement-title-rect, .struct-type-dropdown-wrapper, .struct-input-value-wrapper, 
 .flowchart-background-empty-rect, .flowchart-separator-line, .panel-header {
-  fill: #f9f9f9;
+  fill: $white;
 }
 
 .action-arrow, .action-arrow-head, .action-dash-line {
   stroke: #555;
   fill: #555;
+  stroke-width: 0.5;
 }
 
 /*---------------------------
@@ -62,11 +66,12 @@ $diagram-background: #f9f9f9;
 
 .flowchart-action-arrow, .default-worker-icon {
   fill: #0070af;
+  font-weight: 300;
 }
 
 .flowchart-action-arrow, .default-worker-life-line, .worker-life-line, .flowchart-background-empty-rect   {
   stroke: #0070af;
-  stroke-width: 1;
+  stroke-width: 0.5;
 }
 
 .flowchart-action-arrow-head {
@@ -79,11 +84,12 @@ $diagram-background: #f9f9f9;
 ---------------------------*/
 .connector-icon{
   fill: #17a085;
+  font-weight: 300;
 }
 
 .connector-life-line {
   stroke: #17a085;
-  stroke-width: 1;
+  stroke-width: 0.5;
 }
 
 .action-invocation-statement-rect {
@@ -100,18 +106,13 @@ $diagram-background: #f9f9f9;
     .panel {
       /* -- Service herder Styles -- */
       .panel-header {
-        fill: #f3faff;
+        fill: $white;
 
         .text-placeholder {
           shape-rendering: crispEdges;
           stroke: #a5a5a5;
           stroke-width: 1;
           stroke-dasharray: 4, 2;
-        }
-
-        .headingRect {
-          stroke-width: 1;
-          stroke: #c4d5e2;
         }
 
         .editable-text-label {
@@ -141,12 +142,14 @@ $diagram-background: #f9f9f9;
       }
 
       .panel-body {
+        fill: #fff;
         .client-line-group {
           .client-line-text {
             text-anchor: middle;
             dominant-baseline: central;
             text-transform: lowercase;
             fill: #555;
+            font-weight: 300;
           }
         }
 
@@ -189,11 +192,6 @@ $diagram-background: #f9f9f9;
           fill: #dcdcdc;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
-        }
-
-        .panel-body-rect {
-          stroke-width: 1px;
-          stroke: #c4d5e2;
         }
 
         .statement-title-rect {
@@ -262,16 +260,9 @@ $diagram-background: #f9f9f9;
   .panel-body {
     .panel {
       .panel-header, .svg-container {
-        fill: #f9f9f9;
-
-        .headingRect {
-          .panel-header-controls {
-            .panel-header-controls-wrapper {
-              fill: rgba(255, 255, 255, 0.1);
-            }
-          }
-        }
-
+        fill: #fff;
+        stroke-width: 0;
+        
         .parameter-text, .parameter-bracket-text, .return-types-opening-brack-text, .parameter-bracket-text {
           fill: #444;
           dominant-baseline: text-before-edge;
@@ -349,6 +340,7 @@ $diagram-background: #f9f9f9;
   height: 100%;
   width: 100%;
   background-color: rgba(60, 60, 60, 0.0);
+  
   .error-list {
       position: relative;
       text-align: left;
@@ -360,7 +352,7 @@ $diagram-background: #f9f9f9;
       .list-heading {
           text-align: center;
           font-size: 16px;
-          color:#CC0000;
+          color:#e7eaeb;
       }
   }
 }
@@ -482,9 +474,20 @@ $diagram-background: #f9f9f9;
   padding-right: 8px;
 }
 
+.divider{
+  fill: #e7eaeb;
+}
+
+.hidden-code{
+  font-size: 10px;
+}
+
+.title-bg{
+  fill: #f8f8f8;
+}
+
 .definition-icon {
   opacity:0 !important;
-  
 }
 
 .definition-name:hover .definition-icon{
