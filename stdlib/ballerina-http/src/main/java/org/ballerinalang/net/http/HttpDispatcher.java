@@ -192,6 +192,8 @@ public class HttpDispatcher {
                 PROTOCOL_PACKAGE_HTTP, REQUEST_CACHE_CONTROL);
         RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
 
+        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource);
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
 
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);

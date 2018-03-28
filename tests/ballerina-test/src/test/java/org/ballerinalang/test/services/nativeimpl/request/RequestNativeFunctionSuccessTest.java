@@ -485,22 +485,6 @@ public class RequestNativeFunctionSuccessTest {
     }
 
     @Test
-    public void testSetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        BString name = new BString(propertyName);
-        BString value = new BString(propertyValue);
-        BValue[] inputArg = {name, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetProperty", inputArg);
-
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(response.getProperty(propertyName), propertyValue);
-    }
-
-    @Test
     public void testSetStringPayload() {
         BString value = new BString("Ballerina");
         BValue[] inputArg = {value};

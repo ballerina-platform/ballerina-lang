@@ -42,6 +42,12 @@ $white:#fff;
   stroke-width: 0.75;
 }
 
+.statement-title-rect {
+  fill: $white;
+  stroke:$primary-line-bgcolor;
+  stroke-width: 0.75;
+}
+
 .flowchart-true-text,
 .flowchart-false-text,
 .action-invocation-text {
@@ -109,6 +115,7 @@ $white:#fff;
   stroke-width: 1;
 }
 
+
 .ballerina-editor {
   .design-view-container {
     background-color: $diagram-background;
@@ -133,9 +140,10 @@ $white:#fff;
         .panel-header-controls-wrapper {
           fill: rgba(255, 255, 255, 0.1);
         }
-        text {
+        text, .title-text {
           fill: #333 !important;
         }
+
         .parameter-text,
         .parameter-bracket-text,
         .return-types-opening-brack-text,
@@ -195,10 +203,7 @@ $white:#fff;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
         }
-        .statement-title-rect {
-          fill: #f9f9f9;
-          stroke:$primary-line-bgcolor;
-        }
+        
         .statement-title-text,
         .condition-text {
           text-anchor: middle;
@@ -243,6 +248,7 @@ $white:#fff;
         .property-pane-action-button-delete,
         .property-pane-action-button-jump {
           opacity: 0.6;
+          fill: #333;
           &:hover {
             opacity: 1;
           }
@@ -265,6 +271,9 @@ $white:#fff;
           cursor: default;
         }
       }
+    }
+    .title-text, .condition-text{
+      fill: #555 !important;
     }
   }
   .bottom-right-controls-container {
@@ -416,18 +425,7 @@ $white:#fff;
   background: #FFF;
 }
 
-.swagger-ui h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.h1,
-.h2,
-.h3,
-.h4,
-.h5,
-.h6 {
+swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-weight: normal;
   line-height: normal;
 }
@@ -499,7 +497,28 @@ h6,
 }
 
 .top-menu {
-  margin: 0 23px !important;
   position: fixed;
-  width: 94% !important;
+  padding: 3px 26px 6px !important;
+}
+
+.top-bar{
+  height: 30px !important;
+  overflow: hidden;
+  margin-top: 5px !important;
+  background: darkgreen !important;
+  button{
+    background: $white!important;
+    color: #555 !important;
+  }
+  .ui.label{
+    background: $white!important;
+    border: 0 !important;
+  }
+  .ui[class*="left pointing"].label:before{
+    border: 0;
+  }
+}
+
+.title-text {
+  fill: #333 !important;
 }
