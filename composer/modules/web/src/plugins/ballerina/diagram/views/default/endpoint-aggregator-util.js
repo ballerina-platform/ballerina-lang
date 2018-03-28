@@ -64,7 +64,8 @@ class EndpointAggregatorUtil {
                         bBox: new SimpleBBox()
                     },
                     kind: ep.kind,
-                    parent: ep.parent
+                    parent: ep.parent,
+                    skipSourceGen: true
                 };
                 node.endpointNodes.push(epClone);
             }

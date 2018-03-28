@@ -794,7 +794,7 @@ class TreeUtil extends AbstractTreeUtil {
     getAllEndpoints(node) {
         let endpoints = [];
         if (node.kind === 'CompilationUnit') {
-            endpoints = endpoints.concat(_.find(node.topLevelNodes, function (topLevelNode) {
+            endpoints = endpoints.concat(_.filter(node.topLevelNodes, function (topLevelNode) {
                 return topLevelNode.kind === 'Endpoint';
             }));
         } else if (node.endpointNodes) {
