@@ -37,11 +37,14 @@ public enum OperatorKind {
     GREATER_EQUAL(">="),
     LESS_THAN("<"),
     LESS_EQUAL("<="),
+    IS_ASSIGNABLE("isassignable"),
     POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
     TYPEOF("typeof"),
-    UNTAINT("untaint");
+    UNTAINT("untaint"),
+    INCREMENT("++"),
+    DECREMENT("--");
 
     private final String opValue;
 

@@ -1,5 +1,5 @@
-import ballerina.lang.system;
-import ballerina.lang.jsons;
+import ballerina/lang.system;
+import ballerina/lang.jsons;
 
 function main (string[] args) {
     //Create json.

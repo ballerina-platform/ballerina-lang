@@ -1,7 +1,7 @@
-import ballerina.lang.system;
-import ballerina.lang.strings;
-import ballerina.lang.blobs;
-import ballerina.net.ws;
+import ballerina/lang.system;
+import ballerina/lang.strings;
+import ballerina/lang.blobs;
+import ballerina/net.ws;
 
 @ws:configuration {
     basePath:"/echo/ws",

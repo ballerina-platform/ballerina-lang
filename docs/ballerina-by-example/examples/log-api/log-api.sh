@@ -5,7 +5,7 @@ $ ballerina run log-api.bal
 2017-11-05 21:20:12,320 INFO  [] - info log
 2017-11-05 21:20:12,321 WARN  [] - warn log
 
-$ ballerina run log-api.bal -B[ballerina.log].level=TRACE
+$ ballerina run log-api.bal -e[ballerina.log].level=TRACE
 2017-11-05 21:21:35,394 DEBUG [] - debug log
 2017-11-05 21:21:35,400 ERROR [] - error log
 2017-11-05 21:21:35,402 ERROR [] - error log with cause : {message:"error occurred", cause:null}

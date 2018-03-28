@@ -34,6 +34,39 @@ public class BLangJoinStreamingInput extends BLangNode implements JoinStreamingI
 
     private StreamingInput streamingInput;
     private ExpressionNode onExpression;
+    private String joinType;
+    private boolean isUnidirectionalBeforeJoin;
+    private boolean isUnidirectionalAfterJoin;
+
+    @Override
+    public String getJoinType() {
+        return joinType;
+    }
+
+    @Override
+    public void setJoinType(String joinType) {
+        this.joinType = joinType;
+    }
+
+    @Override
+    public boolean isUnidirectionalBeforeJoin() {
+        return isUnidirectionalBeforeJoin;
+    }
+
+    @Override
+    public void setUnidirectionalBeforeJoin(boolean unidirectionalBeforeJoin) {
+        isUnidirectionalBeforeJoin = unidirectionalBeforeJoin;
+    }
+
+    @Override
+    public boolean isUnidirectionalAfterJoin() {
+        return isUnidirectionalAfterJoin;
+    }
+
+    @Override
+    public void setUnidirectionalAfterJoin(boolean unidirectionalAfterJoin) {
+        isUnidirectionalAfterJoin = unidirectionalAfterJoin;
+    }
 
     @Override
     public void setStreamingInput(StreamingInput streamingInput) {

@@ -44,9 +44,9 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
         }
     }
 
-    public void testImportFromSDKFirstLevel() {
-        doTest("import <caret>", "ballerina");
-    }
+    //    public void testImportFromSDKFirstLevel() {
+    //        doTest("import <caret>", "ballerina");
+    //    }
 
     public void testImportFromSDKSecondLevel() {
         doTest("import ballerina.<caret>", "builtin", "caching", "config", "data", "file", "io", "log", "math",
@@ -57,57 +57,61 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
         doTest("import ballerina.net.<caret>", "http", "uri", "ws");
     }
 
-    public void testImportFromSDKAfterPackage() {
-        doTest("package test; import <caret>", "ballerina");
-    }
+    //    public void testImportFromSDKAfterPackage() {
+    //        doTest("package test; import <caret>", "ballerina");
+    //    }
 
-    public void testImportFromSDKAfterImport() {
-        doTest("package test; import ballerina.lang.system; import <caret>", "ballerina");
-    }
+    //    public void testImportFromSDKAfterImport() {
+    //        doTest("package test; import ballerina.lang.system; import <caret>", "ballerina");
+    //    }
 
-    public void testImportFromSDKBeforeImport() {
-        doTest("package test; import <caret> import ballerina.lang.system;", "ballerina");
-    }
+    //    public void testImportFromSDKBeforeImport() {
+    //        doTest("package test; import <caret> import ballerina.lang.system;", "ballerina");
+    //    }
 
-    public void testImportFromSDKBetweenImports() {
-        doTest("package test; import ballerina.lang.system; import <caret> import ballerina.utils;", "ballerina");
-    }
+    //    public void testImportFromSDKBetweenImports() {
+    //        doTest("package test; import ballerina.lang.system; import <caret> import ballerina.utils;", "ballerina");
+    //    }
 
-    public void testPackageInvocationAutoCompletion() {
-        doCheckResult("test.bal", "import ballerina.net.http; function test() {ht<caret>}",
-                "import ballerina.net.http; function test() {http:}", null);
-    }
-
-    public void testFunctionInvocationFromAPackage() {
-        doTest("import ballerina.net.uri; function test() {uri:<caret>}", "encode");
-    }
-
-    public void testFunctionInvocationFromAPackageAutoCompletion() {
-        doCheckResult("test.bal", "import ballerina.net.uri; function test() {uri:en<caret>}",
-                "import ballerina.net.uri; function test() {uri:encode()}", null);
-    }
-
-    public void testMultiLevelFunctionInvocation1() {
-        doTest("function test() {string s =\"\"; \n    string s2 = s.<caret>}", "contains", "equalsIgnoreCase",
-                "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace", "replaceAll",
-                "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim", "unescape");
-    }
-
-    public void testMultiLevelFunctionInvocation2() {
-        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().<caret>}", "contains",
-                "equalsIgnoreCase", "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace",
-                "replaceAll", "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim",
-                "unescape");
-    }
-
-    public void testMultiLevelFunctionInvocation3() {
-        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().toLowerCase().<caret>}", "contains",
-                "equalsIgnoreCase", "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace",
-                "replaceAll", "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim",
-                "unescape");
-    }
-
-    public void testMultiLevelFunctionInvocation4() {
-        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().toBlob().<caret>}", "toString");
-    }
+    //    public void testPackageInvocationAutoCompletion() {
+    //        doCheckResult("test.bal", "import ballerina.net.http; function test() {ht<caret>}",
+    //                "import ballerina.net.http; function test() {http:}", null);
+    //    }
+    //
+    //    public void testFunctionInvocationFromAPackage() {
+    //        doTest("import ballerina.net.uri; function test() {uri:<caret>}", "encode");
+    //    }
+    //
+    //    public void testFunctionInvocationFromAPackageAutoCompletion() {
+    //        doCheckResult("test.bal", "import ballerina.net.uri; function test() {uri:en<caret>}",
+    //                "import ballerina.net.uri; function test() {uri:encode()}", null);
+    //    }
+    //
+    //    public void testMultiLevelFunctionInvocation1() {
+    //        doTest("function test() {string s =\"\"; \n    string s2 = s.<caret>}", "contains", "equalsIgnoreCase",
+    //                "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace", "replaceAll",
+    //                "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim", "unescape");
+    //    }
+    //
+    //    public void testMultiLevelFunctionInvocation2() {
+    //        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().<caret>}", "contains",
+    //                "equalsIgnoreCase", "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace",
+    //                "replaceAll", "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase",
+    // "trim",
+    //                "unescape");
+    //    }
+    //
+    //    public void testMultiLevelFunctionInvocation3() {
+    //        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().toLowerCase().<caret>}",
+    // "contains",
+    //                "equalsIgnoreCase", "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace",
+    //                "replaceAll", "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase",
+    // "trim",
+    //                "unescape");
+    //    }
+    //
+    //    public void testMultiLevelFunctionInvocation4() {
+    //        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().toBlob().<caret>}",
+    // "toString");
+    //    }
 }

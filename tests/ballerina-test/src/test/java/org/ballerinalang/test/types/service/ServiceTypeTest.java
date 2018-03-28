@@ -20,7 +20,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BServiceType;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,9 +42,9 @@ public class ServiceTypeTest {
     @Test
     public void testServiceType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testServiceType");
-        Assert.assertTrue(returns[0] instanceof BTypeValue);
+        Assert.assertTrue(returns[0] instanceof BTypeDescValue);
         Assert.assertEquals(returns[0].stringValue(), "HelloWorld");
-        final BTypeValue value = (BTypeValue) returns[0];
+        final BTypeDescValue value = (BTypeDescValue) returns[0];
         Assert.assertTrue(value.value() instanceof BServiceType);
     }
 }

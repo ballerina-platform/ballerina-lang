@@ -72,7 +72,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         if (shouldIndent) {
             if (node.documentationText) {
                 const indent = _.last(node.documentationText.split('\n'));
-                if(indent === _.repeat(tab, l)) {
+                if (indent === _.repeat(tab, l)) {
                     // if documentation text already contains the correct dent
                     return '';
                 }

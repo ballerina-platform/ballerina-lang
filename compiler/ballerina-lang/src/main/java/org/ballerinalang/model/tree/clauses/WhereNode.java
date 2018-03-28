@@ -28,13 +28,11 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *      where expressionList
  *
  * E.g
- *      where age > 20;
+ *      where age &gt; 20;
  * </pre>
  */
 
 public interface WhereNode extends Node {
-
-    ExpressionNode getExpressions();
 
     void setExpression(ExpressionNode expression);
 

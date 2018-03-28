@@ -1,26 +1,26 @@
-import ballerina.task;
+import ballerina/task;
 
 int count;
 
-function scheduleTimer(int delay, int interval) returns (string taskId, error e) {
-    function() returns (error) onTriggerFunction = onTrigger;
-    taskId, e = task:scheduleTimer(onTriggerFunction, null, {delay:delay, interval:interval});
-    return;
+function scheduleTimer (int delay, int interval) returns (string|error) {
+    function () returns (error|null) onTriggerFunction = onTrigger;
+    return task:scheduleTimer(onTriggerFunction, null, {delay:delay, interval:interval});
 }
 
-function getCount() returns (int) {
+function getCount () returns (int) {
     return count;
 }
 
-function onTrigger() returns (error e) {
+function onTrigger () returns (error) {
+    error e = {};
     count = count + 1;
-    return;
+    return e;
 }
 
-function stopTask (string taskId) returns (error stopError) {
-    stopError = task:stopTask(taskId);
-    if(stopError == null) {
+function stopTask (string taskId) returns (error) {
+    error stopError = task:stopTask(taskId);
+    if (stopError == null) {
         count = -1;
     }
-    return;
+    return stopError;
 }

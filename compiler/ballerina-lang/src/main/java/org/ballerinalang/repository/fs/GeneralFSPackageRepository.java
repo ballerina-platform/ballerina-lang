@@ -22,6 +22,7 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -155,6 +156,10 @@ public class GeneralFSPackageRepository implements PackageRepository {
     }
 
     protected Path generatePathOld(PackageID pkgID) {
+        if (pkgID.isUnnamed) {
+            return this.basePath;
+        }
+
         Path pkgDirPath = this.basePath;
         for (Name comp : pkgID.getNameComps()) {
             pkgDirPath = pkgDirPath.resolve(comp.value);
@@ -162,7 +167,13 @@ public class GeneralFSPackageRepository implements PackageRepository {
         return pkgDirPath;
     }
 
-    private Path generatePath(PackageID pkgID) {
+    /**
+     * Generate path for given package.
+     *
+     * @param pkgID package ID
+     * @return {@link Path} generated path
+     */
+    public Path generatePath(PackageID pkgID) {
         return this.basePath.resolve(createPackageNameWithDots(pkgID));
     }
 
@@ -233,6 +244,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 }
             }
             return this.cachedEntryNames;
+        }
+
+        @Override
+        public RepoHierarchy getRepoHierarchy() {
+            return null;
         }
 
         @Override

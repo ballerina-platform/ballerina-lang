@@ -74,18 +74,17 @@ public class BTable implements BRefType<Object>, BCollection {
         }
         this.constraintType = constraintType;
         this.isInMemoryTable = true;
-        generateIterator();
     }
 
     public BTable(BType type) {
-        if (((BTableType) type).getConstrainedType() == null) {
-            throw  new BallerinaException("table cannot be created without a constraint");
+        if (((BTableType) type).getConstrainedType() != null) {
+            //TODO: temporoly commented out until vm code generation on sql connector action call is fixed.
+            //throw  new BallerinaException("table cannot be created without a constraint");
+            this.tableProvider = TableProvider.getInstance();
+            this.tableName = tableProvider.createTable(type);
+            this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
+            this.isInMemoryTable = true;
         }
-        this.tableProvider = TableProvider.getInstance();
-        this.tableName = tableProvider.createTable(type);
-        this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
-        this.isInMemoryTable = true;
-        generateIterator();
     }
 
     @Override
@@ -117,6 +116,9 @@ public class BTable implements BRefType<Object>, BCollection {
 
 
     public boolean hasNext(boolean isInTransaction) {
+        if (this.isInMemoryTable && this.iterator == null) {
+            generateIterator();
+        }
         if (!nextPrefetched) {
             hasNextVal = iterator.next();
             nextPrefetched = true;
@@ -136,9 +138,11 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public void close(boolean isInTransaction) {
-        iterator.close(isInTransaction);
-        if (this.isInMemoryTable) {
-            generateIterator();
+        if (iterator != null) {
+            iterator.close(isInTransaction);
+            if (this.isInMemoryTable) {
+                resetIterator();
+            }
         }
     }
 
@@ -158,10 +162,7 @@ public class BTable implements BRefType<Object>, BCollection {
                     + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
-        if (iterator != null) {
-            iterator.close(false);
-        }
-        generateIterator();
+        resetIterator();
     }
 
     public void removeData(BStruct data) {
@@ -169,10 +170,7 @@ public class BTable implements BRefType<Object>, BCollection {
             throw new BallerinaException("data cannot be deleted from a table returned from a database");
         }
         tableProvider.deleteData(tableName, data);
-        if (iterator != null) {
-            iterator.close(false);
-        }
-        generateIterator();
+        resetIterator();
     }
 
     public String getString(int columnIndex) {
@@ -227,10 +225,21 @@ public class BTable implements BRefType<Object>, BCollection {
         this.hasNextVal = false;
     }
 
+    private void resetIterator() {
+        if (iterator != null) {
+            iterator.close(false);
+            this.iterator = null;
+        }
+        this.nextPrefetched = false;
+        this.hasNextVal = false;
+    }
+
     @Override
     protected void finalize() {
         if (this.isInMemoryTable) {
-            this.iterator.close(false);
+            if (this.iterator != null) {
+                this.iterator.close(false);
+            }
             tableProvider.dropTable(this.tableName);
         }
     }

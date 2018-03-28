@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "json.toXML",
         args = {@Argument(name = "j", type = TypeKind.JSON),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
@@ -58,9 +58,10 @@ public class ToXML extends BlockingNativeCallableUnit {
             String arrayEntryTag = optionsStruct.getStringField(1);
             //Converting to xml.
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
+            ctx.setReturnValues(xml);
         } catch (Throwable e) {
             error = Utils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
+            ctx.setReturnValues(error);
         }
-        ctx.setReturnValues(xml, error);
     }
 }

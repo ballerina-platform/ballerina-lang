@@ -19,43 +19,66 @@ package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.TraceUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
 
 /**
  * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
  *
  * @since 0.8.0
  */
-@BallerinaAction(
-        packageName = "ballerina.data.sql",
-        actionName = "updateWithGeneratedKeys",
-        connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
-                @Argument(name = "query", type = TypeKind.STRING),
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "data.sql",
+        functionName = "updateWithGeneratedKeys",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        args = {
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                           structType = "Parameter"),
-                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-        returnType = { @ReturnType(type = TypeKind.INT),
-                       @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING) },
-        connectorArgs = {
-                @Argument(name = "options", type = TypeKind.MAP)
-        })
+                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class UpdateWithGeneratedKeys extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
-        String query = context.getStringArgument(0);
-        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-        BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-        executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
+        try {
+            BStruct bConnector = (BStruct) context.getRefArgument(0);
+            String query = context.getStringArgument(0);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+
+            Map<String, String> tags = new HashMap<>();
+            tags.put(TAG_KEY_DB_STATEMENT, query);
+            tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+            TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
+
+            executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
+        } catch (Throwable e) {
+            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
     }
 }

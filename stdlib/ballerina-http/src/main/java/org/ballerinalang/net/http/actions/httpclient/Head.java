@@ -22,24 +22,28 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * {@code Head} is the HEAD action implementation of the HTTP Connector.
  */
-@BallerinaAction(
-        packageName = "ballerina.net.http",
-        actionName = "head",
-        connectorName = HttpConstants.CLIENT_CONNECTOR,
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "net.http",
+        functionName = "head",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                         structPackage = "ballerina.net.http")
@@ -48,11 +52,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
                 @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.net.http"),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
         }
 )
 public class Head extends AbstractHTTPAction {
@@ -65,7 +64,7 @@ public class Head extends AbstractHTTPAction {
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'head' action in " +
-                    HttpConstants.CLIENT_CONNECTOR + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
@@ -73,6 +72,11 @@ public class Head extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+
+        Tracer tracer = TraceUtil.getParentTracer(context.getParentWorkerExecutionContext());
+        HttpUtil.injectHeaders(outboundReqMsg, tracer.getProperties());
+        tracer.addTags(HttpUtil.extractTraceTags(outboundReqMsg));
+
         return outboundReqMsg;
     }
 }

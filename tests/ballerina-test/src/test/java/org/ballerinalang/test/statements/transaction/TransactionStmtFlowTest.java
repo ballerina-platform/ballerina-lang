@@ -140,7 +140,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx abort endOuterTrx  end");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNestedTransaction3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -160,7 +160,7 @@ public class TransactionStmtFlowTest {
                 "start inOuterTrx inInnerTrx trxErr endInnerTrx endOuterTrx  end");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNestedTransactionWithFailed1() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);
@@ -299,6 +299,22 @@ public class TransactionStmtFlowTest {
         BValue[] returns = BRunUtil.invoke(programFile, "transactionWithNext", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");
+    }
+
+    @Test()
+    public void testTransactionStmtWithFail() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFail");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  inTrx inFailed inTrx inFailed inTrx inFailed inTrx inFailed end");
+    }
+
+    @Test()
+    public void testSimpleNestedTransactionAbort() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testSimpleNestedTransactionAbort");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  inOuterTxstart  inInnerTxstart  abortingInnerTxstart  endOuterTxstart");
     }
 
     @Test(description = "Test transaction statement with errors")

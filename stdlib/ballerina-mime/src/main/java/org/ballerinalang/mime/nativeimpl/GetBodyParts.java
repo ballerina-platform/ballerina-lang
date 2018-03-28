@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.mime",
+        orgName = "ballerina", packageName = "mime",
         functionName = "getBodyParts",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.STRUCT)},
@@ -49,7 +49,7 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BRefValueArray partsArray = null;
+        BRefValueArray partsArray = new BRefValueArray();
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             //Get the body parts from entity's multipart data field, if they've been already been decoded
@@ -67,9 +67,9 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                 }
             }
         } catch (Throwable e) {
-            context.setReturnValues(null, MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
-        context.setReturnValues(partsArray, null);
+        context.setReturnValues(partsArray);
     }
 }

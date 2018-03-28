@@ -1,4 +1,4 @@
-// Generated from src/main/resources/Toml.g4 by ANTLR 4.5.3
+// Generated from Toml.g4 by ANTLR 4.5.3
 package org.ballerinalang.toml.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -177,6 +177,16 @@ public interface TomlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBasicString(TomlParser.BasicStringContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TomlParser#basicStringValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterBasicStringValue(TomlParser.BasicStringValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#basicStringValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitBasicStringValue(TomlParser.BasicStringValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TomlParser#basicChar}.
 	 * @param ctx the parse tree

@@ -1,4 +1,4 @@
-import ballerina.lang.maps;
+import ballerina/lang.maps;
 
 function mapAccessTest (int x, int y) (int) {
     map testMap = {};

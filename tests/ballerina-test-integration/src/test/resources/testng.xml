@@ -27,15 +27,36 @@
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
-            <package name="org.ballerinalang.test.service.http2"/>
-            <!--<package name="org.ballerinalang.test.transaction"/>-->
+            <!--<package name="org.ballerinalang.test.service.http2"/>-->
+            <package name="org.ballerinalang.test.transaction"/>
+            <package name="org.ballerinalang.test.filter"/>
+            <package name="org.ballerinalang.test.auth"/>
         </packages>
     </test>
 
-    <!--<test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketPassThroughTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketAutoPingPongTest"/>-->
-        <!--</classes>-->
+    <!--<test name="ballerina-websub-tests" preserve-order="true" parallel="false">-->
+        <!--<packages>-->
+            <!--<package name="org.ballerinalang.test.service.websub"/>-->
+        <!--</packages>-->
     <!--</test>-->
+
+    <test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketPassThroughTestCase"/>-->
+            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketAutoPingPongTest"/>
+        </classes>
+    </test>
+    <test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.grpc.sample.GrpcClientTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.GrpcServiceTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+        </classes>
+    </test>
+
 </suite>

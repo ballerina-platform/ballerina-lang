@@ -50,21 +50,23 @@ public class WriteBytesEvent implements Event {
 
     /**
      * Context of the event which will be called upon completion.
+     *
+     * @param byteChannel byte channel
+     * @param content     content
+     * @param startOffset start offset
      */
-    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size) {
+    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset) {
         this.byteChannel = byteChannel;
         writeBuffer = ByteBuffer.wrap(content);
         //If a larger position is set, the position would be disregarded
         writeBuffer.position(startOffset);
-        writeBuffer.limit(size);
     }
 
-    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, int size, EventContext context) {
+    public WriteBytesEvent(Channel byteChannel, byte[] content, int startOffset, EventContext context) {
         this.byteChannel = byteChannel;
         writeBuffer = ByteBuffer.wrap(content);
         //If a larger position is set, the position would be disregarded
         writeBuffer.position(startOffset);
-        writeBuffer.limit(size);
         this.context = context;
     }
 
@@ -77,12 +79,11 @@ public class WriteBytesEvent implements Event {
         try {
             int numberOfBytesWritten = byteChannel.write(writeBuffer);
             result = new NumericResult(numberOfBytesWritten, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while reading bytes", e);
             context.setError(e);
             result = new NumericResult(context);
-            return result;
         }
+        return result;
     }
 }

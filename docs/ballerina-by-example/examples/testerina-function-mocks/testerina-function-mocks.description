@@ -1,0 +1,2 @@
+// Mock functions allow you to hide the real function and engage your own functions when running tests.
+// This allows you to isolate your test functions from the rest.

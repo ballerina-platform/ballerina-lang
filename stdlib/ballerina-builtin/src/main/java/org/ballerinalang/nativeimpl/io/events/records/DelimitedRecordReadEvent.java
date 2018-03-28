@@ -62,12 +62,11 @@ public class DelimitedRecordReadEvent implements Event {
         try {
             String[] content = channel.read();
             result = new AlphaCollectionResult(content, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while reading from record channel", e);
             context.setError(e);
             result = new AlphaCollectionResult(context);
-            return result;
         }
+        return result;
     }
 }

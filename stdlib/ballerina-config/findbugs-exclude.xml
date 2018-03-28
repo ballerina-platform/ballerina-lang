@@ -17,5 +17,7 @@
   -->
 
 <FindBugsFilter>
-
+    <Match>
+        <Pacakge name="org.ballerinalang.bcl.parser.antlr4" />
+    </Match>
 </FindBugsFilter>

@@ -37,15 +37,19 @@ import java.util.Map;
  */
 public class WorkerExecutionContext {
 
+    private static final String WORKER_NAME_NATIVE = "native";
+
     public WorkerExecutionContext parent;
     
     public WorkerState state = WorkerState.CREATED;
     
     public Map<String, Object> globalProps;
     
-    public Map<String, Object> localProps = new HashMap<>();
+    public Map<String, Object> localProps;
     
     public int ip;
+    
+    public boolean stop;
         
     public ProgramFile programFile;
     
@@ -75,6 +79,12 @@ public class WorkerExecutionContext {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
+        setGlobalTransactionEnabled(programFile.isDistributedTransactionEnabled());
+    }
+    
+    public WorkerExecutionContext(BStruct error) {
+        this.error = error;
+        this.workerInfo = new WorkerInfo(0, WORKER_NAME_NATIVE);
     }
     
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
@@ -111,7 +121,7 @@ public class WorkerExecutionContext {
         this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;
-        this.globalProps = parent.globalProps;;
+        this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         if (this.ip < 0) {
             throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
@@ -160,7 +170,15 @@ public class WorkerExecutionContext {
     public LocalTransactionInfo getLocalTransactionInfo() {
         return BLangVMUtils.getTransactionInfo(this);
     }
-    
+
+    public void setGlobalTransactionEnabled(boolean isGlobalTransactionEnabled) {
+        BLangVMUtils.setGlobalTransactionEnabledStatus(this, isGlobalTransactionEnabled);
+    }
+
+    public boolean getGlobalTransactionEnabled() {
+        return BLangVMUtils.getGlobalTransactionenabled(this);
+    }
+
     public boolean isRootContext() {
         return this.code == null;
     }

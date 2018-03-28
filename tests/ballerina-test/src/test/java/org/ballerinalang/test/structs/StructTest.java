@@ -106,7 +106,7 @@ public class StructTest {
 
         // Check the default value of a field where the default value is not set
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), null);
+        Assert.assertEquals(returns[1].stringValue(), "");
 
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
@@ -158,7 +158,29 @@ public class StructTest {
     @Test(description = "Test negative default values in struct")
     public void testStructToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getStruct");
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"null\", adrs:null, age:25, " +
-                "family:null, parent:{name:\"bbb\", lname:\"ccc\", adrs:null, age:50, family:null, parent:null}}");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"\", adrs:{}, age:25, " +
+                "family:{spouse:\"\", noOfChildren:0, children:[]}, parent:{name:\"bbb\", lname:\"ccc\", " +
+                "adrs:{}, age:50, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null}}");
+    }
+
+    @Test
+    public void testStructLiteral() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-literals.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
+        Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
+                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}}");
+
+        returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}");
+    }
+
+    @Test
+    public void testStructLiteralInitFunc() {
+        CompileResult result = BCompileUtil.compile("test-src/structs/nested-struct-inline-init.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
+                        "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
 }

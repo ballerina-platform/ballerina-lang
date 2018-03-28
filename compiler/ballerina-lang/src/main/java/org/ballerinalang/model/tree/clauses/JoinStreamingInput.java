@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * @since 0.965.0
- *
+ * <p>
  * This interface represents the "join" clause of table/streams SQLish syntax.
  * <pre>Grammar:
  *      JOIN streamingInput ON expression
@@ -37,6 +37,18 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  * </pre>
  */
 public interface JoinStreamingInput extends Node {
+
+    String getJoinType();
+
+    void setJoinType(String joinType);
+
+    boolean isUnidirectionalBeforeJoin();
+
+    void setUnidirectionalBeforeJoin(boolean unidirectionalBeforeJoin);
+
+    boolean isUnidirectionalAfterJoin();
+
+    void setUnidirectionalAfterJoin(boolean unidirectionalAfterJoin);
 
     void setStreamingInput(StreamingInput streamingInput);
 

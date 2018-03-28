@@ -42,7 +42,7 @@ public class BallerinaConnectorDocGenTest {
                                                                                             "balFiles/connectors";
     }
 
-    @Test(description = "Test single action in a connector file")
+    @Test(description = "Test single action in a connector file", enabled = false)
     public void testConnectorWithSingleAction() {
         try {
             Map<String, BLangPackage> docsMap = BallerinaDocGenerator
@@ -68,7 +68,7 @@ public class BallerinaConnectorDocGenTest {
         }
     }
 
-    @Test(description = "Test single action in a connector file")
+    @Test(description = "Test single action in a connector file", enabled = false)
     public void testConnectorWithMultipleAction() {
         try {
             Map<String, BLangPackage> docsMap = BallerinaDocGenerator

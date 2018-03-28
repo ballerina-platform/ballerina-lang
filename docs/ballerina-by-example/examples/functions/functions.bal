@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"This function takes a string argument."}
 function printValue (string value) {
@@ -6,7 +6,7 @@ function printValue (string value) {
 }
 
 @Description {value:"This function takes two int values and return their sum as an int."}
-function add (int a, int b) (int) {
+function add (int a, int b) returns (int) {
     return a + b;
 }
 

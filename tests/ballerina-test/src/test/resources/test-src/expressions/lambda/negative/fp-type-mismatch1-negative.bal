@@ -1,8 +1,8 @@
-function test1()(boolean) {
-     function (string, int)(boolean) foo = test2;
+function test1() returns (boolean) {
+     function (string, int) returns (boolean) foo = test2;
      return foo("this test fails at line", 2);
 }
 
-function test2(string a, float b)(boolean c){
+function test2(string a, float b) returns (boolean){
     return false;
 }

@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 struct Person {
     int id;
@@ -28,7 +28,7 @@ struct Student {
     int age = -1;
 }
 
-function testSimpleSelectAll () (int) {
+function testSimpleSelectAll () returns (int) {
 
     table<Person> personTable = {};
     int recordCount = 0;
@@ -49,12 +49,10 @@ function testSimpleSelectAll () (int) {
         recordCount = recordCount +1;
     }
 
-    personTable.close();
-    personTableCopy.close();
     return recordCount;
 }
 
-function testSimpleSelectFewFields () (int) {
+function testSimpleSelectFewFields () returns (int) {
 
     table<Person> personTable = {};
     int recordCount = 0;
@@ -75,12 +73,10 @@ function testSimpleSelectFewFields () (int) {
         recordCount = recordCount +1;
     }
 
-    personTable.close();
-    studentTable.close();
     return recordCount;
 }
 
-function testSimpleSelectWithJoin () (int) {
+function testSimpleSelectWithJoin () returns (int) {
 
     table<Person> personTable = {};
     table<Order> orderTable = {};
@@ -115,13 +111,10 @@ function testSimpleSelectWithJoin () (int) {
         recordCount = recordCount +1;
     }
 
-    personTable.close();
-    orderDetailsTable.close();
-    orderTable.close();
     return recordCount;
 }
 
-function testSelectWithJoinAndWhere () (int) {
+function testSelectWithJoinAndWhere () returns (int) {
 
     table<Person> personTable = {};
     table<Order> orderTable = {};
@@ -154,16 +147,13 @@ function testSelectWithJoinAndWhere () (int) {
 
     while (orderDetailsTable.hasNext()) {
         var rs = orderDetailsTable.getNext();
-        recordCount = recordCount +1;
+        recordCount = recordCount + 1;
     }
 
-    personTable.close();
-    orderDetailsTable.close();
-    orderTable.close();
     return recordCount;
 }
 
-function testSelectWithJoinAndWhereWithGroupBy () (int) {
+function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
 
     table<Person> personTable = {};
     table<Order> orderTable = {};
@@ -200,8 +190,5 @@ function testSelectWithJoinAndWhereWithGroupBy () (int) {
         recordCount = recordCount +1;
     }
     io:println(orderDetailsTable);
-    personTable.close();
-    orderDetailsTable.close();
-    orderTable.close();
     return recordCount;
 }
