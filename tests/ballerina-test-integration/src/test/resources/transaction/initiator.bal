@@ -105,8 +105,15 @@ service<http:Service> InitiatorService bind initiatorEP {
     }
     testTransactionInfectableFalse (endpoint ep, http:Request req) {
         reset();
-        http:Response res = {statusCode: 200};
 
+        transaction with oncommit=onCommit, onabort=onAbort {
+            http:Request newReq = {};
+            _ = participant1EP -> get("/nonInfectable", {});
+
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+            }
+        }
+        http:Response res = {statusCode: 200};
         _ = ep -> respond(res);
     }
 
@@ -115,6 +122,13 @@ service<http:Service> InitiatorService bind initiatorEP {
     }
     testTransactionInfectableTrue (endpoint ep, http:Request req) {
         reset();
+        transaction with oncommit=onCommit, onabort=onAbort {
+            http:Request newReq = {};
+            _ = participant1EP -> get("/infectable", {});
+
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+            }
+        }
         http:Response res = {statusCode: 200};
 
         _ = ep -> respond(res);

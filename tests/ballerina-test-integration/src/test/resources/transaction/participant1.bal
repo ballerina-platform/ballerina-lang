@@ -31,8 +31,10 @@ endpoint http:ClientEndpoint participant2EP {
 service<http:Service> participant1 bind participant1EP {
 
     getState(endpoint ep, http:Request req) {
-        string result = io:sprintf("abortedByParticipant=%b,abortedFunctionCalled=%b,committedFunctionCalled=%s",
-                                    [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled]);
+        string result = io:sprintf("abortedByParticipant=%b,abortedFunctionCalled=%b,committedFunctionCalled=%s," +
+                                    "localParticipantAbortedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s",
+                                    [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
+                                    localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled]);
 
         http:Response res = {};
         res.setStringPayload(result);
@@ -42,6 +44,8 @@ service<http:Service> participant1 bind participant1EP {
     testRemoteParticipantAbort(endpoint ep, http:Request req) {
         reset();
         transaction with oncommit=onCommit, onabort=onAbort {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+            }
             abortedByParticipant = true;
             abort;
         }
@@ -52,7 +56,35 @@ service<http:Service> participant1 bind participant1EP {
     noOp(endpoint ep, http:Request req) {
         reset();
         transaction with oncommit=onCommit, onabort=onAbort {
-            transaction {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+            }
+        }
+        http:Response res = {statusCode: 200};
+        _ = ep -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        transactionInfectable: false
+    }
+    nonInfectable(endpoint ep, http:Request req) {
+        reset();
+        transaction with oncommit=onCommit, onabort=onAbort {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+                abort;
+            }
+        }
+        http:Response res = {statusCode: 200};
+        _ = ep -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        transactionInfectable: true
+    }
+    infectable(endpoint ep, http:Request req) {
+        reset();
+        transaction with oncommit=onCommit, onabort=onAbort {
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+                abort;
             }
         }
         http:Response res = {statusCode: 200};
@@ -122,12 +154,24 @@ function onCommit() {
     committedFunctionCalled = true;
 }
 
+function onLocalParticipantAbort() {
+    localParticipantAbortedFunctionCalled = true;
+}
+
+function onLocalParticipantCommit() {
+    localParticipantCommittedFunctionCalled = true;
+}
+
 boolean abortedByParticipant;
 boolean abortedFunctionCalled;
 boolean committedFunctionCalled;
+boolean localParticipantAbortedFunctionCalled;
+boolean localParticipantCommittedFunctionCalled;
 
 function reset() {
     abortedByParticipant = false;
     abortedFunctionCalled = false;
     committedFunctionCalled = false;
+    localParticipantAbortedFunctionCalled = false;
+    localParticipantCommittedFunctionCalled = false;
 }
