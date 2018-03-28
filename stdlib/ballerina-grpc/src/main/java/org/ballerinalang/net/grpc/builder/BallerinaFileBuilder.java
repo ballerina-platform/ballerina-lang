@@ -83,6 +83,7 @@ public class BallerinaFileBuilder {
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.MethodDescriptorProto> methodList = fileDescriptorSet
                     .getService(SERVICE_INDEX).getMethodList();
+            List<DescriptorProtos.EnumDescriptorProto> enumDescriptorProtos = fileDescriptorSet.getEnumTypeList();
             String methodName;
             String reqMessageName;
             String resMessageName;
@@ -136,6 +137,15 @@ public class BallerinaFileBuilder {
                     j++;
                 }
                 clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr);
+            }
+            for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
+                String[] attributesNameArr = new String[descriptorProto.getValueCount()];
+                int j = 0;
+                for (DescriptorProtos.EnumValueDescriptorProto fieldDescriptorProto : descriptorProto.getValueList()) {
+                    attributesNameArr[j] = fieldDescriptorProto.getName();
+                    j++;
+                }
+                clientStubBal.addEnum(descriptorProto.getName(), attributesNameArr);
             }
             StubBuilder.build(clientStubBal, clientStubBal.isFunctionsUnaryNotEmpty());
             ClientStruct sampleClient = new ClientStruct(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal

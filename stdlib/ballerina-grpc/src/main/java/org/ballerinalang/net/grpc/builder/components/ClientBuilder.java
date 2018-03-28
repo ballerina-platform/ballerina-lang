@@ -27,6 +27,7 @@ public class ClientBuilder {
     private String packageName;
     private String rootDescriptorKey;
     private List<Struct> struct = new ArrayList<>();
+    private List<Enum> enums = new ArrayList<>();
     private List<Stub> stubs = new ArrayList<>();
     private List<Descriptor> descriptors = new ArrayList<>();
     private List<BlockingFunction> blockingFunctions = new ArrayList<>();
@@ -71,6 +72,14 @@ public class ClientBuilder {
             structObj.addAttribute(attributesNameArr[i], attributesTypeArr[i]);
         }
         struct.add(structObj);
+    }
+    
+    public void addEnum(String enumId, String[] attributesNameArr) {
+        Enum enumObj = new Enum(enumId);
+        for (String anAttributesNameArr : attributesNameArr) {
+            enumObj.addAttribute(anAttributesNameArr);
+        }
+        enums.add(enumObj);
     }
     
     public void addStub(String stubTypeName, String stubType) {
