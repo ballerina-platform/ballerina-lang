@@ -25,6 +25,7 @@ import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -51,6 +52,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
@@ -100,6 +102,10 @@ public class LauncherUtils {
                     "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
         }
 
+        // Load launcher listeners
+        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+        listeners.forEach(listener -> listener.beforeRunProgram(runServices));
+
         if (runServices || !programFile.isMainEPAvailable()) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
@@ -108,6 +114,8 @@ public class LauncherUtils {
         } else {
             runMain(programFile, args);
         }
+
+        listeners.forEach(listener -> listener.afterRunProgram(runServices));
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
