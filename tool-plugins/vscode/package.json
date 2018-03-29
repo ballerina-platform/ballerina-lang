@@ -50,6 +50,13 @@
                     ],
                     "default": null,
                     "description": "Specifies the path to the ballerina sdk"
+                },
+                "ballerina.showLSErrors": {
+                    "type": [
+                        "boolean"
+                    ],
+                    "default": false,
+                    "description": "If set to true the language server's error log will be printed in the plugins console"
                 }
             }
         },

@@ -23,9 +23,9 @@ public struct PermissionStore {
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
 @Param {value:"username: user name"}
-@Param {value:"scopeName: name of the scope"}
+@Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorized, else false"}
-public function <PermissionStore permissionStore> isAuthorized (string username, string scopeName) returns (boolean) {
+public function <PermissionStore permissionStore> isAuthorized (string username, string[] scopes) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
 }

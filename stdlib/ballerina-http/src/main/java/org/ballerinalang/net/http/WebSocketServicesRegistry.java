@@ -21,14 +21,16 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.net.uri.URITemplate;
+import org.ballerinalang.net.uri.URITemplateException;
+import org.ballerinalang.net.uri.parser.Literal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -37,8 +39,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
-    private final Map<String, WebSocketService> servicesInfoMap = new ConcurrentHashMap<>();
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
+    private URITemplate<WebSocketService, WebSocketMessage> uriTemplate;
 
     public WebSocketServicesRegistry() {
     }
@@ -51,43 +53,20 @@ public class WebSocketServicesRegistry {
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         // TODO: Add websocket services to the service registry when service creation get available.
-        servicesInfoMap.put(service.getBasePath(), service);
+        try {
+            getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
+        } catch (URITemplateException | UnsupportedEncodingException e) {
+            throw new BallerinaConnectorException(e.getMessage());
+        }
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
-        postProcessService(service);
+
     }
 
-    private void postProcessService(WebSocketService service) {
-        WebSocketServiceValidator.validateServiceEndpoint(service);
-        //basePath will get cached after registering service
-        sortedServiceURIs.add(service.getBasePath());
-        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
-    }
-
-    public String findTheMostSpecificBasePath(String requestURIPath, Map<String, WebSocketService> services) {
-        for (Object key : sortedServiceURIs) {
-            if (!requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
-                continue;
-            }
-            if (requestURIPath.length() <= key.toString().length()) {
-                return key.toString();
-            }
-            if (requestURIPath.charAt(key.toString().length()) == '/') {
-                return key.toString();
-            }
+    public URITemplate<WebSocketService, WebSocketMessage> getUriTemplate() throws URITemplateException {
+        if (uriTemplate == null) {
+            uriTemplate = new URITemplate<>(new Literal<>(new WebSocketDataElement(), "/"));
         }
-        if (services.containsKey(HttpConstants.DEFAULT_BASE_PATH)) {
-            return HttpConstants.DEFAULT_BASE_PATH;
-        }
-        return null;
-    }
-
-    /**
-     * Get ServiceInfo map for given interfaceId.
-     *
-     * @return the serviceInfo map if exists else null.
-     */
-    public Map<String, WebSocketService> getServicesInfoByInterface() {
-        return servicesInfoMap;
+        return uriTemplate;
     }
 
     private String urlDecode(String basePath) {
@@ -145,9 +124,12 @@ public class WebSocketServicesRegistry {
     public void addUpgradableServiceByName(WebSocketService service, String basePath) {
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
-        servicesInfoMap.put(service.getBasePath(), service);
+        try {
+            getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
+        } catch (URITemplateException | UnsupportedEncodingException e) {
+            throw new BallerinaConnectorException(e.getMessage());
+        }
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
-        postProcessService(service);
     }
 
 }
