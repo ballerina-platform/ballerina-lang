@@ -119,10 +119,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
+        Assert.assertEquals(bJson.value().get("echo3").asText(), "shafreen-anfar"
                 , "Resource dispatched to wrong template");
 
         path = "/hello/echo2/shafreen+anfar";
@@ -131,10 +128,7 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("first").asText(), "anfar"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("second").asText(), "shafreen"
+        Assert.assertEquals(bJson.value().get("echo3").asText(), "shafreen anfar"
                 , "Resource dispatched to wrong template");
     }
 
@@ -147,34 +141,13 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
+        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen anfar"
                 , "Resource dispatched to wrong template");
 
         Assert.assertEquals(bJson.value().get("echo4").asText(), "echo4"
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/foo")
-    public void testSubPathEndsWithFoo() {
-        String path = "/hello/echo2/shafreen+anfar/foo";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-
-        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("echo4").asText(), "foo"
-                , "Resource dispatched to wrong template");
-    }
 
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/foo/bar")
     public void testLeastSpecificURITemplate() {
@@ -190,25 +163,6 @@ public class UriTemplateBestMatchTest {
     }
 
     @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
-    public void testBestSpecificURITemplateWithPOST() {
-        String path = "/hello/echo2/shafreen+anfar/bar";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-
-        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("echo8").asText(), "echo8"
-                , "Resource dispatched to wrong template");
-    }
-
-    @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
     public void testParamDefaultValues() {
         String path = "/hello/echo3/shafreen+anfar?foo=bar";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -217,13 +171,10 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
+        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen anfar"
                 , "Resource dispatched to wrong template");
 
-        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
-                , "Resource dispatched to wrong template");
-
-        Assert.assertEquals(bJson.value().get("third").asText(), "bar"
+        Assert.assertEquals(bJson.value().get("second").asText(), "bar"
                 , "Resource dispatched to wrong template");
 
         Assert.assertEquals(bJson.value().get("echo9").asText(), "echo9"
@@ -588,27 +539,16 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(bJson.value().get("yyy").asText(), "456", "wrong param value");
     }
 
-    @Test(description = "Test best match with split string path param different lengths.")
-    public void testDifferentLengthSplitStringPathParams() {
-        String path = "/uri/go/foo+bar/doo";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+    @Test(description = "Test whether requests get dispatched to the capitalized resource path.")
+    public void testBestMatchWithCapitalizedPathSegments() {
+        String path = "/uri/Go";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST");
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found.");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("aaa").asText(), "foo", "wrong param value");
-        Assert.assertEquals(bJson.value().get("bbb").asText(), "bar", "wrong param value");
-        Assert.assertEquals(bJson.value().get("ccc").asText(), "doo", "wrong param value");
-
-        path =  "/uri/go/blue+gold";
-        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        response = Services.invokeNew(application, TEST_EP, cMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-
-        Assert.assertEquals(bJson.value().get("xxx").asText(), "blue", "wrong param value");
-        Assert.assertEquals(bJson.value().get("yyy").asText(), "gold", "wrong param value");
+        Assert.assertEquals(bJson.value().get("value").asText(), "capitalized"
+                , "Request dispatched to wrong resource");
     }
 }
