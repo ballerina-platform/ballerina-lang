@@ -21,12 +21,13 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.observability.BallerinaObserver;
-import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
@@ -43,7 +44,7 @@ public class BallerinaTracingObserver implements BallerinaObserver {
         Tracer tracer = TraceManagerWrapper.newTracer(executionContext, false);
         tracer.setConnectorName(observerContext.getServiceName());
         tracer.setActionName(observerContext.getResourceName());
-        Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty("trace.properties");
+        Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
         if (httpHeaders != null) {
             httpHeaders.entrySet().stream()
                     .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
@@ -68,14 +69,14 @@ public class BallerinaTracingObserver implements BallerinaObserver {
 
         active.setConnectorName(observerContext.getConnectorName());
         active.setActionName(observerContext.getActionName());
-        observerContext.addProperty(ObservabilityConstants.PROPERTY_TRACE_PROPERTIES, active.getProperties());
+        observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, active.getProperties());
         active.startSpan();
     }
 
     @Override
     public void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
         Tracer tracer = TraceUtil.getTracer(executionContext);
-        BStruct error = (BStruct) observerContext.getProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR);
+        BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
         if (error != null) {
             Map<String, Object> logProps = new HashMap<>();
             logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);

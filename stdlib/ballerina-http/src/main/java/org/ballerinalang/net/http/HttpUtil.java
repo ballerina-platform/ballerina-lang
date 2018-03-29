@@ -1182,7 +1182,9 @@ public class HttpUtil {
     }
 
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
-        headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        if (headers != null) {
+            headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        }
     }
 }
 
