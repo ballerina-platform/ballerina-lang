@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -80,7 +81,7 @@ public class MicroTransactionTestCase {
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
-        InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
+        State initiatorState = new State(initiatorStateRes.getData());
         assertTrue(initiatorState.abortedByInitiator);
         assertTrue(initiatorState.abortedFunctionCalled);
         assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
@@ -89,7 +90,7 @@ public class MicroTransactionTestCase {
         assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
-        ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
+        State participantState = new State(participant1StateRes.getData());
         assertFalse(participantState.abortedByParticipant);
         assertTrue(participantState.abortedFunctionCalled);
         assertFalse(participantState.committedFunctionCalled);
@@ -103,7 +104,7 @@ public class MicroTransactionTestCase {
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
-        InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
+        State initiatorState = new State(initiatorStateRes.getData());
         assertFalse(initiatorState.abortedByInitiator);
         assertFalse(initiatorState.abortedByLocalParticipant);
         assertTrue(initiatorState.abortedFunctionCalled);
@@ -112,7 +113,7 @@ public class MicroTransactionTestCase {
         assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
-        ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
+        State participantState = new State(participant1StateRes.getData());
         assertTrue(participantState.abortedByParticipant);
         assertTrue(participantState.abortedFunctionCalled);
         assertFalse(participantState.committedFunctionCalled);
@@ -126,7 +127,7 @@ public class MicroTransactionTestCase {
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
-        InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
+        State initiatorState = new State(initiatorStateRes.getData());
         assertFalse(initiatorState.abortedByInitiator);
         assertFalse(initiatorState.abortedByLocalParticipant);
         assertFalse(initiatorState.abortedFunctionCalled);
@@ -135,7 +136,7 @@ public class MicroTransactionTestCase {
         assertTrue(initiatorState.localParticipantCommittedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
-        ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
+        State participantState = new State(participant1StateRes.getData());
         assertFalse(participantState.abortedByParticipant);
         assertFalse(participantState.abortedFunctionCalled);
         assertFalse(participantState.localParticipantAbortedFunctionCalled);
@@ -149,7 +150,7 @@ public class MicroTransactionTestCase {
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
-        InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
+        State initiatorState = new State(initiatorStateRes.getData());
         assertFalse(initiatorState.abortedByInitiator);
         assertTrue(initiatorState.abortedByLocalParticipant);
         assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
@@ -158,7 +159,7 @@ public class MicroTransactionTestCase {
         assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
-        ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
+        State participantState = new State(participant1StateRes.getData());
         assertFalse(participantState.abortedByParticipant);
         assertTrue(participantState.abortedFunctionCalled);
         assertFalse(participantState.committedFunctionCalled);
@@ -175,7 +176,7 @@ public class MicroTransactionTestCase {
 
         // Initiator has committed even though participant1 has aborted because participant1 is non-infectable
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
-        InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
+        State initiatorState = new State(initiatorStateRes.getData());
         assertTrue(initiatorState.abortedByInitiator);
         assertTrue(initiatorState.abortedFunctionCalled);
         assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
@@ -186,7 +187,7 @@ public class MicroTransactionTestCase {
         // Since the participant is non-infectable, it will not participate in the coordination, and its abort will not
         // affect the initiator. Here the "participant" has aborted.
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
-        ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
+        State participantState = new State(participant1StateRes.getData());
         assertFalse(participantState.abortedByParticipant);
         assertFalse(participantState.abortedFunctionCalled);
         assertFalse(participantState.committedFunctionCalled);
@@ -200,7 +201,7 @@ public class MicroTransactionTestCase {
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
         HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
-        InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
+        State initiatorState = new State(initiatorStateRes.getData());
         assertFalse(initiatorState.abortedByInitiator);
         assertFalse(initiatorState.abortedByLocalParticipant);
         assertTrue(initiatorState.abortedFunctionCalled);
@@ -209,7 +210,7 @@ public class MicroTransactionTestCase {
         assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
-        ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
+        State participantState = new State(participant1StateRes.getData());
         assertFalse(participantState.abortedByParticipant);
         assertTrue(participantState.abortedFunctionCalled);
         assertFalse(participantState.committedFunctionCalled);
@@ -217,17 +218,77 @@ public class MicroTransactionTestCase {
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testTransactionInfectableTrue"})
     public void testSaveToDatabaseSuccessfulInParticipant() throws IOException {
         HttpResponse response =
                 HttpClientRequest.doGet(initiator.getServiceURLHttp("testSaveToDatabaseSuccessfulInParticipant"));
-        System.out.println("############# response=" + response.getData());
+        String data = response.getData();
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
+        HttpResponse participantRes =
+                HttpClientRequest.doGet(participant2.getServiceURLHttp("checkCustomerExists/" + data));
+        assertEquals(participantRes.getData(), data, "Record insertion failed");
+
+        HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
+        State initiatorState = new State(initiatorStateRes.getData());
+        assertFalse(initiatorState.abortedByInitiator);
+        assertFalse(initiatorState.abortedByLocalParticipant);
+        assertFalse(initiatorState.abortedFunctionCalled);
+        assertFalse(initiatorState.localParticipantAbortedFunctionCalled);
+        assertTrue(initiatorState.committedFunctionCalled);
+        assertTrue(initiatorState.localParticipantCommittedFunctionCalled);
+
+        // Participant 1 is just passthru, and will propogate the transaction to participant2
+        HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
+        State participant1State = new State(participant1StateRes.getData());
+        assertFalse(participant1State.abortedByParticipant);
+        assertFalse(participant1State.abortedFunctionCalled);
+        assertFalse(participant1State.localParticipantAbortedFunctionCalled);
+        assertFalse(participant1State.committedFunctionCalled);
+        assertFalse(participant1State.localParticipantCommittedFunctionCalled);
+
+        HttpResponse participant2StateRes = HttpClientRequest.doGet(participant2.getServiceURLHttp("getState"));
+        State participant2State = new State(participant2StateRes.getData());
+        assertFalse(participant2State.abortedFunctionCalled);
+        assertFalse(participant2State.localParticipantAbortedFunctionCalled);
+        assertTrue(participant2State.committedFunctionCalled);
+        assertTrue(participant2State.localParticipantCommittedFunctionCalled);
     }
 
-    public void testSaveToDatabaseFailedInParticipant() {
+    @Test(dependsOnMethods = {"testSaveToDatabaseSuccessfulInParticipant"})
+    public void testSaveToDatabaseFailedInParticipant() throws IOException {
+        HttpResponse response =
+                HttpClientRequest.doGet(initiator.getServiceURLHttp("testSaveToDatabaseFailedInParticipant"));
+        String data = response.getData();
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
+        HttpResponse participantRes =
+                HttpClientRequest.doGet(participant2.getServiceURLHttp("checkCustomerExists/" + data));
+        assertNotEquals(participantRes.getData(), data, "Abort failed");
+
+        HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
+        State initiatorState = new State(initiatorStateRes.getData());
+        assertFalse(initiatorState.abortedByInitiator);
+        assertFalse(initiatorState.abortedByLocalParticipant);
+        assertFalse(initiatorState.committedFunctionCalled);
+        assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
+        assertTrue(initiatorState.abortedFunctionCalled);
+        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
+
+        HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
+        State participant1State = new State(participant1StateRes.getData());
+        assertFalse(participant1State.abortedByParticipant);
+        assertFalse(participant1State.committedFunctionCalled);
+        assertFalse(participant1State.localParticipantCommittedFunctionCalled);
+        assertTrue(participant1State.abortedFunctionCalled);
+        assertTrue(participant1State.localParticipantAbortedFunctionCalled);
+
+        HttpResponse participant2StateRes = HttpClientRequest.doGet(participant2.getServiceURLHttp("getState"));
+        State participant2State = new State(participant2StateRes.getData());
+        assertFalse(participant2State.committedFunctionCalled);
+        assertFalse(participant2State.localParticipantCommittedFunctionCalled);
+        assertTrue(participant2State.abortedFunctionCalled);
+        assertTrue(participant2State.localParticipantAbortedFunctionCalled);
     }
 
     @AfterClass
@@ -241,36 +302,16 @@ public class MicroTransactionTestCase {
         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
     }
 
-    private static class InitiatorState {
+    private static class State {
         boolean abortedByInitiator;
+        boolean abortedByParticipant;
         boolean abortedByLocalParticipant;
         boolean abortedFunctionCalled;
         boolean committedFunctionCalled;
         boolean localParticipantAbortedFunctionCalled;
         boolean localParticipantCommittedFunctionCalled;
 
-        InitiatorState(String stateString) {
-            String[] stateVars = stateString.split(",");
-            for (String stateVar : stateVars) {
-                String[] nvPair = stateVar.split("=");
-                try {
-                    Field field = this.getClass().getDeclaredField(nvPair[0]);
-                    field.set(this, Boolean.parseBoolean(nvPair[1]));
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    private static class ParticipantState {
-        boolean abortedByParticipant;
-        boolean abortedFunctionCalled;
-        boolean committedFunctionCalled;
-        boolean localParticipantAbortedFunctionCalled;
-        boolean localParticipantCommittedFunctionCalled;
-
-        ParticipantState(String stateString) {
+        State(String stateString) {
             String[] stateVars = stateString.split(",");
             for (String stateVar : stateVars) {
                 String[] nvPair = stateVar.split("=");

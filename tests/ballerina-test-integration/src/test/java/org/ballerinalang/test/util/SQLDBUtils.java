@@ -21,6 +21,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.hsqldb.Server;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.ServerAcl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,14 +37,11 @@ import java.sql.Statement;
 
 /**
  * Util class for SQL DB Tests.
- *
- * @since 0.8.0
  */
 public class SQLDBUtils {
 
     public static final String DB_DIRECTORY = "./target/tempdb/";
-    public static final String DB_DIRECTORY_H2_1 = "./target/H2_1/";
-    public static final String DB_DIRECTORY_H2_2 = "./target/H2_2/";
+    private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
      * Create HyperSQL DB with the given name and initialize with given SQL file.
@@ -65,8 +64,7 @@ public class SQLDBUtils {
                 try {
                     st.executeUpdate(query.trim());
                 } catch (SQLException e) {
-                    System.out.println("Query failed: " + query);
-                    e.printStackTrace();
+                    LOG.error("Query: " + query + " failed", e);
                 }
             }
 
@@ -77,9 +75,8 @@ public class SQLDBUtils {
             Server server = new Server();
             server.setProperties(p);
             server.start();
-            System.out.println("############# HSQLDB server started ###################");
         } catch (ClassNotFoundException | SQLException | ServerAcl.AclFormatException | IOException e) {
-            e.printStackTrace();
+            LOG.error("Error ", e);
         } finally {
             releaseResources(connection, st);
         }
@@ -134,7 +131,7 @@ public class SQLDBUtils {
             }
             fileAsString = sb.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error ", e);
         }
         return fileAsString;
     }
@@ -148,7 +145,7 @@ public class SQLDBUtils {
                 connection.close();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Error ", e);
         }
     }
 }

@@ -200,6 +200,29 @@ service<http:Service> InitiatorService bind initiatorEP {
         }
         _ = ep -> respond(res);
     }
+
+    testSaveToDatabaseFailedInParticipant(endpoint ep, http:Request req) {
+        http:Response res = {statusCode: 500};
+        transaction with oncommit=onCommit, onabort=onAbort {
+            http:Request newReq = {};
+            var result = participant1EP -> get("/testSaveToDatabaseFailedInParticipant", {});
+            match result {
+                http:Response participant1Res => {
+                    transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+                    }
+                    res = participant1Res;
+                    if(participant1Res.statusCode == 500) {
+                        state.abortedByInitiator = true;
+                        abort;
+                    }
+                }
+                error => {
+                    res.statusCode = 500;
+                }
+            }
+        }
+        _ = ep -> respond(res);
+    }
 }
 
 function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
