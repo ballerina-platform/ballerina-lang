@@ -81,9 +81,6 @@ public class BTupleType extends BType {
         if (!(o instanceof BTupleType)) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         BTupleType that = (BTupleType) o;
         return Objects.equals(tupleTypes, that.tupleTypes);
     }

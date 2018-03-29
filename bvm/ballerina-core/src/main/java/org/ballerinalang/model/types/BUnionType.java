@@ -94,9 +94,6 @@ public class BUnionType extends BType {
         if (!(o instanceof BUnionType)) {
             return false;
         }
-        if (!super.equals(o)) {
-            return false;
-        }
         BUnionType that = (BUnionType) o;
         return Objects.equals(memberTypes, that.memberTypes);
     }
