@@ -82,8 +82,9 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     
     protected WorkerExecutionContext propagateErrorToTarget() {
         BStruct error = BLangVMErrors.createCallFailedException(this.targetCtx, this.getWorkerErrors());
+        WorkerExecutionContext ctx = this.onFinalizedError(this.targetCtx, error);
         this.doFailCallbackNotify(error);
-        return this.onFinalizedError(this.targetCtx, error);
+        return ctx;
     }
 
     @Override
