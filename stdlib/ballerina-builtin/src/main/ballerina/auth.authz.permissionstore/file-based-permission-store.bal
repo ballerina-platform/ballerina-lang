@@ -30,14 +30,18 @@ public struct FileBasedPermissionStore {
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
 @Param {value:"username: user name"}
-@Param {value:"scopeName: name of the scope"}
+@Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorized, else false"}
-public function <FileBasedPermissionStore permissionStore> isAuthorized (string username, string scopeName) returns (boolean) {
-    string[] groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
+public function <FileBasedPermissionStore permissionStore> isAuthorized (string username,
+                                                                         string[] scopes) returns (boolean) {
+    string[] groupsForScope = [];
+    foreach scopeName in scopes  {
+        groupsForScope = combineArrays(groupsForScope, getGroupsArray(permissionStore.readGroupsOfScope(scopeName)));
+    }
     if (lengthof groupsForScope == 0) {
-        // no groups for scope, no need to authorize
-        return true;
-        
+        // no groups for found for the scopes - cannot authorize
+        return false;
+
     }
     string[] groupsForUser = getGroupsArray(permissionStore.readGroupsOfUser(username));
     if (lengthof groupsForUser == 0) {
@@ -45,6 +49,22 @@ public function <FileBasedPermissionStore permissionStore> isAuthorized (string 
         return false;
     }
     return matchGroups(groupsForScope, groupsForUser);
+}
+
+@Description {value:"Appends the contents of the second array to the first"}
+@Param {value:"primaryArray: name of the primary array to which content is appended"}
+@Param {value:"combiningArray: secondary array, elements of which will be appended to first"}
+@Return {value:"string[]: combined array"}
+function combineArrays (string[] primaryArray, string[] combiningArray) returns (string[]) {
+    if (lengthof combiningArray == 0) {
+        return primaryArray;
+    }
+    int i = 0;
+    while (i < lengthof combiningArray) {
+        primaryArray[lengthof primaryArray + i] = combiningArray[i];
+        i = i + 1;
+    }
+    return primaryArray;
 }
 
 @Description {value:"Reads groups for the given scopes"}
@@ -56,19 +76,18 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (st
 
 @Description {value:"Matches the groups passed"}
 @Param {value:"requiredGroupsForScope: array of groups for the scope"}
-@Param {value:"groupsReadFromPermissionstore: array of groups for the user"}
+@Param {value:"groupsOfUser: array of groups belonging to the user"}
 @Return {value:"boolean: true if two arrays are equal in content, else false"}
-function matchGroups (string[] requiredGroupsForScope, string[] groupsReadFromPermissionstore) returns (boolean) {
-    int groupCountRequiredForResource = lengthof requiredGroupsForScope;
-    int matchingRoleCount = 0;
-    foreach groupReadFromPermissiontore in groupsReadFromPermissionstore {
-        foreach groupRequiredForResource in requiredGroupsForScope {
-            if (groupRequiredForResource == groupReadFromPermissiontore) {
-                matchingRoleCount = matchingRoleCount + 1;
+function matchGroups (string[] groupsOfScope, string[] groupsOfUser) returns (boolean) {
+    foreach groupOfUser in groupsOfUser {
+        foreach groupOfScope in groupsOfScope {
+            if (groupOfUser == groupOfScope) {
+                // if user is in one group that is equal to a group of a scope, authorization passes
+                return true;
             }
         }
     }
-    return matchingRoleCount == groupCountRequiredForResource;
+    return false;
 }
 
 @Description {value:"Construct an array of groups from the comma separed group string passed"}

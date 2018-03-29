@@ -95,6 +95,7 @@ class DefinitionViewMenu extends React.Component {
                 flowing
                 hoverable
                 wide
+                position='bottom center'
                 open={this.state.isOpen}
                 onClose={this.handleClose}
                 onOpen={this.handleOpen}
@@ -102,7 +103,6 @@ class DefinitionViewMenu extends React.Component {
                 {
                     <Grid divided columns={3}>
                         <Grid.Row>
-                            { structs.length > 0 &&
                             <Grid.Column>
                                 <Header as='h5'>
                                     <Icon size='mini' name={'fw fw-struct'} />
@@ -115,8 +115,6 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                            }
-                            { transformers.length > 0 &&
                             <Grid.Column stretched>
                                 <Header as='h5'>
                                     <Icon size='mini' name={'fw fw-type-converter'} />
@@ -130,8 +128,6 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                            }
-                            { endpoints.length > 0 &&
                             <Grid.Column>
                                 <Header as='h5'>
                                     <Icon size='mini' name={'fw fw-endpoint'} />
@@ -144,7 +140,6 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                            }
                         </Grid.Row>
                     </Grid>
             }

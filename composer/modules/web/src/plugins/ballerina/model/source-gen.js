@@ -114,11 +114,21 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Import':
             if (node.isInternal) {
                 return '';
+            } else if (node.userDefinedAlias && node.orgName.valueWithBar
+                         && node.packageName && node.alias.valueWithBar) {
+                return dent() + w() + 'import' + a(' ') + w()
+                 + node.orgName.valueWithBar + w() + '/'
+                 + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w(' ') + 'as' + w(' ') + node.alias.valueWithBar
+                 + w() + ';';
             } else if (node.userDefinedAlias && node.packageName
                          && node.alias.valueWithBar) {
                 return dent() + w() + 'import' + a(' ')
                  + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w(' ') + 'as' + w(' ')
                  + node.alias.valueWithBar + w() + ';';
+            } else if (node.orgName.valueWithBar && node.packageName) {
+                return dent() + w() + 'import' + a(' ') + w()
+                 + node.orgName.valueWithBar + w() + '/'
+                 + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w() + ';';
             } else {
                 return dent() + w() + 'import' + a(' ')
                  + join(node.packageName, pretty, replaceLambda, l, w, '', '.') + w() + ';';
