@@ -74,10 +74,24 @@ public class ClientBuilder {
         struct.add(structObj);
     }
     
+    public boolean isStructContains(String structId) {
+        for (Struct struct : struct) {
+            if (structId.equals(struct.getStructId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void addEnum(String enumId, String[] attributesNameArr) {
         Enum enumObj = new Enum(enumId);
-        for (String anAttributesNameArr : attributesNameArr) {
-            enumObj.addAttribute(anAttributesNameArr);
+        for (int i = 0; i < attributesNameArr.length; i++) {
+            String anAttributesNameArr = attributesNameArr[i];
+            if (i < attributesNameArr.length - 1) {
+                enumObj.addAttribute(anAttributesNameArr, ",");
+            } else {
+                enumObj.addAttribute(anAttributesNameArr, null);
+            }
         }
         enums.add(enumObj);
     }

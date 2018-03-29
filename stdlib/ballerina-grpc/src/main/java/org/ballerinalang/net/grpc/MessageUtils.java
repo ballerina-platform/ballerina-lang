@@ -25,16 +25,19 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -63,6 +66,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.STRING;
 public class MessageUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
+    private static final int MAX_ENUM_ATTRIBUTES_COUNT = 50;
     
     public static BValue getHeader(Context context) {
         String headerName = context.getStringArgument(0);
@@ -192,12 +196,12 @@ public class MessageUtils {
     static boolean isArray(Object object) {
         return object != null && object.getClass().isArray();
     }
-
+    
     /**
      * Returns protobuf message corresponding to the B7a message.
      *
      * @param responseValue B7a message.
-     * @param outputType protobuf message type.
+     * @param outputType    protobuf message type.
      * @return generated protobuf message.
      */
     public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
@@ -285,6 +289,16 @@ public class MessageUtils {
                     responseBuilder.addField(fieldName, value);
                     break;
                 }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
+                    if (responseValue instanceof BStruct) {
+                        BValue bValue = ((BStruct) responseValue).getRefField(refIndex++);
+                        responseBuilder.addField(fieldName, DescriptorProtos.EnumValueDescriptorProto.newBuilder()
+                                .setName(bValue.stringValue())
+                                .setNumber(getEnumIndex((BEnumType) bValue.getType(), bValue.stringValue()))
+                                .build());
+                    }
+                    break;
+                }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                     if (responseValue instanceof BStruct) {
                         BValue bValue = ((BStruct) responseValue).getRefField(refIndex++);
@@ -321,6 +335,12 @@ public class MessageUtils {
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
                                 structFieldName, structField.getFieldType(), context));
                     }
+                } else if (structField.getFieldType() instanceof BEnumType) {
+                    int value = (Integer) request.getFields().get(structField.getFieldName());
+                    BEnumerator enumerator = new BEnumerator(((BEnumType) structField.getFieldType())
+                            .getEnumerator(value).getName(), (BEnumType) structField.getFieldType());
+                    requestStruct.setRefField(refIndex++, enumerator);
+                    
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();
@@ -407,11 +427,24 @@ public class MessageUtils {
         
         return bValue;
     }
-
+    
+    private static int getEnumIndex(BEnumType bEnumType, String value) {
+        try {
+            for (int i = 0; i < MAX_ENUM_ATTRIBUTES_COUNT; i++) {
+                if (value.equals(bEnumType.getEnumerator(i).getName())) {
+                    return i;
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new GrpcServerValidationException("Enum attribute '" + value + "' cannot be found.");
+        }
+        return -1;
+    }
+    
     /**
      * Returns B7a struct for the given field name.
      *
-     * @param context context to retrieve program file.
+     * @param context   context to retrieve program file.
      * @param fieldName struct name.
      * @return generated struct.
      */
@@ -440,7 +473,7 @@ public class MessageUtils {
             return MethodDescriptor.MethodType.UNKNOWN;
         }
     }
-
+    
     /**
      * Checks whether method has response message.
      *

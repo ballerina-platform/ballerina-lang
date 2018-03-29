@@ -32,7 +32,6 @@ public class UserDefinedEnumMessage {
     List<EnumField> fieldList = new ArrayList<>();
     private DescriptorProtos.EnumDescriptorProto descriptorProto;
     private String messageName;
-    private String messageType;
     
     public DescriptorProtos.EnumDescriptorProto getDescriptorProto() {
         return descriptorProto;
@@ -46,7 +45,6 @@ public class UserDefinedEnumMessage {
     private UserDefinedEnumMessage(DescriptorProtos.EnumDescriptorProto descriptorProto) {
         this.descriptorProto = descriptorProto;
         this.messageName = descriptorProto.getName();
-        this.messageType = descriptorProto.getDescriptorForType().getFullName();
     }
 
     public static UserDefinedEnumMessage.Builder newBuilder(String messageType) throws
@@ -83,19 +81,16 @@ public class UserDefinedEnumMessage {
     public static class Builder {
         private DescriptorProtos.EnumDescriptorProto.Builder messageDescriptorBuilder;
         private List<EnumField> fieldList = new ArrayList<>();
-        private String msgFullName;
-
+    
         public UserDefinedEnumMessage build() {
             UserDefinedEnumMessage message = new UserDefinedEnumMessage(messageDescriptorBuilder.build());
             message.fieldList = fieldList;
-            message.messageType = msgFullName;
             return message;
         }
 
         private Builder(String fullName, String messageName) {
             messageDescriptorBuilder = DescriptorProtos.EnumDescriptorProto.newBuilder();
             messageDescriptorBuilder.setName(messageName);
-            this.msgFullName = fullName;
         }
 
         public Builder addFieldDefinition(EnumField fieldDefinition) {

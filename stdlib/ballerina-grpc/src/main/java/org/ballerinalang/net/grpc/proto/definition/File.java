@@ -112,7 +112,14 @@ public class File {
             file.setDependencyList(dependencyList);
             return file;
         }
-        
+        public boolean isEnumExsists(String enumId) {
+            for (UserDefinedEnumMessage enumMessage : enumList) {
+                if (enumMessage.getDescriptorProto().getName().equals(enumId)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         public Builder setPackage(String packageName) {
             fileBuilder.setPackage(packageName);
             return this;
@@ -140,6 +147,7 @@ public class File {
             enumList.add(enumDefinition);
             return this;
         }
+        
         public Builder setDependeny(String dependency) {
             fileBuilder.addDependency(dependency);
             dependencyList.add(dependency);

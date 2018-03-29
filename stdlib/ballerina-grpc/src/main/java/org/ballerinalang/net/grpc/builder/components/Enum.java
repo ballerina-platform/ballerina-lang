@@ -31,8 +31,8 @@ public class Enum {
         this.enumId = enumId;
     }
     
-    public void addAttribute(String name) {
-        enumAttribute.add(new EnumAttribute(name));
+    public void addAttribute(String name, String eoe) {
+        enumAttribute.add(new EnumAttribute(name, eoe));
     }
     
     public String getStructId() {

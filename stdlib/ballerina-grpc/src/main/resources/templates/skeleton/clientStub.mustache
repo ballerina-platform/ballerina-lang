@@ -21,9 +21,9 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputData
             error e = {message:payloadError.message};
             return e;
         }
-        any|string payload => {
+        any|{{outputDataType}} payload => {
             match payload {
-                string s => {
+                {{outputDataType}} s => {
                     return s;
                 }
                 any nonOccurance => {
@@ -85,7 +85,7 @@ struct {{structId}} {
 {{/struct}}
 {{#enums}}
 enum {{enumId}} {
-{{#enumAttribute}}{{name}},
+{{#enumAttribute}}{{name}}{{eoe}}
 {{/enumAttribute}}
 }
 {{/enums}}
