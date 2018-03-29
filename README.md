@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://github.com/samgnaniah/ballerina/blob/master/docs/images/ballerina-logo.png" />
+</p>
+
+
 ![Ballerina](/docs/images/ballerina-logo.png)
 
 [![Build Status](https://wso2.org/jenkins/buildStatus/icon?job=ballerina-lang/ballerina)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-lang/job/ballerina/)
