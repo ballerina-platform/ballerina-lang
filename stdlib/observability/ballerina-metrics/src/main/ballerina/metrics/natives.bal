@@ -147,7 +147,7 @@ public enum TimeUnit {
 public struct Timer {
     string name;
     string description;
-    TimeUnit baseTimeUnit;
+    map tags;
 }
 
 @Description {value: ""}
@@ -183,4 +183,4 @@ public native function <Timer timer> record(float amount, TimeUnit timeUnit);
 @Description {value: ""}
 @Param {value: "timer: "}
 @Return {value: ""}
-public native function <Timer timer> count() returns (float);
+public native function <Timer timer> count() returns (int);

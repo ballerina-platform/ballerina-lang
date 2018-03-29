@@ -20,35 +20,37 @@ package org.ballerinalang.observe.metrics.timer;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * TODO: Class level comment.
  */
 public class TimeUnitExtractor {
 
-    private static String timeUnit;
+    private static TimeUnit timeUnit;
 
-    public static String getTimeUnit(BEnumerator timeUnitEnum) {
+    public static TimeUnit getTimeUnit(BEnumerator timeUnitEnum) {
         switch (timeUnitEnum.getName()) {
             case "NANOSECONDS":
-                timeUnit = "NANOSECONDS";
+                timeUnit = timeUnit.NANOSECONDS;
                 break;
             case "MICROSECONDS":
-                timeUnit = "MICROSECONDS";
+                timeUnit = timeUnit.MICROSECONDS;
                 break;
             case "MILLISECONDS":
-                timeUnit = "MILLISECONDS";
+                timeUnit = timeUnit.MILLISECONDS;
                 break;
             case "SECONDS":
-                timeUnit = "SECONDS";
+                timeUnit = timeUnit.SECONDS;
                 break;
             case "MINUTES":
-                timeUnit = "MINUTES";
+                timeUnit = timeUnit.MINUTES;
                 break;
             case "HOURS":
-                timeUnit = "HOURS";
+                timeUnit = timeUnit.HOURS;
                 break;
             case "DAYS":
-                timeUnit = "DAYS";
+                timeUnit = timeUnit.DAYS;
                 break;
             default:
                 throw new BallerinaException("Unsupported base time unit " + timeUnitEnum + " for timer registration.");

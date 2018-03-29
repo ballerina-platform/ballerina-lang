@@ -17,15 +17,22 @@
  */
 package org.ballerinalang.observe.metrics.timer;
 
+import io.micrometer.core.instrument.Timer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BEnumerator;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.observe.metrics.Registry;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * TODO: Class level comment.
@@ -45,8 +52,18 @@ public class RegisterTimer extends BlockingNativeCallableUnit {
         BStruct timerStruct = (BStruct) context.getRefArgument(0);
         String name = timerStruct.getStringField(0);
         String description = timerStruct.getStringField(1);
-        BEnumerator baseTimeUnitEnum = (BEnumerator) timerStruct.getRefField(0);
-        String baseTimeUnit = TimeUnitExtractor.getTimeUnit(baseTimeUnitEnum);
+        BMap tagsMap = (BMap) timerStruct.getRefField(0);
 
+        if (!tagsMap.isEmpty()) {
+            List<String> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(key.toString());
+                tags.add(tagsMap.get(key).stringValue());
+            }
+            Timer.builder(name).description(description).tags(tags.toArray(new String[tags.size()]))
+                    .register(Registry.getRegistry());
+        } else {
+            Timer.builder(name).description(description).register(Registry.getRegistry());
+        }
     }
 }

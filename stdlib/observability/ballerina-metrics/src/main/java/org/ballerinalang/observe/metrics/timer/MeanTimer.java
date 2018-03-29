@@ -21,11 +21,18 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BEnumerator;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.observe.metrics.Registry;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * TODO: Class level comment.
@@ -45,8 +52,21 @@ public class MeanTimer extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct timerStruct = (BStruct) context.getRefArgument(0);
         String name = timerStruct.getStringField(0);
-        String description = timerStruct.getStringField(1);
-        BEnumerator baseTimeUnitEnum = (BEnumerator) timerStruct.getRefField(0);
+        BMap tagsMap = (BMap) timerStruct.getRefField(0);
         BEnumerator timeUnitEnum = (BEnumerator) context.getRefArgument(1);
+
+        TimeUnit timeUnit = TimeUnitExtractor.getTimeUnit(timeUnitEnum);
+
+        if (!tagsMap.isEmpty()) {
+            List<String> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(key.toString());
+                tags.add(tagsMap.get(key).stringValue());
+            }
+            context.setReturnValues(new BFloat(Registry.getRegistry().timer(name, tags
+                    .toArray(new String[tags.size()])).mean(timeUnit)));
+        } else {
+            context.setReturnValues(new BFloat(Registry.getRegistry().timer(name).mean(timeUnit)));
+        }
     }
 }
