@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -132,7 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -1471,6 +1471,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(tupleDeNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
         }
         // Check RHS expressions with expected type list.
+//<<<<<<< HEAD
 //        if (tupleDeNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
 //            expTypes = Lists.of(symTable.noType);
 //        }
@@ -1484,6 +1485,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             dlog.error(tupleDeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsType);
             rhsTypes = typeChecker.getListWithErrorTypes(tupleDeNode.varRefs.size());
+//=======
+//        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+//            expTypes = Lists.of(symTable.noType);
+//        }
+//        List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+//        if (assignNode.safeAssignment) {
+//            rhsTypes = Lists.of(handleSafeAssignmentWithVarDeclaration(assignNode.pos, rhsTypes.get(0)));
+//        }
+//
+//        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+//            if (rhsTypes.get(0) != symTable.errType && rhsTypes.get(0).tag == TypeTags.TUPLE) {
+//                BTupleType tupleType = (BTupleType) rhsTypes.get(0);
+//                rhsTypes = tupleType.tupleTypes;
+//            } else if (rhsTypes.get(0) != symTable.errType && rhsTypes.get(0).tag != TypeTags.TUPLE) {
+//                dlog.error(assignNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsTypes.get(0));
+//                rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
+//            }
+//>>>>>>> 261241512cbe6b32f22c8c35088939afe11e2bd4
         }
 
         // visit all lhs expressions

@@ -134,7 +134,7 @@ public class AnnotationDesugar {
         final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
         final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos, pkgNode.initFunction.body);
         annMapAssignment.expr = recordLiteralNode;
-        annMapAssignment.addVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
+        annMapAssignment.setVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
         return annotationMap;
     }
 
@@ -158,7 +158,7 @@ public class AnnotationDesugar {
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.stringType, key);
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationMapVar.symbol);
         indexAccessNode.type = recordLiteralNode.type;
-        assignmentStmt.varRefs.add(indexAccessNode);
+        assignmentStmt.varRef = indexAccessNode;
         return entryVariable;
     }
 
@@ -187,6 +187,6 @@ public class AnnotationDesugar {
                 attachment.annotationSymbol.bvmAlias() + "$" + index);
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationMapEntryVar.symbol);
         indexAccessNode.type = annotationMapEntryVar.symbol.type;
-        assignmentStmt.varRefs.add(indexAccessNode);
+        assignmentStmt.varRef = indexAccessNode;
     }
 }

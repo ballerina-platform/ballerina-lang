@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,19 +37,17 @@ import java.util.List;
  *
  * @since 0.94
  */
-public class BLangInvocation extends BLangVariableReference implements InvocationNode, MultiReturnExpr {
+public class BLangInvocation extends BLangVariableReference implements InvocationNode {
 
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
     public List<BLangExpression> argExprs = new ArrayList<>();
     public BLangVariableReference expr;
-    public List<BType> types = new ArrayList<>(0);
     public BSymbol symbol;
     public boolean functionPointerInvocation;
     /* Variables Required for Iterable Operation */
     public boolean iterableOperationInvocation;
     public IterableContext iContext;
-    protected RegIndex[] regIndexes;
     public boolean actionInvocation;
     public boolean async;
 
@@ -61,10 +58,6 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public List<BLangExpression> requiredArgs = new ArrayList<>();
     public List<BLangExpression> namedArgs = new ArrayList<>();
     public List<BLangExpression> restArgs = new ArrayList<>();
-
-    public boolean isMultiReturnExpr() {
-        return true;
-    }
 
     @Override
     public IdentifierNode getPackageAlias() {
@@ -116,25 +109,6 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     }
 
     @Override
-    public List<BType> getTypes() {
-        return types;
-    }
-
-    @Override
-    public void setTypes(List<BType> types) {
-        this.types = types;
-    }
-
-    public RegIndex[] getRegIndexes() {
-        return regIndexes;
-    }
-
-    public void setRegIndexes(RegIndex[] regIndexes) {
-        this.regIndexes = regIndexes;
-        this.regIndex = regIndexes != null && regIndexes.length > 0 ? regIndexes[0] : null;
-    }
-
-    @Override
     public boolean isIterableOperation() {
         return iterableOperationInvocation;
     }
@@ -160,13 +134,10 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             this.requiredArgs = parent.requiredArgs;
             this.namedArgs = parent.namedArgs;
             this.restArgs = parent.restArgs;
-            this.types = parent.types;
-            this.regIndexes = parent.regIndexes;
+            this.regIndex = parent.regIndex;
             this.symbol = parent.symbol;
             this.expr = varRef;
-            if (types.size() > 0) {
-                this.type = types.get(0);
-            }
+            this.type = parent.type;
         }
 
         @Override
@@ -194,10 +165,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             this.namedArgs = namedArgs;
             this.restArgs = restArgs;
             this.symbol = symbol;
-            this.types = types;
-            if (types.size() > 0) {
-                this.type = types.get(0);
-            }
+            this.type = type;
             this.expr = expr;
             this.async = async;
         }
@@ -225,10 +193,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             this.namedArgs = namedArgs;
             this.restArgs = restArgs;
             this.symbol = symbol;
-            this.types = types;
-            if (types.size() > 0) {
-                this.type = types.get(0);
-            }
+            this.type = type;
             this.async = async;
         }
 
@@ -250,10 +215,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
             this.pos = pos;
             this.requiredArgs = requiredArgs;
             this.symbol = symbol;
-            this.types = types;
-            if (!types.isEmpty()) {
-                this.type = types.get(0);
-            }
+            this.type = type;
         }
 
         public BLangTransformerInvocation(DiagnosticPos pos,

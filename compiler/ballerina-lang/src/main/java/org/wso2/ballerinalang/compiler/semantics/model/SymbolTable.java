@@ -97,6 +97,7 @@ public class SymbolTable {
     public final BType connectorType = new BConnectorType(null, null);
     public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
     public final BType arrayType = new BArrayType(noType);
+    public final BType voidType = new BType(TypeTags.VOID, null);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;

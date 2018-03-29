@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
-import org.ballerinalang.model.types.Type;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -94,7 +93,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -107,7 +105,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -292,11 +289,11 @@ public class TypeChecker extends BLangNodeVisitor {
         };
 
         return expTypes.stream()
-                .filter(type -> type.tag == TypeTags.JSON || 
-                        type.tag == TypeTags.MAP || 
+                .filter(type -> type.tag == TypeTags.JSON ||
+                        type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.STRUCT ||
-                        type.tag == TypeTags.TABLE || 
-                        type.tag == TypeTags.NONE || 
+                        type.tag == TypeTags.TABLE ||
+                        type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -490,8 +487,8 @@ public class TypeChecker extends BLangNodeVisitor {
         final BType exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
         if (isIterableOperationInvocation(iExpr)) {
             iExpr.iterableOperationInvocation = true;
-            iterableAnalyzer.handlerIterableOperation(iExpr, Lists.of(expType), env);
-            resultType = iExpr.iContext.operations.getLast().resultTypes.get(0);
+            iterableAnalyzer.handlerIterableOperation(iExpr, expType, env);
+            resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }
         if (iExpr.actionInvocation) {
@@ -535,6 +532,13 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
                 // allow map function for both constrained / un constrained maps
                 checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
+                break;
+            case TypeTags.ERROR:
+                break;
+            case TypeTags.INTERMEDIATE_COLLECTION:
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION_WITH_NAME, iExpr.name,
+                        iExpr.expr.type);
+                resultType = symTable.errType;
                 break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
@@ -586,7 +590,7 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = expType;
         }
     }
-    
+
     public void visit(BLangAwaitExpr awaitExpr) {
         BType actualType;
         BType expType = checkExpr(awaitExpr.expr, env, this.symTable.futureType);
@@ -1072,22 +1076,23 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isIterableOperationInvocation(BLangInvocation iExpr) {
+        final IterableKind iterableKind = IterableKind.getFromString(iExpr.name.value);
         switch (iExpr.expr.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
             case TypeTags.JSON:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
-            case TypeTags.TUPLE_COLLECTION:
-                return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+            case TypeTags.INTERMEDIATE_COLLECTION:
+                return iterableKind != IterableKind.UNDEFINED;
             case TypeTags.XML: {
                 // This has been done as there are an iterable operation and a function both named "select"
                 // "select" function is applicable over XML type and select iterable operation is applicable over
                 // Table type. In order to avoid XML.select being confused for iterable function select at
                 // TypeChecker#visit(BLangInvocation iExpr) following condition is checked.
                 // TODO: There should be a proper way to resolve the conflict
-                return IterableKind.getFromString(iExpr.name.value) != IterableKind.SELECT
-                        && IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+                return iterableKind != IterableKind.SELECT
+                        && iterableKind != IterableKind.UNDEFINED;
             }
         }
         return false;
@@ -1151,14 +1156,14 @@ public class TypeChecker extends BLangNodeVisitor {
         checkRequiredArgs(iExpr.requiredArgs, paramTypes);
         checkNamedArgs(iExpr.namedArgs, invocableSymbol.defaultableParams);
         checkRestArgs(iExpr.restArgs, vararg, invocableSymbol.restParam);
-        
+
         if (iExpr.async) {
             return this.generateFutureType(invocableSymbol);
         } else {
             return invocableSymbol.type.getReturnType();
         }
     }
-    
+
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
         BType retType = invocableSymbol.type.getReturnType();
         return new BFutureType(TypeTags.FUTURE, retType, null);

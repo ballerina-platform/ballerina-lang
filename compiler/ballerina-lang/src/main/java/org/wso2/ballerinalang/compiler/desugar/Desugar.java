@@ -1857,9 +1857,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangVariableReference patternSuccessCaseVarRef = ASTBuilderUtil.createVariableRef(pos,
                 patternSuccessCaseVar.symbol);
         BLangAssignment assignmentStmtSuccessCase = ASTBuilderUtil.createAssignmentStmt(pos,
-                new ArrayList<BLangExpression>() {{
-                    add(varRefExpr);
-                }}, patternSuccessCaseVarRef, false);
+                varRefExpr, patternSuccessCaseVarRef, false);
 
         BLangBlockStmt patternBlockSuccessCase = ASTBuilderUtil.createBlockStmt(pos,
                 new ArrayList<BLangStatement>() {{

@@ -32,7 +32,6 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
      }
      http:Response response => res = response;
     }
-
     if (res.statusCode != 200) {
         var jsonResponse = res.getJsonPayload();
         match jsonResponse {
@@ -78,7 +77,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
             error err = {message:"package version information is missing from the remote repository"};
             throw err;
         }
-
+       
         string canonicalLinkURL = linkHeaderVal.subString(linkHeaderVal.indexOf("<") + 1, linkHeaderVal.indexOf(">"));
         string pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
 
@@ -90,13 +89,12 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         if (!createDirectories(destDirPath)) {
             return;
         }
-
         string archiveFileName = pkgName + ".zip";
         string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
 
         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
-
+        
         io:IOError destDirChannelCloseError = {};
         io:IOError srcCloseError = {};
 
