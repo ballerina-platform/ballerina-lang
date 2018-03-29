@@ -97,7 +97,7 @@ public class IterableAnalyzer {
             handleSimpleTerminalOperations(iOperation);
         }
         validateIterableContext(context);
-        if (context.foreachTypes.isEmpty()) {
+        if (iOperation.resultType != symTable.errType && context.foreachTypes.isEmpty()) {
             calculateForeachTypes(context);
         }
     }
