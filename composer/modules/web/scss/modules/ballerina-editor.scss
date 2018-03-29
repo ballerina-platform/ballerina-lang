@@ -483,6 +483,82 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   fill: #f8f8f8;
 }
 
+.top-menu {
+  position: fixed;
+  padding: 3px 26px 6px !important;
+}
+
+.top-bar {
+  height: 30px !important;
+  overflow: hidden;
+  margin-top: 5px !important;
+  width: 500px !important;
+  background: $white !important;
+  
+  .divided{
+    width: 500px !important;
+    height: 30px !important;
+    overflow: hidden;
+    margin-top: 0px !important;
+  }
+  
+  .ui[class*="left pointing"].label:before {
+    border: 0;
+  }
+  .column{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    background: #fff !important;
+  }
+  .column:not(.row) {
+    padding-top: 0rem !important;
+    padding-bottom: 0rem !important;
+  
+    button {
+      background: $white !important;
+      color: #555 !important;
+      margin: 0 !important;
+    }
+    a.ui.left.pointing.basic.label{
+      margin: 0 !important;
+    }
+    .ui.label {
+      background: $white !important;
+      border: 0 !important;
+      margin: 0 !important;
+    }
+  }
+}
+.ui.right.labeled.button.top-bar{
+  background: #fff !important;
+}
+
+.title-text {
+  fill: #333 !important;
+}
+
+.menu-pop-content{
+  width: 484px !important;
+  background: white !important;
+  margin-right: -2px !important;
+}
+
+.ui.header{
+  font-weight: 300;
+  font-size: 12px;
+  color: #555;
+
+  .icon{
+    font-size: 13px !important;
+    color: #555 !important;
+  }
+  .content{
+    font-size: 12px !important;
+    font-weight: 300 !important;
+    color: #555 !important;
+  
+  }
+}
 .definition-icon {
   opacity: 0 !important;
 }
@@ -494,31 +570,11 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .definition-name {
   cursor: pointer;
-}
-
-.top-menu {
-  position: fixed;
-  padding: 3px 26px 6px !important;
-}
-
-.top-bar{
-  height: 30px !important;
+  font-size: 12px !important; 
+  font-weight: 300px !important;
+  color: #555 !important;
   overflow: hidden;
-  margin-top: 5px !important;
-  background: darkgreen !important;
-  button{
-    background: $white!important;
-    color: #555 !important;
-  }
-  .ui.label{
-    background: $white!important;
-    border: 0 !important;
-  }
-  .ui[class*="left pointing"].label:before{
-    border: 0;
-  }
-}
-
-.title-text {
-  fill: #333 !important;
+  text-overflow: ellipsis;
+  width: 165px;
+  white-space: nowrap;
 }
