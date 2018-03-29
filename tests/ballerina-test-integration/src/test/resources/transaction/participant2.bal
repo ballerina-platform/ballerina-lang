@@ -16,6 +16,8 @@
 
 import ballerina/net.http;
 import ballerina/io;
+import ballerina/util;
+import ballerina/data.sql;
 
 endpoint http:ServiceEndpoint participant2EP {
     port:8890
@@ -55,5 +57,40 @@ service<http:Service> participant2 bind participant2EP {
             }
             null => io:print("");
         }
+    }
+
+    testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
+        endpoint sql:Client testDB {
+                username: "SA",
+                password: "",
+                options: {url:"jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR"}
+        };
+        http:Response res = {};
+        transaction {
+            string uuid = util:uuid();
+
+            var result = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                                     values ('James', 'Clerk', '5', 5000.75, 'USA')", null);
+            match result {
+                int insertCount => io:println(insertCount);
+                error => io:println("");
+            }
+            res.setStringPayload(uuid);
+            var forwardRes = ep -> respond(res);
+            match forwardRes {
+                http:HttpConnectorError err => {
+                    io:print("Participant2 could not send response to participant1. Error:");
+                    io:println(err);
+                }
+                null => io:print("");
+            }
+        }
+    }
+
+    @http:ResourceConfig {
+        path: "/getCustomer/{uuid}"
+    }
+    getCustomer(endpoint ep, http:Request req, string uid) {
+
     }
 }

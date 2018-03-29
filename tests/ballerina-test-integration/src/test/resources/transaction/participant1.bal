@@ -35,11 +35,12 @@ service<http:Service> participant1 bind participant1EP {
     getState(endpoint ep, http:Request req) {
         http:Response res = {};
         res.setStringPayload(state.toString());
+        state.reset();
         _ = ep -> respond(res);
     }
 
     testRemoteParticipantAbort(endpoint ep, http:Request req) {
-        state.reset();
+
         transaction with oncommit=onCommit, onabort=onAbort {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
             }
@@ -51,7 +52,7 @@ service<http:Service> participant1 bind participant1EP {
     }
 
     noOp(endpoint ep, http:Request req) {
-        state.reset();
+
         transaction with oncommit=onCommit, onabort=onAbort {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
             }
@@ -64,7 +65,7 @@ service<http:Service> participant1 bind participant1EP {
         transactionInfectable: false
     }
     nonInfectable(endpoint ep, http:Request req) {
-        state.reset();
+
         transaction with oncommit=onCommit, onabort=onAbort {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
                 abort;
@@ -79,7 +80,7 @@ service<http:Service> participant1 bind participant1EP {
         transactionInfectable: true
     }
     infectable(endpoint ep, http:Request req) {
-        state.reset();
+
         transaction with oncommit=onCommit, onabort=onAbort {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
                 abort;
@@ -93,7 +94,7 @@ service<http:Service> participant1 bind participant1EP {
         path:"/"
     }
     member (endpoint conn, http:Request req) {
-        state.reset();
+
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
         transaction {
@@ -128,6 +129,21 @@ service<http:Service> participant1 bind participant1EP {
         } onretry {
             io:println("Participant1 failed");
         }
+    }
+
+    testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
+        http:Response res = {statusCode: 500};
+        http:Request newReq = {};
+        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", {});
+        match result {
+            http:Response participant1Res => {
+                res = participant1Res;
+            }
+            error => {
+                res.statusCode = 500;
+            }
+        }
+        _ = ep -> respond(res);
     }
 }
 

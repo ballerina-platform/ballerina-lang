@@ -21,13 +21,16 @@ package org.ballerinalang.test.transaction;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.SQLDBUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -39,6 +42,7 @@ public class MicroTransactionTestCase {
     private ServerInstance initiator;
     private ServerInstance participant1;
     private ServerInstance participant2;
+    private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
     @BeforeClass
     private void setup() throws Exception {
@@ -49,10 +53,15 @@ public class MicroTransactionTestCase {
 
         participant1 = ServerInstance.initBallerinaServer(8889);
         participant1.
-                startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
-                        + File.separator + "transaction" + File.separator + "participant1.bal").getAbsolutePath());
+                startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources" +
+                        File.separator + "transaction" + File.separator + "participant1.bal").getAbsolutePath());
 
         participant2 = ServerInstance.initBallerinaServer(8890);
+        copyFile(new File(System.getProperty("hsqldb.jar")),
+                new File(participant2.getServerHome() + File.separator + "bre" + File.separator + "lib" +
+                        File.separator + "hsqldb.jar"));
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
         participant2.
                 startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
                         + File.separator + "transaction" + File.separator + "participant2.bal").getAbsolutePath());
@@ -115,8 +124,23 @@ public class MicroTransactionTestCase {
     public void testLocalParticipantSuccess() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testLocalParticipantSuccess"));
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        //TODO:
-//        Assert.assertEquals(response.getData(), "equal id", "payload mismatched");
+
+        HttpResponse initiatorStateRes = HttpClientRequest.doGet(initiator.getServiceURLHttp("getState"));
+        InitiatorState initiatorState = new InitiatorState(initiatorStateRes.getData());
+        assertFalse(initiatorState.abortedByInitiator);
+        assertFalse(initiatorState.abortedByLocalParticipant);
+        assertFalse(initiatorState.abortedFunctionCalled);
+        assertFalse(initiatorState.localParticipantAbortedFunctionCalled);
+        assertTrue(initiatorState.committedFunctionCalled);
+        assertTrue(initiatorState.localParticipantCommittedFunctionCalled);
+
+        HttpResponse participant1StateRes = HttpClientRequest.doGet(participant1.getServiceURLHttp("getState"));
+        ParticipantState participantState = new ParticipantState(participant1StateRes.getData());
+        assertFalse(participantState.abortedByParticipant);
+        assertFalse(participantState.abortedFunctionCalled);
+        assertFalse(participantState.localParticipantAbortedFunctionCalled);
+        assertTrue(participantState.committedFunctionCalled);
+        assertTrue(participantState.localParticipantCommittedFunctionCalled);
     }
 
     @Test(dependsOnMethods = {"testLocalParticipantSuccess"})
@@ -142,8 +166,8 @@ public class MicroTransactionTestCase {
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
-//    @Test(dependsOnMethods = {"testLocalParticipantAbort"})
-    @Test
+    @Test(dependsOnMethods = {"testLocalParticipantAbort"})
+//    @Test
     public void testTransactionInfectableFalse() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(initiator.getServiceURLHttp("testTransactionInfectableFalse"));
         assertEquals(response.getResponseCode(), 500, "Response code mismatched");
@@ -193,7 +217,12 @@ public class MicroTransactionTestCase {
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
-    public void testSaveToDatabaseSuccessfulInParticipant() {
+    @Test
+    public void testSaveToDatabaseSuccessfulInParticipant() throws IOException {
+        HttpResponse response =
+                HttpClientRequest.doGet(initiator.getServiceURLHttp("testSaveToDatabaseSuccessfulInParticipant"));
+        System.out.println("############# response=" + response.getData());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
     }
 
@@ -206,6 +235,10 @@ public class MicroTransactionTestCase {
         initiator.stopServer();
         participant1.stopServer();
         participant2.stopServer();
+    }
+
+    private static void copyFile(File source, File dest) throws IOException {
+        Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
     }
 
     private static class InitiatorState {

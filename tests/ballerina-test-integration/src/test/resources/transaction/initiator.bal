@@ -16,7 +16,6 @@
 
 import ballerina/net.http;
 import ballerina/io;
-import ballerina/runtime;
 
 endpoint http:ServiceEndpoint initiatorEP {
     port:8888
@@ -36,11 +35,12 @@ service<http:Service> InitiatorService bind initiatorEP {
     getState(endpoint ep, http:Request req) {
         http:Response res = {};
         res.setStringPayload(state.toString());
+        state.reset();
         _ = ep -> respond(res);
     }
 
     testInitiatorAbort(endpoint ep, http:Request req) {
-        state.reset();
+
 
         transaction with oncommit=onCommit, onabort=onAbort {
             http:Request newReq = {};
@@ -58,7 +58,7 @@ service<http:Service> InitiatorService bind initiatorEP {
     }
 
     testRemoteParticipantAbort(endpoint ep, http:Request req) {
-        state.reset();
+
 
         transaction with oncommit=onCommit, onabort=onAbort {
             http:Request newReq = {};
@@ -73,7 +73,7 @@ service<http:Service> InitiatorService bind initiatorEP {
     }
 
     testLocalParticipantAbort(endpoint ep, http:Request req) {
-        state.reset();
+
 
         transaction with oncommit=onCommit, onabort=onAbort {
             http:Request newReq = {};
@@ -90,9 +90,17 @@ service<http:Service> InitiatorService bind initiatorEP {
     }
 
     testLocalParticipantSuccess(endpoint ep, http:Request req) {
-        state.reset();
-        http:Response res = {statusCode: 200};
 
+
+        transaction with oncommit=onCommit, onabort=onAbort {
+            http:Request newReq = {};
+            _ = participant1EP -> get("/noOp", {});
+
+            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+            }
+        }
+
+        http:Response res = {statusCode: 200};
         _ = ep -> respond(res);
     }
 
@@ -100,7 +108,7 @@ service<http:Service> InitiatorService bind initiatorEP {
         transactionInfectable: false
     }
     testTransactionInfectableFalse (endpoint ep, http:Request req) {
-        state.reset();
+
         http:Response res = {statusCode: 500};
         transaction with oncommit=onCommit, onabort=onAbort {
             http:Request newReq = {};
@@ -120,7 +128,6 @@ service<http:Service> InitiatorService bind initiatorEP {
                 }
             }
         }
-        runtime:sleepCurrentWorker(1000);
         _ = ep -> respond(res);
     }
 
@@ -128,7 +135,7 @@ service<http:Service> InitiatorService bind initiatorEP {
         transactionInfectable: true
     }
     testTransactionInfectableTrue (endpoint ep, http:Request req) {
-        state.reset();
+
         transaction with oncommit=onCommit, onabort=onAbort {
             http:Request newReq = {};
             _ = participant1EP -> get("/infectable", {});
@@ -169,6 +176,29 @@ service<http:Service> InitiatorService bind initiatorEP {
         } onretry {
             io:println("Intiator failed");
         }
+    }
+
+    testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
+        http:Response res = {statusCode: 500};
+        transaction with oncommit=onCommit, onabort=onAbort {
+            http:Request newReq = {};
+            var result = participant1EP -> get("/testSaveToDatabaseSuccessfulInParticipant", {});
+            match result {
+                http:Response participant1Res => {
+                    transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+                    }
+                    res = participant1Res;
+                    if(participant1Res.statusCode == 500) {
+                        state.abortedByInitiator = true;
+                        abort;
+                    }
+                }
+                error => {
+                    res.statusCode = 500;
+                }
+            }
+        }
+        _ = ep -> respond(res);
     }
 }
 
