@@ -42,7 +42,7 @@ public class BalGenToolTest {
     private static Path resourceDir = Paths.get(
             BalGenToolTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     
-    @Test
+    @Test(enabled = false)
     public void testUnaryHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -75,7 +75,7 @@ public class BalGenToolTest {
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
-    @Test
+    @Test(enabled = false)
     public void testClientStreamingHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -101,7 +101,7 @@ public class BalGenToolTest {
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
-    @Test
+    @Test(enabled = false)
     public void testServerStreamingHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -127,7 +127,7 @@ public class BalGenToolTest {
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
-    @Test
+    @Test(enabled = false)
     public void testStandardDataTypes() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");

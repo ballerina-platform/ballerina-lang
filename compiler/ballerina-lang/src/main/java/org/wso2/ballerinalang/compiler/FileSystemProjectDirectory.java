@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
@@ -98,11 +99,10 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         if (Files.exists(tomlFilePath)) {
             try {
                 return Files.newInputStream(tomlFilePath);
-            } catch (IOException e) {
-                return null;
+            } catch (IOException ignore) {
             }
         }
-        return null;
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override

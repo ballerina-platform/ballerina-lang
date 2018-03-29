@@ -58,19 +58,9 @@ class ServerConnectorProperties extends React.Component {
         }
         return (
             <g id='serviceDefProps' onClick={this.handleShowModal}>
-                <polygon
-                    points={`${bBox.x + 35},${bBox.y - 15} 
-                    ${bBox.x + 35 + 10},${bBox.y - 10 - 15} 
-                    ${bBox.x + 35 + 40},${bBox.y - 10 - 15} 
-                    ${bBox.x + 35 + 40 + 10},${bBox.y - 15} 
-                    ${bBox.x + 35 + 40},${bBox.y + 10 - 15} 
-                    ${bBox.x + 35 + 10},${bBox.y + 10 - 15}`
-                    }
-                    className='protocol-box'
-                />
                 <text
-                    x={bBox.x + 60}
-                    y={bBox.y - 15}
+                    x={bBox.x + 205}
+                    y={bBox.y - 13}
                     alignmentBaseline='middle'
                     textAnchor='middle'
                     className='protocol-label'

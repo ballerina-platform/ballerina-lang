@@ -1,15 +1,20 @@
 import ballerina/io;
-function successfulXmlCasting() returns (string) {
-  any abc = jsonReturnFunction();
-  json jsonVal;
-  jsonVal, _ = (json)abc;
-  string strVal;
-  strVal, _ = (string)jsonVal.PropertyName;
+
+function successfulXmlCasting() returns (string)  {
+  var abc = jsonReturnFunction();
+  string strVal = extractFieldValue(abc.PropertyName);
   return strVal;
 }
 
+function extractFieldValue(json fieldValue) returns (string) {
+  match fieldValue {
+    string s => { return s; }
+    json j => { return "Error"; }
+  }
+}
+
 function jsonReturnFunction() returns (json) {
-  json val = {"PropertyName" : "Value"};
+  json val = {PropertyName : "Value"};
   return val;
 }
 

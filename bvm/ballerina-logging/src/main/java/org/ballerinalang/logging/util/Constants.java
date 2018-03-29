@@ -33,4 +33,8 @@ public class Constants {
     public static final String LOG_LEVEL = "level";
     public static final String LOG_TO = "logto";
     public static final String LOG_FORMAT = "format";
+    public static final String LOG_TO_CONSOLE = "console";
+    public static final String LOG_TO_SOCKET = "socket";
+    public static final String LOG_PUBLISH_DEFAULT_HOST = "localhost";
+    public static final int LOG_PUBLISH_DEFAULT_PORT = 5010;
 }

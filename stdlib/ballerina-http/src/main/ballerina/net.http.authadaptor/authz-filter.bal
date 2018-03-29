@@ -56,11 +56,11 @@ public function authzRequestFilterFunc (http:Request request, http:FilterContext
         return createAuthzResult(true);
     }
     // check if this resource is protected
-    string|null scope = getScopeForResource(context);
+    string[]|null scopes = getScopesForResource(context);
     boolean authorized;
-    match scope {
-        string scopeName => {
-            authorized = authzHandlerChain.handle(request, scopeName, context.resourceName);
+    match scopes {
+        string[] scopeNames => {
+            authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
         }
         null => {
             // scopes are not defined, no need to authorize
@@ -86,11 +86,11 @@ function createAuthzResult (boolean authorized) returns (http:FilterResult) {
 @Description {value:"Retrieves the scope for the resource, if any"}
 @Param {value:"context: FilterContext object"}
 @Return {value:"string: Scope name if defined, else null"}
-function getScopeForResource (http:FilterContext context) returns (string|null) {
-    string|null scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
+function getScopesForResource (http:FilterContext context) returns (string[]|null) {
+    string[]|null scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
                                                                       context.resourceName));
     match scope {
-        string scopeVal => {
+        string[] scopeVal => {
             return scopeVal;
         }
         any => {
@@ -103,8 +103,8 @@ function getScopeForResource (http:FilterContext context) returns (string|null) 
 @Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
-@Return {value:"string: Scope name if defined, else null"}
-function getAuthzAnnotation (internal:annotationData[] annData) returns (string|null) {
+@Return {value:"string[]: array of scope name if defined, else null"}
+function getAuthzAnnotation (internal:annotationData[] annData) returns (string[]|null) {
     if (lengthof annData == 0) {
         return null;
     }
@@ -118,7 +118,7 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string|
     match authAnn {
         internal:annotationData annData1 => {
             var authConfig =? <auth:AuthConfig> annData1.value;
-            return authConfig.scope;
+            return authConfig.scopes;
         }
         any|null => {
             return null;

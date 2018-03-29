@@ -45,7 +45,7 @@ public class WorkspacePackageRepositoryTest {
 
     @BeforeClass
     public void setup() {
-        documentManager = new WorkspaceDocumentManagerImpl();
+        documentManager = WorkspaceDocumentManagerImpl.getInstance();
         sourceRoot = Paths.get("src/test/resources/workspace").toAbsolutePath().toString();
         pkg = "org.pkg1";
         packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
