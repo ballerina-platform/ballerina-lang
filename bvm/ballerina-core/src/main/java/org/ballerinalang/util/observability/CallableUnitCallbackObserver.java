@@ -15,38 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.ballerinalang.util.tracer;
+package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
 
 /**
- * {@link TraceableCallbackWrapper} wraps {@link CallableUnitCallback}
- * and perform additional tracing related tasks.
+ * {@link CallableUnitCallbackObserver} wraps {@link CallableUnitCallback}
+ * to observe events.
  *
  * @since 0.965.0
  */
-public class TraceableCallbackWrapper implements CallableUnitCallback {
-    private Tracer tracer;
+public class CallableUnitCallbackObserver extends CallbackObserver implements CallableUnitCallback {
+
     private CallableUnitCallback callback;
 
-    public TraceableCallbackWrapper(WorkerExecutionContext ctx,
-                                    CallableUnitCallback callback) {
-        this.tracer = TraceUtil.getTracer(ctx);
+    public CallableUnitCallbackObserver(WorkerExecutionContext ctx,
+                                        CallableUnitCallback callback) {
+        super(ctx);
         this.callback = callback;
     }
 
     @Override
     public void notifySuccess() {
-        TraceUtil.finishTraceSpan(this.tracer);
+        super.notifySuccess();
         this.callback.notifySuccess();
     }
 
     @Override
     public void notifyFailure(BStruct error) {
-        TraceUtil.finishTraceSpan(this.tracer, error);
+        super.notifyFailure(error);
         this.callback.notifyFailure(error);
     }
 }

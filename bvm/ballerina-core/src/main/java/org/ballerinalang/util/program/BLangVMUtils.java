@@ -499,33 +499,4 @@ public class BLangVMUtils {
     public static boolean getGlobalTransactionenabled(WorkerExecutionContext ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
     }
-
-    public static void initServerConnectorTrace(WorkerExecutionContext ctx, Resource resource, Tracer tracer) {
-        if (tracer == null) {
-            tracer = TraceManagerWrapper.newTracer(ctx, false);
-        } else {
-            tracer.setExecutionContext(ctx);
-        }
-        tracer.setConnectorName(resource.getServiceName());
-        tracer.setActionName(resource.getName());
-        tracer.generateInvocationID();
-        TraceUtil.setTracer(ctx, tracer);
-        tracer.startSpan();
-    }
-
-    public static void initClientConnectorTrace(WorkerExecutionContext ctx, String connectorName, String actionName) {
-        Tracer root = TraceUtil.getParentTracer(ctx);
-        Tracer active = TraceManagerWrapper.newTracer(ctx, true);
-        TraceUtil.setTracer(ctx, active);
-
-        if (root.getInvocationID() == null) {
-            active.generateInvocationID();
-        } else {
-            active.setInvocationID(root.getInvocationID());
-        }
-
-        active.setConnectorName(connectorName);
-        active.setActionName(actionName);
-        active.startSpan();
-    }
 }

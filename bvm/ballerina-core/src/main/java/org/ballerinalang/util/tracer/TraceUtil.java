@@ -39,20 +39,10 @@ import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
  */
 public class TraceUtil {
     private TraceUtil() {
-
     }
 
     public static void finishTraceSpan(Tracer tracer) {
         tracer.finishSpan();
-    }
-
-    public static void finishTraceSpan(Tracer tracer, BStruct error) {
-        Map<String, Object> logProps = new HashMap<>();
-        logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
-        logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
-        logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
-        tracer.logError(logProps);
-        finishTraceSpan(tracer);
     }
 
     public static Tracer getParentTracer(WorkerExecutionContext ctx) {
