@@ -19,8 +19,8 @@ package ballerina.transactions.coordinator;
 import ballerina/caching;
 import ballerina/log;
 import ballerina/net.http;
-import ballerina/time;
 import ballerina/task;
+import ballerina/time;
 import ballerina/util;
 
 documentation {
@@ -55,19 +55,28 @@ function cleanupTransactions () returns error|null {
     worker w1 {
         foreach _, txn in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(txn.transactionId, txn.transactionBlockId);
-            if(time:currentTime().time - txn.createdTime >= 120000){
-                TwoPhaseCommitTransaction twopcTxn =? <TwoPhaseCommitTransaction> txn;
-                if(twopcTxn.state != TransactionState.ABORTED) {
-                    // Commit the transaction since prepare hasn't been received
-                    boolean successful = commitResourceManagers(txn.transactionId, txn.transactionBlockId);
-                    if(!successful) {
-                        log:printError("Auto-commit of participated transaction: " + participatedTxnId + " failed");
-                    } else {
-                        twopcTxn.state = TransactionState.COMMITTED;
+            if (time:currentTime().time - txn.createdTime >= 120000) {
+                TwoPhaseCommitTransaction twopcTxn =? <TwoPhaseCommitTransaction>txn;
+                if (twopcTxn.state != TransactionState.ABORTED && twopcTxn.state != TransactionState.COMMITTED) {
+                    if (twopcTxn.state != TransactionState.PREPARED) {
+                        boolean prepareSuccessful = prepareResourceManagers(txn.transactionId, txn.transactionBlockId);
+                        if (prepareSuccessful) {
+                            twopcTxn.state = TransactionState.PREPARED;
+                        } else {
+                            log:printError("Auto-prepare of participated transaction: " + participatedTxnId + " failed");
+                        }
+                    }
+                    if (twopcTxn.state == TransactionState.PREPARED) {
+                        boolean commitSuccessful = commitResourceManagers(txn.transactionId, txn.transactionBlockId);
+                        if (commitSuccessful) {
+                            twopcTxn.state = TransactionState.COMMITTED;
+                        } else {
+                            log:printError("Auto-commit of participated transaction: " + participatedTxnId + " failed");
+                        }
                     }
                 }
             }
-            if(time:currentTime().time - txn.createdTime >= 600000){
+            if (time:currentTime().time - txn.createdTime >= 600000) {
                 // We don't want dead transactions hanging around
                 removeParticipatedTransaction(participatedTxnId);
             }
@@ -75,20 +84,20 @@ function cleanupTransactions () returns error|null {
     }
     worker w2 {
         foreach _, txn in initiatedTransactions {
-            if(time:currentTime().time - txn.createdTime >= 120000){
-                TwoPhaseCommitTransaction twopcTxn =? <TwoPhaseCommitTransaction> txn;
-                if(twopcTxn.state != TransactionState.ABORTED) {
+            if (time:currentTime().time - txn.createdTime >= 120000) {
+                TwoPhaseCommitTransaction twopcTxn =? <TwoPhaseCommitTransaction>txn;
+                if (twopcTxn.state != TransactionState.ABORTED) {
                     // Commit the transaction since prepare hasn't been received
                     var result = twopcTxn.twoPhaseCommit();
                     match result {
                         string str => log:printInfo("Auto-committed initiated transaction: " +
-                                                        txn.transactionId + ". Result: " + str);
+                                                    txn.transactionId + ". Result: " + str);
                         error err => log:printErrorCause("Auto-commit of participated transaction: " +
-                                                            txn.transactionId + " failed", err);
+                                                         txn.transactionId + " failed", err);
                     }
                 }
             }
-            if(time:currentTime().time - txn.createdTime >= 600000){
+            if (time:currentTime().time - txn.createdTime >= 600000) {
                 // We don't want dead transactions hanging around
                 removeInitiatedTransaction(txn.transactionId);
             }
@@ -151,7 +160,7 @@ function createNewTransaction (string coordinationType, int transactionBlockId) 
     if (coordinationType == TWO_PHASE_COMMIT) {
         TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(),
                                                  transactionBlockId:transactionBlockId,
-                                                 createdTime: time:currentTime().time,
+                                                 createdTime:time:currentTime().time,
                                                  coordinationType:coordinationType};
         Transaction txn = <Transaction>twopcTxn;
         return txn;
@@ -221,7 +230,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
             //Set initiator protocols
             TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
                                                      transactionBlockId:transactionBlockId,
-                                                     createdTime: time:currentTime().time,
+                                                     createdTime:time:currentTime().time,
                                                      coordinationType:TWO_PHASE_COMMIT};
             Protocol initiatorProto = {name:"durable", transactionBlockId:transactionBlockId};
             twopcTxn.coordinatorProtocols = [initiatorProto];
@@ -248,7 +257,7 @@ function localParticipantProtocolFn (string transactionId,
         if (txn.state == TransactionState.ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
             return false;
-        } else if(txn.state == TransactionState.COMMITTED) {
+        } else if (txn.state == TransactionState.COMMITTED) {
             removeParticipatedTransaction(participatedTxnId);
             txn.possibleMixedOutcome = true;
             return true;
@@ -356,7 +365,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
             Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
             TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
                                                      transactionBlockId:transactionBlockId,
-                                                     createdTime: time:currentTime().time,
+                                                     createdTime:time:currentTime().time,
                                                      coordinationType:TWO_PHASE_COMMIT};
             twopcTxn.coordinatorProtocols = coordinatorProtocols;
             participatedTransactions[participatedTxnId] = twopcTxn;
