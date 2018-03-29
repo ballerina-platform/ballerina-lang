@@ -357,8 +357,7 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("error").asText(), "'null' cannot be cast to 'string'"
-                , "No error");
+        Assert.assertEquals(bJson.value().get("echo125").asText(), "null" , "param value is not null");
     }
 
     @Test(description = "Test suitable method with URL. /echo13?foo=1 ")
@@ -563,5 +562,53 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertEquals(bJson.value().get("message").asText(), "Path Params Resource is invoked."
                 , "Request dispatched to wrong resource");
+    }
+
+    @Test(description = "Test best match with path param different lengths.")
+    public void testDifferentLengthPathParams() {
+        String path = "/uri/go/wso2/ballerina/http";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found.");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("aaa").asText(), "wso2", "wrong param value");
+        Assert.assertEquals(bJson.value().get("bbb").asText(), "ballerina", "wrong param value");
+        Assert.assertEquals(bJson.value().get("ccc").asText(), "http", "wrong param value");
+
+        path =  "/uri/go/123/456";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(application, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("xxx").asText(), "123", "wrong param value");
+        Assert.assertEquals(bJson.value().get("yyy").asText(), "456", "wrong param value");
+    }
+
+    @Test(description = "Test best match with split string path param different lengths.")
+    public void testDifferentLengthSplitStringPathParams() {
+        String path = "/uri/go/foo+bar/doo";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found.");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("aaa").asText(), "foo", "wrong param value");
+        Assert.assertEquals(bJson.value().get("bbb").asText(), "bar", "wrong param value");
+        Assert.assertEquals(bJson.value().get("ccc").asText(), "doo", "wrong param value");
+
+        path =  "/uri/go/blue+gold";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invokeNew(application, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("xxx").asText(), "blue", "wrong param value");
+        Assert.assertEquals(bJson.value().get("yyy").asText(), "gold", "wrong param value");
     }
 }

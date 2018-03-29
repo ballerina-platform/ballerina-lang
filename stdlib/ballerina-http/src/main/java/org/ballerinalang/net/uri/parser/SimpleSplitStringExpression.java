@@ -76,7 +76,7 @@ public class SimpleSplitStringExpression<DataType, InboundMsgType> extends Expre
         int length = uriFragment.length();
         for (int i = 0; i < length; i++) {
             char ch = uriFragment.charAt(i);
-            if (isEndCharacter(ch)) {
+            if (isReserved(ch) || isEndCharacter(ch)) {
                 if (ch == getSeparator() && variableList.size() > 0) {
                     continue;
                 }
@@ -96,39 +96,12 @@ public class SimpleSplitStringExpression<DataType, InboundMsgType> extends Expre
     }
 
     protected boolean setVariables(String expressionValue, Map<String, String> variables) {
-        String separator = Pattern.quote(String.valueOf(getSeparator()));
-        String[] values = expressionValue.split(separator);
-        int length = values.length;
-        if (length > variableList.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < length; i++) {
-            Variable var = variableList.get(i);
+        String finalValue = decodeValue(expressionValue);
+        for (Variable var : variableList) {
             String name = var.getName();
-            String finalValue = decodeValue(values[i]);
             if (variables.containsKey(name) && !finalValue.equals(variables.get(name))) {
                 return false;
             }
-
-            if (var.checkModifier(finalValue)) {
-                variables.put(name, finalValue);
-            } else {
-                return false;
-            }
-        }
-
-        if (variableList.size() <= length) {
-            return true;
-        }
-        for (int i = length; i < variableList.size(); i++) {
-            Variable var = variableList.get(i);
-            String name = var.getName();
-            String finalValue = "";
-            if (variables.containsKey(name) && !finalValue.equals(variables.get(name))) {
-                return false;
-            }
-
             if (var.checkModifier(finalValue)) {
                 variables.put(name, finalValue);
             } else {

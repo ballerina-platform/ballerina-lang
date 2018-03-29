@@ -118,7 +118,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
         return syntaxTree;
     }
 
-    private void addNode(Node<DataType, InboundMgsType> node) {
+    private void addNode(Node<DataType, InboundMgsType> node) throws URITemplateException {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
