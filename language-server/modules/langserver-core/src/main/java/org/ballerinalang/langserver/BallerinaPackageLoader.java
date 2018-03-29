@@ -39,7 +39,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 /**
  * Loads the Ballerina builtin core and builtin packages.
  */
-class BallerinaPackageLoader {
+public class BallerinaPackageLoader {
     
     private static final int MAX_DEPTH = 10;
 
@@ -47,7 +47,7 @@ class BallerinaPackageLoader {
      * Get the Builtin Package.
      * @return {@link BLangPackage} Builtin BLang package
      */
-    static List<BLangPackage> getBuiltinPackages() {
+    public static List<BLangPackage> getBuiltinPackages() {
         List<BLangPackage> builtins = new ArrayList<>();
         CompilerContext context = prepareCompilerContext();
 

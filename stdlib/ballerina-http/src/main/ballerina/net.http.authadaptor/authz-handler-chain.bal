@@ -36,16 +36,16 @@ public function createAuthzHandlerChain () returns (AuthzHandlerChain) {
 
 @Description {value:"Tries to perform the authorization check against any one of the available authorization handlers"}
 @Param {value:"req: Request instance"}
-@Param {value:"scopeName: name of the scope"}
+@Param {value:"scopes: array of scope names"}
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <AuthzHandlerChain authzHandlerChain> handle (http:Request req, string scopeName,
+public function <AuthzHandlerChain authzHandlerChain> handle (http:Request req, string[] scopes,
                                                               string resourceName) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authzHandlerChain.authzHandlers {
         var authzHandler =? <HttpAuthzHandler> currentAuthHandler;
         if (authzHandler.canHandle(req)) {
             log:printDebug("trying to authorize with the authz handler: " + currentAuthHandlerType);
-            return authzHandler.handle(req, scopeName, resourceName);
+            return authzHandler.handle(req, scopes, resourceName);
         }
     }
     return false;

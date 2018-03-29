@@ -13,7 +13,7 @@ endpoint endpoints:ApiEndpoint ep {
 
 @auth:Config {
     authentication:{enabled:true},
-    scope:"xxx"
+    scopes:["xxx"]
 }
 service<http:Service> echo bind ep {
     @http:ResourceConfig {
@@ -21,7 +21,7 @@ service<http:Service> echo bind ep {
         path:"/test"
     }
     @auth:Config {
-        scope:"scope2"
+        scopes:["scope2", "scope4"]
     }
     echo (endpoint client, http:Request req) {
         http:Response res = {};

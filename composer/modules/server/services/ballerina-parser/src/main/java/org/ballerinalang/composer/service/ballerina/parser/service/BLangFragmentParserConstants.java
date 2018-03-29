@@ -36,7 +36,7 @@ public class BLangFragmentParserConstants {
     public static final String ENDPOINT_VAR_DEF = "endpoint_var_def";
 
     // wrapper templates
-    public static final String SERVICE_BODY_RESOURCE_WRAPPER = "service<http> service1{\n$FRAGMENT\n}";
+    public static final String SERVICE_BODY_RESOURCE_WRAPPER = "service<http:Service> name bind ep{\n$FRAGMENT\n}";
     public static final String CONNECTOR_BODY_ACTION_WRAPPER = "connector ClientConnector(string ag){\n$FRAGMENT\n}";
     public static final String FUNCTION_BODY_STMT_WRAPPER = "function testFunction(){\n$FRAGMENT\n}";
     public static final String VAR_DEF_STMT_EXPR_WRAPPER = "function testFunction(){any val =\n$FRAGMENT;\n}";

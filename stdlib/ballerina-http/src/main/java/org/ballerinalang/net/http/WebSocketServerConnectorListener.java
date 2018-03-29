@@ -75,7 +75,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(
                 ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpRequest());
-        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage, msg);
+        Map<String, String> pathParams = new HashMap<>();
+        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, pathParams, webSocketInitMessage,
+                                                                     msg);
         BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
                 wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, WEBSOCKET_ENDPOINT);
@@ -109,6 +111,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = serviceEndpoint;
             bValues[1] = inRequest;
+            WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
             ObserverContext ctx = ObservabilityUtils.startServerObservation(onUpgradeResource.getServiceName(),
                     onUpgradeResource.getName(), null);

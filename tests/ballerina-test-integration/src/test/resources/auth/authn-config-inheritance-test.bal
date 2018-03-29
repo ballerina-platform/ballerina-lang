@@ -13,7 +13,7 @@ endpoint endpoints:ApiEndpoint ep {
 
 @auth:Config {
     authentication:{enabled:false},
-    scope:"xxx"
+    scopes:["xxx", "aaa"]
 }   
 service<http:Service> echo bind ep {
     @http:ResourceConfig {
