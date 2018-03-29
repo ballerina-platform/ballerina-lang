@@ -469,7 +469,6 @@ public class BallerinaParserService implements ComposerService {
 
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         ParserUtils.loadPackageMap("Current Package", bFile.getBLangPackage(), modelPackage);
-        ParserUtils.removeConstructsOfFile("Current Package", fileName, modelPackage);
         Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
         if (packageInfoJson.isPresent() && bFileRequest.needPackageInfo()) {
             JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
