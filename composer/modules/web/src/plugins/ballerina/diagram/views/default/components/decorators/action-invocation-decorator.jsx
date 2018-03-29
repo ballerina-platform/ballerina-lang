@@ -37,7 +37,7 @@ import { getComponentForNodeArray } from '../../../../diagram-util';
  * Wraps other UI elements and provide box with a heading.
  * Enrich elements with a action box and expression editors.
  */
-class ActionInvocationDecorator extends React.Component {
+class InvocationDecorator extends React.Component {
 
     /**
      * Calculate statement box.
@@ -63,7 +63,7 @@ class ActionInvocationDecorator extends React.Component {
 
         this.state = {
             active: 'hidden',
-            statementBox: ActionInvocationDecorator.calculateStatementBox(props),
+            statementBox: InvocationDecorator.calculateStatementBox(props),
         };
     }
 
@@ -72,7 +72,7 @@ class ActionInvocationDecorator extends React.Component {
      * @param {object} props - Next props.
      */
     componentWillReceiveProps(props) {
-        this.setState({ statementBox: ActionInvocationDecorator.calculateStatementBox(props) });
+        this.setState({ statementBox: InvocationDecorator.calculateStatementBox(props) });
     }
 
     /**
@@ -176,7 +176,7 @@ class ActionInvocationDecorator extends React.Component {
         if (viewState.isActionInvocation) {
             // TODO: Need to remove the unique by filter whne the lang server item resolver is implemented
             dropDownItems = _.uniqBy(TreeUtil.getAllVisibleEndpoints(this.props.model.parent), (item) => {
-                return item.variable.name.value;
+                return item.name.value;
             });
             dropDownItems.forEach((item) => {
                 const meta = {
@@ -299,12 +299,12 @@ class ActionInvocationDecorator extends React.Component {
 
 }
 
-ActionInvocationDecorator.defaultProps = {
+InvocationDecorator.defaultProps = {
     editorOptions: null,
     children: null,
 };
 
-ActionInvocationDecorator.propTypes = {
+InvocationDecorator.propTypes = {
     viewState: PropTypes.shape({
         bBox: PropTypes.instanceOf(SimpleBBox),
         fullExpression: PropTypes.string,
@@ -324,7 +324,7 @@ ActionInvocationDecorator.propTypes = {
     isBreakpoint: PropTypes.bool.isRequired,
 };
 
-ActionInvocationDecorator.contextTypes = {
+InvocationDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
@@ -334,4 +334,4 @@ ActionInvocationDecorator.contextTypes = {
 };
 
 
-export default breakpointHoc(ActionInvocationDecorator);
+export default breakpointHoc(InvocationDecorator);

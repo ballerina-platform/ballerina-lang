@@ -25,9 +25,9 @@ import ConnectorHelper from './../env/helpers/connector-helper';
 
 export const WsResources = [
     {
-        resourceName: 'onHandshake',
+        resourceName: 'onUpgrade',
         fragment: `
-        resource onHandshake(ws:HandshakeConnection conn) {
+        onUpgrade (endpoint ep, http:Request req) {
 
         }
     `,
@@ -35,7 +35,7 @@ export const WsResources = [
     {
         resourceName: 'onOpen',
         fragment: `
-        resource onOpen(ws:Connection conn) {
+        onOpen (endpoint ep) {
 
         }
     `,
@@ -43,7 +43,7 @@ export const WsResources = [
     {
         resourceName: 'onTextMessage',
         fragment: `
-        resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
+        onTextMessage (endpoint conn, http:TextFrame frame) {
 
         }
     `,
@@ -51,7 +51,7 @@ export const WsResources = [
     {
         resourceName: 'onBinaryMessage',
         fragment: `
-        resource onBinaryMessage(ws:Connection conn, ws:BinaryFrame frame) {
+        onBinaryMessage (endpoint conn, http:BinaryFrame frame) {
 
         }
     `,
@@ -59,7 +59,7 @@ export const WsResources = [
     {
         resourceName: 'onClose',
         fragment: `
-        resource onClose(ws:Connection conn, ws:CloseFrame frame) {
+        onClose (endpoint conn, http:CloseFrame closeFrame) {
 
         }
     `,
@@ -67,7 +67,7 @@ export const WsResources = [
     {
         resourceName: 'onIdleTimeOut',
         fragment: `
-        resource onIdleTimeOut(ws:Connection conn) {
+        onIdleTimeout (endpoint ep) {
 
         }
     `,
@@ -75,7 +75,7 @@ export const WsResources = [
     {
         resourceName: 'onPing',
         fragment: `
-        resource onPing(ws:Connection conn, ws:PingFrame frame) {
+        onPong (endpoint conn, http:PongFrame frame) {
 
         }
     `,
@@ -83,7 +83,7 @@ export const WsResources = [
     {
         resourceName: 'onPong',
         fragment: `
-        resource onPong(ws:Connection conn, ws:PongFrame frame) {
+        onPong (endpoint conn, http:PongFrame frame) {
 
         }
     `,
