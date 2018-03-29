@@ -64,6 +64,7 @@ class EndpointAggregatorUtil {
                         bBox: new SimpleBBox()
                     },
                     kind: ep.kind,
+                    endPointType: ep.endPointType,
                     parent: ep.parent,
                     skipSourceGen: true
                 };

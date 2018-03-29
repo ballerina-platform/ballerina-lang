@@ -177,7 +177,7 @@ class TreeBuilder {
 
         // Check if sorrounded by curlies
         if (node.kind === 'MatchPatternClause') {
-            if (node.ws.length < 3) {
+            if (node.ws && node.ws.length < 3) {
                 node.withoutCurlies = true;
             }
         }

@@ -202,6 +202,7 @@ public class HttpClientRequest {
             }
         } catch (IOException ex) {
             if (conn.getErrorStream() == null) {
+                ex.printStackTrace();
                 return null;
             }
             rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
