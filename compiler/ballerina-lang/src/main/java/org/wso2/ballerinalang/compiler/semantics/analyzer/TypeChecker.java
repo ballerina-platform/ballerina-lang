@@ -546,6 +546,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 // allow map function for both constrained / un constrained maps
                 checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
                 break;
+            case TypeTags.ERROR:
+                break;
+            case TypeTags.INTERMEDIATE_COLLECTION:
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION_WITH_NAME, iExpr.name,
+                        iExpr.expr.type);
+                resultTypes = getListWithErrorTypes(expTypes.size());
+                break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
                 resultTypes = getListWithErrorTypes(expTypes.size());

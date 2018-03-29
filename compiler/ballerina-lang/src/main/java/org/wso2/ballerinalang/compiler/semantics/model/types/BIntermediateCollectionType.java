@@ -56,7 +56,7 @@ public class BIntermediateCollectionType extends BType implements IntermediateCo
 
     @Override
     public String toString() {
-        return "(" + tupleType.getTupleTypes().stream().map(BType::toString).collect(Collectors.joining(",")) + ")";
+        return "(" + tupleType.getTupleTypes().stream().map(BType::toString).collect(Collectors.joining(",")) + ") collection";
     }
 
 }
