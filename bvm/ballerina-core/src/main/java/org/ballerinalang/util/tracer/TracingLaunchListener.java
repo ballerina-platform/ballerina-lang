@@ -15,33 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.util.LaunchListener;
+import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
- * {@link TraceableCallback} represents the callback functionality
- * for traceable functions.
- *
- * @since 0.965.0
+ * Listen to Launcher events and initialize Tracing.
  */
-public class TraceableCallback implements CallableUnitCallback {
-    private Tracer tracer;
+@JavaSPIService("org.ballerinalang.util.LaunchListener")
+public class TracingLaunchListener implements LaunchListener {
 
-    public TraceableCallback(WorkerExecutionContext ctx) {
-        this.tracer = TraceUtil.getTracer(ctx);
+    @Override
+    public void beforeRunProgram(boolean service) {
+        if (TraceManagerWrapper.getInstance().isTraceEnabled()) {
+            ObservabilityUtils.addObserver(new BallerinaTracingObserver());
+        }
     }
 
     @Override
-    public void notifySuccess() {
-        TraceUtil.finishTraceSpan(this.tracer);
-    }
-
-    @Override
-    public void notifyFailure(BStruct error) {
-        TraceUtil.finishTraceSpan(this.tracer, error);
+    public void afterRunProgram(boolean service) {
     }
 }
