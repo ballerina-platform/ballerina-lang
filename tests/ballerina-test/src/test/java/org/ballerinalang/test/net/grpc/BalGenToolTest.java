@@ -160,6 +160,35 @@ public class BalGenToolTest {
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
+    @Test
+    public void testEnumSupport() throws IllegalAccessException,
+            ClassNotFoundException, InstantiationException, IOException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path sourcePath = Paths.get("protoFiles");
+        Path sourceRoot = resourceDir.resolve(sourcePath);
+        Path protoPath = Paths.get("protoFiles/grpcEnumType.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCmd1.setBalOutPath(sourceRoot.toString());
+        grpcCmd1.setProtoPath(protoRoot.toString());
+        grpcCmd1.execute();
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldEnum.pb.bal"));
+        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldEnum.gen.pb.bal"));
+        removePackage(sourceFileRoot.toString(), destFileRoot.toString());
+        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldEnumClient"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldEnumBlockingClient"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldEnumBlockingStub"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldEnumBlockingStub.hello"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldEnumStub.hello"), "Connector not found.");
+        BalFileGenerationUtils.delete(new File(protoExeName));
+    }
+    
     private void removePackage(String sourceFile, String destinationFile) throws IOException {
         File file = new File(destinationFile);
         file.createNewFile();
