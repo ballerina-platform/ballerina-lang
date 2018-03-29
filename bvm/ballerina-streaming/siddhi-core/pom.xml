@@ -98,7 +98,7 @@
 
     <properties>
         <maven.checkstyleplugin.excludes>**/SiddhiDebuggerClient.java</maven.checkstyleplugin.excludes>
-        <mavan.findbugsplugin.exclude.file>../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <mavan.spotbugsplugin.exclude.file>../spotbugs-exclude.xml</mavan.spotbugsplugin.exclude.file>
     </properties>
 
 </project>

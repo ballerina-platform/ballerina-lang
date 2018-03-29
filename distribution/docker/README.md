@@ -15,7 +15,7 @@ mvn clean install
 This will create a fat JAR file with the dependencies included, inside the `target` folder.
 
 ## Usage
-Add the `ballerina-container-support-0.970.0-alpha1-SNAPSHOT.jar` file to `bre/lib/` folder in the Ballerina distribution.
+Add the `ballerina-container-support-0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT.jar` file to `bre/lib/` folder in the Ballerina distribution.
 
 ### `ballerina docker` Command Line Usage
 ```
@@ -100,7 +100,7 @@ cp mypackage.balx ~/ballerina/packages/
 chmod +r ~/ballerina/packages/mypackage.balx
 
 # Run container with the volume mount
-docker run -v ~/ballerina/packages:/ballerina/files -it ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT
+docker run -v ~/ballerina/packages:/ballerina/files -it ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT
 ```
 
 If you are running a Ballerina Service,
@@ -109,7 +109,7 @@ If you are running a Ballerina Service,
 cp mysvcpackage.balx ~/ballerina/packages/
 chmod +r ~/ballerina/packages/mysvcpackage.balx
 
-docker run -v /tmp/testb:/ballerina/files -p 9090:9090 -it ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT
+docker run -v /tmp/testb:/ballerina/files -p 9090:9090 -it ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT
 ```
 ## License
 Ballerina Container Support is licensed under [Apache License v2](LICENSE).
