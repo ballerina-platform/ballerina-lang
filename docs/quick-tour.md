@@ -185,7 +185,7 @@ $ docker images |grep demo
 demo/ballerina-demo                            latest     7bb8a49ef708        38 seconds ago      120MB
 ```
 
-And you can deploy it to Kubernetes:
+You can now deploy it to Kubernetes using the following command.
 
 ```
 $ kubectl apply -f kubernetes
@@ -201,19 +201,9 @@ service "ballerina-demo" created
 Let’s see if it is running:
 
 ```
-$ kubectl get pods
-```
-
-```
-NAME                              READY     STATUS    RESTARTS   AGE
-ballerina-demo-74b6fb687c-mbrq2   1/1       Running   0          10s
-```
-
-
-```
 $ kubectl get svc
 ```
-
+This results in output similar to the following. Make note of the port number that Kubernetes provides (31977 in this case).
 
 ```
 NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)  AGE
@@ -221,11 +211,13 @@ ballerina-demo   NodePort    10.98.238.0   <none>        9090:31977/TCP  24s
 kubernetes       ClusterIP   10.96.0.1     <none>        443/TCP  2d
 ```
 
-We can now go ahead and invoke the service - I am using local Kubernetes but the same behavior would happen in the cloud one. Using the port 31977 that Kubernetes gave me:
+We can now invoke the service. This example is done using local Kubernetes but the same behavior would happen in the cloud. Using the port number that Kubernetes gave us, run the following cURL command.
 
 ```
 $ curl -X POST  http://localhost:31977/demo
 ```
+
+You get the output from Kubernetes itself.
 
 ```
 Hello World!
