@@ -16,7 +16,7 @@
 
 package ballerina.jwt;
 
-import ballerina/util;
+import ballerina/util as util;
 import ballerina/jwt.signature;
 
 @Description {value:"Represents JWT issuer configurations"}

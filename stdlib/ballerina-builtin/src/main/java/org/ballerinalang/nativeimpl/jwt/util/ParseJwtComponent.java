@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.jwt.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -36,12 +36,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.980.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "util",
-        functionName = "parseJson",
+        orgName = "ballerina", packageName = "jwt.util",
+        functionName = "parseJwtComponent",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true)
-public class ParseJson extends BlockingNativeCallableUnit {
+public class ParseJwtComponent extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

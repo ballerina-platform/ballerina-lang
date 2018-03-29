@@ -18,7 +18,8 @@ package ballerina.jwt;
 
 import ballerina/log;
 import ballerina/time;
-import ballerina/util;
+import ballerina/util as util;
+import ballerina/jwt.util as jwtUtil;
 
 @Description {value:"Represents JWT validator configurations"}
 public struct JWTValidatorConfig {
@@ -86,11 +87,11 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
-    match util:parseJson(jwtHeader) {
+    match jwtUtil:parseJwtComponent(jwtHeader) {
         json result => jwtHeaderJson = result;
         error err => return err;
     }
-    match util:parseJson(jwtPayload) {
+    match jwtUtil:parseJwtComponent(jwtPayload) {
         json result => jwtPayloadJson = result;
         error err => return err;
     }
