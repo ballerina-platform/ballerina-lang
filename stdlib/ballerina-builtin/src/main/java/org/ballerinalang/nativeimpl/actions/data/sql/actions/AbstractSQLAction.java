@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -89,6 +90,9 @@ import javax.transaction.xa.XAResource;
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private Calendar utcCalendar;
+    private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));
+
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
@@ -165,7 +169,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             }
-            BRefValueArray tuple = new BRefValueArray(new BArrayType(BTypes.typeAny));
+            BRefValueArray tuple = new BRefValueArray(executeUpdateWithKeysTupleType);
             tuple.add(0, updatedCount);
             tuple.add(1, generatedKeys);
             context.setReturnValues(tuple);

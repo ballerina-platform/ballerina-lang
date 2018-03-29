@@ -21,7 +21,7 @@ package org.ballerinalang.nativeimpl.io;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
@@ -37,6 +37,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.Arrays;
 
 /**
  * Native function ballerina.lo#readBytes.
@@ -54,6 +56,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 public class Read implements NativeCallableUnit {
+
+    private static final BTupleType readTupleType = new BTupleType(Arrays.asList(BTypes.typeBlob, BTypes.typeInt));
+
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
      */
@@ -71,7 +76,7 @@ public class Read implements NativeCallableUnit {
      */
     private static EventResult readResponse(EventResult<Integer, EventContext> result) {
         BStruct errorStruct;
-        BRefValueArray contentTuple = new BRefValueArray(new BArrayType(BTypes.typeAny));
+        BRefValueArray contentTuple = new BRefValueArray(readTupleType);
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
