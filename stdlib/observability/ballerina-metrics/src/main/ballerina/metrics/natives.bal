@@ -56,6 +56,24 @@ public struct Gauge {
 @Param {value:"gauge: The gauge instance to be registered."}
 public native function <Gauge gauge> register();
 
+@Description {value:"Increment the gauge by one."}
+@Param {value:"gauge: The gauge instance to be incremented by one."}
+public native function <Gauge gauge> incrementByOne();
+
+@Description {value:"Increment the gauge by the given amount."}
+@Param {value:"gauge: The gauge instance to be incremented by 'amount'."}
+@Param {value:"amount: float to be added with the gauge value."}
+public native function <Gauge gauge> increment(float amount);
+
+@Description {value:"Decrement the gauge by one."}
+@Param {value:"gauge: The gauge instance to be decremented by one."}
+public native function <Gauge gauge> decrementByOne();
+
+@Description {value:"Decrement the gauge by the given amount."}
+@Param {value:"gauge: The gauge instance to be decremented by 'amount'."}
+@Param {value:"amount: float to be added with the gauge value."}
+public native function <Gauge gauge> decrement(float amount);
+
 @Description {value:"Set the gauge to the given value."}
 @Param {value:"gauge: The gauge instance to be set."}
 @Param {value:"value: value to be set to the gauge."}

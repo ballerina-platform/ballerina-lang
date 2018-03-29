@@ -19,7 +19,6 @@
  */
 package org.ballerinalang.observe.metrics.gauge;
 
-import io.micrometer.core.instrument.Gauge;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,10 +27,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.observe.metrics.Registry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This function create and register a gauge.
@@ -52,6 +47,5 @@ public class RegisterGauge extends BlockingNativeCallableUnit {
         String name = gaugeStruct.getStringField(0);
         String description = gaugeStruct.getStringField(1);
         BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
-
     }
 }

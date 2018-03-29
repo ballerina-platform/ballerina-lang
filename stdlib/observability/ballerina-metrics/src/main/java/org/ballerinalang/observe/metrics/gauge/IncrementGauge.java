@@ -32,24 +32,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This function set the gauge to the given value.
+ * This function increment the gauge by the given amount.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "setValue",
+        functionName = "increment",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
                 structPackage = "ballerina.metrics"),
         args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"), @Argument(name = "value", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class SetGauge extends BlockingNativeCallableUnit {
+public class IncrementGauge extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct gaugeStruct = (BStruct) context.getRefArgument(0);
         String name = gaugeStruct.getStringField(0);
         String description = gaugeStruct.getStringField(1);
         BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
-        float value = (float) context.getFloatArgument(0);
+        float amount = (float) context.getFloatArgument(0);
     }
 }
