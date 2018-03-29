@@ -167,6 +167,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
+    private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Names names;
     private SymbolEnv env;
 
@@ -231,7 +232,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        this.returnWithintransactionCheckStack.push(true);
         this.visitInvocable(funcNode);
+        this.returnWithintransactionCheckStack.pop();
     }
 
     private void visitInvocable(BLangInvokableNode invNode) {
@@ -319,6 +322,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
         this.loopWithintransactionCheckStack.push(false);
+        this.returnWithintransactionCheckStack.push(false);
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
@@ -328,6 +332,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetStatementReturns();
             this.resetLastStatement();
         }
+        this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(transactionNode.retryCount);
         analyzeExpr(transactionNode.onCommitFunction);
@@ -382,6 +387,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
             return;
         }
+        if (checkReturnValidityInTransaction()) {
+            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            return;
+        }
         this.statementReturns = true;
         analyzeExprs(returnStmt.exprs);
     }
@@ -401,6 +410,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
+        this.returnWithintransactionCheckStack.push(true);
         boolean unmatchedExprTypesAvailable = false;
         analyzeExpr(matchStmt.expr);
 
@@ -471,6 +481,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.statementReturns = matchStmtReturns;
         }
+        this.returnWithintransactionCheckStack.pop();
     }
 
     @Override
@@ -1029,6 +1040,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkNextBreakValidityInTransaction() {
         return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0;
+    }
+
+    private boolean checkReturnValidityInTransaction() {
+        return (this.returnWithintransactionCheckStack.empty() || !this.returnWithintransactionCheckStack.peek())
+                && transactionCount > 0;
     }
 
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {
