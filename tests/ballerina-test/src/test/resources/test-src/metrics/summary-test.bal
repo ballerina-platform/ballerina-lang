@@ -20,12 +20,12 @@ function testPercentile() returns (float) {
 }
 
 function testRecord() {
-    summary.record(1.0);
-    summary.record(2.0);
-    summary.record(3.0);
-    summary.record(4.0);
-    summary.record(5.0);
-    summary.record(6.0);
+    summary.record(1);
+    summary.record(2);
+    summary.record(3);
+    summary.record(4);
+    summary.record(5);
+    summary.record(6);
 }
 
 function testCount() returns (int){

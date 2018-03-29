@@ -35,40 +35,21 @@ import org.testng.annotations.Test;
  */
 public class CounterTest {
     private CompileResult compileResult;
-    private String counterName = "requests_total";
-    private String[] tags = new String[]{"method", "GET"};
-
 
     @BeforeTest
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/counter-test.bal");
     }
 
-    @Test (priority = 1)
-    public void testRegisterCounter() {
-        BRunUtil.invoke(compileResult, "testRegisterCounter");
-        Counter counter = Registry.getRegistry().counter(counterName, tags);
-        Assert.assertEquals(counter.count(), 0.0);
-    }
-
-    @Test (priority = 2)
+    @Test
     public void testCounterIncrementByOne() {
-        BRunUtil.invoke(compileResult, "testCounterIncrementByOne");
-        Counter counter = Registry.getRegistry().counter(counterName, tags);
-        Assert.assertEquals(counter.count(), 1.0);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrementByOne");
+        Assert.assertEquals(returns[0], new BFloat(1.0));
     }
 
-    @Test (priority = 3)
+    @Test
     public void testCounterIncrement() {
-        BRunUtil.invoke(compileResult, "testCounterIncrement");
-        Counter counter = Registry.getRegistry().counter(counterName, tags);
-        Assert.assertEquals(counter.count(), 6.0);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrement");
+        Assert.assertEquals(returns[0], new BFloat(5.0));
     }
-
-    @Test (priority = 4)
-    public void testCountCounter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCountCounter");
-        Assert.assertEquals(returns[0], new BFloat(6.0), "Invalid counter value returned.");
-    }
-
 }

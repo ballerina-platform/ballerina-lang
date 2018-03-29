@@ -1,32 +1,37 @@
 import ballerina/metrics;
 
-map tagsMap = {"method":"GET"};
-metrics:Gauge gauge = {name:"inprogress_requests",description:"Inprogress requests.", tags:tagsMap};
+map tags1 = {"method":"GET"};
+map tags2 = {"method":"POST"};
+map tags3 = {"method":"DELETE"};
+map tags4 = {"method":"UPDATE"};
 
-function testRegisterGauge() {
-    gauge.register();
+metrics:Gauge gauge1 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags1};
+metrics:Gauge gauge2 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags2};
+metrics:Gauge gauge3 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags3};
+metrics:Gauge gauge4 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags4};
+
+function testIncrementGaugeByOne() returns (float) {
+    gauge1.register();
+    gauge1.incrementByOne();
+    return gauge1.value();
 }
 
-function testIncrementGaugeByOne() {
-    gauge.incrementByOne();
+function testIncrementGauge() returns (float) {
+    gauge2.register();
+    gauge2.increment(5);
+    return gauge2.value();
 }
 
-function testIncrementGauge() {
-    gauge.increment(5);
+function testDecrementGaugeByOne() returns (float) {
+    gauge3.register();
+    gauge3.setValue(10);
+    gauge3.decrementByOne();
+    return gauge3.value();
 }
 
-function testDecrementGaugeByOne() {
-    gauge.decrementByOne();
-}
-
-function testDecrementGauge() {
-    gauge.decrement(2);
-}
-
-function testSetGauge() {
-    gauge.setValue(12);
-}
-
-function testGetGauge() returns (float){
-    return gauge.value();
+function testDecrementGauge() returns (float) {
+    gauge4.register();
+    gauge4.setValue(10);
+    gauge4.decrement(2);
+    return gauge4.value();
 }

@@ -1,20 +1,18 @@
 import ballerina/metrics;
 
-map tagsMap = {"method":"GET"};
-metrics:Counter counter = {name:"requests_total",description:"Total requests.", tags:tagsMap};
+map tags1 = {"method":"GET"};
+map tags2 = {"method":"POST"};
+metrics:Counter counter1 = {name:"requests_total", description:"Total requests.", tags:tags1};
+metrics:Counter counter2 = {name:"requests_total", description:"Total requests.", tags:tags2};
 
-function testRegisterCounter() {
-    counter.register();
+function testCounterIncrementByOne() returns (float) {
+    counter1.register();
+    counter1.incrementByOne();
+    return counter1.count();
 }
 
-function testCounterIncrementByOne() {
-    counter.incrementByOne();
-}
-
-function testCounterIncrement() {
-    counter.increment(5.0f);
-}
-
-function testCountCounter() returns (float){
-    return counter.count();
+function testCounterIncrement() returns (float) {
+    counter2.register();
+    counter2.increment(5);
+    return counter2.count();
 }

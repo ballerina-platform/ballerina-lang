@@ -37,38 +37,23 @@ public class GaugeTest {
         compileResult = BCompileUtil.compile("test-src/metrics/gauge-test.bal");
     }
 
-    @Test (priority = 1)
-    public void testRegisterGauge() {
-        BRunUtil.invoke(compileResult, "testRegisterGauge");
-    }
-
-    @Test (priority = 2)
+    @Test
     public void testCounterIncrementByOne() {
-        BRunUtil.invoke(compileResult, "testIncrementGaugeByOne");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIncrementGaugeByOne");
     }
 
-    @Test (priority = 3)
+    @Test
     public void testCounterIncrement() {
-        BRunUtil.invoke(compileResult, "testIncrementGauge");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIncrementGauge");
     }
 
-    @Test (priority = 4)
+    @Test
     public void testDecrementGaugeByOne() {
-        BRunUtil.invoke(compileResult, "testDecrementGaugeByOne");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGaugeByOne");
     }
 
-    @Test (priority = 5)
+    @Test
     public void testDecrementGauge() {
-        BRunUtil.invoke(compileResult, "testDecrementGauge");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGauge");
     }
-
-    @Test (priority = 6)
-    public void testSetGauge() {
-        BRunUtil.invoke(compileResult, "testSetGauge");
-    }
-
-    @Test (priority = 7)
-    public void testGetCounter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetGauge");
-     }
 }
