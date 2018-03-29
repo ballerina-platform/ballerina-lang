@@ -190,6 +190,10 @@ function localParticipantProtocolFn (string transactionId,
         if (txn.state == TransactionState.ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
             return false;
+        } else if(txn.state == TransactionState.COMMITTED) {
+            removeParticipatedTransaction(participatedTxnId);
+            txn.possibleMixedOutcome = true;
+            return true;
         } else {
             boolean successful = prepareResourceManagers(transactionId, transactionBlockId);
             if (successful) {
