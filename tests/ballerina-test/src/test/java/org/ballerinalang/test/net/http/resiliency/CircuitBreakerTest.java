@@ -47,7 +47,7 @@ public class CircuitBreakerTest {
      */
     @Test
     public void testCircuitBreaker() {
-        int[] expectedStatusCodes = new int[] { 200, 200, 502, -1, -1, 200, 200, 200 };
+        int[] expectedStatusCodes = new int[] { 200, 200, 502, 0, 0, 200, 200, 200 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTypicalScenario");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -56,13 +56,11 @@ public class CircuitBreakerTest {
         BRefValueArray errs = (BRefValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
-            BStruct res = (BStruct) responses.get(i);
             long statusCode;
-
-            if (res != null) {
+            if (i != 3 && i != 4) {
+                BStruct res = (BStruct) responses.get(i);
                 statusCode = res.getIntField(0);
-
-                Assert.assertEquals(statusCode, expectedStatusCodes[i]);
+                Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
                 BStruct err = (BStruct) errs.get(i);
@@ -72,9 +70,10 @@ public class CircuitBreakerTest {
                 // error for requests which were failed immediately.
                 if (statusCode == 0) {
                     String msg = err.getStringField(0);
-                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG));
+                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
+                            "Invalid error message from circuit breaker.");
                 } else {
-                    Assert.assertEquals(statusCode, 502);
+                    Assert.assertEquals(statusCode, 502, "Incorrect status code.");
                 }
             }
         }
@@ -82,15 +81,15 @@ public class CircuitBreakerTest {
 
     /**
      * Test case scenario:
-     * * Initially the circuit is healthy and functioning normally.
-     * * Backend service becomes unavailable and eventually, the failure threshold is exceeded.
-     * * Requests afterwards are immediately failed, with a 503 response.
-     * * After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
-     * * The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
+     * - Initially the circuit is healthy and functioning normally.
+     * - Backend service becomes unavailable and eventually, the failure threshold is exceeded.
+     * - Requests afterwards are immediately failed, with a 503 response.
+     * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
+     * - The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
      */
     @Test
     public void testTrialRunFailure() {
-        int[] expectedStatusCodes = new int[] { 200, 502, -1, 502, -1, -1 };
+        int[] expectedStatusCodes = new int[] { 200, 502, 0, 502, 0, 502 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTrialRunFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -99,13 +98,12 @@ public class CircuitBreakerTest {
         BRefValueArray errs = (BRefValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
-            BStruct res = (BStruct) responses.get(i);
             long statusCode;
-
-            if (res != null) {
+            if (i < 2 || i == 5) {
+                BStruct res = (BStruct) responses.get(i);
                 statusCode = res.getIntField(0);
 
-                Assert.assertEquals(statusCode, expectedStatusCodes[i]);
+                Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
                 BStruct err = (BStruct) errs.get(i);
@@ -115,7 +113,8 @@ public class CircuitBreakerTest {
                 // error for requests which were failed immediately.
                 if (statusCode == 0) {
                     String msg = err.getStringField(0);
-                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG));
+                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
+                            "Invalid error message from circuit breaker.");
                 } else {
                     Assert.assertEquals(statusCode, 502);
                 }
@@ -127,14 +126,14 @@ public class CircuitBreakerTest {
      * Test case scenario:
      * - Initially the circuit is healthy and functioning normally.
      * - Backend service respond with HTTP status code configured to consider as failures responses.
-     *   eventually the failure threshold is exceeded.
+     * eventually the failure threshold is exceeded.
      * - Requests afterwards are immediately failed, with a 503 response.
      * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
      * - The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
      */
     @Test(description = "Test case for Circuit Breaker HTTP status codes.")
     public void testHttpStatusCodeFailure() {
-        int[] expectedStatusCodes = new int[] { 200, 500, -1, 500, -1, -1 };
+        int[] expectedStatusCodes = new int[] { 200, 500, 0, 500, 0, 0 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testHttpStatusCodeFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -143,13 +142,12 @@ public class CircuitBreakerTest {
         BRefValueArray errs = (BRefValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
-            BStruct res = (BStruct) responses.get(i);
             long statusCode;
-
-            if (res != null) {
+            if (i < 2) {
+                BStruct res = (BStruct) responses.get(i);
                 statusCode = res.getIntField(0);
 
-                Assert.assertEquals(statusCode, expectedStatusCodes[i]);
+                Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
                 BStruct err = (BStruct) errs.get(i);
@@ -159,9 +157,10 @@ public class CircuitBreakerTest {
                 // error for requests which were failed immediately.
                 if (statusCode == 0) {
                     String msg = err.getStringField(0);
-                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG));
+                    Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
+                            "Invalid error message from circuit breaker.");
                 } else {
-                    Assert.assertEquals(statusCode, 500);
+                    Assert.assertEquals(statusCode, 500, "Incorrect status code.");
                 }
             }
         }
