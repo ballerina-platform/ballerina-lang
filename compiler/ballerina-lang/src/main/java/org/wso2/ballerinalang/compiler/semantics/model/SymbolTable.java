@@ -403,8 +403,7 @@ public class SymbolTable {
                                       BType retType,
                                       int opcode) {
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
-        List<BType> retTypes = Lists.of(retType);
-        defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
+        defineOperator(names.fromString(kind.value()), paramTypes, retType, opcode);
     }
 
     private void defineUnaryOperator(OperatorKind kind,
@@ -412,8 +411,7 @@ public class SymbolTable {
                                      BType retType,
                                      int opcode) {
         List<BType> paramTypes = Lists.of(type);
-        List<BType> retTypes = Lists.of(retType);
-        defineOperator(names.fromString(kind.value()), paramTypes, retTypes, opcode);
+        defineOperator(names.fromString(kind.value()), paramTypes, retType, opcode);
     }
 
     private void defineImplicitConversionOperator(BType sourceType,
@@ -436,24 +434,24 @@ public class SymbolTable {
                                           boolean safe,
                                           int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = new ArrayList<>(1);
+        BType retType;
         if (safe) {
-            retTypes.add(targetType);
+            retType = targetType;
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) targetType;
                 unionType.memberTypes.add(this.errStructType);
-                retTypes.add(targetType);
+                retType = targetType;
             } else {
                 BUnionType unionType = new BUnionType(null,
                         new HashSet<BType>(2) {{
                             add(targetType);
                             add(errStructType);
                         }}, false);
-                retTypes.add(unionType);
+                retType = unionType;
             }
         }
-        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,
                 this.rootPkgSymbol, implicit, safe, opcode);
         symbol.kind = SymbolKind.CONVERSION_OPERATOR;
@@ -462,9 +460,9 @@ public class SymbolTable {
 
     private void defineOperator(Name name,
                                 List<BType> paramTypes,
-                                List<BType> retTypes,
+                                BType retType,
                                 int opcode) {
-        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, opcode);
         rootScope.define(name, symbol);
     }

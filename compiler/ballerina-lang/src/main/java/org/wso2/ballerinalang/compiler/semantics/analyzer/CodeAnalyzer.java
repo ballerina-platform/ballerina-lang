@@ -240,7 +240,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(invNode.symbol)) {
             return;
         }
-        boolean invokableReturns = invNode.retParams.size() > 0;
+        boolean invokableReturns = invNode.returnTypeNode != null;
         if (invNode.workers.isEmpty()) {
             invNode.body.accept(this);
             /* the function returns, but none of the statements surely returns */
@@ -383,7 +383,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.statementReturns = true;
-        analyzeExprs(returnStmt.exprs);
+        analyzeExpr(returnStmt.expr);
     }
 
     @Override
@@ -615,16 +615,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     break;
                 case ASSIGNMENT:
                     BLangAssignment assignStmt = (BLangAssignment) stmt;
-                    assignStmt.varRefs.forEach(varRef -> {
-                        varRef.accept(new TransformerVarRefValidator(inputs,
-                                DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE));
+                    assignStmt.varRef.accept(new TransformerVarRefValidator(inputs,
+                            DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE));
 
-                        // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
-                        if (assignStmt.declaredWithVar && varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                                && !inputs.contains(((BLangSimpleVarRef) varRef).symbol)) {
-                            inputs.add(((BLangSimpleVarRef) varRef).symbol);
-                        }
-                    });
+                    // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
+                    if (assignStmt.declaredWithVar && assignStmt.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                            && !inputs.contains(((BLangSimpleVarRef) assignStmt.varRef).symbol)) {
+                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).symbol);
+                    }
                     assignStmt.expr.accept(
                             new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
                     break;
@@ -660,7 +658,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAssignment assignNode) {
         this.checkStatementExecutionValidity(assignNode);
-        analyzeExprs(assignNode.varRefs);
+        analyzeExpr(assignNode.varRef);
         analyzeExpr(assignNode.expr);
     }
 
@@ -1023,7 +1021,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(send.pos, DiagnosticCode.WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH);
         }
         for (int i = 0; i < typeList.size(); i++) {
-            this.typeChecker.checkExpr(send.exprs.get(i), send.env, Arrays.asList(typeList.get(i)));
+            this.typeChecker.checkExpr(send.exprs.get(i), send.env, typeList.get(i));
         }
     }
 

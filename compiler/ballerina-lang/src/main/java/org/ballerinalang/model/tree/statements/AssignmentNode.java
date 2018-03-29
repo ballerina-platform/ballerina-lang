@@ -29,7 +29,7 @@ import java.util.List;
  * @since 0.94
  */
 public interface AssignmentNode extends StatementNode {
-    List<? extends ExpressionNode> getVariables();
+    ExpressionNode getVariable();
 
     ExpressionNode getExpression();
 
@@ -39,5 +39,5 @@ public interface AssignmentNode extends StatementNode {
 
     void setDeclaredWithVar(boolean isDeclaredWithVar);
 
-    void addVariable(VariableReferenceNode variableReferenceNode);
+    void setVariable(VariableReferenceNode variableReferenceNode);
 }

@@ -19,6 +19,8 @@ package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.List;
@@ -35,11 +37,11 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     List<? extends VariableNode> getParameters();
     
     void addParameter(VariableNode param);
-    
-    List<? extends VariableNode> getReturnParameters();
-    
-    void addReturnParameter(VariableNode retParam);
-    
+
+    TypeNode getReturnTypeNode();
+
+    void setReturnTypeNode(TypeNode typeNode);
+
     BlockNode getBody();
     
     void setBody(BlockNode body);

@@ -110,7 +110,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.ThrowNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
-import org.ballerinalang.model.tree.statements.TupleDestructureStatementNode;
+import org.ballerinalang.model.tree.statements.TupleDestructureNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.WhileNode;
@@ -301,7 +301,7 @@ public class TreeBuilder {
         return new BLangThrow();
     }
 
-    public static TupleDestructureStatementNode createTupleDestructureStatementNode() {
+    public static TupleDestructureNode createTupleDestructureStatementNode() {
         return new BLangTupleDestructure();
     }
 

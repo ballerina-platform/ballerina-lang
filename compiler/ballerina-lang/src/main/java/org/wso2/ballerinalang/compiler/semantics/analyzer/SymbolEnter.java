@@ -775,15 +775,19 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .map(varDefNode -> varDefNode.var.symbol)
                         .collect(Collectors.toList());
 
-        List<BVarSymbol> retParamSymbols =
-                invokableNode.retParams.stream()
-                        .peek(varNode -> defineNode(varNode, invokableEnv))
-                        .filter(varNode -> varNode.symbol != null)
-                        .map(varNode -> varNode.symbol)
-                        .collect(Collectors.toList());
+        if (invokableNode.returnTypeNode != null) {
+            symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
+        }
+
+//        List<BVarSymbol> retParamSymbols =
+//                invokableNode.retParams.stream()
+//                        .peek(varNode -> defineNode(varNode, invokableEnv))
+//                        .filter(varNode -> varNode.symbol != null)
+//                        .map(varNode -> varNode.symbol)
+//                        .collect(Collectors.toList());
 
         symbol.params = paramSymbols;
-        symbol.retParams = retParamSymbols;
+        symbol.retType = invokableNode.returnTypeNode.type;
         symbol.defaultableParams = namedParamSymbols;
 
         // Create function type
@@ -799,11 +803,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             paramTypes.add(symbol.restParam.type);
         }
 
-        List<BType> retTypes = invokableNode.retParams.stream()
-                .map(varNode -> varNode.type != null ? varNode.type : varNode.typeNode.type)
-                .collect(Collectors.toList());
+//        List<BType> retTypes = invokableNode.retParams.stream()
+//                .map(varNode -> varNode.type != null ? varNode.type : varNode.typeNode.type)
+//                .collect(Collectors.toList());
 
-        symbol.type = new BInvokableType(paramTypes, retTypes, null);
+        symbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
     }
 
     private void defineConnectorSymbolParams(BLangConnector connectorNode, BConnectorSymbol symbol,
@@ -1003,7 +1007,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (!funcNode.requiredParams.isEmpty() || !funcNode.retParams.isEmpty()) {
+        if (!funcNode.requiredParams.isEmpty() || funcNode.returnTypeNode != null) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
                     funcNode.name.value, funcNode.receiver.type.toString());
         }
@@ -1033,7 +1037,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (!funcNode.retParams.isEmpty()) {
+        if (funcNode.returnTypeNode != null) {
             //TODO change message
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
                     funcNode.name.value, funcNode.receiver.type.toString());
@@ -1058,7 +1062,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = exprVar;
         assignmentStmt.pos = variable.pos;
-        assignmentStmt.addVariable(varRef);
+        assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }
 
@@ -1072,7 +1076,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
         assignmentStmt.pos = variable.pos;
-        assignmentStmt.addVariable(varRef);
+        assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }
 

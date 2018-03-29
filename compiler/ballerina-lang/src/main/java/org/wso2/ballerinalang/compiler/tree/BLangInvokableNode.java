@@ -28,9 +28,11 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +47,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     public BLangIdentifier name;
     public List<BLangVariable> requiredParams;
-    public List<BLangVariable> retParams;
+    public BLangType returnTypeNode;
     public BLangBlockStmt body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -60,7 +62,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     public BLangInvokableNode() {
         this.requiredParams = new ArrayList<>();
-        this.retParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
@@ -91,13 +92,13 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public List<BLangVariable> getReturnParameters() {
-        return retParams;
+    public BLangType getReturnTypeNode() {
+        return returnTypeNode;
     }
 
     @Override
-    public void addReturnParameter(VariableNode retParam) {
-        this.getReturnParameters().add((BLangVariable) retParam);
+    public void setReturnTypeNode(TypeNode returnTypeNode) {
+        this.returnTypeNode = (BLangType) returnTypeNode;
     }
 
     @Override
@@ -187,8 +188,8 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     @Override
     public String toString() {
-        return this.flagSet + " " + this.getName() + " (" + this.requiredParams + 
-                ") (" + this.retParams + ") Body: {" + this.body + "}"
+        return this.flagSet + " " + this.getName() + " (" + this.requiredParams +
+                ") (" + this.returnTypeNode + ") Body: {" + this.body + "}"
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }
 

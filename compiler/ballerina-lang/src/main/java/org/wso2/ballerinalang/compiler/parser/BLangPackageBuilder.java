@@ -519,11 +519,11 @@ public class BLangPackageBuilder {
 
         if (retParamsAvail) {
 //            functionTypeNode.addWS(commaWsStack.pop());
-            functionTypeNode.returnParamTypeNodes.add(this.varStack.pop().getTypeNode());
+            functionTypeNode.returnTypeNode = (BLangType) this.varStack.pop().getTypeNode();
         }
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
+            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add((BLangType) v.getTypeNode()));
         }
 
         functionTypeNode.addWS(ws);
@@ -625,9 +625,8 @@ public class BLangPackageBuilder {
         invNode.setName(this.createIdentifier(identifier));
         invNode.addWS(ws);
         if (retParamsAvail) {
-            BLangVariable variableNode = (BLangVariable) this.varStack.pop();
-            variableNode.docTag = DocTag.RETURN;
-            invNode.addReturnParameter(variableNode);
+            BLangType typeNode = (BLangType) this.typeNodeStack.pop();
+            invNode.setReturnTypeNode(typeNode);
         }
 
         if (paramsAvail) {
@@ -1121,6 +1120,7 @@ public class BLangPackageBuilder {
     }
 
     public void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
+        // TODO This code will not work if there are workers inside a lambda and the lambda is inside a fork/join
         BLangWorker worker = (BLangWorker) this.invokableNodeStack.pop();
         worker.setName(createIdentifier(workerName));
         worker.pos = pos;
@@ -1129,7 +1129,7 @@ public class BLangPackageBuilder {
         if (this.forkJoinNodesStack.empty()) {
             InvokableNode invokableNode = this.invokableNodeStack.peek();
             invokableNode.getParameters().forEach(worker::addParameter);
-            invokableNode.getReturnParameters().forEach(worker::addReturnParameter);
+            worker.setReturnTypeNode(invokableNode.getReturnTypeNode());
             invokableNode.addWorker(worker);
             invokableNode.addFlag(Flag.PARALLEL);
         } else {
@@ -1751,7 +1751,7 @@ public class BLangPackageBuilder {
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
         assignmentNode.safeAssignment = safeAssignment;
-        assignmentNode.addVariable((BLangVariableReference) lExprNode);
+        assignmentNode.varRef = ((BLangVariableReference) lExprNode);
         addStmtToCurrentBlock(assignmentNode);
     }
 
@@ -1766,7 +1766,7 @@ public class BLangPackageBuilder {
             List<ExpressionNode> lExprList = exprNodeListStack.pop();
             lExprList.forEach(expressionNode -> stmt.varRefs.add((BLangVariableReference) expressionNode));
         }
-        // TODO: handle ParamList Destructue.
+        // TODO: handle ParamList Destructure.
         addStmtToCurrentBlock(stmt);
     }
 
@@ -1860,9 +1860,7 @@ public class BLangPackageBuilder {
         retStmt.addWS(ws);
         if (exprAvailable) {
             retStmt.addWS(commaWsStack.pop());
-            for (ExpressionNode expr : this.exprNodeListStack.pop()) {
-                retStmt.exprs.add((BLangExpression) expr);
-            }
+            retStmt.expr = (BLangExpression) this.exprNodeStack.pop();
         }
         addStmtToCurrentBlock(retStmt);
     }
@@ -2365,9 +2363,10 @@ public class BLangPackageBuilder {
         VariableNode source = mappingParams.remove(0);
         ((BLangVariable) source).docTag = DocTag.RECEIVER;
         transformer.setSource(source);
+        // TODO Fix with the single return model
         mappingParams.forEach(variableNode -> {
             ((BLangVariable) variableNode).docTag = DocTag.RECEIVER;
-            transformer.addReturnParameter(variableNode);
+            transformer.requiredParams.add((BLangVariable) variableNode);
         });
 
         if (publicFunc) {

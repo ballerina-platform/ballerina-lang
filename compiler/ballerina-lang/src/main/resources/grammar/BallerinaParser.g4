@@ -478,7 +478,7 @@ throwStatement
     ;
 
 returnStatement
-    :   RETURN expressionList? SEMICOLON
+    :   RETURN expression? SEMICOLON
     ;
 
 workerInteractionStatement

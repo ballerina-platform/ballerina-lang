@@ -185,9 +185,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                         rhsType.tag == TypeTags.CONNECTOR ||
                         rhsType.tag == TypeTags.ENUM ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
@@ -196,18 +194,14 @@ public class SymbolResolver extends BLangNodeVisitor {
                 lhsType.tag == TypeTags.ENUM ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NULL) {
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
 
         }
 
         if (lhsType.tag == TypeTags.ENUM && rhsType.tag == TypeTags.ENUM && lhsType == rhsType) {
             opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
@@ -566,10 +560,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         List<BType> paramTypes = new ArrayList<>();
-        List<BType> retParamTypes = new ArrayList<>();
         functionTypeNode.getParamTypeNode().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t, env)));
-        functionTypeNode.getReturnParamTypeNode().forEach(t -> retParamTypes.add(resolveTypeNode((BLangType) t, env)));
-        resultType = new BInvokableType(paramTypes, retParamTypes, null);
+        BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
+        resultType = new BInvokableType(paramTypes, retParamType, null);
     }
 
     /**

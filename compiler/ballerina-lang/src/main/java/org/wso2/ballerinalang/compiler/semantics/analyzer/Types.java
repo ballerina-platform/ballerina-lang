@@ -294,8 +294,7 @@ public class Types {
     }
 
     public boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target) {
-        if (source.paramTypes.size() != target.paramTypes.size() ||
-                source.retTypes.size() != target.retTypes.size()) {
+        if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
 
@@ -306,14 +305,22 @@ public class Types {
             }
         }
 
-        for (int i = 0; i < source.retTypes.size(); i++) {
-            if (target.retTypes.get(i).tag != TypeTags.ANY
-                    && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
-                return false;
-            }
+        if (source.retType == null && target.retType == null) {
+            return true;
+        } else if (source.retType == null || target.retType == null) {
+            return false;
         }
 
-        return true;
+        return isAssignable(source.retType, target.retType);
+
+//        for (int i = 0; i < source.retTypes.size(); i++) {
+//            if (target.retTypes.get(i).tag != TypeTags.ANY
+//                    && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
     }
 
     public boolean checkArrayEquality(BType source, BType target) {
