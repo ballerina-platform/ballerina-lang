@@ -578,3 +578,21 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   width: 165px;
   white-space: nowrap;
 }
+
+a.item.menu-button.ui.button.primary {
+  background: #2fb8b0;
+  color: #fff;
+  padding: 7px 10px !important;
+  margin-top: 3px;
+  margin-left: 5px;
+  font-weight: 300;
+  
+  &:hover {
+    background: #27a9a3 !important;
+    font-weight: 300 !important;
+  }
+  
+  .icon {
+    padding-right: 25px !important;
+  }
+}
