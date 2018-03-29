@@ -35,6 +35,12 @@ public class CircuitBreakerTest {
 
     private static final String CB_ERROR_MSG = "Upstream service unavailable.";
 
+    // Following constants are defined to filter out Http Client errors from union responses.
+    private static final int CB_CLIENT_FIRST_ERROR_INDEX = 3;
+    private static final int CB_CLIENT_SECOND_ERROR_INDEX = 4;
+    private static final int CB_CLIENT_TOP_MOST_SUCCESS_INDEX = 2;
+    private static final int CB_CLIENT_FAILURE_CASE_ERROR_INDEX = 5;
+
     private CompileResult compileResult;
 
     @BeforeClass
@@ -47,7 +53,8 @@ public class CircuitBreakerTest {
      */
     @Test
     public void testCircuitBreaker() {
-        int[] expectedStatusCodes = new int[] { 200, 200, 502, 0, 0, 200, 200, 200 };
+        // Expected HTTP status codes from circuit breaker responses.
+        int[] expectedStatusCodes = new int[] { 200, 200, 502, 503, 503, 200, 200, 200 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTypicalScenario");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -57,7 +64,9 @@ public class CircuitBreakerTest {
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
-            if (i != 3 && i != 4) {
+            // With this check flow will direct to the else condition for Http Client Errors. The avoided response
+            // indexes are consisted with the HttpClientError Responses.
+            if (i != CB_CLIENT_FIRST_ERROR_INDEX && i != CB_CLIENT_SECOND_ERROR_INDEX) {
                 BStruct res = (BStruct) responses.get(i);
                 statusCode = res.getIntField(0);
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
@@ -73,7 +82,7 @@ public class CircuitBreakerTest {
                     Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                             "Invalid error message from circuit breaker.");
                 } else {
-                    Assert.assertEquals(statusCode, 502, "Incorrect status code.");
+                    Assert.assertEquals(statusCode, 503, "Incorrect status code.");
                 }
             }
         }
@@ -89,7 +98,8 @@ public class CircuitBreakerTest {
      */
     @Test
     public void testTrialRunFailure() {
-        int[] expectedStatusCodes = new int[] { 200, 502, 0, 502, 0, 502 };
+        // Expected HTTP status codes from circuit breaker responses.
+        int[] expectedStatusCodes = new int[] { 200, 502, 503, 502, 503, 502 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTrialRunFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -99,7 +109,9 @@ public class CircuitBreakerTest {
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
-            if (i < 2 || i == 5) {
+            // With this check flow will direct to the else condition for Http Client Errors. The avoided response
+            // indexes are consisted with the HttpClientError Responses.
+            if (i < CB_CLIENT_TOP_MOST_SUCCESS_INDEX || i == CB_CLIENT_FAILURE_CASE_ERROR_INDEX) {
                 BStruct res = (BStruct) responses.get(i);
                 statusCode = res.getIntField(0);
 
@@ -116,7 +128,7 @@ public class CircuitBreakerTest {
                     Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                             "Invalid error message from circuit breaker.");
                 } else {
-                    Assert.assertEquals(statusCode, 502);
+                    Assert.assertEquals(statusCode, 503);
                 }
             }
         }
@@ -133,7 +145,8 @@ public class CircuitBreakerTest {
      */
     @Test(description = "Test case for Circuit Breaker HTTP status codes.")
     public void testHttpStatusCodeFailure() {
-        int[] expectedStatusCodes = new int[] { 200, 500, 0, 500, 0, 0 };
+        // Expected HTTP status codes from circuit breaker responses.
+        int[] expectedStatusCodes = new int[] { 200, 500, 503, 500, 503, 503 };
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testHttpStatusCodeFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -143,7 +156,9 @@ public class CircuitBreakerTest {
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
-            if (i < 2) {
+            // With this check flow will direct to the else condition for Http Client Errors. The avoided response
+            // indexes are consisted with the HttpClientError Responses.
+            if (i < CB_CLIENT_TOP_MOST_SUCCESS_INDEX) {
                 BStruct res = (BStruct) responses.get(i);
                 statusCode = res.getIntField(0);
 

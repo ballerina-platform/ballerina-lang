@@ -59,6 +59,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
                 responses[counter] = res;
             }
             http:HttpConnectorError httpConnectorError => {
+                httpConnectorError.statusCode = 503;
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -107,6 +108,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
                 responses[counter] = res;
             }
             http:HttpConnectorError httpConnectorError => {
+                httpConnectorError.statusCode = 503;
                 errs[counter] = httpConnectorError; 
             }
         }
@@ -155,6 +157,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
                 responses[counter] = res;
             }
             http:HttpConnectorError httpConnectorError => {
+                httpConnectorError.statusCode = 503;
                 errs[counter] = httpConnectorError; 
             }
         }
