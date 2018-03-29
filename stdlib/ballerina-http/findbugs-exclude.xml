@@ -30,7 +30,7 @@
         <Class name="org.ballerinalang.net.uri.parser.Node"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.net.uri.parser.SimpleSplitStringExpression"/>
+        <Class name="org.ballerinalang.net.uri.parser.SimpleStringExpression"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.net.ws.WebSocketService"/>
