@@ -230,8 +230,8 @@
   "Endpoint": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
-    "before endpoint": " ",
-    "after endpoint": "",
+    "before endpoint": "",
+    "after endpoint": " ",
     "before <": " ",
     "after <": "",
     "before endPointType": "",

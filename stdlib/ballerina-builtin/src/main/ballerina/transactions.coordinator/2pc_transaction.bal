@@ -26,6 +26,7 @@ struct TwoPhaseCommitTransaction {
     boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants;
     Protocol[] coordinatorProtocols;
+    int createdTime;
     TransactionState state;
     boolean possibleMixedOutcome;
 }
@@ -234,11 +235,8 @@ function<TwoPhaseCommitTransaction txn> prepareRemoteParticipant (Participant pa
     match result {
         error err => {
             log:printErrorCause("Remote participant: " + participantId + " failed", err);
-            boolean participantRemoved = txn.participants.remove(participantId);
-            if (!participantRemoved) {
-                log:printError("Could not remove failed participant: " +
-                               participantId + " from transaction: " + transactionId);
-            }
+            txn.removeParticipant(participantId, "Could not remove failed participant: " +
+                                                    participantId + " from transaction: " + transactionId);
             successful = false;
         }
         string status => {
@@ -246,11 +244,8 @@ function<TwoPhaseCommitTransaction txn> prepareRemoteParticipant (Participant pa
                 log:printInfo("Remote participant: " + participantId + " aborted.");
                 // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
                 // participant
-                boolean participantRemoved = txn.participants.remove(participantId);
-                if (!participantRemoved) {
-                    log:printError("Could not remove aborted participant: " +
-                                   participantId + " from transaction: " + transactionId);
-                }
+                txn.removeParticipant(participantId, "Could not remove aborted participant: " +
+                                                      participantId + " from transaction: " + transactionId);
                 successful = false;
             } else if (status == OUTCOME_COMMITTED) {
                 log:printInfo("Remote participant: " + participantId + " committed");
@@ -258,19 +253,13 @@ function<TwoPhaseCommitTransaction txn> prepareRemoteParticipant (Participant pa
                 // report a mixed-outcome to the initiator
                 txn.possibleMixedOutcome = true;
                 // Don't send notify to this participant because it is has already committed. We can forget about this participant.
-                boolean participantRemoved = txn.participants.remove(participantId);
-                if (!participantRemoved) {
-                    log:printError("Could not remove committed participant: " +
-                                   participantId + " from transaction: " + transactionId);
-                }
+                txn.removeParticipant(participantId, "Could not remove committed participant: " +
+                                                      participantId + " from transaction: " + transactionId);
             } else if (status == OUTCOME_READ_ONLY) {
                 log:printInfo("Remote participant: " + participantId + " read-only");
                 // Don't send notify to this participant because it is read-only. We can forget about this participant.
-                boolean participantRemoved = txn.participants.remove(participantId);
-                if (!participantRemoved) {
-                    log:printError("Could not remove read-only participant: " +
-                                   participantId + " from transaction: " + transactionId);
-                }
+                txn.removeParticipant(participantId, "Could not remove read-only participant: " +
+                                                      participantId + " from transaction: " + transactionId);
             } else if (status == OUTCOME_PREPARED) {
                 log:printInfo("Remote participant: " + participantId + " prepared");
             } else {
@@ -374,4 +363,11 @@ function<TwoPhaseCommitTransaction txn> abortLocalParticipantTransaction () retu
         ret = {message:msg};
     }
     return ret;
+}
+
+function<TwoPhaseCommitTransaction txn> removeParticipant(string participantId, string failedMessage) {
+    boolean participantRemoved = txn.participants.remove(participantId);
+    if (!participantRemoved) {
+        log:printError(failedMessage);
+    }
 }
