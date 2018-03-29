@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -36,11 +37,19 @@ import java.util.Map;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "startSpan",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "startSpanWithParentSpan",
+        args = {
+                @Argument(name = "serviceName", type = TypeKind.STRING),
+                @Argument(name = "spanName", type = TypeKind.STRING),
+                @Argument(name = "tags", type = TypeKind.MAP),
+                @Argument(name = "reference", type = TypeKind.ENUM),
+                @Argument(name = "parentSpanContext", type = TypeKind.STRUCT, structType = "Span",
+                        structPackage = "ballerina.observe")
+        },
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         isPublic = true
 )
-public class StartSpan extends BlockingNativeCallableUnit {
+public class StartSpanWithParentSpan extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

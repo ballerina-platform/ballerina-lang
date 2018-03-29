@@ -18,46 +18,51 @@
 
 package org.ballerinalang.observe.trace;
 
+import io.opentracing.SpanContext;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Collections;
 import java.util.Map;
 
-import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
-
 /**
- * This function returns the span context of a given span.
+ * This function which implements the startSpan method for tracing.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "injectTraceContext",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = @Argument(name = "traceGroup", type = TypeKind.STRING),
-        returnType = @ReturnType(type = TypeKind.MAP),
+        functionName = "startRootSpan",
+        args = {
+                @Argument(name = "serviceName", type = TypeKind.STRING),
+                @Argument(name = "spanName", type = TypeKind.STRING),
+                @Argument(name = "tags", type = TypeKind.MAP),
+        },
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         isPublic = true
 )
-public class InjectTraceContext extends BlockingNativeCallableUnit {
+public class StartRootSpan extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
-        BStruct span = (BStruct) context.getRefArgument(0);
-        String group = context.getStringArgument(0) == null ? DEFAULT_USER_API_GROUP : context.getStringArgument(0);
-        String spanId = span.getStringField(0);
 
-        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
+        String serviceName = context.getStringArgument(0);
+        String spanName = context.getStringArgument(1);
+        BMap tags = (BMap) context.getRefArgument(0);
 
-        BMap<String, BString> headerMap = new BMap<>();
-        propertiesToInject.forEach((key, value) -> {
-            headerMap.put(group + key, new BString(value));
-        });
-        context.setReturnValues(headerMap);
+        Map<String, SpanContext> spanContextMap = Collections.emptyMap();
+
+        String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
+                Utils.toStringMap(tags), ReferenceType.ROOT, spanContextMap);
+
+        if (spanId != null) {
+            context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));
+        } else {
+            System.err.println("ballerina: Can not use tracing API when tracing is disabled");
+        }
     }
 }

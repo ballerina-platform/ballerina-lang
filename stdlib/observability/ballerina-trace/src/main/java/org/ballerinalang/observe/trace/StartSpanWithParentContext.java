@@ -45,8 +45,9 @@ import java.util.Map;
                 @Argument(name = "tags", type = TypeKind.MAP),
                 @Argument(name = "reference", type = TypeKind.ENUM),
                 @Argument(name = "parentSpanContext", type = TypeKind.STRUCT, structType = "SpanContext",
-                        structPackage = "ballerina.observe")},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+                        structPackage = "ballerina.observe")
+        },
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         isPublic = true
 )
 public class StartSpanWithParentContext extends BlockingNativeCallableUnit {

@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -39,7 +40,13 @@ import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
         orgName = "ballerina",
         packageName = "observe",
         functionName = "extractTraceContext",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "headers", type = TypeKind.MAP),
+                @Argument(name = "traceGroup", type = TypeKind.STRING)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "SpanContext", structPackage = "ballerina.observe")
+        },
         isPublic = true
 )
 public class ExtractTraceContext extends BlockingNativeCallableUnit {
@@ -59,8 +66,6 @@ public class ExtractTraceContext extends BlockingNativeCallableUnit {
             }
         }
         BStruct spanContextStruct = Utils.createSpanContextStruct(context, spanHeaders);
-        spanContextStruct.setRefField(0, spanHeaders);
         context.setReturnValues(spanContextStruct);
     }
-
 }
