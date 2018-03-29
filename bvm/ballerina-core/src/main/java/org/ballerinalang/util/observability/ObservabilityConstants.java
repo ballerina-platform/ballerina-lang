@@ -17,6 +17,13 @@
  */
 package org.ballerinalang.util.observability;
 
+/**
+ * All constants related to observability.
+ * <p>
+ * Tags in this class are used for both Metrics and Tracing. Some tags follow the standard names defined by
+ * Open Tracing Specification.
+ * </p>
+ */
 public class ObservabilityConstants {
 
     private ObservabilityConstants() {
