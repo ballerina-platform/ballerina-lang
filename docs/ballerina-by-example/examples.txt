@@ -21,6 +21,7 @@ Arrays
 Array of Arrays
 Vector
 Table
+SQL queries on tables
 Lengthof
 Identifier Literals
 JSON
@@ -42,6 +43,7 @@ Worker Interaction
 Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
+Async
 SQL Connector
 Table with SQL Connector
 Transactions
@@ -118,3 +120,5 @@ Testerina Data Provider
 Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
+Streams
+Streams within services

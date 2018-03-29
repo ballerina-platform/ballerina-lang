@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
  */
 public class StructEquivalencyNegativeTest {
 
-    @Test(description = "Test equivalence of structs that are in the same package")
+    @Test(description = "Test equivalence of structs that are in the same package", enabled = false)
     public void testEquivalenceOfStructsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-01-negative.bal");
 
@@ -51,7 +51,8 @@ public class StructEquivalencyNegativeTest {
                 "unsafe cast from 'employee09' to 'person09', use multi-return cast expression", 262, 18);
     }
 
-    @Test(description = "Test equivalence of structs that are in the same package from a third package")
+    @Test(description = "Test equivalence of structs that are in the same package from a third package",
+            enabled = false)
     public void testEquivalenceOfStructsInSamePackageFromDifferentPackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-02-negative.bal");
 

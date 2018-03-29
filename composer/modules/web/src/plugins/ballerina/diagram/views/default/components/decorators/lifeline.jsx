@@ -196,9 +196,7 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
-            { (!TreeUtils.isEndpointTypeVariableDef(this.props.model) &&
-                !TreeUtils.isForkJoin(this.props.model.parent)
-                ) &&
+            { (isDefaultWorker || TreeUtils.isWorker(this.props.model)) &&
                 <ArrowDecorator
                     start={{ x: startX, y: startY }}
                     end={{ x: startX, y: startY }}

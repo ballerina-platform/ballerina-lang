@@ -77,9 +77,6 @@ function buildIntentVerificationResponse(http:Request request, string mode,
         response.setStringPayload(challenge);
         log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic +"], Lease Seconds ["
                       + reqLeaseSeconds + "]");
-    } else if (reqMode == mode) {
-        response = { statusCode:205 };
-        log:printWarn("Intent Verification denied - Mode [" + mode + "] for Incorrect Topic [" + topic +"]");
     } else {
         response = { statusCode:404 };
         log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +"]");
@@ -210,9 +207,9 @@ public function addWebSubLinkHeaders (http:Response response, string[] hubs, str
     response = response == null ? {} : response;
     string hubLinkHeader = "";
     foreach hub in hubs {
-        hubLinkHeader = hubLinkHeader + "<" + hub + "> ; rel=\"hub\", ";
+        hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
-    response.setHeader("Link", hubLinkHeader + "<" + topic + "> ; rel=\"self\"");
+    response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
     return response;
 }
 

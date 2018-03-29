@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './hidden-statement.css';
+import ImageUtil from './../../../image-util';
 
 /**
  * Add an mark to hidden elements.
@@ -49,10 +50,23 @@ class HiddenStatement extends React.Component {
         return (
             <g>
                 <g className='hidden-statement'>
-                    <rect x={bBox.x - (bBox.w / 2)} y={y} width={bBox.w} height={h} rx='2' ry='2' />
-                    <text x={bBox.x - (bBox.w / 2) + 3} y={y + 6} className='hidden-code' fontSize='35' >
+                    <rect 
+                        x={bBox.x - (bBox.w / 2) + 2} 
+                        y={y} 
+                        width={bBox.w - 5} 
+                        height={h} 
+                        rx='5' 
+                        ry='5' 
+                        />
+                    {/* <text x={bBox.x - (bBox.w / 2) + 3} y={y + 6} className='hidden-code' fontSize='35' >
                         ...
-                    </text>
+                    </text> */}
+                    <text
+                        x={bBox.x - (bBox.w / 2) + 10}
+                        y={y + 10} 
+                        className='hidden-code'
+                        fontFamily='font-ballerina'
+                    >{ImageUtil.getCodePoint('ellipsis')}</text>
                 </g>
             </g>);
     }

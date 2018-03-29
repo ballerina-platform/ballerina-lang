@@ -141,7 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -714,7 +714,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, valueExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(opcode, valueExpr.regIndex, refRegMapValue);
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, refRegMapValue);
             }
         }
@@ -874,7 +874,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue);
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
             }
         } else {
@@ -1630,6 +1630,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         operands[i++] = getOperand(funcRefCPIndex);
         if (iExpr.async) {
             flags = FunctionFlags.markAsync(flags);
+        }
+        if (iExpr.actionInvocation) {
+            flags = FunctionFlags.markObserved(flags);
         }
         operands[i++] = getOperand(flags);
         operands[i++] = getOperand(nArgRegs);
@@ -2437,7 +2440,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitInvokableNode(actionNode, currentCallableUnitInfo, actionEnv);
     }
 
-    public void visit(BLangWhenever wheneverStatement) {
+    public void visit(BLangForever foreverStatement) {
         /* ignore */
     }
 

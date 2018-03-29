@@ -32,18 +32,6 @@ public native function <Request req> setEntity (mime:Entity entity);
 @Return {value:"The map of query params"}
 public native function <Request req> getQueryParams () returns (map);
 
-@Description {value:"Retrieves the named property from the request"}
-@Param {value:"req: The request message"}
-@Param {value:"propertyName: The name of the property"}
-@Return {value:"The property value"}
-public native function <Request req> getProperty (string propertyName) returns (string);
-
-@Description {value:"Sets a request property"}
-@Param {value:"req: The request message"}
-@Param {value:"propertyName: The name of the property"}
-@Param {value:"propertyValue: The value of the property"}
-public native function <Request req> setProperty (string propertyName, string propertyValue);
-
 @Description {value:"Get matrix parameters from the request"}
 @Param {value:"req: The request message"}
 @Param {value:"path: Path to the location of matrix parameters"}
@@ -141,16 +129,6 @@ public function <Request req> getCopyOfAllHeaders () returns (map) {
 public function <Request req> expects100Continue () returns (boolean) {
     return req.getHeader(HEADER_KEY_EXPECT) ==  HEADER_VAL_100_CONTINUE;
 }
-
-//@Description {value:"Gets the Content-Length header from the request"}
-//@Param {value:"req: The request message"}
-//@Return {value:"length of the message"}
-//public function <Request request> getContentLength () returns (int) {
-//    match request.getHeader(CONTENT_LENGTH) {
-//        string contentLengthVal => return getContentLengthIntValue(contentLengthVal);
-//        any | null => return -1;
-//    }
-//}
 
 @Description {value:"Gets the request payload in JSON format"}
 @Param {value:"request: The request message"}

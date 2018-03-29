@@ -251,7 +251,7 @@ function commitFunction() {
 }
 
 function abortFunction() {
-    a = a + " inAboftFunction";
+    a = a + " inAbortFunction";
 }
 
 function commitFunctionSecond() {
@@ -260,5 +260,5 @@ function commitFunctionSecond() {
 
 
 function abortFunctionSecond() {
-    a = a + " inAboftFunctionSecond";
+    a = a + " inAbortFunctionSecond";
 }

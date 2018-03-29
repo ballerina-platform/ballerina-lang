@@ -56,7 +56,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
             if (txn.state == TransactionState.ABORTED) {
                 res.statusCode = 200;
-                prepareRes.message = "aborted";
+                prepareRes.message = OUTCOME_ABORTED;
                 removeParticipatedTransaction(participatedTxnId);
             } else {
                 // Call prepare on the local resource manager
@@ -65,11 +65,11 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                     res.statusCode = 200;
                     txn.state = TransactionState.PREPARED;
                     //PrepareResponse prepareRes = {message:"read-only"};
-                    prepareRes.message = "prepared";
+                    prepareRes.message = OUTCOME_PREPARED;
                     log:printInfo("Prepared transaction: " + transactionId);
                 } else {
                     res.statusCode = 200;
-                    prepareRes.message = "aborted";
+                    prepareRes.message = OUTCOME_ABORTED;
                     txn.state = TransactionState.ABORTED;
                     removeParticipatedTransaction(participatedTxnId);
                     log:printInfo("Aborted transaction: " + transactionId);
@@ -78,10 +78,11 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         }
         json j =? <json>prepareRes;
         res.setJsonPayload(j);
-        http:HttpConnectorError connErr = conn -> respond(res);
-        match connErr {
-            error err => log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
-                                             " failed", err);
+        var resResult = conn -> respond(res);
+        match resResult {
+            http:HttpConnectorError err => log:printErrorCause("Sending response for prepare request for transaction " +
+                                                               transactionId + " failed", err);
+            null => return;
         }
     }
 
@@ -111,7 +112,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             notifyRes.message = "Transaction-Unknown";
         } else {
             TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
-            if (notifyReq.message == "commit") {
+            if (notifyReq.message == COMMAND_COMMIT) {
                 if (txn.state != TransactionState.PREPARED) {
                     res.statusCode = 400;
                     notifyRes.message = "Not-Prepared";
@@ -128,17 +129,17 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                         notifyRes.message = "Failed-EOT";
                     }
                 }
-            } else if (notifyReq.message == "abort") {
+            } else if (notifyReq.message == COMMAND_ABORT) {
                 // Notify abort to the resource manager
                 boolean abortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
                 if (abortSuccessful) {
                     res.statusCode = 200;
-                    notifyRes.message = "Aborted";
+                    notifyRes.message = OUTCOME_ABORTED;
                     txn.state = TransactionState.ABORTED;
                 } else {
                     res.statusCode = 500;
                     log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
-                    notifyRes.message = "Failed-EOT";
+                    notifyRes.message = OUTCOME_FAILED_EOT;
                 }
             }
             removeParticipatedTransaction(participatedTxnId);
@@ -149,6 +150,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         match connErr {
             error err => log:printErrorCause("Sending response for notify request for transaction " + transactionId +
                                              " failed", err);
+            null => return;
         }
     }
 }

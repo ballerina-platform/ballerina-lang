@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/util;
 
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
@@ -11,8 +12,7 @@ function toString (json msg) returns (string) {
 }
 
 function testParse (string jsonStr) returns (json | error) {
-    var j = <json> jsonStr;
-    return j;
+    return util:parseJson(jsonStr);
 }
 
 function testGetKeys () returns (string[], string[], string[], string[]) {
@@ -59,8 +59,7 @@ function testToXMLWithOptions (json msg) returns (xml | error) {
 
 function testStringToJSONConversion() returns (json | error) {
     string s = "{\"foo\": \"bar\"}";
-    var j = <json> s;
-    return j;
+    return util:parseJson(s);
 }
 
 function testJSONArrayToJsonAssignment() returns (json) {

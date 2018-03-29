@@ -1,9 +1,9 @@
 $ ballerina run xml-functions.bal
-# Type of the XML.
+# Type of the XML element.
 comment
-# Name of the XML.
+# Name of the XML element.
 name
-# Text content of the XML.
+# Text content of the XML element.
 Book1
 # Is the XML emtpy?
 false

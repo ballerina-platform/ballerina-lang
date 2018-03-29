@@ -42,7 +42,7 @@ public struct FailoverConnectorError {
 }
 
 // Represents inferred failover configurations passed to Failover connector.
-struct FailoverInferredConfig {
+public struct FailoverInferredConfig {
     HttpClient[] failoverClientsArray;
     boolean[] failoverCodesIndex;
     int failoverInterval;

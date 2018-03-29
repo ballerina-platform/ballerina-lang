@@ -65,12 +65,19 @@ public class AuthzHandlerTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for extracting invalid basic auth header value")
-    public void testExtractInvalidBasicAuthHeaderValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExtractInvalidBasicAuthHeaderValue");
+    @Test(description = "Test case for authorization success with multiple scopes")
+    public void testHandleAuthzWithMultipleScopes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleAuthzWithMultipleScopes");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for extracting non-existing basic auth header value")
+    public void testNonExistingBasicAuthHeaderValue() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistingBasicAuthHeaderValue");
         Assert.assertTrue(returns != null);
         // basic auth header should be null
-        Assert.assertFalse(returns[0].stringValue().isEmpty());
+        Assert.assertEquals(returns[0], null);
     }
 
     @Test(description = "Test case for extracting basic auth header value")

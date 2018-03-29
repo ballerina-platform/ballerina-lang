@@ -68,6 +68,12 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-trace-jar/META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -185,6 +191,18 @@
                 <include>io.ballerina.messaging:broker-coordination</include>
                 <include>com.google.guava:guava</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
+
+                <!-- Observability Dependencies -->
+                <include>org.ballerinalang:ballerina-observe:jar</include>
+                <include>org.ballerinalang:ballerina-trace:jar</include>
+                <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
+                <include>io.opentracing:opentracing-api</include>
+                <include>io.opentracing:opentracing-util</include>
+                <include>com.uber.jaeger:jaeger-core</include>
+                <include>com.uber.jaeger:jaeger-thrift</include>
+                <include>org.apache.thrift:libthrift</include>
+                <include>com.squareup.okhttp3:okhttp</include>
+                <include>com.squareup.okio:okio</include>
 
                 <!-- Siddhi Dependencies -->
                 <include>org.ballerinalang:siddhi-core:jar</include>

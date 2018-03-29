@@ -103,11 +103,11 @@ class EditableText extends React.Component {
 
         // This takes the label to left so that when the textInput is rendered over it
         // it does not make it look like the text just jumped to the right
-        x += this.inputStyles.borderWidth + this.inputStyles.paddingLeft;
+        // x += this.inputStyles.borderWidth + this.inputStyles.paddingLeft;
 
         const textProps = { x, y, onClick };
         textProps.style = {
-            dominantBaseline: 'central',
+            dominantBaseline: 'left',
         };
 
         return (

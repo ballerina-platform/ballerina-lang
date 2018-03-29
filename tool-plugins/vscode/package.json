@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": " Ballerina is a flexible, powerful, beautiful programming language designed for integration",
-    "version": "0.964.1-SNAPSHOT",
+    "version": "0.970.0-alpha1-SNAPSHOT",
     "publisher": "WSO2",
     "repository": {
         "type": "git",
@@ -50,6 +50,13 @@
                     ],
                     "default": null,
                     "description": "Specifies the path to the ballerina sdk"
+                },
+                "ballerina.showLSErrors": {
+                    "type": [
+                        "boolean"
+                    ],
+                    "default": false,
+                    "description": "If set to true the language server's error log will be printed in the plugins console"
                 }
             }
         },

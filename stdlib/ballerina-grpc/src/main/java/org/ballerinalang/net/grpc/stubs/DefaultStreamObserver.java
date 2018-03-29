@@ -86,7 +86,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             signatureParams[0] = requestParam;
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(resource, callback, null, signatureParams);
+        Executor.submit(resource, callback, null, null, signatureParams);
     }
     
     @Override
@@ -109,7 +109,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[0] = errorStruct;
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(onError, callback, null, signatureParams);
+        Executor.submit(onError, callback, null, null, signatureParams);
     }
     
     @Override
@@ -123,7 +123,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(onCompleted, callback, null, signatureParams);
+        Executor.submit(onCompleted, callback, null, null, signatureParams);
     }
     
     private BValue getRequestParameter(Resource resource, Message requestMessage) {

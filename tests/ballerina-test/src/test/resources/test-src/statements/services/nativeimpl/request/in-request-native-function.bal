@@ -4,11 +4,9 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
 
-//Enable once the testGetContentLength is added back
-//function testGetContentLength (http:Request req) returns (int) {
-//    int length = req.getContentLength();
-//    return length;
-//}
+function testGetContentLength (http:Request req) returns (string) {
+    return req.getHeader("content-length");
+}
 
 function testAddHeader (string key, string value) returns (http:Request) {
     http:Request req = {};
@@ -27,12 +25,6 @@ function testSetHeader (string key, string value) returns (http:Request) {
 function testSetJsonPayload (json value) returns (http:Request) {
     http:Request req = {};
     req.setJsonPayload(value);
-    return req;
-}
-
-function testSetProperty (string name, string value) returns (http:Request) {
-    http:Request req = {};
-    req.setProperty(name, value);
     return req;
 }
 

@@ -49,12 +49,12 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         var clientResponse = productsService -> get(reqPath, clientRequest);
 
         match clientResponse {
-            http:Response product => {
-                _ = outboundEP -> forward(product);
-            }
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading product response");
                 return;
+            }
+            http:Response product => {
+                _ = outboundEP -> forward(product);
             }
         }
 
@@ -68,24 +68,24 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         http:Request clientRequest = {};
         var jsonReq = req.getJsonPayload();
         match jsonReq {
-            json products => {
-                clientRequest.setJsonPayload(products);
-            }
             mime:EntityError err => {
                 io:println("Error occurred while reading products payload");
                 return;
+            }
+            json products => {
+                clientRequest.setJsonPayload(products);
             }
         }
 
         http:Response clientResponse = {};
         var clientRes = productsService -> post("/productsservice", clientRequest);
         match clientRes {
-            http:Response prod => {
-                clientResponse = prod;
-            }
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading locator response");
                 return;
+            }
+            http:Response prod => {
+                clientResponse = prod;
             }
         }
         _ = outboundEP -> forward(clientResponse);
@@ -99,12 +99,12 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         http:Request clientRequest = {};
         var clientResponse = productsService -> get("/orderservice/orders", clientRequest);
         match clientResponse {
-            http:Response orders => {
-                _ = outboundEP -> forward(orders);
-            }
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading orders response");
                 return;
+            }
+            http:Response orders => {
+                _ = outboundEP -> forward(orders);
             }
         }
     }
@@ -117,12 +117,12 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         http:Request clientRequest = {};
         var clientResponse = productsService -> post("/orderservice/orders", clientRequest);
         match clientResponse {
-            http:Response orders => {
-                _ = outboundEP -> forward(orders);
-            }
             http:HttpConnectorError err => {
                 io:println("Error occurred while writing orders response");
                 return;
+            }
+            http:Response orders => {
+                _ = outboundEP -> forward(orders);
             }
         }
 
@@ -136,12 +136,12 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         http:Request clientRequest = {};
         var clientResponse = productsService -> get("/customerservice/customers", clientRequest);
         match clientResponse {
-            http:Response customer => {
-                _ = outboundEP -> forward(customer);
-            }
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading customers response");
                 return;
+            }
+            http:Response customer => {
+                _ = outboundEP -> forward(customer);
             }
         }
 
@@ -155,12 +155,12 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         http:Request clientRequest = {};
         var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
         match clientResponse {
-            http:Response customer => {
-                _ = outboundEP -> forward(customer);
-            }
             http:HttpConnectorError err => {
                 io:println("Error occurred while writing customers response");
                 return;
+            }
+            http:Response customer => {
+                _ = outboundEP -> forward(customer);
             }
         }
     }
@@ -217,18 +217,18 @@ service<http:Service> productmgt bind serviceEndpoint {
         var jsonReq = req.getJsonPayload();
 
         match jsonReq {
+            mime:EntityError err => {
+                io:println("Error occurred while reading bank locator request");
+                return;
+            }
             json prod => {
-                var productId =? <string>prod.Product.ID;
+                string productId = extractFieldValue(prod.Product.ID);
                 productsMap[productId] = prod;
                 json payload = {"Status":"Product is successfully added."};
 
                 http:Response res = {};
                 res.setJsonPayload(payload);
                 _ = outboundEP -> respond(res);
-            }
-            mime:EntityError err => {
-                io:println("Error occurred while reading bank locator request");
-                return;
             }
         }
     }
@@ -244,4 +244,15 @@ function populateSampleProducts () returns (map) {
     productsMap["123002"] = prod_3;
     io:println("Sample products are added.");
     return productsMap;
+}
+
+//Keep this until there's a simpler way to get a string value out of a json
+function extractFieldValue(json fieldValue) returns string {
+    match fieldValue {
+        int i => return "error";
+        string s => return s;
+        boolean b => return "error";
+        null  => return "error";
+        json j => return "error";
+    }
 }

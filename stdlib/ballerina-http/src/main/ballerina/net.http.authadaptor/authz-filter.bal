@@ -49,14 +49,23 @@ public function <AuthzFilter filter> terminate () {
 @Param {value:"context: FilterContext instance"}
 @Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
 public function authzRequestFilterFunc (http:Request request, http:FilterContext context) returns (http:FilterResult) {
-    // check if this resource is protected
-    string scope = getScopeForResource(context);
-    boolean authorized;
-    if (scope != "") {
-        authorized = authzHandlerChain.handle(request, scope, context.resourceName);
-    } else {
-        // if scopes are not defined, no need to authorize
+    // first check if the resource is marked to be authenticated. If not, no need to authorize.
+    // TODO: check if we can remove this once the security context is there.
+    if (!isResourceSecured(context)) {
+        // let the request pass
         return createAuthzResult(true);
+    }
+    // check if this resource is protected
+    string[]|null scopes = getScopesForResource(context);
+    boolean authorized;
+    match scopes {
+        string[] scopeNames => {
+            authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
+        }
+        null => {
+            // scopes are not defined, no need to authorize
+            return createAuthzResult(true);
+        }
     }
     return createAuthzResult(authorized);
 }
@@ -77,25 +86,16 @@ function createAuthzResult (boolean authorized) returns (http:FilterResult) {
 @Description {value:"Retrieves the scope for the resource, if any"}
 @Param {value:"context: FilterContext object"}
 @Return {value:"string: Scope name if defined, else null"}
-function getScopeForResource (http:FilterContext context) returns (string) {
-    string|null scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
+function getScopesForResource (http:FilterContext context) returns (string[]|null) {
+    string[]|null scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
                                                                       context.resourceName));
     match scope {
-        string scopeVal => {
+        string[] scopeVal => {
             return scopeVal;
         }
         any => {
             // if not found in resource level, check in service level
-            string|null serviceLevelScope = getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
-            match serviceLevelScope {
-                string scopeVal => {
-                    return scopeVal;
-                }
-                any => {
-                    // if the scope is still null, means authorization is not needed.
-                    return "";
-                }
-            }
+            return getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
         }
     }
 }
@@ -103,8 +103,8 @@ function getScopeForResource (http:FilterContext context) returns (string) {
 @Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
-@Return {value:"string: Scope name if defined, else null"}
-function getAuthzAnnotation (internal:annotationData[] annData) returns (string|null) {
+@Return {value:"string[]: array of scope name if defined, else null"}
+function getAuthzAnnotation (internal:annotationData[] annData) returns (string[]|null) {
     if (lengthof annData == 0) {
         return null;
     }
@@ -118,7 +118,7 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string|
     match authAnn {
         internal:annotationData annData1 => {
             var authConfig =? <auth:AuthConfig> annData1.value;
-            return authConfig.scope;
+            return authConfig.scopes;
         }
         any|null => {
             return null;

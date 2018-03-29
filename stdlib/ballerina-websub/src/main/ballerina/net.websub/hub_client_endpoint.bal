@@ -17,6 +17,7 @@ public struct HubClientEndpoint {
 @Field {value:"uri: The URI of the target Hub"}
 public struct HubClientEndpointConfiguration {
     string uri;
+    http:SecureSocket|null secureSocket;
     //TODO: include header, topic-resource map
 }
 
@@ -24,7 +25,7 @@ public struct HubClientEndpointConfiguration {
 @Param {value:"ep: The endpoint to be initialized"}
 @Param {value:"config: The configuration for the endpoint"}
 public function <HubClientEndpoint ep> init (HubClientEndpointConfiguration config) {
-    endpoint http:ClientEndpoint httpClientEndpoint {targets:[{uri:config.uri}]};
+    endpoint http:ClientEndpoint httpClientEndpoint {targets:[{uri:config.uri, secureSocket:config.secureSocket}]};
     ep.httpClientEndpoint = httpClientEndpoint;
     ep.config = config;
 }

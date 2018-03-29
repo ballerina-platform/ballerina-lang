@@ -25,7 +25,6 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +77,7 @@ public class HTTPServicesRegistry {
      *
      * @param service requested serviceInfo to be registered.
      */
-    public void registerService(Service service, Struct endpoint) {
+    public void registerService(Service service) {
         String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
         if (accessLogConfig != null) {
             try {
@@ -106,7 +105,7 @@ public class HTTPServicesRegistry {
         if (websocketConfig != null) {
             registerWebSocketUpgradePath(
                     WebSocketUtil.getProgramFile(httpService.getBallerinaService().getResources()[0]),
-                    websocketConfig, httpService.getBasePath(), endpoint);
+                    websocketConfig, httpService.getBasePath());
         }
 
     }
@@ -122,15 +121,13 @@ public class HTTPServicesRegistry {
         return basePath;
     }
 
-    private void registerWebSocketUpgradePath(ProgramFile programFile, Struct websocketConfig, String basePath,
-                                              Struct endpoint) {
+    private void registerWebSocketUpgradePath(ProgramFile programFile, Struct websocketConfig, String basePath) {
         String upgradePath = sanitizeBasePath(
                 websocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH));
         Value serviceType = websocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
         String uri = basePath.concat(upgradePath);
         WebSocketService service = new WebSocketService(
                 BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType));
-        service.setServiceEndpoint((BStruct) endpoint.getVMValue());
         webSocketServicesRegistry.addUpgradableServiceByName(service, uri);
     }
 

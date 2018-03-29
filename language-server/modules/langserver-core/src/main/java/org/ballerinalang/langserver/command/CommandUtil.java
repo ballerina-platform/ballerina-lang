@@ -102,8 +102,7 @@ public class CommandUtil {
                     diagnosticMessage.lastIndexOf("'"));
             LSDocument sourceDocument = new LSDocument(params.getTextDocument().getUri());
             Path openedPath = CommonUtil.getPath(sourceDocument);
-            String pkgName = TextDocumentServiceUtil.getPackageFromContent(documentManager.getFileContent(openedPath));
-            String sourceRoot = TextDocumentServiceUtil.getSourceRoot(openedPath, pkgName);
+            String sourceRoot = TextDocumentServiceUtil.getSourceRoot(openedPath);
             sourceDocument.setSourceRoot(sourceRoot);
             
             PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
