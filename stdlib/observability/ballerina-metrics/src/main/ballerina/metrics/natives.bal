@@ -72,6 +72,7 @@ public native function <Gauge gauge> value() returns (float);
 public struct Summary {
     string name;
     string description;
+    map tags;
 }
 
 @Description {value:"Create and register the summary."}
@@ -101,7 +102,7 @@ public native function <Summary summary> record(float amount);
 @Description {value: ""}
 @Param {value: "summary: "}
 @Return {value: ""}
-public native function <Summary summary> count() returns (float);
+public native function <Summary summary> count() returns (int);
 
 @Description {value: ""}
 @Field {value: "NANOSECONDS: "}

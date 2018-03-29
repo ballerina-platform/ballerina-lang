@@ -19,14 +19,20 @@
  */
 package org.ballerinalang.observe.metrics.summary;
 
+import io.micrometer.core.instrument.DistributionSummary;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.observe.metrics.Registry;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This function create and register the summary.
@@ -46,6 +52,18 @@ public class RegisterSummary extends BlockingNativeCallableUnit {
         BStruct summaryStruct = (BStruct) context.getRefArgument(0);
         String name = summaryStruct.getStringField(0);
         String description = summaryStruct.getStringField(1);
+        BMap tagsMap = (BMap) summaryStruct.getRefField(0);
 
+        if (!tagsMap.isEmpty()) {
+            List<String> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(key.toString());
+                tags.add(tagsMap.get(key).stringValue());
+            }
+            DistributionSummary.builder(name).description(description).tags(tags.toArray(new String[tags.size()]))
+                    .register(Registry.getRegistry());
+        } else {
+            DistributionSummary.builder(name).description(description).register(Registry.getRegistry());
+        }
     }
 }

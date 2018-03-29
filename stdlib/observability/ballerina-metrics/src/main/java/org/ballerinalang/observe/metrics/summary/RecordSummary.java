@@ -20,11 +20,16 @@ package org.ballerinalang.observe.metrics.summary;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.observe.metrics.Registry;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO: Class level comment.
@@ -43,7 +48,18 @@ public class RecordSummary extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct summaryStruct = (BStruct) context.getRefArgument(0);
         String name = summaryStruct.getStringField(0);
-        String description = summaryStruct.getStringField(1);
         float amount = (float) context.getFloatArgument(0);
+        BMap tagsMap = (BMap) summaryStruct.getRefField(0);
+
+        if (!tagsMap.isEmpty()) {
+            List<String> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(key.toString());
+                tags.add(tagsMap.get(key).stringValue());
+            }
+            Registry.getRegistry().summary(name, tags.toArray(new String[tags.size()])).record(amount);
+        } else {
+            Registry.getRegistry().summary(name).record(amount);
+        }
     }
 }
