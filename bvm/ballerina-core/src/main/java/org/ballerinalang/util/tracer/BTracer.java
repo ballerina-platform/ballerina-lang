@@ -18,6 +18,7 @@
 
 package org.ballerinalang.util.tracer;
 
+import io.opentracing.Span;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 
 import java.util.Collections;
@@ -36,7 +37,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_STR_TRUE;
  */
 public class BTracer {
 
-    private static final TraceManagerWrapper manager = TraceManagerWrapper.getInstance();
+    private static final TraceManager manager = TraceManager.getInstance();
 
     /**
      * {@link Map} of properties, which used to represent
@@ -62,7 +63,7 @@ public class BTracer {
     /**
      * Map of spans belongs to each open tracer.
      */
-    private Map<String, ?> spans;
+    private Map<String, Span> spans;
     /**
      * Indicate whether this is a root tracer.
      */
@@ -149,15 +150,11 @@ public class BTracer {
         return tags;
     }
 
-    public void setExecutionContext(WorkerExecutionContext executionContext) {
-        this.executionContext = executionContext;
-    }
-
-    public Map getSpans() {
+    public Map<String, Span> getSpans() {
         return spans;
     }
 
-    public void setSpans(Map<String, ?> spans) {
+    public void setSpans(Map<String, Span> spans) {
         this.spans = spans;
     }
 

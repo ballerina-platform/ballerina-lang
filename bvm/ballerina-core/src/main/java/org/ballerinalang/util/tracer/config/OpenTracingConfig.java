@@ -16,7 +16,7 @@
 *
 */
 
-package org.ballerinalang.observe.trace.config;
+package org.ballerinalang.util.tracer.config;
 
 
 import java.util.Set;

@@ -38,7 +38,7 @@ public class TraceUtil {
     }
 
     public static BTracer getParentTracer(WorkerExecutionContext ctx) {
-        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx != null) {
+        if (TraceManager.getInstance().isTraceEnabled() && ctx != null) {
             WorkerExecutionContext parent = ctx;
             do {
                 BTracer t = getTracer(parent);
@@ -59,7 +59,7 @@ public class TraceUtil {
     }
 
     public static BTracer getTracer(WorkerExecutionContext ctx) {
-        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx.localProps != null) {
+        if (TraceManager.getInstance().isTraceEnabled() && ctx.localProps != null) {
             return (BTracer) ctx.localProps.get(KEY_TRACER);
         }
         return null;

@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.util.tracer;
 
 import io.opentracing.Tracer;
-import org.ballerinalang.observe.trace.config.OpenTracingConfig;
-import org.ballerinalang.observe.trace.config.TracerConfig;
-import org.ballerinalang.observe.trace.exception.InvalidConfigurationException;
+import org.ballerinalang.util.tracer.config.OpenTracingConfig;
+import org.ballerinalang.util.tracer.config.TracerConfig;
+import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;

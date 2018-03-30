@@ -15,34 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.ballerina.testing.extension;
+package org.ballerinalang.util.tracer;
 
 import io.opentracing.Tracer;
-import io.opentracing.mock.MockTracer;
-import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
- * Tracer extension that returns an instance of Mock tracer.
+ * This is the interface that OpenTracerManager will be using to obtain the {@link Tracer} implementation.
  */
-public class BMockTracer implements OpenTracer {
+public interface OpenTracer {
 
-    private static List<MockTracer> tracerMap = new ArrayList<>();
-
-    @Override
-    public Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
-            throws InvalidConfigurationException {
-        MockTracer mockTracer = new MockTracer();
-        BMockTracer.tracerMap.add(mockTracer);
-        return mockTracer;
-    }
-
-    public static List<MockTracer> getTracerMap() {
-        return tracerMap;
-    }
+    /**
+     * Returns the specific tracer implementation of the analytics engine based
+     * on the configuration provided.
+     *
+     * @param tracerName       name of the tracer
+     * @param configProperties The configuration of the tracer
+     * @return Specific {@link Tracer} instance throws {@link InvalidConfigurationException}
+     * if the configuration or tracer name is invalid.
+     */
+    Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
+            throws InvalidConfigurationException;
 }

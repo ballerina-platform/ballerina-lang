@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.util.tracer;
 
 import io.opentracing.propagation.TextMap;
 
