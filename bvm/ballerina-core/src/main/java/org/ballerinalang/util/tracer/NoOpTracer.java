@@ -107,16 +107,6 @@ public class NoOpTracer implements Tracer {
     }
 
     @Override
-    public String getInvocationID() {
-        return null;
-    }
-
-    @Override
-    public void setInvocationID(String invocationId) {
-        //do nothing.
-    }
-
-    @Override
     public void setExecutionContext(WorkerExecutionContext executionContext) {
         //do nothing.
     }
@@ -128,11 +118,6 @@ public class NoOpTracer implements Tracer {
 
     @Override
     public void setSpans(Map<String, ?> spans) {
-        //do nothing.
-    }
-
-    @Override
-    public void generateInvocationID() {
         //do nothing.
     }
 

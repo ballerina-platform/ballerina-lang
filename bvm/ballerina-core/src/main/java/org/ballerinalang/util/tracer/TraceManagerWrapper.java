@@ -19,16 +19,13 @@
 package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.tracer.factory.BTracerFactory;
-import org.ballerinalang.util.tracer.factory.NoOpTracerFactory;
-import org.ballerinalang.util.tracer.factory.TracerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.tracer.TraceConstants.TRACER_MANAGER_CLASS;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
+import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX_LENGTH;
 
 /**
  * {@link TraceManagerWrapper} loads {@link TraceManager} implementation
@@ -39,7 +36,6 @@ import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 public class TraceManagerWrapper {
     private static final TraceManagerWrapper instance = new TraceManagerWrapper();
     private TraceManager manager;
-    private TracerFactory factory;
     private boolean enabled;
 
     private TraceManagerWrapper() {
@@ -49,9 +45,8 @@ public class TraceManagerWrapper {
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
             enabled = manager.isEnabled();
-            factory = (enabled) ? new BTracerFactory() : new NoOpTracerFactory();
-        } catch (Exception e) {
-            factory = new NoOpTracerFactory();
+        } catch (Throwable ignored) {
+            enabled = false;
         }
     }
 
@@ -59,63 +54,56 @@ public class TraceManagerWrapper {
         return instance;
     }
 
-    public static Tracer newTracer(WorkerExecutionContext ctx, boolean isClientCtx) {
-        return getInstance().factory.getTracer(ctx, isClientCtx);
-    }
-
     public boolean isTraceEnabled() {
         return enabled;
     }
 
     public void startSpan(WorkerExecutionContext ctx) {
-        Tracer aBTracer = TraceUtil.getTracer(ctx);
-        Tracer rBTracer = TraceUtil.getParentTracer(ctx.parent);
+        if (enabled) {
+            Tracer activeTracer = TraceUtil.getTracer(ctx);
+            if (activeTracer != null) {
+                Tracer parentTracer = TraceUtil.getParentTracer(ctx.parent);
 
-        String service = aBTracer.getConnectorName();
-        String resource = aBTracer.getActionName();
-        Long invocationId = Long.valueOf(aBTracer.getInvocationID());
+                String service = activeTracer.getConnectorName();
+                String resource = activeTracer.getActionName();
 
-        // get the parent spans' span context
-        rBTracer = (rBTracer.getInvocationID() != null) ? rBTracer : aBTracer;
-        Map<String, String> spanHeaders = rBTracer.getProperties().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
+                // get the parent spans' span context
+                parentTracer = (parentTracer != null) ? parentTracer : activeTracer;
+                Map<String, String> spanHeaders = parentTracer.getProperties().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
 
-        Map<String, ?> spanContext = manager.extract(removeTracePrefix(spanHeaders), service);
-        Map<String, ?> spanList = manager.startSpan(invocationId, resource, spanContext, aBTracer.getTags(), service);
-        Map<String, String> traceContextMap = manager.inject(spanList, service);
+                Map<String, ?> spanContext = manager.extract(removeTracePrefix(spanHeaders), service);
+                Map<String, ?> spanList = manager.startSpan(resource, spanContext, activeTracer.getTags(), service);
+                Map<String, String> traceContextMap = manager.inject(spanList, service);
 
-        aBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
-        aBTracer.setSpans(spanList);
+                activeTracer.getProperties().putAll(traceContextMap);
+                activeTracer.setSpans(spanList);
+            }
+        }
     }
 
     public void finishSpan(Tracer tracer) {
-        manager.finishSpan(new ArrayList<>(tracer.getSpans().values()));
-    }
-
-    public void finish(Tracer tracer) {
-        manager.finishSpan(new ArrayList<>(tracer.getSpans().values()));
+        if (enabled) {
+            manager.finishSpan(new ArrayList<>(tracer.getSpans().values()));
+        }
     }
 
     public void log(Tracer tracer, Map<String, Object> fields) {
-        manager.log(new ArrayList<>(tracer.getSpans().values()), fields);
+        if (enabled) {
+            manager.log(new ArrayList<>(tracer.getSpans().values()), fields);
+        }
     }
 
     public void addTags(Tracer tracer, Map<String, String> tags) {
-        manager.addTags(new ArrayList<>(tracer.getSpans().values()), tags);
-    }
-
-    private static Map<String, String> addTracePrefix(Map<String, String> map) {
-        return map.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> TRACE_PREFIX + e.getKey(),
-                        Map.Entry::getValue)
-                );
+        if (enabled) {
+            manager.addTags(new ArrayList<>(tracer.getSpans().values()), tags);
+        }
     }
 
     private static Map<String, String> removeTracePrefix(Map<String, String> map) {
         return map.entrySet().stream()
                 .collect(Collectors.toMap(
-                        e -> e.getKey().replaceFirst(TRACE_PREFIX, ""),
+                        e -> e.getKey().substring(TRACE_PREFIX_LENGTH),
                         Map.Entry::getValue));
     }
 

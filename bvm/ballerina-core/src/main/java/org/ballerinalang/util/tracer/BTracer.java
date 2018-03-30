@@ -166,16 +166,6 @@ public class BTracer implements Tracer {
     }
 
     @Override
-    public String getInvocationID() {
-        return getProperty(TRACE_PREFIX + INVOCATION_ID);
-    }
-
-    @Override
-    public void setInvocationID(String invocationId) {
-        addProperty(TRACE_PREFIX + INVOCATION_ID, invocationId);
-    }
-
-    @Override
     public void setExecutionContext(WorkerExecutionContext executionContext) {
         this.executionContext = executionContext;
     }
@@ -188,11 +178,6 @@ public class BTracer implements Tracer {
     @Override
     public void setSpans(Map<String, ?> spans) {
         this.spans = spans;
-    }
-
-    @Override
-    public void generateInvocationID() {
-        setInvocationID(String.valueOf(ThreadLocalRandom.current().nextLong()));
     }
 
     @Override

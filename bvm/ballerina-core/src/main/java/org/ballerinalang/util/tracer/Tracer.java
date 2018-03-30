@@ -55,17 +55,11 @@ public interface Tracer {
 
     Map<String, String> getTags();
 
-    String getInvocationID();
-
-    void setInvocationID(String invocationId);
-
     void setExecutionContext(WorkerExecutionContext executionContext);
 
     Map getSpans();
 
     void setSpans(Map<String, ?> spans);
-
-    void generateInvocationID();
 
     boolean isRoot();
 }

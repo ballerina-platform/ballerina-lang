@@ -49,4 +49,5 @@ public class TraceConstants {
     public static final String LOG_ERROR_KIND_EXCEPTION = "Exception";
     public static final String LOG_EVENT_TYPE_ERROR = "error";
 
+    public static final int TRACE_PREFIX_LENGTH = TRACE_PREFIX.length();
 }
