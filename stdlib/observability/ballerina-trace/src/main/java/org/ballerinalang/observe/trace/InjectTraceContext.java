@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -40,7 +41,8 @@ import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
         packageName = "observe",
         functionName = "injectTraceContext",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        returnType = {@ReturnType(type = TypeKind.MAP)},
+        args = @Argument(name = "traceGroup", type = TypeKind.STRING),
+        returnType = @ReturnType(type = TypeKind.MAP),
         isPublic = true
 )
 public class InjectTraceContext extends BlockingNativeCallableUnit {
@@ -53,9 +55,7 @@ public class InjectTraceContext extends BlockingNativeCallableUnit {
         Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
 
         BMap<String, BString> headerMap = new BMap<>();
-        propertiesToInject.forEach((key, value) -> {
-            headerMap.put(group + key, new BString(value));
-        });
+        propertiesToInject.forEach((key, value) -> headerMap.put(group + key, new BString(value)));
         context.setReturnValues(headerMap);
     }
 }

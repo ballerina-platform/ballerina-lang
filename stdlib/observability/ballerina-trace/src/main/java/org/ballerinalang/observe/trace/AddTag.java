@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * This function adds tags to a span.
@@ -34,8 +35,11 @@ import org.ballerinalang.natives.annotations.Receiver;
         packageName = "observe",
         functionName = "addTag",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {@Argument(name = "tagKey", type = TypeKind.STRING),
-                @Argument(name = "tagValue", type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "tagKey", type = TypeKind.STRING),
+                @Argument(name = "tagValue", type = TypeKind.STRING)
+        },
+        returnType = @ReturnType(type = TypeKind.VOID),
         isPublic = true
 )
 public class AddTag extends BlockingNativeCallableUnit {

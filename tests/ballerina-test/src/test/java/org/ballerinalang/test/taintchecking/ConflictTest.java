@@ -33,7 +33,7 @@ public class ConflictTest {
 
     // Test recursions.
 
-    @Test (enabled = false)
+    @Test
     public void testRecursion() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/recursion.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
@@ -41,7 +41,7 @@ public class ConflictTest {
                 1, 1);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testRecursionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/recursion-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
@@ -52,7 +52,7 @@ public class ConflictTest {
 
     // Test cyclic function invocations.
 
-    @Test (enabled = false)
+    @Test
     public void testCyclicCall() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/cyclic-call.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
@@ -60,11 +60,11 @@ public class ConflictTest {
                 1, 1);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testCyclicCallNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/cyclic-call-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 3);
-        BAssertUtil.validateWarning(result, 0,
+        BAssertUtil.validateError(result, 0,
                 "taint checking for 'f3' could not complete due to recursion with 'f1', add @tainted or " +
                 "@untainted to returns", 10, 12);
         BAssertUtil.validateError(result, 1,

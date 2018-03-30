@@ -231,48 +231,30 @@ public class ParserUtils {
      */
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
+        // TODO: remove once the packerina api for package listing is available
+        final String[] packageNames = {"net.http", "net.http.authadaptor", "net.http.endpoints",
+                "net.http.mock", "net.http.swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
+                "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
+                "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
+                "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
+                "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
         try {
             List<BLangPackage> builtInPackages = BallerinaPackageLoader.getBuiltinPackages();
             for (BLangPackage bLangPackage : builtInPackages) {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
+
+            CompilerContext context = BallerinaPackageLoader.prepareCompilerContext();
+            for (String packageName : packageNames) {
+                PackageID packageID = new PackageID(new Name("ballerina"),
+                        new Name(packageName), new Name("0.0.0"));
+                BLangPackage bLangPackage = BallerinaPackageLoader.getPackageById(context, packageID);
+                loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+            }
         } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
-            logger.warn("Error while loading package ballerina.builtin");
+            logger.warn("Error while loading packages");
         }
-
-        // TODO: find a way to retreive packages from different repos with new packerina changes.
-//        PackageLoader packageLoader = PackageLoader.getInstance(context);
-//        // max depth for the recursive function which search for child directories
-//        int maxDepth = 15;
-//        Set<PackageID> packages = packageLoader.listPackages(maxDepth);
-//        packages.stream().forEach(pkg -> {
-//            Name version = pkg.getPackageVersion();
-//            BLangIdentifier bLangIdentifier = new BLangIdentifier();
-//            bLangIdentifier.setValue(version.getValue());
-//
-//            BLangIdentifier orgNameNode = new BLangIdentifier();
-//            orgNameNode.setValue(pkg.getOrgName().getValue());
-//
-//            List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
-//                    .collect(Collectors.<BLangIdentifier>toList());
-//            try {
-//                // we have already loaded ballerina.builtin and ballerina.builtin.core. hence skipping loading those
-//                // packages.
-//                if (!"ballerina.builtin".equals(pkg.getName().getValue())
-//                        && !"ballerina.builtin.core".equals(pkg.getName().getValue())) {
-//                    org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
-//                            .loadAndDefinePackage(orgNameNode, pkgNameComps, bLangIdentifier);
-//                    loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
-//                }
-//            } catch (Exception e) {
-//                // Its wrong to catch java.lang.Exception. But this is temporary thing and ideally there shouldn't be
-//                // any error while loading packages.
-//                String pkgName = pkg.getNameComps().stream().map(name -> name.getValue())
-//                        .collect(Collectors.joining("."));
-//                logger.warn("Error while loading package " + pkgName);
-//            }
-//        });
         return modelPackage;
     }
 
@@ -862,15 +844,19 @@ public class ParserUtils {
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
         context.put(DiagnosticListener.class, diagnosticListener);
 
-        Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = null;
-        if ("".equals(pkgName)) {
-            Path filePath = path.getFileName();
-            if (filePath != null) {
-                bLangPackage = compiler.compile(filePath.toString());
+        try {
+            Compiler compiler = Compiler.getInstance(context);
+            if ("".equals(pkgName)) {
+                Path filePath = path.getFileName();
+                if (filePath != null) {
+                    bLangPackage = compiler.compile(filePath.toString());
+                }
+            } else {
+                bLangPackage = compiler.compile(pkgName);
             }
-        } else {
-            bLangPackage = compiler.compile(pkgName);
+        } catch (Exception e) {
+            // Ignore.
         }
         BallerinaFile bfile = new BallerinaFile();
         bfile.setBLangPackage(bLangPackage);
