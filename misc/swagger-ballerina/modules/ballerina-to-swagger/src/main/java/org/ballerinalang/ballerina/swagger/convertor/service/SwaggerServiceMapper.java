@@ -62,7 +62,7 @@ public class SwaggerServiceMapper {
     /**
      * Initializes a service parser for swagger.
      * @param httpAlias The alias for ballerina.net.http package.
-     * @param swaggerAlias The alias for ballerina.net.http.swagger package.
+     * @param swaggerAlias The alias for ballerina.swagger package.
      */
     public SwaggerServiceMapper(String httpAlias, String swaggerAlias) {
         // Default object mapper is JSON mapper available in swagger utils.

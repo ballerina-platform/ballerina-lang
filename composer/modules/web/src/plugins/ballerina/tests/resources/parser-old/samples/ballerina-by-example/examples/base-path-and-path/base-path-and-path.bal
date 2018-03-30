@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/doc;
 
 @doc:Description {value:"BasePath attribute associates a path to the service."}

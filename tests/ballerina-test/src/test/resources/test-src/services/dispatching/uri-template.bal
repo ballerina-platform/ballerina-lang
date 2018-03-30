@@ -1,6 +1,6 @@
 import ballerina/io;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http.mock;
 
 endpoint mock:NonListeningServiceEndpoint testEP {
     port:9090

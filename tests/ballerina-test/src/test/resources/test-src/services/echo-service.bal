@@ -1,6 +1,6 @@
 import ballerina/mime;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http.mock;
 
 const string constPath = getConstPath();
 

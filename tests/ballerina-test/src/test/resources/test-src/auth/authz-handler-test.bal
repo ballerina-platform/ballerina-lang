@@ -1,5 +1,5 @@
-import ballerina/net.http.authadaptor;
-import ballerina/net.http;
+import ballerina/http;
+import ballerina/http;
 import ballerina/mime;
 
 function testHandleHttpAuthzFailure () returns (boolean) {

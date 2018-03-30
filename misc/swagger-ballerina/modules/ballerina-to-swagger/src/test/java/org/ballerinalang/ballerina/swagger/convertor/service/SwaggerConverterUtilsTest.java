@@ -28,8 +28,8 @@ import java.io.IOException;
 public class SwaggerConverterUtilsTest {
     //Sample Ballerina Service definitions to be used for tests.
     private static String sampleBallerinaServiceString = "\n" +
-            "import ballerina/net.http;\n" +
-            "import ballerina/net.http.swagger;\n" +
+            "import ballerina/http;\n" +
+            "import ballerina/swagger;\n" +
             "\n" +
             "\n" +
             "endpoint http:ServiceEndpoint ep0 {\n" +

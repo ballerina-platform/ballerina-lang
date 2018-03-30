@@ -70,7 +70,7 @@ public class SwaggerResourceMapper {
      * Initializes a resource parser for swagger.
      * @param swagger The swagger definition.
      * @param httpAlias The alias for ballerina.net.http package.
-     * @param swaggerAlias The alias for ballerina.net.http.swagger package.
+     * @param swaggerAlias The alias for ballerina.swagger package.
      */
     SwaggerResourceMapper(Swagger swagger, String httpAlias, String swaggerAlias) {
         this.httpAlias = httpAlias;

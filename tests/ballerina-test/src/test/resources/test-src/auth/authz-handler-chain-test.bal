@@ -1,6 +1,6 @@
-import ballerina/net.http.authadaptor;
+import ballerina/http;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 function testCreateAuthzHandlerChain () returns (authadaptor:AuthzHandlerChain) {
     authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();

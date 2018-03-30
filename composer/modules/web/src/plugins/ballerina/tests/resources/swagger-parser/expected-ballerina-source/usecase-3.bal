@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.swagger;
+import ballerina/http;
+import ballerina/swagger;
 @swagger:ServiceInfo {
     title:"Swagger Petstore",
     license:

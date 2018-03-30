@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint serviceEndpoint {
     port:9090

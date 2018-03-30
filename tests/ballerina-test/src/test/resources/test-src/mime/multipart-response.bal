@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http.mock;
 import ballerina/mime;
 import ballerina/file;
 

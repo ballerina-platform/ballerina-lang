@@ -2,8 +2,8 @@ import ballerina/mime;
 import ballerina/log;
 import ballerina/file;
 import ballerina/io;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http.mock;
 
 function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
