@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.format.DateTimeParseException;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
@@ -38,7 +40,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 @JavaSPIService("org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider")
 public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
-    private static final String PROMETHEUS_CONFIG_TABLE = CONFIG_TABLE_METRICS + "prometheus";
+    private static final String PROMETHEUS_CONFIG_TABLE = CONFIG_TABLE_METRICS + ".prometheus";
     private static final String PROMETHEUS_ENABLED = PROMETHEUS_CONFIG_TABLE + ".enabled";
     private static final String PROMETHEUS_PORT = PROMETHEUS_CONFIG_TABLE + ".port";
     private static final int DEFAULT_PORT = 9797;
@@ -77,6 +79,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
     private static class BallerinaPrometheusConfig implements PrometheusConfig {
         private final ConfigRegistry configRegistry;
+        private final PrintStream consoleErr = System.err;
 
         public BallerinaPrometheusConfig() {
             configRegistry = ConfigRegistry.getInstance();
@@ -85,6 +88,21 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
         @Override
         public String prefix() {
             return PROMETHEUS_CONFIG_TABLE;
+        }
+
+        @Override
+        public Duration step() {
+            String v = get(prefix() + ".step");
+            Duration step = null;
+            if (v != null) {
+                try {
+                    step = Duration.parse(v);
+                } catch (DateTimeParseException e) {
+                    step = null;
+                    consoleErr.println("ballerina: error parsing duration for Prometheus step configuration");
+                }
+            }
+            return step != null ? step : Duration.ofMinutes(1);
         }
 
         @Override
