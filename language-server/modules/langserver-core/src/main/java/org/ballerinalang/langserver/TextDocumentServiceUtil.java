@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,7 +79,7 @@ public class TextDocumentServiceUtil {
     }
 
     /**
-     * Find project root directory
+     * Find project root directory.
      *
      * @param parentDir current parent directory
      * @return {@link String} project root | null
