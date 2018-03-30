@@ -65,6 +65,15 @@ public class BallerinaTracingObserver implements BallerinaObserver {
     }
 
     @Override
+    public void stopServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+        stopObservation(observerContext, executionContext);
+    }
+
+    @Override
+    public void stopClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+        stopObservation(observerContext, executionContext);
+    }
+
     public void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
         BTracer tracer = TraceUtil.getTracer(executionContext);
         if (tracer != null) {
@@ -80,5 +89,4 @@ public class BallerinaTracingObserver implements BallerinaObserver {
             TraceUtil.finishTraceSpan(tracer);
         }
     }
-
 }

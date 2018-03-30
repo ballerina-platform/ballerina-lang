@@ -54,6 +54,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ENDPOINT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -114,8 +115,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             bValues[1] = inRequest;
             WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
-            ObserverContext ctx = ObservabilityUtils.startServerObservation(onUpgradeResource.getServiceName(),
-                    onUpgradeResource.getName(), null);
+            ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
+                    onUpgradeResource.getServiceName(), onUpgradeResource.getName(), null);
             Map<String, String> httpHeaders = new HashMap<>();
             upgradeHeaders.entrySet().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
             ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);

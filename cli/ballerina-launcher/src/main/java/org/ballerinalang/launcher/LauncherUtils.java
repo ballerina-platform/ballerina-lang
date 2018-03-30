@@ -102,11 +102,13 @@ public class LauncherUtils {
                     "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
         }
 
+        boolean runServicesOrNoMainEP = runServices || !programFile.isMainEPAvailable();
+
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServices));
+        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOrNoMainEP));
 
-        if (runServices || !programFile.isMainEPAvailable()) {
+        if (runServicesOrNoMainEP) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
             }
@@ -115,7 +117,7 @@ public class LauncherUtils {
             runMain(programFile, args);
         }
 
-        listeners.forEach(listener -> listener.afterRunProgram(runServices));
+        listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {

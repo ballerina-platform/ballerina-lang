@@ -41,11 +41,19 @@ public interface BallerinaObserver {
     void startClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
 
     /**
-     * Stop observing server/client execution code.
+     * Stop observing server execution code.
      *
      * @param observerContext  The {@link ObserverContext}
      * @param executionContext The {@link WorkerExecutionContext}
      */
-    void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
+    void stopServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
+
+    /**
+     * Stop observing client execution code.
+     *
+     * @param observerContext  The {@link ObserverContext}
+     * @param executionContext The {@link WorkerExecutionContext}
+     */
+    void stopClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
 
 }

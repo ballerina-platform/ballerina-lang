@@ -31,6 +31,9 @@ public class ObservabilityConstants {
 
     public static final String KEY_OBSERVER_CONTEXT = "__observer_context__";
 
+    public static final String SERVER_CONNECTOR_HTTP = "http";
+    public static final String SERVER_CONNECTOR_WEBSOCKET = "ws";
+
     public static final String TAG_KEY_HTTP_METHOD = "http.method";
     public static final String TAG_KEY_HTTP_URL = "http.url";
     public static final String TAG_KEY_PROTOCOL = "protocol";
