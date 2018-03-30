@@ -217,7 +217,7 @@ function testSetJsonAndGetByteChannel (json jsonContent) returns io:ByteChannel 
     return entity.getByteChannel();
 }
 
-function testGetTextDataSource (io:ByteChannel byteChannel) returns string | null | mime:EntityError {
+function testGetTextDataSource (io:ByteChannel byteChannel) returns string | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     //Consume byte channel externally
@@ -260,8 +260,8 @@ service<http:Service> echo bind mockEP {
         http:Response response = {};
         mime:Entity responseEntity = {};
         match request.getByteChannel() {
+            http:PayloadError err => log:printInfo("invalid value");
             io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
-            mime:EntityError err => log:printInfo("invalid value");
         }
         response.setEntity(responseEntity);
         _ = client -> respond(response);
