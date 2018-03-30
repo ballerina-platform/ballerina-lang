@@ -41,7 +41,7 @@ public class BallerinaTracingObserver implements BallerinaObserver {
 
     @Override
     public void startServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        Tracer tracer = TraceManagerWrapper.newTracer(executionContext, false);
+        BTracer tracer = new BTracer(executionContext, false);
         tracer.setConnectorName(observerContext.getServiceName());
         tracer.setActionName(observerContext.getResourceName());
         Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
@@ -50,23 +50,14 @@ public class BallerinaTracingObserver implements BallerinaObserver {
                     .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
                     .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
         }
-        tracer.generateInvocationID();
         TraceUtil.setTracer(executionContext, tracer);
         tracer.startSpan();
     }
 
     @Override
     public void startClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        Tracer root = TraceUtil.getParentTracer(executionContext);
-        Tracer active = TraceManagerWrapper.newTracer(executionContext, true);
+        BTracer active = new BTracer(executionContext, true);
         TraceUtil.setTracer(executionContext, active);
-
-        if (root.getInvocationID() == null) {
-            active.generateInvocationID();
-        } else {
-            active.setInvocationID(root.getInvocationID());
-        }
-
         active.setConnectorName(observerContext.getConnectorName());
         active.setActionName(observerContext.getActionName());
         observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, active.getProperties());
@@ -83,18 +74,19 @@ public class BallerinaTracingObserver implements BallerinaObserver {
         stopObservation(observerContext, executionContext);
     }
 
-    private void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        Tracer tracer = TraceUtil.getTracer(executionContext);
-        BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
-        if (error != null) {
-            Map<String, Object> logProps = new HashMap<>();
-            logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
-            logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
-            logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
-            tracer.logError(logProps);
+    public void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+        BTracer tracer = TraceUtil.getTracer(executionContext);
+        if (tracer != null) {
+            BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
+            if (error != null) {
+                Map<String, Object> logProps = new HashMap<>();
+                logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
+                logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
+                logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
+                tracer.logError(logProps);
+            }
+            tracer.addTags(observerContext.getTags());
+            TraceUtil.finishTraceSpan(tracer);
         }
-        tracer.addTags(observerContext.getTags());
-        TraceUtil.finishTraceSpan(tracer);
     }
-
 }

@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -37,9 +36,6 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.tracer.TraceManagerWrapper;
-import org.ballerinalang.util.tracer.TraceUtil;
-import org.ballerinalang.util.tracer.Tracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.io.PrintStream;

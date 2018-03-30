@@ -90,7 +90,7 @@ public class OpenTracerBallerinaWrapper {
      * @param spanId the span Id of the span to be injected
      * @return the map carrier holding the span context
      */
-    public Map<String, String> inject(String spanId) {
+    public Map<String, String> inject(String prefix, String spanId) {
         if (enabled) {
             Map<String, String> carrierMap = new HashMap<>();
             Map<String, Span> activeSpanMap = spanStore.getSpan(spanId);
@@ -99,7 +99,7 @@ public class OpenTracerBallerinaWrapper {
                 Tracer tracer = tracers.get(activeSpanEntry.getKey());
                 if (tracer != null && activeSpanEntry.getValue() != null) {
                     tracer.inject(activeSpanEntry.getValue().context(),
-                            Format.Builtin.HTTP_HEADERS, new RequestInjector(carrierMap));
+                            Format.Builtin.HTTP_HEADERS, new RequestInjector(prefix, carrierMap));
                 }
             }
             return carrierMap;

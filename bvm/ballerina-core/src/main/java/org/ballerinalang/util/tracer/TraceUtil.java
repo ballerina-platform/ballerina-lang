@@ -18,19 +18,11 @@
 
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BStruct;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_TRACER;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
 
 /**
  * Utility call to perform trace related functions.
@@ -41,34 +33,35 @@ public class TraceUtil {
     private TraceUtil() {
     }
 
-    public static void finishTraceSpan(Tracer tracer) {
+    public static void finishTraceSpan(BTracer tracer) {
         tracer.finishSpan();
     }
 
-    public static Tracer getParentTracer(WorkerExecutionContext ctx) {
+    public static BTracer getParentTracer(WorkerExecutionContext ctx) {
         if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx != null) {
             WorkerExecutionContext parent = ctx;
             do {
-                if (getTracer(parent).getInvocationID() != null) {
-                    return getTracer(parent);
+                BTracer t = getTracer(parent);
+                if (t != null) {
+                    return t;
                 }
                 parent = parent.parent;
             } while (parent != null);
         }
-        return NoOpTracer.getInstance();
+        return null;
     }
 
-    public static void setTracer(WorkerExecutionContext ctx, Tracer tracer) {
+    public static void setTracer(WorkerExecutionContext ctx, BTracer tracer) {
         if (ctx.localProps == null) {
             ctx.localProps = new HashMap<>();
         }
         ctx.localProps.put(KEY_TRACER, tracer);
     }
 
-    public static Tracer getTracer(WorkerExecutionContext ctx) {
+    public static BTracer getTracer(WorkerExecutionContext ctx) {
         if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx.localProps != null) {
-            return (Tracer) ctx.localProps.getOrDefault(KEY_TRACER, NoOpTracer.getInstance());
+            return (BTracer) ctx.localProps.get(KEY_TRACER);
         }
-        return NoOpTracer.getInstance();
+        return null;
     }
 }

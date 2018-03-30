@@ -29,7 +29,6 @@ public class TraceConstants {
     }
 
     static final String TRACER_MANAGER_CLASS = "org.ballerinalang.observe.trace.OpenTracerManager";
-    static final String INVOCATION_ID = "invocationId";
     static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
     static final String DEFAULT_ACTION_NAME = "BallerinaAction";
     public static final String TRACE_PREFIX = "trace___";
@@ -49,4 +48,5 @@ public class TraceConstants {
     public static final String LOG_ERROR_KIND_EXCEPTION = "Exception";
     public static final String LOG_EVENT_TYPE_ERROR = "error";
 
+    public static final int TRACE_PREFIX_LENGTH = TRACE_PREFIX.length();
 }
