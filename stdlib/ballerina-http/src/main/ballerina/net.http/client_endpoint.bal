@@ -60,6 +60,7 @@ public struct TargetService {
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
 @Field {value:"cacheConfig: HTTP caching related configurations"}
+@Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
     int endpointTimeout;
@@ -75,6 +76,7 @@ public struct ClientEndpointConfiguration {
     TargetService[] targets;
     string|FailoverConfig lbMode;
     CacheConfig cacheConfig;
+    string acceptEncoding;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -88,6 +90,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.keepAlive = true;
     config.lbMode = ROUND_ROBIN;
     config.cacheConfig = {};
+    config.acceptEncoding = "auto";
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
