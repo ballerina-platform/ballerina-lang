@@ -91,27 +91,15 @@ public class InitHandler {
     private static void createSrcFolder(Path projectPath, List<SrcFile> srcFiles) throws IOException {
         if (null != srcFiles && srcFiles.size() > 0) {
             for (SrcFile srcFile : srcFiles) {
-                if (srcFile.getSrcFileType() == SrcFile.SrcFileType.MAIN) {
-                    // Creating main function file.
-                    Path srcFilePath = Paths.get(projectPath.toString() + File.separator + srcFile.getName());
-                    if (!Files.exists(srcFilePath)) {
-                        Files.createFile(srcFilePath);
-                        // Writing content.
-                        writeContent(srcFilePath, srcFile.getContent());
-                    }
-                } else if (srcFile.getSrcFileType() == SrcFile.SrcFileType.SERVICE) {
-                    // Creating package directory.
-                    Path packagePath = Paths.get(projectPath.toString() + File.separator + srcFile.getName());
+                Path packagePath = projectPath.resolve(srcFile.getName());
+                if (!Files.exists(packagePath)) {
                     Files.createDirectory(packagePath);
-                    
-                    // Creating service file.
-                    Path servicesBalFile = Paths.get(packagePath.toString() + File.separator + "services.bal");
-                    if (!Files.exists(servicesBalFile)) {
-                        Files.createFile(servicesBalFile);
-    
-                        // Writing content.
-                        writeContent(servicesBalFile, srcFile.getContent());
-                    }
+                }
+
+                Path srcFilePath = packagePath.resolve(srcFile.getSrcFileType().getFileName());
+                if (!Files.exists(srcFilePath)) {
+                    Files.createFile(srcFilePath);
+                    writeContent(srcFilePath, srcFile.getContent());
                 }
             }
         }
@@ -123,8 +111,8 @@ public class InitHandler {
      * @throws IOException If file write exception occurs.
      */
     private static void createIgnoreFiles(Path projectPath) throws IOException {
-        Path gitIgnorePath = Paths.get(projectPath.toString() + File.separator + ".gitignore");
-        Path svnIgnorePath = Paths.get(projectPath.toString() + File.separator + ".svnignore");
+        Path gitIgnorePath = projectPath.resolve(".gitignore");
+        Path svnIgnorePath = projectPath.resolve(".svnignore");
         if (Files.exists(gitIgnorePath)) {
             writeIgnoreFileContent(gitIgnorePath);
         } else if (Files.exists(svnIgnorePath)) {
@@ -176,7 +164,7 @@ public class InitHandler {
         if (null != manifest.getName() && !manifest.getName().isEmpty()) {
             manifestContent.append("org-name = \"");
             manifestContent.append(manifest.getName());
-            manifestContent.append("\"\n\n");
+            manifestContent.append("\"\n");
         }
         
         if (null != manifest.getVersion() && !manifest.getVersion().isEmpty()) {

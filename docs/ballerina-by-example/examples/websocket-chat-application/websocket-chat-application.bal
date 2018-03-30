@@ -8,46 +8,38 @@ endpoint http:ServiceEndpoint ep {
 };
 
 @http:WebSocketServiceConfig {
-    basePath:"/chat"
+    basePath:"/chat/{name}"
 }
 service<http:WebSocketService> ChatApp bind ep {
     string msg;
     map<http:WebSocketConnector> consMap = {};
-    onUpgrade (endpoint ep, http:Request req) {
+    onUpgrade (endpoint conn, http:Request req, string name) {
         var params = req.getQueryParams();
-        string name = untaint <string>params.name;
-        if (name != null) {
-            ep.getClient().attributes[NAME] = name;
-            msg = string `{{name}} connected to chat`;
-        } else {
-            error err = {message:"Please enter a name"};
-            throw err;
-        }
+        conn.attributes[NAME] = name;
+        msg = string `{{untaint name}} connected to chat`;
         string age = untaint <string>params.age;
 
         if (age != null) {
-            ep.getClient().attributes[AGE] = age;
-            msg = string `{{name}} with age {{age}} connected to chat`;
+            conn.attributes[AGE] = age;
+            msg = string `{{untaint name}} with age {{age}} connected to chat`;
         }
 
     }
-    onOpen (endpoint ep) {
+    onOpen (endpoint conn) {
         io:println(msg);
-        var conn = ep.getClient();
-        consMap[conn.id] = conn;
+        consMap[conn.id] = conn.getClient();
         broadcast(consMap, msg);
     }
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
-        msg = untaint string `{{untaint <string>ep.getClient().attributes[NAME]}}: {{frame.text}}`;
+    onTextMessage (endpoint conn, http:TextFrame frame) {
+        msg = untaint string `{{untaint <string>conn.attributes[NAME]}}: {{frame.text}}`;
         io:println(msg);
         broadcast(consMap, msg);
     }
 
-    onClose (endpoint ep, http:CloseFrame frame) {
-        var con = ep.getClient();
-        msg = string `{{untaint <string>ep.getClient().attributes[NAME]}} left the chat`;
-        _ = consMap.remove(con.id);
+    onClose (endpoint conn, http:CloseFrame frame) {
+        msg = string `{{untaint <string>conn.attributes[NAME]}} left the chat`;
+        _ = consMap.remove(conn.id);
         broadcast(consMap, msg);
     }
 }
