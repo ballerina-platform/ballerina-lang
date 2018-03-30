@@ -410,3 +410,26 @@ function testSimpleNestedTransactionAbort () returns (string) {
     }
     return a;
 }
+
+
+function testValidReturn () returns (string) {
+    string a = "start ";
+    int i = 0;
+    transaction with retries=4 {
+        a = a + " inOuterTxstart ";
+        transaction {
+            a = a + " inInnerTxstart ";
+            if (i == 0) {
+                a = a + foo();
+            }
+            a = a + " endInnerTx";
+        }
+        a = a + foo();
+        a = a + " endOuterTx";
+    }
+    return a;
+}
+
+function foo() returns (string) {
+    return " foo";
+}

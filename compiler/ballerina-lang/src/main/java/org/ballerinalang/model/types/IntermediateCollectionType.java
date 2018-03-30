@@ -17,15 +17,13 @@
  */
 package org.ballerinalang.model.types;
 
-import java.util.List;
-
 /**
- * {@code {@link TupleCollectionType }} represents the type of an intermediate Collection returned by an iterable
+ * {@code {@link IntermediateCollectionType }} represents the type of an intermediate Collection returned by an iterable
  * operation.
  *
  * @since 0.961.0
  */
-public interface TupleCollectionType extends Type {
+public interface IntermediateCollectionType extends Type {
 
-    List<? extends Type> getTupleTypes();
+    TupleType getTupleType();
 }
