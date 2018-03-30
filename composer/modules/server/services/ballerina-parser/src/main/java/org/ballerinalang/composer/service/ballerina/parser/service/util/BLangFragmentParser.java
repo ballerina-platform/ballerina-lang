@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**

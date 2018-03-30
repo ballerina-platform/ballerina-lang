@@ -25,29 +25,13 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
-
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
 import org.ballerinalang.code.generator.model.ClientContextHolder;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
-import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
-import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.TopLevelNode;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * <p>This class generates Service definitions, clients or connectors for a provided ballerina service.</p>
@@ -55,7 +39,7 @@ import java.util.Map;
 public class CodeGenerator {
 
     /**
-     * Generates code(client, server, connector etc) for ballerina source provided  in <code>definitionPath</code>
+     * Generates code(client, server, connector etc) for ballerina source provided  in <code>definitionPath</code>.
      * <p>Method can be used for generating OAS 3.0.0, Swagger or Ballerina Client</p>
      *
      * @param type        Output type. Following types are supported

@@ -35,9 +35,6 @@ service<http:Service> test bind mockEP {
                             entity.setText(textPayload);
                             response.setEntity(entity);
                     }
-                    int | null => {
-                        response.setStringPayload("Text payload is null");
-                    }
                 }
             }
         }
@@ -218,7 +215,6 @@ function handleContent (mime:Entity bodyPart) returns (string) {
         match payload {
             mime:EntityError err => return "Error in getting string payload";
             string textContent => return textContent;
-            any | null => return "null payload";
         }
     } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
         var payload = bodyPart.getBlob();

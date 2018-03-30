@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.TempFileIOChannel;
@@ -204,7 +203,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                return null;
+                throw new BallerinaIOException("Payload is null");
             }
             String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
             byteChannel.close();
