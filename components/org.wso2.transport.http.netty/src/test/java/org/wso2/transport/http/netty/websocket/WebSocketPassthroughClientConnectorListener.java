@@ -28,7 +28,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.io.IOException;
 import javax.websocket.Session;
 
 /**
@@ -45,24 +44,16 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        try {
-            Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                    getServerSession(textMessage.getChannelSession());
-            serverSession.getBasicRemote().sendText(textMessage.getText());
-        } catch (IOException e) {
-            logger.error("IO error when sending message: " + e.getMessage());
-        }
+        Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
+                getServerSession(textMessage.getChannelSession());
+        serverSession.getAsyncRemote().sendText(textMessage.getText());
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        try {
-            Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                    getServerSession(binaryMessage.getChannelSession());
-            serverSession.getBasicRemote().sendBinary(binaryMessage.getByteBuffer());
-        } catch (IOException e) {
-            logger.error("IO error when sending message: " + e.getMessage());
-        }
+        Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
+                getServerSession(binaryMessage.getChannelSession());
+        serverSession.getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
     }
 
     @Override

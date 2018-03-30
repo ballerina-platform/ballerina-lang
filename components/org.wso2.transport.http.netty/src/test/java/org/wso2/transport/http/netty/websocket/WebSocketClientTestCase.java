@@ -75,12 +75,7 @@ public class WebSocketClientTestCase {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendText(textSent);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+                session.getAsyncRemote().sendText(textSent);
             }
 
             @Override
@@ -105,12 +100,7 @@ public class WebSocketClientTestCase {
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendBinary(bufferSent);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+                session.getAsyncRemote().sendBinary(bufferSent);
             }
 
             @Override
@@ -135,12 +125,7 @@ public class WebSocketClientTestCase {
         pingHandshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendText(PING);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+                session.getAsyncRemote().sendText(PING);
             }
 
             @Override
@@ -163,7 +148,7 @@ public class WebSocketClientTestCase {
                 try {
                     byte[] bytes = {1, 2, 3, 4, 5};
                     ByteBuffer buffer = ByteBuffer.wrap(bytes);
-                    session.getBasicRemote().sendPing(buffer);
+                    session.getAsyncRemote().sendPing(buffer);
                 } catch (IOException e) {
                     log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
@@ -189,12 +174,7 @@ public class WebSocketClientTestCase {
         handshakeFuture1.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendText(textsSent[0]);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+                session.getAsyncRemote().sendText(textsSent[0]);
             }
 
             @Override
@@ -213,13 +193,8 @@ public class WebSocketClientTestCase {
         handshakeFuture2.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                try {
-                    for (int i = 0; i < textsSent.length; i++) {
-                        session.getBasicRemote().sendText(textsSent[i]);
-                    }
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
+                for (int i = 0; i < textsSent.length; i++) {
+                    session.getAsyncRemote().sendText(textsSent[i]);
                 }
             }
 
