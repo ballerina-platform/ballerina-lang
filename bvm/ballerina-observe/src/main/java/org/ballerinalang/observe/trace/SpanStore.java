@@ -42,6 +42,10 @@ class SpanStore {
         return spans.get(spanId);
     }
 
+    Map<String, SpanContext> getSpanContext(String spanId) {
+        return spanContexts.get(spanId);
+    }
+
     Map getParent(String spanId) {
         return (spanContexts.get(spanId) == null) ? spans.get(spanId) : spanContexts.get(spanId);
     }
@@ -50,11 +54,12 @@ class SpanStore {
         spans.put(spanId, spanMap);
     }
 
-    void addSpanContext(String spanId, Map<String, SpanContext> spanContextMap) {
-        spanContexts.put(spanId, spanContextMap);
+    Map<String, Span> closeSpan(String spanId) {
+        spanContexts.remove(spanId);
+        return spans.remove(spanId);
     }
 
-    Map<String, Span> closeSpan(String spanId) {
-        return spans.remove(spanId);
+    public void addSpanContext(String spanId, Map<String, SpanContext> spanContextMap) {
+        spanContexts.put(spanId, spanContextMap);
     }
 }
