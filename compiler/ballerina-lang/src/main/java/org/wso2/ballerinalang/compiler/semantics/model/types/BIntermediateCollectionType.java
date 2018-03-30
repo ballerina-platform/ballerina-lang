@@ -16,33 +16,32 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.TupleCollectionType;
+import org.ballerinalang.model.types.IntermediateCollectionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * {@code {@link BTupleCollectionType }} represents the type of an intermediate tuple Collection returned by an
+ * {@code {@link BIntermediateCollectionType }} represents the type of an intermediate tuple Collection returned by an
  * iterable operation.
  *
  * TODO : Fix this with Tuple Type.
  *
  * @since 0.961.0
  */
-public class BTupleCollectionType extends BType implements TupleCollectionType {
+public class BIntermediateCollectionType extends BType implements IntermediateCollectionType {
 
-    public List<BType> tupleTypes;
+    public BTupleType tupleType;
 
-    public BTupleCollectionType(List<BType> tupleTypes) {
-        super(TypeTags.TUPLE_COLLECTION, null);
-        this.tupleTypes = tupleTypes;
+    public BIntermediateCollectionType(BTupleType tupleTypes) {
+        super(TypeTags.INTERMEDIATE_COLLECTION, null);
+        this.tupleType = tupleTypes;
     }
 
     @Override
-    public List<BType> getTupleTypes() {
-        return tupleTypes;
+    public BTupleType getTupleType() {
+        return tupleType;
     }
 
     @Override
@@ -57,7 +56,7 @@ public class BTupleCollectionType extends BType implements TupleCollectionType {
 
     @Override
     public String toString() {
-        return "(" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(",")) + ")";
+        return "(" + tupleType.getTupleTypes().stream().map(BType::toString).collect(Collectors.joining(",")) + ") collection";
     }
 
 }

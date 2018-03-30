@@ -25,11 +25,14 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.StatementExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -110,13 +113,30 @@ class ASTBuilderUtil {
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
 
+    private static boolean isValueType(BType type) {
+        return type.tag < TypeTags.TYPEDESC;
+    }
+
+    static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
+                                                SymbolTable symTable, Types types) {
+        if (types.isSameType(sourceType, exprToWrap.type) || !isValueType(exprToWrap.type)) {
+            // No conversion needed.
+            return exprToWrap;
+        }
+        BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        castExpr.expr = exprToWrap;
+        castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, exprToWrap.type);
+        castExpr.type = exprToWrap.type;
+        return castExpr;
+    }
+
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         final IdentifierNode funcName = createIdentifier(pos, name);
         bLangFunction.setName(funcName);
         bLangFunction.flagSet = EnumSet.of(Flag.LAMBDA);
         bLangFunction.pos = pos;
-        //Create body of the function
+        // Create body of the function
         bLangFunction.body = createBlockStmt(pos);
         return bLangFunction;
     }
@@ -140,10 +160,18 @@ class ASTBuilderUtil {
         return ifNode;
     }
 
-    static BLangForeach createForeach(DiagnosticPos pos, BLangBlockStmt target) {
+    static BLangForeach createForeach(DiagnosticPos pos,
+                                      BLangBlockStmt target,
+                                      BLangSimpleVarRef collectionVarRef,
+                                      List<BLangSimpleVarRef> varRefs,
+                                      List<BType> inputTypes) {
         final BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = pos;
         target.addStatement(foreach);
+        foreach.body = ASTBuilderUtil.createBlockStmt(pos);
+        foreach.collection = collectionVarRef;
+        foreach.varRefs.addAll(varRefs);
+        foreach.varTypes = inputTypes;
         return foreach;
     }
 

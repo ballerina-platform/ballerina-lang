@@ -1543,10 +1543,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     for (BlockingNode blockingNode : remainingBlockedNodeMap.keySet()) {
                         List<BlockedNode> blockedNodeList = remainingBlockedNodeMap.get(blockingNode);
                         for (BlockedNode blockedNode : blockedNodeList) {
-                            // TODO: Change this to an error once return parameters are annotatable
-                            //this.dlog.warning(blockedNode.blockedPos,
-                            //        DiagnosticCode.UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION,
-                            //        blockedNode.invokableNode.name.value, blockingNode.name.value);
+                            this.dlog.error(blockedNode.blockedPos,
+                                    DiagnosticCode.UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION,
+                                    blockedNode.invokableNode.name.value, blockingNode.name.value);
                         }
                     }
                     break;

@@ -50,6 +50,7 @@ struct Transaction {
     boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants;
     Protocol[] coordinatorProtocols;
+    int createdTime;
 }
 
 public struct TransactionContext {

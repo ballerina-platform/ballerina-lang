@@ -51,17 +51,17 @@ public class StructWithPrivateFieldsNegativeTest {
     public void testPrivateStructAccess1() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/structs", "private-field1");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 10);
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
         String expectedErrMsg = "attempt to refer to non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg + "'privatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, 1, "unknown type 'privatePerson'", 20, 5);
+        BAssertUtil.validateError(compileResult, 3, expectedErrMsg + "'ChildFoo'", 4, 33);
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg + "'ChildFoo'", 4, 33);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg + "'ChildFoo'", 4, 33);
-        BAssertUtil.validateError(compileResult, 6, expectedErrMsg + "'privatePerson'", 8, 13);
-        BAssertUtil.validateError(compileResult, 7, expectedErrMsg + "'privatePerson'", 12, 43);
-        BAssertUtil.validateError(compileResult, 8, expectedErrMsg + "'privatePerson'", 16, 47);
-        BAssertUtil.validateError(compileResult, 9, expectedErrMsg + "'privatePerson'", 16, 13);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg + "'privatePerson'", 8, 13);
+        BAssertUtil.validateError(compileResult, 6, expectedErrMsg + "'privatePerson'", 12, 43);
+        BAssertUtil.validateError(compileResult, 7, expectedErrMsg + "'privatePerson'", 16, 47);
+        BAssertUtil.validateError(compileResult, 8, expectedErrMsg + "'privatePerson'", 16, 13);
     }
 
     @Test(description = "Test private struct access in public functions")

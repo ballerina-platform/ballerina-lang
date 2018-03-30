@@ -34,8 +34,10 @@ import org.ballerinalang.natives.annotations.Receiver;
         packageName = "observe",
         functionName = "setBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {@Argument(name = "baggageKey", type = TypeKind.STRING),
-                @Argument(name = "baggageValue", type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "baggageKey", type = TypeKind.STRING),
+                @Argument(name = "baggageValue", type = TypeKind.STRING)
+        },
         isPublic = true
 )
 public class SetBaggageItem extends BlockingNativeCallableUnit {
