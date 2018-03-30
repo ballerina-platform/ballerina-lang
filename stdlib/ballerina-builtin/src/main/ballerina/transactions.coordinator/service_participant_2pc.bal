@@ -53,7 +53,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             res.statusCode = 404;
             prepareRes.message = "Transaction-Unknown";
         } else {
-            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+            TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
             if (txn.state == TransactionState.ABORTED) {
                 res.statusCode = 200;
                 prepareRes.message = OUTCOME_ABORTED;
@@ -111,22 +111,22 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             res.statusCode = 404;
             notifyRes.message = "Transaction-Unknown";
         } else {
-            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+            TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
             if (notifyReq.message == COMMAND_COMMIT) {
                 if (txn.state != TransactionState.PREPARED) {
                     res.statusCode = 400;
-                    notifyRes.message = "Not-Prepared";
+                    notifyRes.message = OUTCOME_NOT_PREPARED;
                 } else {
                     // Notify commit to the resource manager
                     boolean commitSuccessful = commitResourceManagers(transactionId, transactionBlockId);
                     if (commitSuccessful) {
                         res.statusCode = 200;
-                        notifyRes.message = "Committed";
+                        notifyRes.message = OUTCOME_COMMITTED;
                         txn.state = TransactionState.COMMITTED;
                     } else {
                         res.statusCode = 500;
                         log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
-                        notifyRes.message = "Failed-EOT";
+                        notifyRes.message = OUTCOME_FAILED_EOT;
                     }
                 }
             } else if (notifyReq.message == COMMAND_ABORT) {

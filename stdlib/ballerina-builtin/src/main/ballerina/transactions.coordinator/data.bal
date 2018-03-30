@@ -31,27 +31,18 @@ public enum TransactionState {
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-const string COMMAND_PREPARE = "prepare";
-const string COMMAND_COMMIT = "commit";
-const string COMMAND_ABORT = "abort";
+public const string COMMAND_PREPARE = "prepare";
+public const string COMMAND_COMMIT = "commit";
+public const string COMMAND_ABORT = "abort";
 
-const string OUTCOME_PREPARED = "prepared";
-const string OUTCOME_MIXED = "mixed";
-const string OUTCOME_ABORTED = "aborted";
-const string OUTCOME_COMMITTED = "committed";
-const string OUTCOME_HAZARD = "Hazard-Outcome";
-const string OUTCOME_FAILED_EOT = "Failed-EOT";
-const string OUTCOME_READ_ONLY = "read-only";
-
-struct Transaction {
-    string transactionId;
-    int transactionBlockId;
-    string coordinationType = "2pc";
-    boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
-    map<Participant> participants;
-    Protocol[] coordinatorProtocols;
-    int createdTime;
-}
+public const string OUTCOME_PREPARED = "prepared";
+public const string OUTCOME_NOT_PREPARED = "Not-Prepared";
+public const string OUTCOME_MIXED = "mixed";
+public const string OUTCOME_ABORTED = "aborted";
+public const string OUTCOME_COMMITTED = "committed";
+public const string OUTCOME_HAZARD = "Hazard-Outcome";
+public const string OUTCOME_FAILED_EOT = "Failed-EOT";
+public const string OUTCOME_READ_ONLY = "read-only";
 
 public struct TransactionContext {
     string contextVersion = "1.0";
@@ -93,13 +84,13 @@ public function regRequestToJson (RegistrationRequest req) returns json {
     json j;
     j.transactionId = req.transactionId;
     j.participantId = req.participantId;
-    //json[] protocols = [];
-    //foreach proto in req.participantProtocols {
-    //    json j2 = {name:proto.name, url:proto.url};
-    //    protocols[lengthof protocols - 1] = j2;
-    //}
-    //j.participantProtocols = protocols;
-    j.participantProtocols = [{name:req.participantProtocols[0].name, url:req.participantProtocols[0].url}];
+    json[] protocols = [];
+    foreach proto in req.participantProtocols {
+        json j2 = {name:proto.name, url:proto.url};
+        protocols[lengthof protocols] = j2;
+    }
+    j.participantProtocols = protocols;
+    //j.participantProtocols = [{name:req.participantProtocols[0].name, url:req.participantProtocols[0].url}];
     return j;
 }
 

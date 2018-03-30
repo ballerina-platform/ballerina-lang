@@ -31,12 +31,12 @@ string localParticipantId = util:uuid();
 documentation {
     This map is used for caching transaction that are initiated.
 }
-map<Transaction> initiatedTransactions = {};
+map<TwoPhaseCommitTransaction> initiatedTransactions = {};
 
 documentation {
     This map is used for caching transaction that are this Ballerina instance participates in.
 }
-map<Transaction> participatedTransactions = {};
+map<TwoPhaseCommitTransaction> participatedTransactions = {};
 
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
@@ -53,13 +53,12 @@ function scheduleTimer (int delay, int interval) returns boolean {
 
 function cleanupTransactions () returns error|null {
     worker w1 {
-        foreach _, txn in participatedTransactions {
-            string participatedTxnId = getParticipatedTransactionId(txn.transactionId, txn.transactionBlockId);
-            if (time:currentTime().time - txn.createdTime >= 120000) {
-                TwoPhaseCommitTransaction twopcTxn =? <TwoPhaseCommitTransaction>txn;
+        foreach _, twopcTxn in participatedTransactions {
+            string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId, twopcTxn.transactionBlockId);
+            if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TransactionState.ABORTED && twopcTxn.state != TransactionState.COMMITTED) {
                     if (twopcTxn.state != TransactionState.PREPARED) {
-                        boolean prepareSuccessful = prepareResourceManagers(txn.transactionId, txn.transactionBlockId);
+                        boolean prepareSuccessful = prepareResourceManagers(twopcTxn.transactionId, twopcTxn.transactionBlockId);
                         if (prepareSuccessful) {
                             twopcTxn.state = TransactionState.PREPARED;
                         } else {
@@ -67,7 +66,7 @@ function cleanupTransactions () returns error|null {
                         }
                     }
                     if (twopcTxn.state == TransactionState.PREPARED) {
-                        boolean commitSuccessful = commitResourceManagers(txn.transactionId, txn.transactionBlockId);
+                        boolean commitSuccessful = commitResourceManagers(twopcTxn.transactionId, twopcTxn.transactionBlockId);
                         if (commitSuccessful) {
                             twopcTxn.state = TransactionState.COMMITTED;
                         } else {
@@ -76,30 +75,29 @@ function cleanupTransactions () returns error|null {
                     }
                 }
             }
-            if (time:currentTime().time - txn.createdTime >= 600000) {
+            if (time:currentTime().time - twopcTxn.createdTime >= 600000) {
                 // We don't want dead transactions hanging around
                 removeParticipatedTransaction(participatedTxnId);
             }
         }
     }
     worker w2 {
-        foreach _, txn in initiatedTransactions {
-            if (time:currentTime().time - txn.createdTime >= 120000) {
-                TwoPhaseCommitTransaction twopcTxn =? <TwoPhaseCommitTransaction>txn;
+        foreach _, twopcTxn in initiatedTransactions {
+            if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TransactionState.ABORTED) {
                     // Commit the transaction since prepare hasn't been received
                     var result = twopcTxn.twoPhaseCommit();
                     match result {
                         string str => log:printInfo("Auto-committed initiated transaction: " +
-                                                    txn.transactionId + ". Result: " + str);
+                                                    twopcTxn.transactionId + ". Result: " + str);
                         error err => log:printErrorCause("Auto-commit of participated transaction: " +
-                                                         txn.transactionId + " failed", err);
+                                                         twopcTxn.transactionId + " failed", err);
                     }
                 }
             }
-            if (time:currentTime().time - txn.createdTime >= 600000) {
+            if (time:currentTime().time - twopcTxn.createdTime >= 600000) {
                 // We don't want dead transactions hanging around
-                removeInitiatedTransaction(txn.transactionId);
+                removeInitiatedTransaction(twopcTxn.transactionId);
             }
         }
         return null;
@@ -156,14 +154,13 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     }
 }
 
-function createNewTransaction (string coordinationType, int transactionBlockId) returns Transaction {
+function createNewTransaction (string coordinationType, int transactionBlockId) returns TwoPhaseCommitTransaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
         TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(),
                                                  transactionBlockId:transactionBlockId,
                                                  createdTime:time:currentTime().time,
                                                  coordinationType:coordinationType};
-        Transaction txn = <Transaction>twopcTxn;
-        return txn;
+        return twopcTxn;
     } else {
         error e = {message:"Unknown coordination type: " + coordinationType};
         throw e;
@@ -189,7 +186,7 @@ function createTransactionContext (string coordinationType,
         error err = {message:msg};
         return err;
     } else {
-        Transaction txn = createNewTransaction(coordinationType, transactionBlockId);
+        TwoPhaseCommitTransaction txn = createNewTransaction(coordinationType, transactionBlockId);
         string txnId = txn.transactionId;
         txn.isInitiated = true;
         initiatedTransactions[txnId] = txn;
@@ -215,7 +212,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
         error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
         return err;
     } else {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
         if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
             error err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
             return err;
@@ -252,7 +249,7 @@ function localParticipantProtocolFn (string transactionId,
     if (!participatedTransactions.hasKey(participatedTxnId)) {
         return false;
     }
-    TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+    TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
     if (protocolAction == COMMAND_PREPARE) {
         if (txn.state == TransactionState.ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
