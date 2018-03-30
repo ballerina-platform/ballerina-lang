@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -1254,6 +1255,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitFunctionPointerLoad(bLangLambdaFunction, ((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
     }
 
+    public void visit(BLangStatementExpression bLangStatementExpression) {
+        genNode(bLangStatementExpression.stmt, this.env);
+        genNode(bLangStatementExpression.expr, this.env);
+
+        emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
+                bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
+    }
 
     // private methods
 

@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,7 @@ import java.util.Set;
 public class BLangMatchExpression extends BLangExpression implements MatchExpressionNode {
 
     public BLangExpression expr;
-    public List<BLangMatchExprPatternClause> patternClauses;
+    public List<BLangMatchExprPatternClause> patternClauses = new ArrayList<>();
     public List<BType> exprTypes;
 
     @Override

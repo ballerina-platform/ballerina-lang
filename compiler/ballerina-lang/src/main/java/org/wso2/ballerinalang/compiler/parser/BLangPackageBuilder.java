@@ -2998,11 +2998,21 @@ public class BLangPackageBuilder {
         this.matchExprPatternNodeListStack.add(new ArrayList<>());
     }
 
-    public void addMatchExprPattaern(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void addMatchExprPattaern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
         BLangMatchExprPatternClause pattern = (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
         pattern.expr = (BLangExpression) this.exprNodeStack.pop();
         pattern.pos = pos;
         pattern.addWS(ws);
+        
+        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
+        var.pos = pos;
+        var.setName(this.createIdentifier(identifier));
+        var.setTypeNode(this.typeNodeStack.pop());
+        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
+        var.addWS(varDefWS);
+        pattern.variable = var;
+
         this.matchExprPatternNodeListStack.peek().add(pattern);
     }
 
@@ -3013,5 +3023,6 @@ public class BLangPackageBuilder {
         matchExpr.expr = (BLangExpression) this.exprNodeStack.pop();
         matchExpr.pos = pos;
         matchExpr.addWS(ws);
+        addExpressionNode(matchExpr);
     }
 }

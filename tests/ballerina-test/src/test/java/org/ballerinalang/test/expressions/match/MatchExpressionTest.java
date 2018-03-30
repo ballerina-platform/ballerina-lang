@@ -43,11 +43,6 @@ public class MatchExpressionTest {
     @Test
     public void testInAssignment() {
         BValue[] args = {new BInteger(20)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test1", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 15);
-
-        args = new BValue[]{new BInteger(4)};
-        results = BRunUtil.invoke(compileResult, "test1", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 5);
+        BValue[] results = BRunUtil.invoke(compileResult, "testMatchExpr");
     }
 }
