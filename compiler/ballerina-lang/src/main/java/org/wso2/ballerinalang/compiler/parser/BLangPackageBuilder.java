@@ -2137,6 +2137,12 @@ public class BLangPackageBuilder {
             attachDeprecatedNode(resourceNode);
         }
         if (hasParameters) {
+            BLangVariable firstParam = (BLangVariable) varListStack.peek().get(0);
+            if (firstParam.name.value.startsWith("$")) {
+                // This is an endpoint variable
+                Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
+                resourceNode.addWS(wsBeforeComma);
+            }
             varListStack.pop().forEach(variableNode -> {
                 ((BLangVariable) variableNode).docTag = DocTag.PARAM;
                 resourceNode.addParameter(variableNode);

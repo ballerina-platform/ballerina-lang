@@ -38,11 +38,11 @@ public struct HttpAuthzHandler {
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
 @Param {value:"req: Request instance"}
-@Param {value:"scopeName: name of the scope"}
+@Param {value:"scopes: names of the scopes"}
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
 public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
-                                                                    string scopeName, string resourceName) returns (boolean) {
+                                                            string[] scopes, string resourceName) returns (boolean) {
 
     // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
     // extract the header value
@@ -81,7 +81,7 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
         }
         any|null => {
             log:printDebug("Authz cache miss for request URL: " + resourceName);
-            boolean isAuthorized = authzChecker.check(username, scopeName);
+            boolean isAuthorized = authzChecker.check(username, scopes);
             if (isAuthorized) {
                 log:printDebug("Successfully authorized to access resource: " + resourceName);
             } else {

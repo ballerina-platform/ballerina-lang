@@ -39,15 +39,15 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 /**
  * Loads the Ballerina builtin core and builtin packages.
  */
-class BallerinaPackageLoader {
-    
+public class BallerinaPackageLoader {
+
     private static final int MAX_DEPTH = 10;
 
     /**
      * Get the Builtin Package.
      * @return {@link BLangPackage} Builtin BLang package
      */
-    static List<BLangPackage> getBuiltinPackages() {
+    public static List<BLangPackage> getBuiltinPackages() {
         List<BLangPackage> builtins = new ArrayList<>();
         CompilerContext context = prepareCompilerContext();
 
@@ -58,7 +58,7 @@ class BallerinaPackageLoader {
                 .analyze(semAnalyzer.analyze(pkgLoader
                         .loadAndDefinePackage(Names.BUILTIN_ORG.value, Names.BUILTIN_PACKAGE.getValue())));
         builtins.add(builtInPkg);
- 
+
         return builtins;
     }
 
@@ -81,14 +81,14 @@ class BallerinaPackageLoader {
      * Prepare a new compiler context.
      * @return {@link CompilerContext} Prepared compiler context
      */
-    private static CompilerContext prepareCompilerContext() {
+    public static CompilerContext prepareCompilerContext() {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, "");
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         context.put(SourceDirectory.class, new NullSourceDirectory());
-        
+
         return context;
     }
 
@@ -98,7 +98,7 @@ class BallerinaPackageLoader {
      * @param packageID             Package ID to resolve
      * @return {@link BLangPackage} Resolved BLang Package
      */
-    static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
+    public static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         return pkgLoader.loadAndDefinePackage(packageID);
     }

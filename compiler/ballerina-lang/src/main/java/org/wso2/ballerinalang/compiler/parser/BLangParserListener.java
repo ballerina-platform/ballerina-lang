@@ -1003,10 +1003,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        //TODO popping annotation attachments from type nodes temporarily, fix later.
-        boolean popAnnAttachmnt = ctx.getParent() instanceof BallerinaParser.AnnotatedTypeNameContext;
         this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx), ctx.recordLiteral() != null,
-                getCurrentPos(ctx), popAnnAttachmnt);
+                getCurrentPos(ctx), false);
     }
 
 
@@ -2018,8 +2016,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        //TODO setting annotation count 0 as parameters won't adding annotations to parameters.
-        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, 0);
+        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
     }
 
     @Override

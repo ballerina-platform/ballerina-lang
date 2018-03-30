@@ -66,6 +66,13 @@ public class TableSqlQueryTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by")
+    public void testSelectWithJoinAndWhereWithGroupBy() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupBy", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
     @Test(dependsOnGroups = "TableQueryTest")
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");

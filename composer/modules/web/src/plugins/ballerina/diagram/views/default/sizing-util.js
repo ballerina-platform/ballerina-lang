@@ -400,17 +400,15 @@ class SizingUtil {
         // here we add the public/private falg, remove and hide button width to the header.
         cmp.heading.w += viewState.titleWidth + (this.config.panel.buttonWidth * 3);
 
-        // Set the size of the connector declarations
-        const statements = node.body.statements;
-        let connectorWidth = 0;
-        if (statements instanceof Array) {
-            statements.forEach((statement) => {
-                if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                    statement.viewState.bBox.w = this.config.lifeLine.width;
-                    // add the connector width to panel body width.
-                    connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
-                    statement.viewState.bBox.h = node.viewState.components.defaultWorker.h;
-                }
+        // Set the size of the endpoint declarations
+        const endpoints = node.endpointNodes;
+        let endpointWidth = 0;
+        if (endpoints instanceof Array) {
+            endpoints.forEach((endpoint) => {
+                endpoint.viewState.bBox.w = this.config.lifeLine.width;
+                // add the endpoint width to panel body width.
+                endpointWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
+                endpoint.viewState.bBox.h = node.viewState.components.defaultWorker.h;
             });
         }
 
@@ -421,7 +419,7 @@ class SizingUtil {
         }
         // add panel gutter to panelBody
         cmp.panelBody.w = this.config.panel.body.padding.left + cmp.client.w + defaultWorkerWidth
-                        + workersWidth + connectorWidth
+                        + workersWidth + endpointWidth
                         + this.config.panel.body.padding.right;
 
         // Get the largest among component heading width and component body width.
@@ -1429,10 +1427,10 @@ class SizingUtil {
         let nodeHeight = viewState.bBox.h;
         let nodeWidth = viewState.bBox.w;
 
-        if (node.failedBody) {
-            nodeHeight += node.failedBody.viewState.components['statement-box'].h;
+        if (node.onRetryBody) {
+            nodeHeight += node.onRetryBody.viewState.components['statement-box'].h;
             nodeHeight -= this.config.compoundStatement.padding.top;
-            nodeWidth += node.failedBody.viewState.bBox.w;
+            nodeWidth += node.onRetryBody.viewState.bBox.w;
         }
 
         node.viewState.bBox.h = nodeHeight;
@@ -1606,7 +1604,7 @@ class SizingUtil {
             const viewState = node.viewState;
             viewState.bBox.h = this.config.actionInvocationStatement.height;
             viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
-            viewState.alias = 'ActionInvocationNode';
+            viewState.alias = 'InvocationNode';
         }
     }
 

@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -962,6 +963,8 @@ public class ProgramFileReader {
                 typeStack.push(new BFunctionType());
                 return index + 1;
             case 'O':
+            case 'P':
+                typeChar = chars[index];
                 index++;
                 nameIndex = index;
                 while (chars[nameIndex] != ';') {
@@ -974,7 +977,11 @@ public class ProgramFileReader {
                     index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo) - 1;
                     memberTypes.add(typeStack.pop());
                 }
-                typeStack.push(new BUnionType(memberTypes));
+                if (typeChar == 'O') {
+                    typeStack.push(new BUnionType(memberTypes));
+                } else if (typeChar == 'P') {
+                    typeStack.push(new BTupleType(memberTypes));
+                }
                 return index + 1;
             case 'N':
                 typeStack.push(BTypes.typeNull);
@@ -1056,6 +1063,7 @@ public class ProgramFileReader {
                 // TODO : Fix this for type casting.
                 return new BFunctionType();
             case 'O':
+            case 'P':
                 Stack<BType> typeStack = new Stack<BType>();
                 createBTypeFromSig(desc.toCharArray(), 0, typeStack, null);
                 return typeStack.pop();

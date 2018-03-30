@@ -28,12 +28,6 @@ function testSetJsonPayload (json value) returns (http:Request) {
     return req;
 }
 
-function testSetProperty (string name, string value) returns (http:Request) {
-    http:Request req = {};
-    req.setProperty(name, value);
-    return req;
-}
-
 function testSetStringPayload (string value) returns (http:Request) {
     http:Request req = {};
     req.setStringPayload(value);

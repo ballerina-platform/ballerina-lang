@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -74,7 +75,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(
                 ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpRequest());
-        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage, msg);
+        Map<String, String> pathParams = new HashMap<>();
+        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, pathParams, webSocketInitMessage,
+                                                                     msg);
         BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
                 wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, WEBSOCKET_ENDPOINT);
@@ -82,11 +85,12 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, serverConnector);
+        serviceEndpoint.setRefField(3, new BMap());
         serverConnector.addNativeData(WEBSOCKET_ENDPOINT, serviceEndpoint);
         Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
         BMap<String, BString> bUpgradeHeaders = new BMap<>();
         upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
-        serverConnector.setRefField(1, bUpgradeHeaders);
+        serviceEndpoint.setRefField(4, bUpgradeHeaders);
         Resource onUpgradeResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_UPGRADE);
         if (onUpgradeResource != null) {
             Semaphore semaphore = new Semaphore(0);
@@ -108,6 +112,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = serviceEndpoint;
             bValues[1] = inRequest;
+            WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
             Tracer tracer = TraceManagerWrapper.newTracer(null, false);
             upgradeHeaders.entrySet().stream()
