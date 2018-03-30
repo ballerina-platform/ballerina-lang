@@ -52,14 +52,14 @@ public class Utils {
         return returnMap;
     }
 
-    static BStruct createSpanStruct(Context context, String spanId, String serviceName,
+    public static BStruct createSpanStruct(Context context, String spanId, String serviceName,
                                     String spanName) {
         PackageInfo observePackage = context.getProgramFile().getPackageInfo("ballerina.observe");
         StructInfo spanStructInfo = observePackage.getStructInfo("Span");
         return BLangVMStructs.createBStruct(spanStructInfo, spanId, serviceName, spanName);
     }
 
-    static BStruct createSpanContextStruct(Context context, BMap spanContext) {
+    public static BStruct createSpanContextStruct(Context context, BMap spanContext) {
         PackageInfo observePackage = context.getProgramFile().getPackageInfo("ballerina.observe");
         StructInfo spanStructInfo = observePackage.getStructInfo("SpanContext");
         return BLangVMStructs.createBStruct(spanStructInfo, spanContext);
