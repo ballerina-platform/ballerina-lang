@@ -179,7 +179,7 @@ public class BLangFunctions {
             BLangVMUtils.initClientConnectorTrace(parentCtx, callableUnitInfo.attachedToType.toString(),
                     callableUnitInfo.getName());
         }
-        BLangScheduler.switchToWaitForResponse(parentCtx);
+        BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
             if (FunctionFlags.isAsync(flags)) {
@@ -467,7 +467,7 @@ public class BLangFunctions {
             AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout * 1000);
         }
         Map<String, Object> globalProps = parentCtx.globalProps;
-        BLangScheduler.switchToWaitForResponse(parentCtx);
+        BLangScheduler.workerWaitForResponse(parentCtx);
         for (int i = 1; i < workerInfos.length; i++) {
             executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[i], globalProps, false);
         }
