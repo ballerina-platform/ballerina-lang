@@ -64,6 +64,6 @@
 
     <properties>
         <maven.checkstyleplugin.excludes>**/SourceGen.java</maven.checkstyleplugin.excludes>
-        <mavan.spotbugsplugin.exclude.file>spotbugs-exclude.xml</mavan.spotbugsplugin.exclude.file>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
     </properties>
 </project>

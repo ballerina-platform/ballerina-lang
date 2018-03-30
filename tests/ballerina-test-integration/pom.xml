@@ -172,7 +172,7 @@
     </build>
     <properties>
         <!-- Path to the generated natives ballerina files temp directory -->
-        <mavan.spotbugsplugin.exclude.file>spotbugs-exclude.xml</mavan.spotbugsplugin.exclude.file>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>
             **/protobuf/java/org/ballerinalang/test/util/grpc/**,
             **/protobuf/grpc-java/org/ballerinalang/test/util/grpc/**,

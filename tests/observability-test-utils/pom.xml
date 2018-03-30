@@ -147,6 +147,6 @@
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina
         </generated.ballerina.source.directory>
-        <mavan.spotbugsplugin.exclude.file>spotbugs-exclude.xml</mavan.spotbugsplugin.exclude.file>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
     </properties>
 </project>

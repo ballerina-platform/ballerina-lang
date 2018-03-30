@@ -1310,7 +1310,7 @@
                         <xmlOutput>true</xmlOutput>
                         <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
                         <!--Exclude sources-->
-                        <excludeFilterFile>${mavan.spotbugsplugin.exclude.file}</excludeFilterFile>
+                        <excludeFilterFile>${maven.spotbugsplugin.exclude.file}</excludeFilterFile>
                     </configuration>
                     <executions>
                         <execution>
