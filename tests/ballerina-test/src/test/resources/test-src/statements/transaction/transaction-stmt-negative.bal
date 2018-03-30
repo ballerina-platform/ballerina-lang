@@ -57,3 +57,16 @@ function testNextWithinTransaction () returns (string) {
     }
     return "done";
 }
+
+function testReturnWithinTransaction () returns (string) {
+    int i = 0;
+    while (i < 5) {
+        i = i + 1;
+        transaction {
+            if (i == 2) {
+                return "ff";
+            }
+        }
+    }
+    return "done";
+}
