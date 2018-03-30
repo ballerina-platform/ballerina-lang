@@ -22,6 +22,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -29,7 +30,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
- * TODO: Class level comment.
+ * Tests for summary metric.
  */
 public class SummaryTest {
     private CompileResult compileResult;
@@ -42,8 +43,25 @@ public class SummaryTest {
 
     @Test
     public void testSummary() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSummary");
-        BInteger count = (BInteger) returns[0];
-        Assert.assertEquals(count, new BInteger(6));
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCountSummary");
+        Assert.assertEquals(returns[0], new BInteger(6));
+    }
+
+    @Test
+    public void testMaxSummary() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMaxSummary");
+        Assert.assertEquals(returns[0], new BFloat(3));
+    }
+
+    @Test
+    public void testMeanSummary() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMeanSummary");
+        Assert.assertEquals(returns[0], new BFloat(2));
+    }
+
+    @Test
+    public void testPercentileSummary() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileSummary");
+        Assert.assertNotEquals(returns[0], new BFloat(0));
     }
 }

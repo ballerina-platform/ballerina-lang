@@ -22,6 +22,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -29,7 +30,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /**
- * TODO: Class level comment.
+ * Tests for timer metric.
  */
 public class TimerTest {
     private CompileResult compileResult;
@@ -41,9 +42,26 @@ public class TimerTest {
     }
 
     @Test
-    public void testTimer() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTimer");
-        BInteger count = (BInteger) returns[0];
-        Assert.assertEquals(count, new BInteger(5));
+    public void testCountTimer() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCountTimer");
+        Assert.assertEquals(returns[0], new BInteger(5));
+    }
+
+    @Test
+    public void testMaxTimer() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMaxTimer");
+        Assert.assertEquals(returns[0], new BFloat(5));
+    }
+
+    @Test
+    public void testMeanTimer() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMeanTimer");
+        Assert.assertEquals(returns[0], new BFloat(3000));
+    }
+
+    @Test
+    public void testPercentileTimer() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileTimer");
+        Assert.assertNotEquals(returns[0], new BFloat(0));
     }
 }

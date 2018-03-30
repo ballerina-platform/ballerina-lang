@@ -21,13 +21,20 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BEnumerator;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -54,5 +61,17 @@ public class MaxTimer extends BlockingNativeCallableUnit {
 
         TimeUnit timeUnit = TimeUnitExtractor.getTimeUnit(timeUnitEnum);
 
+        if (!tagsMap.isEmpty()) {
+            List<Tag> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
+            }
+            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
+                    .timer(new MetricId(name, description, tags)).max(timeUnit)));
+
+        } else {
+            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
+                    .timer(new MetricId(name, description, null)).max(timeUnit)));
+        }
     }
 }
