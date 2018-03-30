@@ -153,7 +153,7 @@ class PanelDecorator extends React.Component {
                 key: `${this.props.model.getID()}-publicPrivateFlag-button`,
             };
 
-            staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
+            //staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
         }
         // Dynamic buttons
         const dynamicButtons = this.props.rightComponents.map((rightComponent, index) => {
@@ -305,9 +305,9 @@ class PanelDecorator extends React.Component {
         }
         let allowPublicPrivateFlag = false;
         if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
-            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model) ||
+            TreeUtils.isStruct(this.props.model) ||
             TreeUtils.isTransformer(this.props.model)) {
-            allowPublicPrivateFlag = true;
+            allowPublicPrivateFlag = this.props.model.public;
             if (this.props.model.public) {
                 publicPrivateFlagoffset = 50;
             }
@@ -360,7 +360,7 @@ class PanelDecorator extends React.Component {
                         x={bBox.x + 30}
                         y={bBox.y + (titleHeight / 2) + 4}
                         className='publicPrivateText'
-                    >{this.props.model.public ? 'public' : 'private'}</text>
+                    >public</text>
                 </g>}
                 {wsResourceDef && <g>
                     <rect
@@ -377,14 +377,14 @@ class PanelDecorator extends React.Component {
                 
                 {!wsResourceDef && !lambda && <g>
                     <rect
-                        x={titleHead}
+                        x={bBox.x + titleHeight + publicPrivateFlagoffset - 5}
                         y={bBox.y}
-                        width={titleHead}
+                        width={titleWidth.w + iconSize + 10}
                         height={titleHeight - 1}
                         className='title-bg'
                     />
                     <text
-                        x={bBox.x + 80}
+                        x={bBox.x + 30 + publicPrivateFlagoffset}
                         y={bBox.y + 22}
                         width={iconSize}
                         height={iconSize}
@@ -392,7 +392,7 @@ class PanelDecorator extends React.Component {
                         fontSize={iconSize}
                     >{ImageUtil.getCodePoint(this.props.icon)}</text>
                     <EditableText
-                        x={bBox.x + titleHeight + iconSize + 50}
+                        x={bBox.x + titleHeight + iconSize + publicPrivateFlagoffset}
                         y={bBox.y + (titleHeight / 2)}
                         width={titleWidth.w}
                         onBlur={() => {
