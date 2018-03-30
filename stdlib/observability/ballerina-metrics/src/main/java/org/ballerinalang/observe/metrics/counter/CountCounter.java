@@ -30,8 +30,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Counter;
-import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;

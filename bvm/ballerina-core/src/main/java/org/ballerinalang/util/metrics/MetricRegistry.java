@@ -157,7 +157,8 @@ public class MetricRegistry {
      * @param name the name of the metric
      */
     public void remove(String name) {
-        List<MetricId> ids = metrics.keySet().stream().filter(id -> id.getName().equals(name)).collect(Collectors.toList());
+        List<MetricId> ids = metrics.keySet().stream()
+                .filter(id -> id.getName().equals(name)).collect(Collectors.toList());
         ids.forEach(id -> metrics.remove(id));
     }
 }

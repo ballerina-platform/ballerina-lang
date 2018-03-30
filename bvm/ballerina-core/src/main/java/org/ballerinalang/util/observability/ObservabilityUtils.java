@@ -103,8 +103,9 @@ public class ObservabilityUtils {
     }
 
     /**
-     * Continue server observation if the {@link #startServerObservation(String, String, String, WorkerExecutionContext)} was
-     * called without {@link WorkerExecutionContext}.
+     * Continue server observation if the
+     * {@link #startServerObservation(String, String, String, WorkerExecutionContext)} was called without
+     * {@link WorkerExecutionContext}.
      *
      * @param observerContext  The {@link ObserverContext} instance.
      * @param serviceName      The service name.
@@ -175,7 +176,8 @@ public class ObservabilityUtils {
      * Get an {@link ObserverContext} for current {@link WorkerExecutionContext}.
      *
      * @param executionContext The {@link WorkerExecutionContext} instance.
-     * @return An existing {@link ObserverContext} instance or a new one created for current {@link WorkerExecutionContext}.
+     * @return An existing {@link ObserverContext} instance or a new one created for current
+     * {@link WorkerExecutionContext}.
      */
     public static ObserverContext getCurrentContext(WorkerExecutionContext executionContext) {
         Objects.requireNonNull(executionContext);
@@ -193,7 +195,7 @@ public class ObservabilityUtils {
     /**
      * Set the {@link ObserverContext} in current {@link WorkerExecutionContext}.
      *
-     * @param observerContext The {@link ObserverContext} instance.
+     * @param observerContext  The {@link ObserverContext} instance.
      * @param executionContext The {@link WorkerExecutionContext} instance.
      */
     private static void setCurrentContext(ObserverContext observerContext, WorkerExecutionContext executionContext) {

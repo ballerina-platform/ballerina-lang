@@ -66,7 +66,8 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
             new HTTPServer(socketAddress, registry.getPrometheusRegistry(), true);
             console.println("ballerina: started Prometheus HTTP endpoint " + socketAddress);
         } catch (BindException e) {
-            consoleError.println("ballerina: failed to bind Prometheus HTTP endpoint " + socketAddress + ":  " + e.getMessage());
+            consoleError.println("ballerina: failed to bind Prometheus HTTP endpoint " + socketAddress + ":  "
+                    + e.getMessage());
         } catch (IOException e) {
             consoleError.println("ballerina: failed to start Prometheus HTTP endpoint " + socketAddress);
             throw new IllegalStateException(e);
