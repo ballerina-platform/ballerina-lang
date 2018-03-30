@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
+import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
