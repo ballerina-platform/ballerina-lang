@@ -57,11 +57,6 @@ function testToXMLWithOptions (json msg) returns (xml | error) {
     return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
 }
 
-function testStringToJSONConversion() returns (json | error) {
-    string s = "{\"foo\": \"bar\"}";
-    return util:parseJson(s);
-}
-
 function testJSONArrayToJsonAssignment() returns (json) {
     json[] j1 = [{"a":"b"}, {"c":"d"}];
     json j2 = j1;

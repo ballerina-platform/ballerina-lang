@@ -453,12 +453,6 @@ public class JSONTest {
                 "failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }
 
-    @Test(description = "Convert a string to json")
-    public void testStringToJSONConversion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringToJSONConversion");
-        Assert.assertEquals(returns[0].stringValue(), "{\"foo\":\"bar\"}");
-    }
-
     @Test
     public void testJSONArrayToJsonAssignment() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
