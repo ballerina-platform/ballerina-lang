@@ -97,4 +97,21 @@ public interface Summary extends Metric {
      */
     long count();
 
+    /**
+     * @return The distribution average for all recorded events.
+     */
+    double mean();
+
+    /**
+     * @return The maximum time of a single event.
+     */
+    double max();
+
+    /**
+     * @param percentile A percentile in the domain [0, 1]. For example, 0.5 represents the 50th percentile of the
+     *                   distribution.
+     * @return The value at a specific percentile. This value is non-aggregable across dimensions.
+     */
+    double percentile(double percentile);
+
 }

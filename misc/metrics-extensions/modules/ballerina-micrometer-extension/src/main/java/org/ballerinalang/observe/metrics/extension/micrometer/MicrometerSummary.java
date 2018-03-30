@@ -51,4 +51,19 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
     public long count() {
         return summary.count();
     }
+
+    @Override
+    public double mean() {
+        return summary.mean();
+    }
+
+    @Override
+    public double max() {
+        return summary.max();
+    }
+
+    @Override
+    public double percentile(double percentile) {
+        return summary.percentile(percentile);
+    }
 }

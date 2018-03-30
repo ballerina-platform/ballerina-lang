@@ -52,4 +52,19 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
     public long count() {
         return timer.count();
     }
+
+    @Override
+    public double mean(TimeUnit unit) {
+        return timer.mean(unit);
+    }
+
+    @Override
+    public double max(TimeUnit unit) {
+        return timer.max(unit);
+    }
+
+    @Override
+    public double percentile(double percentile, TimeUnit unit) {
+        return timer.percentile(percentile, unit);
+    }
 }

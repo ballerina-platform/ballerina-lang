@@ -109,4 +109,24 @@ public interface Timer extends Metric {
      */
     long count();
 
+    /**
+     * @param unit The base unit of time to scale the mean to.
+     * @return The distribution average for all recorded events.
+     */
+    double mean(TimeUnit unit);
+
+    /**
+     * @param unit The base unit of time to scale the max to.
+     * @return The maximum time of a single event.
+     */
+    double max(TimeUnit unit);
+
+    /**
+     * @param percentile A percentile in the domain [0, 1]. For example, 0.5 represents the 50th percentile of the
+     *                   distribution.
+     * @param unit       The base unit of time to scale the percentile value to.
+     * @return The latency at a specific percentile. This value is non-aggregable across dimensions.
+     */
+    double percentile(double percentile, TimeUnit unit);
+
 }

@@ -39,4 +39,19 @@ public class NoOpSummary extends AbstractMetric implements Summary {
     public long count() {
         return 0;
     }
+
+    @Override
+    public double mean() {
+        return 0;
+    }
+
+    @Override
+    public double max() {
+        return 0;
+    }
+
+    @Override
+    public double percentile(double percentile) {
+        return 0;
+    }
 }
