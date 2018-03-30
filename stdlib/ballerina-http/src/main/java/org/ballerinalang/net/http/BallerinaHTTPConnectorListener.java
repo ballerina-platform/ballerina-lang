@@ -110,7 +110,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
         ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
 
-        ctx.addTag(TAG_KEY_COMPONENT, TAG_COMPONENT_BALLERINA);
         ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
         ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
         ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
