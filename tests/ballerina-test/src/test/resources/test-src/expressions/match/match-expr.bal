@@ -9,5 +9,5 @@ function testMatchExpr() {
 }
 
 function foo() returns (string|int|float|error) {
-	return 3.4;
+	return 1;
 }

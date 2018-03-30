@@ -1419,6 +1419,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
+        // Add the implicit default pattern, that returns the original expression's value.
+        addDefaultCase(bLangMatchExpression);
+
         // Create a temp local var to hold the temp result of the match expression
         // eg: T a;
         String matchTempResultVarName = GEN_VAR_PREFIX.value + "temp_result";
@@ -1426,34 +1429,16 @@ public class Desugar extends BLangNodeVisitor {
                 bLangMatchExpression.type, null, new BVarSymbol(0, names.fromString(matchTempResultVarName),
                         this.env.scope.owner.pkgID, bLangMatchExpression.type, this.env.scope.owner));
 
-        BLangVariableDef tempResultVarDdef = ASTBuilderUtil.createVariableDef(bLangMatchExpression.pos, tempResultVar);
-        BLangBlockStmt stmts = ASTBuilderUtil.createBlockStmt(bLangMatchExpression.pos, Lists.of(tempResultVarDdef));
-        
+        BLangVariableDef tempResultVarDef = ASTBuilderUtil.createVariableDef(bLangMatchExpression.pos, tempResultVar);
+        BLangBlockStmt stmts = ASTBuilderUtil.createBlockStmt(bLangMatchExpression.pos, Lists.of(tempResultVarDef));
         List<BLangMatchStmtPatternClause> patternClauses = new ArrayList<>();
 
-        // 1) Create var ref to the temp result variable
+        // Create var ref to the temp result variable
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, tempResultVar.symbol);
 
         for (int i = 0; i < bLangMatchExpression.patternClauses.size(); i++) {
             BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
-
-            // 2) Create the pattern variable. eg: R b => ...
-            // TODO get var name which user has given, if available
-            String patternCaseVarName = GEN_VAR_PREFIX.value + "t_match_" + i;
-            BLangVariable patternMatchCaseVar = ASTBuilderUtil.createVariable(pattern.pos, patternCaseVarName,
-                    pattern.variable.type, null, new BVarSymbol(0, names.fromString(patternCaseVarName),
-                            this.env.scope.owner.pkgID, pattern.variable.type, this.env.scope.owner));
-/*
-            // 3) Create var ref to the pattern case variable
-            BLangVariableReference patternCaseVarRef =
-                    ASTBuilderUtil.createVariableRef(pattern.pos, patternMatchCaseVar.symbol);
-
-            // 4) Create assignment from pattern case var to temp result
-            // a = b;
-            BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pattern.pos,
-                    Lists.of(tempResultVarRef), patternCaseVarRef, false);
-*/
             BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pattern.pos,
                   Lists.of(tempResultVarRef), pattern.expr, false);
             BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(pattern.pos, Lists.of(assignmentStmt));
@@ -1461,13 +1446,34 @@ public class Desugar extends BLangNodeVisitor {
             // Create the pattern by merging 1), 2), 3) and 4)
             // R b => a = b;
             patternClauses
-                    .add(ASTBuilderUtil.createMatchStatementPattern(pattern.pos, patternMatchCaseVar, patternBody));
+                    .add(ASTBuilderUtil.createMatchStatementPattern(pattern.pos, pattern.variable, patternBody));
         }
 
         stmts.addStatement(ASTBuilderUtil.createMatchStatement(bLangMatchExpression.pos, bLangMatchExpression.expr,
                 patternClauses));
         BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(stmts, tempResultVarRef);
         result = rewriteExpr(statementExpr);
+    }
+
+    private void addDefaultCase(BLangMatchExpression bLangMatchExpression) {
+        boolean defaultCaseExists = bLangMatchExpression.getPatternClauses()
+                .stream()
+                .anyMatch(pattern -> bLangMatchExpression.type == pattern.variable.type);
+        if (defaultCaseExists) {
+            return;
+        }
+
+        String patternCaseVarName = GEN_VAR_PREFIX.value + "t_match_default";
+        BLangVariable patternMatchCaseVar = ASTBuilderUtil.createVariable(bLangMatchExpression.pos, patternCaseVarName,
+                bLangMatchExpression.type, null, new BVarSymbol(0, names.fromString(patternCaseVarName), this.env.scope.owner.pkgID,
+                        bLangMatchExpression.type, this.env.scope.owner));
+
+        BLangMatchExprPatternClause defaultPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        defaultPattern.variable = patternMatchCaseVar;
+        defaultPattern.expr = ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, patternMatchCaseVar.symbol);
+        defaultPattern.pos = bLangMatchExpression.pos;
+        bLangMatchExpression.patternClauses.add(defaultPattern);
     }
 
     @Override
