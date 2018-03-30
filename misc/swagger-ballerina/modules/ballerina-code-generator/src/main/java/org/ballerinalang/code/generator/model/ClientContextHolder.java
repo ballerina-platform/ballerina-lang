@@ -34,7 +34,7 @@ public class ClientContextHolder {
     private List<EndpointContextHolder> endpoints;
 
     /**
-     * Build a parsable context from a Ballerina {@link ServiceNode}
+     * Build a parsable context from a Ballerina {@link ServiceNode}.
      *
      * @param service   {@code ServiceNode} for a valid ballerina source file
      * @param endpoints list of endpoints to be used as service endpoints for generated client

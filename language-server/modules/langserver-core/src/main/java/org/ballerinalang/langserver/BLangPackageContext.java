@@ -17,7 +17,6 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
