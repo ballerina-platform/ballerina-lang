@@ -152,6 +152,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -1537,9 +1538,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
         // Collect all the lhs types
-        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
+        LinkedHashSet<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
                 ((BUnionType) lhsType).memberTypes :
-                new HashSet<BType>() {{
+                new LinkedHashSet<BType>() {{
                     add(lhsType);
                 }};
 
@@ -1580,7 +1581,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Collect all the rhs types from the union type
         boolean isErrorFound = false;
         BUnionType unionType = (BUnionType) rhsType;
-        Set<BType> rhsTypeSet = new HashSet<>(unionType.memberTypes);
+        LinkedHashSet<BType> rhsTypeSet = new LinkedHashSet(unionType.memberTypes);
         for (BType type : unionType.memberTypes) {
             if (types.isAssignable(type, symTable.errStructType)) {
                 rhsTypeSet.remove(type);

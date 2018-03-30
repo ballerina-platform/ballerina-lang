@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model.types;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 /**
  * {@code UnionType} represents a union type in Ballerina.
@@ -25,5 +25,5 @@ import java.util.Set;
  * @since 0.966.0
  */
 public interface UnionType extends ReferenceType {
-    Set<? extends Type> getMemberTypes();
+    LinkedHashSet<? extends Type> getMemberTypes();
 }
