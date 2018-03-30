@@ -548,7 +548,8 @@ public class HttpUtil {
      * @param inboundMsg Represent carbon message.
      * @param httpResource Represent Http Resource.
      */
-    public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg, HttpResource httpResource) {
+    public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg,
+            HttpResource httpResource) {
         BStruct remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
