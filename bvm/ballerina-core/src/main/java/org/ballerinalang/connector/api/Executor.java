@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.tracer.Tracer;
 
 import java.util.Map;
 

@@ -60,9 +60,9 @@ public class TraceManagerWrapper {
 
     public void startSpan(WorkerExecutionContext ctx) {
         if (enabled) {
-            Tracer activeTracer = TraceUtil.getTracer(ctx);
+            BTracer activeTracer = TraceUtil.getTracer(ctx);
             if (activeTracer != null) {
-                Tracer parentTracer = TraceUtil.getParentTracer(ctx.parent);
+                BTracer parentTracer = TraceUtil.getParentTracer(ctx.parent);
 
                 String service = activeTracer.getConnectorName();
                 String resource = activeTracer.getActionName();
@@ -82,19 +82,19 @@ public class TraceManagerWrapper {
         }
     }
 
-    public void finishSpan(Tracer tracer) {
+    public void finishSpan(BTracer tracer) {
         if (enabled) {
             manager.finishSpan(new ArrayList<>(tracer.getSpans().values()));
         }
     }
 
-    public void log(Tracer tracer, Map<String, Object> fields) {
+    public void log(BTracer tracer, Map<String, Object> fields) {
         if (enabled) {
             manager.log(new ArrayList<>(tracer.getSpans().values()), fields);
         }
     }
 
-    public void addTags(Tracer tracer, Map<String, String> tags) {
+    public void addTags(BTracer tracer, Map<String, String> tags) {
         if (enabled) {
             manager.addTags(new ArrayList<>(tracer.getSpans().values()), tags);
         }
