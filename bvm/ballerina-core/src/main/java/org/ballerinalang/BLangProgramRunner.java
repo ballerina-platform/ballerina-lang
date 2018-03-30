@@ -53,23 +53,11 @@ public class BLangProgramRunner {
 
         boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
         programFile.setDistributedTransactionEnabled(distributedTxEnabled);
-        if (distributedTxEnabled) {
-            deployTransactionCoordinatorServices(programFile);
-        }
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
-    }
-
-    private static void deployTransactionCoordinatorServices(ProgramFile programFile) {
-        PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.transactions.coordinator");
-        if (coordinatorPkgInfo != null) {
-            coordinatorPkgInfo.setProgramFile(programFile);
-            BLangFunctions.invokePackageInitFunction(coordinatorPkgInfo.getInitFunctionInfo());
-            BLangFunctions.invokeVMUtilFunction(coordinatorPkgInfo.getStartFunctionInfo());
-        }
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {

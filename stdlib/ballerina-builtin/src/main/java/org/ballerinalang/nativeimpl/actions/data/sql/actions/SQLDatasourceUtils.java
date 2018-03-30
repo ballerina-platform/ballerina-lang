@@ -1045,7 +1045,7 @@ public class SQLDatasourceUtils {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
-        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
+        if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
             return;
         }
 

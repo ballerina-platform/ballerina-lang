@@ -3,10 +3,44 @@ package ballerina.net.http;
 /////////////////////////////
 /// HTTP Service Endpoint ///
 /////////////////////////////
+documentation {
+    Represents service endpoint where one or more services can be registered. so that ballerina program can offer service through this endpoint.
+
+    F{{conn}}  - Service endpoint connection.
+    F{{config}} - ServiceEndpointConfiguration configurations.
+    F{{remote}}  - The details of remote address.
+    F{{local}} - The details of local address.
+    F{{protocol}}  - The protocol associate with the service endpoint.
+}
 public struct ServiceEndpoint {
     // TODO : Make all field Read-Only
     Connection conn;
     ServiceEndpointConfiguration config;
+    Remote remote;
+    Local local;
+    string protocol;
+}
+
+documentation {
+    Represents the details of remote address.
+
+    F{{host}}  - The remote server host.
+    F{{port}} - The remote server port.
+}
+public struct Remote {
+    string host;
+    int port;
+}
+
+documentation {
+    Represents the details of local address.
+
+    F{{host}}  - The local server host.
+    F{{port}} - The local server port.
+}
+public struct Local {
+    string host;
+    int port;
 }
 
 @Description {value:"Request validation limits configuration for HTTP service endpoint"}

@@ -63,11 +63,10 @@ class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     Map<String, Tracer> getTracers(String serviceName) {
-        Map<String, Tracer> tracerMap;
         if (tracerStore.containsKey(serviceName)) {
-            tracerMap = tracerStore.get(serviceName);
+            return tracerStore.get(serviceName);
         } else {
-            tracerMap = new HashMap<>();
+            Map<String, Tracer> tracerMap = new HashMap<>();
             for (TracerGenerator tracerGenerator : tracers) {
                 try {
                     Tracer tracer = tracerGenerator.generate(serviceName);
@@ -78,8 +77,8 @@ class TracersStore {
                 }
             }
             tracerStore.put(serviceName, tracerMap);
+            return tracerMap;
         }
-        return tracerMap;
     }
 
     /**

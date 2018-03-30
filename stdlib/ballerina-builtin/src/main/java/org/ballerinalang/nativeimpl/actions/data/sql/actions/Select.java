@@ -28,14 +28,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_DB_TYPE_SQL;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_STATEMENT;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_TYPE;
 
 /**
  * {@code Select} is the Select action implementation of the SQL Connector.
@@ -68,10 +66,10 @@ public class Select extends AbstractSQLAction {
             BStructType structType = getStructType(context);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
 
-            Map<String, String> tags = new HashMap<>();
-            tags.put(TAG_KEY_DB_STATEMENT, query);
-            tags.put(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
-            TraceUtil.getTracer(context.getParentWorkerExecutionContext()).addTags(tags);
+            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
+                    getParentWorkerExecutionContext());
+            observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
+            observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 
             executeQuery(context, datasource, query, parameters, structType);
         } catch (Throwable e) {

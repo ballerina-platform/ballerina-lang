@@ -31,9 +31,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.tracer.TraceConstants;
-import org.ballerinalang.util.tracer.TraceManagerWrapper;
-import org.ballerinalang.util.tracer.Tracer;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -45,6 +44,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -53,6 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ENDPOINT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -74,7 +75,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(
                 ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpRequest());
-        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage, msg);
+        Map<String, String> pathParams = new HashMap<>();
+        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, pathParams, webSocketInitMessage,
+                                                                     msg);
         BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
                 wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, WEBSOCKET_ENDPOINT);
@@ -108,11 +111,13 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = serviceEndpoint;
             bValues[1] = inRequest;
+            WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
-            Tracer tracer = TraceManagerWrapper.newTracer(null, false);
-            upgradeHeaders.entrySet().stream()
-                    .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
-                    .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+            ObserverContext ctx = ObservabilityUtils.startServerObservation(onUpgradeResource.getServiceName(),
+                    onUpgradeResource.getName(), null);
+            Map<String, String> httpHeaders = new HashMap<>();
+            upgradeHeaders.entrySet().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
@@ -126,7 +131,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     semaphore.release();
                 }
-            }, null, tracer, bValues);
+            }, null, ctx, bValues);
 
             try {
                 semaphore.acquire();

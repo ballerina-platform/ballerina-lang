@@ -68,6 +68,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -91,15 +92,12 @@ import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.util.tracer.TraceConstants.HTTP_HOST;
-import static org.ballerinalang.util.tracer.TraceConstants.HTTP_PORT;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_COMPONENT_BALLERINA;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_COMPONENT;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_HOST;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_PORT;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_PROTOCOL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_HOST;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_PORT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -514,8 +512,52 @@ public class HttpUtil {
         }
     }
 
-    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
-        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
+    /**
+     * Populate connection information.
+     *
+     * @param connection Represent the connection struct
+     * @param inboundMsg Represent carbon message.
+     */
+    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage inboundMsg) {
+        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
+    }
+
+    /**
+     * Populate serviceEndpoint information.
+     *
+     * @param serviceEndpoint Represent the serviceEndpoint struct
+     * @param inboundMsg Represent carbon message.
+     * @param httpResource Represent Http Resource.
+     */
+    public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg, HttpResource httpResource) {
+        BStruct remote = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
+        BStruct local = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
+
+        Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
+        if (remoteSocketAddress != null && remoteSocketAddress instanceof InetSocketAddress) {
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
+            String remoteHost = inetSocketAddress.getHostName();
+            long remotePort = inetSocketAddress.getPort();
+            remote.setStringField(HttpConstants.REMOTE_HOST_INDEX, remoteHost);
+            remote.setIntField(HttpConstants.REMOTE_PORT_INDEX, remotePort);
+        }
+        serviceEndpoint.setRefField(HttpConstants.REMOTE_STRUCT_INDEX, remote);
+
+        Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
+        if (localSocketAddress != null && localSocketAddress instanceof InetSocketAddress) {
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
+            String localHost = inetSocketAddress.getHostName();
+            long localPort = inetSocketAddress.getPort();
+            local.setStringField(HttpConstants.LOCAL_HOST_INDEX, localHost);
+            local.setIntField(HttpConstants.LOCAL_PORT_INDEX, localPort);
+        }
+        serviceEndpoint.setRefField(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        serviceEndpoint.setStringField(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_INDEX,
+                (String) inboundMsg.getProperty(HttpConstants.PROTOCOL));
     }
 
     /**
@@ -1130,19 +1172,19 @@ public class HttpUtil {
         return new DefaultHttpWsConnectorFactory();
     }
 
-    public static Map<String, String> extractTraceTags(HTTPCarbonMessage msg) {
+    public static Map<String, String> extractTags(HTTPCarbonMessage msg) {
         Map<String, String> tags = new HashMap<>();
-        tags.put(TAG_KEY_COMPONENT, TAG_COMPONENT_BALLERINA);
         tags.put(TAG_KEY_HTTP_METHOD, String.valueOf(msg.getProperty(HttpConstants.HTTP_METHOD)));
         tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
-        tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(HTTP_HOST)));
-        tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(HTTP_PORT)));
-        tags.put(TAG_KEY_PROTOCOL, String.valueOf(msg.getProperty(HttpConstants.PROTOCOL)));
+        tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(PROPERTY_HTTP_HOST)));
+        tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(PROPERTY_HTTP_PORT)));
         return tags;
     }
 
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
-        headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        if (headers != null) {
+            headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        }
     }
 }
 
