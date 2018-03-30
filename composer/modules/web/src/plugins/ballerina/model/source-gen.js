@@ -257,7 +257,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + node.documentationText + outdent() + w() + '}';
         case 'Endpoint':
             return dent()
-                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w(' ') + 'endpoint'
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w() + 'endpoint' + a(' ')
                  + getSourceOf(node.endPointType, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar
                  + b(' ')
                  + getSourceOf(node.configurationExpression, pretty, l, replaceLambda) + w() + ';';

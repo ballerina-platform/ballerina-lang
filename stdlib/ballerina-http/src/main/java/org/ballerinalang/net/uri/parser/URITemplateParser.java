@@ -91,7 +91,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
                         }
                         expression = false;
                         String token = segment.substring(startIndex, pointerIndex);
-                        createExpressionNode(token, maxIndex, pointerIndex);
+                        createExpressionNode(token);
                         startIndex = pointerIndex + 1;
                         break;
                     case '*':
@@ -104,7 +104,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
                         if (pointerIndex == maxIndex) {
                             String tokenVal = segment.substring(startIndex);
                             if (expression) {
-                                createExpressionNode(tokenVal, maxIndex, pointerIndex);
+                                createExpressionNode(tokenVal);
                             } else {
                                 tokenVal = URLDecoder.decode(tokenVal, StandardCharsets.UTF_8.name());
                                 addNode(new Literal<>(createElement(), tokenVal));
@@ -118,26 +118,19 @@ public class URITemplateParser<DataType, InboundMgsType> {
         return syntaxTree;
     }
 
-    private void addNode(Node<DataType, InboundMgsType> node) {
+    private void addNode(Node<DataType, InboundMgsType> node) throws URITemplateException {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
         currentNode = currentNode.addChild(node);
     }
 
-    private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
+    private void createExpressionNode(String expression) throws URITemplateException {
         Node<DataType, InboundMgsType> node;
-
-        if (maxIndex == pointerIndex) {
-            node = new SimpleStringExpression<>(createElement(), expression);
-        } else {
-            node = new SimpleSplitStringExpression<>(createElement(), expression);
-        }
-
+        node = new SimpleStringExpression<>(createElement(), expression);
         if (expression.length() <= 1) {
             throw new URITemplateException("Invalid template expression: {" + expression + "}");
         }
-
         addNode(node);
     }
 

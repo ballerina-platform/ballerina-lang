@@ -161,9 +161,17 @@ public native function <ServiceEndpoint ep> stop();
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 public struct WebSocketEndpoint{
+    //TODO: Make these readonly
     WebSocketConnector conn;
     ServiceEndpointConfiguration config;
     ServiceEndpoint httpEndpoint;
+    //Public attributes
+    map attributes;
+    string id;
+    string negotiatedSubProtocol;
+    boolean isSecure;
+    boolean isOpen;
+    map<string> upgradeHeaders;
 }
 
 public function <WebSocketEndpoint ep> WebSocketService() {
@@ -175,6 +183,7 @@ public function <WebSocketEndpoint ep> WebSocketService() {
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
 public function <WebSocketEndpoint ep> init(ServiceEndpointConfiguration config) {
+    ep.attributes = {};
     ep.httpEndpoint = {};
     ep.httpEndpoint.init(config);
 }
