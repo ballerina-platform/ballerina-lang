@@ -49,7 +49,7 @@ public class ParseTo extends AbstractTimeFunction {
         StructInfo timeZoneStructInfo = Utils.getTimeZoneStructInfo(context);
         StructInfo timeStructInfo = Utils.getTimeStructInfo(context);
         long epochTime = -1;
-        String zoneId ;
+        String zoneId;
         try {
             epochTime = Instant.from(parsedDateTime).toEpochMilli();
             zoneId = String.valueOf(ZoneId.from(parsedDateTime));
