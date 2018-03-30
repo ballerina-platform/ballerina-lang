@@ -42,6 +42,9 @@ public function <FileBasedPermissionStore permissionStore> isAuthorized (string 
     
     string[] groupsForScope = [];
     foreach scopeName in scopes  {
+        // read groups for each scope and see if there is a match between user's groups
+        // and the groups of the scope. There is no need to read groups for all scopes
+        // and do the comparison.
         groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
         if (lengthof groupsForScope > 0) {
             // check if there is a match
