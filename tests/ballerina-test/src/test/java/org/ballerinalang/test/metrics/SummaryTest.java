@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.observe.metrics.Registry;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -34,50 +33,16 @@ import org.testng.annotations.Test;
  */
 public class SummaryTest {
     private CompileResult compileResult;
-    private String summaryName = "response_size";
-    private String[] tags = new String[]{"method", "GET"};
 
     @BeforeTest
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/summary-test.bal");
+        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
-    @Test (priority = 1)
-    public void testRegister() {
-        BRunUtil.invoke(compileResult, "testRegister");
-        DistributionSummary summary = Registry.getRegistry().summary(summaryName, tags);
-        Assert.assertEquals(summary.count(), 0);
-    }
-
-    @Test (priority = 2)
-    public void testRecord() {
-        BRunUtil.invoke(compileResult, "testRecord");
-        Assert.assertEquals(Registry.getRegistry().summary(summaryName, tags).count(), 6);
-    }
-
-    @Test (priority = 3)
-    public void testMax() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMax");
-        BFloat max = (BFloat) returns[0];
-        Assert.assertEquals(max, new BFloat(6));
-    }
-
-    @Test (priority = 4)
-    public void testMean() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMean");
-        BFloat mean = (BFloat) returns[0];
-        Assert.assertEquals(mean, new BFloat(3.5));
-    }
-
-    @Test (priority = 5)
-    public void testPercentile() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPercentile");
-        BFloat percentile = (BFloat) returns[0];
-    }
-
-    @Test (priority = 6)
-    public void testCount() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCount");
+    @Test
+    public void testSummary() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSummary");
         BInteger count = (BInteger) returns[0];
         Assert.assertEquals(count, new BInteger(6));
     }

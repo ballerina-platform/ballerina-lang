@@ -99,7 +99,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-metrics</artifactId>
-            <version>0.970.0-alpha1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-micrometer-extension</artifactId>
         </dependency>
     </dependencies>
     <build>

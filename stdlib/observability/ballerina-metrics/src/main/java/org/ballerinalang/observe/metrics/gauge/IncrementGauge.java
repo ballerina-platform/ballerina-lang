@@ -27,12 +27,17 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * This function increment the gauge by the given amount.
+ * Increment the gauge by the given amount.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -51,5 +56,15 @@ public class IncrementGauge extends BlockingNativeCallableUnit {
         String description = gaugeStruct.getStringField(1);
         BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
         float amount = (float) context.getFloatArgument(0);
+
+        if (!tagsMap.isEmpty()) {
+            List<Tag> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
+            }
+            MetricRegistry.getDefaultRegistry().gauge(new MetricId(name, description, tags)).increment(amount);
+        } else {
+            MetricRegistry.getDefaultRegistry().gauge(new MetricId(name, description, null)).increment(amount);
+        }
     }
 }

@@ -19,23 +19,21 @@
  */
 package org.ballerinalang.observe.metrics.counter;
 
-import io.micrometer.core.instrument.Counter;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.observe.metrics.Registry;
+import org.ballerinalang.util.metrics.Counter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This function create and register a counter.
+ * Create and register a counter.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -62,9 +60,9 @@ public class RegisterCounter extends BlockingNativeCallableUnit {
                 tags.add(tagsMap.get(key).stringValue());
             }
             Counter.builder(name).description(description).tags(tags.toArray(new String[tags.size()]))
-                    .register(Registry.getRegistry());
+                    .register();
         } else {
-            Counter.builder(name).description(description).register(Registry.getRegistry());
+            Counter.builder(name).description(description).register();
         }
     }
 }

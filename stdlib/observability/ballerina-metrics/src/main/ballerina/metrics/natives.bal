@@ -19,6 +19,7 @@ package ballerina.metrics;
 @Description {value:"Counter metric, to track counts of events or running totals."}
 @Field {value:"name: The name of the counter. Required."}
 @Field {value:"description: The description string of the metric. Required."}
+@Field {value:"tags: Key/value pairs used to classify counter. Optional."}
 public struct Counter {
     string name;
     string description;
@@ -46,6 +47,7 @@ public native function <Counter counter> count() returns (float);
 @Description {value:"Gauge metric, to report instantaneous values. Gauges can go both up and down."}
 @Field {value:"name: The name of the gauge. Required."}
 @Field {value:"description: The description string of the metric. Required."}
+@Field {value:"tags: Key/value pairs used to classify gauge. Optional."}
 public struct Gauge {
     string name;
     string description;
@@ -87,6 +89,7 @@ public native function <Gauge gauge> value() returns (float);
 @Description {value:"Summary metric, to track the size of events."}
 @Field {value:"name: The name of the summary. Required."}
 @Field {value:"description: The description string of the metric. Required."}
+@Field {value:"tags: Key/value pairs used to classify summary. Optional."}
 public struct Summary {
     string name;
     string description;
@@ -97,29 +100,30 @@ public struct Summary {
 @Param {value:"summary: The summary instance to be registered."}
 public native function <Summary summary> register();
 
-@Description {value:""}
-@Param {value:"summary:"}
+@Description {value:"Returns the maximum time of a single event."}
+@Param {value:"summary: The summary instance."}
+@Return {value: "The maximum time of a single event."}
 public native function <Summary summary> max() returns (float);
 
-@Description {value: "Get the current values in Summary"}
-@Param {value: "summary: "}
-@Return {value: ""}
+@Description {value: "Returns the distribution average for all recorded events."}
+@Param {value: "summary: The summary instance."}
+@Return {value: "The distribution average for all recorded events."}
 public native function <Summary summary> mean() returns (float);
 
-@Description {value: ""}
-@Param {value: "summary: "}
-@Param {value: "percentile "}
-@Return {value: ""}
+@Description {value: "Returns the value at a specific percentile. This value is non-aggregable across dimensions."}
+@Param {value: "summary: The summary instance."}
+@Param {value: "percentile: A percentile in the domain."}
+@Return {value: "The value at a specific percentile. This value is non-aggregable across dimensions."}
 public native function <Summary summary> percentile(float percentile) returns (float);
 
-@Description {value: ""}
-@Param {value: "summary: "}
-@Param {value: "amount "}
+@Description {value: "Updates the statistics kept by the summary with the specified amount."}
+@Param {value: "summary: The summary instance."}
+@Param {value: "amount: Amount for an event being measured."}
 public native function <Summary summary> record(float amount);
 
-@Description {value: ""}
-@Param {value: "summary: "}
-@Return {value: ""}
+@Description {value: "Returns the number of times that record has been called since this timer was created."}
+@Param {value: "summary: The summary instance."}
+@Return {value: "The number of times that record has been called since this timer was created."}
 public native function <Summary summary> count() returns (int);
 
 @Description {value: ""}
@@ -140,47 +144,46 @@ public enum TimeUnit {
     DAYS
 }
 
-@Description {value: ""}
-@Field {value: "name: "}
-@Field {value: "description: "}
-@Field {value: "baseTimeUnit: "}
+@Description {value: "Timer metric, to track events."}
+@Field {value: "name: The name of the timer. Required."}
+@Field {value: "description: The description string of the metric. Required."}
+@Field {value:"tags: Key/value pairs used to classify timmer. Optional."}
 public struct Timer {
     string name;
     string description;
     map tags;
 }
 
-@Description {value: ""}
-@Param {value: "timer: "}
+@Description {value: "Create and register the timer."}
+@Param {value: "timer: The timer instance."}
 public native function <Timer timer> register();
 
-@Description {value: ""}
-@Param {value: "timer: "}
-@Param {value: "timeUnit: "}
-@Return {value: ""}
+@Description {value: "Returns the maximum time of a single event."}
+@Param {value: "timer: The timer instance."}
+@Param {value: "timeUnit: The base unit of time to scale the max to."}
+@Return {value: "The maximum time of a single event."}
 public native function <Timer timer> max(TimeUnit timeUnit) returns (float);
 
-@Description {value: ""}
-@Param {value: "timer: "}
-@Param {value: "timeUnit: "}
-@Return {value: ""}
+@Description {value: "Returns the distribution average for all recorded events."}
+@Param {value: "timer: The timer instance."}
+@Param {value: "timeUnit: The base unit of time to scale the mean to."}
+@Return {value: "The distribution average for all recorded events."}
 public native function <Timer timer> mean(TimeUnit timeUnit) returns (float);
 
-@Description {value: ""}
-@Param {value: "timer: "}
-@Param {value: "percentiles: "}
-@Param {value: "timeUnit: "}
-@Return {value: ""}
+@Description {value: "Returns the latency at a specific percentile. This value is non-aggregable across dimensions."}
+@Param {value: "timer: The timer instance."}
+@Param {value: "percentiles: A percentile in the domain."}
+@Param {value: "timeUnit: The base unit of time to scale the percentile value to."}
+@Return {value: "The latency at a specific percentile. This value is non-aggregable across dimensions."}
 public native function <Timer timer> percentile(float percentiles, TimeUnit timeUnit) returns (float);
 
-@Description {value: ""}
-@Param {value: "timer: "}
-@Param {value: "amount: "}
-@Param {value: "timeUnit: "}
-@Param {value: ""}
-public native function <Timer timer> record(float amount, TimeUnit timeUnit);
+@Description {value: "Updates the statistics kept by the counter with the specified amount."}
+@Param {value: "timer: The timer instance."}
+@Param {value: "amount: Duration of a single event being measured by this timer."}
+@Param {value: "timeUnit: Time unit for the amount being recorded."}
+public native function <Timer timer> record(int amount, TimeUnit timeUnit);
 
-@Description {value: ""}
-@Param {value: "timer: "}
-@Return {value: ""}
+@Description {value: "Returns the number of times that stop has been called on this timer."}
+@Param {value: "timer: The timer instance."}
+@Return {value: "The number of times that stop has been called on this timer."}
 public native function <Timer timer> count() returns (int);

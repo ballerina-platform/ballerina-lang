@@ -17,25 +17,21 @@
  */
 package org.ballerinalang.observe.metrics.timer;
 
-import io.micrometer.core.instrument.Timer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.observe.metrics.Registry;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.metrics.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
- * TODO: Class level comment.
+ * Create and register the timer.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -61,9 +57,9 @@ public class RegisterTimer extends BlockingNativeCallableUnit {
                 tags.add(tagsMap.get(key).stringValue());
             }
             Timer.builder(name).description(description).tags(tags.toArray(new String[tags.size()]))
-                    .register(Registry.getRegistry());
+                    .register();
         } else {
-            Timer.builder(name).description(description).register(Registry.getRegistry());
+            Timer.builder(name).description(description).register();
         }
     }
 }

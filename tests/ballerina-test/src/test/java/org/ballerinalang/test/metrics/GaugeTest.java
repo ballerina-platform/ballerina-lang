@@ -19,10 +19,14 @@
  */
 package org.ballerinalang.test.metrics;
 
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -35,25 +39,30 @@ public class GaugeTest {
     @BeforeTest
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/gauge-test.bal");
+        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test
     public void testCounterIncrementByOne() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIncrementGaugeByOne");
+        Assert.assertEquals(returns[0], new BFloat(1.0));
     }
 
     @Test
     public void testCounterIncrement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIncrementGauge");
+        Assert.assertEquals(returns[0], new BFloat(5.0));
     }
 
     @Test
     public void testDecrementGaugeByOne() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGaugeByOne");
+        Assert.assertEquals(returns[0], new BFloat(9.0));
     }
 
     @Test
     public void testDecrementGauge() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGauge");
+        Assert.assertEquals(returns[0], new BFloat(8.0));
     }
 }

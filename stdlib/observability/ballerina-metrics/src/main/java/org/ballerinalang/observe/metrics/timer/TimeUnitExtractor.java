@@ -23,7 +23,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * TODO: Class level comment.
+ * This class extracts the {@link TimeUnit}
  */
 public class TimeUnitExtractor {
 

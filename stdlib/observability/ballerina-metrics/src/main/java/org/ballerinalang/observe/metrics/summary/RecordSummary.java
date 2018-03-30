@@ -25,14 +25,15 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.observe.metrics.Registry;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO: Class level comment.
+ * Updates the statistics kept by the summary with the specified amount.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -48,18 +49,18 @@ public class RecordSummary extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct summaryStruct = (BStruct) context.getRefArgument(0);
         String name = summaryStruct.getStringField(0);
+        String description = summaryStruct.getStringField(1);
         float amount = (float) context.getFloatArgument(0);
         BMap tagsMap = (BMap) summaryStruct.getRefField(0);
 
         if (!tagsMap.isEmpty()) {
-            List<String> tags = new ArrayList<>();
+            List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
-                tags.add(key.toString());
-                tags.add(tagsMap.get(key).stringValue());
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Registry.getRegistry().summary(name, tags.toArray(new String[tags.size()])).record(amount);
+            MetricRegistry.getDefaultRegistry().summary(new MetricId(name, description, tags)).record(amount);
         } else {
-            Registry.getRegistry().summary(name).record(amount);
+            MetricRegistry.getDefaultRegistry().summary(new MetricId(name, description, null)).record(amount);
         }
     }
 }

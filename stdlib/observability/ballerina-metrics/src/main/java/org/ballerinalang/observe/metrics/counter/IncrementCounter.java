@@ -27,13 +27,15 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.observe.metrics.Registry;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This function increment the counter by the given amount.
+ * Increment the counter by the given amount.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -55,14 +57,13 @@ public class IncrementCounter extends BlockingNativeCallableUnit {
         float amount = (float) context.getFloatArgument(0);
 
         if (!tagsMap.isEmpty()) {
-            List<String> tags = new ArrayList<>();
+            List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
-                tags.add(key.toString());
-                tags.add(tagsMap.get(key).stringValue());
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Registry.getRegistry().counter(name,tags.toArray(new String[tags.size()])).increment(amount);
+            MetricRegistry.getDefaultRegistry().counter(new MetricId(name, description, tags)).increment(amount);
         } else {
-            Registry.getRegistry().counter(name).increment(amount);
+            MetricRegistry.getDefaultRegistry().counter(new MetricId(name, description, null)).increment(amount);
         }
     }
 }

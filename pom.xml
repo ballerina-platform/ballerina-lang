@@ -894,6 +894,11 @@
                 <artifactId>simpleclient_httpserver</artifactId>
                 <version>${prometheus.simple.client.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-metrics</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

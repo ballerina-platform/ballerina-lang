@@ -19,7 +19,6 @@
  */
 package org.ballerinalang.observe.metrics.counter;
 
-import io.micrometer.core.instrument.Counter;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,15 +27,15 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.observe.metrics.Registry;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * This function increment the counter by one.
+ * Increment the counter by one.
  */
 
 @BallerinaFunction(
@@ -58,14 +57,13 @@ public class IncrementCounterByOne extends BlockingNativeCallableUnit {
         BMap tagsMap = (BMap) counterStruct.getRefField(0);
 
         if (!tagsMap.isEmpty()) {
-            List<String> tags = new ArrayList<>();
+            List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
-                tags.add(key.toString());
-                tags.add(tagsMap.get(key).stringValue());
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Registry.getRegistry().counter(name,tags.toArray(new String[tags.size()])).increment();
+            MetricRegistry.getDefaultRegistry().counter(new MetricId(name, description, tags)).increment();
         } else {
-            Registry.getRegistry().counter(name).increment();
+            MetricRegistry.getDefaultRegistry().counter(new MetricId(name, description, null)).increment();
         }
     }
 }

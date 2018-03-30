@@ -29,12 +29,17 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * This function return the value of the gauge.
+ * Return the value of the gauge.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -53,5 +58,18 @@ public class GetGauge extends BlockingNativeCallableUnit {
         String name = gaugeStruct.getStringField(0);
         String description = gaugeStruct.getStringField(1);
         BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
+
+        if (!tagsMap.isEmpty()) {
+            List<Tag> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
+            }
+            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
+                    .gauge(new MetricId(name, description, tags)).get()));
+
+        } else {
+            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
+                    .gauge(new MetricId(name, description, null)).get()));
+        }
     }
 }

@@ -26,15 +26,16 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.observe.metrics.Registry;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * TODO: Class level comment.
+ * Updates the statistics kept by the counter with the specified amount.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -51,21 +52,21 @@ public class RecordTimer extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct timerStruct = (BStruct) context.getRefArgument(0);
         String name = timerStruct.getStringField(0);
+        String description = timerStruct.getStringField(1);
         BMap tagsMap = (BMap) timerStruct.getRefField(0);
-        float amount = (float) context.getFloatArgument(0);
+        long amount = context.getIntArgument(0);
         BEnumerator timeUnitEnum = (BEnumerator) context.getRefArgument(1);
 
         TimeUnit timeUnit = TimeUnitExtractor.getTimeUnit(timeUnitEnum);
 
         if (!tagsMap.isEmpty()) {
-            List<String> tags = new ArrayList<>();
+            List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
-                tags.add(key.toString());
-                tags.add(tagsMap.get(key).stringValue());
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Registry.getRegistry().timer(name, tags.toArray(new String[tags.size()])).record((long) amount, timeUnit);
+            MetricRegistry.getDefaultRegistry().timer(new MetricId(name, description, tags)).record(amount, timeUnit);
         } else {
-            Registry.getRegistry().timer(name).record((long) amount, timeUnit);
+            MetricRegistry.getDefaultRegistry().timer(new MetricId(name, description, null)).record(amount, timeUnit);
         }
     }
 }

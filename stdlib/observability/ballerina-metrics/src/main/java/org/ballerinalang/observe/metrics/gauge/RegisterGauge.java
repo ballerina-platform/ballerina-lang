@@ -27,9 +27,13 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.metrics.Gauge;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This function create and register a gauge.
+ * Create and register a gauge.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -47,5 +51,17 @@ public class RegisterGauge extends BlockingNativeCallableUnit {
         String name = gaugeStruct.getStringField(0);
         String description = gaugeStruct.getStringField(1);
         BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
+
+        if (!tagsMap.isEmpty()) {
+            List<String> tags = new ArrayList<>();
+            for (Object key : tagsMap.keySet()) {
+                tags.add(key.toString());
+                tags.add(tagsMap.get(key).stringValue());
+            }
+            Gauge.builder(name).description(description).tags(tags.toArray(new String[tags.size()]))
+                    .register();
+        } else {
+            Gauge.builder(name).description(description).register();
+        }
     }
 }

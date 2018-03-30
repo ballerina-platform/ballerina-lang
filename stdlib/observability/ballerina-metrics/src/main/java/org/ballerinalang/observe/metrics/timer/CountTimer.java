@@ -20,7 +20,7 @@ package org.ballerinalang.observe.metrics.timer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
@@ -28,13 +28,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.observe.metrics.Registry;
+import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO: Class level comment.
+ * Returns the number of times that stop has been called on this timer.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
@@ -52,18 +54,20 @@ public class CountTimer extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct timerStruct = (BStruct) context.getRefArgument(0);
         String name = timerStruct.getStringField(0);
+        String description = timerStruct.getStringField(1);
         BMap tagsMap = (BMap) timerStruct.getRefField(0);
 
         if (!tagsMap.isEmpty()) {
-            List<String> tags = new ArrayList<>();
+            List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
-                tags.add(key.toString());
-                tags.add(tagsMap.get(key).stringValue());
+                tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BInteger(Registry.getRegistry().timer(name, tags
-                    .toArray(new String[tags.size()])).count()));
+            context.setReturnValues(new BInteger(MetricRegistry.getDefaultRegistry()
+                    .timer(new MetricId(name, description, tags)).count()));
+
         } else {
-            context.setReturnValues(new BInteger(Registry.getRegistry().timer(name).count()));
+            context.setReturnValues(new BInteger(MetricRegistry.getDefaultRegistry()
+                    .timer(new MetricId(name, description, null)).count()));
         }
     }
 }
