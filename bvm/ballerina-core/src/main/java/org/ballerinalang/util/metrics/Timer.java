@@ -88,49 +88,6 @@ public interface Timer extends Metric {
     }
 
     /**
-     * A timing context.
-     *
-     * @see Timer#start()
-     */
-    class Context implements AutoCloseable {
-        private final Timer timer;
-        private final long startTime;
-
-        public Context(Timer timer) {
-            this.timer = timer;
-            this.startTime = System.nanoTime();
-        }
-
-        /**
-         * Updates the timer with the difference between current and start time. Call to this method will
-         * not reset the start time. Multiple calls result in multiple updates.
-         *
-         * @return the elapsed time in nanoseconds
-         */
-        public long stop() {
-            final long elapsed = System.nanoTime() - startTime;
-            timer.record(elapsed, TimeUnit.NANOSECONDS);
-            return elapsed;
-        }
-
-        /**
-         * Equivalent to calling {@link #stop()}.
-         */
-        @Override
-        public void close() {
-            stop();
-        }
-    }
-
-    /**
-     * Returns a new {@link Context}.
-     *
-     * @return a new {@link Context}
-     * @see Context
-     */
-    Context start();
-
-    /**
      * Updates the statistics kept by the timer with the specified amount.
      *
      * @param amount Duration of a single event being measured by this timer.
@@ -151,5 +108,25 @@ public interface Timer extends Metric {
      * @return The number of times that record has been called since this timer was created.
      */
     long count();
+
+    /**
+     * @param unit The base unit of time to scale the mean to.
+     * @return The distribution average for all recorded events.
+     */
+    double mean(TimeUnit unit);
+
+    /**
+     * @param unit The base unit of time to scale the max to.
+     * @return The maximum time of a single event.
+     */
+    double max(TimeUnit unit);
+
+    /**
+     * @param percentile A percentile in the domain [0, 1]. For example, 0.5 represents the 50th percentile of the
+     *                   distribution.
+     * @param unit       The base unit of time to scale the percentile value to.
+     * @return The latency at a specific percentile. This value is non-aggregable across dimensions.
+     */
+    double percentile(double percentile, TimeUnit unit);
 
 }

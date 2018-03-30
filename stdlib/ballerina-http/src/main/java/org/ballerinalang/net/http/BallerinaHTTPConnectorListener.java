@@ -42,6 +42,7 @@ import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_COMPONENT_BALLERINA;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_COMPONENT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
@@ -103,7 +104,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         Resource balResource = httpResource.getBalResource();
 
-        ObserverContext ctx = ObservabilityUtils.startServerObservation(balResource.getServiceName(),
+        ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP, balResource.getServiceName(),
                 balResource.getName(), null);
         Map<String, String> httpHeaders = new HashMap<>();
         httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));

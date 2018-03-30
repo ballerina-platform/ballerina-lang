@@ -33,17 +33,27 @@ public class NoOpTimer extends AbstractMetric implements Timer {
     }
 
     @Override
-    public Context start() {
-        return new Context(this);
-    }
-
-    @Override
     public void record(long amount, TimeUnit unit) {
         // Do nothing
     }
 
     @Override
     public long count() {
+        return 0;
+    }
+
+    @Override
+    public double mean(TimeUnit unit) {
+        return 0;
+    }
+
+    @Override
+    public double max(TimeUnit unit) {
+        return 0;
+    }
+
+    @Override
+    public double percentile(double percentile, TimeUnit unit) {
         return 0;
     }
 }

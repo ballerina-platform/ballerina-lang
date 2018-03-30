@@ -45,6 +45,10 @@ public class ObserverContext {
 
     private String actionName;
 
+    private boolean server;
+
+    private boolean started;
+
     public ObserverContext() {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
@@ -100,5 +104,21 @@ public class ObserverContext {
 
     public void setActionName(String actionName) {
         this.actionName = Objects.requireNonNull(actionName);
+    }
+
+    public boolean isServer() {
+        return server;
+    }
+
+    void setServer() {
+        this.server = true;
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    void setStarted() {
+        this.started = true;
     }
 }

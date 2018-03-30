@@ -43,12 +43,6 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
                 .register(Metrics.globalRegistry);
     }
 
-
-    @Override
-    public Context start() {
-        return new Context(this);
-    }
-
     @Override
     public void record(long amount, TimeUnit unit) {
         timer.record(amount, unit);
@@ -57,5 +51,20 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
     @Override
     public long count() {
         return timer.count();
+    }
+
+    @Override
+    public double mean(TimeUnit unit) {
+        return timer.mean(unit);
+    }
+
+    @Override
+    public double max(TimeUnit unit) {
+        return timer.max(unit);
+    }
+
+    @Override
+    public double percentile(double percentile, TimeUnit unit) {
+        return timer.percentile(percentile, unit);
     }
 }
