@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,6 +102,12 @@ public class BallerinaDocGenerator {
                     docsMap = generatePackageDocsFromBallerina(parentDir.toString(), fileName, packageFilter, isNative);
                 } else {
                     Path dirPath = Paths.get(source);
+
+                    //TODO fix this properly
+                    //TODO Temporary fix that creates .ballerina to create project structure
+                    Path projectFolder = dirPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
+                    Files.createDirectory(projectFolder);
+
                     Path sourceRootPath = LauncherUtils.getSourceRootPath(dirPath.toString());
                     docsMap = generatePackageDocsFromBallerina(sourceRootPath.toString(), dirPath, packageFilter,
                             isNative);
@@ -126,7 +133,7 @@ public class BallerinaDocGenerator {
 
                 // Sort packages by package path
                 List<BLangPackage> packageList = new ArrayList<>(docsMap.values());
-                packageList.sort(Comparator.comparing(pkg -> pkg.getPackageDeclaration().toString()));
+                packageList.sort(Comparator.comparing(pkg -> pkg.packageID.toString()));
 
                 //Iterate over the packages to generate the pages
                 List<String> packageNames = new ArrayList<>(docsMap.keySet());

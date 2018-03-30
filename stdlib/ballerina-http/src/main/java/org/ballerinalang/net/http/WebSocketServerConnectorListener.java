@@ -86,11 +86,12 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, serverConnector);
+        serviceEndpoint.setRefField(3, new BMap());
         serverConnector.addNativeData(WEBSOCKET_ENDPOINT, serviceEndpoint);
         Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
         BMap<String, BString> bUpgradeHeaders = new BMap<>();
         upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
-        serverConnector.setRefField(1, bUpgradeHeaders);
+        serviceEndpoint.setRefField(4, bUpgradeHeaders);
         Resource onUpgradeResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_UPGRADE);
         if (onUpgradeResource != null) {
             Semaphore semaphore = new Semaphore(0);
