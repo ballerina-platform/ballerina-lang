@@ -52,14 +52,11 @@ service<http:Service> echo bind echoEP {
         string payloadData;
         var payload = req.getStringPayload();
         match payload {
+            http:PayloadError err => {
+                return;
+            }
             string s => {
                 payloadData = s;
-            }
-            mime:EntityError err => {
-                return;
-            }
-            null => {
-                return;
             }
         }
         serviceLevelStr = untaint payloadData;
@@ -129,7 +126,7 @@ service<http:Service> echo bind echoEP {
                 name = <string>p.firstName;
                 team = <string>p.team;
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 return;
             }
         }

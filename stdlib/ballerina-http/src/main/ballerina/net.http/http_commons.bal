@@ -46,6 +46,13 @@ public struct ValidateCert {
     int cacheValidityPeriod;
 }
 
+@Description {value:"Represent all http payload related errors"}
+@Field {value:"message: The error message"}
+@Field {value:"cause: The error which caused the entity error"}
+public struct PayloadError {
+    string message;
+    error[] cause;
+}
 
 //////////////////////////////
 /// Native implementations ///

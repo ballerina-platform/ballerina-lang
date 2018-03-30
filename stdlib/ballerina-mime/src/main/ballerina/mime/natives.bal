@@ -88,7 +88,7 @@ public native function <Entity entity> setText (string textContent);
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return text data"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getText () returns string | null | EntityError;
+public native function <Entity entity> getText () returns string | EntityError;
 
 @Description {value:"Set the entity body with the given blob content"}
 @Param {value:"blobContent: Blob content that needs to be set to entity"}
