@@ -1,3 +1,4 @@
+package ballerina.search;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/net.http;

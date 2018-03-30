@@ -10,6 +10,11 @@ import java.util.ServiceLoader;
  */
 public class EmbeddedExecutorProvider {
     private static EmbeddedExecutorProvider provider;
+
+    static {
+        provider = new EmbeddedExecutorProvider();
+    }
+
     private final ServiceLoader<EmbeddedExecutor> loader;
 
     /**
@@ -25,9 +30,6 @@ public class EmbeddedExecutorProvider {
      * @return instance of EmbeddedExecutorProvider
      */
     public static EmbeddedExecutorProvider getInstance() {
-        if (provider == null) {
-            provider = new EmbeddedExecutorProvider();
-        }
         return provider;
     }
 

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.util;
+package org.ballerinalang.cliutils;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.util.codegen.ProgramFile;
