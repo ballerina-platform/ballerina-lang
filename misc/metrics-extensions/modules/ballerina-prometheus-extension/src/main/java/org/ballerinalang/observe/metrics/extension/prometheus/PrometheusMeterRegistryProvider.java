@@ -30,15 +30,17 @@ import java.io.PrintStream;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
+
 /**
  * Support Prometheus with {@link PrometheusMeterRegistry}.
  */
 @JavaSPIService("org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider")
 public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
-    private static final String PROMETHEUS_CONFIG_PREFIX = "prometheus";
-    private static final String PROMETHEUS_ENABLED = PROMETHEUS_CONFIG_PREFIX + ".enabled";
-    private static final String PROMETHEUS_PORT = PROMETHEUS_CONFIG_PREFIX + ".port";
+    private static final String PROMETHEUS_CONFIG_TABLE = CONFIG_TABLE_METRICS + "prometheus";
+    private static final String PROMETHEUS_ENABLED = PROMETHEUS_CONFIG_TABLE + ".enabled";
+    private static final String PROMETHEUS_PORT = PROMETHEUS_CONFIG_TABLE + ".port";
     private static final int DEFAULT_PORT = 9797;
 
     private static final PrintStream console = System.out;
@@ -47,7 +49,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
     @Override
     public MeterRegistry get() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (!Boolean.valueOf(configRegistry.getConfiguration(PROMETHEUS_ENABLED))) {
+        if (!Boolean.valueOf(configRegistry.getConfigOrDefault(PROMETHEUS_ENABLED, String.valueOf(Boolean.TRUE)))) {
             // Do not return if Prometheus is not enabled
             return null;
         }
@@ -81,7 +83,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
         @Override
         public String prefix() {
-            return PROMETHEUS_CONFIG_PREFIX;
+            return PROMETHEUS_CONFIG_TABLE;
         }
 
         @Override
