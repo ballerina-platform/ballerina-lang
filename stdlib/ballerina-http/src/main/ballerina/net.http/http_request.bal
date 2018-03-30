@@ -240,30 +240,33 @@ public function <Request request> getMultiparts () returns (mime:Entity[] | mime
 @Description {value:"Sets a JSON as the request payload"}
 @Param {value:"request: The request message"}
 @Param {value:"payload: The JSON payload to be set to the request"}
-public function <Request request> setJsonPayload (json payload) {
+public function <Request request> setJsonPayload (json payload, string charset = "utf-8") {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setJson(payload);
-    entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_JSON);
+    string defaultContentType = mime:APPLICATION_JSON + mime:CHARSET_PARAM + charset.trim();
+    entity.contentType = getMediaTypeFromRequestWithCharset(request, defaultContentType);
     request.setEntity(entity);
 }
 
 @Description {value:"Sets an XML as the payload"}
 @Param {value:"request: The request message"}
 @Param {value:"payload: The XML payload object"}
-public function <Request request> setXmlPayload (xml payload) {
+public function <Request request> setXmlPayload (xml payload, string charset = "utf-8") {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setXml(payload);
-    entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_XML);
+    string defaultContentType = mime:APPLICATION_XML + mime:CHARSET_PARAM + charset.trim();
+    entity.contentType = getMediaTypeFromRequestWithCharset(request, defaultContentType);
     request.setEntity(entity);
 }
 
 @Description {value:"Sets a string as the request payload"}
 @Param {value:"request: The request message"}
 @Param {value:"payload: The payload to be set to the request as a string"}
-public function <Request request> setStringPayload (string payload) {
+public function <Request request> setStringPayload (string payload, string charset = "utf-8") {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setText(payload);
-    entity.contentType = getMediaTypeFromRequest(request, mime:TEXT_PLAIN);
+    string defaultContentType = mime:TEXT_PLAIN + mime:CHARSET_PARAM + charset.trim();
+    entity.contentType = getMediaTypeFromRequestWithCharset(request, defaultContentType);
     request.setEntity(entity);
 }
 
@@ -314,16 +317,37 @@ public function <Request request> setByteChannel (io:ByteChannel payload) {
 }
 
 @Description {value:"Construct MediaType struct from the content-type header value"}
-@Param {value:"request: The outbound request message"}
+@Param {value:"request: Request message"}
 @Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
 @Return {value:"Return 'MediaType' struct"}
 function getMediaTypeFromRequest (Request request, string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-
     if (request.hasHeader(mime:CONTENT_TYPE)) {
         string contentTypeValue = request.getHeader(mime:CONTENT_TYPE);
-        if (contentTypeValue != "") { // TODO: may need to trim this before doing an empty string check
+        if (contentTypeValue.trim() != "") {
             return mime:getMediaType(contentTypeValue);
+        } else {
+            return mediaType;
+        }
+    } else {
+        return mediaType;
+    }
+}
+
+@Description {value:"Construct MediaType struct from the content-type header value and add charset param"}
+@Param {value:"request: Request message"}
+@Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
+@Return {value:"Return 'MediaType' struct"}
+function getMediaTypeFromRequestWithCharset (Request request, string defaultContentType) returns (mime:MediaType) {
+    mime:MediaType mediaType = mime:getMediaType(defaultContentType);
+    if (request.hasHeader(mime:CONTENT_TYPE)) {
+        string contentTypeValue = request.getHeader(mime:CONTENT_TYPE);
+        if (contentTypeValue.trim() != "") {
+            mime:MediaType userDefinedContentType = mime:getMediaType(contentTypeValue);
+            if(userDefinedContentType.parameters.charset == "" || mediaType.parameters.charset != "utf-8") {
+                userDefinedContentType.parameters.charset = mediaType.parameters.charset;
+            }
+            return userDefinedContentType;
         } else {
             return mediaType;
         }
