@@ -271,7 +271,8 @@ function invokeClientConnectorForSubscription (string hub, map subscriptionDetai
     match (subscriptionResponse) {
         SubscriptionChangeResponse subscriptionChangeResponse => { log:printInfo(
                    "Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +"], for Topic["
-                                                             + subscriptionChangeResponse.topic + "]");
+                                                             + subscriptionChangeResponse.topic + "], with Callback ["
+                                                             + callback + "]");
         }
         WebSubError webSubError => { log:printError("Subscription Request failed at Hub[" + hub +"], for Topic[" + topic
                                                     + "]: " + webSubError.errorMessage);

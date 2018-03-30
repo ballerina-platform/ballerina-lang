@@ -47,9 +47,6 @@ class HubSubscriber extends Consumer {
     HubSubscriber(String queue, String topic, String callback, BStruct subscriptionDetails) {
         this.queue = queue;
         this.topic = topic;
-        if (!callback.endsWith("/")) {
-            callback = callback.concat("/");
-        }
         this.callback = callback;
         this.subscriptionDetails = subscriptionDetails;
     }

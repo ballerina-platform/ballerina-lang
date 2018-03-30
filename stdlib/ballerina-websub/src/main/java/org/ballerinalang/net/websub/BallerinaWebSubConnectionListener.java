@@ -96,8 +96,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 String mode = params.get(WebSubSubscriberConstants.PARAM_HUB_MODE).stringValue();
                 if ((WebSubSubscriberConstants.SUBSCRIBE.equals(mode)
                              || WebSubSubscriberConstants.UNSUBSCRIBE.equals(mode))
-                        && annotatedTopic.equals(
-                             params.get(WebSubSubscriberConstants.PARAM_HUB_TOPIC).stringValue())) {
+                        && annotatedTopic.equals(params.get(WebSubSubscriberConstants.PARAM_HUB_TOPIC).stringValue())) {
                     String challenge = params.get(
                     WebSubSubscriberConstants.PARAM_HUB_CHALLENGE).stringValue();
                     response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(

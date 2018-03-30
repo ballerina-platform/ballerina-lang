@@ -342,9 +342,9 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
     };
 
     sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.topic};
+    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.callback};
     sql:Parameter[] sqlParams;
     if (mode == websub:MODE_SUBSCRIBE) {
-        sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.callback};
         sql:Parameter para3 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.secret};
         sql:Parameter para4 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.leaseSeconds};
         sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.createdAt};
@@ -358,11 +358,6 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
             sql:SQLConnectorError err => log:printError("Error occurred updating subscription data: " + err.message);
         }
     } else {
-        string unsubscribingTopic = subscriptionDetails.callback;
-        if (!unsubscribingTopic.hasSuffix("/")) {
-            unsubscribingTopic = unsubscribingTopic + "/";
-        }
-        sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:unsubscribingTopic};
         sqlParams = [para1, para2];
         var updateStatus = subscriptionDbEp -> update(
                                                "DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
@@ -502,7 +497,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
         request.setHeader(websub:X_HUB_UUID, util:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(getHubUrl(), subscriptionDetails.topic));
-        var contentDistributionRequest = callbackEp -> post("/", request);
+        var contentDistributionRequest = callbackEp -> post("", request);
         match (contentDistributionRequest) {
             http:Response response => { return; }
             http:HttpConnectorError err => { log:printError("Error delievering content to: " + callback); }
