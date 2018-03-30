@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Arrays;

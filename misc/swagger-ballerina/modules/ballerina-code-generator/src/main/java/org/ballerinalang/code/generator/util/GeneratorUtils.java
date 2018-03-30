@@ -58,7 +58,7 @@ public class GeneratorUtils {
     }
 
     /**
-     * Retrieve {@link Map} representation of a Ballerina Record Key Value list
+     * Retrieve {@link Map} representation of a Ballerina Record Key Value list.
      *
      * @param list list of key value pairs
      * @return Map of key value pairs. Empty Map will be returned if list is empty.
@@ -74,7 +74,7 @@ public class GeneratorUtils {
                 List<? extends ExpressionNode> exprs = ((BLangArrayLiteral) attr.getValue()).getExpressions();
                 String[] values = new String[exprs.size()];
 
-                for(int i = 0; i < exprs.size(); i++) {
+                for (int i = 0; i < exprs.size(); i++) {
                     values[i] = ((BLangLiteral) exprs.get(i)).getValue().toString();
                 }
 

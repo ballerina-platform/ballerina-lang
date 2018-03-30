@@ -46,7 +46,7 @@ service<websub:SubscriberService> websubSubscriber bind websubEP {
         var reqPayload = request.getJsonPayload();
         match (reqPayload) {
             json jsonPayload => { log:printInfo("WebSub Notification Received: " + jsonPayload.toString()); }
-            mime:EntityError => { log:printInfo("Error occurred processing WebSub Notification"); }
+            http:PayloadError error => { log:printInfo("Error occurred processing WebSub Notification"); }
         }
     }
 
