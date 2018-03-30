@@ -17,88 +17,88 @@
 package ballerina.net.http;
 
 documentation{The HTTP response status code: 100 Continue}
-public const int RESPONSE_100_CONTINUE = 100;
+public const int CONTINUE_100 = 100;
 documentation{The HTTP response status code: 101 Switching Protocols}
-public const int RESPONSE_101_SWITCHING_PROTOCOLS = 101;
+public const int SWITCHING_PROTOCOLS_101 = 101;
 
 documentation{The HTTP response status code: 200 OK}
-public const int RESPONSE_200_OK = 200;
+public const int OK_200 = 200;
 documentation{The HTTP response status code: 201 Created}
-public const int RESPONSE_201_CREATED = 201;
+public const int CREATED_201 = 201;
 documentation{The HTTP response status code: 202 Accepted}
-public const int RESPONSE_202_ACCEPTED = 202;
+public const int ACCEPTED_202 = 202;
 documentation{The HTTP response status code: 203 Non Authoritative Information}
-public const int RESPONSE_203_NON_AUTHORITATIVE_INFORMATION = 203;
+public const int NON_AUTHORITATIVE_INFORMATION_203 = 203;
 documentation{The HTTP response status code: 204 No Content}
-public const int RESPONSE_204_NO_CONTENT = 204;
+public const int NO_CONTENT_204 = 204;
 documentation{The HTTP response status code: 205 Reset Content}
-public const int RESPONSE_205_RESET_CONTENT = 205;
+public const int RESET_CONTENT_205 = 205;
 documentation{The HTTP response status code: 206 Partial Content}
-public const int RESPONSE_206_PARTIAL_CONTENT = 206;
+public const int PARTIAL_CONTENT_206 = 206;
 
 documentation{The HTTP response status code: 300 Multiple Choices}
-public const int RESPONSE_300_MULTIPLE_CHOICES = 300;
+public const int MULTIPLE_CHOICES_300 = 300;
 documentation{The HTTP response status code: 301 Moved Permanently}
-public const int RESPONSE_301_MOVED_PERMANENTLY = 301;
+public const int MOVED_PERMANENTLY_301 = 301;
 documentation{The HTTP response status code: 302 Found}
-public const int RESPONSE_302_FOUND = 302;
+public const int FOUND_302 = 302;
 documentation{The HTTP response status code: 303 See Other}
-public const int RESPONSE_303_SEE_OTHER = 303;
+public const int SEE_OTHER_303 = 303;
 documentation{The HTTP response status code: 304 Not Modified}
-public const int RESPONSE_304_NOT_MODIFIED = 304;
+public const int NOT_MODIFIED_304 = 304;
 documentation{The HTTP response status code: 305 Use Proxy}
-public const int RESPONSE_305_USE_PROXY = 305;
+public const int USE_PROXY_305 = 305;
 documentation{The HTTP response status code: 307 Temporary Redirect}
-public const int RESPONSE_307_TEMPORARY_REDIRECT = 307;
+public const int TEMPORARY_REDIRECT_307 = 307;
 
 documentation{The HTTP response status code: 400 Bad Request}
-public const int RESPONSE_400_BAD_REQUEST = 400;
+public const int BAD_REQUEST_400 = 400;
 documentation{The HTTP response status code: 401 Unauthorized}
-public const int RESPONSE_401_UNAUTHORIZED = 401;
+public const int UNAUTHORIZED_401 = 401;
 documentation{The HTTP response status code: 402 Payment Required}
-public const int RESPONSE_402_PAYMENT_REQUIRED = 402;
+public const int PAYMENT_REQUIRED_402 = 402;
 documentation{The HTTP response status code: 403 Forbidden}
-public const int RESPONSE_403_FORBIDDEN = 403;
+public const int FORBIDDEN_403 = 403;
 documentation{The HTTP response status code: 404 Not Found}
-public const int RESPONSE_404_NOT_FOUND = 404;
+public const int NOT_FOUND_404 = 404;
 documentation{The HTTP response status code: 405 Method Not Allowed}
-public const int RESPONSE_405_METHOD_NOT_ALLOWED = 405;
+public const int METHOD_NOT_ALLOWED_405 = 405;
 documentation{The HTTP response status code: 406 Not Acceptable}
-public const int RESPONSE_406_NOT_ACCEPTABLE = 406;
+public const int NOT_ACCEPTABLE_406 = 406;
 documentation{The HTTP response status code: 407 Proxy Authentication Required}
-public const int RESPONSE_407_PROXY_AUTHENTICATION_REQUIRED = 407;
+public const int PROXY_AUTHENTICATION_REQUIRED_407 = 407;
 documentation{The HTTP response status code: 408 Request Timeout}
-public const int RESPONSE_408_REQUEST_TIMEOUT = 408;
+public const int REQUEST_TIMEOUT_408 = 408;
 documentation{The HTTP response status code: 409 Conflict}
-public const int RESPONSE_409_CONFLICT = 409;
+public const int CONFLICT_409 = 409;
 documentation{The HTTP response status code: 410 Gone}
-public const int RESPONSE_410_GONE = 410;
+public const int GONE_410 = 410;
 documentation{The HTTP response status code: 411 Length Required}
-public const int RESPONSE_411_LENGTH_REQUIRED = 411;
+public const int LENGTH_REQUIRED_411 = 411;
 documentation{The HTTP response status code: 412 Precondition Failed}
-public const int RESPONSE_412_PRECONDITION_FAILED = 412;
+public const int PRECONDITION_FAILED_412 = 412;
 documentation{The HTTP response status code: 413 Payload Too Large}
-public const int RESPONSE_413_PAYLOAD_TOO_LARGE = 413;
+public const int PAYLOAD_TOO_LARGE_413 = 413;
 documentation{The HTTP response status code: 414 URI Too Long}
-public const int RESPONSE_414_URI_TOO_LONG = 414;
+public const int URI_TOO_LONG_414 = 414;
 documentation{The HTTP response status code: 415 Unsupported Media Type}
-public const int RESPONSE_415_UNSUPPORTED_MEDIA_TYPE = 415;
+public const int UNSUPPORTED_MEDIA_TYPE = 415;
 documentation{The HTTP response status code: 416 Range Not Satisfiable}
-public const int RESPONSE_416_RANGE_NOT_SATISFIABLE = 416;
+public const int RANGE_NOT_SATISFIABLE_416 = 416;
 documentation{The HTTP response status code: 417 Expectation Failed}
-public const int RESPONSE_417_EXPECTATION_FAILED = 417;
+public const int EXPECTATION_FAILED_417 = 417;
 documentation{The HTTP response status code: 426 Upgrade Required}
-public const int RESPONSE_426_UPGRADE_REQUIRED = 426;
+public const int UPGRADE_REQUIRED_426 = 426;
 
 documentation{The HTTP response status code: 500 Internal Server Error}
-public const int RESPONSE_500_INTERNAL_SERVER_ERROR = 500;
+public const int INTERNAL_SERVER_ERROR_500 = 500;
 documentation{The HTTP response status code: 501 Not Implemented}
-public const int RESPONSE_501_NOT_IMPLEMENTED = 501;
+public const int NOT_IMPLEMENTED_501 = 501;
 documentation{The HTTP response status code: 502 Bad Gateway}
-public const int RESPONSE_502_BAD_GATEWAY = 502;
+public const int BAD_GATEWAY_502 = 502;
 documentation{The HTTP response status code: 503 Service Unavailable}
-public const int RESPONSE_503_SERVICE_UNAVAILABLE = 503;
+public const int SERVICE_UNAVAILABLE_503 = 503;
 documentation{The HTTP response status code: 504 Gateway Timeout}
-public const int RESPONSE_504_GATEWAY_TIMEOUT = 504;
+public const int GATEWAY_TIMEOUT_504 = 504;
 documentation{The HTTP response status code: 505 HTTP Version Not Supported}
-public const int RESPONSE_505_HTTP_VERSION_NOT_SUPPORTED = 505;
+public const int HTTP_VERSION_NOT_SUPPORTED_505 = 505;

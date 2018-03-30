@@ -137,12 +137,12 @@ function <HttpCache httpCache> remove (string key) {
 }
 
 function isCacheableStatusCode (int statusCode) returns boolean {
-    return statusCode == RESPONSE_200_OK || statusCode == RESPONSE_203_NON_AUTHORITATIVE_INFORMATION ||
-           statusCode == RESPONSE_204_NO_CONTENT || statusCode == RESPONSE_206_PARTIAL_CONTENT ||
-           statusCode == RESPONSE_300_MULTIPLE_CHOICES || statusCode == RESPONSE_301_MOVED_PERMANENTLY ||
-           statusCode == RESPONSE_404_NOT_FOUND || statusCode == RESPONSE_405_METHOD_NOT_ALLOWED ||
-           statusCode == RESPONSE_410_GONE || statusCode == RESPONSE_414_URI_TOO_LONG ||
-           statusCode == RESPONSE_501_NOT_IMPLEMENTED;
+    return statusCode == OK_200 || statusCode == NON_AUTHORITATIVE_INFORMATION_203 ||
+           statusCode == NO_CONTENT_204 || statusCode == PARTIAL_CONTENT_206 ||
+           statusCode == MULTIPLE_CHOICES_300 || statusCode == MOVED_PERMANENTLY_301 ||
+           statusCode == NOT_FOUND_404 || statusCode == METHOD_NOT_ALLOWED_405 ||
+           statusCode == GONE_410 || statusCode == URI_TOO_LONG_414 ||
+           statusCode == NOT_IMPLEMENTED_501;
 }
 
 function addEntry (caching:Cache cache, string key, Response inboundResponse) {
