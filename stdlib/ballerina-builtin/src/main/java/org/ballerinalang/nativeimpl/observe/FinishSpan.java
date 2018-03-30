@@ -16,39 +16,31 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
 
 /**
- * This function adds tags to a span.
+ * This function which implements the finishSpan method for tracing.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "addTag",
+        functionName = "finishSpan",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {
-                @Argument(name = "tagKey", type = TypeKind.STRING),
-                @Argument(name = "tagValue", type = TypeKind.STRING)
-        },
-        returnType = @ReturnType(type = TypeKind.VOID),
         isPublic = true
 )
-public class AddTag extends BlockingNativeCallableUnit {
+public class FinishSpan extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
         String spanId = span.getStringField(0);
-        String tagKey = context.getStringArgument(0);
-        String tagValue = context.getStringArgument(1);
-        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue);
+        OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
     }
 }

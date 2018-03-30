@@ -16,55 +16,40 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.log.AbstractLogFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
 
 /**
- * This function adds logs to a span.
+ * This function adds tags to a span.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "log",
+        functionName = "addTag",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         args = {
-                @Argument(name = "event", type = TypeKind.STRING),
-                @Argument(name = "message", type = TypeKind.STRING)
+                @Argument(name = "tagKey", type = TypeKind.STRING),
+                @Argument(name = "tagValue", type = TypeKind.STRING)
         },
         returnType = @ReturnType(type = TypeKind.VOID),
         isPublic = true
 )
-public class Log extends AbstractLogFunction {
+public class AddTag extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
         String spanId = span.getStringField(0);
-        String event = context.getStringArgument(0);
-        String message = context.getStringArgument(1);
-
-        String pkg = getPackagePath(context);
-
-        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            String logMessage = String.format("[Tracing] Service: %s, Span: %s, Event: %s, Message: %s",
-                    span.getStringField(1), span.getStringField(2), event, message);
-            getLogger(pkg).info(logMessage);
-        }
-
-        Map<String, String> logMap = new HashMap<>();
-        logMap.put("event", event);
-        logMap.put("message", message);
-        OpenTracerBallerinaWrapper.getInstance().log(spanId, logMap);
+        String tagKey = context.getStringArgument(0);
+        String tagValue = context.getStringArgument(1);
+        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue);
     }
 }

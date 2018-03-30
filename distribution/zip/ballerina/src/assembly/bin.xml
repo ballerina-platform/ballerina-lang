@@ -68,12 +68,6 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-trace-jar/META-INF/natives
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
     </fileSets>
 
     <files>
@@ -194,7 +188,6 @@
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-observe:jar</include>
-                <include>org.ballerinalang:ballerina-trace:jar</include>
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
                 <include>io.opentracing:opentracing-api</include>
                 <include>io.opentracing:opentracing-util</include>

@@ -16,20 +16,19 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
-import io.opentracing.SpanContext;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
+import org.ballerinalang.observe.trace.ReferenceType;
 
 import java.util.Collections;
-import java.util.Map;
 
 /**
  * This function which implements the startSpan method for tracing.
@@ -37,19 +36,16 @@ import java.util.Map;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "startSpanWithParentContext",
+        functionName = "startRootSpan",
         args = {
                 @Argument(name = "serviceName", type = TypeKind.STRING),
                 @Argument(name = "spanName", type = TypeKind.STRING),
                 @Argument(name = "tags", type = TypeKind.MAP),
-                @Argument(name = "reference", type = TypeKind.ENUM),
-                @Argument(name = "parentSpanContext", type = TypeKind.STRUCT, structType = "SpanContext",
-                        structPackage = "ballerina.observe")
         },
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         isPublic = true
 )
-public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
+public class StartRootSpan extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -57,22 +53,9 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
         String serviceName = context.getStringArgument(0);
         String spanName = context.getStringArgument(1);
         BMap tags = (BMap) context.getRefArgument(0);
-        String reference = context.getRefArgument(1).stringValue();
-        BStruct parentSpanContextStruct = (BStruct) context.getRefArgument(2);
-
-        Map<String, SpanContext> extractedSpanContextMap;
-        if (ReferenceType.valueOf(reference) != ReferenceType.ROOT && parentSpanContextStruct != null &&
-                parentSpanContextStruct.getRefField(0) != null) {
-
-            Map<String, String> parentSpanContextMap =
-                    Utils.toStringMap((BMap) parentSpanContextStruct.getRefField(0));
-            extractedSpanContextMap = OpenTracerBallerinaWrapper.getInstance().extract(parentSpanContextMap);
-        } else {
-            extractedSpanContextMap = Collections.emptyMap();
-        }
 
         String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
-                Utils.toStringMap(tags), ReferenceType.valueOf(reference), extractedSpanContextMap);
+                Utils.toStringMap(tags), ReferenceType.ROOT, Collections.emptyMap());
 
         if (spanId != null) {
             context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));

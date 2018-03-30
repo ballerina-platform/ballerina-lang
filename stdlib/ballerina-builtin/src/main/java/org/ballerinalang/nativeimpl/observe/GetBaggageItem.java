@@ -16,30 +16,40 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
 
 /**
- * This function which implements the finishSpan method for tracing.
+ * This function adds baggage items to a span.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "finishSpan",
+        functionName = "getBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
+        args = @Argument(name = "baggageKey", type = TypeKind.STRING),
+        returnType = @ReturnType(type = TypeKind.STRING),
         isPublic = true
 )
-public class FinishSpan extends BlockingNativeCallableUnit {
+public class GetBaggageItem extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
         String spanId = span.getStringField(0);
-        OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
+        String baggageKey = context.getStringArgument(0);
+        String baggageItem = OpenTracerBallerinaWrapper.getInstance().getBaggageItem(spanId, baggageKey);
+        if (baggageItem != null) {
+            context.setReturnValues(new BString(baggageItem));
+        }
     }
 }

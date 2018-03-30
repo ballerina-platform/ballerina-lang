@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.util.BLogLevel;
@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.observe.trace.OpenTracerBallerinaWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
