@@ -95,7 +95,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     private StringBuilder streamingInputClause;
     private StringBuilder selectExprClause;
     private StringBuilder selectExpr;
-    private StringBuilder setAssignmentClause;
     private StringBuilder groupByClause;
     private StringBuilder havingClause;
     private StringBuilder patternStreamingClause;
@@ -123,10 +122,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     private SiddhiQueryBuilder(CompilerContext context) {
         context.put(SIDDHI_QUERY_BUILDER_KEY, this);
-    }
-
-    public static CompilerContext.Key<SiddhiQueryBuilder> getSiddhiQueryBuilderKey() {
-        return SIDDHI_QUERY_BUILDER_KEY;
     }
 
     List<BLangExpression> getInStreamRefs() {
@@ -162,11 +157,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef variableReference) {
         varRef = variableReference.getVariableName().value;
-    }
-
-    @Override
-    public void visit(BLangLiteral literalExpr) {
-        varRef = literalExpr.toString();
     }
 
     @Override
@@ -379,7 +369,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamingInputClause = null;
         selectExprClause = null;
         selectExpr = null;
-        setAssignmentClause = null;
         groupByClause = null;
         havingClause = null;
         patternStreamingClause = null;
@@ -396,11 +385,11 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         List<VariableSymbol> functionVariables = foreverStatement.getFunctionVariables();
         if (functionVariables != null) {
             for (VariableSymbol variable : functionVariables) {
-                getStreamDefintionForFuntionVariable((BVarSymbol) variable);
+                getStreamDefinitionForFunctionVariable((BVarSymbol) variable);
             }
         }
 
-        List<? extends StatementNode> statementNodes = foreverStatement.gettreamingQueryStatements();
+        List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
         for (StatementNode statementNode : statementNodes) {
             ((BLangStatement) statementNode).accept(this);
         }
@@ -410,23 +399,24 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        StringBuilder streamDefinition = new StringBuilder("define stream ");
-        streamDefinition.append(varNode.name).append("( ");
+        String name = varNode.name.toString();
         List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varNode).type).
                 constraint).fields;
-        generateStreamDefinition(structFieldList, streamDefinition);
+        createStreamDefinitionQuery(name, structFieldList);
+    }
 
+    private void createStreamDefinitionQuery(String name, List<BStructType.BStructField> structFieldList) {
+        StringBuilder streamDefinition = new StringBuilder("define stream ");
+        streamDefinition.append(name).append("( ");
+        generateStreamDefinition(structFieldList, streamDefinition);
         streamDefinitionQuery.append(streamDefinition).append("\n");
     }
 
-    private void getStreamDefintionForFuntionVariable(BVarSymbol varSymbol) {
-        StringBuilder streamDefinition = new StringBuilder("define stream ");
-        streamDefinition.append(varSymbol.name).append("( ");
+    private void getStreamDefinitionForFunctionVariable(BVarSymbol varSymbol) {
+        String name = varSymbol.name.toString();
         List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varSymbol).type).constraint).
                 fields;
-        generateStreamDefinition(structFieldList, streamDefinition);
-
-        streamDefinitionQuery.append(streamDefinition).append("\n");
+        createStreamDefinitionQuery(name, structFieldList);
     }
 
     @Override
@@ -505,32 +495,96 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangPatternStreamingInput patternStreamingInput) {
         boolean isFollowedByPattern = patternStreamingInput.isFollowedBy();
-        boolean enclosedInParanthesisPattern = patternStreamingInput.enclosedInParanthesis();
+        boolean enclosedInParenthesisPattern = patternStreamingInput.enclosedInParenthesis();
+        boolean onlyAndAvailable = patternStreamingInput.isAndOnly();
+        boolean onlyOrAvailable = patternStreamingInput.isOrOnly();
+        boolean andWithNotAvailable = patternStreamingInput.isAndWithNot();
+        boolean forWithNotAvailable = patternStreamingInput.isForWithNot();
+
         List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs =
                 patternStreamingInput.getPatternStreamingEdgeInputs();
         BLangPatternStreamingInput nestedPatternStreamingInput =
                 (BLangPatternStreamingInput) patternStreamingInput.getPatternStreamingInput();
 
         if (isFollowedByPattern) {
-            BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
-                    patternStreamingEdgeInputs.get(0);
-            patternStreamingEdgeInput.accept(this);
-            patternStreamingClause.append(" -> ");
-            ((BLangPatternStreamingInput) patternStreamingInput.getPatternStreamingInput()).accept(this);
+            buildFollowedByPattern(patternStreamingEdgeInputs, nestedPatternStreamingInput);
+            return;
         }
 
-        if (enclosedInParanthesisPattern) {
-            patternStreamingClause.append("( ");
-            nestedPatternStreamingInput.accept(this);
-            patternStreamingClause.append(" ) ");
+        if (enclosedInParenthesisPattern) {
+            buildEnclosedPattern(nestedPatternStreamingInput);
+            return;
         }
 
-        if (!isFollowedByPattern && !enclosedInParanthesisPattern) {
-            BLangPatternStreamingEdgeInput patternStreamingEdgeInput =
-                    (BLangPatternStreamingEdgeInput) patternStreamingEdgeInputs.get(0);
-            patternStreamingEdgeInput.accept(this);
+        if (onlyAndAvailable || andWithNotAvailable || onlyOrAvailable) {
+            String op = "";
+            if (andWithNotAvailable) {
+                patternStreamingClause.append(" not ");
+            }
+
+            if (onlyAndAvailable || andWithNotAvailable) {
+                op = " and ";
+            }
+
+            if (onlyOrAvailable) {
+                op = " or ";
+            }
+
+            BuildPatternWithAndOr(patternStreamingEdgeInputs, op);
+            return;
         }
 
+        if (forWithNotAvailable) {
+            buildPatternWithTimePeriod(patternStreamingInput, patternStreamingEdgeInputs);
+            return;
+        }
+
+        BLangPatternStreamingEdgeInput patternStreamingEdgeInput =
+                (BLangPatternStreamingEdgeInput) patternStreamingEdgeInputs.get(0);
+        patternStreamingEdgeInput.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLiteral bLangLiteral) {
+        varRef = bLangLiteral.toString();
+    }
+
+    private void buildPatternWithTimePeriod(BLangPatternStreamingInput patternStreamingInput,
+                                            List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs) {
+        patternStreamingClause.append(" not ");
+        BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
+                patternStreamingEdgeInputs.get(0);
+        patternStreamingEdgeInput.accept(this);
+        patternStreamingClause.append(" for ");
+        BLangExpression timeExpr = (BLangExpression) patternStreamingInput.getTimeExpr();
+        timeExpr.accept(this);
+        patternStreamingClause.append(varRef);
+        varRef = "";
+    }
+
+    private void BuildPatternWithAndOr(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs, String op) {
+        BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
+                patternStreamingEdgeInputs.get(0);
+        patternStreamingEdgeInput.accept(this);
+        patternStreamingClause.append(op);
+        patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
+                patternStreamingEdgeInputs.get(1);
+        patternStreamingEdgeInput.accept(this);
+    }
+
+    private void buildEnclosedPattern(BLangPatternStreamingInput nestedPatternStreamingInput) {
+        patternStreamingClause.append("( ");
+        nestedPatternStreamingInput.accept(this);
+        patternStreamingClause.append(" ) ");
+    }
+
+    private void buildFollowedByPattern(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs,
+                                        BLangPatternStreamingInput nestedPatternStreamingInput) {
+        BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
+                patternStreamingEdgeInputs.get(0);
+        patternStreamingEdgeInput.accept(this);
+        patternStreamingClause.append(" -> ");
+        nestedPatternStreamingInput.accept(this);
     }
 
     @Override
@@ -583,38 +637,33 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         Iterator<BStructType.BStructField> structFieldIterator = structFieldList.iterator();
         BStructType.BStructField structField = structFieldIterator.next();
         if (structField != null) {
-            streamDefinition.append(structField.getName()).append(" ");
-            String type = structField.getType().toString();
-            //Eventhough, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined
-            //as long.
-            if (type.equalsIgnoreCase("int")) {
-                type = "long";
-            } else if (type.equalsIgnoreCase("float")) {
-                type = "double";
-            } else if (type.equalsIgnoreCase("boolean")) {
-                type = "bool";
-            }
-            streamDefinition.append(type);
+            addTypesToStreamDefinitionQuery(streamDefinition, structField);
         }
 
         while (structFieldIterator.hasNext()) {
             structField = structFieldIterator.next();
             streamDefinition.append(" , ");
-            streamDefinition.append(structField.getName()).append(" ");
-            String type = structField.getType().toString();
-            if (type.equalsIgnoreCase("int")) {
-                type = "long";
-            } else if (type.equalsIgnoreCase("float")) {
-                type = "double";
-            } else if (type.equalsIgnoreCase("boolean")) {
-                type = "bool";
-            }
-            streamDefinition.append(type);
+            addTypesToStreamDefinitionQuery(streamDefinition, structField);
         }
 
         if (structField != null) {
             streamDefinition.append(" ); ");
         }
+    }
+
+    private void addTypesToStreamDefinitionQuery(StringBuilder streamDefinition, BStructType.BStructField structField) {
+        streamDefinition.append(structField.getName()).append(" ");
+        String type = structField.getType().toString();
+        //Eventhough, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined
+        //as long.
+        if (type.equalsIgnoreCase("int")) {
+            type = "long";
+        } else if (type.equalsIgnoreCase("float")) {
+            type = "double";
+        } else if (type.equalsIgnoreCase("boolean")) {
+            type = "bool";
+        }
+        streamDefinition.append(type);
     }
 
     @Override
@@ -646,11 +695,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     // adds the input streams/tables references
     private void addInRefs(BLangExpression streamReference) {
         addRefs(streamReference, inStreamRefs, inTableRefs);
-    }
-
-    // adds the output streams/tables references
-    private void addOutRefs(BLangExpression streamReference) {
-        addRefs(streamReference, outStreamRefs, outTableRefs);
     }
 
     private void addRefs(BLangExpression ref, List<BLangExpression> streams, List<BLangExpression> tables) {

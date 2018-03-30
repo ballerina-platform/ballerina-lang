@@ -921,7 +921,7 @@ public class Desugar extends BLangNodeVisitor {
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
-        addFunctionPointersToArgs(args, forever.gettreamingQueryStatements());
+        addFunctionPointersToArgs(args, forever.getStreamingQueryStatements());
         return createInvocationNode(CREATE_FOREVER, args, retTypes);
     }
 

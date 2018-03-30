@@ -1181,7 +1181,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     //Streaming related methods.
 
     public void visit(BLangForever foreverStatement) {
-        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.gettreamingQueryStatements()) {
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
