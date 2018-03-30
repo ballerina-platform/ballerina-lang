@@ -22,10 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.Collections;
 
 /**
  * This function which implements the startSpan method for tracing.
@@ -33,11 +34,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "init",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "startRootSpan",
+        args = {
+                @Argument(name = "serviceName", type = TypeKind.STRING),
+                @Argument(name = "spanName", type = TypeKind.STRING),
+                @Argument(name = "tags", type = TypeKind.MAP),
+        },
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         isPublic = true
 )
-public class StartSpan extends BlockingNativeCallableUnit {
+public class StartRootSpan extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -45,18 +51,15 @@ public class StartSpan extends BlockingNativeCallableUnit {
         String serviceName = context.getStringArgument(0);
         String spanName = context.getStringArgument(1);
         BMap tags = (BMap) context.getRefArgument(0);
-        String reference = context.getRefArgument(1).stringValue();
-        String parentSpanId = ReferenceType.valueOf(reference) == ReferenceType.ROOT ?
-                OpenTracerBallerinaWrapper.ROOT_CONTEXT : context.getStringArgument(2);
 
         String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
-                Utils.toStringMap(tags), ReferenceType.valueOf(reference), parentSpanId);
+                Utils.toStringMap(tags), ReferenceType.ROOT, Collections.emptyMap());
 
         if (spanId != null) {
-            context.setReturnValues(new BString(spanId));
+            context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));
         } else {
-            throw new BallerinaException("Can not use tracing API when tracing is disabled. " +
-                    "Check tracing configurations and dependencies.");
+            context.setReturnValues(Utils.createSpanStruct(context, null, null, null));
+            System.err.println("ballerina: Can not use tracing API when tracing is disabled");
         }
     }
 }

@@ -26,6 +26,7 @@ import org.ballerinalang.nativeimpl.log.AbstractLogFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,8 +45,11 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_STR_TRUE;
         packageName = "observe",
         functionName = "logError",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {@Argument(name = "errorKind", type = TypeKind.STRING),
-                @Argument(name = "message", type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "errorKind", type = TypeKind.STRING),
+                @Argument(name = "message", type = TypeKind.STRING)
+        },
+        returnType = @ReturnType(type = TypeKind.VOID),
         isPublic = true
 )
 public class ErrorLog extends AbstractLogFunction {
