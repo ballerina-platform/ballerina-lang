@@ -193,7 +193,8 @@ public class BLangFunctions {
                 invokeNonNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
                 resultCtx = parentCtx;
             } else {
-                resultCtx = invokeNonNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse, flags);
+                resultCtx = invokeNonNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse,
+                        flags);
             }
         }
         resultCtx = BLangScheduler.resume(resultCtx, true);

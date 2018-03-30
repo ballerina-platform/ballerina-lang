@@ -30,8 +30,8 @@ import java.io.File;
 import java.net.ConnectException;
 import java.util.concurrent.Executors;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This class includes an integration scenario which covers the following:
