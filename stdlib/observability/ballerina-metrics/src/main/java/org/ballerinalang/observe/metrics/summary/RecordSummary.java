@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
@@ -58,9 +59,9 @@ public class RecordSummary extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            MetricRegistry.getDefaultRegistry().summary(new MetricId(name, description, tags)).record(amount);
+            Summary.builder(name).description(description).tags(tags).register().record(amount);
         } else {
-            MetricRegistry.getDefaultRegistry().summary(new MetricId(name, description, null)).record(amount);
+            Summary.builder(name).description(description).register().record(amount);
         }
     }
 }

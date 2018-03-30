@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.Tag;
+import org.ballerinalang.util.metrics.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,12 +67,11 @@ public class MaxTimer extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .timer(new MetricId(name, description, tags)).max(timeUnit)));
+            context.setReturnValues(new BFloat(Timer.builder(name).description(description).tags(tags).register()
+                    .max(timeUnit)));
 
         } else {
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .timer(new MetricId(name, description, null)).max(timeUnit)));
+            context.setReturnValues(new BFloat(Timer.builder(name).description(description).register().max(timeUnit)));
         }
     }
 }

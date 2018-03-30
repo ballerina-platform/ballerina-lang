@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.Tag;
@@ -61,9 +62,9 @@ public class IncrementGaugeByOne extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            MetricRegistry.getDefaultRegistry().gauge(new MetricId(name, description, tags)).increment();
+            Gauge.builder(name).description(description).tags(tags).register().increment();
         } else {
-            MetricRegistry.getDefaultRegistry().gauge(new MetricId(name, description, null)).increment();
+            Gauge.builder(name).description(description).register().increment();
         }
     }
 }

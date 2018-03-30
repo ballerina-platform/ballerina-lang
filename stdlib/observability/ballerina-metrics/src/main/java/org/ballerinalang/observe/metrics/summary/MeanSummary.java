@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
@@ -60,12 +61,11 @@ public class MeanSummary extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .summary(new MetricId(name, description, tags)).mean()));
+            context.setReturnValues(new BFloat(Summary.builder(name).description(description).tags(tags).register()
+                    .mean()));
 
         } else {
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .summary(new MetricId(name, description, null)).mean()));
+            context.setReturnValues(new BFloat(Summary.builder(name).description(description).register().mean()));
         }
     }
 }

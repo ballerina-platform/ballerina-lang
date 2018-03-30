@@ -26,10 +26,6 @@ public struct Counter {
     map tags;
 }
 
-@Description {value:"Create and register the counter."}
-@Param {value:"counter: The counter instance to be registered."}
-public native function <Counter counter> register();
-
 @Description {value:"Increment the counter by one."}
 @Param {value:"counter: The counter instance to be incremented by one."}
 public native function <Counter counter> incrementByOne();
@@ -53,10 +49,6 @@ public struct Gauge {
     string description;
     map tags;
 }
-
-@Description {value:"Create and register the gauge."}
-@Param {value:"gauge: The gauge instance to be registered."}
-public native function <Gauge gauge> register();
 
 @Description {value:"Increment the gauge by one."}
 @Param {value:"gauge: The gauge instance to be incremented by one."}
@@ -95,10 +87,6 @@ public struct Summary {
     string description;
     map tags;
 }
-
-@Description {value:"Create and register the summary."}
-@Param {value:"summary: The summary instance to be registered."}
-public native function <Summary summary> register();
 
 @Description {value:"Returns the maximum time of a single event."}
 @Param {value:"summary: The summary instance."}
@@ -153,10 +141,6 @@ public struct Timer {
     string description;
     map tags;
 }
-
-@Description {value: "Create and register the timer."}
-@Param {value: "timer: The timer instance."}
-public native function <Timer timer> register();
 
 @Description {value: "Returns the maximum time of a single event."}
 @Param {value: "timer: The timer instance."}

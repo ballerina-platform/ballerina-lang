@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.Tag;
+import org.ballerinalang.util.metrics.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,9 +65,9 @@ public class RecordTimer extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            MetricRegistry.getDefaultRegistry().timer(new MetricId(name, description, tags)).record(amount, timeUnit);
+            Timer.builder(name).description(description).tags(tags).register().record(amount, timeUnit);
         } else {
-            MetricRegistry.getDefaultRegistry().timer(new MetricId(name, description, null)).record(amount, timeUnit);
+            Timer.builder(name).description(description).register().record(amount, timeUnit);
         }
     }
 }

@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.Tag;
@@ -63,12 +64,11 @@ public class CountCounter extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .counter(new MetricId(name, description, tags)).count()));
+            context.setReturnValues(new BFloat(Counter.builder(name).description(description).tags(tags).register()
+                    .count()));
 
         } else {
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .counter(new MetricId(name, description, null)).count()));
+            context.setReturnValues(new BFloat(Counter.builder(name).description(description).register().count()));
         }
     }
 }

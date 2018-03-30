@@ -11,26 +11,22 @@ metrics:Gauge gauge3 = {name:"inprogress_requests",description:"Inprogress reque
 metrics:Gauge gauge4 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags4};
 
 function testIncrementGaugeByOne() returns (float) {
-    gauge1.register();
     gauge1.incrementByOne();
     return gauge1.value();
 }
 
 function testIncrementGauge() returns (float) {
-    gauge2.register();
     gauge2.increment(5);
     return gauge2.value();
 }
 
 function testDecrementGaugeByOne() returns (float) {
-    gauge3.register();
     gauge3.setValue(10);
     gauge3.decrementByOne();
     return gauge3.value();
 }
 
 function testDecrementGauge() returns (float) {
-    gauge4.register();
     gauge4.setValue(10);
     gauge4.decrement(2);
     return gauge4.value();

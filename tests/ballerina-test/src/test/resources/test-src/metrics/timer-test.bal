@@ -10,7 +10,6 @@ metrics:Timer timer3 = {name:"3rdPartyService", description:"Size of a response.
 metrics:Timer timer4 = {name:"3rdPartyService", description:"Size of a response.", tags:tags4};
 
 function testCountTimer() returns (int) {
-    timer1.register();
     timer1.record(1000, metrics:TimeUnit.NANOSECONDS);
     timer1.record(2000, metrics:TimeUnit.NANOSECONDS);
     timer1.record(3000, metrics:TimeUnit.NANOSECONDS);
@@ -20,7 +19,6 @@ function testCountTimer() returns (int) {
 }
 
 function testMaxTimer() returns (float) {
-    timer2.register();
     timer2.record(1, metrics:TimeUnit.SECONDS);
     timer2.record(2, metrics:TimeUnit.SECONDS);
     timer2.record(3, metrics:TimeUnit.SECONDS);
@@ -30,7 +28,6 @@ function testMaxTimer() returns (float) {
 }
 
 function testMeanTimer() returns (float) {
-    timer3.register();
     timer3.record(1, metrics:TimeUnit.MICROSECONDS);
     timer3.record(2, metrics:TimeUnit.MICROSECONDS);
     timer3.record(3, metrics:TimeUnit.MICROSECONDS);
@@ -40,7 +37,6 @@ function testMeanTimer() returns (float) {
 }
 
 function testPercentileTimer() returns (float) {
-    timer4.register();
     timer4.record(1000, metrics:TimeUnit.NANOSECONDS);
     timer4.record(2000, metrics:TimeUnit.NANOSECONDS);
     timer4.record(3000, metrics:TimeUnit.NANOSECONDS);

@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.Tag;
+import org.ballerinalang.util.metrics.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,12 +63,11 @@ public class CountTimer extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BInteger(MetricRegistry.getDefaultRegistry()
-                    .timer(new MetricId(name, description, tags)).count()));
+            context.setReturnValues(new BInteger(Timer.builder(name).description(description).tags(tags).register()
+                    .count()));
 
         } else {
-            context.setReturnValues(new BInteger(MetricRegistry.getDefaultRegistry()
-                    .timer(new MetricId(name, description, null)).count()));
+            context.setReturnValues(new BInteger(Timer.builder(name).description(description).register().count()));
         }
     }
 }

@@ -10,7 +10,6 @@ metrics:Summary summary3 = {name:"response_size", description:"Size of a respons
 metrics:Summary summary4 = {name:"response_size", description:"Size of a response.", tags:tags4};
 
 function testCountSummary() returns (int) {
-    summary1.register();
     summary1.record(1);
     summary1.record(2);
     summary1.record(3);
@@ -21,7 +20,6 @@ function testCountSummary() returns (int) {
 }
 
 function testMaxSummary() returns (float) {
-    summary2.register();
     summary2.record(1);
     summary2.record(2);
     summary2.record(3);
@@ -29,7 +27,6 @@ function testMaxSummary() returns (float) {
 }
 
 function testMeanSummary() returns (float) {
-    summary3.register();
     summary3.record(1);
     summary3.record(2);
     summary3.record(3);
@@ -37,7 +34,6 @@ function testMeanSummary() returns (float) {
 }
 
 function testPercentileSummary() returns (float) {
-    summary4.register();
     summary4.record(1);
     summary4.record(2);
     summary4.record(3);

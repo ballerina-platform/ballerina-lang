@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.Tag;
@@ -64,12 +65,11 @@ public class GetGauge extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .gauge(new MetricId(name, description, tags)).get()));
+            context.setReturnValues(new BFloat(Gauge.builder(name).description(description).tags(tags).register()
+                    .get()));
 
         } else {
-            context.setReturnValues(new BFloat(MetricRegistry.getDefaultRegistry()
-                    .gauge(new MetricId(name, description, null)).get()));
+            context.setReturnValues(new BFloat(Gauge.builder(name).description(description).register().get()));
         }
     }
 }
