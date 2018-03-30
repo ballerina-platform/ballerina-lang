@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.runtime.threadpool;
+
+import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,27 +29,28 @@ import java.util.concurrent.Executors;
  */
 public class ThreadPoolFactory {
 
+    private static final int DEFAULT_THREAD_POOL_SIZE = 100;
+
+    private static final String WORKER_THREAD_POOL_SIZE_PROP = "worker.thread.pool.size";
+
     private static ThreadPoolFactory instance = new ThreadPoolFactory();
 
-    //TODO: Make the thread count configurable.
-    // Ideally number of threads need to be calculated and spawned intelligently
-    // based on the environment and runtime status (CPU Usage, memory, etc).
-    // A configuration parameter which is user configurable is also required.
-    // Issue#1929
-    private ExecutorService executorService = Executors.newFixedThreadPool(500, new BLangThreadFactory("BLangWorker"));
+    private ExecutorService workerExecutor;
 
-    //TODO: Make the number of threads configurable
-    private ExecutorService workerExecutor = Executors.newFixedThreadPool(100,
-            new BLangThreadFactory(new ThreadGroup("worker"), "worker-thread-pool"));
-
-    private ThreadPoolFactory() {};
+    private ThreadPoolFactory() {
+        int poolSize = DEFAULT_THREAD_POOL_SIZE;
+        String workerThreadPoolSizeProp = ConfigRegistry.getInstance().getConfiguration(WORKER_THREAD_POOL_SIZE_PROP);
+        if (workerThreadPoolSizeProp != null) {
+            try {
+                poolSize = Integer.parseInt(workerThreadPoolSizeProp);
+            } catch (NumberFormatException ignore) { /* ignore */ }
+        }
+        this.workerExecutor = Executors.newFixedThreadPool(poolSize,
+                new BLangThreadFactory(new ThreadGroup("worker"), "worker-thread-pool"));
+    };
 
     public static ThreadPoolFactory getInstance() {
         return instance;
-    }
-
-    public ExecutorService getExecutor() {
-        return executorService;
     }
 
     public ExecutorService getWorkerExecutor() {
