@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Returns the maximum time of a single event.
+ * Returns the maximum value of a single event.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",

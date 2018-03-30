@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Returns the value at a specific percentile. This value is non-aggregable across dimensions.
+ * Returns the value at a specific percentile.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",

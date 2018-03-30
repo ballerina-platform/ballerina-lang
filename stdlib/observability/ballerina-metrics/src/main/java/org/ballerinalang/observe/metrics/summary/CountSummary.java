@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Returns the number of times that record has been called since this timer was created.
+ * Returns the number of times that record has been called since this summary was created.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",

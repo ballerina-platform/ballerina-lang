@@ -88,7 +88,7 @@ public struct Summary {
     map tags;
 }
 
-@Description {value:"Returns the maximum time of a single event."}
+@Description {value:"Returns the maximum value of a single event."}
 @Param {value:"summary: The summary instance."}
 @Return {value: "The maximum time of a single event."}
 public native function <Summary summary> max() returns (float);
@@ -98,10 +98,10 @@ public native function <Summary summary> max() returns (float);
 @Return {value: "The distribution average for all recorded events."}
 public native function <Summary summary> mean() returns (float);
 
-@Description {value: "Returns the value at a specific percentile. This value is non-aggregable across dimensions."}
+@Description {value: "Returns the value at a specific percentile."}
 @Param {value: "summary: The summary instance."}
 @Param {value: "percentile: A percentile in the domain."}
-@Return {value: "The value at a specific percentile. This value is non-aggregable across dimensions."}
+@Return {value: "The value at a specific percentile."}
 public native function <Summary summary> percentile(float percentile) returns (float);
 
 @Description {value: "Updates the statistics kept by the summary with the specified amount."}
@@ -109,7 +109,7 @@ public native function <Summary summary> percentile(float percentile) returns (f
 @Param {value: "amount: Amount for an event being measured."}
 public native function <Summary summary> record(float amount);
 
-@Description {value: "Returns the number of times that record has been called since this timer was created."}
+@Description {value: "Returns the number of times that record has been called since this summary was created."}
 @Param {value: "summary: The summary instance."}
 @Return {value: "The number of times that record has been called since this timer was created."}
 public native function <Summary summary> count() returns (int);
@@ -135,7 +135,7 @@ public enum TimeUnit {
 @Description {value: "Timer metric, to track events."}
 @Field {value: "name: The name of the timer. Required."}
 @Field {value: "description: The description string of the metric. Required."}
-@Field {value:"tags: Key/value pairs used to classify timmer. Optional."}
+@Field {value:"tags: Key/value pairs used to classify timer. Optional."}
 public struct Timer {
     string name;
     string description;
@@ -154,11 +154,11 @@ public native function <Timer timer> max(TimeUnit timeUnit) returns (float);
 @Return {value: "The distribution average for all recorded events."}
 public native function <Timer timer> mean(TimeUnit timeUnit) returns (float);
 
-@Description {value: "Returns the latency at a specific percentile. This value is non-aggregable across dimensions."}
+@Description {value: "Returns the latency at a specific percentile."}
 @Param {value: "timer: The timer instance."}
 @Param {value: "percentiles: A percentile in the domain."}
 @Param {value: "timeUnit: The base unit of time to scale the percentile value to."}
-@Return {value: "The latency at a specific percentile. This value is non-aggregable across dimensions."}
+@Return {value: "The latency at a specific percentile."}
 public native function <Timer timer> percentile(float percentiles, TimeUnit timeUnit) returns (float);
 
 @Description {value: "Updates the statistics kept by the counter with the specified amount."}
