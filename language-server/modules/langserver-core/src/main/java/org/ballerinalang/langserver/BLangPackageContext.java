@@ -137,8 +137,7 @@ public class BLangPackageContext {
     public ArrayList<PackageID> getSDKPackages(CompilerContext context) {
         // TODO: For the moment we are using ParserUtil's load all packages API, Until the Packerina can provide an API
         if (sdkPackages.isEmpty()) {
-            final String[] packageNames = {"net.http", "net.http.authadaptor", "net.http.endpoints",
-                    "net.http.mock", "net.http.swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
+            final String[] packageNames = {"http", "swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
                     "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
                     "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
                     "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",

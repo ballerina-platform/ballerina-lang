@@ -49,8 +49,8 @@ function addAuthFilters (ServiceEndpointConfiguration config) {
 function createAuthFilters () returns (Filter[]) {
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
-    authadaptor:AuthnFilter authnFilter = {};
-    authadaptor:AuthzFilter authzFilter = {};
+    AuthnFilter authnFilter = {};
+    AuthzFilter authzFilter = {};
     authFilters[0] = authnFilter;
     authFilters[1] = authzFilter;
     return authFilters;

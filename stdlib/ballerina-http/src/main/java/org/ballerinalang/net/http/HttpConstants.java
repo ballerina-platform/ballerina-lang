@@ -39,8 +39,8 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:ServiceEndpoint";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:ServiceEndpoint";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -61,7 +61,7 @@ public class HttpConstants {
     public static final String FORWARDED_TRANSITION = "transition";
     public static final String FORWARDED_DISABLE = "disable";
 
-    public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
+    public static final String HTTP_PACKAGE_PATH = "ballerina.http";
 
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
