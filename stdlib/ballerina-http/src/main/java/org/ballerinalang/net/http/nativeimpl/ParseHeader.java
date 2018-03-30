@@ -54,7 +54,7 @@ import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 )
 public class ParseHeader extends BlockingNativeCallableUnit {
 
-    private final static BTupleType parseHeaderTupleType = new BTupleType(
+    private static final BTupleType parseHeaderTupleType = new BTupleType(
             Arrays.asList(BTypes.typeString, BTypes.typeMap));
 
     @Override
