@@ -100,14 +100,13 @@ class DefinitionViewMenu extends React.Component {
                         </Grid>
                     </Button>
                     }
-                // flowing
-                // hoverable
+                flowing
+                hoverable
                 wide
-                // position='bottom center'
-                // open={this.state.isOpen}
-                // onClose={this.handleClose}
-                // onOpen={this.handleOpen}
-                on='click'
+                position='bottom center'
+                open={this.state.isOpen}
+                onClose={this.handleClose}
+                onOpen={this.handleOpen}
             >
                 {
                     <Grid divided columns={3} className='menu-pop-content'>
