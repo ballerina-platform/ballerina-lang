@@ -1,8 +1,15 @@
 package ballerina.net.http;
 
 public struct WebSocketClient {
+    //TODO: Make these readonly
     WebSocketConnector conn;
     WebSocketClientEndpointConfig config;
+    //Public attributes
+    map attributes;
+    string id;
+    string negotiatedSubProtocol;
+    boolean isSecure;
+    boolean isOpen;
 }
 
 @Description {value:"Configuration struct for WebSocket client connection"}
