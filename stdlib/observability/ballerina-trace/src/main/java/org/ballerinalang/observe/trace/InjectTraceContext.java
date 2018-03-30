@@ -50,11 +50,11 @@ public class InjectTraceContext extends BlockingNativeCallableUnit {
         String group = context.getStringArgument(0) == null ? DEFAULT_USER_API_GROUP : context.getStringArgument(0);
         String spanId = span.getStringField(0);
 
-        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
+        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(group, spanId);
 
         BMap<String, BString> headerMap = new BMap<>();
         propertiesToInject.forEach((key, value) -> {
-            headerMap.put(group + key, new BString(value));
+            headerMap.put(key, new BString(value));
         });
         context.setReturnValues(headerMap);
     }
