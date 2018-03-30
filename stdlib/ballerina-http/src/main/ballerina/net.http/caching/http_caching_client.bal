@@ -233,9 +233,7 @@ public function <HttpCachingClient client> forward (string path, Request req) re
 @Return {value:"The Handle for further interactions"}
 @Return {value:"The Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> submit (string httpVerb, string path, Request req) returns (HttpHandle|HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {};
-    httpConnectorError.message = "Unsupported action";
-    return httpConnectorError;
+    return client.httpClient.submit(httpVerb, path, req);
 }
 
 @Description {value:"Retrieves response for a previously submitted request."}
@@ -243,16 +241,14 @@ public function <HttpCachingClient client> submit (string httpVerb, string path,
 @Return {value:"The HTTP response message"}
 @Return {value:"The Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> getResponse (HttpHandle handle) returns (Response|HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {};
-    httpConnectorError.message = "Unsupported action";
-    return httpConnectorError;
+    return client.httpClient.getResponse(handle);
 }
 
 @Description {value:"Checks whether server push exists for a previously submitted request."}
 @Param {value:"handle: The Handle which relates to previous async invocation"}
 @Return {value:"Whether push promise exists"}
 public function <HttpCachingClient client> hasPromise (HttpHandle handle) returns boolean {
-    return false;
+    return client.httpClient.hasPromise(handle);
 }
 
 @Description {value:"Retrieves the next available push promise for a previously submitted request."}
@@ -260,9 +256,7 @@ public function <HttpCachingClient client> hasPromise (HttpHandle handle) return
 @Return {value:"The HTTP Push Promise message"}
 @Return {value:"The Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> getNextPromise (HttpHandle handle) returns (PushPromise|HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {};
-    httpConnectorError.message = "Unsupported action";
-    return httpConnectorError;
+    return client.httpClient.getNextPromise(handle);
 }
 
 @Description {value:"Retrieves the promised server push response."}
@@ -270,16 +264,14 @@ public function <HttpCachingClient client> getNextPromise (HttpHandle handle) re
 @Return {value:"HTTP The Push Response message"}
 @Return {value:"The Error occured during HTTP client invocation"}
 public function <HttpCachingClient client> getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
-    HttpConnectorError httpConnectorError = {};
-    httpConnectorError.message = "Unsupported action";
-    return httpConnectorError;
+    return client.httpClient.getPromisedResponse(promise);
 }
 
 @Description {value:"Rejects a push promise."}
 @Param {value:"promise: The Push Promise need to be rejected"}
 @Return {value:"Whether operation is successful"}
 public function <HttpCachingClient client> rejectPromise (PushPromise promise) returns boolean {
-    return false;
+    return client.httpClient.rejectPromise(promise);
 }
 
 function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
@@ -328,7 +320,8 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
     }
 
     log:printDebug("Sending new request to: " + path);
-    match httpClient.get(path, req) {
+    var response = sendNewRequest(httpClient, req, path, httpMethod);
+    match response {
         Response newResponse => {
             if (cache.isAllowedToCache(newResponse)) {
                 newResponse.requestTime = currentT.time;
@@ -516,7 +509,8 @@ function isStaleResponseAccepted (RequestCacheControl requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest (HttpClient httpClient, string path, Response cachedResponse) returns (Response|HttpConnectorError) {
+function sendValidationRequest (HttpClient httpClient, string path, Response cachedResponse)
+                                                                            returns (Response|HttpConnectorError) {
     Request validationRequest = {};
 
     if (cachedResponse.hasHeader(ETAG)) {
@@ -533,6 +527,18 @@ function sendValidationRequest (HttpClient httpClient, string path, Response cac
         Response validationResponse => return validationResponse;
 
         HttpConnectorError err => return err;
+    }
+}
+
+function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod)
+                                                                            returns (Response|HttpConnectorError) {
+    if (httpMethod == GET) {
+        return httpClient.get(path, request);
+    } else if (httpMethod == HEAD) {
+        return httpClient.head(path, request);
+    } else {
+        HttpConnectorError err = {message: "HTTP method not supported in caching client: " + httpMethod};
+        return err;
     }
 }
 

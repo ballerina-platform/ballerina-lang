@@ -20,7 +20,7 @@ import java.time.temporal.TemporalAccessor;
 /**
  * Get the Time for the given string.
  *
- * @since 0.970.0-alpha2
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",

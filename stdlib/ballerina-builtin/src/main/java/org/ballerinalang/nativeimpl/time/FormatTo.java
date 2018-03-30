@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Convert a Time to string in the given format.
  *
- * @since 0.970.0-alpha2
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",

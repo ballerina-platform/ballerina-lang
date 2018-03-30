@@ -50,20 +50,20 @@ public class GetCRC32 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue value = context.getRefArgument(0);
+        BValue entityBody = context.getRefArgument(0);
         Checksum checksum = new CRC32();
         byte[] bytes;
         long checksumVal;
 
-        BType argType = value.getType();
+        BType argType = entityBody.getType();
         if (argType == BTypes.typeJSON || argType == BTypes.typeXML || argType == BTypes.typeString) {
             // TODO: Look at the possibility of making the encoding configurable
-            bytes = value.stringValue().getBytes(StandardCharsets.UTF_8);
+            bytes = entityBody.stringValue().getBytes(StandardCharsets.UTF_8);
         } else if (argType == BTypes.typeBlob) {
-            bytes = ((BBlob) value).blobValue();
+            bytes = ((BBlob) entityBody).blobValue();
         } else {
             throw new BallerinaException(
-                    "failed to generate hash: unsupported data type: " + value.getType().getName());
+                    "failed to generate hash: unsupported data type: " + entityBody.getType().getName());
         }
 
         checksum.update(bytes, 0, bytes.length);
