@@ -213,7 +213,7 @@ public class WebSocketDispatcher {
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {
         Session session = controlMessage.getChannelSession();
         try {
-            session.getBasicRemote().sendPong(controlMessage.getPayload());
+            session.getAsyncRemote().sendPong(controlMessage.getPayload());
         } catch (IOException ex) {
             ErrorHandlerUtils.printError(ex);
         }
