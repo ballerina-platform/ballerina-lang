@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -100,7 +101,8 @@ public class Start extends BlockingNativeCallableUnit {
             BStruct serviceEndpoint = ((BStruct) context.getRefArgument(0));
             BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
             wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            WebSocketUtil.populateWebSocketConnector(session, wsConnection);
+            serviceEndpoint.setRefField(2, new BMap());
+            WebSocketUtil.populateEndpoint(session, serviceEndpoint);
             WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                          serviceEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);

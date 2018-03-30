@@ -18,10 +18,8 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     blob pingData = ping.toBlob("UTF-8");
 
     @Description {value:"This resource is responsible for handling user logic on handshake time. Note that the connection is not yet established while this code is running."}
-    onUpgrade (endpoint ep, http:Request req) {
-        var conn = ep.getClient();
+    onUpgrade (endpoint conn, http:Request req) {
         io:println("\nNew client is going to connect");
-        io:println("Connection ID: " + conn.id);
         io:println("Is connection secure: " + conn.isSecure);
 
         io:println("pre upgrade headers -> ");
@@ -29,14 +27,12 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     }
 
     @Description {value:"This resource is triggered after a successful client connection."}
-    onOpen (endpoint ep) {
-        var conn = ep.getClient();
+    onOpen (endpoint conn) {
         io:println("\nNew client connected");
         io:println("Connection ID: " + conn.id);
         io:println("Negotiated Sub protocol: " + conn.negotiatedSubProtocol);
         io:println("Is connection open: " + conn.isOpen);
         io:println("Is connection secured: " + conn.isSecure);
-        //io:println("Connection header value: " + conn.getUpgradeHeader("Connection"));
         io:println("Upgrade headers -> ");
         printHeaders(conn.upgradeHeaders);
     }
@@ -75,12 +71,11 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     }
 
     @Description {value:"This resource is triggered when a particular client reaches it's idle timeout defined in the ws:configuration annotation."}
-    onIdleTimeout (endpoint ep) {
-        var conn = ep.getClient();
+    onIdleTimeout (endpoint conn) {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         io:println("\nReached idle timeout");
         io:println("Closing connection " + conn.id);
-        ep -> closeConnection(1001, "Connection timeout");
+        conn -> closeConnection(1001, "Connection timeout");
     }
 
     @Description {value:"This resource is triggered when a client connection is closed from the client side."}
