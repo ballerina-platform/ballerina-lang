@@ -59,12 +59,6 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String installToRepo) {
         String accessToken = getAccessTokenOfCLI();
-        if (accessToken == null) {
-            throw new BLangCompilerException("You have not specified an access-token for the central in your" +
-                    " Settings.toml\n. Please login to central if you are already registered using" +
-                    " 'central.ballerina.io/login' to get a valid access-token. \nIf you are new to the site please" +
-                    "register using 'central.ballerina.io/register'");
-        }
         Manifest manifest = readManifestConfigurations();
         if (manifest.getName() == null && manifest.getVersion() == null) {
             throw new BLangCompilerException("An org-name and package version is required when pushing. " +
@@ -81,11 +75,16 @@ public class PushUtils {
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
                                             packageName, Names.DEFAULT_VERSION.getValue(), packageName + ".zip");
         if (installToRepo == null) {
+            if (accessToken == null) {
+                // TODO: get bal home location dynamically
+                throw new BLangCompilerException("Access token is missing in ~/ballerina_home/Settings.toml file.\n" +
+                                                 "Please visit https://central.ballerina.io/cli-token");
+            }
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             URI balxPath = URI.create(String.valueOf(PushUtils.class.getClassLoader().getResource
                     ("ballerina.push.balx")));
-            String msg = orgName + "/" + packageName + ":" + version + "[project repo -> central]";
+            String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             ExecutorUtils.execute(balxPath, accessToken, resourcePath, pkgPathFromPrjtDir.toString(), msg);
         } else {
             if (!installToRepo.equals("home")) {
@@ -100,9 +99,9 @@ public class PushUtils {
                 try {
                     Files.createDirectories(targetDirectoryPath);
                     Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-                    outStream.println(orgName + "/" + packageName + ":" + version + "[project repo -> home repo]");
+                    outStream.println(orgName + "/" + packageName + ":" + version + " [project repo -> home repo]");
                 } catch (IOException e) {
-                    throw new BLangCompilerException("Error occured when creating directories in the home repository");
+                    throw new BLangCompilerException("Error occurred when creating directories in the home repository");
                 }
             }
         }

@@ -19,9 +19,11 @@ import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -53,11 +55,11 @@ import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 public abstract class MethodListener {
     
     private Descriptors.MethodDescriptor methodDescriptor;
-
+    
     public MethodListener(Descriptors.MethodDescriptor methodDescriptor) {
         this.methodDescriptor = methodDescriptor;
     }
-
+    
     /**
      * Returns endpoint instance which is used to respond to the client.
      *
@@ -72,14 +74,14 @@ public abstract class MethodListener {
         clientEndpoint.setIntField(0, responseObserver.hashCode());
         clientEndpoint.addNativeData(MessageConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
-
+        
         // create endpoint type instance on request.
         BStruct endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
                 MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT_TYPE);
         endpoint.setRefField(0, clientEndpoint);
         return endpoint;
     }
-
+    
     /**
      * Returns BValue object corresponding to the protobuf request message.
      *
@@ -101,7 +103,7 @@ public abstract class MethodListener {
             return null;
         }
     }
-
+    
     /**
      * Checks whether service method has a response message.
      *
@@ -110,7 +112,7 @@ public abstract class MethodListener {
     boolean isEmptyResponse() {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
-
+    
     private BValue generateRequestStruct(Message request, ProgramFile programFile, String fieldName, BType structType) {
         BValue bValue = null;
         int stringIndex = 0;
@@ -131,6 +133,12 @@ public abstract class MethodListener {
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
                                 programFile, structFieldName, structField.getFieldType()));
                     }
+                } else if (structField.getFieldType() instanceof BEnumType) {
+                    int value = (Integer) request.getFields().get(structField.getFieldName());
+                    BEnumerator enumerator = new BEnumerator(((BEnumType) structField.getFieldType())
+                            .getEnumerator(value).getName(), (BEnumType) structField.getFieldType());
+                    requestStruct.setRefField(refIndex++, enumerator);
+                    
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();

@@ -128,18 +128,16 @@ class ServiceNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const variables = model.getVariables();
 
         // get the service name
         const title = model.getName().value;
 
-        const connectors = variables
-            .filter((element) => { return TreeUtil.isEndpointTypeVariableDef(element); }).map((statement) => {
+        const endpoints = this.props.model.endpointNodes.map((endpoint) => {
                 return (
                     <EndpointDecorator
-                        model={statement}
-                        title={statement.variable.name.value}
-                        bBox={statement.viewState.bBox}
+                        model={endpoint}
+                        title={endpoint.name.value}
+                        bBox={endpoint.viewState.bBox}
                     />);
             });
         /**
@@ -156,7 +154,7 @@ class ServiceNode extends React.Component {
                 component: PanelDecoratorButton,
                 props: {
                     key: `${model.getID()}-swagger-button`,
-                    icon: ImageUtil.getSVGIconString('swagger'),
+                    icon: ImageUtil.getCodePoint('swagger'),
                     tooltip: 'Swagger Source',
                     onClick: () => this.onSwaggerButtonClicked(),
                 },
@@ -198,7 +196,7 @@ class ServiceNode extends React.Component {
                 onMouseEnter={this.onMouseEnter}
             >
                 <PanelDecorator
-                    icon='tool-icons/service'
+                    icon='service'
                     title={title}
                     bBox={bBox}
                     model={model}
@@ -209,7 +207,7 @@ class ServiceNode extends React.Component {
                     {...panelAdditionalProps}
                 >
                     {blockNode}
-                    {connectors}
+                    {endpoints}
                 </PanelDecorator>
                 <ServerConnectorProperties
                     bBox={this.props.model.viewState.components.transportLine}

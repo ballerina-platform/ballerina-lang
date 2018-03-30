@@ -714,7 +714,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, valueExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(opcode, valueExpr.regIndex, refRegMapValue);
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, refRegMapValue);
             }
         }
@@ -874,7 +874,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue);
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
             }
         } else {

@@ -54,6 +54,7 @@ public class MessageConstants {
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final String CHANNEL_KEY = "channel";
+    public static final String ENUM_KEY = "enum";
     public static final String SERVICE_STUB = "ServiceStub";
     public static final int SERVICE_STUB_REF_INDEX = 0;
     public static final int CLIENT_ENDPOINT_REF_INDEX = 1;
@@ -100,6 +101,7 @@ public class MessageConstants {
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED32, 5);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED64, 1);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM, 0);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, 2);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, 2);
         WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);

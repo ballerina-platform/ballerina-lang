@@ -1,0 +1,22 @@
+syntax = "proto3";
+service helloWorldEnum {
+		rpc hello(Request) returns (Response);
+}
+message Request {
+	string name = 1;
+	Foo kind = 2;
+}
+message Response {
+	string name = 1;
+	Bar kind = 2;
+}
+enum Foo {
+	WSO2 = 0;
+	IBM = 1;
+	ORACLE = 2;
+}
+enum Bar {
+	SL = 0;
+	US = 1;
+	UK = 2;
+}

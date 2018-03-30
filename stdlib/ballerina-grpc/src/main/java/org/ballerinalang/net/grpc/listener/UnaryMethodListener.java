@@ -35,14 +35,14 @@ import java.util.List;
  * @since 1.0.0
  */
 public class UnaryMethodListener extends MethodListener implements UnaryMethod<Message, Message> {
-
+    
     public Resource resource;
-
+    
     public UnaryMethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         super(methodDescriptor);
         this.resource = resource;
     }
-
+    
     @Override
     public void invoke(Message request, StreamObserver<Message> responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
@@ -55,5 +55,5 @@ public class UnaryMethodListener extends MethodListener implements UnaryMethod<M
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
         Executor.submit(resource, callback, null, null, signatureParams);
     }
-
+    
 }

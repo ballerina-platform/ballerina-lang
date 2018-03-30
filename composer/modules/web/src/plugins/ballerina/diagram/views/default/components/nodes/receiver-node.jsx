@@ -73,7 +73,7 @@ class ReceiverNode extends React.Component {
         OverlayComponentsRenderingUtil.showStructsInPackageForBinding(node, x, y, this.getStructs());
         this.context.editor.update();
     }
-    render() {
+    render() {  
         const { x, y, model, showStructBinding } = this.props;
         const typeTextX = x + 25;
         const iconSize = 14;
@@ -93,28 +93,20 @@ class ReceiverNode extends React.Component {
             <g className='statement-body'>
                 { (showStructBinding && this.getStructs().length > 0 && !structBindedFunction) &&
                     <g>
-                        <image
+                        <text
                             x={addBindingStructX}
                             y={addBindingStructY}
                             width={iconSize}
                             height={iconSize}
-                            xlinkHref={ImageUtil.getSVGIconString('bind')}
+                            fontFamily='font-ballerina'
+                            fontSize={iconSize}
+                            xlinkHref={ImageUtil.getCodePoint('bind')}
                             onClick={e => this.showStructsInPackage(addBindingStructX, addBindingStructY)}
-                        > <title> Bind functions with structs </title> </image> </g>}
+                        > <title> Bind functions with structs </title> </text> </g>}
                 {structBindedFunction &&
                     <g>
-                        <polygon
-                            points={`${typeTextX - 25},${typeTextY}
-                            ${typeTextX - 15},${typeTextY - 10}
-                            ${typeTextX + receiverTypeWidth - 5},${typeTextY - 10}
-                            ${typeTextX + receiverTypeWidth + 5},${typeTextY}
-                            ${typeTextX + receiverTypeWidth - 5},${typeTextY + 10}
-                            ${typeTextX - 15},${typeTextY + 10}`
-                            }
-                            className='bound-box'
-                        />
                         <text
-                            x={typeTextX - 10}
+                            x={typeTextX + 50}
                             y={typeTextY + 5}
                             cursor='pointer'
                             onClick={e => this.showStructsInPackage(addBindingStructX, addBindingStructY)}

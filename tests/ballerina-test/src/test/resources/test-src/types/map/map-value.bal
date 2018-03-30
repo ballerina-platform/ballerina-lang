@@ -2,14 +2,14 @@ function testMapWithAny() returns (string){
     map animals;
     animals = {"animal1":"Lion", "animal2":"Cat", "animal3":"Leopard", "animal4":"Dog"};
     any animal = animals["animal1"];
-    string animalString =? <string> animal;
+    string animalString = <string> animal;
     return animalString;
 }
 
 function testMapWithMap() returns (string){
     map list1 = {"item1":"item1", "item2":"item2", "item3":"item3", "item4":"item4"};
     map list2 = list1;
-    string list2String =? <string> list2["item1"];
+    string list2String = <string> list2["item1"];
     return list2String;
 }
 
@@ -38,7 +38,7 @@ function testMapWithBinaryExpression() returns (int){
 
 function testMapWithFunctionInvocations() returns (string){
     map list1 = {"list1":"item1", "item2":"item2", "item3":"item3", "item4":"item4"};
-    string list1String =? <string> list1["list1"];
+    string list1String = <string> list1["list1"];
     string value = testEcho(list1String);
     return value;
 }
@@ -64,7 +64,7 @@ function testEcho(string value)returns (string){
 }
 
 function testEchoAny(any value)returns (string){
-    string stringVal =? <string> value;
+    string stringVal = <string> value;
     return stringVal;
 }
 

@@ -1,0 +1,2 @@
+// The gRPC Server Connector can be used to describe gRPC support.
+// This sample is to demonstrate gRPC unary service interacting with gRPC blocking client and enumeration data type.

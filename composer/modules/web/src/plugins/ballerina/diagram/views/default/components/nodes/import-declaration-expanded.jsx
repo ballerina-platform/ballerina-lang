@@ -87,12 +87,14 @@ export default class importDeclarationExpanded extends React.Component {
             <g className='import-declarations-collection'>
                 <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} width={importDeclarationWidth} style={{ fill: '#ddd' }} />
                 <text x={topBarBbox.x + leftPadding} y={topBarBbox.y + topBarHeight / 2} className='import-declaration-topbar-label'>Imports</text>
-                <image
+                <text
                     width={iconSize}
                     height={iconSize}
+                    fontFamily='font-ballerina'
+                    fontSize={iconSize}
                     className='property-pane-action-button-delete'
                     onClick={this.props.onCollapse}
-                    xlinkHref={ImageUtil.getSVGIconString('hide')}
+                    xlinkHref={ImageUtil.getCodePoint('hide')}
                     x={bBox.x + importDeclarationWidth - iconSize - 6}
                     y={topBarBbox.y + (topBarHeight - iconSize) / 2}
                 />

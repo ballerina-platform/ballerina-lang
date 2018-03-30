@@ -17,12 +17,10 @@ public struct HttpServiceConfig {
     Compression compression;
     CorsConfig cors;
     WebSocketUpgradeConfig|null webSocketUpgrade;
-    boolean transactionInfectable;
 }
 
 public function <HttpServiceConfig config> HttpServiceConfig() {
     config.compression = Compression.AUTO;
-    config.transactionInfectable = true;
 }
 
 @Description {value:"Configurations for CORS support"}
@@ -101,6 +99,11 @@ public struct HttpResourceConfig {
     string[] consumes;
     string[] produces;
     CorsConfig cors;
+    boolean transactionInfectable;
+}
+
+public function <HttpResourceConfig config> HttpResourceConfig() {
+    config.transactionInfectable = true;
 }
 
 @Description {value:"Configurations annotation for an HTTP resource"}

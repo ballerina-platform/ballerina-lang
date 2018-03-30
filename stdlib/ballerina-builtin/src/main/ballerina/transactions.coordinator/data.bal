@@ -17,6 +17,32 @@
 package ballerina.transactions.coordinator;
 import ballerina/io;
 
+const string PROTOCOL_COMPLETION = "completion";
+const string PROTOCOL_VOLATILE = "volatile";
+const string PROTOCOL_DURABLE = "durable";
+
+enum Protocols {
+    COMPLETION, DURABLE, VOLATILE
+}
+
+public enum TransactionState {
+    ACTIVE, PREPARED, COMMITTED, ABORTED
+}
+
+const string TRANSACTION_CONTEXT_VERSION = "1.0";
+
+const string COMMAND_PREPARE = "prepare";
+const string COMMAND_COMMIT = "commit";
+const string COMMAND_ABORT = "abort";
+
+const string OUTCOME_PREPARED = "prepared";
+const string OUTCOME_MIXED = "mixed";
+const string OUTCOME_ABORTED = "aborted";
+const string OUTCOME_COMMITTED = "committed";
+const string OUTCOME_HAZARD = "Hazard-Outcome";
+const string OUTCOME_FAILED_EOT = "Failed-EOT";
+const string OUTCOME_READ_ONLY = "read-only";
+
 struct Transaction {
     string transactionId;
     int transactionBlockId;

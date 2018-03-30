@@ -78,18 +78,11 @@ public class TraceManagerWrapper {
         // get the parent spans' span context
         rBTracer = (rBTracer.getInvocationID() != null) ? rBTracer : aBTracer;
         Map<String, String> spanHeaders = rBTracer.getProperties().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        e -> String.valueOf(e.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
 
-        Map<String, ?> spanContext = manager
-                .extract(null, removeTracePrefix(spanHeaders), service);
-
-        Map<String, ?> spanList = manager
-                .startSpan(invocationId, resource, spanContext,
-                        aBTracer.getTags(), true, service);
-
-        Map<String, String> traceContextMap = manager
-                .inject(spanList, null, service);
+        Map<String, ?> spanContext = manager.extract(removeTracePrefix(spanHeaders), service);
+        Map<String, ?> spanList = manager.startSpan(invocationId, resource, spanContext, aBTracer.getTags(), service);
+        Map<String, String> traceContextMap = manager.inject(spanList, service);
 
         aBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
         aBTracer.setSpans(spanList);

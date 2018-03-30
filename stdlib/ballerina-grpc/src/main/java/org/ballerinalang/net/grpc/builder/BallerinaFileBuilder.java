@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_STRING;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
@@ -83,6 +84,7 @@ public class BallerinaFileBuilder {
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.MethodDescriptorProto> methodList = fileDescriptorSet
                     .getService(SERVICE_INDEX).getMethodList();
+            List<DescriptorProtos.EnumDescriptorProto> enumDescriptorProtos = fileDescriptorSet.getEnumTypeList();
             String methodName;
             String reqMessageName;
             String resMessageName;
@@ -118,6 +120,10 @@ public class BallerinaFileBuilder {
                 }
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
+                if ((EMPTY_DATA_TYPE.equals(reqMessageName) || EMPTY_DATA_TYPE.equals(resMessageName))
+                        && !(clientStubBal.isStructContains(EMPTY_DATA_TYPE))) {
+                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0]);
+                }
                 ActionBuilder.build(methodName, reqMessageName, resMessageName
                         , methodID, methodType, clientStubBal);
             }
@@ -136,6 +142,15 @@ public class BallerinaFileBuilder {
                     j++;
                 }
                 clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr);
+            }
+            for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
+                String[] attributesNameArr = new String[descriptorProto.getValueCount()];
+                int j = 0;
+                for (DescriptorProtos.EnumValueDescriptorProto fieldDescriptorProto : descriptorProto.getValueList()) {
+                    attributesNameArr[j] = fieldDescriptorProto.getName();
+                    j++;
+                }
+                clientStubBal.addEnum(descriptorProto.getName(), attributesNameArr);
             }
             StubBuilder.build(clientStubBal, clientStubBal.isFunctionsUnaryNotEmpty());
             ClientStruct sampleClient = new ClientStruct(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal
