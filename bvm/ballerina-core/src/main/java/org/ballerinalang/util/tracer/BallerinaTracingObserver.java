@@ -74,7 +74,16 @@ public class BallerinaTracingObserver implements BallerinaObserver {
     }
 
     @Override
-    public void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+    public void stopServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+        stopObservation(observerContext, executionContext);
+    }
+
+    @Override
+    public void stopClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+        stopObservation(observerContext, executionContext);
+    }
+
+    private void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
         Tracer tracer = TraceUtil.getTracer(executionContext);
         BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
         if (error != null) {

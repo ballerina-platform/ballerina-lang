@@ -55,6 +55,7 @@ public class ObservabilityUtils {
     /**
      * Start a server observation.
      *
+     * @param connectorName    The server connector name.
      * @param serviceName      The service name.
      * @param resourceName     The resource name.
      * @param executionContext The {@link WorkerExecutionContext} instance. If this is null when starting the
@@ -63,8 +64,9 @@ public class ObservabilityUtils {
      *                         {@link ObserverContext}
      * @return An {@link ObserverContext} instance.
      */
-    public static ObserverContext startServerObservation(String serviceName, String resourceName,
+    public static ObserverContext startServerObservation(String connectorName, String serviceName, String resourceName,
                                                          WorkerExecutionContext executionContext) {
+        Objects.requireNonNull(connectorName);
         ObserverContext ctx;
         if (executionContext != null) {
             ctx = getCurrentContext(executionContext);
@@ -72,6 +74,7 @@ public class ObservabilityUtils {
         } else {
             ctx = new ObserverContext();
         }
+        ctx.setConnectorName(connectorName);
         return ctx;
     }
 
@@ -88,6 +91,7 @@ public class ObservabilityUtils {
      */
     public static ObserverContext startClientObservation(String connectorName, String actionName,
                                                          WorkerExecutionContext executionContext) {
+        Objects.requireNonNull(connectorName);
         ObserverContext ctx;
         if (executionContext != null) {
             ctx = getCurrentContext(executionContext);
@@ -99,7 +103,7 @@ public class ObservabilityUtils {
     }
 
     /**
-     * Continue server observation if the {@link #startServerObservation(String, String, WorkerExecutionContext)} was
+     * Continue server observation if the {@link #startServerObservation(String, String, String, WorkerExecutionContext)} was
      * called without {@link WorkerExecutionContext}.
      *
      * @param observerContext  The {@link ObserverContext} instance.
@@ -109,12 +113,13 @@ public class ObservabilityUtils {
      */
     public static void continueServerObservation(ObserverContext observerContext, String serviceName,
                                                  String resourceName, WorkerExecutionContext executionContext) {
-        if (observerContext == null) {
-            // No one has called start observation
-            // Get new context
-            observerContext = getCurrentContext(executionContext);
-        }
         Objects.requireNonNull(executionContext);
+        Objects.requireNonNull(observerContext);
+        // Update the current context. WorkerExecutionContext may not be available when starting the observation.
+        // Therefore, it is very important to set this ObserverContext in the WorkerExecutionContext.
+        setCurrentContext(observerContext, executionContext);
+        observerContext.setServer();
+        observerContext.setStarted();
         observerContext.setServiceName(serviceName);
         observerContext.setResourceName(resourceName);
         final ObserverContext ctx = observerContext;
@@ -132,8 +137,11 @@ public class ObservabilityUtils {
      */
     public static void continueClientObservation(ObserverContext observerContext, String connectorName,
                                                  String actionName, WorkerExecutionContext executionContext) {
-        Objects.requireNonNull(observerContext);
         Objects.requireNonNull(executionContext);
+        Objects.requireNonNull(observerContext);
+        // Update the current context
+        setCurrentContext(observerContext, executionContext);
+        observerContext.setStarted();
         observerContext.setConnectorName(connectorName);
         observerContext.setActionName(actionName);
         observers.forEach(observer -> observer.startClientObservation(observerContext, executionContext));
@@ -147,7 +155,11 @@ public class ObservabilityUtils {
     public static void stopObservation(WorkerExecutionContext executionContext) {
         Objects.requireNonNull(executionContext);
         ObserverContext observerContext = getCurrentContext(executionContext);
-        observers.forEach(observer -> observer.stopObservation(observerContext, executionContext));
+        if (observerContext.isServer()) {
+            observers.forEach(observer -> observer.stopServerObservation(observerContext, executionContext));
+        } else {
+            observers.forEach(observer -> observer.stopClientObservation(observerContext, executionContext));
+        }
     }
 
     /**
@@ -167,5 +179,20 @@ public class ObservabilityUtils {
             }
             return context;
         });
+    }
+
+    /**
+     * Set the {@link ObserverContext} in current {@link WorkerExecutionContext}.
+     *
+     * @param observerContext The {@link ObserverContext} instance.
+     * @param executionContext The {@link WorkerExecutionContext} instance.
+     */
+    private static void setCurrentContext(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+        Objects.requireNonNull(observerContext);
+        Objects.requireNonNull(executionContext);
+        if (executionContext.localProps == null) {
+            executionContext.localProps = new HashMap<>();
+        }
+        executionContext.localProps.put(KEY_OBSERVER_CONTEXT, observerContext);
     }
 }
