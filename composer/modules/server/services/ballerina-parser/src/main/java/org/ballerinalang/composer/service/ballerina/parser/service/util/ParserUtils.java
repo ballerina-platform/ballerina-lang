@@ -844,15 +844,19 @@ public class ParserUtils {
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
         context.put(DiagnosticListener.class, diagnosticListener);
 
-        Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = null;
-        if ("".equals(pkgName)) {
-            Path filePath = path.getFileName();
-            if (filePath != null) {
-                bLangPackage = compiler.compile(filePath.toString());
+        try {
+            Compiler compiler = Compiler.getInstance(context);
+            if ("".equals(pkgName)) {
+                Path filePath = path.getFileName();
+                if (filePath != null) {
+                    bLangPackage = compiler.compile(filePath.toString());
+                }
+            } else {
+                bLangPackage = compiler.compile(pkgName);
             }
-        } else {
-            bLangPackage = compiler.compile(pkgName);
+        } catch (Exception e) {
+            // Ignore.
         }
         BallerinaFile bfile = new BallerinaFile();
         bfile.setBLangPackage(bLangPackage);
