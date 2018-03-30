@@ -18,7 +18,6 @@
 
 package org.ballerinalang.observe.trace;
 
-import io.opentracing.SpanContext;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collections;
-import java.util.Map;
 
 /**
  * This function which implements the startSpan method for tracing.
@@ -60,21 +58,20 @@ public class StartSpanWithParentSpan extends BlockingNativeCallableUnit {
         String reference = context.getRefArgument(1).stringValue();
         BStruct parentSpan = (BStruct) context.getRefArgument(2);
 
-        Map<String, SpanContext> spanContextMap;
+        String spanId;
         if (ReferenceType.valueOf(reference) != ReferenceType.ROOT && parentSpan != null) {
             String parentSpanId = parentSpan.getStringField(0);
-            spanContextMap =
-                    OpenTracerBallerinaWrapper.getInstance().getSpanStore().getSpanContext(parentSpanId);
+            spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
+                    Utils.toStringMap(tags), ReferenceType.valueOf(reference), parentSpanId);
         } else {
-            spanContextMap = Collections.emptyMap();
+            spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
+                    Utils.toStringMap(tags), ReferenceType.valueOf(reference), Collections.emptyMap());
         }
-
-        String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
-                Utils.toStringMap(tags), ReferenceType.valueOf(reference), spanContextMap);
 
         if (spanId != null) {
             context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));
         } else {
+            context.setReturnValues(Utils.createSpanStruct(context, null, null, null));
             System.err.println("ballerina: Can not use tracing API when tracing is disabled");
         }
     }

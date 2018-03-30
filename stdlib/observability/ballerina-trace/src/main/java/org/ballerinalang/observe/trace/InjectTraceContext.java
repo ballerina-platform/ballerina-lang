@@ -55,9 +55,7 @@ public class InjectTraceContext extends BlockingNativeCallableUnit {
         Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
 
         BMap<String, BString> headerMap = new BMap<>();
-        propertiesToInject.forEach((key, value) -> {
-            headerMap.put(group + key, new BString(value));
-        });
+        propertiesToInject.forEach((key, value) -> headerMap.put(group + key, new BString(value)));
         context.setReturnValues(headerMap);
     }
 }

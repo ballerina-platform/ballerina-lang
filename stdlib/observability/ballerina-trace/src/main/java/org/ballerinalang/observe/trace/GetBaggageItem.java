@@ -47,6 +47,8 @@ public class GetBaggageItem extends BlockingNativeCallableUnit {
         String spanId = span.getStringField(0);
         String baggageKey = context.getStringArgument(0);
         String baggageItem = OpenTracerBallerinaWrapper.getInstance().getBaggageItem(spanId, baggageKey);
-        context.setReturnValues(new BString(baggageItem));
+        if (baggageItem != null) {
+            context.setReturnValues(new BString(baggageItem));
+        }
     }
 }

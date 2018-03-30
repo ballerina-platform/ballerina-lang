@@ -41,6 +41,7 @@ class SpanStore {
     Map<String, Span> getSpan(String spanId) {
         return spans.get(spanId);
     }
+
     Map<String, SpanContext> getSpanContext(String spanId) {
         return spanContexts.get(spanId);
     }

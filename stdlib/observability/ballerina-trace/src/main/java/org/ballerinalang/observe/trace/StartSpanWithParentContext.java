@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -62,8 +61,8 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
         BStruct parentSpanContextStruct = (BStruct) context.getRefArgument(2);
 
         Map<String, SpanContext> extractedSpanContextMap;
-        if (parentSpanContextStruct.getRefField(0) != null &&
-                ReferenceType.valueOf(reference) != ReferenceType.ROOT) {
+        if (ReferenceType.valueOf(reference) != ReferenceType.ROOT && parentSpanContextStruct != null &&
+                parentSpanContextStruct.getRefField(0) != null) {
 
             Map<String, String> parentSpanContextMap =
                     Utils.toStringMap((BMap) parentSpanContextStruct.getRefField(0));
@@ -75,10 +74,10 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
         String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
                 Utils.toStringMap(tags), ReferenceType.valueOf(reference), extractedSpanContextMap);
 
-        BStruct spanStruct = Utils.createSpanStruct(context, spanId, serviceName, spanName);
         if (spanId != null) {
-            context.setReturnValues(spanStruct);
+            context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));
         } else {
+            context.setReturnValues(Utils.createSpanStruct(context, null, null, null));
             System.err.println("ballerina: Can not use tracing API when tracing is disabled");
         }
     }

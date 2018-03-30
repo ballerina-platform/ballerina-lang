@@ -57,15 +57,11 @@ public class OpenTracerBallerinaWrapper {
         return instance;
     }
 
-    public SpanStore getSpanStore() {
-        return spanStore;
-    }
-
     /**
      * Method to create an entry in span store by extracting a spanContext from a Map carrier.
      *
      * @param spanHeaders map of headers used to extract a spanContext
-     * @return the Id of the span context
+     * @return the map of span contexts for each tracer implementation
      */
     public Map<String, SpanContext> extract(Map<String, String> spanHeaders) {
         if (enabled) {
@@ -113,13 +109,32 @@ public class OpenTracerBallerinaWrapper {
     }
 
     /**
-     * Method to start a span.
+     * Method to start a span using parent span id.
+     *
+     * @param serviceName   name of the service the span should belong to
+     * @param spanName      name of the span
+     * @param tags          key value paired tags to attach to the span
+     * @param referenceType type of reference to any parent span
+     * @param parentSpanId  id of the parent span
+     * @return unique id of the created span
+     */
+    public String startSpan(String serviceName, String spanName, Map<String, String> tags, ReferenceType referenceType,
+                            String parentSpanId) {
+        if (enabled) {
+            return startSpan(serviceName, spanName, tags, referenceType, spanStore.getSpanContext(parentSpanId));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Method to start a span using parent span context.
      *
      * @param serviceName       name of the service the span should belong to
      * @param spanName          name of the span
      * @param tags              key value paired tags to attach to the span
      * @param referenceType     type of reference to any parent span
-     * @param parentSpanContext id of the parent span
+     * @param parentSpanContext map of the parent span context
      * @return unique id of the created span
      */
     public String startSpan(String serviceName, String spanName, Map<String, String> tags, ReferenceType referenceType,
@@ -228,7 +243,7 @@ public class OpenTracerBallerinaWrapper {
      * Method to get a baggage value from an existing span.
      *
      * @param spanId     the id of the span
-     * @param baggageKey the key of the baggage item
+     * @param baggageKey the key of the baggage item. null of no baggage key or tracing disabled
      */
     public String getBaggageItem(String spanId, String baggageKey) {
         String baggageValue = null;

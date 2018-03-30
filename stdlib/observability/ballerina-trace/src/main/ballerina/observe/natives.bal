@@ -104,7 +104,7 @@ public native function <Span span> setBaggageItem (string baggageKey, string bag
 
 @Description {value:"Add a baggage item to the current span. Baggage items are given as a key value pair"}
 @Param {value:"tagKey: The key of the key value pair"}
-public native function <Span span> getBaggageItem (string baggageKey) returns (string);
+public native function <Span span> getBaggageItem (string baggageKey) returns (string|null);
 
 @Description {value:"Attach an info log to the current span"}
 @Param {value:"event: The type of event this log represents"}
