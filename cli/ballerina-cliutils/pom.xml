@@ -99,8 +99,6 @@
                         <configuration>
                             <arguments>
                                 <argument>${basedir}/src/main/ballerina/pull</argument>
-                                <argument>${basedir}/target/META-INF/ballerina/pull</argument>
-                                <argument>ballerina.pull.balx</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -113,8 +111,6 @@
                         <configuration>
                             <arguments>
                                 <argument>${basedir}/src/main/ballerina/push</argument>
-                                <argument>${basedir}/target/META-INF/ballerina/push</argument>
-                                <argument>ballerina.push.balx</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -127,8 +123,6 @@
                         <configuration>
                             <arguments>
                                 <argument>${basedir}/src/main/ballerina/search</argument>
-                                <argument>${basedir}/target/META-INF/ballerina/search</argument>
-                                <argument>ballerina.search.balx</argument>
                             </arguments>
                         </configuration>
                     </execution>
