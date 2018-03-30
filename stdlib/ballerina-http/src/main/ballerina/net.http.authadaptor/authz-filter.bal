@@ -60,11 +60,15 @@ public function authzRequestFilterFunc (http:Request request, http:FilterContext
     boolean authorized;
     match scopes {
         string[] scopeNames => {
-            authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
+            if (lengthof scopeNames == 0) {
+                authorized = true;
+            } else {
+                authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
+            }
         }
         null => {
             // scopes are not defined, no need to authorize
-            return createAuthzResult(true);
+            authorized = true;
         }
     }
     return createAuthzResult(authorized);
