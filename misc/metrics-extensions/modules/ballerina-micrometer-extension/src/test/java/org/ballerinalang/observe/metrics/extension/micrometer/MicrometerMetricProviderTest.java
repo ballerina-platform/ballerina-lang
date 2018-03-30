@@ -83,11 +83,4 @@ public class MicrometerMetricProviderTest {
         Assert.assertEquals(timer.count(), 1);
     }
 
-    @Test
-    public void testTimerContext() {
-        Timer timer = Timer.builder("test_timer").description("Test Timer").tag("method", "start").register(metricRegistry);
-        Timer.Context context = timer.start();
-        context.stop();
-        Assert.assertEquals(timer.count(), 1);
-    }
 }

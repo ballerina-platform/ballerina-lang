@@ -88,49 +88,6 @@ public interface Timer extends Metric {
     }
 
     /**
-     * A timing context.
-     *
-     * @see Timer#start()
-     */
-    class Context implements AutoCloseable {
-        private final Timer timer;
-        private final long startTime;
-
-        public Context(Timer timer) {
-            this.timer = timer;
-            this.startTime = System.nanoTime();
-        }
-
-        /**
-         * Updates the timer with the difference between current and start time. Call to this method will
-         * not reset the start time. Multiple calls result in multiple updates.
-         *
-         * @return the elapsed time in nanoseconds
-         */
-        public long stop() {
-            final long elapsed = System.nanoTime() - startTime;
-            timer.record(elapsed, TimeUnit.NANOSECONDS);
-            return elapsed;
-        }
-
-        /**
-         * Equivalent to calling {@link #stop()}.
-         */
-        @Override
-        public void close() {
-            stop();
-        }
-    }
-
-    /**
-     * Returns a new {@link Context}.
-     *
-     * @return a new {@link Context}
-     * @see Context
-     */
-    Context start();
-
-    /**
      * Updates the statistics kept by the timer with the specified amount.
      *
      * @param amount Duration of a single event being measured by this timer.

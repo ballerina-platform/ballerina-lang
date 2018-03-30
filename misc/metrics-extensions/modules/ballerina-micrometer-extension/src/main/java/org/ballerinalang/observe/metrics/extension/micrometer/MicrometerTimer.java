@@ -43,12 +43,6 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
                 .register(Metrics.globalRegistry);
     }
 
-
-    @Override
-    public Context start() {
-        return new Context(this);
-    }
-
     @Override
     public void record(long amount, TimeUnit unit) {
         timer.record(amount, unit);
