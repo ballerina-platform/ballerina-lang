@@ -29,10 +29,13 @@ import org.ballerinalang.toml.model.Manifest;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,8 +45,10 @@ import java.util.regex.Pattern;
  */
 @Parameters(commandNames = "init", commandDescription = "initialize ballerina project")
 public class InitCommand implements BLauncherCmd {
+
     private static final String USER_DIR = "user.dir";
-    private static PrintStream outStream = System.err;
+    public static final String DEFAULT_VERSION = "0.0.1";
+    private static final PrintStream outStream = System.err;
     private JCommander parentCmdParser;
     
     @Parameter(names = {"--interactive", "-i"})
@@ -61,68 +66,84 @@ public class InitCommand implements BLauncherCmd {
         Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
         try {
             Manifest manifest = null;
-            List<SrcFile> sourceFiles = null;
-        
+
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "init");
                 outStream.println(commandUsageInfo);
                 return;
             }
-        
+
+            List<SrcFile> sourceFiles = new ArrayList<>();
             if (interactiveFlag) {
-                sourceFiles = new ArrayList<>();
-    
+
                 // Check if Ballerina.toml file needs to be created.
-                out.print("Create Ballerina.toml: (yes/y) ");
+                out.print("Create Ballerina.toml [yes/y, no/n]: (y) ");
                 String createToml = scanner.nextLine().trim();
-    
+
                 if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y") ||
                     createToml.isEmpty()) {
                     manifest = new Manifest();
-                    
+
+                    String defaultOrg = guessOrgName();
+
                     // Get org name.
-                    out.print("--Organization name: (home) ");
+                    out.print("Organization name: (" + defaultOrg + ") ");
                     String orgName = scanner.nextLine().trim();
-                    manifest.setName(orgName.isEmpty() ? "home" : orgName);
-    
+                    manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
+
                     String version;
                     do {
-                        out.print("--Version: (1.0.0) ");
+                        out.print("Version: (" + DEFAULT_VERSION + ") ");
                         version = scanner.nextLine().trim();
-                        version = version.isEmpty() ? "1.0.0" : version;
+                        version = version.isEmpty() ? DEFAULT_VERSION : version;
                     } while (!validateVersion(out, version));
-                    
+
                     manifest.setVersion(version);
                 }
-    
+
                 String srcInput;
                 boolean validInput = false;
+                boolean first = true;
                 do  {
-                    out.print("Ballerina source [package/p, main/m, (empty to finish)]: ");
+                    if (first) {
+                        out.print("Ballerina source [service/s, main/m]: (s) ");
+                    } else {
+                        out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
+                    }
                     srcInput = scanner.nextLine().trim();
-                    
-                    if (srcInput.equalsIgnoreCase("package") || srcInput.equalsIgnoreCase("p")) {
-                        out.print("--Package Name: (my_package) ");
+
+                    if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") ||
+                        (first && srcInput.isEmpty())) {
+                        out.print("Package for the service : (no package) ");
                         String packageName = scanner.nextLine().trim();
-                        packageName = packageName.isEmpty() ? "my_package" : packageName;
                         SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.SERVICE);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        out.print("--Main function: (main) ");
-                        String mainBal = scanner.nextLine().trim();
-                        mainBal = mainBal.isEmpty() ? "main" : mainBal;
-                        SrcFile srcFile = new SrcFile(mainBal, SrcFile.SrcFileType.MAIN);
+                        out.print("Package for the main : (no package) ");
+                        String packageName = scanner.nextLine().trim();
+                        SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.MAIN);
                         sourceFiles.add(srcFile);
-                    } else if (srcInput.equalsIgnoreCase("")) {
+                    } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f")) {
                         validInput = true;
                     } else {
-                        out.println("--Invalid input");
+                        out.println("Invalid input");
                     }
+
+                    first = false;
                 } while (!validInput);
-    
+
                 out.print("\n");
+            } else {
+                manifest = new Manifest();
+                manifest.setName(guessOrgName());
+                manifest.setVersion(DEFAULT_VERSION);
+
+                if (isDirEmpty(projectPath)) {
+                    SrcFile srcFile = new SrcFile("", SrcFile.SrcFileType.SERVICE);
+                    sourceFiles.add(srcFile);
+                }
             }
-            
+
             InitHandler.initialize(projectPath, manifest, sourceFiles);
             out.println("Ballerina project initialized");
 
@@ -130,7 +151,7 @@ public class InitCommand implements BLauncherCmd {
             out.println("Error occurred while creating project: " + e.getMessage());
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -191,4 +212,21 @@ public class InitCommand implements BLauncherCmd {
         }
         return count == 1;
     }
+
+    private static boolean isDirEmpty(final Path directory) throws IOException {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
+        }
+    }
+
+    private String guessOrgName() {
+        String guessOrgName = System.getProperty("user.name");
+        if (guessOrgName == null) {
+            guessOrgName = "my_org";
+        } else {
+            guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
+        }
+        return guessOrgName;
+    }
+
 }
