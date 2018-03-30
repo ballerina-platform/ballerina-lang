@@ -60,6 +60,7 @@ public class HttpConstants {
     public static final String FORWARDED_ENABLE = "enable";
     public static final String FORWARDED_TRANSITION = "transition";
     public static final String FORWARDED_DISABLE = "disable";
+    public static final String DISABLE = "disable";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
 
@@ -280,6 +281,7 @@ public class HttpConstants {
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     public static final String CLIENT_EP_FORWARDED = "forwarded";
     public static final String TARGET_SERVICES = "targets";
+    public static final String CLIENT_EP_ACCEPT_ENCODING = "acceptEncoding";
 
     //Connection Throttling Indexes
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
