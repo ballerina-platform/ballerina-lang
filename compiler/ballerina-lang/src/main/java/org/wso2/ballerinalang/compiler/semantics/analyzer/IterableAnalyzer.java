@@ -143,7 +143,8 @@ public class IterableAnalyzer {
 //        operation.lambdaType = (BInvokableType) operationParams.get(0);
 //
 //        // Process given/expected input and output types.
-//        if (operation.lambdaType.getParameterTypes().isEmpty() || operation.lambdaType.getParameterTypes().size() > 1) {
+//        if (operation.lambdaType.getParameterTypes().isEmpty() ||
+//                    operation.lambdaType.getParameterTypes().size() > 1) {
 //            // Lambda should have a single arg.
 //            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
 //            operation.outputType = operation.resultType = symTable.errType;

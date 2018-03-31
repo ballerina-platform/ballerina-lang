@@ -559,7 +559,8 @@ public class IterableCodeDesugar {
     private void generateArrayAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
 //        final DiagnosticPos pos = blockStmt.pos;
 //        // create assignment result[count] = value;
-//        final BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+//        final BLangIndexBasedAccess indexAccessNode =
+//                      (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
 //        indexAccessNode.pos = pos;
 //        indexAccessNode.indexExpr = ASTBuilderUtil.createVariableRef(pos, ctx.countVar.symbol);
 //        indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
@@ -597,7 +598,8 @@ public class IterableCodeDesugar {
     private void generateMapAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
 //        final DiagnosticPos pos = blockStmt.pos;
 //        // create assignment result[key] = value
-//        final BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+//        final BLangIndexBasedAccess indexAccessNode =
+//                  (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
 //        indexAccessNode.pos = pos;
 //        indexAccessNode.indexExpr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
 //        indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);

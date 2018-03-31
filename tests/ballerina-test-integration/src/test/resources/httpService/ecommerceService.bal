@@ -68,7 +68,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         http:Request clientRequest = {};
         var jsonReq = req.getJsonPayload();
         match jsonReq {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 io:println("Error occurred while reading products payload");
                 return;
             }
@@ -217,7 +217,7 @@ service<http:Service> productmgt bind serviceEndpoint {
         var jsonReq = req.getJsonPayload();
 
         match jsonReq {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 io:println("Error occurred while reading bank locator request");
                 return;
             }

@@ -17,8 +17,10 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.services.ErrorHandlerUtils;
 
 /**
  * Empty callback impl for web socket.
@@ -31,7 +33,8 @@ public class WebSocketEmptyCallableUnitCallback implements CallableUnitCallback 
 
     @Override
     public void notifyFailure(BStruct error) {
-        //nothing
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+
     }
 
 }

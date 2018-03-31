@@ -18,8 +18,13 @@
 
 package org.ballerinalang.observe.trace;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,5 +50,18 @@ public class Utils {
             }
         }
         return returnMap;
+    }
+
+    public static BStruct createSpanStruct(Context context, String spanId, String serviceName,
+                                    String spanName) {
+        PackageInfo observePackage = context.getProgramFile().getPackageInfo("ballerina.observe");
+        StructInfo spanStructInfo = observePackage.getStructInfo("Span");
+        return BLangVMStructs.createBStruct(spanStructInfo, spanId, serviceName, spanName);
+    }
+
+    public static BStruct createSpanContextStruct(Context context, BMap spanContext) {
+        PackageInfo observePackage = context.getProgramFile().getPackageInfo("ballerina.observe");
+        StructInfo spanStructInfo = observePackage.getStructInfo("SpanContext");
+        return BLangVMStructs.createBStruct(spanStructInfo, spanContext);
     }
 }

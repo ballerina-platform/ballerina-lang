@@ -20,7 +20,6 @@ package org.ballerinalang.model.tree;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.List;

@@ -36,9 +36,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "observe",
         functionName = "getBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {@Argument(name = "baggageKey", type = TypeKind.STRING),
-                @Argument(name = "baggageValue", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+        args = @Argument(name = "baggageKey", type = TypeKind.STRING),
+        returnType = @ReturnType(type = TypeKind.STRING),
         isPublic = true
 )
 public class GetBaggageItem extends BlockingNativeCallableUnit {
@@ -48,6 +47,8 @@ public class GetBaggageItem extends BlockingNativeCallableUnit {
         String spanId = span.getStringField(0);
         String baggageKey = context.getStringArgument(0);
         String baggageItem = OpenTracerBallerinaWrapper.getInstance().getBaggageItem(spanId, baggageKey);
-        context.setReturnValues(new BString(baggageItem));
+        if (baggageItem != null) {
+            context.setReturnValues(new BString(baggageItem));
+        }
     }
 }

@@ -19,8 +19,6 @@ package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
-import java.util.List;
-
 /**
  * return a, a + b, foo();.
  *

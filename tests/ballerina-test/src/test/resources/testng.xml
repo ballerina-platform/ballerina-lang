@@ -74,6 +74,10 @@ under the License.
             <package name="org.ballerinalang.test.streaming.*"/>
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
+            <package name="org.ballerinalang.test.net.http.*">
+                <exclude name="org.ballerinalang.test.net.http.resiliency.*"/>
+                <exclude name="org.ballerinalang.test.net.http.HttpCachingClientTest"/>
+            </package>
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
