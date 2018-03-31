@@ -59,6 +59,7 @@ public struct TargetService {
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
+@Field {value:"cacheConfig: HTTP caching related configurations"}
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
@@ -74,6 +75,7 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     string|FailoverConfig lbMode;
+    CacheConfig cacheConfig;
     string acceptEncoding;
 }
 
@@ -87,6 +89,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.endpointTimeout = 60000;
     config.keepAlive = true;
     config.lbMode = ROUND_ROBIN;
+    config.cacheConfig = {};
     config.acceptEncoding = "auto";
 }
 
@@ -101,14 +104,19 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
         FailoverConfig failoverConfig => {
             if (lengthof config.targets > 1) {
                 ep.config = config;
-                ep. httpClient = createFailOverClient(config, failoverConfig);
+                ep.httpClient = createFailOverClient(config, failoverConfig);
             } else {
                 if (uri.hasSuffix("/")) {
                     int lastIndex = uri.length() - 1;
                     uri = uri.subString(0, lastIndex);
                 }
                 ep.config = config;
-                ep.httpClient = createHttpClient(uri, config);
+
+                if (config.cacheConfig.enabled) {
+                    ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
+                } else{
+                    ep.httpClient = createHttpClient(uri, config);
+                }
             }
         }
 
@@ -135,11 +143,14 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
                     }
                 }   
                 if (httpClientRequired) {
-                    ep.httpClient = createHttpClient(uri, config);
+                    if (config.cacheConfig.enabled) {
+                        ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
+                    } else{
+                        ep.httpClient = createHttpClient(uri, config);
+                    }
                 } else {
                     ep.httpClient = createCircuitBreakerClient(uri, config);                    
-                }   
-                
+                }
             }
         }
     }
@@ -248,7 +259,14 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-            HttpClient cbHttpClient = createHttpClient(uri, configuration);
+
+            HttpClient cbHttpClient = {};
+            if (configuration.cacheConfig.enabled) {
+                cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else{
+                cbHttpClient = createHttpClient(uri, configuration);
+            }
+
             time:Time circuitStartTime = time:currentTime();
             int numberOfBuckets = (cb.rollingWindow.timeWindow / cb.rollingWindow.bucketSize);
             Bucket[] bucketArray = [];
@@ -279,7 +297,11 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         }
         int | null => {
             //remove following once we can ignore
-            return createHttpClient(uri, configuration);
+            if (configuration.cacheConfig.enabled) {
+                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else {
+                return createHttpClient(uri, configuration);
+            }
         }
     }
 }
@@ -310,16 +332,3 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
         HttpClient foClient = failover;
         return foClient;
 }
-
-//function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
-//    HttpClient[] clients = createHttpClientArray(config);
-//    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
-//    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
-//                                          failoverCodesIndex : failoverCodes,
-//                                          failoverInterval : config.failoverConfig.interval};
-//
-//    Failover failover = {serviceUri:config.targets[0].uri, config:config,
-//                            failoverInferredConfig:failoverInferredConfig};
-//    var httpClient, _ = (HttpClient) failover;
-//    return httpClient;
-//}

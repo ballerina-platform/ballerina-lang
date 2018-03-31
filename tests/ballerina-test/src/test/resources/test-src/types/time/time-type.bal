@@ -49,6 +49,14 @@ function testParseTime () returns (int, string, int) {
     return (timeValue, zoneId, zoneoffset);
 }
 
+function testParseRFC1123Time (string timestamp) returns (int, string, int) {
+    time:Time timeStruct = time:parseTo(timestamp, time:TimeFormat.RFC_1123);
+    int timeValue = timeStruct.time;
+    string zoneId = timeStruct.zone.zoneId;
+    int zoneoffset = timeStruct.zone.zoneOffset;
+    return (timeValue, zoneId, zoneoffset);
+}
+
 function testToStringWithCreateTime () returns (string) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1498488382000, zone:zoneValue};
@@ -59,6 +67,12 @@ function testFormatTime () returns (string) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1498488382444, zone:zoneValue};
     return timeStruct.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+}
+
+function testFormatTimeToRFC1123 () returns (string) {
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1498488382444, zone:zoneValue};
+    return timeStruct.formatTo(time:TimeFormat.RFC_1123);
 }
 
 function testGetFunctions () returns (int, int, int, int, int, int, int, string) {
