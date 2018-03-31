@@ -157,7 +157,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void tryExec(WorkerExecutionContext ctx) {
-        ctx.state = WorkerState.RUNNING;
+        BLangScheduler.workerRunning(ctx);
 
         int i;
         int j;
