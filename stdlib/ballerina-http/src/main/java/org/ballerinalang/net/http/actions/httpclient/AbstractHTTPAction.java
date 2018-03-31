@@ -38,6 +38,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -65,6 +66,8 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_EP_RETRY;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RETRY_COUNT;
 import static org.ballerinalang.net.http.HttpConstants.RETRY_INTERVAL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
@@ -499,7 +502,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
         BStruct entity = createStruct(context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
         BStruct mediaType = createStruct(context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, httpCarbonMessage);
+        ResponseCacheControlStruct responseCacheControl
+                = new ResponseCacheControlStruct(context.getProgramFile()
+                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
+                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
+        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, responseCacheControl, httpCarbonMessage);
         return responseStruct;
     }
 }
