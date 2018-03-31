@@ -52,9 +52,9 @@ public class IOTest {
 
     @BeforeClass
     public void setup() {
-        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytesio.bal");
-        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/chario.bal");
-        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/recordio.bal");
+        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytes_io.bal");
+        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/char_io.bal");
+        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
