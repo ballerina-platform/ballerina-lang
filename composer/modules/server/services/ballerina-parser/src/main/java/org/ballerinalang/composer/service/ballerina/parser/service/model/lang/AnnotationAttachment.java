@@ -86,7 +86,7 @@ public class AnnotationAttachment {
     public static AnnotationAttachment convertToPackageModel(BLangAnnotationAttachmentPoint annotationAttachment) {
         if (null != annotationAttachment) {
             AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
-            tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
+//            tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
             BLangAnnotationAttachmentPoint.AttachmentPoint attachmentPoint = annotationAttachment.getAttachmentPoint();
             if (attachmentPoint != null) {
                 tempAnnotationAttachment.setAttachedPoint(attachmentPoint.getValue());
@@ -107,7 +107,7 @@ public class AnnotationAttachment {
             return null;
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */

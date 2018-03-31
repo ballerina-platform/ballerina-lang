@@ -29,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-
+/**
+ * Provides the UI for remote settings editor.
+ */
 public class BallerinaRemoteSettingsEditor extends SettingsEditor<BallerinaRemoteConfiguration> {
 
     private JPanel myPanel;

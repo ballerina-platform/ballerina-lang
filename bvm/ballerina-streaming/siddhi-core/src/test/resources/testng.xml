@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Siddhi-Core-Test-Suite">
+    <test name="siddhi-core-tests" enabled="true" preserve-order="true" parallel="false">
+        <classes>
+            <!--<class name="org.ballerinalang.siddhi.core.aggregation.AggregationTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.managment.AsyncTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.managment.EventTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.managment.LogTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.managment.PersistenceTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.managment.PlaybackTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.managment.QuerySyncTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.managment.StatisticsTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.managment.ValidateTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.aggregator.MaxAggregatorExtensionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.aggregator.MaxForeverAggregatorExtensionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.aggregator.MinForeverAggregatorExtensionTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.extension.ExtensionTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.CastFunctionExecutorTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.ConvertFunctionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.FunctionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.IfThenElseFunctionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.InstanceOfFunctionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.MaximumFunctionExtensionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.MinimumFunctionExtensionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.function.UUIDFunctionTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.join.JoinTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.join.OuterJoinTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.partition.JoinPartitionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.partition.PartitionTestCase1"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.partition.PartitionTestCase2"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.partition.PatternPartitionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.partition.SequencePartitionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.partition.TablePartitionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.partition.WindowPartitionTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.ComplexPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.CountPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.EveryPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.LogicalPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.WithinPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.absent.AbsentPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.absent.AbsentWithEveryPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.absent.EveryAbsentPatternTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.pattern.absent.LogicalAbsentPatternTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.ratelimit.EventOutputRateLimitTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.ratelimit.SnapshotOutputRateLimitTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.ratelimit.TimeOutputRateLimitTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.selector.attribute.aggregator.DistinctCountAttributeAggregatorTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.selector.attribute.aggregator.StdDevAttributeAggregatorTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.sequence.SequenceTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.sequence.absent.AbsentSequenceTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.sequence.absent.AbsentWithEverySequenceTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.sequence.absent.EveryAbsentSequenceTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.sequence.absent.LogicalAbsentSequenceTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.streamfunction.Pol2CartFunctionTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.DefineTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.DeleteFromTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.IndexTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.InsertIntoTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.JoinTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.LogicalTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.PrimaryKeyTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.UpdateFromTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.UpdateOrInsertTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.set.SetUpdateInMemoryTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.set.SetUpdateOrInsertInMemoryTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.table.util.TestStore"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.trigger.TriggerTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.CronWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.ExternalTimeBatchWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.ExternalTimeWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.FrequentWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.IncrementalStreamProcessorTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.LengthBatchWindowTestCase"/>-->
+            <class name="org.ballerinalang.siddhi.core.query.window.LengthWindowTestCase"/>
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.LossyFrequentWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.SortWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.TimeBatchWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.TimeLengthWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.TimeWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.CronWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.CustomJoinWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.ExternalTimeBatchWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.FrequentWindowEventTbaleTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.LenghtBatchWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.LenghtWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.LossyFrequentWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.SortWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.TimeBatchWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.TimeLengthWindowTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.external.WindowDefinitionTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.query.BooleanCompareTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.FilterTestCase1"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.FilterTestCase2"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.IsNullTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.PassThroughTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.SimpleQueryValidatorTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.query.StringCompareTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.store.StoreQueryTableTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.store.StoreQueryWindowTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.stream.CallbackTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.stream.ExceptionHandlerTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.stream.JunctionTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.stream.event.ComplexEventChunkTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.stream.event.EventTestCase"/>-->
+
+            <!--<class name="org.ballerinalang.siddhi.core.transport.InMemoryTransportTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.transport.MultiClientDistributedSinkTestCase"/>-->
+            <!--<class name="org.ballerinalang.siddhi.core.transport.SingleClientDistributedTransportTestCases"/>-->
+        </classes>
+
+
+    </test>
+</suite>

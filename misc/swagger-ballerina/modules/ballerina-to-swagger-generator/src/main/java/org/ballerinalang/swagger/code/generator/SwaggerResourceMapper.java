@@ -34,7 +34,7 @@ import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.swagger.code.generator.util.SwaggerConstants;
 import org.ballerinalang.swagger.code.generator.util.SwaggerUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
@@ -78,22 +78,22 @@ class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case Constants.ANNOTATION_METHOD_GET:
+                case HttpConstants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PUT:
+                case HttpConstants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_POST:
+                case HttpConstants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_DELETE:
+                case HttpConstants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_OPTIONS:
+                case HttpConstants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PATCH:
+                case HttpConstants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
                     break;
                 case "HEAD":
@@ -117,7 +117,7 @@ class SwaggerResourceMapper {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
             // Setting default values.
-            op.setHttpOperation(Constants.HTTP_METHOD_GET);
+            op.setHttpOperation(HttpConstants.HTTP_METHOD_GET);
             op.setPath('/' + resource.getName());
             Response response = new Response()
                     .description("Successful")
@@ -427,13 +427,13 @@ class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void parseProducesAnnotationAttachment(ResourceInfo resource, Operation operation) {
-        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
+        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(
+                HttpConstants.HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
         if (rConfigAnnAtchmnt == null) {
             return;
         }
         AnnAttributeValue producesAttrVal = rConfigAnnAtchmnt
-                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_PRODUCES);
+                .getAttributeValue(HttpConstants.ANN_RESOURCE_ATTR_PRODUCES);
         if (producesAttrVal == null) {
             return;
         }
@@ -456,13 +456,13 @@ class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void parseConsumesAnnotationAttachment(ResourceInfo resource, Operation operation) {
-        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
+        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(
+                HttpConstants.HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
         if (rConfigAnnAtchmnt == null) {
             return;
         }
         AnnAttributeValue consumesAttrVal = rConfigAnnAtchmnt
-                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_CONSUMES);
+                .getAttributeValue(HttpConstants.ANN_RESOURCE_ATTR_CONSUMES);
         if (consumesAttrVal == null) {
             return;
         }
@@ -477,13 +477,13 @@ class SwaggerResourceMapper {
      * @param operationAdaptor The operation adaptor.
      */
     private void parsePathAnnotationAttachment(ResourceInfo resource, OperationAdaptor operationAdaptor) {
-        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANN_NAME_RESOURCE_CONFIG);
+        AnnAttachmentInfo rConfigAnnAtchmnt = resource.getAnnotationAttachmentInfo(
+                HttpConstants.HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
         if (rConfigAnnAtchmnt == null) {
             return;
         }
         AnnAttributeValue pathAttrVal = rConfigAnnAtchmnt
-                .getAttributeValue(Constants.ANN_RESOURCE_ATTR_PATH);
+                .getAttributeValue(HttpConstants.ANN_RESOURCE_ATTR_PATH);
 
         if (null != pathAttrVal && pathAttrVal.getStringValue() != null) {
             operationAdaptor.setPath(pathAttrVal.getStringValue());
@@ -497,20 +497,21 @@ class SwaggerResourceMapper {
      * @param operationAdaptor The operation adaptor which stored the http method.
      */
     private void parseHttpMethodAnnotationAttachment(ResourceInfo resource, OperationAdaptor operationAdaptor) {
-        if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, Constants.HTTP_METHOD_GET)) {
-            operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_GET);
-        } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_POST)) {
-            operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_POST);
-        } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_PUT)) {
-            operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_PUT);
-        } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_DELETE)) {
-            operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_DELETE);
-        } else if (null != resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.HTTP_METHOD_HEAD)) {
-            operationAdaptor.setHttpOperation(Constants.HTTP_METHOD_HEAD);
+        if (null != resource.getAnnotationAttachmentInfo(HttpConstants.HTTP_PACKAGE_PATH,
+                                                         HttpConstants.HTTP_METHOD_GET)) {
+            operationAdaptor.setHttpOperation(HttpConstants.HTTP_METHOD_GET);
+        } else if (null != resource.getAnnotationAttachmentInfo(HttpConstants.HTTP_PACKAGE_PATH,
+                                                                HttpConstants.HTTP_METHOD_POST)) {
+            operationAdaptor.setHttpOperation(HttpConstants.HTTP_METHOD_POST);
+        } else if (null != resource.getAnnotationAttachmentInfo(HttpConstants.HTTP_PACKAGE_PATH,
+                                                                HttpConstants.HTTP_METHOD_PUT)) {
+            operationAdaptor.setHttpOperation(HttpConstants.HTTP_METHOD_PUT);
+        } else if (null != resource.getAnnotationAttachmentInfo(HttpConstants.HTTP_PACKAGE_PATH,
+                                                                HttpConstants.HTTP_METHOD_DELETE)) {
+            operationAdaptor.setHttpOperation(HttpConstants.HTTP_METHOD_DELETE);
+        } else if (null != resource.getAnnotationAttachmentInfo(HttpConstants.HTTP_PACKAGE_PATH,
+                                                                HttpConstants.HTTP_METHOD_HEAD)) {
+            operationAdaptor.setHttpOperation(HttpConstants.HTTP_METHOD_HEAD);
         }
     }
 

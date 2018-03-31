@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ValueTypeName in PSI tree.
+ */
 public class ValueTypeNameNode extends ANTLRPsiNode {
 
     public ValueTypeNameNode(@NotNull ASTNode node) {

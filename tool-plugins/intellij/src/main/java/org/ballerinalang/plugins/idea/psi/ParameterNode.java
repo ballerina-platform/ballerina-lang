@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an Parameter in PSI tree.
+ */
 public class ParameterNode extends IdentifierDefSubtree {
 
     public ParameterNode(@NotNull ASTNode node) {

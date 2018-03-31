@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -43,7 +43,7 @@ public class CachingTest {
     private static final double DELTA = 0.0000000001;
     private static final Log log = LogFactory.getLog(CachingTest.class);
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/caching/caching-test.bal");
         printDiagnostics(compileResult);

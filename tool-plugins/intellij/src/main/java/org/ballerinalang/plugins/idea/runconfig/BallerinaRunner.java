@@ -23,6 +23,9 @@ import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplication
 import org.ballerinalang.plugins.idea.runconfig.test.BallerinaTestConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Provides Ballerina run capability.
+ */
 public class BallerinaRunner extends DefaultProgramRunner {
 
     private static final String ID = "BallerinaRunner";

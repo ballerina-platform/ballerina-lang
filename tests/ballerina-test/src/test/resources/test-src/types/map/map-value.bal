@@ -1,61 +1,55 @@
-function testMapWithAny() (string){
+function testMapWithAny() returns (string){
     map animals;
     animals = {"animal1":"Lion", "animal2":"Cat", "animal3":"Leopard", "animal4":"Dog"};
     any animal = animals["animal1"];
-    string animalString;
-    animalString, _ = (string) animal;
+    string animalString = <string> animal;
     return animalString;
 }
 
-function testMapWithMap() (string){
+function testMapWithMap() returns (string){
     map list1 = {"item1":"item1", "item2":"item2", "item3":"item3", "item4":"item4"};
     map list2 = list1;
-    string list2String;
-    list2String, _ = (string) list2["item1"];
+    string list2String = <string> list2["item1"];
     return list2String;
 }
 
-function testMapWithAnyValue() (int){
+function testMapWithAnyValue() returns (int){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
     any value = 5;
     list1["item5"] = value;
-    int intVal;
-    intVal, _ = (int) list1["item5"];
+    int intVal =? <int> list1["item5"];
     return intVal;
 }
 
-function testMapWithAnyDifferentValue() (any){
+function testMapWithAnyDifferentValue() returns (any){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
     any value = "aString";
     list1["item5"] = value;
     return list1["item5"];
 }
 
-function testMapWithBinaryExpression() (int){
+function testMapWithBinaryExpression() returns (int){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
-    int intItem1;
-    int intItem2;
-    intItem1, _ = (int) list1["item1"];
-    intItem2, _ = (int) list1["item2"];
+    int intItem1=? <int> list1["item1"];
+    int intItem2=? <int> list1["item2"];
     int value = intItem1 + intItem2;
     return value;
 }
 
-function testMapWithFunctionInvocations() (string){
+function testMapWithFunctionInvocations() returns (string){
     map list1 = {"list1":"item1", "item2":"item2", "item3":"item3", "item4":"item4"};
-    string list1String;
-    list1String, _ = (string) list1["list1"];
+    string list1String = <string> list1["list1"];
     string value = testEcho(list1String);
     return value;
 }
 
-function testMapWithAnyFunctionInvocations() (string){
+function testMapWithAnyFunctionInvocations() returns (string){
     map list1 = {"list1":"item1", "item2":"item2", "item3":"item3", "item4":"item4"};
     string value = testEchoAny(list1["item2"]);
     return value;
 }
 
-function testMapOrder() (map)
+function testMapOrder() returns (map)
 {
   map m = {};
   m["key1"] = "Element 1";
@@ -65,17 +59,16 @@ function testMapOrder() (map)
 
 }
 
-function testEcho(string value)(string){
+function testEcho(string value)returns (string){
     return value;
 }
 
-function testEchoAny(any value)(string){
-    string stringVal;
-    stringVal, _ = (string) value;
+function testEchoAny(any value)returns (string){
+    string stringVal = <string> value;
     return stringVal;
 }
 
-function testMapSynchronization()(int)
+function testMapSynchronization() returns (int)
 {
     map m = {};
 

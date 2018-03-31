@@ -32,6 +32,9 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Handles the enter key press in braces.
+ */
 public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandler {
 
     @Override

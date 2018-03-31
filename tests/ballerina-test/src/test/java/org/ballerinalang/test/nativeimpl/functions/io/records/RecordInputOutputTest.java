@@ -20,7 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions.io.records;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -51,9 +51,9 @@ public class RecordInputOutputTest {
         int expectedFieldCount = 3;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, expectedFieldCount);
@@ -70,14 +70,47 @@ public class RecordInputOutputTest {
         recordChannel.close();
     }
 
+    @Test(description = "Processors records in sequence with hasNext()")
+    public void processRecordSequence() throws IOException, URISyntaxException {
+        int expectedFieldCount = 3;
+        boolean hasNext = false;
+        //Number of characters in this file would be 6
+        ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample.csv");
+        Channel channel = new MockByteChannel(byteChannel);
+        CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
+
+        hasNext = recordChannel.hasNext();
+        String[] readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+        Assert.assertTrue(hasNext);
+
+        hasNext = recordChannel.hasNext();
+        readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+        Assert.assertTrue(hasNext);
+
+        hasNext = recordChannel.hasNext();
+        readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, expectedFieldCount);
+        Assert.assertTrue(hasNext);
+
+        hasNext = recordChannel.hasNext();
+        readRecord = recordChannel.read();
+        Assert.assertEquals(readRecord.length, 0);
+        Assert.assertFalse(hasNext);
+
+        recordChannel.close();
+    }
+
     @Test(description = "Read lengthy records")
     public void readLongRecord() throws IOException, URISyntaxException {
         int expectedFieldCount = 18;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample4.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, expectedFieldCount);
@@ -90,19 +123,23 @@ public class RecordInputOutputTest {
     public void readNonIndentedRecords() throws IOException, URISyntaxException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/records/sample2.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 9);
+        Assert.assertTrue(recordChannel.hasNext(), "Expecting more records but received as EOL.");
 
         //This will be a blank record
         readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 1);
+        Assert.assertTrue(recordChannel.hasNext(), "Expecting more records but received as EOL.");
 
         readRecord = recordChannel.read();
         Assert.assertEquals(readRecord.length, 9);
+        Assert.assertFalse(recordChannel.hasNext(),
+                "Last record received, but indicate as more records available.");
 
         recordChannel.close();
     }
@@ -111,9 +148,9 @@ public class RecordInputOutputTest {
     public void writeRecords() throws IOException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
-        TextRecordChannel recordChannel = new TextRecordChannel(characterChannel, "\n", ",");
+        DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
         BStringArray recordOneArr = new BStringArray(recordOne);

@@ -64,14 +64,16 @@ public class Instruction {
 
         public int funcRefCPIndex;
         public FunctionInfo functionInfo;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo,
+        InstructionCALL(int opcode, int funcRefCPIndex, FunctionInfo functionInfo, int flags,
                         int[] argRegs, int[] retRegs) {
             super(opcode);
             this.funcRefCPIndex = funcRefCPIndex;
             this.functionInfo = functionInfo;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -79,6 +81,35 @@ public class Instruction {
         @Override
         public String toString() {
             StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(funcRefCPIndex));
+            sj.add(String.valueOf(argRegs.length));
+            Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));
+            sj.add(String.valueOf(retRegs.length));
+            Arrays.stream(retRegs).forEach(i -> sj.add(String.valueOf(i)));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code InstructionVCALL} represents the VCALL instruction in Ballerina bytecode.
+     * <p>
+     * The VCALL instruction performs a virtual function invocation in BVM.
+     *
+     * @since 0.95.6
+     */
+    public static class InstructionVCALL extends InstructionCALL {
+        public int receiverRegIndex;
+
+        InstructionVCALL(int opcode, int receiverRegIndex, int funcRefCPIndex,
+                        FunctionInfo functionInfo, int flags, int[] argRegs, int[] retRegs) {
+            super(opcode, funcRefCPIndex, functionInfo, flags, argRegs, retRegs);
+            this.receiverRegIndex = receiverRegIndex;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(receiverRegIndex));
             sj.add(String.valueOf(funcRefCPIndex));
             sj.add(String.valueOf(argRegs.length));
             Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));
@@ -99,13 +130,16 @@ public class Instruction {
 
         public int actionRefCPIndex;
         public String actionName;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, int[] argRegs, int[] retRegs) {
+        InstructionACALL(int opcode, int actionRefCPIndex, String actionName, int flags, 
+                int[] argRegs, int[] retRegs) {
             super(opcode);
             this.actionRefCPIndex = actionRefCPIndex;
             this.actionName = actionName;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -122,14 +156,16 @@ public class Instruction {
 
         public int transformerRefCPIndex;
         public TransformerInfo transformerInfo;
+        public int flags;
         public int[] argRegs;
         public int[] retRegs;
 
-        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo,
+        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, int flags,
                          int[] argRegs, int[] retRegs) {
             super(opcode);
             this.transformerRefCPIndex = transformerRefCPIndex;
             this.transformerInfo = transformerInfo;
+            this.flags = flags;
             this.argRegs = argRegs;
             this.retRegs = retRegs;
         }
@@ -226,6 +262,33 @@ public class Instruction {
             this.arity = arity;
             this.typeTags = typeTags;
             this.retRegs = retRegs;
+        }
+    }
+
+    /**
+     * {@code {@link InstructionLock}} represents the LOCK/UNLOCK instruction in Ballerina bytecode.
+     *
+     * @since 0.961.0
+     */
+    public static class InstructionLock extends Instruction {
+
+        public BType[] types;
+        public int[] varRegs;
+
+        InstructionLock(int opcode, BType[] types, int[] varRegs) {
+            super(opcode);
+            this.types = types;
+            this.varRegs = varRegs;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            for (int i = 0; i < varRegs.length; i++) {
+                sj.add(types[i].toString());
+                sj.add(String.valueOf(varRegs[i]));
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }
 }

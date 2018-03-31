@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.math;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,18 +31,18 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.math",
+        orgName = "ballerina", packageName = "math",
         functionName = "floorMod",
         args = {@Argument(name = "a", type = TypeKind.INT),
                 @Argument(name = "b", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class FloorMod extends AbstractNativeFunction {
+public class FloorMod extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        long a = getIntArgument(ctx, 0);
-        long b = getIntArgument(ctx, 1);
-        return getBValues(new BInteger(Math.floorMod(a, b)));
+    public void execute(Context ctx) {
+        long a = ctx.getIntArgument(0);
+        long b = ctx.getIntArgument(1);
+        ctx.setReturnValues(new BInteger(Math.floorMod(a, b)));
     }
 }

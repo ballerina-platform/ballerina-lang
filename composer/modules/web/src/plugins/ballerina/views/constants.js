@@ -23,6 +23,12 @@ export const SPLIT_VIEW = 'SPLIT_VIEW';
 export const SWAGGER_VIEW = 'SWAGGER_VIEW';
 export const FILE_AST_PROPERTY = 'ast';
 
+export const ZOOM_LEVELS = {
+    FIT_TO_SCREEN: 'fit-to-screen',
+    ACTION: 'action',
+    DEFAULT: 'default',
+};
+
 export const CHANGE_EVT_TYPES = {
     CODE_FORMAT: 'code-format',
     TREE_MODIFIED: 'tree-modified',

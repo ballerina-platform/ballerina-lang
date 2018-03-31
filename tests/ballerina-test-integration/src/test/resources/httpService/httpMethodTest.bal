@@ -1,108 +1,167 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-@http:configuration {basePath:"/headQuote"}
-service<http> headQuoteService {
+endpoint http:ServiceEndpoint serviceEndpoint {
+    port:9090
+};
 
-    @http:resourceConfig {
+endpoint http:ClientEndpoint endPoint {
+    targets: [
+        {
+            uri: "http://localhost:9090"
+        }
+    ]
+};
+
+@http:ServiceConfig {
+    basePath:"/headQuote"
+}
+service<http:Service> headQuoteService bind serviceEndpoint {
+
+    @http:ResourceConfig {
         path:"/default"
     }
-    resource defaultResource (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:9090", {});
-        }
+    defaultResource (endpoint client, http:Request req) {
         string method = req.method;
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
-        _ = conn.forward(clientResponse);
+        http:Request clientRequest = {};
+
+        var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        match response {
+            http:Response httpResponse => {
+                _ = client -> forward(httpResponse);
+            }
+            http:HttpConnectorError err => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while invoking the service"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+            }
+        }
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/forward11"
     }
-    resource forwardRes11 (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> endPoint {
-              create http:HttpClient("http://localhost:9090", {});
+    forwardRes11 (endpoint client, http:Request req) {
+        var response = endPoint -> forward("/getQuote/stocks", req);
+        match response {
+            http:Response httpResponse => {
+                _ = client -> forward(httpResponse);
+            }
+            http:HttpConnectorError err => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while invoking the service"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+            }
         }
-        http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
-        _ = conn.forward(clientResponse);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/forward22"
     }
-    resource forwardRes22 (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> endPoint {
-              create http:HttpClient("http://localhost:9090", {});
+    forwardRes22 (endpoint client, http:Request req) {
+        var response = endPoint -> forward("/getQuote/stocks", req);
+        match response {
+            http:Response httpResponse => {
+                _ = client -> forward(httpResponse);
+            }
+            http:HttpConnectorError err => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while invoking the service"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+            }
         }
-        http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
-        _ = conn.forward(clientResponse);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/getStock/{method}"
     }
-    resource commonResource (http:Connection conn, http:InRequest req, string method) {
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:9090", {});
+    commonResource (endpoint client, http:Request req, string method) {
+        http:Request clientRequest = {};
+        var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        match response {
+            http:Response httpResponse => {
+                _ = client -> forward(httpResponse);
+            }
+            http:HttpConnectorError err => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while invoking the service"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+            }
         }
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
-        clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
-        _ = conn.forward(clientResponse);
     }
 }
 
-@http:configuration {basePath:"/sampleHead"}
-service<http> testClientConHEAD {
+@http:ServiceConfig {
+    basePath:"/sampleHead"
+}
+service<http:Service> testClientConHEAD bind serviceEndpoint {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["HEAD"],
         path:"/"
     }
-    resource passthrough (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> quoteEP {
-            create http:HttpClient("http://localhost:9090", {});
+    passthrough (endpoint client, http:Request req) {
+        http:Request clientRequest = {};
+        var response = endPoint -> get("/getQuote/stocks", clientRequest);
+        match response {
+            http:Response httpResponse => {
+                _ = client -> forward(httpResponse);
+            }
+            http:HttpConnectorError err => {
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while invoking the service"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
+            }
         }
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
-        clientResponse, _ = quoteEP.get("/getQuote/stocks", clientRequest);
-        _ = conn.forward(clientResponse);
     }
 }
 
-@http:configuration {basePath:"/getQuote"}
-service<http> quoteService {
+@http:ServiceConfig {
+    basePath:"/getQuote"
+}
+service<http:Service> quoteService bind serviceEndpoint {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/stocks"
     }
-    resource company (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    company (endpoint client, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("wso2");
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/stocks"
     }
-    resource product (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    product (endpoint client, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("ballerina");
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/stocks"
     }
-    resource defaultStock (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    defaultStock (endpoint client, http:Request req) {
+        http:Response res = {};
         res.setHeader("Method", "any");
         res.setStringPayload("default");
-        _ = conn.respond(res);
+        _ = client -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["POST"],
+        body:"person"
+    }
+    employee (endpoint client, http:Request req, json person) {
+        http:Response res = {};
+        res.setJsonPayload(person);
+        _ = client -> respond(res);
     }
 }

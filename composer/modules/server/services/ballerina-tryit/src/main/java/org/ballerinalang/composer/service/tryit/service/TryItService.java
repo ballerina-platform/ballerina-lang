@@ -17,6 +17,7 @@
 package org.ballerinalang.composer.service.tryit.service;
 
 import com.google.gson.JsonObject;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
@@ -135,11 +136,14 @@ public class TryItService implements ComposerService {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response options() {
-        return Response.ok().header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Credentials", "true")
-                .header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
-                .build();
+        return Response.ok().header("Access-Control-Max-Age", "600 ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
         
     }
     

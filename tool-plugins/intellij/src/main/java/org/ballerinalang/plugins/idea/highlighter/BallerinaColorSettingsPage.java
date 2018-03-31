@@ -29,6 +29,9 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
+/**
+ * Creates the Ballerina color settings page.
+ */
 public class BallerinaColorSettingsPage implements ColorSettingsPage {
 
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{

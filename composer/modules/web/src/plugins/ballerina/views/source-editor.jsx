@@ -329,13 +329,14 @@ class SourceEditor extends React.Component {
                     options={{
                         autoIndent: true,
                         fontSize: 14,
-                        contextmenu: false,
+                        contextmenu: true,
                         renderIndentGuides: true,
                         autoClosingBrackets: true,
                         matchBrackets: true,
                         automaticLayout: true,
                         glyphMargin: true,
                         folding: true,
+                        lineNumbersMinChars: 2,
                     }}
                     width={width}
                     height={height}
@@ -354,8 +355,6 @@ SourceEditor.propTypes = {
         off: PropTypes.func.isRequired,
     }).isRequired,
     ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
-    parseFailed: PropTypes.bool.isRequired,
-    onLintErrors: PropTypes.func,
     breakpoints: PropTypes.arrayOf(Number).isRequired,
     addBreakpoint: PropTypes.func.isRequired,
     removeBreakpoint: PropTypes.func.isRequired,

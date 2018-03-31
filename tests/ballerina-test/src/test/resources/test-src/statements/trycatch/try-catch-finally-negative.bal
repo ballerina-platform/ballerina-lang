@@ -2,7 +2,7 @@ function testInvalid1 (){
     try{
         int a = 10;
     } catch (error e){
-        error e = { msg: "test"};
+        error e = null;
         int b = 10;
     }
 }
@@ -16,19 +16,18 @@ function testInvalid3 (){
     throw funcReturnInt();
 }
 
-function funcReturnInt()(int){
+function funcReturnInt() returns (int){
     int a = 10;
     return a;
 }
 
-struct TestError {
-    string msg;
-    error cause;
-    StackFrame[] stackTrace;
+public struct TestError {
+    string message;
+    error[] cause;
     string code;
 }
 
-function testInvalid4()(string){
+function testInvalid4() returns (string){
 
     try {
         string a = "abc";

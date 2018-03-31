@@ -26,6 +26,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents an annotation attribute value reference reference.
+ */
 public class AnnotationAttributeValueReference extends BallerinaElementReference {
 
 

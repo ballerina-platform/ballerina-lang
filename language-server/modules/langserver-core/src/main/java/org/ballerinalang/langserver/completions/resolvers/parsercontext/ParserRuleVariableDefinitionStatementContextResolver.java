@@ -15,19 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -49,25 +52,22 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
-        if (isActionOrFunctionInvocationStatement(completionContext)) {
+        if (isInvocationOrFieldAccess(completionContext)) {
             ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
             actionAndFunctions.addAll(actionFunctionTypeFilter.filterItems(completionContext));
             this.populateCompletionItemList(actionAndFunctions, completionItems);
-            return completionItems;
         } else {
             // Fill completions if user is writing a connector init
             List<SymbolInfo> filteredConnectorInitSuggestions = connectorInitItemFilter.filterItems(completionContext);
             if (!filteredConnectorInitSuggestions.isEmpty()) {
                 populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
-                return completionItems;
             }
 
             // Add the create keyword
             CompletionItem createKeyword = new CompletionItem();
-            createKeyword.setInsertText("create ");
-            createKeyword.setLabel("create");
+            createKeyword.setInsertText(Snippet.CREATE_KEYWORD_SNIPPET.toString());
+            createKeyword.setLabel(ItemResolverConstants.CREATE_KEYWORD);
             createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            createKeyword.setSortText(Priority.PRIORITY7.name());
 
             List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                     .stream()
@@ -80,9 +80,20 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
                                 || SymbolKind.ENUM.equals(symbolKind)));
                     })
                     .collect(Collectors.toList());
+
+            // Remove the functions without a receiver symbol
+            filteredList.removeIf(symbolInfo -> {
+                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
+            });
             populateCompletionItemList(filteredList, completionItems);
             completionItems.add(createKeyword);
-            return completionItems;
         }
+        
+        Class sorterKey = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getClass();
+        CompletionItemSorter itemSorter = ItemSorters.getSorterByClass(sorterKey);
+        itemSorter.sortItems(completionContext, completionItems);
+        
+        return completionItems;
     }
 }

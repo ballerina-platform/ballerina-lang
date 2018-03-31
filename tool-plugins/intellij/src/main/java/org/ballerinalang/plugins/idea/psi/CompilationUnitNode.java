@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a CompilationUnit in PSI tree.
+ */
 public class CompilationUnitNode extends ANTLRPsiNode {
 
     public CompilationUnitNode(@NotNull ASTNode node) {

@@ -18,12 +18,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import CompoundStatementDecorator from './compound-statement-decorator';
 import TreeBuilder from './../../../../../model/tree-builder';
-import DropZone from './../../../../../drag-drop/DropZone';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import DefaultNodeFactory from './../../../../../model/default-node-factory';
-
+import { getComponentForNodeArray } from './../../../../diagram-util';
+import ArrowDecorator from '../decorators/arrow-decorator';
 /**
  * Class for fork join statement.
  * @abstract React.Component
@@ -153,231 +152,104 @@ class ForkJoinNode extends React.Component {
      * */
     render() {
         const model = this.props.model;
-        const bBox = model.viewState.bBox;
-        const dropZone = model.viewState.components['drop-zone'];
-        const forkLineHiderBottom = model.getJoinBody() ? model.getJoinBody().viewState.bBox.y :
-            (model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y : (bBox.y +
-                (model.viewState.components['statement-box'].h - model.viewState.components['block-header'].h)));
-        const joinLineHiderBottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.y :
-            (model.getJoinBody() ? model.getJoinBody().viewState.bBox.getBottom() : 0);
-        const timeoutLineHiderbottom = model.getTimeoutBody() ? model.getTimeoutBody().viewState.bBox.getBottom()
-            : 0;
+        const cmp = model.viewState.components;
 
-        let joinConditionEditorOptions = false;
-        let joinParameterEditorOptions = false;
-        if (model.joinBody) {
-            joinConditionEditorOptions = {
-                propertyType: 'text',
-                key: 'Join condition',
-                model: this.props.model,
-                getterMethod: this.handleGetJoinCondition,
-                setterMethod: this.handleSetJoinCondition,
-            };
-
-            joinParameterEditorOptions = {
-                propertyType: 'text',
-                key: 'Join parameter',
-                value: model.getJoinResultVar().getSource(),
-                model: model.getJoinResultVar(),
-                setterMethod: this.handleSetJoinParameter,
-            };
+        let joinBBox = {};
+        if (this.props.model.joinBody) {
+            joinBBox = this.props.model.joinBody.viewState.bBox;
         }
 
-        let timeoutConditionEditorOptions = false;
-        let timeoutParameterEditorOptions = false;
-        if (model.timeoutBody) {
-            timeoutConditionEditorOptions = {
-                propertyType: 'text',
-                key: 'Timeout condition',
-                model: model.getTimeOutExpression(),
-                setterMethod: this.handleSetTimeoutCondition,
-            };
-
-            timeoutParameterEditorOptions = {
-                propertyType: 'text',
-                key: 'Timeout parameter',
-                value: model.getTimeOutVariable().getSource(),
-                model: model.getTimeOutVariable(),
-                setterMethod: this.handleSetTimeoutParameter,
-            };
-        }
-
-        // Get join block life line y1 and y2.
-        let joinLifeLineY1 = 0;
-        let joinLifeLineY2 = 0;
-        if (model.getJoinBody() && model.getJoinBody().getStatements().length > 0) {
-            const joinChildren = model.getJoinBody().getStatements();
-            const firstJoinChild = joinChildren[0].viewState;
-            joinLifeLineY1 = firstJoinChild.bBox.y + firstJoinChild.bBox.h;
-            const lastJoinChild = joinChildren[joinChildren.length - 1].viewState;
-            joinLifeLineY2 = lastJoinChild.bBox.y
-                + (lastJoinChild.components['drop-zone'] ? lastJoinChild.components['drop-zone'].h : 0);
-        }
-
-        // Get timeout block life line y1 and y2.
-        let timeoutLifeLineY1 = 0;
-        let timeoutLifeLineY2 = 0;
-        if (model.getTimeoutBody() && model.getTimeoutBody().getStatements().length > 0) {
-            const children = model.getTimeoutBody().getStatements();
-            const firstChild = children[0].viewState;
-            timeoutLifeLineY1 = firstChild.bBox.y + firstChild.bBox.h;
-            const lastChild = children[children.length - 1].viewState;
-            timeoutLifeLineY2 = lastChild.bBox.y
-                + (lastChild.components['drop-zone'] ? lastChild.components['drop-zone'].h : 0);
-        }
+        const forkContainer = model.viewState.components.forkContainer;
+        const workers = getComponentForNodeArray(this.props.model.workers);
+        const joinBody = getComponentForNodeArray(this.props.model.joinBody);
+        const timeoutBody = getComponentForNodeArray(this.props.model.timeoutBody);
 
         return (
             <g>
-                <DropZone
-                    x={dropZone.x}
-                    y={dropZone.y}
-                    width={dropZone.w}
-                    height={dropZone.h}
-                    baseComponent='rect'
-                    dropTarget={model.parent}
-                    dropBefore={model}
-                    renderUponDragStart
-                    enableDragBg
-                    enableCenterOverlayLine
-                />
-                <line
-                    x1={bBox.getCenterX()}
-                    y1={bBox.y}
-                    x2={bBox.getCenterX()}
-                    y2={forkLineHiderBottom}
-                    className='life-line-hider'
-                />
-
-                <CompoundStatementDecorator
-                    dropTarget={model}
-                    bBox={bBox}
-                    title={'fork'}
-                    model={model}
-                    body={model}
-                    disableDropzoneMiddleLineOverlay
-                >
-                    {
-                        this.props.model.workers.map((item) => {
-                            return (<DropZone
-                                x={item.getBody().viewState.bBox.x}
-                                y={item.getBody().viewState.bBox.y}
-                                width={item.getBody().viewState.bBox.w}
-                                height={item.getBody().viewState.bBox.h}
-                                baseComponent='rect'
-                                dropTarget={item.getBody()}
-                                enableDragBg
-                            />);
-                        })
-                    }
-                </CompoundStatementDecorator>
-
-                {model.joinBody &&
-                <line
-                    x1={model.getJoinBody().viewState.bBox.getCenterX()}
-                    y1={model.getJoinBody().viewState.bBox.y}
-                    x2={model.getJoinBody().viewState.bBox.getCenterX()}
-                    y2={joinLineHiderBottom}
-                    className='life-line-hider'
-                />
-                }
-
-                {model.joinBody &&
-                <line
-                    x1={model.getJoinBody().viewState.bBox.getCenterX()}
-                    y1={joinLifeLineY1}
-                    x2={model.getJoinBody().viewState.bBox.getCenterX()}
-                    y2={joinLifeLineY2}
-                    className='join-lifeline'
-                    key='join-life-line'
-                />
-                }
-
-                {model.joinBody &&
-                <CompoundStatementDecorator
-                    dropTarget={model.getJoinBody()}
-                    bBox={model.getJoinBody().viewState.bBox}
-                    expression={{
-                        text: model.getJoinBody().viewState.components.expression.text,
-                    }}
-                    title={'join'}
-                    model={model.getJoinBody()}
-                    body={model.getJoinBody()}
-                    parameterBbox={model.getJoinBody().viewState.components.param}
-                    parameterEditorOptions={joinParameterEditorOptions}
-                    editorOptions={joinConditionEditorOptions}
-                    disableButtons={{
-                        delete: true,
-                    }}
-                    disableDropzoneMiddleLineOverlay
-                />
-                }
-
-                {model.joinBody && !model.timeoutBody &&
-                <g onClick={this.addTimeoutBody}>
-                    <title>Add Timeout</title>
+                <g className='fork-container'>
                     <rect
-                        x={model.joinBody.viewState.components['statement-box'].x
-                        + model.joinBody.viewState.components['statement-box'].w
-                        + model.joinBody.viewState.bBox.expansionW - 10}
-                        y={model.joinBody.viewState.components['statement-box'].y
-                        + model.joinBody.viewState.components['statement-box'].h - 25}
-                        width={20}
-                        height={20}
-                        rx={10}
-                        ry={10}
-                        className='add-catch-button'
+                        x={forkContainer.x}
+                        y={forkContainer.y}
+                        width={forkContainer.w}
+                        height={forkContainer.h - 15}
+                        className='background-empty-rect'
                     />
-                    <text
-                        x={model.joinBody.viewState.components['statement-box'].x
-                        + model.joinBody.viewState.components['statement-box'].w
-                        + model.joinBody.viewState.bBox.expansionW - 4}
-                        y={model.joinBody.viewState.components['statement-box'].y
-                        + model.joinBody.viewState.components['statement-box'].h - 15}
-                        width={20}
-                        height={20}
-                        className='add-catch-button-label'
-                    >
-                        +
-                    </text>
+                    <rect
+                        x={forkContainer.x - 10}
+                        y={forkContainer.y}
+                        width={forkContainer.w}
+                        height={5}
+                        className='fork-bar'
+                    />
+                    <rect
+                        x={forkContainer.x - 10}
+                        y={forkContainer.y + forkContainer.h - 15}
+                        width={forkContainer.w}
+                        height={5}
+                        className='fork-bar'
+                    />
+                    {workers}
                 </g>
+                {model.joinBody &&
+                    <g>
+                        <rect
+                            x={cmp.joinHeader.x}
+                            y={cmp.joinHeader.y}
+                            width={cmp.joinHeader.w}
+                            height={cmp.joinHeader.h + joinBBox.h}
+                            className='compound-statement-rect'
+                            rx={5}
+                            ry={5}
+                        />
+                        <text
+                            x={cmp.joinHeader.x + 5}
+                            y={cmp.joinHeader.y + 10}
+                            className='statement-title-text-left'
+                        >
+                            join
+                        </text>
+                        {joinBody}
+                    </g>
                 }
-
                 {model.timeoutBody &&
-                <line
-                    x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
-                    y1={model.getTimeoutBody().viewState.bBox.y}
-                    x2={model.getTimeoutBody().viewState.bBox.getCenterX()}
-                    y2={timeoutLineHiderbottom}
-                    className='life-line-hider'
-                />
-                }
-
-                {model.timeoutBody &&
-                <line
-                    x1={model.getTimeoutBody().viewState.bBox.getCenterX()}
-                    y1={timeoutLifeLineY1}
-                    x2={model.getTimeoutBody().viewState.bBox.getCenterX()}
-                    y2={timeoutLifeLineY2}
-                    className='join-lifeline'
-                    key='timeout-life-line'
-                />
-                }
-
-                {model.timeoutBody &&
-                <CompoundStatementDecorator
-                    dropTarget={model.getTimeoutBody()}
-                    bBox={model.getTimeoutBody().viewState.bBox}
-                    parameterBbox={model.getTimeoutBody().viewState.components.param}
-                    expression={{
-                        text: model.getTimeOutExpression().getSource(),
-                    }}
-                    title={'timeout'}
-                    model={model.getTimeoutBody()}
-                    body={model.getTimeoutBody()}
-                    parameterEditorOptions={timeoutParameterEditorOptions}
-                    editorOptions={timeoutConditionEditorOptions}
-                    disableDropzoneMiddleLineOverlay
-                />
+                    <g>
+                        <line
+                            x1={model.timeoutBody.viewState.bBox.x}
+                            y1={cmp.timeoutHeader.y - 10}
+                            x2={model.timeoutBody.viewState.bBox.x}
+                            y2={model.timeoutBody.viewState.bBox.y + model.timeoutBody.viewState.bBox.h + 10}
+                            className='worker-life-line'
+                        />
+                        <rect
+                            x={cmp.timeoutHeader.x}
+                            y={cmp.timeoutHeader.y}
+                            width={cmp.timeoutHeader.w}
+                            height={cmp.timeoutHeader.h}
+                            className='statement-title-rect'
+                            rx={5}
+                            ry={5}
+                        />
+                        <text
+                            x={cmp.timeoutHeader.x + 5}
+                            y={cmp.timeoutHeader.y + 10}
+                            className='statement-title-text-left'
+                        >
+                            timeout
+                        </text>
+                        <ArrowDecorator
+                            start={{
+                                x: model.timeoutBody.viewState.bBox.x,
+                                y: model.timeoutBody.viewState.bBox.y + model.timeoutBody.viewState.bBox.h + 10,
+                            }}
+                            end={{
+                                x: model.viewState.bBox.x + 60,
+                                y: model.timeoutBody.viewState.bBox.y + model.timeoutBody.viewState.bBox.h + 10,
+                            }}
+                            classNameArrow='flowchart-action-arrow'
+                            classNameArrowHead='flowchart-action-arrow-head'
+                        />
+                        {timeoutBody}
+                    </g>
                 }
             </g>
         );
@@ -388,6 +260,8 @@ ForkJoinNode.propTypes = {
     model: PropTypes.shape({
         getJoinConditionString: PropTypes.func.isRequired,
         workers: PropTypes.array.isRequired,
+        joinBody: PropTypes.instanceOf(Object),
+        timeoutBody: PropTypes.instanceOf(Object),
     }).isRequired,
 };
 

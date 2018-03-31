@@ -1,4 +1,4 @@
-import ballerina.lang.messages;
+import ballerina/lang.messages;
 
 function testGetJSONPayload(message msg) (json){
     return messages:getJsonPayload(msg);

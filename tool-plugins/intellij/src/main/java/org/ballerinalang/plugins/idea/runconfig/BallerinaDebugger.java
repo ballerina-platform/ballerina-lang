@@ -44,6 +44,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.ServerSocket;
 
+/**
+ * Debugger runner which provides debugging capability.
+ */
 public class BallerinaDebugger extends GenericProgramRunner {
 
     private static final String ID = "BallerinaDebugger";

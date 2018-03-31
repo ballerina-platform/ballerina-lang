@@ -1,14 +1,16 @@
+import ballerina/runtime;
+
 int i = getInt();
 
-function getInt() returns (int){
+function getInt() returns int{
     worker w1 {
         return 1;
     }
     worker w2 {
-        sleep(10000);
+        runtime:sleepCurrentWorker(10000);
     }
 }
 
-function test()(int){
+function test() returns int{
     return i;
 }

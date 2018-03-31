@@ -38,6 +38,7 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     public BLangExpression expr;
     public BLangType typeNode;
+    public BType targetType;
     public List<BType> types = new ArrayList<>(0);
     public BConversionOperatorSymbol conversionSymbol;
     public BLangInvocation transformerInvocation;
@@ -81,7 +82,7 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     @Override
     public String toString() {
-        return "<" + String.valueOf(typeNode) + "> " + String.valueOf(expr);
+        return "<" + targetType.toString() + "> " + String.valueOf(expr);
     }
 
     @Override

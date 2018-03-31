@@ -32,6 +32,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
+/**
+ * Parent class for resolve tests.
+ */
 public abstract class BallerinaResolveTestBase extends BallerinaCodeInsightFixtureTestCase {
 
     @NotNull

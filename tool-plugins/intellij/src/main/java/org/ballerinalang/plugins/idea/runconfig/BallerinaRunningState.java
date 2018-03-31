@@ -27,6 +27,11 @@ import com.intellij.openapi.module.Module;
 import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Starts the Ballerina program.
+ *
+ * @param <T> configuration type
+ */
 public abstract class BallerinaRunningState<T extends BallerinaRunConfigurationBase<?>> extends CommandLineState {
 
     @NotNull

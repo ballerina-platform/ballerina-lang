@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an TransformerDefinition in PSI tree.
+ */
 public class TransformerDefinitionNode extends IdentifierDefSubtree implements TopLevelDefinition, ParameterContainer {
 
     public TransformerDefinitionNode(@NotNull ASTNode node) {

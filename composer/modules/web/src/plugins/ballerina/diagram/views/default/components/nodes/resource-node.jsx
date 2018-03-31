@@ -25,11 +25,11 @@ import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ImageUtil from './../../../../image-util';
 import './service-definition.css';
-import AddResourceDefinition from './add-resource-definition';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import Client from '../decorators/client';
 import ResourceNodeModel from '../../../../../model/tree/resource-node';
+import HttpResourceHeader from '../decorators/http-resource-header';
 
 class ResourceNode extends React.Component {
 
@@ -73,18 +73,15 @@ class ResourceNode extends React.Component {
         const classes = {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
+            textClass: 'default-worker-icon',
         };
-        const argumentParameters = this.props.model.getParameters();
 
-        const connectors = this.props.model.body.statements.filter((element) => {
-            const typeNode = _.get(element, 'variable.typeNode');
-            return typeNode && TreeUtil.isEndpointType(typeNode);
-        }).map((statement) => {
+        const endpoints = this.props.model.endpointNodes.map((endpoint) => {
             return (
                 <EndpointDecorator
-                    model={statement}
-                    title={statement.variable.name.value}
-                    bBox={statement.viewState.bBox}
+                    model={endpoint}
+                    title={endpoint.name.value}
+                    bBox={endpoint.viewState.bBox}
                 />);
         });
 
@@ -101,32 +98,39 @@ class ResourceNode extends React.Component {
 
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
-        const thisNodeIndex = parentNode.getIndexOfResources(this.props.model);
-        const resourceSiblings = parentNode.getResources();
-        const protocolPkgIdentifier = parentNode.getProtocolPackageIdentifier().value;
-        // For Web sockets
-        let showAddResourceBtnForWS = true;
-        if (protocolPkgIdentifier === 'ws' && resourceSiblings.length >= 6) {
-            showAddResourceBtnForWS = false;
-        }
-        // For JMS, FTP and FS allow only one resource
-        let showAddResourceForOneResource = true;
-        if ((protocolPkgIdentifier === 'jms' || protocolPkgIdentifier === 'ftp' || protocolPkgIdentifier === 'fs')
-            && resourceSiblings.length >= 1) {
-            showAddResourceForOneResource = false;
+
+        const protocolPkgIdentifier = parentNode.getType();
+
+        let panelAdditionalProps = {};
+        if (protocolPkgIdentifier === 'HttpService') {
+            const nodeDetails = ({ x, y }) => {
+                return (
+                    <HttpResourceHeader
+                        x={x}
+                        y={y}
+                        model={this.props.model}
+                    />
+                );
+            };
+            panelAdditionalProps = {
+                title: null,
+                headerComponent: nodeDetails,
+                protocol: null,
+            };
         }
 
         return (
             <g>
                 <PanelDecorator
-                    icon='tool-icons/resource'
+                    icon='resource'
                     title={name}
                     bBox={bBox}
                     model={this.props.model}
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
-                    argumentParams={argumentParameters}
                     packageIdentifier={protocolPkgIdentifier}
+                    // headerComponent={nodeDetails}
+                    {...panelAdditionalProps}
                 >
                     <Client
                         title={protocolPkgIdentifier + ' conn'}
@@ -148,8 +152,8 @@ class ResourceNode extends React.Component {
                                     title='default'
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
-                                    icon={ImageUtil.getSVGIconString('tool-icons/worker')}
-                                    iconColor='#2980b9'
+                                    icon={ImageUtil.getCodePoint('worker')}
+                                    model={this.props.model}
                                 />
                                 {blockNode}
                             </g>
@@ -167,30 +171,9 @@ class ResourceNode extends React.Component {
                             })
                         }
                         {workers}
-                        {connectors}
+                        {endpoints}
                     </g>
                 </PanelDecorator>
-                {(thisNodeIndex !== parentNode.getResources().length - 1 && showAddResourceBtnForWS &&
-                showAddResourceForOneResource && !this.props.model.viewState.collapsed) &&
-                <g
-                    className={this.state.style}
-                    onMouseOver={this.onMouseOver}
-                    onMouseOut={this.onMouseOut}
-                >
-                    <rect
-                        x={bBox.x - 50}
-                        y={bBox.y + bBox.h}
-                        width={bBox.w + 20}
-                        height='50'
-                        fillOpacity='0'
-                        strokeOpacity='0'
-                    />
-                    <AddResourceDefinition
-                        model={this.props.model}
-                        style={this.state.style}
-                    />
-                </g>
-                }
             </g>);
     }
 }

@@ -127,7 +127,7 @@ public interface Session {
      *
      * @param message which send to client
      */
-    void generateSessionHeader(HTTPCarbonMessage message);
+    void generateSessionHeader(HTTPCarbonMessage message, boolean isSecureRequest);
 
     /**
      * Update session stage whether new or already used.

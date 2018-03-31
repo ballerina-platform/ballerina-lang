@@ -24,6 +24,9 @@ import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an AssignmentStatement in PSI tree.
+ */
 public class AssignmentStatementNode extends ANTLRPsiNode {
 
     public AssignmentStatementNode(@NotNull ASTNode node) {

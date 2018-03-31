@@ -47,6 +47,18 @@ class AbstractTreeUtil {
         return node.kind === 'Connector';
     }
 
+    isDeprecated(node) {
+        return node.kind === 'Deprecated';
+    }
+
+    isDocumentation(node) {
+        return node.kind === 'Documentation';
+    }
+
+    isEndpoint(node) {
+        return node.kind === 'Endpoint';
+    }
+
     isEnum(node) {
         return node.kind === 'Enum';
     }
@@ -107,6 +119,14 @@ class AbstractTreeUtil {
         return node.kind === 'Transformer';
     }
 
+    isStreamlet(node) {
+        return node.kind === 'Streamlet';
+    }
+
+    isDocumentationAttribute(node) {
+        return node.kind === 'DocumentationAttribute';
+    }
+
     isAnnotationAttachmentAttribute(node) {
         return node.kind === 'AnnotationAttachmentAttribute';
     }
@@ -123,8 +143,8 @@ class AbstractTreeUtil {
         return node.kind === 'BinaryExpr';
     }
 
-    isConnectorInitExpr(node) {
-        return node.kind === 'ConnectorInitExpr';
+    isTypeInitExpr(node) {
+        return node.kind === 'TypeInitExpr';
     }
 
     isFieldBasedAccessExpr(node) {
@@ -133,6 +153,10 @@ class AbstractTreeUtil {
 
     isIndexBasedAccessExpr(node) {
         return node.kind === 'IndexBasedAccessExpr';
+    }
+
+    isIntRangeExpr(node) {
+        return node.kind === 'IntRangeExpr';
     }
 
     isInvocation(node) {
@@ -187,24 +211,24 @@ class AbstractTreeUtil {
         return node.kind === 'XmlAttribute';
     }
 
-    isXmlQuotedString(node) {
-        return node.kind === 'XmlQuotedString';
+    isXmlAttributeAccessExpr(node) {
+        return node.kind === 'XmlAttributeAccessExpr';
     }
 
-    isXmlElementLiteral(node) {
-        return node.kind === 'XmlElementLiteral';
+    isXmlQuotedString(node) {
+        return node.kind === 'XmlQuotedString';
     }
 
     isXmlTextLiteral(node) {
         return node.kind === 'XmlTextLiteral';
     }
 
-    isXmlCommentLiteral(node) {
-        return node.kind === 'XmlCommentLiteral';
-    }
-
     isXmlPiLiteral(node) {
         return node.kind === 'XmlPiLiteral';
+    }
+
+    isSelectExpression(node) {
+        return node.kind === 'SelectExpression';
     }
 
     isAbort(node) {
@@ -213,6 +237,14 @@ class AbstractTreeUtil {
 
     isAssignment(node) {
         return node.kind === 'Assignment';
+    }
+
+    isCompoundAssignment(node) {
+        return node.kind === 'CompoundAssignment';
+    }
+
+    isPostIncrement(node) {
+        return node.kind === 'PostIncrement';
     }
 
     isBind(node) {
@@ -247,6 +279,14 @@ class AbstractTreeUtil {
         return node.kind === 'If';
     }
 
+    isMatch(node) {
+        return node.kind === 'Match';
+    }
+
+    isMatchPatternClause(node) {
+        return node.kind === 'MatchPatternClause';
+    }
+
     isReply(node) {
         return node.kind === 'Reply';
     }
@@ -263,10 +303,6 @@ class AbstractTreeUtil {
         return node.kind === 'Transaction';
     }
 
-    isTransform(node) {
-        return node.kind === 'Transform';
-    }
-
     isTry(node) {
         return node.kind === 'Try';
     }
@@ -279,6 +315,10 @@ class AbstractTreeUtil {
         return node.kind === 'While';
     }
 
+    isLock(node) {
+        return node.kind === 'Lock';
+    }
+
     isWorkerReceive(node) {
         return node.kind === 'WorkerReceive';
     }
@@ -289,6 +329,10 @@ class AbstractTreeUtil {
 
     isArrayType(node) {
         return node.kind === 'ArrayType';
+    }
+
+    isUnionTypeNode(node) {
+        return node.kind === 'UnionTypeNode';
     }
 
     isBuiltInRefType(node) {
@@ -313,6 +357,46 @@ class AbstractTreeUtil {
 
     isValueType(node) {
         return node.kind === 'ValueType';
+    }
+
+    isOrderBy(node) {
+        return node.kind === 'OrderBy';
+    }
+
+    isGroupBy(node) {
+        return node.kind === 'GroupBy';
+    }
+
+    isHaving(node) {
+        return node.kind === 'Having';
+    }
+
+    isSelectClause(node) {
+        return node.kind === 'SelectClause';
+    }
+
+    isWhere(node) {
+        return node.kind === 'Where';
+    }
+
+    isFunctionClause(node) {
+        return node.kind === 'FunctionClause';
+    }
+
+    isWindowClause(node) {
+        return node.kind === 'WindowClause';
+    }
+
+    isStreamAction(node) {
+        return node.kind === 'StreamAction';
+    }
+
+    isPatternStreamingEdgeInput(node) {
+        return node.kind === 'PatternStreamingEdgeInput';
+    }
+
+    isPatternStreamingInput(node) {
+        return node.kind === 'PatternStreamingInput';
     }
 
 

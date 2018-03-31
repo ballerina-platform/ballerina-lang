@@ -16,6 +16,9 @@
 
 package org.ballerinalang.util.diagnostic;
 
+/**
+ * Represents a diagnostic. Used in external annotator.
+ */
 public interface Diagnostic {
 
     /**
@@ -27,6 +30,9 @@ public interface Diagnostic {
         NOTE,
     }
 
+    /**
+     * Contains diagnostic source details.
+     */
     interface DiagnosticSource {
 
         String getPackageName();
@@ -36,6 +42,9 @@ public interface Diagnostic {
         String getCompilationUnitName();
     }
 
+    /**
+     * Contains details of diagnostic position.
+     */
     interface DiagnosticPosition {
 
         DiagnosticSource getSource();

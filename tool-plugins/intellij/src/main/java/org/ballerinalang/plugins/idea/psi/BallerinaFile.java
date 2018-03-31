@@ -27,6 +27,9 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a BallerinaFile in PSI tree.
+ */
 public class BallerinaFile extends PsiFileBase implements ScopeNode {
 
     public BallerinaFile(@NotNull FileViewProvider viewProvider) {

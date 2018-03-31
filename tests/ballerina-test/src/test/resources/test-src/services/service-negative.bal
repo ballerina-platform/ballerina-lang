@@ -1,32 +1,38 @@
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
-service<http> FooService {
+endpoint mock:NonListeningServiceEndpoint echoEP {
+    port:9090
+};
 
-    resource test1 (string dummyParam) {
-        println("test1-before");
+service<http:Service> FooService {
+
+    test1 (string dummyParam) {
+        io:println("test1-before");
         break;
-        println("test1-after");
+        io:println("test1-after");
     }
 
-    resource test2 (string dummyParam) {
-        println("test2-before");
+    test2 (string dummyParam) {
+        io:println("test2-before");
         next;
-        println("test2-after");
+        io:println("test2-after");
     }
 
-    resource test3 (string dummyParam) {
-        println("test3-before");
+    test3 (string dummyParam) {
+        io:println("test3-before");
         abort;
-        println("test3-after");
+        io:println("test3-after");
     }
 
-    resource test4 (string dummyParam) {
-        println("test4-before");
+    test4 (string dummyParam) {
+        io:println("test4-before");
         return;
-        println("test4-after");
+        io:println("test4-after");
     }
 
-    resource test5 (string dummyParam) {
+    test5 (string dummyParam) {
         worker w1 {
             var a = "a";
             a -> w2;

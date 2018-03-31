@@ -44,7 +44,7 @@ public class IdentifierLiteralServiceTest {
                 .setupProgramFile(this, "test-src/expressions/identifierliteral/identifier-literal-service.bal");
     }
 
-    @Test(description = "Test using identifier literals in service and resource names")
+    @Test(description = "Test using identifier literals in service and resource names", enabled = false)
     public void testUsingIdentifierLiteralsInServiceAndResourceNames() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
@@ -54,7 +54,7 @@ public class IdentifierLiteralServiceTest {
         Assert.assertEquals(bJson.value().get("value").asText(), "valueOfTheString");
     }
 
-    @Test(description = "Test identifier literals payload")
+    @Test(description = "Test identifier literals payload", enabled = false)
     public void testIdentifierLiteralsInPayload() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
         HTTPCarbonMessage response = Services.invokeNew(application, cMsg);

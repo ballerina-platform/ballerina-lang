@@ -32,6 +32,9 @@ import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Util class for imports.
+ */
 public class BallerinaUtil {
 
     private BallerinaUtil() {
@@ -137,7 +140,7 @@ public class BallerinaUtil {
                 OrderEntry[] entries = ModuleRootManager.getInstance(module).getOrderEntries();
                 for (OrderEntry entry : entries) {
                     for (VirtualFile file : entry.getFiles(OrderRootType.SOURCES)) {
-                        if(currentDirectory.getPath().startsWith(file.getPath())){
+                        if (currentDirectory.getPath().startsWith(file.getPath())) {
                             return getImportPath(currentDirectory, file);
                         }
                     }

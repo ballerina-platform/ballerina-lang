@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.programfile.PackageInfo;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -28,7 +29,10 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PAC
  */
 public class BPackageSymbol extends BTypeSymbol {
 
+    public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol;
     // TODO Introduce States to the Package Symbol.. DEFINED, TYPE_CHECKED, ANALYZED etc..
+
+    public PackageInfo packageInfo;
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner);

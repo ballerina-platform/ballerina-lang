@@ -19,8 +19,8 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.BLangScheduler;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
@@ -60,8 +60,6 @@ public class Debugger {
 
     private volatile Semaphore executionSem;
 
-    private volatile Semaphore debugSem;
-
     public Debugger(ProgramFile programFile) {
         this.programFile = programFile;
         String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
@@ -86,18 +84,7 @@ public class Debugger {
 
     protected void setupDebugger() {
         this.executionSem = new Semaphore(0);
-        this.debugSem = new Semaphore(1);
         this.debugInfoHolder = new DebugInfoHolder(programFile);
-    }
-
-    /**
-     * Helper method to add debug context and wait until debugging starts.
-     * 
-     * @param debugContext Debug context
-     */
-    public void addDebugContextAndWait(DebugContext debugContext) {
-        this.clientHandler.addContext(debugContext);
-        this.waitTillDebuggeeResponds();
     }
 
     /**
@@ -112,17 +99,13 @@ public class Debugger {
     }
 
     /**
-     * Method to try acquire debug session.
+     * Helper method to stop execution of current worker.
+     *
+     * @param ctx of the current worker.
      */
-    public boolean tryAcquireDebugSessionLock() {
-        return debugSem.tryAcquire();
-    }
-
-    /**
-     * Method to release the session and debug lock.
-     */
-    public void releaseDebugSessionLock() {
-        debugSem.release();
+    public void pauseWorker(WorkerExecutionContext ctx) {
+        ctx.getDebugContext().setWorkerPaused(true);
+        BLangScheduler.workerPaused(ctx);
     }
 
     /**
@@ -162,7 +145,7 @@ public class Debugger {
 
         switch (command.getCommand()) {
             case DebugConstants.CMD_RESUME:
-                resume();
+                resume(command.getThreadId());
                 break;
             case DebugConstants.CMD_STEP_OVER:
                 stepOver(command.getThreadId());
@@ -206,45 +189,51 @@ public class Debugger {
      * Method to start debugging.
      */
     public void startDebug() {
-        resume();
+        executionSem.release();
     }
 
     /**
      * Method to resume current debug session.
+     *
+     * @param workerId of the worker to be resumed.
      */
-    public void resume() {
-        clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
-        executionSem.release();
+    public void resume(String workerId) {
+        WorkerExecutionContext ctx = getWorkerContext(workerId);
+        ctx.getDebugContext().setCurrentCommand(DebugCommand.RESUME);
+        BLangScheduler.resume(ctx);
     }
 
     /**
      * Method to do "STEP_IN" command.
      *
-     * @param threadId to be resumed.
+     * @param workerId to be resumed.
      */
-    public void stepIn(String threadId) {
-        getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_IN);
-        executionSem.release();
+    public void stepIn(String workerId) {
+        WorkerExecutionContext ctx = getWorkerContext(workerId);
+        ctx.getDebugContext().setCurrentCommand(DebugCommand.STEP_IN);
+        BLangScheduler.resume(ctx);
     }
 
     /**
      * Method to do "STEP_OVER" command.
      *
-     * @param threadId to be resumed.
+     * @param workerId to be resumed.
      */
-    public void stepOver(String threadId) {
-        getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OVER);
-        executionSem.release();
+    public void stepOver(String workerId) {
+        WorkerExecutionContext ctx = getWorkerContext(workerId);
+        ctx.getDebugContext().setCurrentCommand(DebugCommand.STEP_OVER);
+        BLangScheduler.resume(ctx);
     }
 
     /**
      * Method to do "STEP_OUT" command.
      *
-     * @param threadId to be resumed.
+     * @param workerId to be resumed.
      */
-    public void stepOut(String threadId) {
-        getDebugContext(threadId).setCurrentCommand(DebugCommand.STEP_OUT);
-        executionSem.release();
+    public void stepOut(String workerId) {
+        WorkerExecutionContext ctx = getWorkerContext(workerId);
+        ctx.getDebugContext().setCurrentCommand(DebugCommand.STEP_OUT);
+        BLangScheduler.resume(ctx);
     }
 
     /**
@@ -252,19 +241,19 @@ public class Debugger {
      */
     public void stopDebugging() {
         debugInfoHolder.clearDebugLocations();
-        clientHandler.updateAllDebugContexts(DebugCommand.RESUME);
+        clientHandler.getAllWorkerContexts().forEach((k, v) -> {
+            v.getDebugContext().setCurrentCommand(DebugCommand.RESUME);
+            BLangScheduler.resume(v);
+        });
         clientHandler.clearChannel();
-        //releasing session lock and execution lock to resume debug
-        debugSem.release();
-        executionSem.release();
     }
 
-    private DebugContext getDebugContext(String threadId) {
-        DebugContext debugContext = clientHandler.getContext(threadId);
-        if (debugContext == null) {
-            throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID + threadId);
+    private WorkerExecutionContext getWorkerContext(String workerId) {
+        WorkerExecutionContext ctx = clientHandler.getWorkerContext(workerId);
+        if (ctx == null) {
+            throw new DebugException(DebugConstants.MSG_INVALID_WORKER_ID + workerId);
         }
-        return debugContext;
+        return ctx;
     }
 
     /**
@@ -278,12 +267,12 @@ public class Debugger {
     }
 
     /**
-     * Add {@link Context} to current execution.
+     * Add {@link WorkerExecutionContext} to current execution.
      *
-     * @param debugContext context to run
+     * @param ctx context to run.
      */
-    public void addDebugContext(DebugContext debugContext) {
-        this.clientHandler.addContext(debugContext);
+    public void addWorkerContext(WorkerExecutionContext ctx) {
+        this.clientHandler.addWorkerContext(ctx);
     }
 
     /**
@@ -298,12 +287,12 @@ public class Debugger {
     /**
      * Send a message to the debug client when a breakpoint is hit.
      *
-     * @param frame             Current stack frame.
+     * @param ctx               Current context.
      * @param currentExecLine   Current execution line.
-     * @param threadId          Current thread id.
+     * @param workerId          Current thread id.
      */
-    public void notifyDebugHit(StackFrame frame, LineNumberInfo currentExecLine, String threadId) {
-        MessageDTO message = generateDebugHitMessage(frame, currentExecLine, threadId);
+    public void notifyDebugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String workerId) {
+        MessageDTO message = generateDebugHitMessage(ctx, currentExecLine, workerId);
         clientHandler.notifyHalt(message);
     }
 
@@ -330,69 +319,56 @@ public class Debugger {
     /**
      * Generate debug hit message.
      *
-     * @param frame             Current stack frame.
+     * @param ctx               Current context.
      * @param currentExecLine   Current execution line.
-     * @param threadId          Current thread id.
+     * @param workerId          Current thread id.
      * @return  message         To be sent.
      */
-    private MessageDTO generateDebugHitMessage(StackFrame frame, LineNumberInfo currentExecLine, String threadId) {
+    private MessageDTO generateDebugHitMessage(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, 
+            String workerId) {
         MessageDTO message = new MessageDTO(DebugConstants.CODE_HIT, DebugConstants.MSG_HIT);
-        message.setThreadId(threadId);
+        message.setThreadId(workerId);
 
         BreakPointDTO breakPointDTO = new BreakPointDTO(currentExecLine.getPackageInfo().getPkgPath(),
                 currentExecLine.getFileName(), currentExecLine.getLineNumber());
         message.setLocation(breakPointDTO);
 
         int callingIp = currentExecLine.getIp();
-        while (frame != null) {
-            String pck = frame.getPackageInfo().getPkgPath();
-            if (frame.getCallableUnitInfo() == null) {
-                frame = frame.prevStackFrame;
-                continue;
+
+        String pck = ctx.callableUnitInfo.getPackageInfo().getPkgPath();
+
+        String functionName = ctx.callableUnitInfo.getName();
+        LineNumberInfo callingLine = getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), callingIp);
+        FrameDTO frameDTO = new FrameDTO(pck, functionName, callingLine.getFileName(),
+                callingLine.getLineNumber());
+        message.addFrame(frameDTO);
+        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) ctx.workerInfo
+                .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+
+        localVarAttrInfo.getLocalVariables().forEach(l -> {
+            VariableDTO variableDTO = new VariableDTO(l.getVariableName(), "Local");
+            switch (l.getVariableType().getTag()) {
+                case TypeTags.INT_TAG:
+                    variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[l.getVariableIndex()]));
+                    break;
+                case TypeTags.STRING_TAG:
+                    variableDTO.setBValue(new BString(ctx.workerLocal.stringRegs[l.getVariableIndex()]));
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[l.getVariableIndex()] == 1));
+                    break;
+                case TypeTags.BLOB_TAG:
+                    variableDTO.setBValue(new BBlob(ctx.workerLocal.byteRegs[l.getVariableIndex()]));
+                    break;
+                default:
+                    variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);
+                    break;
             }
-            //TODO is this ok to show function name when it's a worker which is executing?
-            String functionName = frame.getCallableUnitInfo().getName();
-            LineNumberInfo callingLine = getLineNumber(frame.getPackageInfo().getPkgPath(), callingIp);
-            FrameDTO frameDTO = new FrameDTO(pck, functionName, callingLine.getFileName(),
-                    callingLine.getLineNumber());
-            message.addFrame(frameDTO);
-            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.getWorkerInfo()
-                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-            if (localVarAttrInfo == null) {
-                frame = frame.prevStackFrame;
-                continue;
-            }
-            StackFrame fcp = frame;
-            localVarAttrInfo.getLocalVariables().forEach(l -> {
-                VariableDTO variableDTO = new VariableDTO(l.getVariableName(), "Local");
-                switch (l.getVariableType().getTag()) {
-                    case TypeTags.INT_TAG:
-                        variableDTO.setBValue(new BInteger(fcp.getLongRegs()[l.getVariableIndex()]));
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        variableDTO.setBValue(new BFloat(fcp.getDoubleRegs()[l.getVariableIndex()]));
-                        break;
-                    case TypeTags.STRING_TAG:
-                        variableDTO.setBValue(new BString(fcp.getStringRegs()[l.getVariableIndex()]));
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        variableDTO.setBValue(new BBoolean(fcp.getIntRegs()[l.getVariableIndex()] == 1));
-                        break;
-                    case TypeTags.BLOB_TAG:
-                        variableDTO.setBValue(new BBlob(fcp.getByteRegs()[l.getVariableIndex()]));
-                        break;
-                    default:
-                        variableDTO.setBValue(fcp.getRefRegs()[l.getVariableIndex()]);
-                        break;
-                }
-                frameDTO.addVariable(variableDTO);
-            });
-            callingIp = frame.getRetAddrs() - 1;
-            if (callingIp < 0) {
-                callingIp = 0;
-            }
-            frame = frame.prevStackFrame;
-        }
+            frameDTO.addVariable(variableDTO);
+        });
         return message;
     }
 

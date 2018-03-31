@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.debugger.breakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represent a Ballerina breakpoint.
+ */
 public class BallerinaBreakpointProperties extends XBreakpointProperties<BallerinaBreakpointProperties> {
 
     @Nullable

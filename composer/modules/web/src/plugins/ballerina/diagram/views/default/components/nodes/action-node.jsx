@@ -77,6 +77,7 @@ class ActionNode extends React.Component {
         const classes = {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
+            textClass: 'default-worker-icon',
         };
         const argumentParameters = this.props.model.getParameters();
         const returnParameters = this.props.model.getReturnParameters();
@@ -104,7 +105,7 @@ class ActionNode extends React.Component {
         return (
             <g>
                 <PanelDecorator
-                    icon='tool-icons/action'
+                    icon='action'
                     title={name}
                     bBox={bBox}
                     model={this.props.model}
@@ -133,8 +134,8 @@ class ActionNode extends React.Component {
                                     title='default'
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
                                     classes={classes}
-                                    icon={ImageUtil.getSVGIconString('tool-icons/worker')}
-                                    iconColor='#025482'
+                                    icon={ImageUtil.getCodePoint('worker')}
+                                    model={this.props.model}
                                 />
                                 {blockNode}
                             </g>

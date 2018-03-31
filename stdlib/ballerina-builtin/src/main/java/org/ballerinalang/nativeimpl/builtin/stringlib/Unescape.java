@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,19 +32,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.unescape",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Unescape extends AbstractNativeFunction {
+public class Unescape extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String stringValue = getStringArgument(context, 0);
+    public void execute(Context context) {
+        String stringValue = context.getStringArgument(0);
         //todo extend this in a proper way
         String unescapedString = stringValue.replace("\\", "");
-        return getBValues(new BString(unescapedString));
+        context.setReturnValues(new BString(unescapedString));
     }
 }

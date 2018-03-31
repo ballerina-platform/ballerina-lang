@@ -50,8 +50,8 @@ class PositioningUtil {
                 variableRefName = node.expression.expression.variableName.value;
             }
             const allVisibleEndpoints = TreeUtil.getAllVisibleEndpoints(node.parent);
-            const endpoint = _.find(allVisibleEndpoints, (varDef) => {
-                return varDef.variable.name.value === variableRefName;
+            const endpoint = _.find(allVisibleEndpoints, (endpoint) => {
+                return endpoint.name.value === variableRefName;
             });
 
             // Move the x cordinates to centre align the action invocation statement
@@ -194,15 +194,12 @@ class PositioningUtil {
      * @param {object} node CompilationUnit object
      */
     positionCompilationUnitNode(node) {
-        this.positionTopLevelNodes(node);
         let width = 0;
         // Set the height of the toplevel nodes so that the other nodes would be positioned relative to it
-        let height = node.viewState.components.topLevelNodes.h + 50;
+        let height = this.config.canvas.padding.top;
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child)
-                || TreeUtil.isTransformer(child) || TreeUtil.isEnum(child);
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child);
         });
 
         children.forEach((child) => {
@@ -233,88 +230,6 @@ class PositioningUtil {
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = width;
-        // Imports
-        node.viewState.components.importsBbox = new SimpleBBox();
-        node.viewState.components.importsBbox.x = node.viewState.components.topLevelNodes.x + 35 + 15;
-        node.viewState.components.importsBbox.y = node.viewState.components.topLevelNodes.y;
-        // Imports Expanded
-        node.viewState.components.importsExpandedBbox = new SimpleBBox();
-        node.viewState.components.importsExpandedBbox.x = node.viewState.components.topLevelNodes.x;
-        node.viewState.components.importsExpandedBbox.y = node.viewState.components.topLevelNodes.y + 35;
-
-        // Globals
-        node.viewState.components.globalsBbox = new SimpleBBox();
-        node.viewState.components.globalsBbox.x = node.viewState.components.importsBbox.x
-            + 115 + 15;
-        node.viewState.components.globalsBbox.y = node.viewState.components.topLevelNodes.y;
-        // Globals Expanded
-        node.viewState.components.globalsExpandedBbox = new SimpleBBox();
-        node.viewState.components.globalsExpandedBbox.x = node.viewState.components.topLevelNodes.x;
-        node.viewState.components.globalsExpandedBbox.y = node.viewState.components.topLevelNodes.y + 35 + 10;
-
-         // Position imports
-        const imports = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isImport(child);
-        });
-        let lastImportElementY = node.viewState.components.importsExpandedBbox.y + 35;
-        imports.forEach((importDec) => {
-            importDec.viewState.bBox.x = node.viewState.components.importsExpandedBbox.x;
-            importDec.viewState.bBox.y = lastImportElementY;
-            importDec.viewState.bBox.h = 30;
-            importDec.viewState.bBox.w = 310;
-            lastImportElementY += 30;
-        });
-
-        // Position the global variables
-        const globals = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isVariable(child) || TreeUtil.isXmlns(child);
-        });
-        let lastGlobalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
-        globals.forEach((globalDec) => {
-            globalDec.viewState.bBox.x = node.viewState.components.globalsExpandedBbox.x;
-            globalDec.viewState.bBox.y = lastGlobalElementY;
-            globalDec.viewState.bBox.h = 30;
-            globalDec.viewState.bBox.w = 310;
-            lastGlobalElementY += 30;
-        });
-
-        // Check if package is expanded, position the imports and the globals
-        const packageDefTextWidth = 275;
-        if (node.viewState.packageDefExpanded) {
-            node.viewState.components.importsBbox.x += packageDefTextWidth;
-            node.viewState.components.globalsBbox.x += packageDefTextWidth;
-        } else if (node.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
-            const pkgDecNodes = node.filterTopLevelNodes({ kind: 'PackageDeclaration' });
-            if (node.getPackageName(pkgDecNodes[0])) {
-                node.viewState.components.importsBbox.x += packageDefTextWidth;
-                node.viewState.components.globalsBbox.x += packageDefTextWidth;
-            }
-        }
-
-        if (node.viewState.importsExpanded) {
-            const globalsExpandedY = (imports.length * this.config.variablesPane.importDeclarationHeight)
-                + this.config.variablesPane.topBarHeight + this.config.variablesPane.importInputHeight
-                + this.config.variablesPane.yGutterSize;
-            node.viewState.components.globalsExpandedBbox.y += globalsExpandedY;
-            node.viewState.components.globalsBbox.x += 30;
-            let globalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
-            globals.forEach((globalDec) => {
-                globalDec.viewState.bBox.y = globalElementY;
-                globalElementY += 30;
-            });
-            node.viewState.components.globalsBbox.x -= (this.config.variablesPane.badgeWidth +
-            this.config.variablesPane.xGutterSize);
-        }
-    }
-
-    /**
-     * Position the packageDec, imports and globals
-     * @param node CompilationUnitNode
-     */
-    positionTopLevelNodes(node) {
-        const viewState = node.viewState;
-        viewState.components.topLevelNodes.x = this.config.panel.wrapper.gutter.v;
-        viewState.components.topLevelNodes.y = this.config.panel.wrapper.gutter.h;
     }
 
     /**
@@ -333,57 +248,7 @@ class PositioningUtil {
      * @param {object} node Enum object
      */
     positionEnumNode(node) {
-        const bBox = node.viewState.bBox;
-        const enumerators = node.getEnumerators();
-        const enumMaxWidth = bBox.w - this.config.panel.body.padding.right
-            - this.config.panel.body.padding.left;
-        const defaultEnumeratorX = bBox.x + this.config.panel.body.padding.left;
-        const defaultEnumeratorY = bBox.y + this.config.contentOperations.height
-            + this.config.panel.body.padding.top
-            + node.viewState.components.annotation.h + 10;
-
-        if (enumerators && enumerators.length > 0) {
-            let previousX = defaultEnumeratorX;
-            let previousY = defaultEnumeratorY;
-            let previousWidth = 120;
-            enumerators.forEach((enumerator) => {
-                if (TreeUtil.isEnumerator(enumerator)) {
-                    // If identifiers exceeded the panel width push them to a new line
-                    // else continue on the same line till meeting the max width.
-                    if (previousWidth > enumMaxWidth
-                        || (previousWidth + enumerator.viewState.w) > enumMaxWidth) {
-                        previousX = defaultEnumeratorX;
-                        previousY += enumerator.viewState.h
-                            + this.config.enumIdentifierStatement.padding.top;
-                        previousWidth = enumerator.viewState.w
-                            + enumerator.viewState.components.deleteIcon.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        enumerator.viewState.bBox.x = defaultEnumeratorX;
-                        enumerator.viewState.bBox.y = previousY;
-                        previousX += enumerator.viewState.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        enumerator.viewState.components.deleteIcon.x = previousX
-                            - this.config.enumIdentifierStatement.padding.left
-                            - enumerator.viewState.components.deleteIcon.w;
-                        enumerator.viewState.components.deleteIcon.y = previousY
-                            - this.config.enumIdentifierStatement.padding.top
-                            + this.config.enumIdentifierStatement.padding.top;
-                    } else {
-                        enumerator.viewState.bBox.x = previousX;
-                        enumerator.viewState.bBox.y = previousY;
-                        previousWidth += enumerator.viewState.w
-                            + enumerator.viewState.components.deleteIcon.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        previousX += enumerator.viewState.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        enumerator.viewState.components.deleteIcon.x = previousX
-                            - this.config.enumIdentifierStatement.padding.left
-                            - enumerator.viewState.components.deleteIcon.w;
-                        enumerator.viewState.components.deleteIcon.y = previousY;
-                    }
-                }
-            });
-        }
+        // Do nothing
     }
 
     /**
@@ -409,15 +274,15 @@ class PositioningUtil {
 
         // position the function body.
         funcBodyViewState.bBox.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h +
+        funcBodyViewState.bBox.y = viewState.bBox.y + cmp.heading.h +
             this.config.panel.body.padding.top + this.config.lifeLine.head.height;
 
         cmp.client.x = viewState.bBox.x + this.config.panel.body.padding.left;
-        cmp.client.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.client.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
 
         // position the default worker.
         cmp.defaultWorker.x = cmp.client.x + cmp.client.w + this.config.lifeLine.gutter.h;
-        cmp.defaultWorker.y = viewState.bBox.y + cmp.annotation.h + cmp.heading.h + this.config.panel.body.padding.top;
+        cmp.defaultWorker.y = viewState.bBox.y + cmp.heading.h + this.config.panel.body.padding.top;
         // position default worker line.
         cmp.defaultWorkerLine.x = cmp.defaultWorker.x;
         cmp.defaultWorkerLine.y = cmp.defaultWorker.y;
@@ -428,61 +293,6 @@ class PositioningUtil {
             + (cmp.defaultWorkerLine.w / 2);
         body.viewState.bBox.y = cmp.defaultWorker.y + this.config.lifeLine.head.height
             + this.config.statement.height;
-
-        // ========== Header Positioning ==========
-        let publicPrivateFlagoffset = 0;
-        if (node.public) {
-            publicPrivateFlagoffset = 10;
-        }
-        // Positioning argument parameters
-        if (node.getParameters()) {
-            cmp.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
-                this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset + cmp.receiver.w;
-            cmp.argParameterHolder.openingParameter.y = viewState.bBox.y + cmp.annotation.h;
-
-            // Positioning the resource parameters
-            let nextXPositionOfParameter = cmp.argParameterHolder.openingParameter.x
-                + cmp.argParameterHolder.openingParameter.w;
-            if (node.getParameters().length > 0) {
-                for (let i = 0; i < node.getParameters().length; i++) {
-                    const argument = node.getParameters()[i];
-                    nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
-                        (viewState.bBox.y + viewState.components.annotation.h));
-                }
-            }
-
-            // Positioning the closing bracket component of the parameters.
-            cmp.argParameterHolder.closingParameter.x = nextXPositionOfParameter + 130;
-            cmp.argParameterHolder.closingParameter.y = viewState.bBox.y + cmp.annotation.h;
-        }
-
-        // Positioning return types
-        if (node.getReturnParameters()) {
-            cmp.returnParameterHolder.returnTypesIcon.x = cmp.argParameterHolder.closingParameter.x
-                + cmp.argParameterHolder.closingParameter.w + 10;
-            cmp.returnParameterHolder.returnTypesIcon.y = viewState.bBox.y + viewState.components.annotation.h + 18;
-
-            // Positioning the opening bracket component of the return types.
-            cmp.returnParameterHolder.openingReturnType.x = cmp.returnParameterHolder.returnTypesIcon.x
-                + cmp.returnParameterHolder.returnTypesIcon.w;
-            cmp.returnParameterHolder.openingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-
-            // Positioning the resource parameters
-            let nextXPositionOfReturnType = cmp.returnParameterHolder.openingReturnType.x
-                + cmp.returnParameterHolder.openingReturnType.w;
-            if (node.getReturnParameters().length > 0) {
-                for (let i = 0; i < node.getReturnParameters().length; i++) {
-                    const returnType = node.getReturnParameters()[i];
-                    nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType,
-                        (viewState.bBox.y + viewState.components.annotation.h));
-                }
-            }
-
-            // Positioning the closing bracket component of the parameters.
-            cmp.returnParameterHolder.closingReturnType.x = nextXPositionOfReturnType + 130;
-            cmp.returnParameterHolder.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-        }
 
         // ========== End of Header ==========
 
@@ -509,16 +319,14 @@ class PositioningUtil {
             });
         }
 
-        // Position Connectors
-        const statements = node.body.statements;
-        statements.forEach((statement) => {
-            if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                statement.viewState.bBox.x = xindex;
-                statement.viewState.bBox.y = cmp.defaultWorker.y;
-                xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
-                if (statement.viewState.showOverlayContainer) {
-                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
-                }
+        // Position Endpoints
+        const endpoints = node.endpointNodes;
+        endpoints.forEach((endpointNode) => {
+            endpointNode.viewState.bBox.x = xindex;
+            endpointNode.viewState.bBox.y = cmp.defaultWorker.y;
+            xindex += endpointNode.viewState.bBox.w + this.config.lifeLine.gutter.h;
+            if (endpointNode.viewState.showOverlayContainer) {
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(endpointNode);
             }
         });
     }
@@ -772,8 +580,11 @@ class PositioningUtil {
         cmp.lifeLine.y = node.viewState.bBox.y;
 
         node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
-        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height
-            + this.config.statement.height;
+        node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
+
+        if (!TreeUtil.isForkJoin(node.parent)) {
+            node.body.viewState.bBox.y += this.config.statement.height;
+        }
     }
 
 
@@ -1132,107 +943,45 @@ class PositioningUtil {
     positionForkJoinNode(node) {
         const viewState = node.viewState;
         const bBox = viewState.bBox;
+        bBox.x -= (this.config.lifeLine.width / 2);
         const joinStmt = node.getJoinBody();
         const timeoutStmt = node.getTimeoutBody();
+        const joinBBox = (joinStmt) ? joinStmt.viewState.bBox : new SimpleBBox();
+        const timeoutBBox = (timeoutStmt) ? timeoutStmt.viewState.bBox : new SimpleBBox();
 
-        this.positionCompoundStatementComponents(node);
-
-        // Set the node x and y using statement box.
-        node.viewState.bBox.x = node.viewState.components['statement-box'].x;
-        node.viewState.bBox.y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
-
-        node.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-        node.viewState.components['statement-box'].w = node.viewState.bBox.w;
-        node.viewState.components['block-header'].w = node.viewState.bBox.w;
-        node.viewState.components['statement-body'].w = node.viewState.bBox.w;
-
-        if (joinStmt) {
-            // Calculate join block x and y.
-            const joinX = bBox.x;
-            let joinY = viewState.components['statement-box'].y
-                + viewState.components['statement-box'].h;
-
-            // Create a bbox for parameter of join.
-            joinStmt.viewState.components.param =
-                new SimpleBBox(joinX + joinStmt.viewState.components.expression.w +
-                    joinStmt.viewState.components.titleWidth.w, 0, 0, 0, 0, 0);
-
-            if (node.viewState.bBox.w > joinStmt.viewState.bBox.w) {
-                joinStmt.viewState.bBox.w = node.viewState.bBox.w;
-                if (TreeUtil.isBlock(joinStmt)) {
-                    joinStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-                    joinStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
-                    joinStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
-                }
-            }
-
-            if (joinStmt && TreeUtil.isBlock(joinStmt)) {
-                joinY += joinStmt.viewState.components['block-header'].h;
-            }
-
-            joinStmt.viewState.components['statement-box'].h += joinStmt.viewState.components['block-header'].h;
-
-            joinStmt.viewState.bBox.y = joinY;
-            joinStmt.viewState.bBox.x = joinX;
-            this.positionCompoundStatementComponents(joinStmt);
-        }
-
-        if (timeoutStmt) {
-            // Calculate timeout block x and y.
-            const timeoutX = bBox.x;
-            const timeoutY = joinStmt ? (joinStmt.viewState.bBox.y
-                + joinStmt.viewState.components['statement-box'].h) : (node.viewState.components['statement-box'].y
-                + node.viewState.components['statement-box'].h);
-
-            // Create a bbox for parameter of timeout.
-            timeoutStmt.viewState.components.param =
-                new SimpleBBox(timeoutX + timeoutStmt.viewState.components.expression.w, 0, 0, 0, 0);
-
-            if (node.viewState.bBox.w > timeoutStmt.viewState.bBox.w) {
-                timeoutStmt.viewState.bBox.w = node.viewState.bBox.w;
-                if (TreeUtil.isBlock(timeoutStmt)) {
-                    timeoutStmt.viewState.components['drop-zone'].w = node.viewState.bBox.w;
-                    timeoutStmt.viewState.components['statement-box'].w = node.viewState.bBox.w;
-                    timeoutStmt.viewState.components['block-header'].w = node.viewState.bBox.w;
-                }
-            }
-
-            // Add the block header value to the statement box of the timeout statement.
-            timeoutStmt.viewState.components['statement-box'].h += timeoutStmt.viewState.components['block-header'].h;
-
-            timeoutStmt.viewState.bBox.y = timeoutY;
-            timeoutStmt.viewState.bBox.x = timeoutX;
-            this.positionCompoundStatementComponents(timeoutStmt);
-        }
+        const cmp = node.viewState.components;
+        cmp.forkContainer.x = bBox.x;
+        cmp.forkContainer.y = bBox.y + this.config.statement.height;
 
         // Position Workers
-        let xIndex = bBox.x + this.config.fork.padding.left + this.config.fork.lifeLineGutterH;
-        const yIndex = bBox.y + this.config.fork.padding.top;
+        let xIndex = bBox.x;
+        const yIndex = cmp.forkContainer.y + 40/* worker top padding */;
         if (node.workers instanceof Array && !_.isEmpty(node.workers)) {
-            const maxHeightWorker = _.maxBy(node.workers, (worker) => {
-                return worker.viewState.components.lifeLine.h;
-            });
-            const maxWorkerHeight = maxHeightWorker.viewState.components.lifeLine.h;
             node.workers.forEach((worker) => {
                 worker.viewState.bBox.x = xIndex;
                 worker.viewState.bBox.y = yIndex;
-                xIndex += this.config.fork.lifeLineGutterH + worker.viewState.bBox.w;
-                worker.viewState.components.lifeLine.h = maxWorkerHeight;
+                xIndex += worker.viewState.bBox.w;
             });
         }
 
-        // Add the values of the statement body of the fork node.
-        node.viewState.components['statement-body'].h = node.viewState.components['statement-box'].h
-            - node.viewState.components['block-header'].h;
-        node.viewState.components['statement-body'].y = node.viewState.components['statement-box'].y
-            + node.viewState.components['block-header'].h;
-        node.viewState.components['statement-body'].x = node.viewState.components['statement-box'].x;
+        // Size join and timeout headers
+        cmp.joinHeader.x = cmp.forkContainer.x + (this.config.lifeLine.width / 2);
+        cmp.joinHeader.y = cmp.forkContainer.y + cmp.forkContainer.h;
 
-        node.viewState.bBox.h = node.viewState.components['statement-body'].h
-            + node.viewState.components['block-header'].h
-            + (joinStmt ? joinStmt.viewState.components['statement-box'].h : 0)
-            + (timeoutStmt ? timeoutStmt.viewState.components['statement-box'].h : 0);
+        cmp.timeoutHeader.x = cmp.forkContainer.x + _.max([joinBBox.w, cmp.joinHeader.w])
+                            + (cmp.timeoutHeader.w / 2)
+                            + this.config.lifeLine.gutter.h;
+        cmp.timeoutHeader.y = cmp.forkContainer.y + cmp.forkContainer.h;
+
+        joinBBox.x = cmp.joinHeader.x;
+        joinBBox.y = cmp.joinHeader.y + cmp.joinHeader.h;
+
+        timeoutBBox.x = cmp.timeoutHeader.x;
+        timeoutBBox.y = cmp.timeoutHeader.y + cmp.timeoutHeader.h;
+
+        // Center the headers
+        cmp.joinHeader.x -= (cmp.joinHeader.w / 2);
+        cmp.timeoutHeader.x -= (cmp.timeoutHeader.w / 2);
     }
 
 
@@ -1337,17 +1086,12 @@ class PositioningUtil {
      * @param {object} node Transaction object
      */
     positionTransactionNode(node) {
-        const failedBody = node.failedBody;
+        const onRetryBody = node.onRetryBody;
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
-        const newWidth = node.viewState.bBox.w;
 
         this.positionCompoundStatementComponents(node);
-
-        node.viewState.components['drop-zone'].w = newWidth;
-        node.viewState.components['statement-box'].w = newWidth;
-        node.viewState.components['block-header'].w = newWidth;
 
         let nextComponentY = node.viewState.components['drop-zone'].y
             + node.viewState.components['drop-zone'].h;
@@ -1358,16 +1102,15 @@ class PositioningUtil {
             transactionBody.viewState.bBox.y = nextComponentY + transactionBody.viewState.components['block-header'].h;
             this.positionCompoundStatementComponents(transactionBody);
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
-            this.increaseNodeComponentWidth(transactionBody, newWidth);
         }
 
-        // Set the position of the failed body
-        if (failedBody) {
-            failedBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
+        // Set the position of the retry body
+        if (onRetryBody) {
+            onRetryBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
                 transactionBody.viewState.bBox.w;
-            failedBody.viewState.bBox.y = nextComponentY;
-            this.positionCompoundStatementComponents(failedBody);
-            this.increaseNodeComponentWidth(failedBody, newWidth);
+            onRetryBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
+                transactionBody.viewState.components['statement-box'].h - this.config.compoundStatement.padding.top;
+            this.positionCompoundStatementComponents(onRetryBody);
         }
     }
 
@@ -1383,7 +1126,7 @@ class PositioningUtil {
      *
      * @param {object} node Transaction Failed object
      */
-    positionFailedNode(node) {
+    positionNode(node) {
         // Not implemented.
     }
 

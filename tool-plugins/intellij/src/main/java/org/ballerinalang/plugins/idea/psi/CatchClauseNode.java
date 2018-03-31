@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a CatchClause in PSI tree.
+ */
 public class CatchClauseNode extends ANTLRPsiNode implements ParameterContainer {
 
     public CatchClauseNode(@NotNull ASTNode node) {

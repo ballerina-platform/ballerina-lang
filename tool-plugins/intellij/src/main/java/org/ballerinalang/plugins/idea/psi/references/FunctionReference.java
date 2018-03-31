@@ -39,6 +39,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a function reference.
+ */
 public class FunctionReference extends BallerinaElementReference {
 
     public FunctionReference(@NotNull IdentifierPSINode element) {

@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents Ballerina test configuration type. This is used to create Ballerina test configurations.
+ */
 public class BallerinaTestRunConfigurationType extends ConfigurationTypeBase {
 
     public BallerinaTestRunConfigurationType() {

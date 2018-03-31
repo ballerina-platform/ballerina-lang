@@ -1,264 +1,289 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/net.http.mock;
+import ballerina/mime;
+import ballerina/io;
 
 struct Data {
     string name;
 }
 
-@http:configuration {basePath:"/sample"}
-service<http> sample {
-    @http:resourceConfig {
+endpoint mock:NonListeningServiceEndpoint sessionEP {
+    port:9090
+};
+
+@http:ServiceConfig {basePath:"/sample"}
+service<http:Service> sample bind sessionEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test1"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
+    echo (endpoint conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         if (session != null) {
             result = "session created";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test2"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
+    echo2 (endpoint conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         if (session != null) {
             result = "session is returned";
         } else {
             result = "no session id available";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test3"
     }
-    resource echo3 (http:Connection conn, http:InRequest req) {
+    echo3 (endpoint conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         if (session != null) {
             result = "session created";
         } else {
             result = "session is not created";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test4"
     }
-    resource testGetAt (http:Connection conn, http:InRequest req) {
+    testGetAt (endpoint conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         any attribute = session.getAttribute("name");
         if (attribute != null) {
             result = "attribute available";
         } else {
             result = "attribute not available";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test5"
     }
-    resource echo5 (http:Connection conn, http:InRequest req) {
+    echo5 (endpoint conn, http:Request req) {
 
-        http:OutResponse res = {};
-        string result = "chamil";
-        http:Session session = conn.getSession();
-        any attribute = session.getAttribute("name");
-        res.setStringPayload(result);
-        _ = conn.respond(res);
+        http:Response res = {};
+        string result = "testValue";
+        http:Session session = req.getSession();
+        if (session != null) {
+            any attribute = session.getAttribute("name");
+            res.setStringPayload(<string>attribute);
+        } else {
+            res.setStringPayload(result);
+        }
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test6"
     }
-    resource echo6 (http:Connection conn, http:InRequest req) {
+    echo6 (endpoint conn, http:Request req) {
 
         string myName = "chamil";
-        TypeCastError err;
-        http:Session session1 = conn.createSessionIfAbsent();
-        http:Session session2 = conn.createSessionIfAbsent();
+        http:Session session1 = req.createSessionIfAbsent();
+        http:Session session2 = req.createSessionIfAbsent();
         session1.setAttribute("name", "wso2");
         any attribute = session2.getAttribute("name");
         if (attribute != null) {
-            myName, err = (string)attribute;
+            myName = <string>attribute;
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(myName);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/hello"
     }
-    resource hello (http:Connection conn, http:InRequest req) {
-
-        TypeCastError err;
-        string result = req.getStringPayload();
-        http:Session session = conn.createSessionIfAbsent();
-        any attribute = session.getAttribute("name");
-        if (attribute != null) {
-            result, err = (string)attribute;
-        } else {
-            session.setAttribute("name", result);
+    hello (endpoint conn, http:Request req) {
+        http:Response res = {};
+        string result;
+        match req.getStringPayload() {
+            http:PayloadError err => res.setStringPayload("Error");
+            string textPayload => {
+                result = textPayload;
+                http:Session session = req.createSessionIfAbsent();
+                any attribute = session.getAttribute("name");
+                if (attribute != null) {
+                    result = <string>attribute;
+                } else {
+                    session.setAttribute("name", result);
+                }
+                res.setStringPayload(result);
+            }
         }
-        http:OutResponse res = {};
-        res.setStringPayload(result);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/counter"}
-service<http> counter {
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/counter"}
+service<http:Service> counter bind sessionEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo"
     }
-    resource echoCount (http:Connection conn, http:InRequest req) {
+    echoCount (endpoint conn, http:Request req) {
 
         int sessionCounter;
-        TypeCastError err;
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter, err = (int)session.getAttribute("Counter");
+            var result = <int>session.getAttribute("Counter");
+            match result {
+                int value => sessionCounter = value;
+                error err => io:println("Error occurred during int to string conversion");
+            }
         }
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string> sessionCounter);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2"
     }
-    resource echoCount2 (http:Connection conn, http:InRequest req) {
+    echoCount2 (endpoint conn, http:Request req) {
 
         int sessionCounter;
-        TypeCastError err;
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter, err = (int)session.getAttribute("Counter");
+            var result = <int>session.getAttribute("Counter");
+            match result {
+                int value => sessionCounter = value;
+                error err => io:println("Error occurred during int to string conversion");
+            }
         }
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(sessionCounter));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/sample2"}
-service<http> sample2 {
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/sample2"}
+service<http:Service> sample2 bind sessionEP {
+    @http:ResourceConfig {
         methods:["GET"]
     }
-    resource echoName (http:Connection conn, http:InRequest req) {
+    echoName (endpoint conn, http:Request req) {
         string myName = "wso2";
-        TypeCastError err;
-        http:Session Session = conn.createSessionIfAbsent();
+        http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
         if (attribute != null) {
-            myName, err = (string)attribute;
+            myName = <string>attribute;
         }
         Session.setAttribute("name", "chamil");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(myName);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource myStruct (http:Connection conn, http:InRequest req) {
-
-        string result = req.getStringPayload();
-        TypeCastError err;
-        Data d = {name:result};
-        http:Session Session = conn.createSessionIfAbsent();
-        any attribute = Session.getAttribute("nameStruct");
-        if (attribute != null) {
-            d, err = (Data)attribute;
-        } else {
-            Session.setAttribute("nameStruct", d);
+    myStruct (endpoint conn, http:Request req) {
+        http:Response res = {};
+        match req.getStringPayload() {
+            http:PayloadError err => res.setStringPayload("Error");
+            string payload => {
+                Data d = {name:payload};
+                http:Session Session = req.createSessionIfAbsent();
+                any attribute = Session.getAttribute("nameStruct");
+                if (attribute != null) {
+                    var result = <Data>attribute;
+                    match result {
+                        Data returnData => d = returnData;
+                        error err => io:println("Error occurred!");
+                    }
+                } else {
+                    Session.setAttribute("nameStruct", d);
+                }
+                res.setStringPayload(d.name);
+            }
         }
-        http:OutResponse res = {};
-        res.setStringPayload(d.name);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names"
     }
-    resource keyNames (http:Connection conn, http:InRequest req) {
+    keyNames (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("Name", "chamil");
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("arraysize:" + arrsize);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names2"
     }
-    resource keyNames2 (http:Connection conn, http:InRequest req) {
+    keyNames2 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("location", "colombo");
         string[] arr = session.getAttributeNames();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(arr[0]);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names3"
     }
-    resource keyNames3 (http:Connection conn, http:InRequest req) {
+    keyNames3 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("location", "colombo");
         session.setAttribute("channel", "yue");
         session.setAttribute("month", "june");
@@ -267,18 +292,18 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names4"
     }
-    resource keyNames4 (http:Connection conn, http:InRequest req) {
+    keyNames4 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("Name", "chamil");
         session.removeAttribute("Name");
@@ -286,245 +311,249 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names5"
     }
-    resource keyNames5 (http:Connection conn, http:InRequest req) {
+    keyNames5 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/names6"
     }
-    resource keyNames6 (http:Connection conn, http:InRequest req) {
+    keyNames6 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("location", "colombo");
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/map"
     }
-    resource getmap (http:Connection conn, http:InRequest req) {
+    getmap (endpoint conn, http:Request req) {
 
-        http:OutResponse res = {};
-        http:Session session = conn.createSessionIfAbsent();
-        var value = req.getHeader("counter");
-        if (value == null) {
+        http:Response res = {};
+        http:Session session = req.createSessionIfAbsent();
+        if (!req.hasHeader("counter")) {
             session.setAttribute("Name", "chamil");
             session.setAttribute("Lang", "ballerina");
             map attributes = session.getAttributes();
             string[] arr = attributes.keys();
             string v0;
-            v0,_ = (string)attributes[arr[0]];
+            v0 = <string>attributes[arr[0]];
             res.setStringPayload(arr[0] + ":" + v0);
         } else {
             map attributes = session.getAttributes();
             string[] arr = attributes.keys();
             string v1;
-            v1,_ = (string)attributes[arr[1]];
+            v1 = <string>attributes[arr[1]];
             res.setStringPayload(arr[1] + ":" + v1);
         }
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/map2"
     }
-    resource getmap2 (http:Connection conn, http:InRequest req) {
+    getmap2 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         map attributes = session.getAttributes();
         string v0 = "map not present";
         if ((lengthof attributes) != 0) {
             string[] arr = attributes.keys();
-            v0,_ = (string)attributes[arr[0]];
+            v0 = <string>attributes[arr[0]];
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("value" + ":" + v0);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/id1"
     }
-    resource id1 (http:Connection conn, http:InRequest req) {
+    id1 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         string id = session.getId();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(id);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/id2"
     }
-    resource id2 (http:Connection conn, http:InRequest req) {
+    id2 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.getSession();
-        string id = session.getId();
-
-        http:OutResponse res = {};
+        http:Session session = req.getSession();
+        string id;
+        if (session != null) {
+            id = session.getId();
+        }
+        http:Response res = {};
         res.setStringPayload(id);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new1"
     }
-    resource new1 (http:Connection conn, http:InRequest req) {
+    new1 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         boolean stat = session.isNew();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(stat));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new2"
     }
-    resource new2 (http:Connection conn, http:InRequest req) {
+    new2 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getCreationTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new3"
     }
-    resource new3 (http:Connection conn, http:InRequest req) {
+    new3 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getCreationTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new4"
     }
-    resource new4 (http:Connection conn, http:InRequest req) {
+    new4 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getLastAccessedTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new5"
     }
-    resource new5 (http:Connection conn, http:InRequest req) {
+    new5 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getLastAccessedTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new6"
     }
-    resource new6 (http:Connection conn, http:InRequest req) {
+    new6 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(60);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new7"
     }
-    resource new7 (http:Connection conn, http:InRequest req) {
+    new7 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         session.setMaxInactiveInterval(89);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("done");
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/new8"
     }
-    resource new8 (http:Connection conn, http:InRequest req) {
+    new8 (endpoint conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    resource new9 (http:Connection conn, http:InRequest req) {
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/new9"
+    }
+    new9 (endpoint conn, http:Request req) {
         string myName = "FirstName";
-        TypeCastError err;
-        http:Session Session = conn.createSessionIfAbsent();
+        http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
         if (attribute != null) {
-            myName, err = (string)attribute;
+            myName = <string>attribute;
         }
         Session.setAttribute("name", "SecondName");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(myName);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

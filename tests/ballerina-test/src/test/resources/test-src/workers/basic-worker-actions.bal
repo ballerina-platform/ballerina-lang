@@ -1,3 +1,5 @@
+import ballerina/io;
+import ballerina/runtime;
 function workerDeclTest() {
    worker wx {
      int a = 20;
@@ -9,12 +11,12 @@ function workerDeclTest() {
 	     int y = 0;
 	     int g = y + 1;
 	   }
-	} join (all) (map results) { println(results); }
+	} join (all) (map results) { io:println(results); }
    }
    worker wy { }
 }
 
-function forkJoinWithMessageParsingTest() (int) {
+function forkJoinWithMessageParsingTest() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -29,11 +31,11 @@ function forkJoinWithMessageParsingTest() (int) {
 	     a <- w1;
 	     b -> w1;
 	   }
-	} join (all) (map results) { println(results); }
+	} join (all) (map results) { io:println(results); }
 	return x;
 }
 
-function forkJoinWithSingleForkMessages() (int) {
+function forkJoinWithSingleForkMessages() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -50,11 +52,11 @@ function forkJoinWithSingleForkMessages() (int) {
 	     b -> w1;
 	     b -> fork;
 	   }
-	} join (all) (map results) { println(results); }
+	} join (all) (map results) { io:println(results); }
 	return x;
 }
 
-function basicForkJoinTest() (int) {
+function basicForkJoinTest() returns int {
     int x = 10;
     fork {
 	   worker w1 {
@@ -69,7 +71,7 @@ function basicForkJoinTest() (int) {
 	return x;
 }
 
-function forkJoinWithMultipleForkMessages() (int) {
+function forkJoinWithMultipleForkMessages() returns int {
     int x = 5;
     fork {
 	   worker w1 {
@@ -86,7 +88,7 @@ function forkJoinWithMultipleForkMessages() (int) {
 	     b -> w1;
 	     a, b -> fork;
 	   }
-	} join (all) (map results) {  println(results);  }
+	} join (all) (map results) {  io:println(results);  }
 	return x;
 }
 
@@ -104,20 +106,21 @@ function simpleWorkerMessagePassingTest() {
    }
 }
 
-function forkJoinWithSomeJoin() (map) {
+function forkJoinWithSomeJoin() returns int | error {
     map m = {};
     m["x"] = 25;
+    int ret;
     fork {
 	   worker w1 {
 	     int a = 5;
 	     int b = 0;
 	     m["x"] = a;
-	     sleep(1000);
+         runtime:sleepCurrentWorker(1000);
 	   }
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-	     sleep(1000);
+         runtime:sleepCurrentWorker(1000);
 	     m["x"] = a;
 	   }
 	   worker w3 {
@@ -125,11 +128,14 @@ function forkJoinWithSomeJoin() (map) {
 	     int b = 15;
 	     m["x"] = b;
 	   }
-	} join (some 1) (map results) {  println(results);  }
-	return m;
+	} join (some 1) (map results) {  io:println(results);  }
+	match <int> m["x"] {
+	    int a => return a;
+	    error err => return err;
+	}
 }
 
-function workerReturnTest() (int) {
+function workerReturnTest() returns int {
     worker wx {
 	    int x = 50;
 	    return x + 1;

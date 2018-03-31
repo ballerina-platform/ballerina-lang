@@ -20,7 +20,6 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiNameIdentifierOwner;
-import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -33,11 +32,8 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
-import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueReference;
-import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
-import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.EnumFieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
@@ -58,10 +54,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttribute;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functionReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
@@ -73,7 +67,10 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_struct
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_transformerReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_workerReference;
 
-public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedElement, PsiNameIdentifierOwner {
+/**
+ * Represents an Identifier in PSI tree.
+ */
+public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNameIdentifierOwner {
 
     public IdentifierPSINode(IElementType type, CharSequence text) {
         super(type, text);
@@ -224,14 +221,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new FieldReference(this);
                 case RULE_functionReference:
                     return new FunctionReference(this);
-                case RULE_annotationReference:
-                    return new AnnotationReference(this);
-                case RULE_connectorReference:
-                    return new ConnectorReference(this);
                 case RULE_workerReference:
                     return new WorkerReference(this);
-                case RULE_annotationAttribute:
-                    return new AnnotationAttributeReference(this);
                 case RULE_attachmentPoint:
                     return new AttachmentPointReference(this);
                 case RULE_statement:
@@ -286,6 +277,11 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new TransformerReference(this);
                 case RULE_recordKey:
                     return new RecordKeyReference(this);
+                case RULE_anyIdentifierName:
+                    return suggestReferenceTypeForInvocation();
+                // Todo - Implement in the new plugin
+                //                case RULE_documentationTemplateAttributeDescription:
+                //                    return new DocVariableReference(this);
                 default:
                     return null;
             }
@@ -304,7 +300,37 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             return null;
         }
         PsiReference reference = null;
-        if (prevSibling instanceof VariableReferenceNode) {
+        if (parent instanceof AnyIdentifierNameNode) {
+            InvocationNode invocationNode = PsiTreeUtil.getParentOfType(parent, InvocationNode.class);
+            if (invocationNode != null) {
+                PsiElement invocationNodePrevSibling = invocationNode.getPrevSibling();
+                if (invocationNodePrevSibling != null) {
+                    if (invocationNodePrevSibling instanceof VariableReferenceNode) {
+                        InvocationNode node = PsiTreeUtil.getChildOfType(invocationNodePrevSibling,
+                                InvocationNode.class);
+                        if (node != null) {
+                            IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(node, IdentifierPSINode.class);
+                            if (identifier != null) {
+                                reference = identifier.findReferenceAt(identifier.getTextLength());
+                            }
+                        } else {
+                            NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(invocationNodePrevSibling,
+                                    NameReferenceNode.class);
+                            if (nameReferenceNode != null) {
+                                IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(nameReferenceNode,
+                                        IdentifierPSINode.class);
+                                if (identifier != null) {
+                                    reference = identifier.findReferenceAt(identifier.getTextLength());
+                                }
+                            }
+                        }
+                    } else {
+                        reference =
+                                invocationNodePrevSibling.findReferenceAt(invocationNodePrevSibling.getTextLength());
+                    }
+                }
+            }
+        } else if (prevSibling instanceof VariableReferenceNode) {
             InvocationNode invocationNode = PsiTreeUtil.getChildOfType(prevSibling, InvocationNode.class);
             if (invocationNode != null) {
                 IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(invocationNode, IdentifierPSINode.class);
@@ -390,7 +416,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             if (invocationNode == null) {
                 return null;
             }
-            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(invocationNode, IdentifierPSINode.class);
+            AnyIdentifierNameNode anyIdentifierNameNode = PsiTreeUtil.getChildOfType(invocationNode,
+                    AnyIdentifierNameNode.class);
+            if (anyIdentifierNameNode == null) {
+                return null;
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(anyIdentifierNameNode, IdentifierPSINode.class);
             if (identifier == null) {
                 return null;
             }
@@ -406,7 +437,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         // Get the return type of the function definition.
         PsiElement parent = resolvedElement.getParent();
         if (parent instanceof FunctionDefinitionNode) {
-            List<TypeNameNode> returnTypes = BallerinaPsiImplUtil.getReturnTypes(((FunctionDefinitionNode) parent));
+            List<TypeNameNode> returnTypes = BallerinaPsiImplUtil.getReturnTypes(parent);
             if (returnTypes.size() == 1) {
                 return new TypeReference(this, returnTypes.get(0));
             }
@@ -426,7 +457,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         return new TypeReference(this, type);
     }
 
-    @Nullable
     private PsiReference suggestReferenceType(@NotNull PsiElement parent) {
         PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
         if (nextVisibleLeaf != null) {
@@ -462,7 +492,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
     public PsiElement getNameIdentifier() {
         // If the parent is a ParameterNode, we return this identifier object. Otherwise when we get parents, it
         // might return excluded nodes below and can cause issues.
-        if (getParent() instanceof ParameterNode || getParent() instanceof VariableDefinitionNode) {
+        if (getParent() instanceof ParameterNode || getParent() instanceof VariableDefinitionNode
+                || getParent() instanceof DocumentationTemplateAttributeDescriptionNode) {
             return this;
         }
 

@@ -25,7 +25,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Producer;
 import com.intellij.util.TextFieldCompletionProvider;
 import org.jetbrains.annotations.NotNull;
-
+/**
+ * Provides support to lists packages in settings UIs.
+ */
 public class BallerinaPackageFieldCompletionProvider extends TextFieldCompletionProvider {
 
     @NotNull

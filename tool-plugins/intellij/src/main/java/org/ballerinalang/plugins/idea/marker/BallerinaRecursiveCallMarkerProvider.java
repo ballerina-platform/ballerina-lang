@@ -39,6 +39,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Provides recursive marker for recursive function calls.
+ */
 public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider {
 
     @Nullable

@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -102,24 +103,6 @@ public class IOTest {
         BRunUtil.invoke(bytesInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'readAllBytes' function in ballerina.io.package ")
-    public void testReadAllBytes() throws URISyntaxException {
-        int numberOfBytesToRead = 3;
-        String resourceToRead = "datafiles/io/text/6charfile.txt";
-        BBlob readBytes;
-
-        //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r")};
-        BRunUtil.invoke(bytesInputOutputProgramFile, "initFileChannel", args);
-
-        byte[] expectedBytes = "123456".getBytes();
-        BValue[] returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readAll");
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
-
-        BRunUtil.invoke(bytesInputOutputProgramFile, "close");
-    }
-
     @Test(description = "Test 'readCharacters' function in ballerina.io package")
     public void testReadCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
@@ -128,7 +111,7 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         String expectedCharacters = "aaa";
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
@@ -155,55 +138,43 @@ public class IOTest {
 
     }
 
-    @Test(description = "Test 'readAllCharacters' function in ballerina.io package")
-    public void testReadAllCharacters() throws URISyntaxException {
-        String resourceToRead = "datafiles/io/text/utf8file.txt";
-        int numberOfCharactersToRead = 3;
-        BString readCharacters;
-
-        //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
-
-        String expectedCharacters = "aaabbǊ";
-        BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "readAll");
-        readCharacters = (BString) returns[0];
-
-        Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
-
-        BRunUtil.invoke(characterInputOutputProgramFile, "close");
-    }
-
     @Test(description = "Test 'readRecords' function in ballerina.io package")
     public void testReadRecords() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStringArray records;
+        BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
                 new BString("\n"), new BString(",")};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
 
-        BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
+        BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
+        records = (BStringArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
-        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
+        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
-
-        Assert.assertEquals(records.size(), expectedRecordLength);
-
-        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
-        records = (BStringArray) returns[0];
-
-        Assert.assertEquals(records.size(), expectedRecordLength);
-
-        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "readRecord");
-        records = (BStringArray) returns[0];
-
         Assert.assertEquals(records.size(), 0);
+        returns = BRunUtil.invoke(recordsInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
 
         BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
@@ -218,7 +189,7 @@ public class IOTest {
         BRunUtil.invoke(bytesInputOutputProgramFile, "initFileChannel", args);
 
         args = new BValue[]{new BBlob(content), new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(bytesInputOutputProgramFile, "writeBytes", args);
+        BRunUtil.invoke(bytesInputOutputProgramFile, "writeBytes", args);
 
         BRunUtil.invoke(bytesInputOutputProgramFile, "close");
     }
@@ -230,10 +201,10 @@ public class IOTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
-        BRunUtil.invoke(characterInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         args = new BValue[]{new BString(content), new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "writeCharacters", args);
+        BRunUtil.invoke(characterInputOutputProgramFile, "writeCharacters", args);
 
         BRunUtil.invoke(characterInputOutputProgramFile, "close");
     }
@@ -247,12 +218,13 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"), new BString("\n"), new
                 BString(",")};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initFileChannel", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
 
         args = new BValue[]{record};
-        BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
 
         BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
 
 }
+

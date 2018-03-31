@@ -21,6 +21,9 @@ import com.intellij.openapi.options.ConfigurableBase;
 import org.ballerinalang.plugins.idea.project.BallerinaModuleSettings;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Provides Ballerina module configurations.
+ */
 public class BallerinaModuleSettingsConfigurable extends
         ConfigurableBase<BallerinaModuleSettingsUI, BallerinaModuleSettings> {
 

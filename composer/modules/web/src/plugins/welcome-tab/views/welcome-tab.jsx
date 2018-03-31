@@ -18,6 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'semantic-ui-react';
 import { getPathSeperator } from 'api-client/api-client';
 import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
@@ -86,58 +87,58 @@ class WelcomeTab extends React.Component {
      */
     render() {
         const samplesView = this.renderSamples();
-        return (<div className="initial-background-container welcome-page">
-            <div className="container-fluid welcome-wrapper">
-                <div className="media media-welcome-container">
-                    <div className="media-left">
-                        <div className="logo" style={{ textAlign: 'center' }}>
+        return (<div className='initial-background-container welcome-page'>
+            <div className='container-fluid welcome-wrapper'>
+                <div className='media media-welcome-container'>
+                    <div className='media-left'>
+                        <div className='logo' style={{ textAlign: 'center' }}>
                             <a href={undefined}>
                                 <img
-                                    className="img-responsive"
-                                    src="images/BallerinaLogoWelcome.svg"
-                                    alt="logo"
+                                    className='img-responsive'
+                                    src='images/BallerinaLogoWelcome.svg'
+                                    alt='logo'
                                     onLoad={() => this.setState({ logoLoaded: true })}
                                 />
                                 {!this.state.logoLoaded &&
-                                    <i className="fw fw-loader2 fw-spin fw-lg loader-center" />
+                                    <i className='fw fw-loader2 fw-spin fw-lg loader-center' />
                                 }
                             </a>
                         </div>
 
-                        <button
-                            id="btn-welcome-new"
-                            className="btn btn-primary"
+                        <Button
+                            id='btn-welcome-new'
+                            className='btn-primary'
                             onClick={this.props.createNew}
                         >
                             Create New
-                        </button>
-                        <button
-                            id="btn-welcome-open"
-                            className="btn btn-secondary"
+                        </Button>
+                        <Button
+                            id='btn-welcome-open'
+                            className='btn-secondary'
                             onClick={this.props.openFile}
                         >
                             Open File
-                        </button>
-                        <button
-                            id="btn-welcome-open-dir"
-                            className="btn btn-secondary"
+                        </Button>
+                        <Button
+                            id='btn-welcome-open-dir'
+                            className='btn-secondary'
                             onClick={this.props.openDirectory}
                         >
                             Open Directory
-                        </button>
-                        <ul className="nav nav-pills">
+                        </Button>
+                        <ul className='nav nav-pills'>
                             <li >
-                                <a href={this.props.userGuide} target="_blank" rel="noopener noreferrer">
-                                    <i className="fw fw-document" /> Ballerina by Example </a></li>
+                                <a href={this.props.userGuide} target='_blank' rel='noopener noreferrer'>
+                                    <i className='fw fw-document' /> Ballerina by Example </a></li>
                         </ul>
                     </div>
-                    <div className="media-body">
-                        <div className="welcome-details-wrapper ">
-                            <div className="header-title">
+                    <div className='media-body'>
+                        <div className='welcome-details-wrapper '>
+                            <div className='header-title'>
                                 Try out our samples / templates
                             </div>
-                            <div className="details-container">
-                                <div id="inner-samples" className="row">
+                            <div className='details-container ui grid'>
+                                <div id='inner-samples' className='row'>
                                     {samplesView}
                                 </div>
                             </div>

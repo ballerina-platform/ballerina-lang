@@ -45,6 +45,21 @@ class BlockCtrl extends React.Component {
         bBox.h += this.context.config.statement.height;
 
         let showAlways = false;
+        // see if the parent node is collapsed.
+        let parentNode = node;
+        while (parentNode.parent) {
+            parentNode = parentNode.parent;
+            if (
+                TreeUtil.isFunction(parentNode) ||
+                TreeUtil.isResource(parentNode) ||
+                TreeUtil.isAction(parentNode)
+            ) {
+                break;
+            }
+        }
+        if (parentNode.viewState.collapsed || parentNode.lambda) {
+            return null;
+        }
 
         // Following logic will skip button rendering for blocks which are not on lines.
         if (!TreeUtil.isLineBlock(node)) {
@@ -69,12 +84,12 @@ class BlockCtrl extends React.Component {
         } else if (TreeUtil.isTransaction(node.parent)) {
             // do nothing
             button.y = 0;
+        } else if (TreeUtil.isForkJoin(node.parent)) {
+            // do nothing
         } else {
-            if (!TreeUtil.isWorker(node.parent)) {
-                bBox.y += bBox.h - (this.context.config.statement.height * 0.5);
-                bBox.h = this.context.config.statement.height * 1.5;
-                button.y = 0;
-            }
+            bBox.y += bBox.h - (this.context.config.statement.height * 0.5);
+            bBox.h = this.context.config.statement.height * 1.5;
+            button.y = 0;
             showAlways = true;
         }
         // positioning changes to + button.

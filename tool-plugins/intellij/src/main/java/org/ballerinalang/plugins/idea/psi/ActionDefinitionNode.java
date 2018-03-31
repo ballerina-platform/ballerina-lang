@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an ActionDefinition in PSI tree.
+ */
 public class ActionDefinitionNode extends IdentifierDefSubtree implements LowerLevelDefinition, ParameterContainer {
 
     public ActionDefinitionNode(@NotNull ASTNode node) {

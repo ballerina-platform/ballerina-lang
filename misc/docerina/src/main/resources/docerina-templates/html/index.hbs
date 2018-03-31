@@ -2,19 +2,34 @@
 <html lang="en">
 <head>
 	<!-- Required meta tags -->
-    	<meta charset="utf-8">
-    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    	<!-- Bootstrap CSS -->
-    	<link rel="stylesheet" href="docerina-theme/libs/bootstrap-3.0.0/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="docerina-theme/libs/bootstrap-3.0.0/css/bootstrap.min.css">
 
-        <!-- Roboto font CSS -->
-        <link rel="stylesheet" href="docerina-theme/css/roboto.css">
+    <!-- Roboto font CSS -->
+    <link rel="stylesheet" href="docerina-theme/css/roboto.css">
 
-    	<!-- custom CSS -->
-    	<link rel="stylesheet" href="docerina-theme/css/main.css">
+    <!-- Nanoscroller CSS -->
+    <link rel="stylesheet" href="docerina-theme/css/nanoscroller.css">
 
-    	<title>Ballerina API Documentation</title>
+    <!-- custom CSS -->
+    <link rel="stylesheet" href="docerina-theme/css/main.css">
+
+    <!-- Jquery JS -->
+    <script src="docerina-theme/js/jquery.min.js"></script>
+
+    <!-- Nanoscroller JS -->
+    <script src="docerina-theme/js/jquery.nanoscroller.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.nano').nanoScroller();
+        });
+    </script>
+
+    <title>Ballerina API Documentation</title>
 </head>
 <body>
 	<!-- Wrapper -->
@@ -24,14 +39,16 @@
 		<div id="main">
 			<div class="inner">
 
-				<!-- Header -->
-				<header id="header">
-					<a href="index.html" class="logo"><span class="bold"> Ballerina </span> API Documentation</a>
-				</header>
+                <div id="header" class="navbar navbar-fixed-top">
+                    <div class="container-full">
+                        <a href="index.html"><strong>Ballerina</strong> API Documentation</a>
+                    </div>
+                </div>
 
 				<!-- Banner -->
 				<section>
-					<div class="content">
+                    <div id="index-content" class="nano">
+                        <div class="nano-content">
 						    <h2>Ballerina Packages</h2>
                             <ul>
                                 {{#each this}}
@@ -47,8 +64,8 @@
                                 </li>
                                 {{/each}}
                             </ul>
-						<p></p>
-					</div>
+					    </div>
+                    </div>
 				</section>
 			</div>
 		</div>

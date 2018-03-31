@@ -1,63 +1,64 @@
-import ballerina.net.http;
-import ballerina.mime;
-import ballerina.io;
-import ballerina.file;
+import ballerina/net.http;
+import ballerina/mime;
+import ballerina/io;
 
-@http:configuration {basePath:"/foo"}
-service<http> echo {
-    @http:resourceConfig {
+endpoint http:ServiceEndpoint multipartEP {
+    port:9090
+};
+
+@http:ServiceConfig {basePath:"/multiparts"}
+service<http:Service> test bind multipartEP {
+    @http:ResourceConfig {
         methods:["POST"],
-        path:"/receivableParts"
-    }r
-    resource echo (http:Connection conn, http:InRequest req) {
-        //Extract multiparts from the inbound request
-        mime:Entity[] bodyParts = req.getMultiparts();
-        int i = 0;
-        //Loop through body parts
-        while (i < lengthof bodyParts) {
-            mime:Entity part = bodyParts[i];
-            println("-----------------------------");
-            print("Content Type : ");
-            println(part.contentType.toString());
-            println("-----------------------------");
-            handleContent(part);
-            i = i + 1;
+        path:"/decode_in_request"
+    }
+    receiveMultiparts (endpoint conn, http:Request request) {
+        http:Response response = {};
+        match request.getMultiparts() {
+            mime:EntityError err => {
+                io:println(err);
+                response.setStringPayload("Error in decoding multiparts!");
+                response.statusCode = 500;
+            }
+            mime:Entity[] bodyParts => {
+                int i = 0;
+                io:println("Body Parts Detected!");
+                while (i < lengthof bodyParts) {
+                    mime:Entity part = bodyParts[i];
+                    handleContent(part);
+                    i = i + 1;
+                }
+                response.setStringPayload("Multiparts Received!");
+            }
         }
-        http:OutResponse res = {};
-        res.setStringPayload("Multiparts Received!");
-        _ = conn.respond(res);
+        _ = conn -> respond(response);
     }
 }
 
-@Description {value:"User should write his/her own logic to handle body parts according to his/her requirement."}
+@Description {value:"Handling body part content logic varies according to user's requirement.."}
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        //Given a body part get it's xml content and print
-        println(mime:getXml(bodyPart));
+        //Extract xml data from body part and print.
+        var payload = bodyPart.getXml();
+        match payload {
+            mime:EntityError err => io:println("Error in getting xml payload");
+            xml xmlContent => io:println(xmlContent);
+        }
     } else if (mime:APPLICATION_JSON == contentType) {
-        //Given a body part get it's json content and print
-        println(mime:getJson(bodyPart));
-    } else if (mime:TEXT_PLAIN == contentType){
-        //Given a body part get it's text content and print
-        println(mime:getText(bodyPart));
-    } else if ("application/vnd.ms-powerpoint" == contentType) {
-        //Given a body part get it's content as a blob and write it to a file
-        writeToFile(mime:getBlob(bodyPart));
-        println("Content saved to file");
+        //Extract json data from body part and print.
+        var payload = bodyPart.getJson();
+        match payload {
+            mime:EntityError err => io:println("Error in getting json payload");
+            json jsonContent => io:println(jsonContent);
+        }
+    } else if (mime:TEXT_PLAIN == contentType) {
+        //Extract text data from body part and print.
+        var payload = bodyPart.getText();
+        match payload {
+            mime:EntityError err => io:println("Error in getting string payload");
+            string textContent => io:println(textContent);
+            int | null => io:println("null payload");
+        }
     }
-}
-
-@Description {value:"Write a given blob content to a file."}
-function writeToFile(blob  readContent) {
-    string dstFilePath = "./files/savedFile.ppt";
-    io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
-    int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
-}
-
-@Description {value:"Get a byte channel for the given file."}
-function getByteChannel (string filePath, string permission) (io:ByteChannel) {
-    file:File src = {path:filePath};
-    io:ByteChannel channel = src.openChannel(permission);
-    return channel;
 }

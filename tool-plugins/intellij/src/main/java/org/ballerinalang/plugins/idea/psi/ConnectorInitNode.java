@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a ConnectorInit in PSI tree.
+ */
 public class ConnectorInitNode extends ANTLRPsiNode {
 
     public ConnectorInitNode(@NotNull ASTNode node) {

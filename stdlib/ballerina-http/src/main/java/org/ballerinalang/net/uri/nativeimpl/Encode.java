@@ -19,16 +19,13 @@
 package org.ballerinalang.net.uri.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.net.http.HttpUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -39,32 +36,31 @@ import java.net.URLEncoder;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.uri",
+        orgName = "ballerina", packageName = "net.uri",
         functionName = "encode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING),
+                      @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
         isPublic = true
 )
-public class Encode extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(Encode.class);
+public class Encode extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String url = getStringArgument(context, 0);
-        String encodeURL = "";
+    public void execute(Context context) {
+        String url = context.getStringArgument(0);
+        String charset = context.getStringArgument(1);
         try {
-            encodeURL = encode(url); //supporting percentage encoding
+            context.setReturnValues(new BString(encode(url, charset)));
         } catch (Throwable e) {
-            throw new BallerinaException("Error while encoding the url. " + e.getMessage(), context);
+            context.setReturnValues(HttpUtil.getGenericError(context, "Error occurred while encoding the url. " + e
+                    .getMessage()));
         }
-        return getBValues(new BString(encodeURL));
     }
 
-    private String encode(String url) throws UnsupportedEncodingException {
+    private String encode(String url, String charset) throws UnsupportedEncodingException {
         String encoded;
 
-        encoded = URLEncoder.encode(url, "UTF-8");
+        encoded = URLEncoder.encode(url, charset);
 
         StringBuilder buf = new StringBuilder(encoded.length());
         char focus;

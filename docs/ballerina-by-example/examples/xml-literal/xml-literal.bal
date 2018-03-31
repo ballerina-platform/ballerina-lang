@@ -1,3 +1,5 @@
+import ballerina.io;
+
 function main (string[] args) {
 
     // A complex XML defined using the literal syntax, having nested elements of different types.
@@ -6,7 +8,7 @@ function main (string[] args) {
                     <author>Sir Arthur Conan Doyle</author>
                     <!--Price: $10-->
                   </book>`;
-    println(x1);
+    io:println(x1);
 
     // Defined namespaces. These are visible to all the XML literals defined from here onwards.  
     xmlns "http://ballerina.com/";
@@ -18,7 +20,7 @@ function main (string[] args) {
                     <author>Sir Arthur Conan Doyle</author>
                     <!--Price: $10-->
                   </book>`;
-    println(x2);
+    io:println(x2);
 
     // XML interpolated with expressions using the '{{}}' notation. The expression can be a previously defined variable, arithmetic expressions, or even a function call. These expressions get evaluated during runtime.
     string rootTag = "{http://ballerina.com/aa}newBook";
@@ -29,5 +31,5 @@ function main (string[] args) {
                     <author>{{title}} Arthur Conan Doyle</author>
                     <!--Price: ${{ 40 / 5 + 4 }}-->
                   </{{rootTag}}>`;
-    println(x3);
+    io:println(x3);
 }

@@ -21,9 +21,13 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -35,17 +39,23 @@ import java.util.Set;
  */
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public BLangIdentifier name;
+    @Deprecated
     public List<BLangAnnotAttribute> attributes;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangDocumentation> docAttachments;
+    public List<BLangDeprecatedNode> deprecatedAttachments;
     public BSymbol symbol;
     public List<BLangAnnotationAttachmentPoint> attachmentPoints;
+    public BLangType typeNode;
 
     public BLangAnnotation() {
         this.attributes = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.attachmentPoints = new ArrayList<>();
+        this.docAttachments = new ArrayList<>();
+        this.deprecatedAttachments = new ArrayList<>();
     }
 
     public void addAttachmentPoint(BLangAnnotationAttachmentPoint attachmentPoint) {
@@ -54,6 +64,16 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
 
     public List<BLangAnnotationAttachmentPoint> getAttachmentPoints() {
         return attachmentPoints;
+    }
+
+    @Override
+    public TypeNode getTypeNode() {
+        return typeNode;
+    }
+
+    @Override
+    public void setTypeNode(TypeNode type) {
+        this.typeNode = (BLangType) type;
     }
 
     @Override
@@ -97,6 +117,26 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     }
 
     @Override
+    public List<BLangDocumentation> getDocumentationAttachments() {
+        return docAttachments;
+    }
+
+    @Override
+    public void addDocumentationAttachment(DocumentationNode docAttachment) {
+        this.docAttachments.add((BLangDocumentation) docAttachment);
+    }
+
+    @Override
+    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
+        return deprecatedAttachments;
+    }
+
+    @Override
+    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
+        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -108,6 +148,6 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
 
     @Override
     public String toString() {
-        return "BLangAnnotation: " + this.name + " -> " + this.attributes;
+        return "BLangAnnotation: " + this.name + " -> " + this.typeNode;
     }
 }

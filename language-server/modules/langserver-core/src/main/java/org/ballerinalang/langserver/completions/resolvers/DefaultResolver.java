@@ -19,9 +19,8 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
-import org.ballerinalang.langserver.completions.consts.Snippet;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -42,7 +41,6 @@ public class DefaultResolver extends AbstractItemResolver {
         workerItem.setInsertText(Snippet.WORKER.toString());
         workerItem.setInsertTextFormat(InsertTextFormat.Snippet);
         workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
-        workerItem.setSortText(Priority.PRIORITY7.name());
         completionItems.add(workerItem);
 
         populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);

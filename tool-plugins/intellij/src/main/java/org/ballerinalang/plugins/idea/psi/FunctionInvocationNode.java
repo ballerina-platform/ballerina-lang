@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a FunctionInvocation in PSI tree.
+ */
 public class FunctionInvocationNode extends ANTLRPsiNode {
 
     public FunctionInvocationNode(@NotNull ASTNode node) {

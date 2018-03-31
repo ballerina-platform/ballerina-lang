@@ -12,11 +12,11 @@ struct Employee {
     string address;
 }
 
-function operatorsInTransform() (string, int, boolean){
+function operatorsInTransform() returns (string, int, boolean){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
     string prefix = "Ms.";
     Employee e = <Employee, Foo(prefix)> p;
-    return e.name, e.age, e.retired;
+    return (e.name, e.age, e.retired);
 }
 
 transformer <Person p, Employee e> Foo(string prefix) {

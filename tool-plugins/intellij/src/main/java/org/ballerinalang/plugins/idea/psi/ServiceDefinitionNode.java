@@ -30,6 +30,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an ServiceDefinition in PSI tree.
+ */
 public class ServiceDefinitionNode extends IdentifierDefSubtree implements TopLevelDefinition {
 
     public ServiceDefinitionNode(@NotNull ASTNode node) {

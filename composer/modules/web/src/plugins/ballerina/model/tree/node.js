@@ -117,6 +117,36 @@ class Node extends EventChannel {
         visitor.endVisit(this, newTree);
     }
 
+    /**
+     *
+     * @param {NodeVisitor} visitor
+     */
+    find(isFunc) {
+        if (isFunc(this)) {
+            return this;
+        }
+        let found;
+        // eslint-disable-next-line guard-for-in
+        for (const childName in this) {
+            if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
+                const child = this[childName];
+                if (child instanceof Node && child.kind) {
+                    found = child.find(isFunc);
+                    if (found) return found;
+                } else if (child instanceof Array) {
+                    for (let i = 0; i < child.length; i++) {
+                        const childItem = child[i];
+                        if (childItem instanceof Node && childItem.kind) {
+                            found = childItem.find(isFunc);
+                            if (found) return found;
+                        }
+                    }
+                }
+            }
+        }
+        return undefined;
+    }
+
     getKind() {
         return this.kind;
     }

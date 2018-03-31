@@ -23,6 +23,9 @@ import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Uses to manipulate text in Ballerina quoted literal strings.
+ */
 public class BallerinaStringManipulator extends AbstractElementManipulator<QuotedLiteralString> {
 
     @Override

@@ -22,6 +22,74 @@ import Environment from '../env/environment';
 import DefaultNodes from './default-nodes';
 import ConnectorHelper from './../env/helpers/connector-helper';
 
+
+export const WsResources = [
+    {
+        resourceName: 'onUpgrade',
+        fragment: `
+        onUpgrade (endpoint ep, http:Request req) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onOpen',
+        fragment: `
+        onOpen (endpoint ep) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onTextMessage',
+        fragment: `
+        onTextMessage (endpoint conn, http:TextFrame frame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onBinaryMessage',
+        fragment: `
+        onBinaryMessage (endpoint conn, http:BinaryFrame frame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onClose',
+        fragment: `
+        onClose (endpoint conn, http:CloseFrame closeFrame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onIdleTimeOut',
+        fragment: `
+        onIdleTimeout (endpoint ep) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onPing',
+        fragment: `
+        onPong (endpoint conn, http:PongFrame frame) {
+
+        }
+    `,
+    },
+    {
+        resourceName: 'onPong',
+        fragment: `
+        onPong (endpoint conn, http:PongFrame frame) {
+
+        }
+    `,
+    },
+];
+
 /**
  * Creates the node instance for given source fragment
  *
@@ -59,32 +127,34 @@ function getPackageDefinition(fullPackageName) {
 class DefaultNodeFactory {
 
     createHTTPServiceDef() {
-        const node = getStaticDefaultNode('createHTTPServiceDef');
-        node.setFullPackageName('ballerina.net.http');
-        return node;
+        const service = getStaticDefaultNode('createHTTPServiceDef');
+        const endpoint = getStaticDefaultNode('createHTTPEndpointDef');
+        service.setFullPackageName('ballerina/net.http');
+        return [ endpoint, service];
     }
 
     createWSServiceDef() {
-        const node = getStaticDefaultNode('createWSServiceDef');
-        node.setFullPackageName('ballerina.net.ws');
-        return node;
+        const service = getStaticDefaultNode('createWSServiceDef');
+        const endpoint = getStaticDefaultNode('createWSEndpointDef');
+        service.setFullPackageName('ballerina/net.http');
+        return [ endpoint, service];
     }
 
     createJMSServiceDef() {
         const node = getStaticDefaultNode('createJMSServiceDef');
-        node.setFullPackageName('ballerina.net.jms');
+        node.setFullPackageName('ballerina/net.jms');
         return node;
     }
 
     createFSServiceDef() {
         const node = getStaticDefaultNode('createFSServiceDef');
-        node.setFullPackageName('ballerina.net.fs');
+        node.setFullPackageName('ballerina/net.fs');
         return node;
     }
 
     createFTPServiceDef() {
         const node = getStaticDefaultNode('createFTPServiceDef');
-        node.setFullPackageName('ballerina.net.ftp');
+        node.setFullPackageName('ballerina/net.ftp');
         return node;
     }
 
@@ -327,17 +397,17 @@ class DefaultNodeFactory {
 
     createConnectorActionInvocationAssignmentStatement(args) {
         let stmtString = '';
-        const { action, packageName, fullPackageName, endpoint } = args;
+        const { functionDef, packageName, fullPackageName, endpoint } = args;
 
-        if (action && action.getReturnParams().length > 0) {
+        if (functionDef && functionDef.getReturnParams().length > 0) {
             stmtString = 'var var1 = ';
         }
-        stmtString += 'endpoint1.action1();';
+        stmtString += 'endpoint1->action1();';
 
         const node = getNodeForFragment(FragmentUtils.createStatementFragment(stmtString));
 
-        if (action && action.getParameters().length > 0) {
-            const parameters = action.getParameters().map((param) => {
+        if (functionDef && functionDef.getParameters().length > 0) {
+            const parameters = functionDef.getParameters().map((param) => {
                 let defaultValue = Environment.getDefaultValue(param.type);
                 if (defaultValue === undefined) {
                     defaultValue = '{}';
@@ -348,8 +418,8 @@ class DefaultNodeFactory {
             node.getExpression().setArgumentExpressions(parameters);
         }
 
-        if (action && action.getReturnParams().length > 0) {
-            const varRefNames = action.getReturnParams().map((param, index) => {
+        if (functionDef && functionDef.getReturnParams().length > 0) {
+            const varRefNames = functionDef.getReturnParams().map((param, index) => {
                 return 'variable' + index + 1;
             });
             const varRefListString = `var ${varRefNames.join(', ')} = function1();`;
@@ -357,9 +427,9 @@ class DefaultNodeFactory {
             node.setVariables(returnNode.getVariables());
         }
 
-        if (action) {
+        if (functionDef) {
             const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
-            node.getExpression().getName().setValue(action.getName());
+            node.getExpression().getName().setValue(functionDef.getName());
             node.getExpression().setFullPackageName(fullPackageName);
             node.getExpression().getPackageAlias().setValue(pkgStr);
         }

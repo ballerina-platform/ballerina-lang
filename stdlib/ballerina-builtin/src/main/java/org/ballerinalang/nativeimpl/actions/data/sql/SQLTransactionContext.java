@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.nativeimpl.actions.data.sql;
 
-import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -36,6 +36,10 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
     public SQLTransactionContext(Connection conn, XAResource resource) {
         this.conn = conn;
         this.xaResource = resource;
+    }
+
+    public SQLTransactionContext(Connection conn) {
+        this.conn = conn;
     }
 
     public Connection getConnection() {

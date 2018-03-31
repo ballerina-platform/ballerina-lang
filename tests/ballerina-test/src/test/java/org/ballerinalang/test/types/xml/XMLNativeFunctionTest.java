@@ -93,15 +93,18 @@ public class XMLNativeFunctionTest {
     @Test
     public void testGetItemType() {
         BValue[] returns = BRunUtil.invoke(result, "testGetItemType");
-        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
         
         Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "element");
+        Assert.assertEquals(returns[1].stringValue(), "comment");
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertNull(returns[2].stringValue());
+        Assert.assertEquals(returns[2].stringValue(), "element");
+        
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns[3].stringValue(), "sequence");
     }
 
     @Test
@@ -771,8 +774,10 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[3] instanceof BXML);
         BRefValueArray originalChildren = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(originalChildren.size(), 2);
-        Assert.assertEquals(originalChildren.get(0).stringValue(), "<fname>supun</fname>");
-        Assert.assertEquals(originalChildren.get(1).stringValue(), "<lname>setunga</lname>");
+        Assert.assertEquals(originalChildren.get(0).stringValue(),
+                "<fname xmlns:ns0=\"http://sample.com/test\">supun</fname>");
+        Assert.assertEquals(originalChildren.get(1).stringValue(),
+                "<lname xmlns:ns0=\"http://sample.com/test\">setunga</lname>");
     }
     
     @Test
@@ -791,7 +796,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         
-        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 5);
+        Assert.assertEquals(((BXMLSequence) returns[0]).value().size(), 4);
         Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book-->     <bookId>001</bookId>" +
                 "<?word document=\"book.doc\" ?>");
         
@@ -841,14 +846,14 @@ public class XMLNativeFunctionTest {
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: " +
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: " +
                     "invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: " +
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: " +
                     "index out of range: \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
@@ -856,7 +861,7 @@ public class XMLNativeFunctionTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: "
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: "
                     + "index out of range: \\[-4,10\\].*")
     public void testSliceOutOfRangeNegativeStartIndex() {
         BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
@@ -864,7 +869,7 @@ public class XMLNativeFunctionTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: "
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: "
                     + "index out of range: \\[4,-10\\].*")
     public void testSliceOutOfRangeNegativeEndIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
@@ -911,7 +916,7 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonForEmptyValue");
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(returns[0].stringValue(), "[]");
     }
 
     @Test
@@ -1341,31 +1346,29 @@ public class XMLNativeFunctionTest {
                 + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class }, 
-            expectedExceptionsMessageRegExp = "error: error, message: failed to add attribute " +
-            "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*failed to add attribute " +
+                    "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
     public void testUpdateAttributeWithDifferentUri() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateAttributeWithDifferentUri");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns:a=\"yyy\" a:text=\"hello\"/>");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testParseXMLElementWithXMLDeclrEntity() {
         BValue[] returns = BRunUtil.invoke(result, "testParseXMLElementWithXMLDeclrEntity");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root>hello world</root>");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testParseXMLCommentWithXMLDeclrEntity() {
         BValue[] returns = BRunUtil.invoke(result, "testParseXMLCommentWithXMLDeclrEntity");
         Assert.assertEquals(returns[0], null);
-        Assert.assertTrue(returns[1].stringValue().startsWith("{msg:\"failed to create xml: Unexpected EOF in prolog"));
-        Assert.assertTrue(returns[1].stringValue().endsWith("at [row,col {unknown-source}]:"
-                        + " [1,74]\", cause:null, stackTrace:[{caller:\"testParseXMLCommentWithXMLDeclrEntity\", "
-                        + "packageName:\".\", fileName:\"xml-native-functions.bal\", lineNumber:836}], sourceType:"
-                        + "\"string\", targetType:\"xml\"}"));
+        Assert.assertTrue(returns[1].stringValue().startsWith("{message:\"failed to create xml: " +
+                "Unexpected EOF in prolog"));
+        Assert.assertTrue(returns[1].stringValue().endsWith("at [row,col {unknown-source}]: [1,74]\", cause:null}"));
     }
 
     @Test
@@ -1393,5 +1396,18 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
                         + "foo1=\"bar1\" ns0:foo1=\"bar2\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
+    }
+
+    @Test
+    public void testGetChildrenOfSequence() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetChildrenOfSequence");
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(),
+                "<fname1>John</fname1><lname1>Doe</lname1><fname2>Jane</fname2><lname2>Doe</lname2>apple");
     }
 }

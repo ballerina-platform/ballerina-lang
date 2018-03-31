@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -80,10 +79,8 @@ public class NotSoBasicWorkerTest {
     public void forkJoinWithSomeSelectedJoin1() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin1", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 15);
-        Assert.assertEquals(map.get("y").intValue(), 5);
+        BInteger xy = (BInteger) vals[0];
+        Assert.assertEquals(xy.intValue(), 75);
     }
     
     @Test
@@ -108,18 +105,16 @@ public class NotSoBasicWorkerTest {
     public void forkJoinWithSomeSelectedJoin4() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin4", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 10);
+        BInteger x = (BInteger) vals[0];
+        Assert.assertEquals(x.intValue(), 10);
     }
     
     @Test
     public void forkJoinWithSomeSelectedJoin5() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin5", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 555);
+        BInteger x = (BInteger) vals[0];
+        Assert.assertEquals(x.intValue(), 555);
     }
     
     @Test
@@ -135,9 +130,8 @@ public class NotSoBasicWorkerTest {
     public void forkJoinWithAllSelectedJoin2() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithAllSelectedJoin2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 777);
+        BInteger result = (BInteger) vals[0];
+        Assert.assertEquals(result.intValue(), 777);
     }
     
     @Test
@@ -170,7 +164,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals[0].stringValue(), "W1: data1, W2: data2");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testWorkerStackCreation() {
         BValue[] values = BRunUtil.invoke(result, "testWorkerStackCreation", new BValue[0]);
         Assert.assertEquals(values.length, 1);
@@ -180,23 +174,20 @@ public class NotSoBasicWorkerTest {
 //    @Test
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
-        Context ctx = new Context(result.getProgFile());
-        BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0], ctx);
+        BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0]);
         Assert.assertEquals(vals.length, 2);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
         Assert.assertTrue(((BInteger) vals[1]).intValue() > 0);
-        ctx.await(20);
+        //ctx.await(20);
         Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
     }
 
     @Test
     public void testVoidFunctionWorkers() {
         CompileResult result = BCompileUtil.compile("test-src/workers/void-function-workers.bal");
-        Context ctx = new Context(result.getProgFile());
-        BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0], ctx);
+        BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
-        ctx.await(20);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
         Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
     }
 }

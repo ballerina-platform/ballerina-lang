@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an Expression in PSI tree.
+ */
 public class ExpressionNode extends ANTLRPsiNode {
 
     public ExpressionNode(@NotNull ASTNode node) {

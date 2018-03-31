@@ -63,7 +63,7 @@ public class BlockStmtTest {
         BAssertUtil.validateError(resultNegative, 7, "unreachable code", 92, 9);
         BAssertUtil.validateError(resultNegative, 8, "break cannot be used outside of a loop", 92, 9);
         //testUnreachableThrow
-        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 108, 9);
+        BAssertUtil.validateError(resultNegative, 9, "unreachable code", 107, 9);
 
     }
 }

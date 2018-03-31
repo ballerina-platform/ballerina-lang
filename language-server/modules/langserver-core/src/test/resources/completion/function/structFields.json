@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 2,
+    "character": 10
+  },
+  "source": "function/source/structFields.bal",
+  "items": [
+    {
+      "label":"test1A",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"test1A"
+    },
+    {
+      "label":"test1B",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"test1B"
+    }
+  ]
+}

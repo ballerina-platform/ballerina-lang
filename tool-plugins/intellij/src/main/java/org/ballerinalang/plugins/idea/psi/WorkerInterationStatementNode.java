@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an WorkerInterationStatement in PSI tree.
+ */
 public class WorkerInterationStatementNode extends ANTLRPsiNode {
 
     public WorkerInterationStatementNode(@NotNull ASTNode node) {

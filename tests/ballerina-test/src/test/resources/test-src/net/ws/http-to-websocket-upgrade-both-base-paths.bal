@@ -1,42 +1,46 @@
-import ballerina.net.http;
-import ballerina.net.ws;
+import ballerina/io;
+import ballerina/net.http;
 
-@http:configuration {
-    basePath:"/test",
-    port:9090,
-    webSocket:@http:webSocket {
-                  upgradePath:"/ws",
-                  serviceName:"wsService"
-              }
+endpoint http:ServiceEndpoint servicEp {
+port:9090
+};
+
+
+@http:ServiceConfig {
+      basePath:"/test",
+        webSocketUpgrade:{
+            upgradePath: "/ws",
+            upgradeService: typeof wsService
+        }
 }
-service<http> httpService {
+service<http:Service> httpService bind servicEp {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/world",
         methods:["POST","GET","PUT","My"]
     }
-    resource testResource(http:Connection conn, http:InRequest req) {
-        http:OutResponse resp = {};
-        string payload = req.getStringPayload();
-        println(payload);
+    testResource(endpoint conn, http:Request req) {
+        http:Response resp = {};
+        var payload =? req.getStringPayload();
+        io:println(payload);
         resp.setStringPayload("I received");
-        _ = conn.respond(resp);
+        _ = conn->respond(resp);
     }
 }
 
-@ws:configuration {
+@http:WebSocketServiceConfig {
     basePath:"world/ws",
     subProtocols:["xml, json"],
     idleTimeoutInSeconds:5
 }
-service<ws> wsService  {
-
-    resource onOpen(ws:Connection conn) {
-        println("New WebSocket connection: " + conn.getID());
+service<http: WebSocketService > wsService{
+    onOpen(endpoint ep) {
+        var conn = ep.getClient();
+        io:println("New WebSocket connection: " + conn.id);
     }
 
-    resource onTextMessage(ws:Connection conn, ws:TextFrame frame) {
-        println(frame.text);
-        conn.pushText(frame.text);
+    onTextMessage(endpoint conn, http:TextFrame frame) {
+        io:println(frame.text);
+        conn->pushText(frame.text);
     }
 }

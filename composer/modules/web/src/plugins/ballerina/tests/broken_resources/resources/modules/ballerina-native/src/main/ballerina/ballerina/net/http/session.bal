@@ -1,6 +1,6 @@
 package ballerina.net.http;
 
-import ballerina.doc;
+import ballerina/doc;
 
 struct Session {
     string id;

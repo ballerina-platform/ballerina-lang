@@ -19,6 +19,9 @@ package org.ballerinalang.editor;
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 
+/**
+ * Brace matcher tests.
+ */
 public class BallerinaBraceMatcherTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testCloseParenthesis() {

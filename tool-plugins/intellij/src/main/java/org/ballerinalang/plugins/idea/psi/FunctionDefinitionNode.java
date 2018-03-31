@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents a FunctionDefinition in PSI tree.
+ */
 public class FunctionDefinitionNode extends IdentifierDefSubtree implements TopLevelDefinition, ParameterContainer {
 
     public FunctionDefinitionNode(@NotNull ASTNode node) {

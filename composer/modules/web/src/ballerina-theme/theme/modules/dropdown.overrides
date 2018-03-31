@@ -1,0 +1,49 @@
+/*******************************
+        User Overrides
+*******************************/
+
+.ui.form .field .selection.dropdown:focus{
+     border-color    : @orange;
+ }
+
+.ui.selection.active.dropdown .menu{
+    border-color    : @orange;
+}
+
+.ui.selection.active.dropdown:hover .menu{
+     border-color    : @orange;
+}
+.ui.dropdown.selected,
+.ui.dropdown .menu .selected.item {
+  background: @selectedBackground;
+  color: @selectedColor;
+}
+.ui.selection.dropdown .menu {
+    border-radius: @selectionMenuBorderRadius;
+}
+
+.inverted{
+    .ui.selection.active.dropdown {
+        border-color: @selectionInvertedBorderColor;
+    }
+
+    .ui.dropdown .menu {
+      background    : @invertedInputBackgroundColor;
+      color         : @off-white;
+      border        : 1px solid @selectionInvertedBorderColor;
+      border-radius : 0 !important;
+
+        .item {
+             border-top     : 1px solid;
+             border-color   : @selectionInvertItemDivider;
+
+             &:hover{
+                background    : @defaultColor;
+             }
+
+            .text{
+                color         : @off-white;
+            }
+        }
+    }
+}

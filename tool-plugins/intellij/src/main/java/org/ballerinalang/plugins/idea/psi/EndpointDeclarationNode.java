@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an EndpointDeclaration in PSI tree.
+ */
 public class EndpointDeclarationNode extends ANTLRPsiNode {
 
     public EndpointDeclarationNode(@NotNull ASTNode node) {

@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.List;
@@ -52,8 +53,14 @@ public class ConnectorScopeResolver extends ServiceScopeResolver {
             isLastChildNode = actions.indexOf(node) == (actions.size() - 1);
         }
 
-        return (isLastChildNode
+        boolean isWithinScope = (isLastChildNode
                 && (curLine < connectorEndLine || (curLine == connectorEndLine && curCol < connectorEndCol))
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
+
+        if (isWithinScope) {
+            treeVisitor.setPreviousNode((BLangNode) node);
+        }
+
+        return isWithinScope;
     }
 }

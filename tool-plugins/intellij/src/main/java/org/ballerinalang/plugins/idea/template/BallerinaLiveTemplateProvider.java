@@ -20,6 +20,9 @@ import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Live templates provider for Ballerina.
+ */
 public class BallerinaLiveTemplateProvider implements DefaultLiveTemplatesProvider {
 
     @NotNull

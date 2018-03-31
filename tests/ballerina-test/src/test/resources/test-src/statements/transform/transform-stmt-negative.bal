@@ -11,10 +11,10 @@ struct Employee {
     string address;
 }
 
-function oneToOneTransform() (string, int, string){
+function oneToOneTransform() returns (string, int, string){
     Person p = {firstname:"John", lastname:"Doe", age:30, city:"London"};
     Employee e = <Employee, Foo()> p;
-    return e.name, e.age, e.address;
+    return (e.name, e.age, e.address);
 }
 
 transformer <Person p, Employee e> Foo() {

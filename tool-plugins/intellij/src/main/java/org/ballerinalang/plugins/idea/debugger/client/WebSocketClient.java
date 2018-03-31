@@ -45,6 +45,9 @@ import java.util.Map;
 
 import javax.net.ssl.SSLException;
 
+/**
+ * WebSocket client which is used to connect to debug server.
+ */
 public class WebSocketClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketClient.class);

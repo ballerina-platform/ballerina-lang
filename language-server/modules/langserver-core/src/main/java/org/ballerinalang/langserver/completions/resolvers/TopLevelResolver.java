@@ -19,13 +19,14 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.CompletionItemResolver;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
-import org.ballerinalang.langserver.completions.consts.Snippet;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -66,16 +67,17 @@ public class TopLevelResolver extends AbstractItemResolver {
                             .getResolverByClass(AnnotationAttachment.class).resolveItems(completionContext)
             );
         }
+
+        ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(completionContext, completionItems);
         return completionItems;
     }
 
-    void addStaticItem(List<CompletionItem> completionItems, String label, String insertText) {
+    void addStaticItem(List<CompletionItem> completionItems, String label, String insertText, String detail) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        item.setSortText(Priority.PRIORITY7.name());
+        item.setDetail(detail);
         completionItems.add(item);
     }
 
@@ -85,17 +87,35 @@ public class TopLevelResolver extends AbstractItemResolver {
      * @param completionItems - completionItems List
      */
     private void addTopLevelItems(ArrayList<CompletionItem> completionItems) {
-        addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
-        addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
-        addStaticItem(completionItems, ItemResolverConstants.CONST, ItemResolverConstants.CONST + " ");
-        addStaticItem(completionItems, ItemResolverConstants.FUNCTION, Snippet.FUNCTION.toString());
-        addStaticItem(completionItems, ItemResolverConstants.MAIN_FUNCTION, Snippet.MAIN_FUNCTION.toString());
-        addStaticItem(completionItems, ItemResolverConstants.ENUM, Snippet.ENUM.toString());
-        addStaticItem(completionItems, ItemResolverConstants.SERVICE, Snippet.SERVICE.toString());
-        addStaticItem(completionItems, ItemResolverConstants.TRANSFORMER, Snippet.TRANSFORMER.toString());
-        addStaticItem(completionItems, ItemResolverConstants.CONNECTOR, Snippet.CONNECTOR_DEFINITION.toString());
-        addStaticItem(completionItems, ItemResolverConstants.STRUCT, Snippet.STRUCT_DEFINITION.toString());
-        addStaticItem(completionItems, ItemResolverConstants.ANNOTATION, Snippet.ANNOTATION_DEFINITION.toString());
-        addStaticItem(completionItems, ItemResolverConstants.XMLNS, Snippet.NAMESPACE_DECLARATION.toString());
+        addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ",
+                ItemResolverConstants.KEYWORD_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ",
+                ItemResolverConstants.KEYWORD_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.CONST, ItemResolverConstants.CONST + " ",
+                ItemResolverConstants.KEYWORD_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.FUNCTION, Snippet.FUNCTION.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.MAIN_FUNCTION, Snippet.MAIN_FUNCTION.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.ENUM, Snippet.ENUM.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.SERVICE, Snippet.SERVICE.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.TRANSFORMER, Snippet.TRANSFORMER.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.CONNECTOR, Snippet.CONNECTOR_DEFINITION.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.STRUCT, Snippet.STRUCT_DEFINITION.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.ANNOTATION, Snippet.ANNOTATION_DEFINITION.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.XMLNS, Snippet.NAMESPACE_DECLARATION.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.OBJECT_TYPE, Snippet.OBJECT_SNIPPET.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.ENDPOINT, Snippet.ENDPOINT.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.TYPE_TYPE, ItemResolverConstants.TYPE,
+                ItemResolverConstants.KEYWORD_TYPE);
     }
 }

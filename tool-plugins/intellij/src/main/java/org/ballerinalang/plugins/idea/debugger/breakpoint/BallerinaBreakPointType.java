@@ -30,6 +30,9 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a Ballerina breakpoint type.
+ */
 public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakpointProperties> {
 
     public static final String ID = "BallerinaLineBreakpoint";

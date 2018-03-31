@@ -21,6 +21,8 @@ import org.ballerinalang.model.values.BRefValueArray;
 
 /**
  * This class holds data about the result of a given worker.
+ * 
+ * @since 0.965.0
  */
 public class WorkerResult {
     private String workerName;

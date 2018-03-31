@@ -62,6 +62,9 @@ import java.util.Set;
 
 import javax.swing.event.HyperlinkEvent;
 
+/**
+ * Handles module root settings.
+ */
 public class BallerinaModuleLibrariesInitializer implements ModuleComponent {
 
     private static final String BALLERINA_LIB_NAME = "BALLERINA_REPOSITORY";

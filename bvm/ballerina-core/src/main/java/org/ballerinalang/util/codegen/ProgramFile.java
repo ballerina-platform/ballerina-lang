@@ -20,7 +20,7 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
@@ -63,12 +63,13 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private boolean servicesAvailable = false;
 
     private Debugger debugger;
+    private boolean distributedTransactionEnabled = false;
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
     private Path programFilePath;
 
-    private StructureType globalMemoryBlock;
+    private LockableStructureType globalMemoryBlock;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
@@ -122,14 +123,24 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         return servicesAvailable;
     }
 
+    public void setDistributedTransactionEnabled(boolean distributedTransactionEnabled) {
+        this.distributedTransactionEnabled = distributedTransactionEnabled;
+    }
+
+    public boolean isDistributedTransactionEnabled() {
+        return distributedTransactionEnabled;
+    }
+
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
     }
 
+    @Deprecated
     public ServerConnectorRegistry getServerConnectorRegistry() {
         return serverConnectorRegistry;
     }
 
+    @Deprecated
     public void setServerConnectorRegistry(ServerConnectorRegistry serverConnectorRegistry) {
         this.serverConnectorRegistry = serverConnectorRegistry;
     }
@@ -174,7 +185,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         packageInfoMap.put(packageName, packageInfo);
     }
 
-    public StructureType getGlobalMemoryBlock() {
+    public LockableStructureType getGlobalMemoryBlock() {
         return globalMemoryBlock;
     }
 
@@ -202,8 +213,9 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
             VarTypeCountAttributeInfo varTypeCountAttribInfo = (VarTypeCountAttributeInfo) attributeInfo;
             int[] globalVarCount = varTypeCountAttribInfo.getVarTypeCount();
 
+            // TODO Introduce an abstraction for memory blocks
             // Initialize global memory block
-            BStructType dummyType = new BStructType("", "");
+            BStructType dummyType = new BStructType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
             this.globalMemoryBlock = new BStruct(dummyType);
         }
@@ -212,18 +224,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     @Override
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
-    }
-
-    public List<AnnAttributeValue> getUnresolvedAnnAttrValues() {
-        return unresolvedAnnAttrValues;
-    }
-
-    public void setUnresolvedAnnAttrValues(List<AnnAttributeValue> unresolvedAnnAttrValues) {
-        this.unresolvedAnnAttrValues = unresolvedAnnAttrValues;
-    }
-
-    public void addUnresolvedAnnAttrValue(AnnAttributeValue annAttributeValue) {
-        unresolvedAnnAttrValues.add(annAttributeValue);
     }
 
     public void setDebugger(Debugger debugManager) {

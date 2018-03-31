@@ -1,9 +1,9 @@
 function invalidCastingError() {
   any abc = intReturn();
-  float val = (float)abc;
+  float val = <float> abc;
 }
 
-function intReturn()(any) {
+function intReturn() returns (any) {
   int val = 6;
   return val;
 }
@@ -11,5 +11,6 @@ function intReturn()(any) {
 
 function undefinedCasting() {
   any val;
-  int i = (int)val;
+  int i = <int> val;
 }
+

@@ -1,7 +1,7 @@
 
-function getGlobalVarWithIL() (string) {
-    string |global | var| = "dfs";
-    return |global v ar|;
+function getGlobalVarWithIL() returns (string) {
+    string ^"global " var" = "dfs";
+    return ^"global v ar";
 }
 
 

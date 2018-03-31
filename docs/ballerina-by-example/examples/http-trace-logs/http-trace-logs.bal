@@ -1,19 +1,25 @@
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/io;
 
-@http:configuration {basePath:"/hello"}
-service<http> helloWorld {
+endpoint http:ServiceEndpoint helloWorldEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+endpoint http:ClientEndpoint clientEP {
+    targets: [{uri: "http://httpstat.us"}]
+};
+
+@http:ServiceConfig { basePath:"/hello", endpoints:[helloWorldEP] }
+service<http:Service> helloWorld bind helloWorldEP{
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> ep {
-            create http:HttpClient("http://httpstat.us", {});
+    sayHello (endpoint conn, http:Request req) {
+        var resp = clientEP -> forward("/200", req);
+        match resp {
+            http:HttpConnectorError err => io:println(err.message);
+            http:Response response => _ = conn -> forward(response);
         }
-        http:InResponse backendResponse;
-        backendResponse, _ = ep.forward("/200", req);
-
-        _ = conn.forward(backendResponse);
     }
 }

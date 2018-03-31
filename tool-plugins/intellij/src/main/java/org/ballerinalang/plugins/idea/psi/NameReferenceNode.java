@@ -21,6 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an NameReference in PSI tree.
+ */
 public class NameReferenceNode extends IdentifierDefSubtree {
 
     public NameReferenceNode(@NotNull ASTNode node) {

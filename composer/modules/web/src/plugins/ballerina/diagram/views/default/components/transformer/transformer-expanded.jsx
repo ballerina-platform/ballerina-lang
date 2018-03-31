@@ -30,12 +30,13 @@ import TransformerNode from '../../../../../model/tree/abstract-tree/transformer
 import Tree from './tree';
 import FunctionInv from './function';
 import Operator from './operator';
+import NestedTransformer from './nested-transformer';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
-import Item from '../../../../../interactions/item';
-import { binaryOpTools, unaryOpTools, ternaryOpTools } from '../../../../../tool-palette/item-provider/operator-tools';
 import './transformer-expanded.css';
+import IterableList from './iterable-list';
+import ConversionList from './conversion-list';
 
 /**
  * React component for transform expanded view
@@ -54,6 +55,8 @@ class TransformerExpanded extends React.Component {
         super(props, context);
         this.state = {
             // vertices changes must re-render. Hence added as a state.
+            name: props.model.getName().getValue(),
+            connectionMenu: {},
             vertices: [],
             typedSource: '',
             typedTarget: '',
@@ -101,47 +104,211 @@ class TransformerExpanded extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onConnectionsScroll = this.onConnectionsScroll.bind(this);
         this.onConnectPointMouseEnter = this.onConnectPointMouseEnter.bind(this);
+        this.onNameChange = this.onNameChange.bind(this);
     }
 
-    foldEndpoint(key) {
-        this.setState(
-            {
-                foldedEndpoints: _.extend(this.state.foldedEndpoints, {
-                    [key]: !this.state.foldedEndpoints[key],
-                }),
+    componentDidMount() {
+        this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
+            this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
+
+        this.props.model.on('tree-modified', (evt) => {
+            const { designView } = this.context;
+            // We keep info of what transformer is active by saving its signature
+            // any change that changes the signature should update this reference
+            designView.setActiveTransformerSignature(this.props.model.getSignature());
+        });
+
+        this.props.model.body.getStatements().forEach((statement) => {
+            this.createConnection(statement);
+        });
+
+        this.mapper.connectionsAdded();
+        this.markConnectedEndpoints();
+
+        this.mapper.reposition(this.props.model.getID());
+
+        const sourceKeys = Object.keys(this.sourceElements);
+        sourceKeys.forEach((key) => {
+            const { element, input } = this.sourceElements[key];
+            this.mapper.addSource(element, input, true);
+        });
+
+        this.mapper.onConnectionAborted((con, ev) => {
+            const targetKeys = Object.keys(this.targetElements);
+            targetKeys.forEach((key) => {
+                const { element } = this.targetElements[key];
+                element.classList.remove('drop-not-valid');
+                element.classList.remove('drop-valid');
             });
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
+
+            clearInterval(this.scrollTimer);
+
+            const { clientX: x, clientY: y } = ev;
+            const { output } = this.findTargetAt({ x, y });
+
+            if (!output) {
+                // connection is not dropped on a target. No need of more processing
+                return;
+            }
+
+            const input = con.getParameters().input;
+            const isValid = this.transformNodeManager.isConnectionValid(input.type, output.type);
+
+            if (!isValid) {
+                return;
+            }
+
+            const connection = this.mapper.getConnectionObject(input, output);
+            this.transformNodeManager.createStatementEdge(connection);
+        });
+        this.forceUpdate();
     }
 
-    foldFunction(key) {
-        this.setState(
-            {
-                foldedFunctions: _.extend(this.state.foldedFunctions, {
-                    [key]: !this.state.foldedFunctions[key],
-                }),
+    componentWillReceiveProps() {
+        if (this.props.panelResizeInProgress) {
+            this.mapper.repaintEverything();
+        }
+    }
+
+    shouldComponentUpdate() {
+        return !this.props.panelResizeInProgress;
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        this.transformNodeManager.setTransformStmt(this.props.model);
+
+        if (prevProps.model !== this.props.model) {
+            this.props.model.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
+                const { designView } = this.context;
+                designView.setActiveTransformerSignature(this.props.model.getSignature());
             });
-    }
+        }
 
-    foldOperator(key) {
-        this.setState(
-            {
-                foldedOperators: _.extend(this.state.foldedOperators, {
-                    [key]: !this.state.foldedOperators[key],
-                }),
+        this.mapper.disconnectAll();
+
+        let sourceKeys = Object.keys(this.sourceElements);
+        sourceKeys.forEach((key) => {
+            const { element } = this.sourceElements[key];
+            if (!element) {
+                delete this.sourceElements[key];
+            }
+        });
+
+        let targetKeys = Object.keys(this.targetElements);
+        targetKeys.forEach((key) => {
+            const { element } = this.targetElements[key];
+            if (!element) {
+                delete this.targetElements[key];
+            }
+        });
+
+        sourceKeys = Object.keys(this.sourceElements);
+        targetKeys = Object.keys(this.targetElements);
+
+        sourceKeys.forEach((key) => {
+            const { element, input } = this.sourceElements[key];
+            this.mapper.addSource(element, input, false);
+        });
+
+        targetKeys.forEach((key) => {
+            const { element, output } = this.targetElements[key];
+            this.mapper.addTarget(element, output, false,
+                    this.transformNodeManager.isConnectionValid.bind(this.transformNodeManager));
+        });
+
+        this.props.model.getBody().getStatements().forEach((statement) => {
+            this.createConnection(statement);
+        });
+
+        this.mapper.connectionsAdded();
+
+        sourceKeys.forEach((key) => {
+            const { element, input } = this.sourceElements[key];
+            this.mapper.addSource(element, input, true);
+        });
+
+        this.markConnectedEndpoints();
+
+        this.mapper.reposition(this.props.model.getID());
+        if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
+            return;
+        }
+
+        this.mapper.onConnectionAborted((con, ev) => {
+            targetKeys = Object.keys(this.targetElements);
+            targetKeys.forEach((key) => {
+                const { element } = this.targetElements[key];
+                element.classList.remove('drop-not-valid');
+                element.classList.remove('drop-valid');
             });
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
+
+            clearInterval(this.scrollTimer);
+
+            const { clientX: x, clientY: y } = ev;
+            const { output } = this.findTargetAt({ x, y });
+
+            if (!output) {
+                // connection is not dropped on a target. No need of more processing
+                return;
+            }
+
+            const input = con.getParameters().input;
+            const isValid = this.transformNodeManager.isConnectionValid(input.type, output.type);
+
+            if (!isValid) {
+                return;
+            }
+
+            const connection = this.mapper.getConnectionObject(input, output);
+            this.transformNodeManager.createStatementEdge(connection);
+        });
     }
 
-    removeEndpoint(key) {
-        this.mapper.remove(key);
-    }
-
-    removeIntermediateNode(expression, parentNode, statement) {
-        this.transformNodeManager.removeIntermediateNode(expression, parentNode, statement);
+    componentWillUnmount() {
+        if (this.scrollTimer) {
+            clearInterval(this.scrollTimer);
+        }
+        this.onClose();
     }
 
     onConnectionCallback(connection) {
         this.transformNodeManager.createStatementEdge(connection);
     }
+    /**
+     * Add a new variable delcaration to transformer body
+     */
 
+    onAddNewVariable() {
+        this.transformNodeManager.addNewVariable('source');
+    }
+
+    /**
+     * Add a parameter to transformer
+     */
+    onAddNewParameter() {
+        if (this.props.model.getName().getValue() === '') {
+            this.props.model.getName().setValue('newTransformer');
+        }
+        this.props.model.addParameters(this.transformNodeManager.createVariable(
+                                            'param' + (this.props.model.getParameters().length + 1), 'string'));
+    }
+
+    onClose() {
+        const { designView } = this.context;
+        designView.setTransformActive(false);
+    }
+
+    onSourceAdd() {
+        this.addSource(this.state.selectedSource);
+    }
+
+    onTargetAdd() {
+        this.addTarget(this.state.selectedTarget);
+    }
     onDisconnectionCallback(connection) {
         this.transformNodeManager.removeStatementEdge(connection);
     }
@@ -155,6 +322,385 @@ class TransformerExpanded extends React.Component {
             return;
         }
         this.mapper.setDroppingTarget(endpoint);
+    }
+
+    onDragLeave(e) {
+        if (!this.mapper.isConnectionDragging()) {
+            return;
+        }
+        const boundingRect = this.transformOverlayDraggingContentDiv.getBoundingClientRect();
+
+        let offsetY = 0;
+        if (e.pageY < (boundingRect.top + 10)) {
+            offsetY = -5;
+        } else if (e.pageY > (boundingRect.bottom - 10)) {
+            offsetY = 5;
+        }
+
+        let offsetX = 0;
+        if (e.pageX < (boundingRect.left + 10)) {
+            offsetX = -5;
+        } else if (e.pageX > (boundingRect.right - 10)) {
+            offsetX = 5;
+        }
+
+        this.scrollTimer = setInterval(() => {
+            this.vscroll.scrollTop(this.vscroll.getScrollTop() + offsetY);
+            this.hscroll.scrollLeft(this.hscroll.getScrollLeft() + offsetX);
+        }, 10);
+    }
+
+    onDragEnter(e) {
+        if (!this.mapper.isConnectionDragging()) {
+            return;
+        }
+
+        clearInterval(this.scrollTimer);
+    }
+
+    onMouseMove(e) {
+        const { clientX: x, clientY: y } = e;
+        if (!this.mapper.isConnectionDragging()) {
+            return;
+        }
+
+        const { element, output } = this.findTargetAt({ x, y });
+        if (!output) {
+            // has moved outside of target elements
+            if (this._hoveredTarget) {
+                this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
+                this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
+                this._hoveredTarget.classList.remove('drop-not-valid');
+                this._hoveredTarget.classList.remove('drop-valid');
+                this._hoveredTarget = null;
+            }
+            return;
+        }
+
+        if (this._hoveredTarget === element) {
+            // still inside the same element. no need to do anything
+            return;
+        }
+
+        if (this._hoveredTarget) {
+            this._hoveredTarget.classList.remove('drop-valid');
+            this._hoveredTarget.classList.add('drop-not-valid');
+        }
+
+        this._hoveredTarget = element;
+
+        const conn = this.mapper.getDraggingConnection();
+        const isValid = this.transformNodeManager.isConnectionValid(conn.getParameters().input.type, output.type);
+
+        if (!isValid) {
+            element.classList.remove('drop-valid');
+            element.classList.add('drop-not-valid');
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
+            this.transformOverlayDraggingContentDiv.classList.add('drop-not-valid');
+        } else {
+            element.classList.remove('drop-not-valid');
+            element.classList.add('drop-valid');
+            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
+            this.transformOverlayDraggingContentDiv.classList.add('drop-valid');
+        }
+    }
+
+    onSourceInputChange(e, { newValue }) {
+        this.setState({
+            typedSource: newValue,
+        });
+    }
+
+    onTargetInputChange(e, { newValue }) {
+        this.setState({
+            typedTarget: newValue,
+        });
+    }
+
+    onSourceSelect(e, { suggestionValue }) {
+        if (suggestionValue === '') {
+            const varDef = this.transformNodeManager.addNewVariable('source');
+            const varVertex = ({
+                name: varDef.getVariableName().getValue(),
+                displayName: varDef.getVariableName().getValue(),
+                type: varDef.getTypeNode().getTypeKind(),
+                varDeclarationString: varDef.getSource(),
+            });
+            this.state.vertices.push(varVertex);
+            this.addSource(varDef.getVariableName().getValue());
+        } else {
+            this.setState({
+                selectedSource: suggestionValue,
+            });
+            this.addSource(suggestionValue);
+        }
+    }
+
+    onTargetSelect(e, { suggestionValue }) {
+        if (suggestionValue === '') {
+            const variableDefinitionStatement = this.transformNodeManager.addNewVariable('target');
+            const varVertex = ({
+                name: variableDefinitionStatement.getVariableName().getValue(),
+                displayName: variableDefinitionStatement.getVariableName().getValue(),
+                type: variableDefinitionStatement.getTypeNode().getTypeKind(),
+                varDeclarationString: variableDefinitionStatement.getSource(),
+            });
+            this.state.vertices.push(varVertex);
+            this.addTarget(variableDefinitionStatement.getVariableName().getValue());
+        } else {
+            this.setState({
+                selectedTarget: suggestionValue,
+            });
+            this.addTarget(suggestionValue);
+        }
+    }
+
+    onSourceInputEnter() {
+        this.addSource(this.state.typedSource);
+    }
+
+    onTargetInputEnter() {
+        this.addTarget(this.state.typedTarget);
+    }
+
+    onNameChange(event) {
+        this.setState({ name: event.target.value });
+        this.props.model.name.setValue(event.target.value);
+    }
+
+
+    getVerticeData(varNode) {
+        if (Array.isArray(varNode)) {
+            return varNode.map((varN) => {
+                return this.getVerticeData(varN);
+            });
+        } else {
+            const variableType = {};
+            if (varNode.getKind() === 'VariableDef') {
+                varNode = varNode.getVariable();
+                variableType.varDeclarationString = varNode.getSource();
+            } else {
+                this.props.model.getParameters().forEach((param) => {
+                    if (varNode.getName() === param.getName()) {
+                        variableType.varDeclarationString = varNode.getSource();
+                    }
+                });
+            }
+            const pkgAlias = (varNode.typeNode.packageAlias) ? varNode.typeNode.packageAlias.value : '';
+            let type = (varNode.typeNode.typeName) ? varNode.typeNode.typeName.value : varNode.typeNode.typeKind;
+            const name = varNode.name.value;
+            const structDef = this.transformNodeManager.getStructDefinition(pkgAlias, type);
+
+            if (structDef) {
+                type = ((pkgAlias) ? (pkgAlias + ':') : '') + type;
+                return this.transformNodeManager.getStructType(name, type, structDef);
+            }
+            variableType.name = name;
+            variableType.displayName = name;
+            if (varNode.typeNode.constraint) {
+                variableType.type = varNode.getSource();
+                variableType.constraintType = varNode.typeNode.constraint;
+                const conPkgAlias = (varNode.typeNode.constraint.packageAlias) ?
+                                    varNode.typeNode.constraint.packageAlias.value : '';
+                const conType = (varNode.typeNode.constraint.typeName) ?
+                                    varNode.typeNode.constraint.typeName.value : varNode.typeNode.constraint.typeKind;
+                const baseType = (varNode.typeNode.type) ? varNode.typeNode.type.typeKind : '';
+
+                const constraintDef = this.transformNodeManager.getStructDefinition(conPkgAlias, conType);
+                if (constraintDef) {
+                    const constraintVar = this.transformNodeManager
+                                            .getStructType(name, variableType.type, constraintDef);
+                    // For constraint types, the field types must be the same type as the variable and
+                    // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
+                    // type has to be json and not string. Hence converting all field types to variable
+                    // type.
+                    // TODO : revisit this conversion if ballerina language supports constrained field
+                    // access to be treated as the field type (i.e. as string from the struct field
+                    // and not json)
+                    this.convertFieldType(constraintVar.properties, baseType);
+
+                    // constraint properties (fields) become variable fields
+                    // variableType.properties = constraint.properties;
+                    // variableType.constraint = constraint;
+                    return constraintVar;
+                }
+            } else {
+                variableType.type = type;
+                return variableType;
+            }
+            return '';
+        }
+    }
+
+    /**
+     * Get intermediate node definitions
+     * @param {any} nodeExpression node expression
+     * @param {any} statement containing statements
+     * @param {any} [intermediateNodes=[]] if it is nested intermediate nodes
+     * @param {any} parentNode parent node
+     * @returns intermediate nodes
+     * @memberof TransformerExpanded
+     */
+    getIntermediateNodes(nodeExpression, statement, intermediateNodes = [], parentNode) {
+        if (TreeUtil.isInvocation(nodeExpression)) {
+            const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
+            if (_.isUndefined(func)) {
+                this.context.alert.showError('Function definition for "' +
+                nodeExpression.getFunctionName() + '" cannot be found');
+                return [];
+            }
+            nodeExpression.argumentExpressions.forEach((arg) => {
+                this.getIntermediateNodes(arg, statement, intermediateNodes, nodeExpression);
+            });
+
+            if (nodeExpression.expression) {
+                this.getIntermediateNodes(nodeExpression.expression, statement, intermediateNodes, nodeExpression);
+            }
+
+            intermediateNodes.push({
+                type: 'function',
+                func,
+                parentNode,
+                statement,
+                funcInv: nodeExpression,
+            });
+            return intermediateNodes;
+        } else if (TreeUtil.isTernaryExpr(nodeExpression)) {
+            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getCondition(), statement,
+                                            intermediateNodes, nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getThenExpression(), statement,
+                                            intermediateNodes, nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getElseExpression(), statement,
+                                            intermediateNodes, nodeExpression);
+            intermediateNodes.push({
+                type: 'operator',
+                operator,
+                parentNode,
+                statement,
+                opExp: nodeExpression,
+            });
+            return intermediateNodes;
+        } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
+            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
+                                                intermediateNodes, nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getRightExpression(), statement,
+                                                intermediateNodes, nodeExpression);
+            intermediateNodes.push({
+                type: 'operator',
+                operator,
+                parentNode,
+                statement,
+                opExp: nodeExpression,
+            });
+            return intermediateNodes;
+        } else if (TreeUtil.isUnaryExpr(nodeExpression)) {
+            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
+            this.getIntermediateNodes(nodeExpression.getExpression(), statement,
+                                                            intermediateNodes, nodeExpression);
+            intermediateNodes.push({
+                type: 'operator',
+                operator,
+                parentNode,
+                statement,
+                opExp: nodeExpression,
+            });
+            return intermediateNodes;
+        } else if (this.transformNodeManager.isTransformerConversion(nodeExpression)) {
+            const conversion = this.transformNodeManager.getConversionVertices(nodeExpression);
+            intermediateNodes.push({
+                type: 'conversion',
+                conversion,
+                parentNode,
+                statement,
+                conExp: nodeExpression,
+            });
+            return intermediateNodes;
+        } else {
+            return [];
+        }
+    }
+
+    getFoldedEndpointId(exprString, viewId, type = 'source') {
+        let currentExprString = exprString;
+        let endpointId = `${currentExprString}:${viewId}`;
+
+        while (exprString.includes('.') && !this[`${type}Elements`][endpointId]) {
+            const newExprString = currentExprString.slice(0, currentExprString.lastIndexOf('.'));
+            if (newExprString === currentExprString) {
+                break;
+            }
+            currentExprString = newExprString;
+            endpointId = `${currentExprString}:${viewId}`;
+        }
+
+        return endpointId;
+    }
+
+    /**
+     * Get conversion type for provided sourceId and arguements
+     * @param  {object[]} arguements function Invocation arguements
+     * @param  {string} sourceId   Source Id to be searched
+     * @return {string}              Type Name
+     */
+    getFunctionArgConversionType(arguements, sourceId) {
+        let type = '';
+        arguements.forEach((arg) => {
+            if (this.transformNodeManager.isTransformerConversion(arg) &&
+                arg.getExpression().getSource() === sourceId) {
+                type = arg.getTypeNode().getTypeKind();
+            } else if (TreeUtil.isInvocation(arg)) {
+                type = this.getFunctionArgConversionType(arg.getArgumentExpressions(), sourceId);
+            }
+        });
+        return type;
+    }
+
+    removeSourceType(type) {
+        this.transformNodeManager.removeSourceType(type);
+    }
+
+    removeTargetType(type) {
+        this.transformNodeManager.removeTargetType(type);
+    }
+
+    /**
+     * Add source to transform statement
+     * @param {any} source source
+     * @memberof TransformerExpanded
+     */
+    addSource(source) {
+        const vertex = this.state.vertices.filter((val) => { return val === source; })[0];
+        if (vertex) {
+            this.props.model.setSource(this.transformNodeManager.createVariable('source', vertex));
+            this.setState({ typedSource: '' });
+        }
+    }
+
+    /**
+     * Add target to transform statement
+     * @param {any} target target
+     * @memberof TransformerExpanded
+     */
+    addTarget(target) {
+        const vertex = this.state.vertices.filter((val) => { return val === target; })[0];
+        if (vertex) {
+            this.props.model.setReturnParameters([this.transformNodeManager.createVariable('target', vertex)]);
+            this.setState({ typedTarget: '' });
+        }
+    }
+
+    canDrop(dragSource) {
+        return TreeUtil.isAssignment(dragSource);
+    }
+
+    removeIntermediateNode(expression, parentNode, statement) {
+        this.transformNodeManager.removeIntermediateNode(expression, parentNode, statement);
+    }
+
+    removeEndpoint(key) {
+        this.mapper.remove(key);
     }
 
     recordSourceElement(element, id, input) {
@@ -182,18 +728,17 @@ class TransformerExpanded extends React.Component {
         }
 
         const { exp: expression, isTemp } = this.transformNodeManager.getResolvedExpression(stmtExp, statement);
-        if (!isTemp && (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
+        if (!isTemp && !this.transformNodeManager.isTransformerConversion(stmtExp) &&
+        (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
             variables.forEach((variable) => {
-                // TODO : remove replace whitespace once its handled from backend
-                const sourceExprString = expression.getSource().replace(/ /g, '').trim();
+                const sourceExprString = this.generateEndpointId(expression.getSource());
                 let sourceId = `${sourceExprString}:${viewId}`;
                 let folded = false;
                 if (!this.sourceElements[sourceId]) {
                     folded = true;
                     sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
-                // TODO : remove replace whitespace once its handled from backend
-                const targetExprString = variable.getSource().replace(/ /g, '').trim();
+                const targetExprString = this.generateEndpointId(variable.getSource());
                 let targetId = `${targetExprString}:${viewId}`;
                 if (!this.targetElements[targetId]) {
                     folded = true;
@@ -206,7 +751,21 @@ class TransformerExpanded extends React.Component {
         if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
             || TreeUtil.isUnaryExpr(expression) || TreeUtil.isTernaryExpr(expression)) {
             this.drawIntermediateNode(variables, expression, statement, isTemp);
+        } else if (this.transformNodeManager.isTransformerConversion(stmtExp)) {
+            this.drawIntermediateNode(variables, stmtExp, statement, isTemp);
         }
+    }
+
+    /**
+     * Generate endpoint ID
+     * @param {string} expression expression string
+     * @returns {string} id generated
+     */
+    generateEndpointId(expression) {
+        if (expression.lastIndexOf('\n') !== -1) {
+            expression = expression.substring(expression.lastIndexOf('\n'));
+        }
+        return expression.replace(/ /g, '').trim();
     }
 
     /**
@@ -244,6 +803,12 @@ class TransformerExpanded extends React.Component {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperatorKind();
             paramExpressions.push(nodeExpression.getExpression());
+        } else if (this.transformNodeManager.isTransformerConversion(nodeExpression)) {
+            nodeDef = this.transformNodeManager.getConversionVertices(nodeExpression);
+            nodeName = nodeExpression.getTransformerInvocation().getName().getValue();
+            paramExpressions.push(nodeExpression.getExpression());
+            paramExpressions = paramExpressions.concat(nodeExpression
+                                .getTransformerInvocation().getArgumentExpressions());
         }
 
         if (_.isUndefined(nodeDef)) {
@@ -269,7 +834,8 @@ class TransformerExpanded extends React.Component {
                 const { exp, isTemp } = this.transformNodeManager.getResolvedExpression(expression, statement);
                 expression = exp;
                 if (TreeUtil.isInvocation(expression) || TreeUtil.isBinaryExpr(expression)
-                    || TreeUtil.isUnaryExpr(expression)) {
+                    || TreeUtil.isUnaryExpr(expression)
+                    || this.transformNodeManager.isTransformerConversion(nodeExpression)) {
                     this.drawInnerIntermediateNode(nodeExpression, expression, nodeDef, i, statement, isTemp);
                 } else if ((!isTemp)
                     || (!TreeUtil.isInvocation(exp) || !TreeUtil.isBinaryExpr(exp) || !TreeUtil.isUnaryExpr(exp))) {
@@ -392,7 +958,7 @@ class TransformerExpanded extends React.Component {
     drawInnerIntermediateNode(parentNodeExpression, nodeExpression, parentNodeDefinition,
                                       parentParameterIndex, statement, nodeExpIsTemp = false) {
         const viewId = this.props.model.getID();
-        const nodeExpID = nodeExpression.getID();
+        let nodeExpID = nodeExpression.getID();
         let nodeDef;
         let nodeName;
         let paramExpressions = [];
@@ -412,6 +978,13 @@ class TransformerExpanded extends React.Component {
             nodeDef = this.transformNodeManager.getOperatorVertices(nodeExpression);
             nodeName = nodeExpression.getOperatorKind();
             paramExpressions.push(nodeExpression.getExpression());
+        } else if (this.transformNodeManager.isTransformerConversion(parentNodeExpression)) {
+            nodeDef = this.transformNodeManager.getConversionVertices(parentNodeExpression);
+            nodeName = parentNodeExpression.getTransformerInvocation().getName().getValue();
+            paramExpressions.push(parentNodeExpression.getExpression());
+            paramExpressions = paramExpressions.concat(parentNodeExpression
+                                .getTransformerInvocation().getArgumentExpressions());
+            nodeExpID = parentNodeExpression.getID();
         } else {
             log.error('Invalid node type ' + nodeExpression.kind);
             return;
@@ -476,7 +1049,9 @@ class TransformerExpanded extends React.Component {
             targetId = `${parentNodeID}:${viewId}`;
         }
 
-        this.drawConnection(sourceId, targetId, folded);
+        if (!this.transformNodeManager.isTransformerConversion(parentNodeExpression)) {
+            this.drawConnection(sourceId, targetId, folded);
+        }
         this.mapper.reposition(this.props.model.getID());
     }
 
@@ -510,437 +1085,84 @@ class TransformerExpanded extends React.Component {
         }
     }
 
-    getFoldedEndpointId(exprString, viewId, type = 'source') {
-        let currentExprString = exprString;
-        let endpointId = `${currentExprString}:${viewId}`;
-
-        while (exprString.includes('.') && !this[`${type}Elements`][endpointId]) {
-            const newExprString = currentExprString.slice(0, currentExprString.lastIndexOf('.'));
-            if (newExprString === currentExprString) {
-                break;
-            }
-            currentExprString = newExprString;
-            endpointId = `${currentExprString}:${viewId}`;
-        }
-
-        return endpointId;
-    }
-
     drawConnection(sourceId, targetId, folded, statement) {
         let type = '';
         if (sourceId && targetId && statement) {
-            if (TreeUtil.isTypeConversionExpr(statement.getExpression())) {
-                if (TreeUtil.isFieldBasedAccessExpr(statement.getExpression().getExpression())) {
-                    type = statement.getExpression().getTypeNode().getTypeKind();
-                } else if (TreeUtil.isInvocation(statement.getExpression().getExpression())) {
+            let expression;
+            if (TreeUtil.isVariableDef(statement)) {
+                expression = statement.getVariable().getInitialExpression();
+            } else {
+                expression = statement.getExpression();
+            }
+            // Only consider non transformer conversions
+            if (TreeUtil.isTypeConversionExpr(expression) &&
+                !this.transformNodeManager.isTransformerConversion(expression)) {
+                if (TreeUtil.isFieldBasedAccessExpr(expression.getExpression())
+                    || TreeUtil.isSimpleVariableRef(expression.getExpression())) {
+                    if (TreeUtil.isUserDefinedType(expression.getTypeNode())) {
+                        type = expression.getTypeNode().getTypeName().getValue();
+                    } else {
+                        type = expression.getTypeNode().getTypeKind();
+                    }
+                } else if (TreeUtil.isInvocation(expression.getExpression())) {
                     // Handle Function outgoing parameter conversion
-                    if (statement.getExpression().getExpression().getID() === sourceId.split(':')[0]) {
-                        type = statement.getExpression().getTypeNode().getTypeKind();
+                    if (expression.getExpression().getID() === sourceId.split(':')[0]) {
+                        type = expression.getTypeNode().getTypeKind();
                     } else {
                         type = this.getFunctionArgConversionType(
-                          statement.getExpression().getExpression().getArgumentExpressions(), sourceId.split(':')[0]);
+                            expression.getExpression().getArgumentExpressions(), sourceId.split(':')[0]);
                     }
                 }
-            } else if (TreeUtil.isInvocation(statement.getExpression())) {
-                type = this.getFunctionArgConversionType(statement.getExpression().getArgumentExpressions(),
-                                                          sourceId.split(':')[0]);
+            } else if (TreeUtil.isInvocation(expression)) {
+                if (expression.iterableOperation && !targetId.includes('receiver')) {
+                    type = 'iterable';
+                } else {
+                    type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
+                    sourceId.split(':')[0]);
+                }
+            } else if (TreeUtil.isFieldBasedAccessExpr(expression)
+                        && (expression.symbolType && expression.symbolType[0].includes('[]'))) {
+                type = 'iterable';
             }
         }
-        this.mapper.addConnection(sourceId, targetId, folded, type);
+        const callback = (pageX, pageY, connection) => {
+            this.setState({ connectionMenu: {
+                showIterables: type === 'iterable',
+                showConversions: type !== 'iterable',
+                iterableX: pageX,
+                iterableY: pageY,
+                currrentConnection: connection,
+                currentStatement: statement,
+            } });
+        };
+        this.mapper.addConnection(sourceId, targetId, folded, type, callback);
     }
 
-    /**
-     * Get conversion type for provided sourceId and arguements
-     * @param  {object[]} arguements function Invocation arguements
-     * @param  {string} sourceId   Source Id to be searched
-     * @return {string}              Type Name
-     */
-    getFunctionArgConversionType(arguements, sourceId) {
-        let type = '';
-        arguements.forEach((arg) => {
-            if (TreeUtil.isTypeConversionExpr(arg) && arg.getExpression().getSource() === sourceId) {
-                type = arg.getTypeNode().getTypeKind();
-            } else if (TreeUtil.isInvocation(arg)) {
-                type = this.getFunctionArgConversionType(arg.getArgumentExpressions(), sourceId);
-            }
-        });
-        return type;
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        this.transformNodeManager.setTransformStmt(this.props.model);
-
-        if (prevProps.model !== this.props.model) {
-            this.props.model.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
-                const { designView } = this.context;
-                designView.setActiveTransformerSignature(this.props.model.getSignature());
+    foldEndpoint(key) {
+        this.setState(
+            {
+                foldedEndpoints: _.extend(this.state.foldedEndpoints, {
+                    [key]: !this.state.foldedEndpoints[key],
+                }),
             });
-        }
+    }
 
-        this.mapper.disconnectAll();
-
-        let sourceKeys = Object.keys(this.sourceElements);
-        sourceKeys.forEach((key) => {
-            const { element } = this.sourceElements[key];
-            if (!element) {
-                delete this.sourceElements[key];
-            }
-        });
-
-        let targetKeys = Object.keys(this.targetElements);
-        targetKeys.forEach((key) => {
-            const { element } = this.targetElements[key];
-            if (!element) {
-                delete this.targetElements[key];
-            }
-        });
-
-        sourceKeys = Object.keys(this.sourceElements);
-        targetKeys = Object.keys(this.targetElements);
-
-        sourceKeys.forEach((key) => {
-            const { element, input } = this.sourceElements[key];
-            this.mapper.addSource(element, input, false);
-        });
-
-        targetKeys.forEach((key) => {
-            const { element, output } = this.targetElements[key];
-            this.mapper.addTarget(element, output, false,
-                    this.transformNodeManager.isConnectionValid.bind(this.transformNodeManager));
-        });
-
-        this.props.model.getBody().getStatements().forEach((statement) => {
-            this.createConnection(statement);
-        });
-
-        this.mapper.connectionsAdded();
-
-        sourceKeys.forEach((key) => {
-            const { element, input } = this.sourceElements[key];
-            this.mapper.addSource(element, input, true);
-        });
-
-        this.markConnectedEndpoints();
-
-        this.mapper.reposition(this.props.model.getID());
-        if ((this.props.model === prevProps.model) && prevState.vertices.length !== 0) {
-            return;
-        }
-
-        this.mapper.onConnectionAborted((con, ev) => {
-            targetKeys = Object.keys(this.targetElements);
-            targetKeys.forEach((key) => {
-                const { element } = this.targetElements[key];
-                element.classList.remove('drop-not-valid');
-                element.classList.remove('drop-valid');
+    foldFunction(key) {
+        this.setState(
+            {
+                foldedFunctions: _.extend(this.state.foldedFunctions, {
+                    [key]: !this.state.foldedFunctions[key],
+                }),
             });
-            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
-            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
-
-            clearInterval(this.scrollTimer);
-
-            const { clientX: x, clientY: y } = ev;
-            const { output } = this.findTargetAt({ x, y });
-
-            if (!output) {
-                // connection is not dropped on a target. No need of more processing
-                return;
-            }
-
-            const input = con.getParameters().input;
-            const isValid = this.transformNodeManager.isConnectionValid(input.type, output.type);
-
-            if (!isValid) {
-                return;
-            }
-
-            const connection = this.mapper.getConnectionObject(input, output);
-            this.transformNodeManager.createStatementEdge(connection);
-        });
     }
 
-    componentDidMount() {
-        this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
-            this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
-
-        this.props.model.on('tree-modified', (evt) => {
-            const { designView } = this.context;
-            // We keep info of what transformer is active by saving its signature
-            // any change that changes the signature should update this reference
-            designView.setActiveTransformerSignature(this.props.model.getSignature());
-        });
-
-        this.props.model.body.getStatements().forEach((statement) => {
-            this.createConnection(statement);
-        });
-
-        this.mapper.connectionsAdded();
-        this.markConnectedEndpoints();
-
-        this.mapper.reposition(this.props.model.getID());
-
-        const sourceKeys = Object.keys(this.sourceElements);
-        sourceKeys.forEach((key) => {
-            const { element, input } = this.sourceElements[key];
-            this.mapper.addSource(element, input, true);
-        });
-
-        this.mapper.onConnectionAborted((con, ev) => {
-            const targetKeys = Object.keys(this.targetElements);
-            targetKeys.forEach((key) => {
-                const { element } = this.targetElements[key];
-                element.classList.remove('drop-not-valid');
-                element.classList.remove('drop-valid');
+    foldOperator(key) {
+        this.setState(
+            {
+                foldedOperators: _.extend(this.state.foldedOperators, {
+                    [key]: !this.state.foldedOperators[key],
+                }),
             });
-            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
-            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
-
-            clearInterval(this.scrollTimer);
-
-            const { clientX: x, clientY: y } = ev;
-            const { output } = this.findTargetAt({ x, y });
-
-            if (!output) {
-                // connection is not dropped on a target. No need of more processing
-                return;
-            }
-
-            const input = con.getParameters().input;
-            const isValid = this.transformNodeManager.isConnectionValid(input.type, output.type);
-
-            if (!isValid) {
-                return;
-            }
-
-            const connection = this.mapper.getConnectionObject(input, output);
-            this.transformNodeManager.createStatementEdge(connection);
-        });
-        this.forceUpdate();
-    }
-
-    shouldComponentUpdate() {
-        return !this.props.panelResizeInProgress;
-    }
-
-    componentWillReceiveProps() {
-        if (this.props.panelResizeInProgress) {
-            this.mapper.repaintEverything();
-        }
-    }
-
-    componentWillUnmount() {
-        if (this.scrollTimer) {
-            clearInterval(this.scrollTimer);
-        }
-        this.onClose();
-    }
-
-    onDragLeave(e) {
-        if (!this.mapper.isConnectionDragging()) {
-            return;
-        }
-        const boundingRect = this.transformOverlayDraggingContentDiv.getBoundingClientRect();
-
-        let offsetY = 0;
-        if (e.pageY < (boundingRect.top + 10)) {
-            offsetY = -5;
-        } else if (e.pageY > (boundingRect.bottom - 10)) {
-            offsetY = 5;
-        }
-
-        let offsetX = 0;
-        if (e.pageX < (boundingRect.left + 10)) {
-            offsetX = -5;
-        } else if (e.pageX > (boundingRect.right - 10)) {
-            offsetX = 5;
-        }
-
-        this.scrollTimer = setInterval(() => {
-            this.vscroll.scrollTop(this.vscroll.getScrollTop() + offsetY);
-            this.hscroll.scrollLeft(this.hscroll.getScrollLeft() + offsetX);
-        }, 10);
-    }
-
-    onDragEnter(e) {
-        if (!this.mapper.isConnectionDragging()) {
-            return;
-        }
-
-        clearInterval(this.scrollTimer);
-    }
-
-    onMouseMove(e) {
-        const { clientX: x, clientY: y } = e;
-        if (!this.mapper.isConnectionDragging()) {
-            return;
-        }
-
-        const { element, output } = this.findTargetAt({ x, y });
-        if (!output) {
-            // has moved outside of target elements
-            if (this._hoveredTarget) {
-                this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
-                this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
-                this._hoveredTarget.classList.remove('drop-not-valid');
-                this._hoveredTarget.classList.remove('drop-valid');
-                this._hoveredTarget = null;
-            }
-            return;
-        }
-
-        if (this._hoveredTarget === element) {
-            // still inside the same element. no need to do anything
-            return;
-        }
-
-        if (this._hoveredTarget) {
-            this._hoveredTarget.classList.remove('drop-valid');
-            this._hoveredTarget.classList.add('drop-not-valid');
-        }
-
-        this._hoveredTarget = element;
-
-        const conn = this.mapper.getDraggingConnection();
-        const isValid = this.transformNodeManager.isConnectionValid(conn.getParameters().input.type, output.type);
-
-        if (!isValid) {
-            element.classList.remove('drop-valid');
-            element.classList.add('drop-not-valid');
-            this.transformOverlayDraggingContentDiv.classList.remove('drop-valid');
-            this.transformOverlayDraggingContentDiv.classList.add('drop-not-valid');
-        } else {
-            element.classList.remove('drop-not-valid');
-            element.classList.add('drop-valid');
-            this.transformOverlayDraggingContentDiv.classList.remove('drop-not-valid');
-            this.transformOverlayDraggingContentDiv.classList.add('drop-valid');
-        }
-    }
-
-    canDrop(dragSource) {
-        return TreeUtil.isAssignment(dragSource);
-    }
-
-    onSourceInputChange(e, { newValue }) {
-        this.setState({
-            typedSource: newValue,
-        });
-    }
-
-    onTargetInputChange(e, { newValue }) {
-        this.setState({
-            typedTarget: newValue,
-        });
-    }
-
-    onSourceSelect(e, { suggestionValue }) {
-        if (suggestionValue === '') {
-            const varDef = this.transformNodeManager.addNewVariable('source');
-            const varVertex = ({
-                name: varDef.getVariableName().getValue(),
-                displayName: varDef.getVariableName().getValue(),
-                type: varDef.getTypeNode().getTypeKind(),
-                varDeclarationString: varDef.getSource(),
-            });
-            this.state.vertices.push(varVertex);
-            this.addSource(varDef.getVariableName().getValue());
-        } else {
-            this.setState({
-                selectedSource: suggestionValue,
-            });
-            this.addSource(suggestionValue);
-        }
-    }
-
-    onTargetSelect(e, { suggestionValue }) {
-        if (suggestionValue === '') {
-            const variableDefinitionStatement = this.transformNodeManager.addNewVariable('target');
-            const varVertex = ({
-                name: variableDefinitionStatement.getVariableName().getValue(),
-                displayName: variableDefinitionStatement.getVariableName().getValue(),
-                type: variableDefinitionStatement.getTypeNode().getTypeKind(),
-                varDeclarationString: variableDefinitionStatement.getSource(),
-            });
-            this.state.vertices.push(varVertex);
-            this.addTarget(variableDefinitionStatement.getVariableName().getValue());
-        } else {
-            this.setState({
-                selectedTarget: suggestionValue,
-            });
-            this.addTarget(suggestionValue);
-        }
-    }
-
-    onSourceInputEnter() {
-        this.addSource(this.state.typedSource);
-    }
-
-    onTargetInputEnter() {
-        this.addTarget(this.state.typedTarget);
-    }
-
-    onSourceAdd() {
-        this.addSource(this.state.selectedSource);
-    }
-
-    onTargetAdd() {
-        this.addTarget(this.state.selectedTarget);
-    }
-
-    removeSourceType(type) {
-        this.transformNodeManager.removeSourceType(type);
-    }
-
-    removeTargetType(type) {
-        this.transformNodeManager.removeTargetType(type);
-    }
-
-    /**
-     * Add source to transform statement
-     * @param {any} source source
-     * @memberof TransformerExpanded
-     */
-    addSource(source) {
-        const vertex = this.state.vertices.filter((val) => { return val === source; })[0];
-        if (vertex) {
-            this.props.model.setSourceParam(this.transformNodeManager.createVariable('source', vertex));
-            this.setState({ typedSource: '' });
-        }
-    }
-
-    /**
-     * Add target to transform statement
-     * @param {any} target target
-     * @memberof TransformerExpanded
-     */
-    addTarget(target) {
-        const vertex = this.state.vertices.filter((val) => { return val === target; })[0];
-        if (vertex) {
-            this.props.model.setReturnParameters([this.transformNodeManager.createVariable('target', vertex)]);
-            this.setState({ typedTarget: '' });
-        }
-    }
-
-    onClose() {
-        const { designView } = this.context;
-        designView.setTransformActive(false);
-    }
-
-    /**
-     * Add a new variable delcaration to transformer body
-     */
-    onAddNewVariable() {
-        this.transformNodeManager.addNewVariable('source');
-    }
-
-    /**
-     * Add a parameter to transformer
-     */
-    onAddNewParameter() {
-        if (this.props.model.getName().getValue() === '') {
-            this.props.model.getName().setValue('newTransformer');
-        }
-        this.props.model.addParameters(this.transformNodeManager.createVariable(
-                                            'param' + (this.props.model.getParameters().length + 1), 'string'));
     }
 
     /**
@@ -1001,86 +1223,6 @@ class TransformerExpanded extends React.Component {
         return foundOutput;
     }
 
-    /**
-     * Get intermediate node definitions
-     * @param {any} nodeExpression node expression
-     * @param {any} statement containing statements
-     * @param {any} [intermediateNodes=[]] if it is nested intermediate nodes
-     * @param {any} parentNode parent node
-     * @returns intermediate nodes
-     * @memberof TransformerExpanded
-     */
-    getIntermediateNodes(nodeExpression, statement, intermediateNodes = [], parentNode) {
-        if (TreeUtil.isInvocation(nodeExpression)) {
-            const func = this.transformNodeManager.getFunctionVertices(nodeExpression);
-            if (_.isUndefined(func)) {
-                this.context.alert.showError('Function definition for "' +
-                     nodeExpression.getFunctionName() + '" cannot be found');
-                return [];
-            }
-            nodeExpression.argumentExpressions.forEach((arg) => {
-                this.getIntermediateNodes(arg, statement, intermediateNodes, nodeExpression);
-            });
-
-            if (nodeExpression.expression) {
-                this.getIntermediateNodes(nodeExpression.expression, statement, intermediateNodes, nodeExpression);
-            }
-
-            intermediateNodes.push({
-                type: 'function',
-                func,
-                parentNode,
-                statement,
-                funcInv: nodeExpression,
-            });
-            return intermediateNodes;
-        } else if (TreeUtil.isTernaryExpr(nodeExpression)) {
-            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getCondition(), statement,
-                                            intermediateNodes, nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getThenExpression(), statement,
-                                            intermediateNodes, nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getElseExpression(), statement,
-                                            intermediateNodes, nodeExpression);
-            intermediateNodes.push({
-                type: 'operator',
-                operator,
-                parentNode,
-                statement,
-                opExp: nodeExpression,
-            });
-            return intermediateNodes;
-        } else if (TreeUtil.isBinaryExpr(nodeExpression)) {
-            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getLeftExpression(), statement,
-                                                intermediateNodes, nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getRightExpression(), statement,
-                                                intermediateNodes, nodeExpression);
-            intermediateNodes.push({
-                type: 'operator',
-                operator,
-                parentNode,
-                statement,
-                opExp: nodeExpression,
-            });
-            return intermediateNodes;
-        } else if (TreeUtil.isUnaryExpr(nodeExpression)) {
-            const operator = this.transformNodeManager.getOperatorVertices(nodeExpression);
-            this.getIntermediateNodes(nodeExpression.getExpression(), statement,
-                                                            intermediateNodes, nodeExpression);
-            intermediateNodes.push({
-                type: 'operator',
-                operator,
-                parentNode,
-                statement,
-                opExp: nodeExpression,
-            });
-            return intermediateNodes;
-        } else {
-            return [];
-        }
-    }
-
     updateVariable(varName, statementString, type) {
         if (this.transformNodeManager.updateVariable(this.props.model, varName, statementString, type)) {
             this.isUpdatingVertices = true;
@@ -1097,73 +1239,9 @@ class TransformerExpanded extends React.Component {
         $('.variable-endpoint.jtk-connected').removeClass('fw-circle-outline').addClass('fw-circle-in-circle');
     }
 
-    getVerticeData(varNode) {
-        if (Array.isArray(varNode)) {
-            return varNode.map((varN) => {
-                return this.getVerticeData(varN);
-            });
-        } else {
-            const variableType = {};
-            if (varNode.getKind() === 'VariableDef') {
-                varNode = varNode.getVariable();
-                variableType.varDeclarationString = varNode.getSource();
-            } else {
-                this.props.model.getParameters().forEach((param) => {
-                    if (varNode.getName() === param.getName()) {
-                        variableType.varDeclarationString = varNode.getSource();
-                    }
-                });
-            }
-            const pkgAlias = (varNode.typeNode.packageAlias) ? varNode.typeNode.packageAlias.value : '';
-            let type = (varNode.typeNode.typeName) ? varNode.typeNode.typeName.value : varNode.typeNode.typeKind;
-            const name = varNode.name.value;
-            const structDef = this.transformNodeManager.getStructDefinition(pkgAlias, type);
-
-            if (structDef) {
-                type = ((pkgAlias) ? (pkgAlias + ':') : '') + type;
-                return this.transformNodeManager.getStructType(name, type, structDef);
-            }
-            variableType.name = name;
-            variableType.displayName = name;
-            if (varNode.typeNode.constraint) {
-                variableType.type = varNode.getSource();
-                variableType.constraintType = varNode.typeNode.constraint;
-                const conPkgAlias = (varNode.typeNode.constraint.packageAlias) ?
-                                    varNode.typeNode.constraint.packageAlias.value : '';
-                const conType = (varNode.typeNode.constraint.typeName) ?
-                                    varNode.typeNode.constraint.typeName.value : varNode.typeNode.constraint.typeKind;
-                const baseType = (varNode.typeNode.type) ? varNode.typeNode.type.typeKind : '';
-
-                const constraintDef = this.transformNodeManager.getStructDefinition(conPkgAlias, conType);
-                if (constraintDef) {
-                    const constraintVar = this.transformNodeManager
-                                            .getStructType(name, variableType.type, constraintDef);
-                    // For constraint types, the field types must be the same type as the variable and
-                    // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
-                    // type has to be json and not string. Hence converting all field types to variable
-                    // type.
-                    // TODO : revisit this conversion if ballerina language supports constrained field
-                    // access to be treated as the field type (i.e. as string from the struct field
-                    // and not json)
-                    this.convertFieldType(constraintVar.properties, baseType);
-
-                    // constraint properties (fields) become variable fields
-                    // variableType.properties = constraint.properties;
-                    // variableType.constraint = constraint;
-                    return constraintVar;
-                }
-            } else {
-                variableType.type = type;
-                return variableType;
-            }
-        }
-    }
-
-
     render() {
-        const { leftOffset } = this.props;
         const vertices = this.state.vertices;
-        const sourceNode = this.props.model.getSourceParam();
+        const sourceNode = this.props.model.getSource();
         const returnNodes = this.props.model.getReturnParameters();
         const paramNodes = this.props.model.getParameters();
         const varDeclarations = this.props.model.getBody().getStatements()
@@ -1203,19 +1281,20 @@ class TransformerExpanded extends React.Component {
                     // are used via temporary variables
                     intermediateNodes.push(...this.getIntermediateNodes(expression, stmt));
                 }
+            } else if (this.transformNodeManager.isTransformerConversion(stmtExp)) {
+                intermediateNodes.push(...this.getIntermediateNodes(stmtExp, stmt));
             }
         });
 
         return (
             <div
                 className='transformOverlay'
-                style={{ paddingLeft: leftOffset }}
             >
                 <div id='transformHeader' className='transform-header'>
-                    <i onClick={this.onClose} className='fw fw-left icon close-transform' />
+                    <i onClick={this.onClose} className='fw fw-left close-transform' />
                     <p className='transform-header-text '>
                         <i className='transform-header-icon fw fw-type-converter' />
-                        <b>{this.props.model.getSignature()}</b>
+                        <b>Transformer</b>
                     </p>
                 </div>
                 <div
@@ -1255,6 +1334,15 @@ class TransformerExpanded extends React.Component {
                                 />
                             </div>
                             <div className='middle-content-frame' />
+                            <div className='transform-name-container'>
+                                <input
+                                    type='text'
+                                    className='transform-name-text'
+                                    value={this.state.name}
+                                    placeholder='name'
+                                    onChange={this.onNameChange}
+                                />
+                            </div>
                             <Scrollbars
                                 style={{ height: 'calc(100% - 50px)' }}
                                 ref={(scroll) => { this.vscroll = scroll; }}
@@ -1319,80 +1407,80 @@ class TransformerExpanded extends React.Component {
                                                         isCollapsed={this.state.foldedFunctions[node.funcInv.getID()]}
                                                         onHeaderClick={this.foldFunction}
                                                     />);
+                                                } else if (node.type === 'operator') {
+                                                    return (<Operator
+                                                        key={node.opExp.getID()}
+                                                        operator={node.operator}
+                                                        statement={node.statement}
+                                                        parentNode={node.parentNode}
+                                                        opExp={node.opExp}
+                                                        recordSourceElement={this.recordSourceElement}
+                                                        recordTargetElement={this.recordTargetElement}
+                                                        viewId={this.props.model.getID()}
+                                                        onEndpointRemove={this.removeEndpoint}
+                                                        onOperatorRemove={this.removeIntermediateNode}
+                                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                        isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
+                                                        onFolderClick={this.foldFunction}
+                                                    />);
+                                                } else {
+                                                    return (<NestedTransformer
+                                                        key={node.conExp.getID()}
+                                                        transformerInvocation={node.conversion}
+                                                        statement={node.statement}
+                                                        parentNode={node.parentNode}
+                                                        conExp={node.conExp}
+                                                        recordSourceElement={this.recordSourceElement}
+                                                        recordTargetElement={this.recordTargetElement}
+                                                        viewId={this.props.model.getID()}
+                                                        onEndpointRemove={this.removeEndpoint}
+                                                        onFunctionRemove={this.removeIntermediateNode}
+                                                        onConnectPointMouseEnter={this.onConnectPointMouseEnter}
+                                                        foldEndpoint={this.foldEndpoint}
+                                                        foldedEndpoints={this.state.foldedEndpoints}
+                                                        isCollapsed={this.state.foldedFunctions[node.conExp.getID()]}
+                                                        onHeaderClick={this.foldFunction}
+                                                    />);
                                                 }
-                                                return (<Operator
-                                                    key={node.opExp.getID()}
-                                                    operator={node.operator}
-                                                    statement={node.statement}
-                                                    parentNode={node.parentNode}
-                                                    opExp={node.opExp}
-                                                    recordSourceElement={this.recordSourceElement}
-                                                    recordTargetElement={this.recordTargetElement}
-                                                    viewId={this.props.model.getID()}
-                                                    onEndpointRemove={this.removeEndpoint}
-                                                    onOperatorRemove={this.removeIntermediateNode}
-                                                    onConnectPointMouseEnter={this.onConnectPointMouseEnter}
-                                                    isCollapsed={this.state.foldedFunctions[node.opExp.getID()]}
-                                                    onFolderClick={this.foldFunction}
-                                                />);
                                             })
                                         }
                                     </DropZone>
                                     <Button
+                                        className='transformer-button'
                                         bBox={{ x: 0, y: 0, h: 0, w: 300 }}
                                         showAlways
                                         model={this.props.model.getBody()}
-                                    >
-                                        <p className='add-menu-text'>Unary Operators</p>
-                                        {
-                                            unaryOpTools.map((operator) => {
-                                                return (<Item
-                                                    label={operator.title}
-                                                    icon={'fw fw-' + operator.icon}
-                                                    callback={() => {
-                                                        this.transformNodeManager.addDefaultOperator(
-                                                            { callback: operator.nodeFactoryMethod,
-                                                                args: operator.factoryArgs });
-                                                    }}
-                                                />);
-                                            })
-                                        }
-                                        <hr />
-                                        <p className='add-menu-text'>Binary Operators</p>
-                                        {
-                                            binaryOpTools.map((operator) => {
-                                                if (!operator.seperator) {
-                                                    return (<Item
-                                                        label={operator.title}
-                                                        icon={'fw fw-' + operator.icon}
-                                                        callback={() => {
-                                                            this.transformNodeManager.addDefaultOperator(
-                                                                { callback: operator.nodeFactoryMethod,
-                                                                    args: operator.factoryArgs });
-                                                        }}
-                                                    />);
-                                                } else {
-                                                    return (<hr />);
-                                                }
-                                            })
-                                        }
-                                        <hr />
-                                        <p className='add-menu-text'>Ternary Operators</p>
-                                        {
-                                            ternaryOpTools.map((operator) => {
-                                                return (<Item
-                                                    label={operator.title}
-                                                    icon={'fw fw-' + operator.icon}
-                                                    callback={() => {
-                                                        this.transformNodeManager.addDefaultOperator(
-                                                            { callback: operator.nodeFactoryMethod,
-                                                                args: operator.factoryArgs });
-                                                    }}
-                                                />);
-                                            })
-                                        }
-
-                                    </Button>
+                                        transformNodeManager={this.transformNodeManager}
+                                    />
+                                    <IterableList
+                                        showIterables={this.state.connectionMenu.showIterables}
+                                        bBox={{
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
+                                            h: 0,
+                                            w: 0,
+                                        }}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
+                                        transformNodeManager={this.transformNodeManager}
+                                        callback={() => {
+                                            this.setState({ connectionMenu: { showIterables: false } });
+                                        }}
+                                    />
+                                    <ConversionList
+                                        showConvesrsion={this.state.connectionMenu.showConversions}
+                                        bBox={{
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
+                                            h: 0,
+                                            w: 0,
+                                        }}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
+                                        currentStatement={this.state.connectionMenu.currentStatement}
+                                        transformNodeManager={this.transformNodeManager}
+                                        callback={() => {
+                                            this.setState({ connectionMenu: { showConvesrsion: false } });
+                                        }}
+                                    />
                                     <div className='right-content'>
                                         <div className='rightType'>
                                             <Tree
@@ -1423,7 +1511,6 @@ class TransformerExpanded extends React.Component {
 TransformerExpanded.propTypes = {
     model: PropTypes.instanceOf(TransformerNode).isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
-    leftOffset: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

@@ -75,12 +75,6 @@ public interface InstructionCodes {
     int JSONLOAD = 47;
     int ENUMERATORLOAD = 48;
 
-    int ISTORE = 49;
-    int FSTORE = 50;
-    int SSTORE = 51;
-    int BSTORE = 52;
-    int LSTORE = 53;
-    int RSTORE = 54;
     int IASTORE = 55;
     int FASTORE = 56;
     int SASTORE = 57;
@@ -155,7 +149,7 @@ public interface InstructionCodes {
     int HALT = 118;
     int TR_RETRY = 119;
     int CALL = 120;
-    int NCALL = 121;
+    int VCALL = 121;
     int ACALL = 122;
     int THROW = 123;
     int ERRSTORE = 124;
@@ -197,6 +191,7 @@ public interface InstructionCodes {
     int JSON2XML = 157;
     int S2XML = 158;
     int XML2S = 159;
+    int ANY2SCONV = 175;
 
     // Type cast
     int I2ANY = 160;
@@ -212,6 +207,7 @@ public interface InstructionCodes {
     int ANY2JSON = 170;
     int ANY2XML = 171;
     int ANY2MAP = 172;
+    int ANY2STM = 173;
     int ANY2DT = 174;
 
     int ANY2E = 177;
@@ -224,6 +220,9 @@ public interface InstructionCodes {
     int S2JSONX = 183;
     int NULL2S = 184;
 
+    int LOCK = 185;
+    int UNLOCK = 186;
+
     // Transactions
     int TR_BEGIN = 188;
     int TR_END = 189;
@@ -231,8 +230,11 @@ public interface InstructionCodes {
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
     int FORKJOIN = 192;
-    int WRKSTART = 193;
-    int WRKRETURN = 194;
+    
+    int AWAIT = 193;
+
+    int IS_ASSIGNABLE = 196;
+    int CHECK_CONVERSION = 197;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
@@ -248,39 +250,43 @@ public interface InstructionCodes {
     int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
-    int NEWDATATABLE = 215;
+    int NEWTABLE = 215;
+    int NEWSTREAM = 217;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
 
-    int IRET = 231;
-    int FRET = 232;
-    int SRET = 233;
-    int BRET = 234;
-    int LRET = 235;
-    int RRET = 236;
-    int RET = 237;
+    int IRET = 229;
+    int FRET = 230;
+    int SRET = 231;
+    int BRET = 232;
+    int LRET = 233;
+    int RRET = 234;
+    int RET = 235;
 
-    int XML2XMLATTRS = 238;
-    int XMLATTRS2MAP = 239;
-    int XMLATTRLOAD = 240;
-    int XMLATTRSTORE = 241;
-    int S2QNAME = 242;
-    int NEWQNAME = 243;
-    int NEWXMLELEMENT = 244;
-    int NEWXMLCOMMENT = 245;
-    int NEWXMLTEXT = 246;
-    int NEWXMLPI = 247;
-    int XMLSTORE = 248;
-    int XMLLOAD = 249;
-    
-    int TYPEOF = 250;
-    int TYPELOAD = 251;
+    int XML2XMLATTRS = 236;
+    int XMLATTRS2MAP = 237;
+    int XMLATTRLOAD = 238;
+    int XMLATTRSTORE = 239;
+    int S2QNAME = 240;
+    int NEWQNAME = 241;
+    int NEWXMLELEMENT = 242;
+    int NEWXMLCOMMENT = 243;
+    int NEWXMLTEXT = 244;
+    int NEWXMLPI = 245;
+    int XMLSEQSTORE = 246;
+    int XMLSEQLOAD = 247;
+    int XMLLOAD = 248;
+    int XMLLOADALL = 249;
+    int NEWXMLSEQ = 250;
 
-    int TEQ = 252;
-    int TNE = 253;
+    int TYPEOF = 251;
+    int TYPELOAD = 252;
 
-    int INSTRUCTION_CODE_COUNT = 254;
+    int TEQ = 253;
+    int TNE = 254;
+
+    int INSTRUCTION_CODE_COUNT = 255;
 }

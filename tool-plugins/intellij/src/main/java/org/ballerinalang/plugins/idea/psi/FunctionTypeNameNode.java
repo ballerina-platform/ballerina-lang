@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a FunctionTypeName in PSI tree.
+ */
 public class FunctionTypeNameNode extends ANTLRPsiNode {
 
     public FunctionTypeNameNode(@NotNull ASTNode node) {

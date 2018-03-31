@@ -18,19 +18,9 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -39,8 +29,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -52,26 +40,26 @@ public class BLangVMWorkers {
 
     public static void invoke(ProgramFile programFile, CallableUnitInfo callableUnitInfo, Context parent,
                               Map<String, Object> properties) {
-        StackFrame callerSF = parent.getControlStack().currentFrame;
-        WorkerReturnIndex workerReturnIndex = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
-
-        for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
-            WorkerContext workerContext = new WorkerContext(programFile, parent);
-            workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
-
-            if (properties != null) {
-                properties.forEach(workerContext::setProperty);
-            }
-
-            populateWorkerStack(callableUnitInfo, workerInfo, workerContext, workerReturnIndex, callerSF);
-
-            BLangVM bLangVM = new BLangVM(programFile);
-            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo, 
-                    new ConcurrentLinkedQueue<>());
-            workerContext.startTrackWorker();
-            executor.submit(workerRunner);
-        }
+//        StackFrame callerSF = parent.getControlStack().currentFrame;
+//        WorkerReturnIndex workerReturnIndex = calculateWorkerReturnIndex(callableUnitInfo.getRetParamTypes());
+//
+//        for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
+//            WorkerContext workerContext = new WorkerContext(programFile, parent);
+//            workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
+//
+//            if (properties != null) {
+//                properties.forEach(workerContext::setProperty);
+//            }
+//
+//            populateWorkerStack(callableUnitInfo, workerInfo, workerContext, workerReturnIndex, callerSF);
+//
+//            BLangVM bLangVM = new BLangVM(programFile);
+//            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+//            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo,
+//                    new ConcurrentLinkedQueue<>());
+//            workerContext.startTrackWorker();
+//            executor.submit(workerRunner);
+//        }
 
     }
 
@@ -81,7 +69,7 @@ public class BLangVMWorkers {
 
     private static void populateWorkerStack(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, Context ctx,
                                             WorkerReturnIndex returnIndex, StackFrame callerSF) {
-        ControlStack controlStack = ctx.getControlStack();
+        ControlStack controlStack = null; // = ctx.getControlStack();
         StackFrame startSF = new StackFrame(callableUnitInfo.getPackageInfo(), -1, new int[0]);
         controlStack.pushFrame(startSF);
 
@@ -96,7 +84,7 @@ public class BLangVMWorkers {
         controlStack.pushFrame(calleeSF);
 
         // Copy values from the current StackFrame to the new StackFrame
-        BLangVM.copyValues(callerSF, calleeSF);
+//        BLangVM.copyValues(callerSF, calleeSF);
     }
 
     private static WorkerReturnIndex calculateWorkerReturnIndex(BType[] retTypes) {
@@ -132,15 +120,15 @@ public class BLangVMWorkers {
 
         private static PrintStream outStream = System.out;
 
-        private BLangVM bLangVM;
+//        private BLangVM bLangVM;
         private Context bContext;
         private WorkerInfo workerInfo;
         private Queue<WorkerResult> resultHolder;
         private Semaphore resultCounter;
 
-        public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo, 
+        public WorkerExecutor(Context bContext, WorkerInfo workerInfo,
                 Queue<WorkerResult> resultHolder) {
-            this.bLangVM = bLangVM;
+//            this.bLangVM = bLangVM;
             this.bContext = bContext;
             this.workerInfo = workerInfo;
             this.resultHolder = resultHolder;
@@ -149,50 +137,51 @@ public class BLangVMWorkers {
         @SuppressWarnings("rawtypes")
         @Override
         public void run() throws BallerinaException {
-            BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
-            bLangVM.execWorker(bContext, workerInfo.getCodeAttributeInfo().getCodeAddrs());
-            if (bContext.getError() != null) {
-                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-                outStream.println("error in worker '" + workerInfo.getWorkerName() + "': " + stackTraceStr);
-            }
-
-            if (workerInfo.getWorkerDataChannelInfoForForkJoin() != null) {
-                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().takeData();
-                BType[] types = workerInfo.getWorkerDataChannelInfoForForkJoin().getTypes();
-                for (int i = 0; i < types.length; i++) {
-                    BType paramType = types[i];
-                    switch (paramType.getTag()) {
-                        case TypeTags.INT_TAG:
-                            bRefValueArray.add(i, ((BInteger) results[i]));
-                            break;
-                        case TypeTags.FLOAT_TAG:
-                            bRefValueArray.add(i, ((BFloat) results[i]));
-                            break;
-                        case TypeTags.STRING_TAG:
-                            bRefValueArray.add(i, ((BString) results[i]));
-                            break;
-                        case TypeTags.BOOLEAN_TAG:
-                            bRefValueArray.add(i, ((BBoolean) results[i]));
-                            break;
-                        case TypeTags.BLOB_TAG:
-                            bRefValueArray.add(i, ((BBlob) results[i]));
-                            break;
-                        default:
-                            bRefValueArray.add(i, ((BRefType) results[i]));
-                    }
-                }
-            }
-
-            this.resultHolder.add(new WorkerResult(workerInfo.getWorkerName(), bRefValueArray));
-            if (this.resultCounter != null) {
-                this.resultCounter.release();
-            }
+//            BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
+//            CPU.execWorker(bContext, workerInfo.getCodeAttributeInfo().getCodeAddrs());
+//            if (bContext.getError() != null) {
+//                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+//                outStream.println("error in worker '" + workerInfo.getWorkerName() + "': " + stackTraceStr);
+//            }
+//
+//            if (workerInfo.getWorkerDataChannelInfoForForkJoin() != null) {
+//                //BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().tryTakeData(null);
+//                BValue[] results = null;
+//                BType[] types = workerInfo.getWorkerDataChannelInfoForForkJoin().getTypes();
+//                for (int i = 0; i < types.length; i++) {
+//                    BType paramType = types[i];
+//                    switch (paramType.getTag()) {
+//                        case TypeTags.INT_TAG:
+//                            bRefValueArray.add(i, ((BInteger) results[i]));
+//                            break;
+//                        case TypeTags.FLOAT_TAG:
+//                            bRefValueArray.add(i, ((BFloat) results[i]));
+//                            break;
+//                        case TypeTags.STRING_TAG:
+//                            bRefValueArray.add(i, ((BString) results[i]));
+//                            break;
+//                        case TypeTags.BOOLEAN_TAG:
+//                            bRefValueArray.add(i, ((BBoolean) results[i]));
+//                            break;
+//                        case TypeTags.BLOB_TAG:
+//                            bRefValueArray.add(i, ((BBlob) results[i]));
+//                            break;
+//                        default:
+//                            bRefValueArray.add(i, ((BRefType) results[i]));
+//                    }
+//                }
+//            }
+//
+//            this.resultHolder.add(new WorkerResult(workerInfo.getWorkerName(), bRefValueArray));
+//            if (this.resultCounter != null) {
+//                this.resultCounter.release();
+//            }
         }
-        
-        public void setResultCounterSemaphore(Semaphore resultCounter) {
-            this.resultCounter = resultCounter;
-        }
-        
+//
+//        public void setResultCounterSemaphore(Semaphore resultCounter) {
+//            this.resultCounter = resultCounter;
+//        }
+//
     }
 
     static class WorkerReturnIndex {

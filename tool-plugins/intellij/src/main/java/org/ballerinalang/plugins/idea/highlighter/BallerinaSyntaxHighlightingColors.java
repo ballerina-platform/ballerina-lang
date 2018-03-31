@@ -22,6 +22,9 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
 
+/**
+ * Contains colors for syntax highlighting.
+ */
 public class BallerinaSyntaxHighlightingColors {
 
     public static final TextAttributesKey LINE_COMMENT = createTextAttributesKey("BALLERINA_LINE_COMMENT",
@@ -54,6 +57,14 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.STATIC_FIELD);
     public static final TextAttributesKey TEMPLATE_LANGUAGE_COLOR = createTextAttributesKey
             ("BALLERINA_TEMPLATE_LANGUAGE_COLOR", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
+    public static final TextAttributesKey DOCUMENTATION = createTextAttributesKey("BALLERINA_DOCUMENTATION",
+            DefaultLanguageHighlighterColors.DOC_COMMENT);
+    public static final TextAttributesKey DOCUMENTATION_VARIABLE =
+            createTextAttributesKey("BALLERINA_DOCUMENTATION_VARIABLE",
+                    DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
+    public static final TextAttributesKey DOCUMENTATION_INLINE_CODE =
+            createTextAttributesKey("BALLERINA_DOCUMENTATION_INLINE_CODE",
+                    DefaultLanguageHighlighterColors.DOC_COMMENT_TAG_VALUE);
 
     private BallerinaSyntaxHighlightingColors() {
     }

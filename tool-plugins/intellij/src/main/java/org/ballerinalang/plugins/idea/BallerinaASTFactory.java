@@ -30,6 +30,9 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Ballerina AST factory which is responsible for creating leaf elements in the PSI tree.
+ */
 public class BallerinaASTFactory extends CoreASTFactory {
     /**
      * Create an internal parse tree node. FileElement for root or a parse tree CompositeElement (not

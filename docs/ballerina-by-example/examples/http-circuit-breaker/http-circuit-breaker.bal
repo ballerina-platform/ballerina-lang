@@ -1,61 +1,87 @@
-import ballerina.net.http;
-import ballerina.net.http.resiliency;
+import ballerina/net.http;
+import ballerina/runtime;
+import ballerina/io;
 
-@http:configuration {basePath:"/cb"}
-service<http> circuitBreakerDemo {
+endpoint http:ServiceEndpoint passthruEP {
+    port:9090
+};
 
-    // The Circuit Breaker accepts an HTTP client connector as its first argument.
-    // The second and third arguments to the Circuit Breaker are the failure threshold (should be between 0 and 1, inclusive) and the reset timeout (in milli seconds) respectively.<br>
-    // * When the percentage of failed requests passes the specified threshold, the circuit trips and subsequent requests to the backend fails immediately.<br>
-    // * When the time specified in the reset timeout elapses, the circuit goes to 'half-open' state.<br>
-    // * If a request comes when it is in half-open state, it is sent to the backend and if it does not result in an error, the circuit state goes to 'close'.<br>
-    // * If it fails though, the circuit goes back to 'open' state, and the above process repeats.<br>
-    endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
-        create resiliency:CircuitBreaker(create http:HttpClient("http://localhost:8080", {endpointTimeout:2000}), 0.3, 20000);
-    }
+endpoint http:ServiceEndpoint backendEP {
+    port:8080
+};
 
-    @http:resourceConfig {
+endpoint http:ClientEndpoint backendClientEP {
+    circuitBreaker: {
+        rollingWindow: {
+                            timeWindow:10000,
+                            bucketSize:2000
+                       },
+        failureThreshold:0.2,
+        resetTimeout:10000,
+        statusCodes:[400, 404, 500]
+    },
+    targets: [
+                 {
+                     uri: "http://localhost:8080"
+                 }
+             ],
+    endpointTimeout:2000
+};
+
+@http:ServiceConfig {
+    basePath:"/cb"
+}
+service<http:Service> circuitbreaker bind passthruEP {
+
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
-        http:InResponse clientRes;
-        http:HttpConnectorError err;
-        clientRes, err = circuitBreakerEP.forward("/hello", req);
-
-        if (err != null) {
-            println(err);
-            if (clientRes == null) {
-                http:OutResponse res = {};
-                res.statusCode = 500;
-                res.setStringPayload(err.msg);
-                _ = conn.respond(res);
-            }
-        } else {
-            println(clientRes.getStringPayload());
-            _ = conn.forward(clientRes);
+    passthru (endpoint client, http:Request request) {
+        http:Response response = {};
+        http:HttpConnectorError err = {};
+        var backendRes = backendClientEP -> forward("/hello", request);
+        match backendRes {
+            http:Response res => {
+            _ = client -> forward(res);}
+            http:HttpConnectorError err1 => {
+             response = {};
+            response.statusCode = 500;
+            response.setStringPayload(err1.message);
+            _ = client -> respond(response);}
         }
     }
 }
 
+
+public  int counter = 1;
+
 // This sample service can be used to mock connection timeouts and service outages. Service outage can be mocked by stopping/starting this service.
 // This should be run separately from the circuitBreakerDemo service.
-@http:configuration {basePath:"/hello", port:8080}
-service<http> helloWorld {
-
-    int counter = 1;
-
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/hello"}
+service<http:Service> helloWorld bind backendEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
-        if (counter % 3 == 0) {
-            sleep(5000);
+    sayHello (endpoint client, http:Request req) {
+        if (counter % 5 == 0) {
+            runtime:sleepCurrentWorker(5000);
+            counter = counter + 1;
+            http:Response res = {};
+            res.setStringPayload("Hello World!!!");
+            _ = client -> respond(res);
+        } else if (counter % 5 == 3) {
+            counter = counter + 1;
+            http:Response res = {};
+            res.statusCode = 500;
+            res.setStringPayload("Internal erro r occurred while processing the request.");
+            _ = client -> respond(res);
+        } else {
+            counter = counter + 1;
+            http:Response res = {};
+            res.setStringPayload("Hello World!!!");
+            _ = client -> respond(res);
         }
-        counter = counter + 1;
-        http:OutResponse res = {};
-        res.setStringPayload("Hello World!!!");
-        _ = conn.respond(res);
     }
 }

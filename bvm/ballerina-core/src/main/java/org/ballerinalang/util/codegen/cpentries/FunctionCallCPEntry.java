@@ -27,15 +27,22 @@ import java.util.Arrays;
  */
 public class FunctionCallCPEntry implements ConstantPoolEntry {
 
+    private int flags;
+    
     // Registers which contains function arguments
     private int[] argRegs;
 
     // Registers to which return  values to be copied
     private int[] retRegs;
 
-    public FunctionCallCPEntry(int[] argRegs, int[] retRegs) {
+    public FunctionCallCPEntry(int flags, int[] argRegs, int[] retRegs) {
+        this.flags = flags;
         this.argRegs = argRegs;
         this.retRegs = retRegs;
+    }
+    
+    public int getFlags() {
+        return flags;
     }
 
     public int[] getArgRegs() {

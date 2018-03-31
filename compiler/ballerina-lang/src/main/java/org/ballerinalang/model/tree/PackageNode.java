@@ -40,6 +40,8 @@ public interface PackageNode extends Node {
 
     void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 
+    List<? extends EndpointNode> getGlobalEndpoints();
+
     List<? extends VariableNode> getGlobalVariables();
 
     void addGlobalVariable(VariableNode globalVar);
@@ -59,6 +61,10 @@ public interface PackageNode extends Node {
     List<? extends StructNode> getStructs();
 
     void addStruct(StructNode struct);
+
+    List<? extends ObjectNode> getObjects();
+
+    void addObject(ObjectNode object);
 
     List<? extends EnumNode> getEnums();
 

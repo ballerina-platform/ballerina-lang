@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an AnonStructTypeName in PSI tree.
+ */
 public class AnonStructTypeNameNode extends ANTLRPsiNode {
 
     public AnonStructTypeNameNode(@NotNull ASTNode node) {

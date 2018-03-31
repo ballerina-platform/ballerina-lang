@@ -24,6 +24,9 @@ import com.intellij.openapi.components.ApplicationComponent;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Provides Ballerina notification when the user install the plugin for the first time.
+ */
 public class BallerinaNotification implements ApplicationComponent {
 
     private static final String BALLERINA_PROJECT_TUTORIAL_NOTIFICATION_SHOWN =

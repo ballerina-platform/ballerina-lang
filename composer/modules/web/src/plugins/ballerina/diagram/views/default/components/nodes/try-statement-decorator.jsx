@@ -219,7 +219,7 @@ class TryStatementDecorator extends React.Component {
         actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
         actionBoxBbox.y = p8Y;
 
-        let statementRectClass = 'compound-statment-rect';
+        let statementRectClass = 'compound-statement-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }

@@ -8,25 +8,23 @@
 }
 
 .transform-endpoint-details {
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: hidden;
-    background-color: #dcdcdc;
+    /*background-color: #dcdcdc;*/
 }
 
 .transform-endpoint-container .btn-remove {
     height: 30px;
-    width: 30px;
+    width: 22px;
     line-height: 30px;
     padding: 0;
     position: absolute;
     top: 0;
+    font-size: 11px;
+    color: #dcdcdc;
 }
 
 .transform-source .transform-endpoint-details {
-    padding-left: 8px;
-}
-
-.transform-return .transform-endpoint-details {
     padding-left: 8px;
 }
 

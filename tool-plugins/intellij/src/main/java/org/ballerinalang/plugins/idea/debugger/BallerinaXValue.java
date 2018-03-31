@@ -52,6 +52,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+/**
+ * Represents a value in the debug window.
+ */
 public class BallerinaXValue extends XNamedValue {
 
     @NotNull

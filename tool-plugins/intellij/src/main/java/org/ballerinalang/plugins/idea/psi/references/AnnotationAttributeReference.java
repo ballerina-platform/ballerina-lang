@@ -33,6 +33,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Represents an annotation attribute reference.
+ */
 public class AnnotationAttributeReference extends BallerinaElementReference {
 
     public AnnotationAttributeReference(@NotNull IdentifierPSINode element) {

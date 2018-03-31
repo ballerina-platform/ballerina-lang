@@ -79,6 +79,7 @@ class WorkerNode extends React.Component {
         const classes = {
             lineClass: 'worker-life-line',
             polygonClass: 'worker-life-line-polygon',
+            textClass: 'default-worker-icon',
         };
         // Set worker name editor option.
         const editorOptions = {
@@ -97,8 +98,7 @@ class WorkerNode extends React.Component {
                     bBox={model.viewState.components.lifeLine}
                     editorOptions={editorOptions}
                     classes={classes}
-                    icon={ImageUtil.getSVGIconString('tool-icons/worker')}
-                    iconColor='#0070af'
+                    icon={ImageUtil.getCodePoint('worker')}
                     onDelete={this.onDelete}
                 />
                 {blockNode}

@@ -31,6 +31,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents an enum reference.
+ */
 public class EnumFieldReference extends BallerinaElementReference {
 
     public EnumFieldReference(@NotNull IdentifierPSINode element) {

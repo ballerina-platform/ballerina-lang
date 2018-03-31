@@ -883,9 +883,11 @@ class SwaggerParser {
         return NodeFactory.createAnnotationAttachment({
             packageAlias: NodeFactory.createLiteral({
                 value: packageName,
+                valueWithBar: packageName,
             }),
             annotationName: NodeFactory.createLiteral({
                 value: annotationName,
+                valueWithBar: annotationName,
             }),
         });
     }

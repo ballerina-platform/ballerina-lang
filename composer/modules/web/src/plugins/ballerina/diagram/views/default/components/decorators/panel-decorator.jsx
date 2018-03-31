@@ -28,10 +28,7 @@ import EditableText from './editable-text';
 import SizingUtils from '../../sizing-util';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import Node from '../../../../../model/tree/node';
-import DropZone from '../../../../../drag-drop/DropZone';
 import './panel-decorator.css';
-import ArgumentParameterDefinitionHolder from './../nodes/argument-parameter-definition-holder';
-import ReturnParameterDefinitionHolder from './../nodes/return-parameter-definition-holder';
 import TreeUtils from './../../../../../model/tree-util';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
@@ -115,7 +112,7 @@ class PanelDecorator extends React.Component {
                     height,
                     width,
                 },
-                icon: (collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up'),
+                icon: (collapsed) ? ImageUtil.getCodePoint('down') : ImageUtil.getCodePoint('up'),
                 onClick: () => this.onCollapseClick(),
                 key: `${this.props.model.getID()}-collapse-button`,
             };
@@ -126,12 +123,12 @@ class PanelDecorator extends React.Component {
         // Creating delete button.
         const deleteButtonProps = {
             bBox: {
-                x: x - (width * (staticButtons.length + 1)),
+                x: x - (width * (staticButtons.length + 1)) + 10,
                 y,
                 height,
                 width,
             },
-            icon: ImageUtil.getSVGIconString('delete'),
+            icon: ImageUtil.getCodePoint('delete'),
             tooltip: 'Delete',
             onClick: () => this.onDelete(),
             key: `${this.props.model.getID()}-delete-button`,
@@ -150,13 +147,13 @@ class PanelDecorator extends React.Component {
                     height,
                     width,
                 },
-                icon: ImageUtil.getSVGIconString(this.props.model.public ? 'lock' : 'open-lock'),
+                icon: ImageUtil.getCodePoint(this.props.model.public ? 'public' : 'lock'),
                 tooltip: this.props.model.public ? 'Make private' : 'Make public',
                 onClick: () => this.togglePublicPrivateFlag(),
                 key: `${this.props.model.getID()}-publicPrivateFlag-button`,
             };
 
-            staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
+            //staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
         }
         // Dynamic buttons
         const dynamicButtons = this.props.rightComponents.map((rightComponent, index) => {
@@ -268,22 +265,19 @@ class PanelDecorator extends React.Component {
         const bBox = this.props.bBox;
         const titleHeight = panel.heading.height;
         const iconSize = 14;
+        const iconWidth = 40;
         const collapsed = this.props.model.viewState.collapsed || false;
-        let annotationBodyHeight = 0;
+        const titleHead = 105;
 
-        // TODO: Fix Me
-        if (!_.isNil(this.props.model.viewState.components.annotation)) {
-            annotationBodyHeight = this.props.model.viewState.components.annotation.h;
-        }
         // const titleComponents = this.getTitleComponents(this.props.titleComponentData);
         const titleWidth = new SizingUtils().getTextWidth(this.state.editingTitle);
 
         // calculate the panel bBox;
         const panelBBox = new SimpleBBox();
         panelBBox.x = bBox.x;
-        panelBBox.y = bBox.y + titleHeight + annotationBodyHeight;
+        panelBBox.y = bBox.y + titleHeight;
         panelBBox.w = bBox.w;
-        panelBBox.h = bBox.h - titleHeight - annotationBodyHeight;
+        panelBBox.h = bBox.h - titleHeight;
 
         // following config is to style the panel rect, we use it to hide the top stroke line of the panel.
         const panelRectStyles = {
@@ -294,7 +288,7 @@ class PanelDecorator extends React.Component {
         const lambda = this.props.model.lambda;
         if (!lambda) {
             rightHeadingButtons =
-                this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
+                this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y, 27.5, titleHeight);
         }
 
         const isResourceDef = TreeUtils.isResource(this.props.model);
@@ -311,9 +305,9 @@ class PanelDecorator extends React.Component {
         }
         let allowPublicPrivateFlag = false;
         if ((!TreeUtils.isMainFunction(this.props.model) && TreeUtils.isFunction(this.props.model)) ||
-            TreeUtils.isStruct(this.props.model) || TreeUtils.isConnector(this.props.model) ||
+            TreeUtils.isStruct(this.props.model) ||
             TreeUtils.isTransformer(this.props.model)) {
-            allowPublicPrivateFlag = true;
+            allowPublicPrivateFlag = this.props.model.public;
             if (this.props.model.public) {
                 publicPrivateFlagoffset = 50;
             }
@@ -323,7 +317,7 @@ class PanelDecorator extends React.Component {
             <g className='panel-header'>
                 <rect
                     x={bBox.x}
-                    y={bBox.y + annotationBodyHeight}
+                    y={bBox.y}
                     width={bBox.w}
                     height={titleHeight}
                     rx='0'
@@ -332,90 +326,101 @@ class PanelDecorator extends React.Component {
                     data-original-title=''
                     title=''
                 />
+                <rect 
+                    x={bBox.x}
+                    y={bBox.y + titleHeight - 1}
+                    width={bBox.w}
+                    height={1}
+                    className='divider'
+                />
                 <rect
                     x={bBox.x - 1}
-                    y={bBox.y + annotationBodyHeight}
+                    y={bBox.y}
                     height={titleHeight}
-                    rx='0'
-                    ry='0'
                     className='panel-heading-decorator'
                 />
                 {allowPublicPrivateFlag && <g>
                     <rect
                         className='publicPrivateRectHolder'
-                        x={bBox.x + 8}
-                        y={bBox.y + annotationBodyHeight}
-                        width='45'
+                        x={bBox.x}
+                        y={bBox.y}
+                        width={titleHead}
                         height='30'
                     />
                     <text
-                        x={bBox.x + 15}
-                        y={bBox.y + (titleHeight / 2) + annotationBodyHeight + 4}
+                        x={bBox.x + 10}
+                        y={bBox.y + 22}
+                        width={iconSize}
+                        height={iconSize}
+                        fontFamily='font-ballerina'
+                        fontSize={iconSize}
+                    > {ImageUtil.getCodePoint(this.props.model.public ? 'public' : 'lock')}
+                    </text>
+                    <text
+                        x={bBox.x + 30}
+                        y={bBox.y + (titleHeight / 2) + 4}
                         className='publicPrivateText'
-                    >{this.props.model.public ? 'public' : null}</text>
+                    >public</text>
                 </g>}
-                <image
-                    x={bBox.x + 15 + publicPrivateFlagoffset}
-                    y={bBox.y + 8 + annotationBodyHeight}
-                    width={iconSize}
-                    height={iconSize}
-                    xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}
-                />
                 {wsResourceDef && <g>
                     <rect
-                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset}
-                        y={bBox.y + (titleHeight / 2) + annotationBodyHeight}
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset + iconWidth}
+                        y={bBox.y + (titleHeight / 2)}
                         width={titleWidth.w}
                     />
                     <text
-                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset + 5}
-                        y={bBox.y + (titleHeight / 2) + annotationBodyHeight + 5}
+                        x={bBox.x + titleHeight + iconSize + 15 + protocolOffset + publicPrivateFlagoffset}
+                        y={bBox.y + (titleHeight / 2) + 5}
                         className='resourceName'
                     >{titleWidth.text}</text>
                 </g>}
-                {!wsResourceDef && !lambda &&
-                <EditableText
-                    x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset + receiverOffset}
-                    y={bBox.y + (titleHeight / 2) + annotationBodyHeight}
-                    width={titleWidth.w}
-                    onBlur={() => {
-                        this.onTitleInputBlur();
-                    }}
-                    onClick={() => {
-                        this.onTitleClick();
-                    }}
-                    editing={this.state.titleEditing}
-                    onChange={(e) => {
-                        this.onTitleInputChange(e);
-                    }}
-                    displayText={titleWidth.text}
-                    onKeyDown={(e) => {
-                        this.onTitleKeyDown(e);
-                    }}
-                >
-                    {this.state.editingTitle}
-                </EditableText>}
+                
+                {!wsResourceDef && !lambda && <g>
+                    <rect
+                        x={bBox.x + titleHeight + publicPrivateFlagoffset - 5}
+                        y={bBox.y}
+                        width={titleWidth.w + iconSize + 10}
+                        height={titleHeight - 1}
+                        className='title-bg'
+                    />
+                    <text
+                        x={bBox.x + 30 + publicPrivateFlagoffset}
+                        y={bBox.y + 22}
+                        width={iconSize}
+                        height={iconSize}
+                        fontFamily='font-ballerina'
+                        fontSize={iconSize}
+                    >{ImageUtil.getCodePoint(this.props.icon)}</text>
+                    <EditableText
+                        x={bBox.x + titleHeight + iconSize + publicPrivateFlagoffset}
+                        y={bBox.y + (titleHeight / 2)}
+                        width={titleWidth.w}
+                        onBlur={() => {
+                            this.onTitleInputBlur();
+                        }}
+                        onClick={() => {
+                            this.onTitleClick();
+                        }}
+                        editing={this.state.titleEditing}
+                        onChange={(e) => {
+                            this.onTitleInputChange(e);
+                        }}
+                        displayText={titleWidth.text}
+                        onKeyDown={(e) => {
+                            this.onTitleKeyDown(e);
+                        }}
+                    >
+                        {this.state.editingTitle}
+                    </EditableText>
+                </g>
+                }
                 { this.props.headerComponent &&
                     <this.props.headerComponent
                         x={bBox.x + titleHeight + iconSize + protocolOffset + publicPrivateFlagoffset}
-                        y={bBox.y + annotationBodyHeight}
+                        y={bBox.y}
                     />
                 }
                 {rightHeadingButtons}
-                { this.props.argumentParams &&
-                    <ArgumentParameterDefinitionHolder
-                        model={this.props.model}
-                    >
-                        {this.props.argumentParams}
-                    </ArgumentParameterDefinitionHolder>
-                }
-                { this.props.returnParams &&
-                <ReturnParameterDefinitionHolder
-                    model={this.props.model}
-                >
-                    {this.props.returnParams}
-                </ReturnParameterDefinitionHolder>
-                }
             </g>
             <g className='panel-body'>
                 <CSSTransitionGroup
@@ -432,18 +437,6 @@ class PanelDecorator extends React.Component {
                         style={panelRectStyles}
                         className='panel-body-rect'
                     />
-                    {!collapsed &&
-                    <DropZone
-                        x={panelBBox.x}
-                        y={panelBBox.y}
-                        width={panelBBox.w}
-                        height={panelBBox.h}
-                        baseComponent='rect'
-                        dropTarget={this.props.dropTarget}
-                        canDrop={this.props.canDrop}
-                        enableDragBg
-                    />
-                    }
                     {!collapsed && this.props.children}
                 </CSSTransitionGroup>
             </g>
@@ -459,8 +452,6 @@ PanelDecorator.propTypes = {
         h: PropTypes.number.isRequired,
     }).isRequired,
     model: PropTypes.instanceOf(Node).isRequired,
-    dropTarget: PropTypes.instanceOf(Node),
-    canDrop: PropTypes.func,
     rightComponents: PropTypes.arrayOf(PropTypes.shape({
         component: PropTypes.func.isRequired,
         props: PropTypes.object.isRequired,
@@ -473,14 +464,6 @@ PanelDecorator.propTypes = {
     ]).isRequired,
     icon: PropTypes.string.isRequired,
     headerComponent: PropTypes.instanceOf(Object),
-    argumentParams: PropTypes.oneOfType([
-        PropTypes.any,
-        PropTypes.arrayOf(Node),
-    ]),
-    returnParams: PropTypes.oneOfType([
-        PropTypes.any,
-        PropTypes.arrayOf(Node),
-    ]),
     receiver: PropTypes.string,
     protocol: PropTypes.string,
 };
@@ -491,8 +474,6 @@ PanelDecorator.defaultProps = {
     canDrop: undefined,
     protocol: undefined,
     receiver: undefined,
-    returnParams: undefined,
-    argumentParams: undefined,
     headerComponent: undefined,
     packageIdentifier: undefined,
 };

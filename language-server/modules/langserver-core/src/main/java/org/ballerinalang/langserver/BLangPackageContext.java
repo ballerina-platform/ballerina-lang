@@ -17,7 +17,6 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -43,16 +41,6 @@ public class BLangPackageContext {
         builtInPackages.forEach(this::addPackage);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> List<T> getItems(Class type) {
-        if (type.equals(BLangFunction.class)) {
-            List<BLangFunction> functions = new ArrayList<>();
-            packageMap.forEach((pkgName, bLangPackage) -> functions.addAll(bLangPackage.getFunctions()));
-            return (List<T>) functions;
-        }
-        return null;
-    }
-
     /**
      * Get package by name.
      *
@@ -61,11 +49,28 @@ public class BLangPackageContext {
      * @return ballerina lang package
      */
     public BLangPackage getPackageByName(CompilerContext compilerContext, Name name) {
+        // TODO: We need to remove this method and instead use the getPackageById
         if (isPackageAvailable(name.getValue())) {
             return packageMap.get(name.getValue());
         } else {
             BLangPackage bLangPackage =
                     BallerinaPackageLoader.getPackageByName(compilerContext, name.getValue());
+            addPackage(bLangPackage);
+            return bLangPackage;
+        }
+    }
+
+    /**
+     * Get the package by Package ID.
+     * @param compilerContext       compiler context
+     * @param pkgId                 Package Id to lookup
+     * @return {@link BLangPackage} BLang Package resolved
+     */
+    public BLangPackage getPackageById(CompilerContext compilerContext, PackageID pkgId) {
+        if (isPackageAvailable(pkgId.getName().getValue())) {
+            return packageMap.get(pkgId.getName().getValue());
+        } else {
+            BLangPackage bLangPackage = BallerinaPackageLoader.getPackageById(compilerContext, pkgId);
             addPackage(bLangPackage);
             return bLangPackage;
         }
@@ -130,9 +135,20 @@ public class BLangPackageContext {
      * @return          {@link List} list of packages visible in the SDK
      */
     public ArrayList<PackageID> getSDKPackages(CompilerContext context) {
+        // TODO: For the moment we are using ParserUtil's load all packages API, Until the Packerina can provide an API
         if (sdkPackages.isEmpty()) {
-            Set<PackageID> pkgList = BallerinaPackageLoader.getPackageList(context, -1);
-            sdkPackages.addAll(pkgList);
+            final String[] packageNames = {"net.http", "net.http.authadaptor", "net.http.endpoints",
+                    "net.http.mock", "net.http.swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
+                    "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
+                    "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
+                    "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
+                    "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
+                for (String packageName : packageNames) {
+                    PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"), 
+                            new org.wso2.ballerinalang.compiler.util.Name(packageName),
+                            new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
+                    sdkPackages.add(packageID);
+                }
         }
         return sdkPackages;
     }

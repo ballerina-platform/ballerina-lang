@@ -19,13 +19,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ActionInvocationDecorator from '../decorators/action-invocation-decorator';
 import ActiveArbiter from '../decorators/active-arbiter';
+import TreeUtil from '../../../../../model/tree-util';
 
 /**
  * Action Invocation Node component. This is a custom component for rendering all statements
  * with an action invocation expression.
  * Includes : assignment node, var def node and invocation statements with action invocations.
  * */
-class ActionInvocationNode extends React.Component {
+class InvocationNode extends React.Component {
 
 
     constructor(props) {
@@ -51,7 +52,11 @@ class ActionInvocationNode extends React.Component {
         let expression = model.viewState.expression;
 
         if (model.viewState.isActionInvocation) {
-            expression = model.getExpression().getInvocationSignature();
+            if (TreeUtil.isVariableDef(model)) {
+                expression = model.variable.getInitialExpression().getInvocationSignature();
+            } else {
+                expression = model.getExpression().getInvocationSignature();
+            }
         }
 
         return (
@@ -64,13 +69,13 @@ class ActionInvocationNode extends React.Component {
     }
 }
 
-ActionInvocationNode.propTypes = {
+InvocationNode.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-ActionInvocationNode.contextTypes = {
+InvocationNode.contextTypes = {
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default ActionInvocationNode;
+export default InvocationNode;

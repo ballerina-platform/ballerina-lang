@@ -48,12 +48,17 @@ public class NodeUtils {
         return new Name(qname);
     }
 
-    public static PackageID getPackageID(Names names, List<BLangIdentifier> pkgNameComps, BLangIdentifier versionNode) {
+    public static PackageID getPackageID(Names names, BLangIdentifier orgNameNode,
+                                         List<BLangIdentifier> pkgNameComps, BLangIdentifier versionNode) {
         List<Name> nameList = pkgNameComps.stream().map(names::fromIdNode).collect(Collectors.toList());
+        Name orgName = null;
+        if (orgNameNode != null) {
+            orgName = names.fromIdNode(orgNameNode);
+        }
         Name version = names.fromIdNode(versionNode);
         if (version == Names.EMPTY) {
             version = Names.DEFAULT_VERSION;
         }
-        return new PackageID(nameList, version);
+        return new PackageID(orgName, nameList, version);
     }
 }

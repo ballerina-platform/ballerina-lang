@@ -21,6 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a Field in PSI tree.
+ */
 public class FieldNode extends IdentifierDefSubtree {
 
     public FieldNode(@NotNull ASTNode node) {

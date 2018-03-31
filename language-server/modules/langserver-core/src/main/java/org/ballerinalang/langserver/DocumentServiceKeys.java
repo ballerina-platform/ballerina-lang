@@ -20,10 +20,10 @@ package org.ballerinalang.langserver;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
-import org.ballerinalang.langserver.completions.PossibleToken;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
@@ -43,8 +43,6 @@ public class DocumentServiceKeys {
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
             = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<List<PossibleToken>> POSSIBLE_TOKENS_KEY
-            = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<TokenStream> TOKEN_STREAM_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<Vocabulary> VOCABULARY_KEY
@@ -56,5 +54,11 @@ public class DocumentServiceKeys {
     public static final LanguageServerContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<BLangPackageContext> B_LANG_PACKAGE_CONTEXT_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<String> CURRENT_PACKAGE_NAME_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<TextDocumentServiceContext> OPERATION_META_CONTEXT_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<BLangPackage> CURRENT_BLANG_PACKAGE_CONTEXT_KEY
             = new LanguageServerContext.Key<>();
 }

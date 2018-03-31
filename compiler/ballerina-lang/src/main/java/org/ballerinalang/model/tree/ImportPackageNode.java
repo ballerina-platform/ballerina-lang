@@ -24,6 +24,8 @@ import java.util.List;
  */
 public interface ImportPackageNode extends Node, TopLevelNode {
 
+    IdentifierNode getOrgName();
+
     List<? extends IdentifierNode> getPackageName();
 
     void setPackageName(List<? extends IdentifierNode> nameParts);

@@ -17,10 +17,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -32,22 +31,22 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Native function ballerina.model.arrays:subString(string, int, int).
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.subString",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
-                @Argument(name = "from", type = TypeKind.INT),
-                @Argument(name = "to", type = TypeKind.INT)},
+                @Argument(name = "beginIndex", type = TypeKind.INT),
+                @Argument(name = "endIndex", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class SubString extends AbstractNativeFunction {
+public class SubString extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String initialString = getStringArgument(context, 0);
+    public void execute(Context context) {
+        String initialString = context.getStringArgument(0);
 
-        long fromLong = getIntArgument(context, 0);
-        long toLong = getIntArgument(context, 1);
+        long fromLong = context.getIntArgument(0);
+        long toLong = context.getIntArgument(1);
 
         if (toLong != (int) toLong) {
             throw BLangExceptionHelper
@@ -66,6 +65,6 @@ public class SubString extends AbstractNativeFunction {
                     " requested: " + from + " to " + to);
         }
         BString subString = new BString(initialString.substring(from, to));
-        return getBValues(subString);
+        context.setReturnValues(subString);
     }
 }

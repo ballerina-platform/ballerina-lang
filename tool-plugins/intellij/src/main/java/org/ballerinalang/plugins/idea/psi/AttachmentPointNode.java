@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an AttachmentPoint in PSI tree.
+ */
 public class AttachmentPointNode extends ANTLRPsiNode {
 
     public AttachmentPointNode(@NotNull ASTNode node) {

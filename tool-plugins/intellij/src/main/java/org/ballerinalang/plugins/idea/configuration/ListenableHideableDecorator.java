@@ -25,11 +25,15 @@ import java.util.Collection;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+/**
+ * Hide-able decorator to list all roots.
+ */
 class ListenableHideableDecorator extends HideableDecorator {
 
     private final Collection<MyListener> myListeners = ContainerUtil.newSmartList();
 
-    public ListenableHideableDecorator(@NotNull JPanel panel, @NotNull String displayName, @NotNull JComponent content) {
+    public ListenableHideableDecorator(@NotNull JPanel panel, @NotNull String displayName,
+                                       @NotNull JComponent content) {
         super(panel, displayName, false);
         setContentComponent(content);
     }

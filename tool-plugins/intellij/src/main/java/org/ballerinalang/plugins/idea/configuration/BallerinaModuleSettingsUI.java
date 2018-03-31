@@ -29,6 +29,9 @@ import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+/**
+ * Responsible for creating module settings UI.
+ */
 public class BallerinaModuleSettingsUI implements ConfigurableUi<BallerinaModuleSettings>, Disposable {
 
     private JPanel myPanel;

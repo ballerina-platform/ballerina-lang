@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 4,
+    "character": 22
+  },
+  "source": "function/source/packageContentWithSucceedingCharacter1.bal",
+  "items": [
+    {
+      "label":"getAsString(string configKey)(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"119",
+      "insertText":"getAsString(${1:configKey})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"setConfig(string configKey, string configValue)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"119",
+      "insertText":"setConfig(${1:configKey}, ${2:configValue})",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

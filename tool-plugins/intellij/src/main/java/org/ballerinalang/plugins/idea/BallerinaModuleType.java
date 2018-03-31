@@ -28,6 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents a Ballerina module.
+ */
 public class BallerinaModuleType extends ModuleType<BallerinaModuleBuilder> {
 
     public BallerinaModuleType() {

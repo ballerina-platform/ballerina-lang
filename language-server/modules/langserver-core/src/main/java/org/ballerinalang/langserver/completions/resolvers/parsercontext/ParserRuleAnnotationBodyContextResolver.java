@@ -20,9 +20,8 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.completions.consts.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.consts.Priority;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -62,7 +61,6 @@ public class ParserRuleAnnotationBodyContextResolver extends AbstractItemResolve
         CompletionItem attachCompletionItem = new CompletionItem();
         attachCompletionItem.setInsertText(ItemResolverConstants.ATTACH + " ");
         attachCompletionItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        attachCompletionItem.setSortText(Priority.PRIORITY7.name());
         attachCompletionItem.setLabel(ItemResolverConstants.ATTACH);
         completionItems.add(attachCompletionItem);
         return completionItems;

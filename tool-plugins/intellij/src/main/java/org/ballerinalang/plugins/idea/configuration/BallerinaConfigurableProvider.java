@@ -22,12 +22,15 @@ import com.intellij.openapi.options.ConfigurableProvider;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
-import org.ballerinalang.plugins.idea.codeInsight.imports.BallerinaAutoImportConfigurable;
+import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaAutoImportConfigurable;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Responsible for providing Ballerina configurations in Settings window.
+ */
 public class BallerinaConfigurableProvider extends ConfigurableProvider {
 
     @NotNull
@@ -87,6 +90,9 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         }
     }
 
+    /**
+     * Responsible for creating project settings.
+     */
     public static class BallerinaProjectSettingsConfigurable extends BallerinaModuleAwareConfigurable {
 
         public BallerinaProjectSettingsConfigurable(@NotNull Project project) {
