@@ -65,7 +65,8 @@ public class MicrometerMetricProviderTest {
     public void testCallbackGauge() {
         List<Integer> list = new ArrayList();
         IntStream.range(0, 100).forEach(list::add);
-        CallbackGauge gauge = CallbackGauge.builder("test_callback_gauge", list, List::size).description("").register(metricRegistry);
+        CallbackGauge gauge = CallbackGauge.builder("test_callback_gauge", list, List::size).description("")
+                .register(metricRegistry);
         Assert.assertEquals(gauge.get(), 100D);
     }
 
@@ -78,7 +79,8 @@ public class MicrometerMetricProviderTest {
 
     @Test
     public void testTimer() {
-        Timer timer = Timer.builder("test_timer").description("Test Timer").tag("method", "record").register(metricRegistry);
+        Timer timer = Timer.builder("test_timer").description("Test Timer").tag("method", "record")
+                .register(metricRegistry);
         timer.record(100, TimeUnit.NANOSECONDS);
         Assert.assertEquals(timer.count(), 1);
     }

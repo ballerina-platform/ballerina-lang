@@ -39,10 +39,10 @@ import java.nio.file.Path;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
-import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 
 /**

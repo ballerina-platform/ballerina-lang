@@ -889,6 +889,11 @@
                 <artifactId>simpleclient_httpserver</artifactId>
                 <version>${prometheus.simple.client.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-metrics</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -982,6 +987,7 @@
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/observability/ballerina-trace</module>
+                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
@@ -1030,6 +1036,7 @@
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/observability/ballerina-trace</module>
+                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
@@ -1070,6 +1077,7 @@
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/observability/ballerina-trace</module>
+                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
@@ -1184,7 +1192,6 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <skip>true</skip>
                                 <configLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/checkstyle.xml
                                 </configLocation>

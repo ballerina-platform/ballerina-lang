@@ -47,12 +47,12 @@ public class ResourceExecutor {
      * @param resource         to be executed.
      * @param responseCallback to notify.
      * @param properties       to be passed to context.
-     * @param tracer           to be passed to context.
+     * @param observerContext  to be passed to context.
      * @param bValues          for parameters.
      */
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
-                               Map<String, Object> properties, ObserverContext observerContext, BValue... bValues) throws
-            BallerinaConnectorException {
+                               Map<String, Object> properties, ObserverContext observerContext,
+                               BValue... bValues) throws BallerinaConnectorException {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }

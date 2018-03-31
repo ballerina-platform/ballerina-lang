@@ -29,10 +29,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.tracer.TraceUtil;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_STATEMENT;

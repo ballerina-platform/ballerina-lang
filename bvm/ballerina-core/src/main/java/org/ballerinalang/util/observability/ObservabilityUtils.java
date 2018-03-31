@@ -103,8 +103,9 @@ public class ObservabilityUtils {
     }
 
     /**
-     * Continue server observation if the {@link #startServerObservation(String, String, String, WorkerExecutionContext)} was
-     * called without {@link WorkerExecutionContext}.
+     * Continue server observation if the
+     * {@link #startServerObservation(String, String, String, WorkerExecutionContext)} was called without
+     * {@link WorkerExecutionContext}.
      *
      * @param observerContext  The {@link ObserverContext} instance.
      * @param serviceName      The service name.
@@ -114,10 +115,14 @@ public class ObservabilityUtils {
     public static void continueServerObservation(ObserverContext observerContext, String serviceName,
                                                  String resourceName, WorkerExecutionContext executionContext) {
         Objects.requireNonNull(executionContext);
-        Objects.requireNonNull(observerContext);
-        // Update the current context. WorkerExecutionContext may not be available when starting the observation.
-        // Therefore, it is very important to set this ObserverContext in the WorkerExecutionContext.
-        setCurrentContext(observerContext, executionContext);
+        if (observerContext == null) {
+            // This context may be null in some cases. Get new context
+            observerContext = getCurrentContext(executionContext);
+        } else {
+            // Update the current context. WorkerExecutionContext may not be available when starting the observation.
+            // Therefore, it is very important to set this ObserverContext in the WorkerExecutionContext.
+            setCurrentContext(observerContext, executionContext);
+        }
         observerContext.setServer();
         observerContext.setStarted();
         observerContext.setServiceName(serviceName);
@@ -138,13 +143,18 @@ public class ObservabilityUtils {
     public static void continueClientObservation(ObserverContext observerContext, String connectorName,
                                                  String actionName, WorkerExecutionContext executionContext) {
         Objects.requireNonNull(executionContext);
-        Objects.requireNonNull(observerContext);
-        // Update the current context
-        setCurrentContext(observerContext, executionContext);
+        if (observerContext == null) {
+            // This context may be null in some cases. Get new context
+            observerContext = getCurrentContext(executionContext);
+        } else {
+            // Update the current context
+            setCurrentContext(observerContext, executionContext);
+        }
         observerContext.setStarted();
         observerContext.setConnectorName(connectorName);
         observerContext.setActionName(actionName);
-        observers.forEach(observer -> observer.startClientObservation(observerContext, executionContext));
+        final ObserverContext ctx = observerContext;
+        observers.forEach(observer -> observer.startClientObservation(ctx, executionContext));
     }
 
     /**
@@ -166,7 +176,8 @@ public class ObservabilityUtils {
      * Get an {@link ObserverContext} for current {@link WorkerExecutionContext}.
      *
      * @param executionContext The {@link WorkerExecutionContext} instance.
-     * @return An existing {@link ObserverContext} instance or a new one created for current {@link WorkerExecutionContext}.
+     * @return An existing {@link ObserverContext} instance or a new one created for current
+     * {@link WorkerExecutionContext}.
      */
     public static ObserverContext getCurrentContext(WorkerExecutionContext executionContext) {
         Objects.requireNonNull(executionContext);
@@ -184,7 +195,7 @@ public class ObservabilityUtils {
     /**
      * Set the {@link ObserverContext} in current {@link WorkerExecutionContext}.
      *
-     * @param observerContext The {@link ObserverContext} instance.
+     * @param observerContext  The {@link ObserverContext} instance.
      * @param executionContext The {@link WorkerExecutionContext} instance.
      */
     private static void setCurrentContext(ObserverContext observerContext, WorkerExecutionContext executionContext) {

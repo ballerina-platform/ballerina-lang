@@ -76,23 +76,57 @@ public class MetricRegistry {
         this.metricProvider = metricProvider;
     }
 
-    public Counter counter(MetricId id) {
+    /**
+     * Use {@link Counter#builder(String)}.
+     *
+     * @param id The {@link MetricId}.
+     * @return A existing or a new {@link Counter} metric.
+     */
+    // This is method is only allowed to be used within package.
+    Counter counter(MetricId id) {
         return getOrCreate(id, Counter.class, () -> metricProvider.newCounter(id));
     }
 
-    public Gauge gauge(MetricId id) {
+    /**
+     * Use {@link Gauge#builder(String)}.
+     *
+     * @param id The {@link MetricId}.
+     * @return A existing or a new {@link Gauge} metric.
+     */
+    Gauge gauge(MetricId id) {
         return getOrCreate(id, Gauge.class, () -> metricProvider.newGauge(id));
     }
 
-    public <T> CallbackGauge callbackGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
+    /**
+     * Use {@link CallbackGauge#builder(String, Object, ToDoubleFunction)}.
+     *
+     * @param id            The {@link MetricId}.
+     * @param obj           State object used to compute a value.
+     * @param valueFunction Function that produces an instantaneous gauge value from the state object.
+     * @param <T>           The type of the state object from which the gauge value is extracted.
+     * @return A existing or a new {@link CallbackGauge} metric.
+     */
+    <T> CallbackGauge callbackGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
         return getOrCreate(id, CallbackGauge.class, () -> metricProvider.newCallbackGauge(id, obj, valueFunction));
     }
 
-    public Summary summary(MetricId id) {
+    /**
+     * Use {@link Summary#builder(String)}.
+     *
+     * @param id The {@link MetricId}.
+     * @return A existing or a new {@link Summary} metric.
+     */
+    Summary summary(MetricId id) {
         return getOrCreate(id, Summary.class, () -> metricProvider.newSummary(id));
     }
 
-    public Timer timer(MetricId id) {
+    /**
+     * Use {@link Timer#builder(String)}.
+     *
+     * @param id The {@link MetricId}.
+     * @return A existing or a new {@link Timer} metric.
+     */
+    Timer timer(MetricId id) {
         return getOrCreate(id, Timer.class, () -> metricProvider.newTimer(id));
     }
 
@@ -123,7 +157,8 @@ public class MetricRegistry {
      * @param name the name of the metric
      */
     public void remove(String name) {
-        List<MetricId> ids = metrics.keySet().stream().filter(id -> id.getName().equals(name)).collect(Collectors.toList());
+        List<MetricId> ids = metrics.keySet().stream()
+                .filter(id -> id.getName().equals(name)).collect(Collectors.toList());
         ids.forEach(id -> metrics.remove(id));
     }
 }

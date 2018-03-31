@@ -20,7 +20,7 @@ package org.ballerinalang.util.observability;
 import org.ballerinalang.config.ConfigRegistry;
 
 /**
- * Read observability generic configurations
+ * Read observability generic configurations.
  */
 public class ObservabilityConfig {
 

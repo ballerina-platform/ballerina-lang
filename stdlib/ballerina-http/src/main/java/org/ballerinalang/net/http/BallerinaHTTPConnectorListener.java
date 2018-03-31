@@ -43,8 +43,6 @@ import java.util.Map;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_COMPONENT_BALLERINA;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_COMPONENT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
@@ -104,13 +102,12 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         Resource balResource = httpResource.getBalResource();
 
-        ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP, balResource.getServiceName(),
-                balResource.getName(), null);
+        ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
+                balResource.getServiceName(), balResource.getName(), null);
         Map<String, String> httpHeaders = new HashMap<>();
         httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
         ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
 
-        ctx.addTag(TAG_KEY_COMPONENT, TAG_COMPONENT_BALLERINA);
         ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
         ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
         ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
