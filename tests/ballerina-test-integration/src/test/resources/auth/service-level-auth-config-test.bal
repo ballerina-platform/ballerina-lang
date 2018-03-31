@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/io;
-import ballerina/http.endpoints;
 import ballerina/auth;
 
 endpoint endpoints:ApiEndpoint ep {

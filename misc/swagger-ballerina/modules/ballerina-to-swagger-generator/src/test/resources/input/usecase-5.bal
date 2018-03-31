@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/swagger;
+import ballerina/http.swagger;
 
 @http:ServiceConfig {basePath:"/api"}
 @swagger:ServiceInfo {

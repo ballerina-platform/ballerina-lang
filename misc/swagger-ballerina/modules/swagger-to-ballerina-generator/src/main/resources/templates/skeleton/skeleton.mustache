@@ -2,7 +2,7 @@
 
 {{/apiPackage}}{{#modelPackage}}import {{modelPackage}};{{/modelPackage}}
 import ballerina/http;
-import ballerina/swagger;
+import ballerina/http.swagger;
 
 {{#servers}}endpoint http:ServiceEndpoint ep{{@index}} {
     host: "{{host}}",

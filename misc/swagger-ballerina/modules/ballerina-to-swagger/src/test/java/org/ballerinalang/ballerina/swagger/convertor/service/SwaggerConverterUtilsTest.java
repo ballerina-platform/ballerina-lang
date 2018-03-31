@@ -29,7 +29,7 @@ public class SwaggerConverterUtilsTest {
     //Sample Ballerina Service definitions to be used for tests.
     private static String sampleBallerinaServiceString = "\n" +
             "import ballerina/http;\n" +
-            "import ballerina/swagger;\n" +
+            "import ballerina/http.swagger;\n" +
             "\n" +
             "\n" +
             "endpoint http:ServiceEndpoint ep0 {\n" +
