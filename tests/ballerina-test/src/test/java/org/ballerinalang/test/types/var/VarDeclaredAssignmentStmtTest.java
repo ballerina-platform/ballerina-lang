@@ -225,8 +225,9 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"cannot convert 'json' to type 'Person': error while mapping" +
-                " 'parent': incompatible types: expected 'json-object', found 'string'\", cause:null}");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{message:\"cannot convert 'json' to type 'Person': error while mapping"
+                        + " 'parent': incompatible types: expected 'json-object', found 'string'\", cause:null}");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -237,8 +238,9 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BStruct.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"cannot convert 'json' to type 'PersonA': error while mapping 'age': " +
-                "incompatible types: expected 'int', found 'string' in json\", cause:null}");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{message:\"cannot convert 'json' to type 'PersonA': error while mapping 'age': "
+                        + "incompatible types: expected 'int', found 'string' in json\", cause:null}");
     }
 
     @Test(description = "Test compatible struct with force casting.")

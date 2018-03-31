@@ -28,6 +28,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * * Context Model for holding endpoint information.
+ */
 public class EndpointContextHolder {
     private String name;
     private String host;

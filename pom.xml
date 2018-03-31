@@ -1152,7 +1152,6 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <skip>true</skip>
                                 <configLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/checkstyle.xml
                                 </configLocation>

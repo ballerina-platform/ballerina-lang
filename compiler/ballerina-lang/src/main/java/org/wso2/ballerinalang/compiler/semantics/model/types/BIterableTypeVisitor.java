@@ -122,7 +122,7 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
      *
      * @since 0.970.0
      */
-    public static abstract class TerminalOperationTypeChecker extends BIterableTypeVisitor {
+    public abstract static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
 
         public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);

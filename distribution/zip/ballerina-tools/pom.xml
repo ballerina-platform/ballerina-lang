@@ -115,7 +115,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                composer-server-distribution,ballerina-composer-web,testerina-core,ballerina-builtin,connectors,ballerina,ballerina-http,ballerina-mime
+                                composer-server-distribution,ballerina-composer-web,testerina-core,ballerina-builtin,connectors,ballerina,ballerina-http,ballerina-mime,ballerina-grpc
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
@@ -144,7 +144,8 @@
                                 ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina,
                                 ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina,
                                 ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina,
-                                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina
+                                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina,
+                                ${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina
                             </sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
