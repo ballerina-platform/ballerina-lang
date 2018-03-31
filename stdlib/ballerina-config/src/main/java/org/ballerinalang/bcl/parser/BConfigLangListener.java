@@ -70,12 +70,12 @@ public class BConfigLangListener extends TomlBaseListener {
 
     @Override
     public void enterQuotedKey(TomlParser.QuotedKeyContext context) {
-        currentKey = currentKey.append(new StringBuilder(context.basicString().basicStringValue().getText()));
+        currentKey = currentKey.append(context.basicString().basicStringValue().getText());
     }
 
     @Override
     public void enterUnquotedKey(TomlParser.UnquotedKeyContext context) {
-        currentKey = currentKey.append(new StringBuilder(context.getText()));
+        currentKey = currentKey.append(context.getText());
     }
 
     @Override
