@@ -53,6 +53,7 @@ public class Names {
     public static final Name OBJECT_INIT_SUFFIX = new Name("new");
     // TODO remove when current project name is read from manifest
     public static final Name ANON_ORG = new Name("$anon");
+    public static final Name NIL_VALUE = new Name("()");
 
     // Names related to Endpoint SPI.
     public static final Name EP_SERVICE_GET_ENDPOINT = new Name("getEndpoint");

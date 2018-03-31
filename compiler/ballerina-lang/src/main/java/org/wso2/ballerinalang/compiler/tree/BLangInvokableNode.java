@@ -48,6 +48,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangIdentifier name;
     public List<BLangVariable> requiredParams;
     public BLangType returnTypeNode;
+    public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
     public BLangBlockStmt body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -63,6 +64,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangInvokableNode() {
         this.requiredParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
+        this.returnTypeAnnAttachments = new ArrayList<>();
         this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
@@ -99,6 +101,16 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public void setReturnTypeNode(TypeNode returnTypeNode) {
         this.returnTypeNode = (BLangType) returnTypeNode;
+    }
+
+    @Override
+    public List<BLangAnnotationAttachment> getReturnTypeAnnotationAttachments() {
+        return returnTypeAnnAttachments;
+    }
+
+    @Override
+    public void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.returnTypeAnnAttachments.add((BLangAnnotationAttachment) annAttachment);
     }
 
     @Override

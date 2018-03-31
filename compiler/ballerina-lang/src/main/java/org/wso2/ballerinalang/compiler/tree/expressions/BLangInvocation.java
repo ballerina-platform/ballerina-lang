@@ -157,7 +157,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
                                                List<BLangExpression> namedArgs,
                                                List<BLangExpression> restArgs,
                                                BSymbol symbol,
-                                               List<BType> types,
+                                               BType type,
                                                BLangExpression expr,
                                                boolean async) {
             this.pos = pos;
@@ -186,7 +186,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
                                      List<BLangExpression> namedArgs,
                                      List<BLangExpression> restArgs,
                                      BSymbol symbol,
-                                     List<BType> types,
+                                     BType type,
                                      boolean async) {
             this.pos = pos;
             this.requiredArgs = requiredArgs;
@@ -211,7 +211,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         public BLangTransformerInvocation(DiagnosticPos pos,
                                           List<BLangExpression> requiredArgs,
                                           BSymbol symbol,
-                                          List<BType> types) {
+                                          BType type) {
             this.pos = pos;
             this.requiredArgs = requiredArgs;
             this.symbol = symbol;
@@ -223,8 +223,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
                                           List<BLangExpression> namedArgs,
                                           List<BLangExpression> restArgs,
                                           BSymbol symbol,
-                                          List<BType> types) {
-            this(pos, requiredArgs, symbol, types);
+                                          BType type) {
+            this(pos, requiredArgs, symbol, type);
             this.namedArgs = namedArgs;
             this.restArgs = restArgs;
         }

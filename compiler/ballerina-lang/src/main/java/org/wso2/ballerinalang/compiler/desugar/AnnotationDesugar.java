@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -111,7 +112,8 @@ public class AnnotationDesugar {
             generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
         }
 
-        ASTBuilderUtil.createReturnStmt(pkgNode.pos, initFunction.body);
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
+        initFunction.body.addStatement(returnStmt);
     }
 
     private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target, BLangVariable annMapVar) {
@@ -179,7 +181,7 @@ public class AnnotationDesugar {
         if (annotationVar != null) {
             assignmentStmt.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationVar.symbol);
         } else {
-            assignmentStmt.expr = ASTBuilderUtil.createLiteral(target.pos, symTable.nullType, null);
+            assignmentStmt.expr = ASTBuilderUtil.createLiteral(target.pos, symTable.nilType, null);
         }
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = target.pos;

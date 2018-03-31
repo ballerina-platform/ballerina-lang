@@ -25,6 +25,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -233,19 +234,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);
-        this.visitInvocable(funcNode);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
     }
 
-    private void visitInvocable(BLangInvokableNode invNode) {
+    private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
         this.resetFunction();
         this.initNewWorkerActionSystem();
         if (Symbols.isNative(invNode.symbol)) {
             return;
         }
-        boolean invokableReturns = invNode.returnTypeNode != null;
+        boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
         if (invNode.workers.isEmpty()) {
-            invNode.body.accept(this);
+            analyzeNode(invNode.body, invokableEnv);
             /* the function returns, but none of the statements surely returns */
             if (invokableReturns && !this.statementReturns) {
                 this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
@@ -254,7 +256,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else {
             boolean workerReturns = false;
             for (BLangWorker worker : invNode.workers) {
-                worker.accept(this);
+                analyzeNode(worker, invokableEnv);
                 workerReturns = workerReturns || this.statementReturns;
                 this.resetStatementReturns();
             }
@@ -383,6 +385,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
+
+        // Check whether this return statement is in resource
+        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
+            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_STMT_NOT_VALID_IN_RESOURCE);
+            return;
+        }
+
         if (this.inForkJoin() && this.inWorker()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
             return;
@@ -548,11 +557,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        serviceNode.resources.forEach(res -> res.accept(this));
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
+        serviceNode.resources.forEach(res -> analyzeNode(res, serviceEnv));
     }
 
     public void visit(BLangResource resourceNode) {
-        this.visitInvocable(resourceNode);
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
+                resourceNode.symbol.scope, env);
+        this.visitInvocable(resourceNode, resourceEnv);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -565,7 +577,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
-        this.visitInvocable(actionNode);
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
+        this.visitInvocable(actionNode, actionEnv);
     }
 
     public void visit(BLangStruct structNode) {

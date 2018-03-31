@@ -45,7 +45,6 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
-    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -176,10 +175,6 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
-transformerDefinition
-    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? callableUnitBody
-    ;
-
 attachmentPoint
      : SERVICE
      | RESOURCE
@@ -225,10 +220,10 @@ endpointInitlization
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
-    |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
+    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
     ;
 
@@ -237,6 +232,7 @@ simpleTypeName
     :   NullLiteral
     |   TYPE_ANY
     |   TYPE_DESC
+    |   nilTypeName
     |   valueTypeName
     |   referenceTypeName
     ;
@@ -248,6 +244,10 @@ builtInTypeName
      |   builtInReferenceTypeName
      |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
      ;
+
+nilTypeName
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    ;
 
 referenceTypeName
     :   builtInReferenceTypeName
@@ -407,8 +407,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 foreachStatement
@@ -673,7 +673,8 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   (SUB)? integerLiteral
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    |   (SUB)? integerLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral

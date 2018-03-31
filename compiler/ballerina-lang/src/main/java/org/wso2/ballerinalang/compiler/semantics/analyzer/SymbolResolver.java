@@ -180,7 +180,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ_NULL : InstructionCodes.RNE_NULL;
-        if (lhsType.tag == TypeTags.NULL &&
+        if (lhsType.tag == TypeTags.NIL &&
                 (rhsType.tag == TypeTags.STRUCT ||
                         rhsType.tag == TypeTags.CONNECTOR ||
                         rhsType.tag == TypeTags.ENUM ||
@@ -193,7 +193,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 lhsType.tag == TypeTags.CONNECTOR ||
                 lhsType.tag == TypeTags.ENUM ||
                 lhsType.tag == TypeTags.INVOKABLE)
-                && rhsType.tag == TypeTags.NULL) {
+                && rhsType.tag == TypeTags.NIL) {
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
 
@@ -304,12 +304,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
-            unionType.memberTypes.add(symTable.nullType);
+            unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
             Set<BType> memberTypes = new HashSet<BType>(2) {{
                 add(resultType);
-                add(symTable.nullType);
+                add(symTable.nilType);
             }};
             this.resultType = new BUnionType(null, memberTypes, true);
         }
@@ -478,7 +478,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                 Stream.of(memBType))
                 .collect(Collectors.toSet());
         resultType = new BUnionType(null, memberTypes,
-                memberTypes.contains(symTable.nullType));
+                memberTypes.contains(symTable.nilType));
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {

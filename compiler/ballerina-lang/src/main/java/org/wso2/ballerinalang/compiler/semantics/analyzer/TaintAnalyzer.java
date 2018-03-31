@@ -1239,7 +1239,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             taintTable.put(paramIndex, new TaintRecord(null, new ArrayList<>(taintErrorSet)));
             taintErrorSet.clear();
         } else if (this.blockedNode == null) {
-            if (invokableNode.returnTypeNode == null) {
+            if (invokableNode.returnTypeNode.type == symTable.nilType) {
                 returnTaintedStatusList = new ArrayList<>();
             } else {
 //                updatedReturnTaintedStatusBasedOnAnnotations(invokableNode.retParams);

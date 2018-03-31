@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/net.http;
 
 function openFileSuccess(string path) returns (boolean | error) {
     return true;

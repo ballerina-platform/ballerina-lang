@@ -17,7 +17,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.iterable;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+//import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -45,7 +45,7 @@ public class Operation {
     /* variables for lambda based operations. */
     public int arity;
     public BInvokableSymbol lambdaSymbol;
-    public BInvokableType lambdaType;
+//    public BInvokableType lambdaType;
 
     /* fields required for code generation. */
     public BLangVariable argVar = null, retVar = null;

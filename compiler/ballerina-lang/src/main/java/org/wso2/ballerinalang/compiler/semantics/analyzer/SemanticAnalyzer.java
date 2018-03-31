@@ -639,8 +639,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
         BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
-        // TODO Check for nil type...
-        if (bType != symTable.errType) {
+        if (bType != symTable.nilType && bType != symTable.errType) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
     }
@@ -657,13 +656,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch matchNode) {
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
-//        if (exprTypes.size() > 1) {
-//            dlog.error(matchNode.expr.pos, DiagnosticCode.MULTI_VAL_EXPR_IN_SINGLE_VAL_CONTEXT);
-//            return;
-//        } else if (exprTypes.size() == 0) {
-//            dlog.error(matchNode.expr.pos, DiagnosticCode.INVALID_EXPR_IN_MATCH_STMT);
-//            return;
-//        } else
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) exprType;
             exprTypes = new ArrayList<>(unionType.memberTypes);
@@ -1040,34 +1032,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-//    private boolean checkReturnValueCounts(BLangReturn returnNode) {
-//        boolean success = false;
-//        int expRetCount = this.env.enclInvokable.getReturnParameters().size();
-//        int actualRetCount = returnNode.exprs.size();
-//        if (expRetCount > 1 && actualRetCount <= 1) {
-//            this.dlog.error(returnNode.pos, DiagnosticCode.MULTI_VALUE_RETURN_EXPECTED);
-//        } else if (expRetCount == 1 && actualRetCount > 1) {
-//            this.dlog.error(returnNode.pos, DiagnosticCode.SINGLE_VALUE_RETURN_EXPECTED);
-//        } else if (expRetCount == 0 && actualRetCount >= 1) {
-//            this.dlog.error(returnNode.pos, DiagnosticCode.RETURN_VALUE_NOT_EXPECTED);
-//        } else if (expRetCount > actualRetCount) {
-//            this.dlog.error(returnNode.pos, DiagnosticCode.NOT_ENOUGH_RETURN_VALUES);
-//        } else if (expRetCount < actualRetCount) {
-//            this.dlog.error(returnNode.pos, DiagnosticCode.TOO_MANY_RETURN_VALUES);
-//        } else {
-//            success = true;
-//        }
-//        return success;
-//    }
-
-    private boolean isInvocationExpr(BLangExpression expr) {
-        return expr.getKind() == NodeKind.INVOCATION;
-    }
-
     @Override
     public void visit(BLangReturn returnNode) {
+        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
+            return;
+        }
+
         this.typeChecker.checkExpr(returnNode.expr, this.env,
-                this.env.enclInvokable.getReturnTypeNode().type);
+                this.env.enclInvokable.returnTypeNode.type);
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
@@ -1394,7 +1366,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                          BLangExpression rhsExpr) {
         // The lhs supports only simpleVarRef expression only.
         if (varRefExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            dlog.error(pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
+            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
             varRefExpr.type = this.symTable.errType;
             return;
         }
@@ -1425,7 +1397,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (newVarDeclaration) {
             // Define the new variable
-            this.symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), rhsType, varName, env);
+            BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
+                    Collections.emptySet(), rhsType, varName, env);
+            simpleVarRef.symbol = varSymbol;
+            simpleVarRef.type = varSymbol.type;
         } else {
             dlog.error(pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
         }
@@ -1470,11 +1445,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (ignoredCount == tupleDeNode.varRefs.size() || createdSymbolCount == 0) {
             dlog.error(tupleDeNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
         }
-        // Check RHS expressions with expected type list.
-//<<<<<<< HEAD
-//        if (tupleDeNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-//            expTypes = Lists.of(symTable.noType);
-//        }
 
         List<BType> rhsTypes;
         BType expType = new BTupleType(expTypes);
@@ -1485,24 +1455,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             dlog.error(tupleDeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsType);
             rhsTypes = typeChecker.getListWithErrorTypes(tupleDeNode.varRefs.size());
-//=======
-//        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-//            expTypes = Lists.of(symTable.noType);
-//        }
-//        List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
-//        if (assignNode.safeAssignment) {
-//            rhsTypes = Lists.of(handleSafeAssignmentWithVarDeclaration(assignNode.pos, rhsTypes.get(0)));
-//        }
-//
-//        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-//            if (rhsTypes.get(0) != symTable.errType && rhsTypes.get(0).tag == TypeTags.TUPLE) {
-//                BTupleType tupleType = (BTupleType) rhsTypes.get(0);
-//                rhsTypes = tupleType.tupleTypes;
-//            } else if (rhsTypes.get(0) != symTable.errType && rhsTypes.get(0).tag != TypeTags.TUPLE) {
-//                dlog.error(assignNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsTypes.get(0));
-//                rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
-//            }
-//>>>>>>> 261241512cbe6b32f22c8c35088939afe11e2bd4
         }
 
         // visit all lhs expressions
@@ -1590,7 +1542,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Create a new union type with the error type and continue the type checking process.
         lhsTypes.add(symTable.errStructType);
-        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nullType));
+        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nilType));
         typeChecker.checkExpr(rhsExpr, env, lhsUnionType);
 
         if (rhsExpr.type.tag == TypeTags.UNION) {
@@ -1631,7 +1583,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return rhsTypeSet.toArray(new BType[0])[0];
         }
 
-        return new BUnionType(null, rhsTypeSet, rhsTypeSet.contains(symTable.nullType));
+        return new BUnionType(null, rhsTypeSet, rhsTypeSet.contains(symTable.nilType));
     }
 
     private BType getTypeOfVarReferenceInAssignment(BLangExpression expr) {

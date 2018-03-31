@@ -72,7 +72,7 @@ import java.util.List;
  *
  * @since 0.965.0
  */
-class ASTBuilderUtil {
+public class ASTBuilderUtil {
 
     /**
      * Prepend generated code to given body.
@@ -207,10 +207,10 @@ class ASTBuilderUtil {
         return exprStmt;
     }
 
-    static BLangReturn createReturnStmt(DiagnosticPos pos, BLangBlockStmt target) {
+    public static BLangReturn createNilReturnStmt(DiagnosticPos pos, BType nilType) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
-        target.addStatement(returnStmt);
+        returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE);
         return returnStmt;
     }
 
@@ -342,9 +342,6 @@ class ASTBuilderUtil {
 
         invokeLambda.symbol = invokableSymbol;
         invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
-        if (!invokeLambda.types.isEmpty()) {
-            invokeLambda.type = invokeLambda.types.get(0);
-        }
         return invokeLambda;
     }
 

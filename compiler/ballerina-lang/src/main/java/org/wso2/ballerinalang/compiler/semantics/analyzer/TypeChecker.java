@@ -194,9 +194,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         expr.accept(this);
 
-        // TODO consider () type checking.
-        expr.type = expType;
-//        setExprType(expr, expType);
+        expr.type = resultType;
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
@@ -487,7 +485,8 @@ public class TypeChecker extends BLangNodeVisitor {
         final BType exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
         if (isIterableOperationInvocation(iExpr)) {
             iExpr.iterableOperationInvocation = true;
-            iterableAnalyzer.handlerIterableOperation(iExpr, expType, env);
+            iterableAnalyzer.handlerIterableOperation(iExpr,
+                    expType == symTable.noType ? symTable.nilType : expType, env);
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }
@@ -568,16 +567,17 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         cIExpr.objectInitInvocation.symbol = ((BStructSymbol) actualType.tsymbol).initializerFunc.symbol;
+        cIExpr.objectInitInvocation.type = symTable.nilType;
         checkInvocationParam(cIExpr.objectInitInvocation);
 
         resultType = types.checkType(cIExpr, actualType, expType);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
-        BType expType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
+        BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
         BType thenType = checkExpr(ternaryExpr.thenExpr, env, expType);
         BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
-        if (expType == symTable.errType || thenType == symTable.errType || elseType == symTable.errType) {
+        if (condExprType == symTable.errType || thenType == symTable.errType || elseType == symTable.errType) {
             resultType = symTable.errType;
         } else if (expType == symTable.noType) {
             if (thenType == elseType) {
@@ -593,7 +593,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangAwaitExpr awaitExpr) {
         BType actualType;
-        BType expType = checkExpr(awaitExpr.expr, env, this.symTable.futureType);
+        BType expType = checkExpr(awaitExpr.expr, env, this.symTable.noType);
         if (expType == symTable.errType) {
             actualType = symTable.errType;
         } else {
@@ -1272,7 +1272,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     types.checkTypes(valueExpr, Lists.of(valueExpr.type), Lists.of(symTable.jsonType));
                 } else {
                     BType valueType = valueExpr.type;
-                    types.checkTypes(valueExpr, valueExpr.impConversionExpr.types, Lists.of(symTable.jsonType));
+                    types.checkType(valueExpr, valueExpr.impConversionExpr.type, symTable.jsonType);
                     valueExpr.type = valueType;
                 }
                 resultType = valueExpr.type;

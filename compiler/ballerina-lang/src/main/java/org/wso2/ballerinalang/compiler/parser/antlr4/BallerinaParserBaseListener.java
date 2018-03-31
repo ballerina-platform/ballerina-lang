@@ -448,18 +448,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterAttachmentPoint(BallerinaParser.AttachmentPointContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -556,6 +544,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -628,18 +628,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -659,6 +647,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBuiltInTypeName(BallerinaParser.BuiltInTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNilTypeName(BallerinaParser.NilTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNilTypeName(BallerinaParser.NilTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

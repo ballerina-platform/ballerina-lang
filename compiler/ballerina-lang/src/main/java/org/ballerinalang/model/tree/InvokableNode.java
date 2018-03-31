@@ -42,6 +42,10 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     void setReturnTypeNode(TypeNode typeNode);
 
+    List<? extends AnnotationAttachmentNode> getReturnTypeAnnotationAttachments();
+
+    void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment);
+
     BlockNode getBody();
     
     void setBody(BlockNode body);

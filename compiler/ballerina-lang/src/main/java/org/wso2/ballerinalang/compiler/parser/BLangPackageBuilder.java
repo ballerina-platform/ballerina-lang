@@ -78,6 +78,8 @@ import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -371,7 +373,7 @@ public class BLangPackageBuilder {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.addWS(ws);
         typeNode.pos = pos;
-        typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName));
+        typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName.replaceAll("\\s+", "")));
 
         addType(typeNode);
     }
@@ -518,9 +520,14 @@ public class BLangPackageBuilder {
         functionTypeNode.returnsKeywordExists = true;
 
         if (retParamsAvail) {
-//            functionTypeNode.addWS(commaWsStack.pop());
             functionTypeNode.returnTypeNode = (BLangType) this.varStack.pop().getTypeNode();
+        } else {
+            BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            nilTypeNode.pos = pos;
+            nilTypeNode.typeKind = TypeKind.NIL;
+            functionTypeNode.returnTypeNode = nilTypeNode;
         }
+
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
             this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add((BLangType) v.getTypeNode()));
@@ -619,15 +626,27 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    public void endCallableUnitSignature(Set<Whitespace> ws, String identifier, boolean paramsAvail,
-                                         boolean retParamsAvail, boolean restParamAvail) {
+    public void endCallableUnitSignature(DiagnosticPos pos,
+                                         Set<Whitespace> ws,
+                                         String identifier,
+                                         boolean paramsAvail,
+                                         boolean retParamsAvail,
+                                         boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
         invNode.setName(this.createIdentifier(identifier));
         invNode.addWS(ws);
+        BLangType returnTypeNode;
         if (retParamsAvail) {
-            BLangType typeNode = (BLangType) this.typeNodeStack.pop();
-            invNode.setReturnTypeNode(typeNode);
+            BLangVariable varNode = (BLangVariable) this.varStack.pop();
+            returnTypeNode = varNode.getTypeNode();
+            varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
+        } else {
+            BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            nillTypeNode.pos = pos;
+            nillTypeNode.typeKind = TypeKind.NIL;
+            returnTypeNode = nillTypeNode;
         }
+        invNode.setReturnTypeNode(returnTypeNode);
 
         if (paramsAvail) {
             this.varListStack.pop().forEach(variableNode -> {
@@ -655,11 +674,14 @@ public class BLangPackageBuilder {
         lambdaFunction.addFlag(Flag.LAMBDA);
     }
 
-    public void addLambdaFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean retParamsAvail,
+    public void addLambdaFunctionDef(DiagnosticPos pos,
+                                     Set<Whitespace> ws,
+                                     boolean paramsAvail,
+                                     boolean retParamsAvail,
                                      boolean restParamAvail) {
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.pos = pos;
-        endCallableUnitSignature(ws, lambdaFunction.getName().value, paramsAvail, retParamsAvail, restParamAvail);
+        endCallableUnitSignature(pos, ws, lambdaFunction.getName().value, paramsAvail, retParamsAvail, restParamAvail);
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = lambdaFunction;
         lambdaExpr.pos = pos;
@@ -1405,6 +1427,11 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.DEPRECATED);
         }
 
+        BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        nillTypeNode.pos = pos;
+        nillTypeNode.typeKind = TypeKind.NIL;
+        function.returnTypeNode = nillTypeNode;
+
         ((BLangObject) this.objectStack.peek()).initFunction = function;
     }
 
@@ -1859,8 +1886,13 @@ public class BLangPackageBuilder {
         retStmt.pos = pos;
         retStmt.addWS(ws);
         if (exprAvailable) {
-            retStmt.addWS(commaWsStack.pop());
             retStmt.expr = (BLangExpression) this.exprNodeStack.pop();
+        } else {
+            BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            nilLiteral.pos = pos;
+            nilLiteral.value = Names.NIL_VALUE;
+            nilLiteral.typeTag = TypeTags.NIL;
+            retStmt.expr = nilLiteral;
         }
         addStmtToCurrentBlock(retStmt);
     }
@@ -2143,6 +2175,13 @@ public class BLangPackageBuilder {
                 resourceNode.addParameter(variableNode);
             });
         }
+
+        // Set the return type node
+        BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        nillTypeNode.pos = pos;
+        nillTypeNode.typeKind = TypeKind.NIL;
+        resourceNode.returnTypeNode = nillTypeNode;
+
         serviceNodeStack.peek().addResource(resourceNode);
     }
 
@@ -2360,14 +2399,16 @@ public class BLangPackageBuilder {
         List<VariableNode> mappingParams = this.varListStack.pop();
 
         // set the first mapping-param as the source for transformer
-        VariableNode source = mappingParams.remove(0);
+        VariableNode source = mappingParams.get(0);
         ((BLangVariable) source).docTag = DocTag.RECEIVER;
         transformer.setSource(source);
+
         // TODO Fix with the single return model
-        mappingParams.forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.RECEIVER;
-            transformer.requiredParams.add((BLangVariable) variableNode);
-        });
+        transformer.retParams = new ArrayList<>();
+        BLangVariable target = (BLangVariable) mappingParams.get(1);
+        target.docTag = DocTag.RECEIVER;
+        transformer.retParams.add(target);
+        transformer.returnTypeNode = target.typeNode;
 
         if (publicFunc) {
             transformer.flagSet.add(Flag.PUBLIC);
