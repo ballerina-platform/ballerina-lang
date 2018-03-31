@@ -173,6 +173,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testCompilationErrorTestCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testInResponseSetStatusCodeWithString
         BAssertUtil.validateError(resultNegative, 0,
@@ -181,5 +182,46 @@ public class ResponseNativeFunctionNegativeTest {
         BAssertUtil.validateError(resultNegative, 1,
                 "undefined field 'method' in struct 'ballerina.net.http:Response'",
                 9, 21);
+        //testInResponseAddHeader
+        BAssertUtil.validateError(resultNegative, 2,
+                "attempt to refer to non-public symbol 'InResponse.addHeader'",
+                14, 5);
+        BAssertUtil.validateError(resultNegative, 3,
+                "undefined function 'addHeader' in struct 'ballerina.net.http:InResponse'",
+                14, 5);
+        //testInResponseRemoveHeader
+        BAssertUtil.validateError(resultNegative, 4,
+                "attempt to refer to non-public symbol 'InResponse.removeHeader'",
+                19, 5);
+        BAssertUtil.validateError(resultNegative, 5,
+                                  "undefined function 'removeHeader' in struct 'ballerina.net.http:InResponse'",
+                                  19, 5);
+        //testInResponseRemoveAllHeaders
+        BAssertUtil.validateError(resultNegative, 6,
+                "undefined function 'removeAllHeaders' in struct 'ballerina.net.http:InResponse'",
+                24, 5);
+        //testInResponseSetHeader
+        BAssertUtil.validateError(resultNegative, 7,
+                "attempt to refer to non-public symbol 'InResponse.setHeader'",
+                29, 5);
+        BAssertUtil.validateError(resultNegative, 8,
+                                  "undefined function 'setHeader' in struct 'ballerina.net.http:InResponse'",
+                                  29, 5);
+        //testInResponseSetJsonPayload
+        BAssertUtil.validateError(resultNegative, 9,
+                "undefined function 'setJsonPayload' in struct 'ballerina.net.http:InResponse'",
+                34, 5);
+        //testInResponseSetProperty
+        BAssertUtil.validateError(resultNegative, 10,
+                "undefined function 'setProperty' in struct 'ballerina.net.http:InResponse'",
+                39, 5);
+        //testInResponseSetStringPayload
+        BAssertUtil.validateError(resultNegative, 11,
+                "undefined function 'setStringPayload' in struct 'ballerina.net.http:InResponse'",
+                44, 5);
+        //testInResponseSetXmlPayload
+        BAssertUtil.validateError(resultNegative, 12,
+                "undefined function 'setXmlPayload' in struct 'ballerina.net.http:InResponse'",
+                49, 5);
     }
 }
