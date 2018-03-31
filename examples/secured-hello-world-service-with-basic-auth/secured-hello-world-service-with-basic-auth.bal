@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/io;
-import ballerina/http.endpoints;
 import ballerina/auth;
 
 // The endpoint used here is 'endpoints:ApiEndpoint', which by default tries to authenticate and authorize each request.
