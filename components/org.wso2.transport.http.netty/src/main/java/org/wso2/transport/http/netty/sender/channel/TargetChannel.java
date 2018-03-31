@@ -27,17 +27,22 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
+import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,14 +68,29 @@ public class TargetChannel {
     private ChunkConfig chunkConfig;
     private HttpResponseFuture httpInboundResponseFuture;
     private HandlerExecutor handlerExecutor;
+    private Http2ClientChannel http2ClientChannel;
 
     private List<HttpContent> contentList = new ArrayList<>();
     private int contentLength = 0;
+    private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
-    public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture) {
+    public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
+                         HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.httpRoute = httpRoute;
+        if (httpClientChannelInitializer != null) {
+            http2ClientChannel =
+                    new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
+                                           httpClientChannelInitializer.getConnection(),
+                                           httpRoute, channelFuture.channel());
+        }
+        this.connectionAvailabilityFuture = connectionAvailabilityFuture;
+    }
+
+    public ConnectionAvailabilityFuture getConnectionAvailabilityFuture() {
+        return connectionAvailabilityFuture;
     }
 
     public Channel getChannel() {
@@ -131,7 +151,7 @@ public class TargetChannel {
         TargetHandler targetHandler = this.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
         targetHandler.setIncomingMsg(httpCarbonMessage);
-        this.getTargetHandler().setConnectionManager(connectionManager);
+        targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
 
         this.httpInboundResponseFuture = httpInboundResponseFuture;
@@ -159,6 +179,10 @@ public class TargetChannel {
 
     public ChannelFuture getChannelFuture() {
         return channelFuture;
+    }
+
+    public Http2ClientChannel getHttp2ClientChannel() {
+        return http2ClientChannel;
     }
 
     public void writeContent(HTTPCarbonMessage httpOutboundRequest) {
@@ -265,5 +289,27 @@ public class TargetChannel {
 
     private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
+    }
+
+    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HTTPCarbonMessage httpOutboundRequest) {
+        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
+            return;
+        }
+        String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
+        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
+        if (headerUpdater.isForwardedHeaderRequired()) {
+            headerUpdater.setForwardedHeader();
+            return;
+        }
+        if (headerUpdater.isXForwardedHeaderRequired()) {
+            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
+                headerUpdater.setDefactoForwardedHeaders();
+                return;
+            }
+            headerUpdater.transformAndSetForwardedHeader();
+            return;
+        }
+        log.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
+        headerUpdater.setForwardedHeader();
     }
 }

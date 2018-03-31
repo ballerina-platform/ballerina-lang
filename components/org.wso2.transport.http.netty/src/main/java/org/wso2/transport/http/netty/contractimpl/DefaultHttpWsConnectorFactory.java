@@ -25,7 +25,6 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -33,7 +32,7 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketClientConnectorImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -48,16 +47,19 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
 
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
+    private final EventLoopGroup clientGroup;
     private final ChannelGroup allChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public DefaultHttpWsConnectorFactory() {
         bossGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
         workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
+        clientGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
     }
 
-    public DefaultHttpWsConnectorFactory(int serverSocketThreads, int childSocketThreads) {
+    public DefaultHttpWsConnectorFactory(int serverSocketThreads, int childSocketThreads, int clientThreads) {
         bossGroup = new NioEventLoopGroup(serverSocketThreads);
         workerGroup = new NioEventLoopGroup(childSocketThreads);
+        clientGroup = new NioEventLoopGroup(clientThreads);
     }
 
     @Override
@@ -71,10 +73,15 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         serverConnectorBootstrap.addOcspStapling(listenerConfig.isOcspStaplingEnabled());
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
+        if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+            serverConnectorBootstrap.setHttp2Enabled(true);
+        }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
+        serverConnectorBootstrap.addHttpAccessLogHandler(listenerConfig.isHttpAccessLogEnabled());
         serverConnectorBootstrap.addThreadPools(bossGroup, workerGroup);
         serverConnectorBootstrap.addHeaderAndEntitySizeValidation(listenerConfig.getRequestSizeValidationConfig());
         serverConnectorBootstrap.addChunkingBehaviour(listenerConfig.getChunkConfig());
+        serverConnectorBootstrap.addKeepAliveBehaviour(listenerConfig.getKeepAliveConfig());
         serverConnectorBootstrap.addServerHeader(listenerConfig.getServerHeader());
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
@@ -84,16 +91,13 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
-        EventLoopGroup clientEventLoopGroup = new NioEventLoopGroup(
-                Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
-        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration(),
-                bootstrapConfig, clientEventLoopGroup);
-        return new HttpClientConnectorImpl(connectionManager, senderConfiguration);
+        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration, bootstrapConfig, clientGroup);
+        return new DefaultHttpClientConnector(connectionManager, senderConfiguration);
     }
 
     @Override
     public WebSocketClientConnector createWsClientConnector(WsClientConnectorConfig clientConnectorConfig) {
-        return new WebSocketClientConnectorImpl(clientConnectorConfig);
+        return new DefaultWebSocketClientConnector(clientConnectorConfig, clientGroup);
     }
 
     @Override
@@ -101,5 +105,6 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         this.allChannels.close().sync();
         this.workerGroup.shutdownGracefully().sync();
         this.bossGroup.shutdownGracefully().sync();
+        this.clientGroup.shutdownGracefully().sync();
     }
 }

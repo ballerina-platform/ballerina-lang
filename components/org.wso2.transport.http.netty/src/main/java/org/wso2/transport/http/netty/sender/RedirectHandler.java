@@ -634,8 +634,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      */
     private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg) {
         targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
-        targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
         targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
         return targetRespMsg;

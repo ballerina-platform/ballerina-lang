@@ -21,34 +21,43 @@ package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.ssl.ApplicationProtocolNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.Http2Reset;
+import org.wso2.transport.http.netty.message.ResponseHandle;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityListener;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 import java.util.NoSuchElementException;
 
 /**
  * Implementation of the client connector.
  */
-public class HttpClientConnectorImpl implements HttpClientConnector {
+public class DefaultHttpClientConnector implements HttpClientConnector {
 
     private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
 
     private ConnectionManager connectionManager;
+    private Http2ConnectionManager http2ConnectionManager;
     private SenderConfiguration senderConfiguration;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
@@ -56,11 +65,18 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private boolean keepAlive;
+    private boolean isHttp2;
+    private ForwardedExtensionConfig forwardedExtensionConfig;
 
-    public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
+    public DefaultHttpClientConnector(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
+        this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);
+        String httpVersion = senderConfiguration.getHttpVersion();
+        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
+            isHttp2 = true;
+        }
     }
 
     @Override
@@ -69,8 +85,48 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     }
 
     @Override
+    public HttpResponseFuture getResponse(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getResponseFuture();
+    }
+
+    @Override
+    public HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getResponseFuture();
+    }
+
+    @Override
+    public HttpResponseFuture hasPushPromise(ResponseHandle responseHandle) {
+        return responseHandle.getOutboundMsgHolder().getResponseFuture();
+    }
+
+    @Override
+    public void rejectPushResponse(Http2PushPromise pushPromise) {
+        Http2Reset http2Reset = new Http2Reset(pushPromise.getPromisedStreamId());
+        OutboundMsgHolder outboundMsgHolder = pushPromise.getOutboundMsgHolder();
+        pushPromise.reject();
+        outboundMsgHolder.getHttp2ClientChannel().getChannel().write(http2Reset);
+    }
+
+    @Override
+    public HttpResponseFuture getPushResponse(Http2PushPromise pushPromise) {
+        OutboundMsgHolder outboundMsgHolder = pushPromise.getOutboundMsgHolder();
+        if (pushPromise.isRejected()) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyPushResponse(pushPromise.getPromisedStreamId(),
+                                       new ClientConnectorException("Cannot fetch a response for an rejected promise",
+                                                                    HttpResponseStatus.BAD_REQUEST.code()));
+        }
+        return outboundMsgHolder.getResponseFuture();
+    }
+
+    @Override
+    public boolean close() {
+        return false;
+    }
+
+    @Override
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
-        HttpResponseFuture httpResponseFuture = new DefaultHttpResponseFuture();
+        final HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
@@ -81,12 +137,58 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         }
 
         try {
+            /*
+             * First try to get a channel from the http2 connection manager. If it is not available
+             * get the channel from the http connection manager. Http2 connection manager never create new channels,
+             * rather http connection manager create new connections and handover to the http2 connection manager
+             * in case of the connection get upgraded to a HTTP/2 connection.
+             */
             final HttpRoute route = getTargetRoute(httpOutboundRequest);
+            if (isHttp2) {
+                // See whether an already upgraded HTTP/2 connection is available
+                Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
+
+                if (activeHttp2ClientChannel != null) {
+                    OutboundMsgHolder outboundMsgHolder =
+                            new OutboundMsgHolder(httpOutboundRequest, activeHttp2ClientChannel);
+
+                    activeHttp2ClientChannel.getChannel().eventLoop().execute(
+                            () -> activeHttp2ClientChannel.getChannel().write(outboundMsgHolder));
+                    httpResponseFuture = outboundMsgHolder.getResponseFuture();
+                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                    return httpResponseFuture;
+                }
+            }
+
+            // Look for the connection from http connection manager
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
-            targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
+            Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
+
+            OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, freshHttp2ClientChannel);
+            httpResponseFuture = outboundMsgHolder.getResponseFuture();
+
+            targetChannel.getConnectionAvailabilityFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (isValidateChannel(channelFuture)) {
+                public void onSuccess(String protocol, ChannelFuture channelFuture) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Created the connection to address: {}",
+                                route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+                    }
+
+                    if (protocol.equalsIgnoreCase(ApplicationProtocolNames.HTTP_2)) {
+
+                        connectionManager.getHttp2ConnectionManager().
+                                addHttp2ClientChannel(route, freshHttp2ClientChannel);
+                        freshHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
+                            freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);
+                        });
+
+                        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                    } else {
+                        // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
+                        freshHttp2ClientChannel
+                                .putInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID, outboundMsgHolder);
+                        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
                         targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
                         targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
@@ -104,43 +206,13 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                             httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(),
                                                           Constants.CONNECTION_KEEP_ALIVE);
                         }
+                        targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
                         targetChannel.writeContent(httpOutboundRequest);
-                    } else {
-                        notifyErrorState(channelFuture);
                     }
                 }
 
-                private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
-                    if (channelFuture.isDone() && channelFuture.isSuccess()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Created the connection to address: {}",
-                                    route.toString() + " " + "Original Channel ID is : " + channelFuture.channel()
-                                            .id());
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-
-                private void notifyErrorState(ChannelFuture channelFuture) {
-                    ClientConnectorException cause;
-
-                    if (channelFuture.isDone() && channelFuture.isCancelled()) {
-                        cause = new ClientConnectorException("Request Cancelled, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    } else if (!channelFuture.isDone() && !channelFuture.isSuccess() &&
-                            !channelFuture.isCancelled() && (channelFuture.cause() == null)) {
-                        cause = new ClientConnectorException("Connection timeout, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    } else {
-                        cause = new ClientConnectorException("Connection refused, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    }
-
-                    if (channelFuture.cause() != null) {
-                        cause.initCause(channelFuture.cause());
-                    }
-
+                @Override
+                public void onFailure(ClientConnectorException cause) {
                     httpResponseFuture.notifyHttpListener(cause);
                 }
             });
@@ -149,15 +221,11 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                     && "Timeout waiting for idle object".equals(failedCause.getMessage())) {
                 failedCause = new NoSuchElementException(Constants.MAXIMUM_WAIT_TIME_EXCEED);
             }
-            httpResponseFuture.notifyHttpListener(failedCause);
+            HttpResponseFuture errorResponseFuture = new DefaultHttpResponseFuture();
+            errorResponseFuture.notifyHttpListener(failedCause);
+            return errorResponseFuture;
         }
-
         return httpResponseFuture;
-    }
-
-    @Override
-    public boolean close() {
-        return false;
     }
 
     private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
@@ -217,5 +285,6 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getSSLConfig();
         this.keepAlive = senderConfiguration.isKeepAlive();
+        this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
     }
 }

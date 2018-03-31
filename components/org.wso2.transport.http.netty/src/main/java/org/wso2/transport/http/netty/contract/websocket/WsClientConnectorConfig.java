@@ -31,7 +31,6 @@ public class WsClientConnectorConfig {
 
     private final String remoteAddress;
     private List<String> subProtocols;
-    private String target = null;
     private int idleTimeoutInSeconds = -1;
     private final Map<String, String> headers = new HashMap<>();
 
@@ -39,10 +38,9 @@ public class WsClientConnectorConfig {
         this.remoteAddress = remoteAddress;
     }
 
-    public WsClientConnectorConfig(String remoteAddress, String target, List<String> subProtocols,
+    public WsClientConnectorConfig(String remoteAddress, List<String> subProtocols,
                                    int idleTimeoutInSeconds) {
         this.remoteAddress = remoteAddress;
-        this.target = target;
         this.subProtocols = subProtocols;
         this.idleTimeoutInSeconds = idleTimeoutInSeconds;
     }
@@ -107,24 +105,6 @@ public class WsClientConnectorConfig {
      */
     public String getRemoteAddress() {
         return remoteAddress;
-    }
-
-    /**
-     * Get the target of the WebSocket incoming messages.
-     *
-     * @return the target of the WebSocket incoming messages.
-     */
-    public String getTarget() {
-        return target;
-    }
-
-    /**
-     * Set the target of the WebSocket incoming messages.
-     *
-     * @param target the target of the WebSocket incoming messages.
-     */
-    public void setTarget(String target) {
-        this.target = target;
     }
 
     /**

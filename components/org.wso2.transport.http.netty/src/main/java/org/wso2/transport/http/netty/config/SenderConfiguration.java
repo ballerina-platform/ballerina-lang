@@ -93,6 +93,9 @@ public class SenderConfiguration {
     @XmlAttribute
     private boolean isKeepAlive = true;
 
+    @XmlAttribute
+    private int http2MaxActiveStreams = Integer.MAX_VALUE;
+
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
@@ -101,6 +104,7 @@ public class SenderConfiguration {
     private int cacheSize = 50;
     private int cacheValidityPeriod = 15;
     private boolean hostNameVerificationEnabled = true;
+    private ForwardedExtensionConfig forwardedExtensionConfig;
     private boolean ocspStaplingEnabled = false;
 
     public SenderConfiguration() {
@@ -271,6 +275,14 @@ public class SenderConfiguration {
         }
     }
 
+    public int getHttp2MaxActiveStreams() {
+        return http2MaxActiveStreams;
+    }
+
+    public void setHttp2MaxActiveStreams(int http2MaxActiveStreams) {
+        this.http2MaxActiveStreams = http2MaxActiveStreams;
+    }
+
     public void setValidateCertEnabled(boolean validateCertEnabled) {
         this.validateCertEnabled = validateCertEnabled;
     }
@@ -317,5 +329,13 @@ public class SenderConfiguration {
 
     public void setPoolConfiguration(PoolConfiguration poolConfiguration) {
         this.poolConfiguration = poolConfiguration;
+    }
+
+    public ForwardedExtensionConfig getForwardedExtensionConfig() {
+        return forwardedExtensionConfig;
+    }
+
+    public void setForwardedExtensionConfig(ForwardedExtensionConfig forwardedExtensionEnabled) {
+        this.forwardedExtensionConfig = forwardedExtensionEnabled;
     }
 }

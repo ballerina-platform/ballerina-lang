@@ -61,14 +61,11 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class SSLHandlerFactory {
 
-    private String protocol = null;
     private final SSLContext sslContext;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
-    private KeyManagerFactory keyManagerFactory;
-    private TrustManagerFactory trustManagerFactory;
-    private KeyStore keyStore;
-    private KeyStore trustStore;
+    private KeyManagerFactory kmf;
+    private TrustManagerFactory tmf;
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
@@ -77,26 +74,26 @@ public class SSLHandlerFactory {
             algorithm = "SunX509";
         }
         needClientAuth = sslConfig.isNeedClientAuth();
-        protocol = sslConfig.getSSLProtocol();
-        KeyManager[] keyManagers = null;
+        String protocol = sslConfig.getSSLProtocol();
         try {
+            KeyManager[] keyManagers = null;
             if (sslConfig.getKeyStore() != null) {
-                keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
+                KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
                 // Set up key manager factory to use our key store
-                keyManagerFactory = KeyManagerFactory.getInstance(algorithm);
-                if (keyStore != null) {
-                    keyManagerFactory.init(keyStore, sslConfig.getCertPass() != null ?
+                kmf = KeyManagerFactory.getInstance(algorithm);
+                if (ks != null) {
+                    kmf.init(ks, sslConfig.getCertPass() != null ?
                             sslConfig.getCertPass().toCharArray() :
                             sslConfig.getKeyStorePass().toCharArray());
-                    keyManagers = keyManagerFactory.getKeyManagers();
+                    keyManagers = kmf.getKeyManagers();
                 }
             }
             TrustManager[] trustManagers = null;
             if (sslConfig.getTrustStore() != null) {
-                trustStore = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
-                trustManagerFactory = TrustManagerFactory.getInstance(algorithm);
-                trustManagerFactory.init(trustStore);
-                trustManagers = trustManagerFactory.getTrustManagers();
+                KeyStore tks = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
+                tmf = TrustManagerFactory.getInstance(algorithm);
+                tmf.init(tks);
+                trustManagers = tmf.getTrustManagers();
             }
             sslContext = SSLContext.getInstance(protocol);
             sslContext.init(keyManagers, trustManagers, null);
@@ -133,8 +130,8 @@ public class SSLHandlerFactory {
 
     public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext() throws SSLException {
         ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder
-                .forServer(keyManagerFactory).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
-                .keyManager(keyManagerFactory).trustManager(trustManagerFactory)
+                .forServer(kmf).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
+                .keyManager(kmf).trustManager(tmf)
                 .protocols(sslConfig.getEnableProtocols()).build();
         return context;
     }
@@ -158,23 +155,21 @@ public class SSLHandlerFactory {
      * @param engine client/server ssl engine.
      * @return sslEngine
      */
-    public SSLEngine addCommonConfigs(SSLEngine engine) {
+    private SSLEngine addCommonConfigs(SSLEngine engine) {
         if (sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0) {
             engine.setEnabledCipherSuites(sslConfig.getCipherSuites());
         }
         if (sslConfig.getEnableProtocols() != null && sslConfig.getEnableProtocols().length > 0) {
             engine.setEnabledProtocols(sslConfig.getEnableProtocols());
         }
-        if (sslConfig.isEnableSessionCreation()) {
-            engine.setEnableSessionCreation(true);
-        }
+        engine.setEnableSessionCreation(sslConfig.isEnableSessionCreation());
         return engine;
     }
 
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
         ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
                 .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(keyManagerFactory)
-                .trustManager(trustManagerFactory).protocols(sslConfig.getEnableProtocols()).build();
+                .trustManager(tmf).protocols(sslConfig.getEnableProtocols()).build();
         return context;
     }
 
@@ -185,35 +180,49 @@ public class SSLHandlerFactory {
      * @return instance of {@link SslContext}
      * @throws SSLException if any error occurred during building SSL context.
      */
-    public SslContext createHttp2TLSContext() throws SSLException {
+    public SslContext createHttp2TLSContextForServer() throws SSLException {
 
         // If listener configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
-        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
-                .asList(sslConfig.getCipherSuites()) : Http2SecurityUtil.CIPHERS;
-        SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
-        return SslContextBuilder.forServer(this.getKeyManagerFactory())
-                .trustManager(this.getTrustStoreFactory())
-                .sslProvider(provider)
-                .ciphers(ciphers,
-                        SupportedCipherSuiteFilter.INSTANCE)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE)
-                .applicationProtocolConfig(new ApplicationProtocolConfig(
-                        ApplicationProtocolConfig.Protocol.ALPN,
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
+                Arrays.asList(sslConfig.getCipherSuites()) :
+                Http2SecurityUtil.CIPHERS;
+        SslProvider provider = SslProvider.JDK;
+
+        return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
+                .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(
+                        new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+                                ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                                ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                                ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).build();
+    }
+
+    public SslContext createHttp2TLSContextForClient() throws SSLException {
+
+        // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
+        // specification will be added.
+        SslProvider provider = SslProvider.JDK;
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
+                Arrays.asList(sslConfig.getCipherSuites()) :
+                Http2SecurityUtil.CIPHERS;
+
+        return SslContextBuilder.forClient().sslProvider(provider).keyManager(kmf).trustManager(tmf)
+                .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
                         // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
                         ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
                         // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
                         ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                        ApplicationProtocolNames.HTTP_2,
-                        ApplicationProtocolNames.HTTP_1_1)).build();
+                        ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).build();
     }
 
-    public KeyManagerFactory getKeyManagerFactory() {
-        return keyManagerFactory;
+    private KeyManagerFactory getKeyManagerFactory() {
+        return kmf;
     }
 
-    public TrustManagerFactory getTrustStoreFactory() {
-        return trustManagerFactory;
+    private TrustManagerFactory getTrustStoreFactory() {
+        return tmf;
     }
 
     public void setSNIServerNames(SSLEngine sslEngine, String peerHost) {

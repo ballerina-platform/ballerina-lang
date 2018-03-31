@@ -26,6 +26,7 @@ import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
+import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,10 +43,11 @@ public class ConnectionManager {
     private PoolManagementPolicy poolManagementPolicy;
     private BootstrapConfiguration bootstrapConfig;
     private final Map<String, GenericObjectPool> connGlobalPool;
+    private Http2ConnectionManager http2ConnectionManager;
 
-    public ConnectionManager(PoolConfiguration poolConfiguration, BootstrapConfiguration bootstrapConfiguration,
-            EventLoopGroup clientEventGroup) {
-        this.poolConfiguration = poolConfiguration;
+    public ConnectionManager(SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfiguration,
+                             EventLoopGroup clientEventGroup) {
+        this.poolConfiguration = senderConfig.getPoolConfiguration();
         if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.LOCK_DEFAULT_POOLING;
         }
@@ -53,6 +55,7 @@ public class ConnectionManager {
         this.clientEventGroup = clientEventGroup;
 
         this.bootstrapConfig = bootstrapConfiguration;
+        this.http2ConnectionManager = new Http2ConnectionManager(senderConfig);
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
@@ -202,4 +205,7 @@ public class ConnectionManager {
         return config;
     }
 
+    public Http2ConnectionManager getHttp2ConnectionManager() {
+        return http2ConnectionManager;
+    }
 }

@@ -19,6 +19,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -32,6 +33,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -39,6 +41,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 /**
  * A class responsible for handling responses coming from BE.
@@ -50,6 +54,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HTTPCarbonMessage targetRespMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
+    private ClientOutboundHandler http2ClientOutboundHandler;
     private HTTPCarbonMessage incomingMsg;
     private HandlerExecutor handlerExecutor;
     private boolean keepAlive;
@@ -76,7 +81,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 if (handlerExecutor != null) {
                     handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
                 }
-
+                OutboundMsgHolder msgHolder = http2ClientOutboundHandler.
+                        getHttp2ClientChannel().getInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID);
+                if (msgHolder != null) {
+                    // Response received over HTTP/1.x connection, so mark no push promises available in the channel
+                    msgHolder.markNoPromisesReceived();
+                }
                 if (this.httpResponseFuture != null) {
                     httpResponseFuture.notifyHttpListener(targetRespMsg);
                 } else {
@@ -118,8 +128,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         targetRespMsg = new HttpCarbonResponse((HttpResponse) msg);
         targetRespMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
-        targetRespMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
         targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
 
@@ -186,14 +195,32 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
                 log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id());
             }
+        } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
+            HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
+            if (HttpClientUpgradeHandler.UpgradeEvent.UPGRADE_SUCCESSFUL.name().equals(upgradeEvent.name())) {
+                executePostUpgradeActions(ctx);
+            }
+            ctx.fireUserEventTriggered(evt);
         } else {
             log.warn("Unexpected user event triggered", evt.toString());
         }
     }
 
+    private void executePostUpgradeActions(ChannelHandlerContext ctx) {
+        ctx.pipeline().remove(this);
+        ctx.pipeline().addLast(http2ClientOutboundHandler);
+        http2ClientOutboundHandler.getHttp2ClientChannel().setUpgradedToHttp2(true);
+        handoverChannelToHttp2ConnectionManager();
+    }
+
+    private void handoverChannelToHttp2ConnectionManager() {
+        connectionManager.getHttp2ConnectionManager().
+                addHttp2ClientChannel(targetChannel.getHttpRoute(), targetChannel.getHttp2ClientChannel());
+    }
+
     private void handleErrorIdleScenarios(String channelID) {
         if (targetRespMsg == null) {
-            httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
+            httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
                     Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         } else {
@@ -239,5 +266,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public HttpResponseFuture getHttpResponseFuture() {
         return httpResponseFuture;
+    }
+
+    public void setHttp2ClientOutboundHandler(ClientOutboundHandler http2ClientOutboundHandler) {
+        this.http2ClientOutboundHandler = http2ClientOutboundHandler;
     }
 }

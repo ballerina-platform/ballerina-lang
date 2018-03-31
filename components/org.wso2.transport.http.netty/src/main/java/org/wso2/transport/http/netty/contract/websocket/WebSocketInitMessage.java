@@ -19,6 +19,8 @@
 
 package org.wso2.transport.http.netty.contract.websocket;
 
+import io.netty.handler.codec.http.HttpHeaders;
+
 /**
  * This Message is used to handle WebSocket handshake.
  */
@@ -54,6 +56,20 @@ public interface WebSocketInitMessage extends WebSocketMessage {
     HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout);
 
     /**
+     * Complete the handshake of a given request. The connection will be timed out if the connection is idle for given
+     * time period.
+     *
+     * @param subProtocols Sub-Protocols which are allowed by the service.
+     * @param allowExtensions whether the extensions are allowed or not.
+     * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
+     * @param responseHeaders Extra headers to add to the handshake response or {@code null} if no extra headers should
+     *                        be added
+     * @return the handshake future.
+     */
+    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                              HttpHeaders responseHeaders);
+
+    /**
      * Cancel the handshake.
      *
      * @param closeCode close code for cancelling the handshake.
@@ -67,4 +83,11 @@ public interface WebSocketInitMessage extends WebSocketMessage {
      * @return true if the handshake is cancelled.
      */
     boolean isCancelled();
+
+    /**
+     * Check whether the handshake has been started or not.
+     *
+     * @return true if the handshake has been started.
+     */
+    boolean isHandshakeStarted();
 }

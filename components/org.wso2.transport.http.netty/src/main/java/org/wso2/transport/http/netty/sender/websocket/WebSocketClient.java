@@ -25,7 +25,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -59,32 +58,30 @@ public class WebSocketClient {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
-    private WebSocketTargetHandler handler;
+    private WebSocketTargetHandler webSocketTargetHandler;
 
     private final String url;
     private final String subProtocols;
-    private final String target;
     private final int idleTimeout;
     private final Map<String, String> headers;
     private final WebSocketConnectorListener connectorListener;
+    private final EventLoopGroup wsClientEventLoopGroup;
 
     /**
-     *
      * @param url url of the remote endpoint.
-     * @param target target for the inbound messages from the remote server.
      * @param subProtocols the negotiable sub-protocol if server is asking for it.
      * @param idleTimeout Idle timeout of the connection.
      * @param headers any specific headers which need to send to the server.
      * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String target, String subProtocols, int idleTimeout,
+    public WebSocketClient(String url, String subProtocols, int idleTimeout, EventLoopGroup wsClientEventLoopGroup,
                            Map<String, String> headers, WebSocketConnectorListener connectorListener) {
         this.url = url;
-        this.target = target;
         this.subProtocols = subProtocols;
         this.idleTimeout = idleTimeout;
         this.headers = headers;
         this.connectorListener = connectorListener;
+        this.wsClientEventLoopGroup = wsClientEventLoopGroup;
     }
 
     /**
@@ -107,7 +104,6 @@ public class WebSocketClient {
 
             final boolean ssl = "wss".equalsIgnoreCase(scheme);
             final SslContext sslCtx = getSslContext(ssl);
-            EventLoopGroup group = new NioEventLoopGroup();
             HttpHeaders httpHeaders = new DefaultHttpHeaders();
 
             // Adding custom headers to the handshake request.
@@ -117,10 +113,10 @@ public class WebSocketClient {
 
             WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
-            handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
+            webSocketTargetHandler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, connectorListener);
 
             Bootstrap clientBootstrap = new Bootstrap();
-            clientBootstrap.group(group)
+            clientBootstrap.group(wsClientEventLoopGroup)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -136,25 +132,23 @@ public class WebSocketClient {
                                 pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
                                                                idleTimeout, TimeUnit.MILLISECONDS));
                             }
-                            pipeline.addLast(handler);
+                            pipeline.addLast(webSocketTargetHandler);
                         }
                     });
 
             clientBootstrap.connect(uri.getHost(), port).sync();
-            ChannelFuture future = handler.handshakeFuture().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) {
-                    Throwable cause = future.cause();
-                    if (future.isSuccess() && cause == null) {
-                        WebSocketSessionImpl session = (WebSocketSessionImpl) handler.getChannelSession();
-                        String actualSubProtocol = websocketHandshaker.actualSubprotocol();
-                        handler.setActualSubProtocol(actualSubProtocol);
-                        session.setNegotiatedSubProtocol(actualSubProtocol);
-                        session.setIsOpen(true);
-                        handshakeFuture.notifySuccess(session);
-                    } else {
-                        handshakeFuture.notifyError(cause);
-                    }
+            ChannelFuture future = webSocketTargetHandler
+                    .handshakeFuture().addListener((ChannelFutureListener) clientHandshakeFuture -> {
+                Throwable cause = clientHandshakeFuture.cause();
+                if (clientHandshakeFuture.isSuccess() && cause == null) {
+                    WebSocketSessionImpl session = (WebSocketSessionImpl) webSocketTargetHandler.getChannelSession();
+                    String actualSubProtocol = websocketHandshaker.actualSubprotocol();
+                    webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);
+                    session.setNegotiatedSubProtocol(actualSubProtocol);
+                    session.setIsOpen(true);
+                    handshakeFuture.notifySuccess(session);
+                } else {
+                    handshakeFuture.notifyError(cause);
                 }
             }).sync();
             handshakeFuture.setChannelFuture(future);

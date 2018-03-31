@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.TransportProperty;
@@ -40,6 +39,7 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
@@ -75,6 +75,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static org.testng.AssertJUnit.fail;
 
@@ -171,6 +173,23 @@ public class TestUtil {
             throws IOException {
         URL url = baseURI.resolve(path).toURL();
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+        if (method.equals(HttpMethod.POST.name()) || method.equals(HttpMethod.PUT.name())) {
+            urlConn.setDoOutput(true);
+        }
+        urlConn.setRequestMethod(method);
+        if (keepAlive) {
+            urlConn.setRequestProperty("Connection", "Keep-Alive");
+        } else {
+            urlConn.setRequestProperty("Connection", "Close");
+        }
+
+        return urlConn;
+    }
+
+    public static HttpsURLConnection httpsRequest(URI baseURI, String path, String method, boolean keepAlive)
+            throws IOException {
+        URL url = baseURI.resolve(path).toURL();
+        HttpsURLConnection urlConn = (HttpsURLConnection) url.openConnection();
         if (method.equals(HttpMethod.POST.name()) || method.equals(HttpMethod.PUT.name())) {
             urlConn.setDoOutput(true);
         }

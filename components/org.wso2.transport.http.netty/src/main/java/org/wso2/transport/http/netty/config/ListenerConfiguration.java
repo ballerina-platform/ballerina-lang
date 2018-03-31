@@ -58,6 +58,8 @@ public class ListenerConfiguration {
 
     private ChunkConfig chunkingConfig = ChunkConfig.AUTO;
 
+    private KeepAliveConfig keepAliveConfig = KeepAliveConfig.AUTO;
+
     @XmlAttribute
     private boolean bindOnStartup = false;
 
@@ -65,7 +67,7 @@ public class ListenerConfiguration {
     private String scheme = "http";
 
     @XmlAttribute
-    private boolean http2 = false;
+    private String version = "1.1";
 
     @XmlAttribute
     private String keyStoreFile;
@@ -92,6 +94,9 @@ public class ListenerConfiguration {
     private boolean httpTraceLogEnabled;
 
     @XmlAttribute
+    private boolean httpAccessLogEnabled;
+
+    @XmlAttribute
     private String verifyClient;
 
     @XmlAttribute
@@ -99,9 +104,6 @@ public class ListenerConfiguration {
 
     @XmlAttribute
     private String tlsStoreType;
-
-    @XmlAttribute
-    private boolean keepAlive = true;
 
     @XmlAttribute
     private String serverHeader = "wso2-http-transport";
@@ -261,12 +263,12 @@ public class ListenerConfiguration {
         this.scheme = scheme;
     }
 
-    public boolean isHttp2() {
-        return http2;
+    public String getVersion() {
+        return version;
     }
 
-    public void setHttp2(boolean http2) {
-        this.http2 = http2;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public List<Parameter> getParameters() {
@@ -319,6 +321,14 @@ public class ListenerConfiguration {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
+    public boolean isHttpAccessLogEnabled() {
+        return httpAccessLogEnabled;
+    }
+
+    public void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
+        this.httpAccessLogEnabled = httpAccessLogEnabled;
+    }
+
     public RequestSizeValidationConfig getRequestSizeValidationConfig() {
         return requestSizeValidationConfig;
     }
@@ -327,20 +337,20 @@ public class ListenerConfiguration {
         this.requestSizeValidationConfig = requestSizeValidationConfig;
     }
 
-    public boolean isKeepAlive() {
-        return keepAlive;
-    }
-
-    public void setKeepAlive(boolean keepAlive) {
-        this.keepAlive = keepAlive;
-    }
-
     public ChunkConfig getChunkConfig() {
         return chunkingConfig;
     }
 
     public void setChunkConfig(ChunkConfig chunkConfig) {
         this.chunkingConfig = chunkConfig;
+    }
+
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
+    }
+
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
     }
 
     public String getServerHeader() {

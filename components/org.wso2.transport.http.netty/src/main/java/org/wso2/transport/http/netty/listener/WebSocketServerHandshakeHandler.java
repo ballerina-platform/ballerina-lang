@@ -21,14 +21,19 @@ package org.wso2.transport.http.netty.listener;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpRequestDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketInitMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
@@ -61,7 +66,31 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(HttpHeaderNames.UPGRADE))) {
                 log.debug("Upgrading the connection from Http to WebSocket for " +
                                   "channel : " + ctx.channel());
-                handleWebSocketHandshake(httpRequest, ctx);
+                ChannelPipeline pipeline = ctx.pipeline();
+                ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
+                String aggregatorName = "aggregate";
+                pipeline.addAfter(decoderCtx.name(), aggregatorName, new HttpObjectAggregator(8192));
+                pipeline.addAfter(aggregatorName, "handshake", new SimpleChannelInboundHandler<FullHttpRequest>() {
+                    @Override
+                    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+                        // Remove ourselves and do the actual handshake
+                        ctx.pipeline().remove(this);
+                        handleWebSocketHandshake(msg, ctx);
+                    }
+
+                    @Override
+                    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                        // Remove ourselves and fail the handshake
+                        ctx.pipeline().remove(this);
+                        ctx.fireExceptionCaught(cause);
+                    }
+
+                    @Override
+                    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+                        ctx.fireChannelInactive();
+                    }
+                });
+                decoderCtx.fireChannelRead(msg);
                 return;
             }
         }
@@ -110,8 +139,8 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         WebSocketSourceHandler webSocketSourceHandler =
                 new WebSocketSourceHandler(serverConnectorFuture, isSecured, channelSession, httpRequest,
                                            headers, ctx, interfaceId);
-        WebSocketInitMessageImpl initMessage = new WebSocketInitMessageImpl(ctx, httpRequest, webSocketSourceHandler,
-                                                                            headers);
+        DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, httpRequest,
+                                                                                  webSocketSourceHandler, headers);
 
         // Setting common properties for init message
         initMessage.setChannelSession(channelSession);
@@ -120,6 +149,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         initMessage.setListenerInterface(interfaceId);
         initMessage.setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
         initMessage.setIsConnectionSecured(isSecured);
+        initMessage.setHttpRequest(httpRequest);
 
         serverConnectorFuture.notifyWSListener(initMessage);
     }

@@ -39,7 +39,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 public class CommonUtilTestCase {
 
     @Test(description = "Test setting headers to Http request with duplicate header keys")
-    public void createHttpRequest() {
+    public void testCreateHttpRequest() {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("aaa", "123");
         headers.add("aaa", "xyz");
@@ -57,7 +57,7 @@ public class CommonUtilTestCase {
     }
 
     @Test(description = "Test setting headers to Http response with duplicate header keys")
-    public void createHttpResponse() {
+    public void testCreateHttpResponse() {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("aaa", "123");
         headers.add("aaa", "xyz");

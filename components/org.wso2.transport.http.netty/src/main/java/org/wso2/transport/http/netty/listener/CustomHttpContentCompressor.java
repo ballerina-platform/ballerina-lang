@@ -27,6 +27,13 @@ public class CustomHttpContentCompressor extends HttpContentCompressor {
         if (method == HttpMethod.OPTIONS && allowHeader != null && contentLength.equals("0")) {
             return null;
         }
+        String contentEncoding = headers.headers().get(HttpHeaderNames.CONTENT_ENCODING);
+        if (contentEncoding != null) {
+            //When the response contains content-encoding header, override acceptEncoding value with it, which will
+            //ultimately be used for compression and then remove the content-encoding header from response.
+            acceptEncoding = contentEncoding;
+            headers.headers().remove(HttpHeaderNames.CONTENT_ENCODING);
+        }
         return super.beginEncode(headers, acceptEncoding);
     }
 
