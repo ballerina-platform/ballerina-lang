@@ -34,37 +34,27 @@ public struct FileBasedPermissionStore {
 @Return {value:"boolean: true if authorized, else false"}
 public function <FileBasedPermissionStore permissionStore> isAuthorized (string username,
                                                                          string[] scopes) returns (boolean) {
-    string[] groupsForScope = [];
-    foreach scopeName in scopes  {
-        groupsForScope = combineArrays(groupsForScope, getGroupsArray(permissionStore.readGroupsOfScope(scopeName)));
-    }
-    if (lengthof groupsForScope == 0) {
-        // no groups for found for the scopes - cannot authorize
-        return false;
-
-    }
     string[] groupsForUser = getGroupsArray(permissionStore.readGroupsOfUser(username));
     if (lengthof groupsForUser == 0) {
         // no groups for user
         return false;
     }
-    return matchGroups(groupsForScope, groupsForUser);
-}
-
-@Description {value:"Appends the contents of the second array to the first"}
-@Param {value:"primaryArray: name of the primary array to which content is appended"}
-@Param {value:"combiningArray: secondary array, elements of which will be appended to first"}
-@Return {value:"string[]: combined array"}
-function combineArrays (string[] primaryArray, string[] combiningArray) returns (string[]) {
-    if (lengthof combiningArray == 0) {
-        return primaryArray;
+    
+    string[] groupsForScope = [];
+    foreach scopeName in scopes  {
+        // read groups for each scope and see if there is a match between user's groups
+        // and the groups of the scope. There is no need to read groups for all scopes
+        // and do the comparison.
+        groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
+        if (lengthof groupsForScope > 0) {
+            // check if there is a match
+            if (matchGroups(groupsForScope, groupsForUser)) {
+                return true;
+            }
+            
+        }
     }
-    int i = 0;
-    while (i < lengthof combiningArray) {
-        primaryArray[lengthof primaryArray + i] = combiningArray[i];
-        i = i + 1;
-    }
-    return primaryArray;
+    return false;
 }
 
 @Description {value:"Reads groups for the given scopes"}

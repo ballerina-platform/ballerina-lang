@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.tracer.TraceConstants;
 import org.ballerinalang.util.tracer.TraceManagerWrapper;
@@ -52,6 +53,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ENDPOINT;
 
@@ -85,11 +87,12 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
         serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, serverConnector);
+        serviceEndpoint.setRefField(3, new BMap());
         serverConnector.addNativeData(WEBSOCKET_ENDPOINT, serviceEndpoint);
         Map<String, String> upgradeHeaders = webSocketInitMessage.getHeaders();
         BMap<String, BString> bUpgradeHeaders = new BMap<>();
         upgradeHeaders.forEach((key, value) -> bUpgradeHeaders.put(key, new BString(value)));
-        serverConnector.setRefField(1, bUpgradeHeaders);
+        serviceEndpoint.setRefField(4, bUpgradeHeaders);
         Resource onUpgradeResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_UPGRADE);
         if (onUpgradeResource != null) {
             Semaphore semaphore = new Semaphore(0);
@@ -105,7 +108,13 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BStruct mediaType = BLangConnectorSPIUtil.createBStruct(
                     WebSocketUtil.getProgramFile(wsService.getResources()[0]),
                     org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
-            HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, msg);
+
+            BStruct cacheControlStruct = BLangConnectorSPIUtil.createBStruct(
+                    WebSocketUtil.getProgramFile(wsService.getResources()[0]),
+                    PROTOCOL_PACKAGE_HTTP, REQUEST_CACHE_CONTROL);
+            RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+
+            HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, msg, requestCacheControl);
 
             List<ParamDetail> paramDetails = onUpgradeResource.getParamDetails();
             BValue[] bValues = new BValue[paramDetails.size()];

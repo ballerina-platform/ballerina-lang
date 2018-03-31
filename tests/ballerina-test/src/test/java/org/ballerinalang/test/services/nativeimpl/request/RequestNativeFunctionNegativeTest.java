@@ -123,7 +123,8 @@ public class RequestNativeFunctionNegativeTest {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        Assert.assertTrue(returnVals[0].stringValue().contains("Error occurred while retrieving text data " +
+                "from entity : Payload is null"));
     }
 
     @Test

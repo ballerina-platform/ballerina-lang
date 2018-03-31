@@ -44,7 +44,7 @@ function main(string[] args) {
         json jsonPayload1 => {
           io:println(jsonPayload1);
         }
-        mime:EntityError payloadError1 => {
+        http:PayloadError payloadError1 => {
           io:println(payloadError1.message);
         }
       }
