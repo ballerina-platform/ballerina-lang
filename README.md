@@ -9,11 +9,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-lang/ballerina.svg)](https://github.com/ballerina-lang/ballerina/commits/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ballerina makes it easy to create resilient services that integrate and orchestrate transactions across distributed endpoints. 
-
-Ballerina is created for and dedicated to developers who want to solve integration problems. Ballerina is inspired by Java, Go, and other languages, and leverages years of experience in the integration domain. 
-
-Code with a statically-typed, interaction-centric programming language where microservices, APIs, and streams are first-class constructs. Use your preferred IDE and CI/CD tools. Discover, consume, and share packages that integrate endpoints with Ballerina Central. Build binaries, containers, and Kubernetes artifacts. Deploy as chaos-ready services on cloud and serverless infrastructure. Integrate distributed endpoints with simple syntax for resiliency, circuit breakers, transactions, and events.
+Ballerina allows you to code with a statically-typed, interaction-centric programming language where microservices, APIs, and streams are first-class constructs. Use your preferred IDE and CI/CD tools. Discover, consume, and share packages that integrate endpoints with Ballerina Central. Build binaries, containers, and Kubernetes artifacts and deploy as chaos-ready services on cloud and serverless infrastructure. Integrate distributed endpoints with simple syntax for resiliency, circuit breakers, transactions, and events.
 
 ## Table of contents
 
