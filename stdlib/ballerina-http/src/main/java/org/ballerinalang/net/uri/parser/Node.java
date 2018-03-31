@@ -47,7 +47,8 @@ public abstract class Node<DataType, InboundMsgType> {
         return dataElement;
     }
 
-    public Node<DataType, InboundMsgType> addChild(Node<DataType, InboundMsgType> childNode) throws URITemplateException {
+    public Node<DataType, InboundMsgType> addChild(Node<DataType, InboundMsgType> childNode)
+            throws URITemplateException {
         Node<DataType, InboundMsgType> node = childNode;
         Node<DataType, InboundMsgType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
         if (matchingChildNode != null) {
@@ -131,7 +132,7 @@ public abstract class Node<DataType, InboundMsgType> {
 
     @SuppressWarnings("unchecked")
     private Node<DataType, InboundMsgType> getMatchingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
-                                                       List<Node<DataType, InboundMsgType>> existingChildren) throws URITemplateException {
+            List<Node<DataType, InboundMsgType>> existingChildren) throws URITemplateException {
         boolean isExpression = prospectiveChild instanceof Expression;
         String prospectiveChildToken = prospectiveChild.getToken();
 

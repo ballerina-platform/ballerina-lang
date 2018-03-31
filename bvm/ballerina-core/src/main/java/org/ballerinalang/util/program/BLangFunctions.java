@@ -41,6 +41,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -139,7 +140,7 @@ public class BLangFunctions {
     public static void invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
             CallableUnitCallback responseCallback) {
-        WorkerSet workerSet = listWorkers(callableUnitInfo);
+        WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         SyncCallableWorkerResponseContext respCtx = new SyncCallableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length);
         respCtx.registerResponseCallback(responseCallback);
@@ -179,7 +180,7 @@ public class BLangFunctions {
             BLangVMUtils.initClientConnectorTrace(parentCtx, callableUnitInfo.attachedToType.toString(),
                     callableUnitInfo.getName());
         }
-        BLangScheduler.switchToWaitForResponse(parentCtx);
+        BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
             if (FunctionFlags.isAsync(flags)) {
@@ -193,7 +194,8 @@ public class BLangFunctions {
                 invokeNonNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
                 resultCtx = parentCtx;
             } else {
-                resultCtx = invokeNonNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse, flags);
+                resultCtx = invokeNonNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse,
+                        flags);
             }
         }
         resultCtx = BLangScheduler.resume(resultCtx, true);
@@ -211,7 +213,7 @@ public class BLangFunctions {
 
     public static WorkerExecutionContext invokeNonNativeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse, int flags) {
-        WorkerSet workerSet = listWorkers(callableUnitInfo);
+        WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         int generalWorkersCount = workerSet.generalWorkers.length;
         CallableWorkerResponseContext respCtx = createWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
                 generalWorkersCount);
@@ -262,7 +264,7 @@ public class BLangFunctions {
     
     public static void invokeNonNativeCallableAsync(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
-        WorkerSet workerSet = listWorkers(callableUnitInfo);
+        WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         int generalWorkersCount = workerSet.generalWorkers.length;
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo,
                 generalWorkersCount);
@@ -391,17 +393,6 @@ public class BLangFunctions {
             return workerLocal;
         }
     }
-
-    private static WorkerSet listWorkers(CallableUnitInfo callableUnitInfo) {
-        WorkerSet result = new WorkerSet();
-        result.generalWorkers = callableUnitInfo.getWorkerInfoEntries();
-        if (result.generalWorkers.length == 0) {
-            result.generalWorkers = callableUnitInfo.getDefaultWorkerInfoAsArray();
-        } else {
-            result.initWorker = callableUnitInfo.getDefaultWorkerInfo();
-        }
-        return result;
-    }
     
     public static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
         invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
@@ -467,7 +458,7 @@ public class BLangFunctions {
             AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout * 1000);
         }
         Map<String, Object> globalProps = parentCtx.globalProps;
-        BLangScheduler.switchToWaitForResponse(parentCtx);
+        BLangScheduler.workerWaitForResponse(parentCtx);
         for (int i = 1; i < workerInfos.length; i++) {
             executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[i], globalProps, false);
         }
@@ -490,17 +481,6 @@ public class BLangFunctions {
         forkjoinInfo.getWorkerInfoMap().forEach((k, v) -> channels.put(k, v.getWorkerDataChannelInfoForForkJoin()
                 != null ? v.getWorkerDataChannelInfoForForkJoin().getChannelName() : null));
         return channels;
-    }
-
-    /**
-     * This represents a worker set with different execution roles.
-     */
-    private static class WorkerSet {
-
-        public WorkerInfo initWorker;
-
-        public WorkerInfo[] generalWorkers;
-
     }
     
     /**

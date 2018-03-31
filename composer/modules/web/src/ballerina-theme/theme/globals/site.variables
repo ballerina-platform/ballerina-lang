@@ -24,7 +24,7 @@ html:focus, body:focus, input[readonly]:focus{
       Colors
 --------------------*/
 
-@primaryColor               : @orange;
+@primaryColor               : #2fb8b0;
 @secondaryColor             : @gray-100;
 @defaultColor               : #626262;
 
