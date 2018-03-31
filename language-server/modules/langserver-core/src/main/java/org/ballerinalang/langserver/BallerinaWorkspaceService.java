@@ -35,14 +35,14 @@ import java.util.concurrent.CompletableFuture;
 public class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManagerImpl workspaceDocumentManager;
-    private LSPackageCache LSPackageCache;
+    private LSPackageCache lSPackageCache;
     
     public BallerinaWorkspaceService(BallerinaLanguageServer ballerinaLanguageServer,
                                      WorkspaceDocumentManagerImpl workspaceDocumentManager,
                                      LSPackageCache packageContext) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.workspaceDocumentManager = workspaceDocumentManager;
-        this.LSPackageCache = packageContext;
+        this.lSPackageCache = packageContext;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         WorkspaceServiceContext executeCommandContext = new WorkspaceServiceContext();
         executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
         executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
-        executeCommandContext.put(ExecuteCommandKeys.LS_PACKAGE_CACHE_KEY, this.LSPackageCache);
+        executeCommandContext.put(ExecuteCommandKeys.LS_PACKAGE_CACHE_KEY, this.lSPackageCache);
         executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
         
         return CompletableFuture.supplyAsync(() -> {

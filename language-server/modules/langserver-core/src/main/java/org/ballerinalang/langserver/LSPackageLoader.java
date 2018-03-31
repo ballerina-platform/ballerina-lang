@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

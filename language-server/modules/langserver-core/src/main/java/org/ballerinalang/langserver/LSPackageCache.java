@@ -16,14 +16,10 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
