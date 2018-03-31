@@ -566,8 +566,7 @@ public class SwaggerConverterUtilsTest {
             "\n" +
             "}\n";
 
-    private static String complexServiceSample = "import ballerina.net.http;\n" +
-            "import ballerina.net.http.resiliency;\n" +
+    private static String complexServiceSample = "import ballerina/http;\n" +
             "import ballerina.runtime;service<http> failoverService {\n" +
             "    int[] failoverHttpStatusCodes = [400, 404, 500];\n" +
             "    resiliency:FailoverConfig errorCode = {failoverCodes:failoverHttpStatusCodes};\n" +

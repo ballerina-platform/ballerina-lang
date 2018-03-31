@@ -60,7 +60,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 
 /**
- * Test cases for ballerina.net.http inbound inResponse success native functions.
+ * Test cases for ballerina/http inbound inResponse success native functions.
  */
 public class ResponseNativeFunctionSuccessTest {
 
