@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -1013,11 +1014,26 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
         // TODO
-        checkExpr(bLangMatchExpression.expr, env);
+        SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
+        checkExpr(bLangMatchExpression.expr, matchExprEnv);
+        Set<BType> matchExprTypes = new HashSet<>();
         bLangMatchExpression.patternClauses.forEach(pattern -> {
-            checkExpr(pattern.expr, env);
-            pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, env);
+            if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
+                symbolEnter.defineNode(pattern.variable, matchExprEnv);
+            }
+            checkExpr(pattern.expr, matchExprEnv);
+            pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
+            matchExprTypes.add(pattern.expr.type);
         });
+
+        if (matchExprTypes.size() == 1) {
+            bLangMatchExpression.type = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
+        } else {
+            bLangMatchExpression.type =
+                    new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nullType));
+        }
+
+        types.checkTypes(bLangMatchExpression, Lists.of(bLangMatchExpression.type), expTypes);
     }
 
     // Private methods

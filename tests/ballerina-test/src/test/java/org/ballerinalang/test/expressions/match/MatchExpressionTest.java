@@ -17,10 +17,14 @@
 */
 package org.ballerinalang.test.expressions.match;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -41,8 +45,121 @@ public class MatchExpressionTest {
     }
 
     @Test
-    public void testInAssignment() {
-        BValue[] args = {new BInteger(20)};
-        BValue[] results = BRunUtil.invoke(compileResult, "testMatchExpr");
+    public void testMatchExpr() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testMatchExpr", new BValue[] { new BInteger(20) });
+        Assert.assertEquals(results[0].stringValue(), "value1");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExpr", new BValue[] { new BFloat(3.4) });
+        Assert.assertEquals(results[0].stringValue(), "value2");
+
+        results = BRunUtil.invoke(compileResult, "getError");
+        results = BRunUtil.invoke(compileResult, "testMatchExpr", results);
+        Assert.assertEquals(results[0].stringValue(), "value3");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExpr", new BValue[] { new BString("John") });
+        Assert.assertEquals(results[0].stringValue(), "value4");
+    }
+
+    @Test(enabled = false)
+    public void testMatchExprWithMismatchingTypes() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testMatchExpr", new BValue[] { new BBoolean(true) });
+        Assert.assertEquals(results[0].stringValue(), "value4");
+    }
+
+    @Test
+    public void testMatchExprWithImplicitDefault() {
+        BValue[] results =
+                BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault", new BValue[] { new BInteger(20) });
+        Assert.assertEquals(results[0].stringValue(), "value1");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault", new BValue[] { new BFloat(3.4) });
+        Assert.assertEquals(results[0].stringValue(), "value2");
+
+        results = BRunUtil.invoke(compileResult, "getError");
+        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault", results);
+        Assert.assertEquals(results[0].stringValue(), "value3");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExprWithImplicitDefault",
+                new BValue[] { new BString("John") });
+        Assert.assertEquals(results[0].stringValue(), "John");
+    }
+
+    @Test
+    public void testMatchExprInUnaryOperator() {
+        BValue[] results =
+                BRunUtil.invoke(compileResult, "testMatchExprInUnaryOperator", new BValue[] { new BInteger(20) });
+        Assert.assertEquals(results[0].stringValue(), "HELLO value1");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExprInUnaryOperator", new BValue[] { new BFloat(3.4) });
+        Assert.assertEquals(results[0].stringValue(), "HELLO value2");
+
+        results = BRunUtil.invoke(compileResult, "getError");
+        results = BRunUtil.invoke(compileResult, "testMatchExprInUnaryOperator", results);
+        Assert.assertEquals(results[0].stringValue(), "HELLO value3");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExprInUnaryOperator", new BValue[] { new BString("John") });
+        Assert.assertEquals(results[0].stringValue(), "HELLO John");
+    }
+
+    @Test
+    public void testMatchExprInBinaryOperator() {
+        BValue[] results =
+                BRunUtil.invoke(compileResult, "testMatchExprInBinaryOperator", new BValue[] { new BInteger(20) });
+        Assert.assertEquals(results[0].stringValue(), "HELLO value1");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExprInBinaryOperator", new BValue[] { new BFloat(3.4) });
+        Assert.assertEquals(results[0].stringValue(), "HELLO value2");
+
+        results = BRunUtil.invoke(compileResult, "getError");
+        results = BRunUtil.invoke(compileResult, "testMatchExprInBinaryOperator", results);
+        Assert.assertEquals(results[0].stringValue(), "HELLO value3");
+
+        results =
+                BRunUtil.invoke(compileResult, "testMatchExprInBinaryOperator", new BValue[] { new BString("John") });
+        Assert.assertEquals(results[0].stringValue(), "HELLO John");
+    }
+
+    @Test
+    public void testMatchExprInFuncCall() {
+        BValue[] results =
+                BRunUtil.invoke(compileResult, "testMatchExprInFuncCall", new BValue[] { new BInteger(20) });
+        Assert.assertEquals(results[0].stringValue(), "value1");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExprInFuncCall", new BValue[] { new BFloat(3.4) });
+        Assert.assertEquals(results[0].stringValue(), "value2");
+
+        results = BRunUtil.invoke(compileResult, "getError");
+        results = BRunUtil.invoke(compileResult, "testMatchExprInFuncCall", results);
+        Assert.assertEquals(results[0].stringValue(), "value3");
+
+        results = BRunUtil.invoke(compileResult, "testMatchExprInFuncCall", new BValue[] { new BString("John") });
+        Assert.assertEquals(results[0].stringValue(), "John");
+    }
+
+    @Test
+    public void testNestedMatchExpr() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testNestedMatchExpr", new BValue[] { new BInteger(20) });
+        Assert.assertEquals(results[0].stringValue(), "value1");
+
+        results = BRunUtil.invoke(compileResult, "testNestedMatchExpr", new BValue[] { new BFloat(3.4) });
+        Assert.assertEquals(results[0].stringValue(), "value2");
+
+        results = BRunUtil.invoke(compileResult, "getError");
+        results = BRunUtil.invoke(compileResult, "testNestedMatchExpr", results);
+        Assert.assertEquals(results[0].stringValue(), "value3");
+
+        results = BRunUtil.invoke(compileResult, "testNestedMatchExpr", new BValue[] { new BString("John") });
+        Assert.assertEquals(results[0].stringValue(), "value is string");
+
+        results = BRunUtil.invoke(compileResult, "testNestedMatchExpr", new BValue[] { null });
+        Assert.assertEquals(results[0].stringValue(), "value is null");
+    }
+
+    @Test
+    public void testMatchExprNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/expressions/match/match-expr-negative.bal");
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string', found 'float|int|string'",
+                8, 23);
+        BAssertUtil.validateError(negativeResult, 1, "undefined symbol 's'", 21, 31);
     }
 }

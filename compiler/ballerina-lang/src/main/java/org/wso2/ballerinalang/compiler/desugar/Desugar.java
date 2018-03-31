@@ -1452,6 +1452,7 @@ public class Desugar extends BLangNodeVisitor {
         stmts.addStatement(ASTBuilderUtil.createMatchStatement(bLangMatchExpression.pos, bLangMatchExpression.expr,
                 patternClauses));
         BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(stmts, tempResultVarRef);
+        statementExpr.type = bLangMatchExpression.type;
         result = rewriteExpr(statementExpr);
     }
 

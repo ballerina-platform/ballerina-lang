@@ -1256,9 +1256,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangStatementExpression bLangStatementExpression) {
+        bLangStatementExpression.regIndex = calcAndGetExprRegIndex(bLangStatementExpression);
         genNode(bLangStatementExpression.stmt, this.env);
         genNode(bLangStatementExpression.expr, this.env);
-
         emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
     }

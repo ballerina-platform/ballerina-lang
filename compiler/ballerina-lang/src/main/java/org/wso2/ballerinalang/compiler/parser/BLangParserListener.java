@@ -2920,7 +2920,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         // TODO: pass the var name, if available
-        this.pkgBuilder.addMatchExprPattaern(getCurrentPos(ctx), getWS(ctx), null);
+        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null; 
+        this.pkgBuilder.addMatchExprPattaern(getCurrentPos(ctx), getWS(ctx), identifier);
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
