@@ -1,6 +1,6 @@
 # This sample requires starting up the subscriber service after the publisher starts the hub up
 
-$ ballerina run publisher.bal
+$ ballerina run publisher.bal -ehub.remote_publishing.enabled=true
 2018-03-23 05:30:01,517 INFO  [] - Starting up the Ballerina Hub Service
 ballerina: Default Ballerina WebSub Hub started up at http://localhost:9999/websub/hub
 ballerina: started HTTP/WS server connector localhost:9999

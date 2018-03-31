@@ -71,11 +71,10 @@ service<http:Service> hubService bind hubServiceEP {
             params = request.getQueryParams();
             mode = <string> params[websub:HUB_MODE];
 
-            if (mode == websub:MODE_PUBLISH) {
+            if (mode == websub:MODE_PUBLISH && hubRemotePublishingEnabled) {
                 topic = <string> params[websub:HUB_TOPIC];
 
                 if (topic != "") {
-
                     var reqJsonPayload = request.getJsonPayload(); //TODO: allow others
                     match (reqJsonPayload) {
                         json payload => {
@@ -194,13 +193,9 @@ function verifyIntent(string callback, map params) {
                                                              + callback + "]");
                     }
                 }
-                mime:EntityError entityError => {
+                http:PayloadError payloadError => {
                     log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-                                  + "]: Error retrieving response payload: " + entityError.message);
-                }
-                (any | null ) => {
-                    log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-                                  + "]: Payload cannot be null");
+                                  + "]: Error retrieving response payload: " + payloadError.message);
                 }
             }
         }

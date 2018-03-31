@@ -21,8 +21,9 @@ const string hubHost = getStringConfig("hub.host", DEFAULT_HOST);
 const int hubPort = getIntConfig("hub.port", DEFAULT_PORT);
 const int hubLeaseSeconds = getIntConfig("hub.lease_seconds", DEFAULT_LEASE_SECONDS_VALUE);
 const string hubSignatureMethod = getStringConfig("hub.signature_method", DEFAULT_SIGNATURE_METHOD);
+const boolean hubRemotePublishingEnabled = getBooleanConfig("hub.remote_publishing.enabled", false);
 
-const boolean hubPersistenceEnabled = isHubPersistenceEnabled("hub.persist");
+const boolean hubPersistenceEnabled = getBooleanConfig("hub.persistence.enabled", false);
 const string hubDatabaseHost = getStringConfig("hub.db.host", DEFAULT_HOST);
 const int hubDatabasePort = getIntConfig("hub.db.port", DEFAULT_DB_PORT);
 const string hubDatabaseName = getStringConfig("hub.db.name", DEFAULT_DB_NAME);
@@ -43,21 +44,19 @@ function getHubUrl () returns (string) {
     }
 }
 
-@Description {value:"Function to retrieve if hub persistence is enabled, from a config file, or set to false by default
+@Description {value:"Function to retrieve a configuration set as a boolean, via the config API, or set a default value
                     if not specified."}
-@Return {value:"Whether persistence of hub subscriptions is expected"}
-function isHubPersistenceEnabled (string property) returns (boolean) {
+@Return {value:"The boolean configuration"}
+function getBooleanConfig (string property, boolean defaultIfNotSet) returns (boolean) {
     boolean configuration;
     match (config:getAsString(property)) {
-        string stringConfigFromFile => {
-            configuration = <boolean>stringConfigFromFile;
-        }
-        any | null => { configuration = false; }
+        string stringConfigFromFile => { configuration = <boolean>stringConfigFromFile; }
+        null => { configuration = defaultIfNotSet; }
     }
     return configuration;
 }
 
-@Description {value:"Function to retrieve a configuration set as a string, from a config file, or set a default value
+@Description {value:"Function to retrieve a configuration set as a string, via the config API, or set a default value
                     if not specified."}
 @Return {value:"The string configuration"}
 function getStringConfig (string property, string defaultIfNotSet) returns (string) {
@@ -65,12 +64,12 @@ function getStringConfig (string property, string defaultIfNotSet) returns (stri
     match (config:getAsString(property)) {
         string stringConfigFromFile => { configuration = stringConfigFromFile == "" ? defaultIfNotSet
                                                          : stringConfigFromFile; }
-        int | null => configuration = defaultIfNotSet;
+        null => configuration = defaultIfNotSet;
     }
     return configuration;
 }
 
-@Description{value:"Function to retrieve a configuration set as an integer, from a config file, or set a default value
+@Description{value:"Function to retrieve a configuration set as an integer, via the config API, or set a default value
                     if not specified."}
 @Return{value:"The integer configuration"}
 function getIntConfig (string property, int defaultIfNotSet) returns (int) {
@@ -82,7 +81,7 @@ function getIntConfig (string property, int defaultIfNotSet) returns (int) {
                 error => { configuration = defaultIfNotSet; }
             }
         }
-        int | null => configuration = defaultIfNotSet;
+        null => configuration = defaultIfNotSet;
     }
     return configuration;
 }

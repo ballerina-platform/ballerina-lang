@@ -104,10 +104,10 @@ function processHubResponse(string hub, string mode, string topic, http:Response
                 var responsePayload = httpResponse.getStringPayload();
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub +"]";
                 match (responsePayload) {
-                    mime:EntityError entityError => { errorMessage = errorMessage + " - " + "Error occurred identifying"
-                                                                     + "cause: " + entityError.message; }
                     string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }
-                    any | null => { errorMessage = errorMessage + ", Cause Unknown"; }
+                    http:PayloadError payloadError => { errorMessage = errorMessage + " - "
+                                                                       + "Error occurred identifying"
+                                                                       + "cause: " + payloadError.message; }
                 }
                 WebSubError webSubError = {errorMessage:errorMessage};
                 return webSubError;
