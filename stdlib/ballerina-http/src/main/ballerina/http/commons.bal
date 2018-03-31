@@ -16,15 +16,15 @@
 
 package ballerina.http;
 
-//Constants to represent Failover connector actions.
-public const string FORWARD = "forward";
-public const string GET = "get";
-public const string POST = "post";
-public const string DELETE = "delete";
-public const string OPTIONS = "options";
-public const string PUT = "put";
-public const string PATCH = "patch";
-public const string HEAD = "head";
+// TODO: Document these. Should we make FORWARD a private constant?
+public const string FORWARD = "FORWARD";
+public const string GET = "GET";
+public const string POST = "POST";
+public const string DELETE = "DELETE";
+public const string OPTIONS = "OPTIONS";
+public const string PUT = "PUT";
+public const string PATCH = "PATCH";
+public const string HEAD = "HEAD";
 
 enum HttpOperation {
     GET, POST, DELETE, OPTIONS, PUT, PATCH, HEAD, FORWARD
@@ -115,7 +115,11 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, config);
         } else {
-            httpClients[i] = createHttpClient(uri, config);
+            if (config.cacheConfig.enabled) {
+                httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+            } else {
+                httpClients[i] = createHttpClient(uri, config);
+            }
         }
         httpClients[i].config = config;
         i = i+1;

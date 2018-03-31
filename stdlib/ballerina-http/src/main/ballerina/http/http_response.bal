@@ -8,12 +8,23 @@ import ballerina/mime;
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
 @Field {value:"server: The server header"}
+@Field {value:"cacheControl: The cache control directives configuration of the response"}
+@Field {value:"receivedTime: The time the response was received"}
+@Field {value:"requestTime: The time the request associated with this response was made"}
 public struct Response {
     int statusCode;
     string reasonPhrase;
     string server;
+    ResponseCacheControl cacheControl;
+
+    private:
+        int receivedTime;
+        int requestTime;
 }
 
+public function <Response response> Response() {
+    response.cacheControl = {};
+}
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////

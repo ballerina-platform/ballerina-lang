@@ -36,15 +36,16 @@ function testIsEmptyWithMultipleChildren() returns (boolean) {
     return b;
 }
 
-function testGetItemType() returns (string, string, string) {
+function testGetItemType() returns (string, string, string, string) {
     var x1 = xml `<name>supun</name>`;
     var x2 = xml `<!-- outer comment -->`;
     var x3 = xml `<name gender="male">supun</name>`;
     xml x4 = x2 + x1 + x3;
     string s1 = x1.getItemType();
-    string s2 = x3.getItemType();
-    string s3 = x4.getItemType();
-    return (s1, s2, s3);
+    string s2 = x2.getItemType();
+    string s3 = x3.getItemType();
+    string s4 = x4.getItemType();
+    return (s1, s2, s3, s4);
 }
 
 function testGetItemTypeForElementWithPrefix() returns (string) {
@@ -91,7 +92,7 @@ function testGetTextValueDefaultNamespace() returns (string) {
 
 function testGetChildren() returns (xml, boolean, boolean) {
     var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></ns0:name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
@@ -101,7 +102,7 @@ function testGetChildren() returns (xml, boolean, boolean) {
 
 function testGetChildrenFromComplexXml() returns (xml, boolean, boolean) {
     xml x1 = xml `<name gender="male" xmlns="http://sample.com/test"><ns0:fname ns0:preferred="true" xmlns:ns0="http://sample.com/test/code">supun</ns0:fname><fname>supun</fname><lname>setunga</lname></name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
 
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
@@ -111,7 +112,7 @@ function testGetChildrenFromComplexXml() returns (xml, boolean, boolean) {
 
 function testGetNonExistingChildren() returns (xml, boolean, boolean) {
     var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"></ns0:name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
@@ -122,7 +123,7 @@ function testGetNonExistingChildren() returns (xml, boolean, boolean) {
 function testSelectChildren() returns (xml, boolean, boolean) {
     var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
               
-    xml x2 = x1.selectChildren("{http://sample.com/test}fname");
+    xml x2 = x1["{http://sample.com/test}fname"];
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
     
@@ -132,7 +133,7 @@ function testSelectChildren() returns (xml, boolean, boolean) {
 function testSelectChildrenWithDefaultNamespace() returns (xml, boolean, boolean) {
     xml x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
 
-    xml x2 = x1.selectChildren("{http://sample.com/test}fname");
+    xml x2 = x1["{http://sample.com/test}fname"];
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
 
@@ -143,7 +144,7 @@ function testSelectChildrenPrefixedDefaultNamespace() returns (xml, boolean, boo
     xmlns "http://sample.com/test" as pre;
     xml x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
 
-    xml x2 = x1.selectChildren(pre:fname);
+    xml x2 = x1[pre:fname];
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
 
@@ -154,7 +155,7 @@ function testSelectChildrenWithSamePrefix() returns (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as ns0;
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
 
-    xml x2 = x1.selectChildren(ns0:fname);
+    xml x2 = x1[ns0:fname];
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
 
@@ -165,7 +166,7 @@ function testSelectChildrenWithDifferentPrefix() returns (xml, boolean, boolean)
     xmlns "http://sample.com/test" as pre;
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
 
-    xml x2 = x1.selectChildren(pre:fname);
+    xml x2 = x1[pre:fname];
     boolean isEmpty = x2.isEmpty();
     boolean isSingleton = x2.isSingleton();
 
@@ -177,8 +178,8 @@ function testSelectChildrenWithDifferentNamespaces() returns (xml, xml, boolean,
     xmlns "http://sample.com/test/code" as cre;
     xml x1 = xml `<name xmlns="http://sample.com/test"><ns0:fname xmlns:ns0="http://sample.com/test/code">supun</ns0:fname><fname>thilina</fname><lname>setunga</lname></name>`;
 
-    xml x2 = x1.selectChildren(pre:fname);
-    xml x3 = x1.selectChildren(cre:fname);
+    xml x2 = x1[pre:fname];
+    xml x3 = x1[cre:fname];
 
     boolean isEmpty_1 = x2.isEmpty();
     boolean isSingleton_1 = x2.isSingleton();
@@ -213,7 +214,7 @@ function testGetElementsFromSequence() returns (xml, boolean, boolean){
 
 function testGetElementsByName() returns (xml, boolean, boolean) {
     var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     xml x3 = x2.select("{http://sample.com/test}fname");
     
     boolean isEmpty = x3.isEmpty();
@@ -224,7 +225,7 @@ function testGetElementsByName() returns (xml, boolean, boolean) {
 
 function testGetElementsByNameWithDefaultNamespace() returns (xml, boolean, boolean) {
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     xml x3 = x2.select("{http://sample.com/test}fname");
 
     boolean isEmpty = x3.isEmpty();
@@ -236,7 +237,7 @@ function testGetElementsByNameWithDefaultNamespace() returns (xml, boolean, bool
 function testGetElementsByNameByPrefix() returns (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as ns0;
     var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     xml x3 = x2.select(ns0:fname);
 
     boolean isEmpty = x3.isEmpty();
@@ -248,7 +249,7 @@ function testGetElementsByNameByPrefix() returns (xml, boolean, boolean) {
 function testGetElementsByNameByDifferentPrefix() returns (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as pre;
     var x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:fname>thilina</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     xml x3 = x2.select(pre:fname);
 
     boolean isEmpty = x3.isEmpty();
@@ -260,7 +261,7 @@ function testGetElementsByNameByDifferentPrefix() returns (xml, boolean, boolean
 function testGetElementsByNameEmptyNamespace() returns (xml, boolean, boolean) {
     xmlns "";
     xml x1 = xml `<name xmlns=""><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     xml x3 = x2.select("{}fname");
 
     boolean isEmpty = x3.isEmpty();
@@ -272,7 +273,7 @@ function testGetElementsByNameEmptyNamespace() returns (xml, boolean, boolean) {
 function testGetElementsByNamePrefixForDefaultNamespace() returns (xml, boolean, boolean) {
     xmlns "http://sample.com/test" as pre;
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><fname>thilina</fname><lname>setunga</lname></name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     xml x3 = x2.select(pre:fname);
 
     boolean isEmpty = x3.isEmpty();
@@ -284,7 +285,7 @@ function testGetElementsByNamePrefixForDefaultNamespace() returns (xml, boolean,
 function testGetElementsByNameDifferentNamespaces() returns (xml, xml, boolean, boolean, boolean, boolean) {
     xmlns "http://sample.com/test" as pre;
     var x1 = xml `<name xmlns="http://sample.com/test"><ns0:fname xmlns:ns0="http://sample.com/test/code">supun</ns0:fname><fname>thilina</fname><lname>setunga</lname></name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     xml x3 = x2.select(pre:fname);
     xml x4 = x2.select("{http://sample.com/test/code}fname");
 
@@ -321,7 +322,7 @@ function testSetChildren() returns (xml, boolean, boolean, xml) {
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
     
-    return (x1, isEmpty, isSingleton, x1.children());
+    return (x1, isEmpty, isSingleton, x1.*);
 }
 
 function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, string) {
@@ -333,15 +334,15 @@ function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, 
     string elementValue = "true";
     string attributeValue = "true";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{}residency");
+    xml x5 = x1["{http://sample.com/test}residency"];
 
-    return (x1, isEmpty, isSingleton, x1.children(), x5@["citizen"]);
+    return (x1, isEmpty, isSingleton, x1.*, x5@["citizen"]);
 }
 
 function testSetChildrenEmptyNamespace() returns (xml, boolean, boolean, xml, string) {
@@ -353,15 +354,15 @@ function testSetChildrenEmptyNamespace() returns (xml, boolean, boolean, xml, st
     string elementValue = "true";
     string attributeValue = "true";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{}residency");
+    xml x5 = x1["{}residency"];
 
-    return (x1, isEmpty, isSingleton, x1.children(), x5@["citizen"]);
+    return (x1, isEmpty, isSingleton, x1.*, x5@["citizen"]);
 }
 
 function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boolean, boolean, string) {
@@ -373,13 +374,13 @@ function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boole
     string elementValue = "true";
     string attributeValue = "true";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{}residency");
+    xml x5 = x1["{http://sample.com/test}residency"];
 
     return (x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"]);
 }
@@ -395,14 +396,13 @@ function testSetChildrenWithPrefixedAttribute() returns (xml, boolean, boolean, 
 
     xmlns "http://sample.com/test/code" as pre;
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{}residency");
+    xml x5 = x1["{http://sample.com/test}residency"];
 
 
     return (x1, isEmpty, isSingleton, x5@[pre:citizen]);
@@ -417,13 +417,13 @@ function testSetChildrenWithSameNamespace() returns (xml, boolean, boolean, stri
     string elementValue = "true";
     string attributeValue = "yes";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{http://sample.com/test}residency");
+    xml x5 = x1["{http://sample.com/test}residency"];
 
     return (x1, isEmpty, isSingleton, x5@[ns0:citizen]);
 }
@@ -437,13 +437,13 @@ function testSetChildrenWithDifferentNamespace() returns (xml, boolean, boolean,
     string elementValue = "true";
     string attributeValue = "yes";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{http://sample.com/test/code}residency");
+    xml x5 = x1["{http://sample.com/test/code}residency"];
 
     return (x1, isEmpty, isSingleton, x5@[ns0:citizen]);
 }
@@ -457,13 +457,13 @@ function testSetChildrenWithDiffNamespaceWithoutPrefix() returns (xml, boolean, 
     string elementValue = "true";
     string attributeValue = "yes";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{http://sample.com/test/code}residency");
+    xml x5 = x1["{http://sample.com/test/code}residency"];
 
     return (x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"]);
 }
@@ -478,13 +478,13 @@ function testSetChildrenWithAttributeDiffNamespace() returns (xml, boolean, bool
     string elementValue = "true";
     string attributeValue = "yes";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{http://sample.com/test}residency");
+    xml x5 = x1["{http://sample.com/test}residency"];
 
     return (x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"]);
 }
@@ -499,13 +499,13 @@ function testSetChildrenWithElementDiffNamespace() returns (xml, boolean, boolea
     string elementValue = "true";
     string attributeValue = "yes";
     xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
-    xml x3 = x1.children();
+    xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1.selectChildren("{http://sample.com/test/code}residency");
+    xml x5 = x1["{http://sample.com/test/code}residency"];
 
     return (x1, isEmpty, isSingleton, x5@[ns0:citizen]);
 }
@@ -525,7 +525,7 @@ function testCopy() returns (xml, boolean, boolean, xml) {
     boolean isEmpty = copy.isEmpty();
     boolean isSingleton = copy.isSingleton();
     
-    return (copy, isEmpty, isSingleton, x1.children());
+    return (copy, isEmpty, isSingleton, x1.*);
 }
 
 function testToString() returns (string) {
@@ -760,15 +760,15 @@ function testToJSONWithSequenceWithDifferentComplexElements() returns (json) {
 function testSelectChildrenWithEmptyNs() returns (xml, xml) {
     xml x1 = xml `<name><fname>supun</fname><fname xmlns="">thilina</fname><lname>setunga</lname></name>`;
               
-    xml x2 = x1.selectChildren("fname");
-    xml x3 = x1.selectChildren("{}fname");
+    xml x2 = x1["fname"];
+    xml x3 = x1["{}fname"];
     
     return (x2, x3);
 }
 
 function testSelectElementsWithEmptyNs() returns (xml, xml) {
     xml x1 = xml `<name><fname>supun</fname><fname xmlns="">thilina</fname><lname>setunga</lname></name>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     
     xml x3 = x2.select("fname");
     xml x4 = x2.select("{}fname");
@@ -843,4 +843,12 @@ function testRemoveNonExistingAttribute() returns (xml) {
   xml x = xml `<root xmlns:ns1="http://ballerina.com/bbb" foo1="bar1" ns0:foo1="bar2" ns1:foo1="bar3" ns0:foo2="bar4"> hello world!</root>`;
   x.removeAttribute("{http://ballerina.com/aaa}foo555");
   return x;
+}
+
+function testGetChildrenOfSequence() returns (int, xml) {
+    xml x1 = xml `<name1><fname1>John</fname1><lname1>Doe</lname1></name1>`;
+    xml x2 = xml `<name2><fname2>Jane</fname2><lname2>Doe</lname2></name2>`;
+    xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
+    xml x4 = x3.*;
+    return (lengthof x4, x4);
 }
