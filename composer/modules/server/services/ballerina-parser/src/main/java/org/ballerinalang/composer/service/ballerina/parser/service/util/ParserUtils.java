@@ -31,8 +31,8 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Mo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
-import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
