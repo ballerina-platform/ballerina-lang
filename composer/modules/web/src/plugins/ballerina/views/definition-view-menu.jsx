@@ -75,21 +75,29 @@ class DefinitionViewMenu extends React.Component {
             <Popup 
                 trigger={ 
                     <Button as='div' labelPosition='right' className='top-bar'>
-                        <Button icon divided>
-                            <Icon name={'fw fw-struct'} />
-                        </Button>
-                        <Label>Structs</Label>
-                        <Label as='a' basic pointing='left'>{structs.length}</Label>
-                        <Button icon>
-                            <Icon name={'fw fw-type-converter'} />
-                        </Button>
-                        <Label>Transformers</Label>
-                        <Label as='a' basic pointing='left'>{transformers.length}</Label>
-                        <Button icon>
-                            <Icon name={'fw fw-endpoint'} />
-                        </Button>
-                        <Label>Endpoints</Label>
-                        <Label as='a' basic pointing='left'>{endpoints.length}</Label>
+                        <Grid divided columns={3}>
+                            <Grid.Column>
+                                <Button icon>
+                                    <Icon name={'fw fw-struct'} />
+                                </Button>
+                                <Label>Structs</Label>
+                                <Label as='a' basic pointing='left'>{structs.length}</Label>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <Button icon>
+                                    <Icon name={'fw fw-type-converter'} />
+                                </Button>
+                                <Label>Transformers</Label>
+                                <Label as='a' basic pointing='left'>{transformers.length}</Label>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <Button icon>
+                                    <Icon name={'fw fw-endpoint'} />
+                                </Button>
+                                <Label>Endpoints</Label>
+                                <Label as='a' basic pointing='left'>{endpoints.length}</Label>
+                            </Grid.Column>
+                        </Grid>
                     </Button>
                     }
                 flowing
@@ -101,7 +109,7 @@ class DefinitionViewMenu extends React.Component {
                 onOpen={this.handleOpen}
             >
                 {
-                    <Grid divided columns={3}>
+                    <Grid divided columns={3} className='menu-pop-content'>
                         <Grid.Row>
                             <Grid.Column>
                                 <Header as='h5'>
