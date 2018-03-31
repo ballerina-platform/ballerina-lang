@@ -59,6 +59,7 @@ public struct TargetService {
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
+@Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig|null circuitBreaker;
     int endpointTimeout;
@@ -73,6 +74,7 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     string|FailoverConfig lbMode;
+    string acceptEncoding;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -85,6 +87,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.endpointTimeout = 60000;
     config.keepAlive = true;
     config.lbMode = ROUND_ROBIN;
+    config.acceptEncoding = "auto";
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}

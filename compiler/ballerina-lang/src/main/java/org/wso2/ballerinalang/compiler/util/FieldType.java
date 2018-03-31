@@ -15,15 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.wso2.ballerinalang.compiler.util;
 
 /**
- * This represents the possible worker execution states.
- * 
- * @since 0.965.0
+ * Type of field to access using {@code BLangFieldBasedAccess}.
+ * <p>
+ * Supported Types:
+ * <ul>
+ * <li>SINGLE - Access a single field by name</li>
+ * <li>ALL - Access all fields</li>
+ * </ul>
+ * </p>
+ * @since 0.970.0
  */
-public enum WorkerState {
-
-    READY, RUNNING, EXCEPTED, WAITING_FOR_RESPONSE, PAUSED, WAITING_FOR_LOCK, CREATED, DONE
-    
+public enum FieldType {
+    SINGLE, 
+    ALL;
 }

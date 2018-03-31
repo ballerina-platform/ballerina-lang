@@ -33,6 +33,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -95,10 +96,44 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(context, bConnector, path, requestMsg);
-        if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
-            requestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
-        }
+        AcceptEncodingConfig acceptEncodingConfig = getAcceptEncodingConfig
+                                                        (getAcceptEncodingConfigFromEndpointConfig(bConnector));
+        handleAcceptEncodingHeader(requestMsg, acceptEncodingConfig);
         return requestMsg;
+    }
+
+    private String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
+        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
+        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
+        if (epConfig == null) {
+            return HttpConstants.AUTO;
+        }
+        return epConfig.getStringField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING);
+    }
+
+    private static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
+        if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.AUTO;
+        } else if (HttpConstants.ENABLE.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.ENABLE;
+        } else if (HttpConstants.DISABLE.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.DISABLE;
+        } else {
+            throw new BallerinaConnectorException(
+                    "Invalid configuration found for Accept-Encoding: " + acceptEncodingConfig);
+        }
+    }
+
+    private void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
+            AcceptEncodingConfig acceptEncodingConfig) {
+        if (acceptEncodingConfig == AcceptEncodingConfig.ENABLE && (
+                outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
+            outboundRequest
+                    .setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        } else if (acceptEncodingConfig == AcceptEncodingConfig.DISABLE && (
+                outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null)) {
+            outboundRequest.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
+        }
     }
 
     protected void prepareOutboundRequest(Context context, BStruct connector, String path,
