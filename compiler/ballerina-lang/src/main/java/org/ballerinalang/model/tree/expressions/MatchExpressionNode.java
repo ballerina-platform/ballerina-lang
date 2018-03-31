@@ -22,10 +22,17 @@ import org.ballerinalang.model.tree.VariableNode;
 import java.util.List;
 
 /**
+ * {@code MatchExpressionNode} represents a type switch expression in Ballerina.
+ * 
  * @since 0.970.0
  */
 public interface MatchExpressionNode extends ExpressionNode {
 
+    /**
+     * {@code MatchExpressionPatternNode} represents a pattern inside a type switch expression
+     * 
+     * @since 0.970.0
+     */
     interface MatchExpressionPatternNode {
 
         VariableNode getVariableNode();

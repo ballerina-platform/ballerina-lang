@@ -86,6 +86,8 @@ public enum NodeKind {
     XML_PI_LITERAL,
     XML_SEQUENCE_LITERAL,
     STATEMENT_EXPRESSION,
+    MATCH_EXPRESSION,
+    MATCH_EXPRESSION_PATTERN_CLAUSE,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,

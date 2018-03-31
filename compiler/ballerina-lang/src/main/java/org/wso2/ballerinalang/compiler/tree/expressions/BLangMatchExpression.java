@@ -43,7 +43,7 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.MATCH;
+        return NodeKind.MATCH_EXPRESSION;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
 
         @Override
         public NodeKind getKind() {
-            return NodeKind.MATCH_PATTERN_CLAUSE;
+            return NodeKind.MATCH_EXPRESSION_PATTERN_CLAUSE;
         }
 
         @Override

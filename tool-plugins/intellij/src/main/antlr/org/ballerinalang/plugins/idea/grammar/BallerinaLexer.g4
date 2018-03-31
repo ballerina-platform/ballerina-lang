@@ -128,7 +128,7 @@ LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
 ASYNC       : 'async' ;
 AWAIT       : 'await' ;
-BUTX         : 'butx' ;
+BUTX        : 'but' ;
 
 // Separators
 
