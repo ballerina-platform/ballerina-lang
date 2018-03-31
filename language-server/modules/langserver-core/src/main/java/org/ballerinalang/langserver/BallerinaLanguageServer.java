@@ -46,9 +46,9 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
     public BallerinaLanguageServer() {
         WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-        BLangPackageContext bLangPackageContext = new BLangPackageContext();
-        textService = new BallerinaTextDocumentService(this, documentManager, bLangPackageContext);
-        workspaceService = new BallerinaWorkspaceService(this, documentManager, bLangPackageContext);
+        LSPackageCache LSPackageCache = new LSPackageCache();
+        textService = new BallerinaTextDocumentService(this, documentManager, LSPackageCache);
+        workspaceService = new BallerinaWorkspaceService(this, documentManager, LSPackageCache);
     }
 
     public LanguageClient getClient() {

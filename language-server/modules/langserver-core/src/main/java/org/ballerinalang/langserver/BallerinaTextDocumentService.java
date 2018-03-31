@@ -100,16 +100,16 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
-    private BLangPackageContext bLangPackageContext;
+    private LSPackageCache LSPackageCache;
 
     private final Debouncer diagPushDebouncer;
 
     public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer,
                                         WorkspaceDocumentManagerImpl workspaceDocumentManager,
-                                        BLangPackageContext packageContext) {
+                                        LSPackageCache packageContext) {
         this.ballerinaLanguageServer = ballerinaLanguageServer;
         this.documentManager = workspaceDocumentManager;
-        this.bLangPackageContext = packageContext;
+        this.LSPackageCache = packageContext;
         this.lastDiagnosticMap = new HashMap<>();
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
@@ -122,7 +122,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            completionContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
+            completionContext.put(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY, LSPackageCache);
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
                         documentManager, false, CompletionCustomErrorStrategy.class, false).get(0);
@@ -165,8 +165,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                                 LSCustomErrorStrategy.class, false).get(0);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         currentBLangPackage.symbol.getName().getValue());
-                bLangPackageContext.addPackage(currentBLangPackage);
-                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, bLangPackageContext);
+                LSPackageCache.addPackage(currentBLangPackage);
+                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, LSPackageCache);
             } catch (Exception | AssertionError e) {
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -194,7 +194,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                         bLangPackage.symbol.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
-                signatureContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
+                signatureContext.put(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY, LSPackageCache);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
             } catch (Exception e) {
                 signatureHelp = new SignatureHelp();
@@ -215,13 +215,13 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                             LSCustomErrorStrategy.class, false).get(0);
             definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     currentBLangPackage.symbol.getName().getValue());
-            bLangPackageContext.addPackage(currentBLangPackage);
+            LSPackageCache.addPackage(currentBLangPackage);
             List<Location> contents;
             try {
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
                 currentBLangPackage.accept(positionTreeVisitor);
 
-                contents = DefinitionUtil.getDefinitionPosition(definitionContext, bLangPackageContext);
+                contents = DefinitionUtil.getDefinitionPosition(definitionContext, LSPackageCache);
             } catch (Exception e) {
                 contents = new ArrayList<>();
             }
@@ -256,7 +256,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                 for (BLangPackage bLangPackage : bLangPackages) {
                     referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                             bLangPackage.symbol.getName().getValue());
-                    bLangPackageContext.addPackage(bLangPackage);
+                    LSPackageCache.addPackage(bLangPackage);
                     referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
                     contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
                 }
@@ -312,7 +312,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             } else if (!params.getContext().getDiagnostics().isEmpty()) {
                 params.getContext().getDiagnostics().forEach(diagnostic -> {
                     commands.addAll(CommandUtil
-                            .getCommandsByDiagnostic(diagnostic, params, documentManager, bLangPackageContext));
+                            .getCommandsByDiagnostic(diagnostic, params, LSPackageCache));
                 });
             }
             return commands;
@@ -400,7 +400,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
                 for (BLangPackage bLangPackage : bLangPackages) {
                     renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                             bLangPackage.symbol.getName().getValue());
-                    bLangPackageContext.addPackage(bLangPackage);
+                    LSPackageCache.addPackage(bLangPackage);
 
                     contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
                 }

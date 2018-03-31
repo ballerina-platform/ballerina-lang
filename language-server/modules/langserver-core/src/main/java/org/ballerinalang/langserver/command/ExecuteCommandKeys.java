@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.command;
 
-import org.ballerinalang.langserver.BLangPackageContext;
+import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LanguageServerContext;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
@@ -29,7 +29,7 @@ import java.util.List;
 public class ExecuteCommandKeys {
     public static final LanguageServerContext.Key<WorkspaceDocumentManagerImpl> DOCUMENT_MANAGER_KEY
             = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BLangPackageContext> BALLERINA_PKG_CONTEXT_KEY
+    public static final LanguageServerContext.Key<LSPackageCache> LS_PACKAGE_CACHE_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY
             = new LanguageServerContext.Key<>();

@@ -15,33 +15,23 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.workspace.repository.NullSourceDirectory;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Loads the Ballerina builtin core and builtin packages.
  */
-public class BallerinaPackageLoader {
-
-    private static final int MAX_DEPTH = 10;
+public class LSPackageLoader {
 
     /**
      * Get the Builtin Package.
@@ -49,7 +39,7 @@ public class BallerinaPackageLoader {
      */
     public static List<BLangPackage> getBuiltinPackages() {
         List<BLangPackage> builtins = new ArrayList<>();
-        CompilerContext context = prepareCompilerContext();
+        CompilerContext context = CommonUtil.prepareTempCompilerContext();
 
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
@@ -63,36 +53,6 @@ public class BallerinaPackageLoader {
     }
 
     /**
-     * Get the packages by name.
-     *
-     * @param name                  name of the package
-     * @return {@link BLangPackage} blang package
-     */
-    static BLangPackage getPackageByName(CompilerContext context, String name) {
-        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
-        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        String[] pkgComps = name.split("\\.");
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(
-                pkgComps[0], String.join(".", Arrays.copyOfRange(pkgComps, 1, pkgComps.length)))));
-    }
-
-    /**
-     * Prepare a new compiler context.
-     * @return {@link CompilerContext} Prepared compiler context
-     */
-    public static CompilerContext prepareCompilerContext() {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, "");
-        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-        context.put(SourceDirectory.class, new NullSourceDirectory());
-
-        return context;
-    }
-
-    /**
      * Get the package by ID via Package loader.
      * @param context               Compiler context
      * @param packageID             Package ID to resolve
@@ -101,16 +61,5 @@ public class BallerinaPackageLoader {
     public static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         return pkgLoader.loadAndDefinePackage(packageID);
-    }
-
-    /**
-     * Get the packages set.
-     * @param context       Current CompilerContext
-     * @param maxDepth      Max depth to be searched
-     * @return              {@link Set} set of packages
-     */
-    static Set<PackageID> getPackageList(CompilerContext context, int maxDepth) {
-        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-        return pkgLoader.listPackages(Math.max(MAX_DEPTH, maxDepth));
     }
 }
