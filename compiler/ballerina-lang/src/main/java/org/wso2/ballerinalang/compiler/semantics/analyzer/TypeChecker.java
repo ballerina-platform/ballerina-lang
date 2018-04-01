@@ -1234,7 +1234,13 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkNamedArgs(List<BLangExpression> namedArgExprs, List<BVarSymbol> defaultableParams) {
         for (BLangExpression expr : namedArgExprs) {
             BLangIdentifier argName = ((NamedArgNode) expr).getName();
-            BVarSymbol varSym = defaultableParams.stream().filter(param -> param.getName().value.equals(argName.value))
+            BVarSymbol varSym = defaultableParams.stream().filter(param -> {
+                // identifying field param from the symbol TODO any alternative?
+                if (param.field) {
+                    return param.originalName.value.equals(argName.value);
+                }
+                return param.getName().value.equals(argName.value);
+            })
                     .findAny().orElse(null);
             if (varSym == null) {
                 dlog.error(expr.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);

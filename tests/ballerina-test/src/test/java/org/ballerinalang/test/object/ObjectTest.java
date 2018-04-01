@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -86,6 +87,23 @@ public class ObjectTest {
         Assert.assertEquals(returns[3].stringValue(), "default value");
     }
 
+    @Test(description = "Test object with defaultable field in init function")
+    public void testObjectWithDefaultableField() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithSimpleInit");
+
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 109);
+        Assert.assertEquals(returns[1].stringValue(), "sample value1");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "default value");
+    }
+
     @Test(description = "Test object with init with different values")
     public void testObjectWithSimpleInitWithDiffValues() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-with-init-func.bal");
@@ -152,6 +170,33 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "sample value1");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 100);
         Assert.assertEquals(returns[3].stringValue(), "adding value in invocation uuuu");
+    }
+
+    @Test(description = "Test object with attached function implementation")
+    public void testObjectWithAttachedFunctionImpl() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-with-interface-and-impl.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithInterface");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 17);
+        Assert.assertEquals(returns[1].stringValue(), "february");
+    }
+
+    @Test (description = "Negative test to test multiple attach functions for same function interface and " +
+            "attached function without function interface")
+    public void testObjectNegativeTestForAttachFunctions() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object-with-interface-and-impl-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        // test duplicate matching attach function implementations
+        BAssertUtil.validateError(result, 0, "implementation already exist for the given " +
+                "function 'attachInterface' in same package", 24, 1);
+
+        // test object without matching function signature within the object
+        BAssertUtil.validateError(result, 1, "cannot find function signature for" +
+                " function 'attachInterfaceFunc' in object 'Employee'", 38, 1);
     }
 
 }

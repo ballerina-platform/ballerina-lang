@@ -1441,6 +1441,53 @@ public class BLangPackageBuilder {
         this.objectStack.peek().addFunction(function);
     }
 
+    void endObjectFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
+                              boolean bodyExists, String objectName) {
+        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        endEndpointDeclarationScope();
+        function.pos = pos;
+        function.addWS(ws);
+
+        if (publicFunc) {
+            function.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (nativeFunc) {
+            function.flagSet.add(Flag.NATIVE);
+        }
+
+        if (!bodyExists) {
+            function.body = null;
+        }
+
+        // Create an user defined type with object type
+        TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
+                (BLangIdentifier) createIdentifier(objectName));
+
+        //Create and add receiver to attached functions
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = pos;
+
+        IdentifierNode name = createIdentifier(Names.SELF.getValue());
+        receiver.setName(name);
+        receiver.addWS(ws);
+
+        receiver.docTag = DocTag.RECEIVER;
+        receiver.setTypeNode(objectType);
+
+        receiver.docTag = DocTag.RECEIVER;
+        function.receiver = receiver;
+        function.flagSet.add(Flag.ATTACHED);
+
+        function.objAttachedFunction = true;
+
+        if (!function.deprecatedAttachments.isEmpty()) {
+            function.flagSet.add(Flag.DEPRECATED);
+        }
+
+        this.compUnit.addTopLevelNode(function);
+    }
+
     BLangVariable addObjectParameter(DiagnosticPos pos, Set<Whitespace> ws, boolean isField,
                                      String identifier, boolean exprAvailable, int annotCount) {
         BLangVariable var = (BLangVariable) this.generateObjectVarNode(pos, ws, isField, identifier, exprAvailable);
