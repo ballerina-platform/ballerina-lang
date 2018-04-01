@@ -26,7 +26,7 @@ import java.util.List;
 public class ClientBuilder {
     private String packageName;
     private String rootDescriptorKey;
-    private List<Struct> struct = new ArrayList<>();
+    private List<Struct> structs = new ArrayList<>();
     private List<Enum> enums = new ArrayList<>();
     private List<Stub> stubs = new ArrayList<>();
     private List<Descriptor> descriptors = new ArrayList<>();
@@ -71,11 +71,11 @@ public class ClientBuilder {
         for (int i = 0; i < attributesNameArr.length; i++) {
             structObj.addAttribute(attributesNameArr[i], attributesTypeArr[i]);
         }
-        struct.add(structObj);
+        structs.add(structObj);
     }
     
     public boolean isStructContains(String structId) {
-        for (Struct struct : struct) {
+        for (Struct struct : structs) {
             if (structId.equals(struct.getStructId())) {
                 return true;
             }
@@ -111,11 +111,11 @@ public class ClientBuilder {
     }
     
     public List<Struct> getStructs() {
-        return struct;
+        return structs;
     }
     
     public void setStructs(List<Struct> structs) {
-        this.struct = structs;
+        this.structs = structs;
     }
     
     public String getPackageName() {
@@ -132,14 +132,6 @@ public class ClientBuilder {
     
     public void setRootDescriptorKey(String rootDescriptorKey) {
         this.rootDescriptorKey = rootDescriptorKey;
-    }
-    
-    public List<Struct> getStruct() {
-        return struct;
-    }
-    
-    public void setStruct(List<Struct> struct) {
-        this.struct = struct;
     }
     
     public List<Descriptor> getDescriptors() {
@@ -190,7 +182,7 @@ public class ClientBuilder {
         this.stubFunctions = stubFunctions;
     }
     
-    public boolean isFunctionsStremingNotEmpty() {
+    public boolean isFunctionsStreamingNotEmpty() {
         return (!nonBlockingFunctions.isEmpty() || !streamingFunctions.isEmpty());
     }
     

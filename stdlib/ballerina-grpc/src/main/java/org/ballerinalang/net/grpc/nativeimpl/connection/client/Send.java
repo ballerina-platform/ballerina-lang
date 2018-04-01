@@ -61,15 +61,15 @@ public class Send extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
-        StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
+        StreamObserver<Message> requestSender = (StreamObserver<Message>) connectionStruct.getNativeData
+                (REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "response sender doesnot exist"))));
+                            "response sender does not exist"))));
         } else {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
                     .REQUEST_MESSAGE_DEFINITION);
-
             try {
                 Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
                 requestSender.onNext(requestMessage);

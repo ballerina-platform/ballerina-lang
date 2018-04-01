@@ -28,10 +28,9 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class UserDefinedEnumMessage {
+public class UserDefinedEnumMessage extends Message {
     List<EnumField> fieldList = new ArrayList<>();
     private DescriptorProtos.EnumDescriptorProto descriptorProto;
-    private String messageName;
     
     public DescriptorProtos.EnumDescriptorProto getDescriptorProto() {
         return descriptorProto;
@@ -53,15 +52,13 @@ public class UserDefinedEnumMessage {
             throw new GrpcServerException("Error while initializing the builder, message type cannot be null");
         }
         // message type is coming as <package_name>:<name>.
-        String fullName;
         String name;
         if (messageType.contains(":")) {
-            name = messageType.split(":")[1];
-            fullName = messageType.replace(':', '.');
+            name = messageType.replace(':', '.');
         } else {
-            fullName = name = messageType;
+            name = messageType;
         }
-        return new UserDefinedEnumMessage.Builder(fullName, name);
+        return new UserDefinedEnumMessage.Builder(name);
     }
 
     public String getMessageDefinition() {
@@ -88,15 +85,14 @@ public class UserDefinedEnumMessage {
             return message;
         }
 
-        private Builder(String fullName, String messageName) {
+        private Builder(String messageName) {
             messageDescriptorBuilder = DescriptorProtos.EnumDescriptorProto.newBuilder();
             messageDescriptorBuilder.setName(messageName);
         }
 
-        public Builder addFieldDefinition(EnumField fieldDefinition) {
+        public void addFieldDefinition(EnumField fieldDefinition) {
             fieldList.add(fieldDefinition);
             messageDescriptorBuilder.addValue(fieldDefinition.getFieldDescriptorProto());
-            return this;
         }
     }
 }

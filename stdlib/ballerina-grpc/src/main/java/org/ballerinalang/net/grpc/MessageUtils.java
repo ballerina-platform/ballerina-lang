@@ -24,6 +24,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BStructType;
@@ -146,7 +147,7 @@ public class MessageUtils {
     }
     
     /**
-     * Handles faliures in GRPC callable unit callback.
+     * Handles failures in GRPC callable unit callback.
      *
      * @param streamObserver observer used the send the error back
      * @param error          error message struct
@@ -292,10 +293,8 @@ public class MessageUtils {
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                     if (responseValue instanceof BStruct) {
                         BValue bValue = ((BStruct) responseValue).getRefField(refIndex++);
-                        responseBuilder.addField(fieldName, DescriptorProtos.EnumValueDescriptorProto.newBuilder()
-                                .setName(bValue.stringValue())
-                                .setNumber(getEnumIndex((BEnumType) bValue.getType(), bValue.stringValue()))
-                                .build());
+                        responseBuilder.addField(fieldName, fieldDescriptor.getEnumType().findValueByName(bValue
+                                .stringValue()));
                     }
                     break;
                 }
@@ -315,32 +314,34 @@ public class MessageUtils {
         }
         return responseBuilder.build();
     }
-    
-    public static BValue generateRequestStruct(Message request, String fieldName, BType structType, Context context) {
+
+    public static BValue generateRequestStruct(Message request, ProgramFile programFile, String fieldName, BType
+            structType) {
         BValue bValue = null;
         int stringIndex = 0;
         int intIndex = 0;
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-        
+        //
         if (structType instanceof BStructType) {
-            BStruct requestStruct = createStruct(context, fieldName);
+            BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(programFile,
+                    structType.getPackagePath(), structType.getName());
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
                 if (structField.getFieldType() instanceof BRefType) {
                     BType bType = structField.getFieldType();
                     if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
                         Message message = (Message) request.getFields().get(structFieldName);
-                        requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
-                                structFieldName, structField.getFieldType(), context));
+                        requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message, programFile,
+                                structFieldName, structField.getFieldType()));
                     }
                 } else if (structField.getFieldType() instanceof BEnumType) {
                     int value = (Integer) request.getFields().get(structField.getFieldName());
                     BEnumerator enumerator = new BEnumerator(((BEnumType) structField.getFieldType())
                             .getEnumerator(value).getName(), (BEnumType) structField.getFieldType());
                     requestStruct.setRefField(refIndex++, enumerator);
-                    
+
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();
@@ -388,33 +389,33 @@ public class MessageUtils {
             if (fields.size() == 1 && fields.containsKey("value")) {
                 fieldName = "value";
             }
-            if (request.getFields().containsKey(fieldName)) {
+            if (fields.containsKey(fieldName)) {
                 String fieldType = structType.getName();
                 switch (fieldType) {
                     case STRING: {
-                        bValue = new BString((String) request.getFields().get(fieldName));
+                        bValue = new BString((String) fields.get(fieldName));
                         break;
                     }
                     case INT: {
-                        bValue = new BInteger((Long) request.getFields().get(fieldName));
+                        bValue = new BInteger((Long) fields.get(fieldName));
                         break;
                     }
                     case FLOAT: {
-                        Float value = (Float) request.getFields().get(fieldName);
+                        Float value = (Float) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
                     case DOUBLE: {
-                        Double value = (Double) request.getFields().get(fieldName);
+                        Double value = (Double) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
                     case BOOLEAN: {
-                        bValue = new BBoolean((Boolean) request.getFields().get(fieldName));
+                        bValue = new BBoolean((Boolean) fields.get(fieldName));
                         break;
                     }
                     default: {
@@ -424,33 +425,8 @@ public class MessageUtils {
                 }
             }
         }
-        
+
         return bValue;
-    }
-    
-    private static int getEnumIndex(BEnumType bEnumType, String value) {
-        try {
-            for (int i = 0; i < MAX_ENUM_ATTRIBUTES_COUNT; i++) {
-                if (value.equals(bEnumType.getEnumerator(i).getName())) {
-                    return i;
-                }
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new GrpcServerValidationException("Enum attribute '" + value + "' cannot be found.");
-        }
-        return -1;
-    }
-    
-    /**
-     * Returns B7a struct for the given field name.
-     *
-     * @param context   context to retrieve program file.
-     * @param fieldName struct name.
-     * @return generated struct.
-     */
-    private static BStruct createStruct(Context context, String fieldName) {
-        BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
-        return new BStruct(structType);
     }
     
     /**

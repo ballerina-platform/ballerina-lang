@@ -21,7 +21,7 @@ import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 
 /**
- * Field definition builder.
+ * Enum Field definition builder.
  *
  * @since 1.0.0
  */
@@ -41,23 +41,18 @@ public class EnumField {
     }
 
     public String getFieldDefinition() {
-        StringBuilder fieldDefinition = new StringBuilder();
-        fieldDefinition.append(fieldDescriptorProto
-                .getName()).append(" = ").append(fieldDescriptorProto.getNumber()).append(";").append
-                (ServiceProtoConstants.NEW_LINE_CHARACTER);
-        return fieldDefinition.toString();
-
+        return fieldDescriptorProto.getName() + " = " + fieldDescriptorProto.getNumber() +
+                ";" + ServiceProtoConstants.NEW_LINE_CHARACTER;
     }
 
     /**
-     * FieldDefinition.Builder
+     * Enum Field Definition.Builder
      */
     public static class Builder {
         private DescriptorProtos.EnumValueDescriptorProto.Builder fieldDescriptorBuilder;
         
         public EnumField build() {
-            EnumField field = new EnumField(fieldDescriptorBuilder.build());
-            return field;
+            return new EnumField(fieldDescriptorBuilder.build());
         }
 
         private Builder() {

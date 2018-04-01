@@ -29,9 +29,9 @@ public class ClientStruct {
     private List<EndPoint> blockingEndpoint = new ArrayList<>();
     private List<MessageListener> messageListener = new ArrayList<>();
     
-    public ClientStruct(boolean isNonBlokingEP, boolean isBlockingEP, String serviceName, String packageName) {
+    public ClientStruct(boolean isNonBlockingEP, boolean isBlockingEP, String serviceName, String packageName) {
         this.packageName = packageName;
-        if (isNonBlokingEP) {
+        if (isNonBlockingEP) {
             nonBlockingEndpoint.add(new EndPoint(serviceName));
             messageListener.add(new MessageListener(serviceName));
         }

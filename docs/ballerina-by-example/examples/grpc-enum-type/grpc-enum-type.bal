@@ -11,35 +11,34 @@ endpoint grpc:Service ep {
 @grpc:serviceConfig {generateClientConnector:true}
 service<grpc:Endpoint> helloWorld bind ep {
     hello (endpoint client, Request req) {
-       io:println(req);
-       Response res = {};
-       res.name = "WSO2";
-       res.kind = Bar.SL;
+        io:println(req);
+        Response res = {};
+        res.name = "WSO2";
+        res.kind = Bar.SL;
         grpc:ConnectorError err = client -> send(res);
         _ = client -> complete();
     }
 }
 
 struct Response {
-	string name;
-	Bar kind;
+    string name;
+    Bar kind;
 }
 
 enum Bar {
-   SL,
-   US,
-   UK
+    SL,
+    US,
+    UK
 }
 
 struct Request {
-string name;
-Foo kind;
-
+    string name;
+    Foo kind;
 }
 
 
 enum Foo {
-WSO2,
-IBM,
-ORACLE
+    WSO2,
+    IBM,
+    ORACLE
 }

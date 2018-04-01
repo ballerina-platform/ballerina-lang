@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.Descriptors;
@@ -24,37 +23,50 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StandardDescriptorBuilder {
+
     private static Map<String, Descriptors.FileDescriptor> standardLibDescriptor;
-    
+
+    private static final String EMPTY_PROTO_PACKAGE_KEY = "google/protobuf/empty.proto";
+    private static final String ANY_PROTO_PACKAGE_KEY = "google/protobuf/any.proto";
+    private static final String API_PROTO_PACKAGE_KEY = "google/protobuf/api.proto";
+    private static final String DESCRIPTOR_PROTO_PACKAGE_KEY = "google/protobuf/descriptor.proto";
+    private static final String DURATION_PROTO_PACKAGE_KEY = "google/protobuf/duration.proto";
+    private static final String FIELD_MASK_PROTO_PACKAGE_KEY = "google/protobuf/field_mask.proto";
+    private static final String SOURCE_CONTEXT_PROTO_PACKAGE_KEY = "google/protobuf/source_context.proto";
+    private static final String WRAPPERS_PROTO_PACKAGE_KEY = "google/protobuf/wrappers.proto";
+    private static final String STRUCT_PROTO_PACKAGE_KEY = "google/protobuf/struct.proto";
+    private static final String TIMESTAMP_PROTO_PACKAGE_KEY = "google/protobuf/timestamp.proto";
+    private static final String TYPE_PROTO_PACKAGE_KEY = "google/protobuf/type.proto";
+    private static final String COMPILER_PLUGIN_PROTO_PACKAGE_KEY = "google/protobuf/compiler/plugin.proto";
+    public static final String GOOGLE_PROTOBUF_PACKAGE_PREFIX = "google/protobuf/";
+
     static {
         standardLibDescriptor = new HashMap<>();
-        standardLibDescriptor.put("google/protobuf/empty.proto", com.google.protobuf.EmptyProto.getDescriptor());
-        standardLibDescriptor.put("google/protobuf/any.proto", com.google.protobuf.AnyProto.getDescriptor());
-        standardLibDescriptor.put("google/protobuf/api.proto", com.google.protobuf.ApiProto.getDescriptor());
-        standardLibDescriptor.put("google/protobuf/descriptor.proto", com.google.protobuf.DescriptorProtos
+        standardLibDescriptor.put(EMPTY_PROTO_PACKAGE_KEY, com.google.protobuf.EmptyProto.getDescriptor());
+        standardLibDescriptor.put(ANY_PROTO_PACKAGE_KEY, com.google.protobuf.AnyProto.getDescriptor());
+        standardLibDescriptor.put(API_PROTO_PACKAGE_KEY, com.google.protobuf.ApiProto.getDescriptor());
+        standardLibDescriptor.put(DESCRIPTOR_PROTO_PACKAGE_KEY, com.google.protobuf.DescriptorProtos
                 .getDescriptor());
-        standardLibDescriptor.put("google/protobuf/duration.proto", com.google.protobuf.DurationProto.getDescriptor());
-        standardLibDescriptor.put("google/protobuf/field_mask.proto", com.google.protobuf.FieldMaskProto
+        standardLibDescriptor.put(DURATION_PROTO_PACKAGE_KEY, com.google.protobuf.DurationProto.getDescriptor());
+        standardLibDescriptor.put(FIELD_MASK_PROTO_PACKAGE_KEY, com.google.protobuf.FieldMaskProto
                 .getDescriptor());
-        standardLibDescriptor.put("google/protobuf/source_context.proto", com.google.protobuf.SourceContextProto
+        standardLibDescriptor.put(SOURCE_CONTEXT_PROTO_PACKAGE_KEY, com.google.protobuf.SourceContextProto
                 .getDescriptor());
-        standardLibDescriptor.put("google/protobuf/wrappers.proto", com.google.protobuf.WrappersProto.getDescriptor());
-        standardLibDescriptor.put("google/protobuf/struct.proto", com.google.protobuf.StructProto.getDescriptor());
-        standardLibDescriptor.put("google/protobuf/timestamp.proto", com.google.protobuf.TimestampProto
+        standardLibDescriptor.put(WRAPPERS_PROTO_PACKAGE_KEY, com.google.protobuf.WrappersProto.getDescriptor());
+        standardLibDescriptor.put(STRUCT_PROTO_PACKAGE_KEY, com.google.protobuf.StructProto.getDescriptor());
+        standardLibDescriptor.put(TIMESTAMP_PROTO_PACKAGE_KEY, com.google.protobuf.TimestampProto
                 .getDescriptor());
-        standardLibDescriptor.put("google/protobuf/type.proto", com.google.protobuf.TypeProto.getDescriptor());
-        standardLibDescriptor.put("google/protobuf/compiler/plugin.proto", com.google.protobuf.compiler.PluginProtos
+        standardLibDescriptor.put(TYPE_PROTO_PACKAGE_KEY, com.google.protobuf.TypeProto.getDescriptor());
+        standardLibDescriptor.put(COMPILER_PLUGIN_PROTO_PACKAGE_KEY, com.google.protobuf.compiler.PluginProtos
                 .getDescriptor());
     }
-    
+
     public static Descriptors.FileDescriptor getFileDescriptor(String libName) {
         return standardLibDescriptor.get(libName);
     }
-    
+
     public static Descriptors.FileDescriptor[] getFileDescriptors(Object[] libList) {
-        com.google
-                .protobuf.Descriptors.FileDescriptor[] fileDescriptors = new com.google
-                .protobuf.Descriptors.FileDescriptor[libList.length];
+        Descriptors.FileDescriptor[] fileDescriptors = new Descriptors.FileDescriptor[libList.length];
         for (int i = 0; i < libList.length; i++) {
             fileDescriptors[i] = getFileDescriptor((String) libList[i]);
         }

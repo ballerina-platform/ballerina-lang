@@ -45,9 +45,9 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_STR
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR_REGEX;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PRIFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PRIFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
@@ -153,26 +153,26 @@ public class BallerinaFileBuilder {
                 clientStubBal.addEnum(descriptorProto.getName(), attributesNameArr);
             }
             StubBuilder.build(clientStubBal, clientStubBal.isFunctionsUnaryNotEmpty());
-            ClientStruct sampleClient = new ClientStruct(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal
+            ClientStruct sampleClient = new ClientStruct(clientStubBal.isFunctionsStreamingNotEmpty(), clientStubBal
                     .isFunctionsUnaryNotEmpty(), fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
             if (this.balOutPath == null) {
                 String path = balOutPathGenerator(packageName + PACKAGE_SEPARATOR + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName());
                 writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR,
-                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PRIFIX);
+                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PREFIX);
                 writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR,
-                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PRIFIX);
+                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PREFIX);
             } else {
                 String path = this.balOutPath + FILE_SEPARATOR + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName();
                 writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR,
-                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PRIFIX);
-                File sampleFile = new File(path + SAMPLE_FILE_PRIFIX);
+                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PREFIX);
+                File sampleFile = new File(path + SAMPLE_FILE_PREFIX);
                 if (!sampleFile.isFile()) {
                     Files.createFile(Paths.get(sampleFile.getAbsolutePath()));
                 }
                 writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR,
-                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PRIFIX);
+                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PREFIX);
             }
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
@@ -181,8 +181,8 @@ public class BallerinaFileBuilder {
     
     private String balOutPathGenerator(String packageName) throws IOException {
         String pathString = packageName.replace(PACKAGE_SEPARATOR, FILE_SEPARATOR);
-        File stubFile = new File(pathString + STUB_FILE_PRIFIX);
-        File sampleFile = new File(pathString + SAMPLE_FILE_PRIFIX);
+        File stubFile = new File(pathString + STUB_FILE_PREFIX);
+        File sampleFile = new File(pathString + SAMPLE_FILE_PREFIX);
         Path path = Paths.get(stubFile.getAbsolutePath()).getParent();
         if (path != null) {
             Files.createDirectories(path);

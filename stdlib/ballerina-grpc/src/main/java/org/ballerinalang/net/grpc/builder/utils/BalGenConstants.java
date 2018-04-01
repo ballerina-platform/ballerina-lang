@@ -39,9 +39,9 @@ public class BalGenConstants {
     
     public static final String GRPC_NATIVE_PACKAGE = "ballerina.net.grpc";
     
-    public static final String STUB_FILE_PRIFIX = ".pb.bal";
+    public static final String STUB_FILE_PREFIX = ".pb.bal";
     
-    public static final String SAMPLE_FILE_PRIFIX = ".sample.client.bal";
+    public static final String SAMPLE_FILE_PREFIX = ".sample.client.bal";
     
     public static final String EMPTY_STRING = "";
     

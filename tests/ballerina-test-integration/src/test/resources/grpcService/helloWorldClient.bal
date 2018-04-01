@@ -69,8 +69,8 @@ function <helloWorldBlockingStub stub> hello (string req) returns (string| error
                 string s => {
                     return s;
                 }
-                any nonOccurance => {
-                    error e = {message:"Unexpeted type."};
+                any nonOccurrence => {
+                    error e = {message:"Unexpected type."};
                     return e;
                 }
             }

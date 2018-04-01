@@ -20,11 +20,9 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.MessageLite;
 import io.grpc.Metadata;
-import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
@@ -191,7 +189,7 @@ public class Message extends GeneratedMessageV3 {
     }
     
     public com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        return MessageRegistry.getInstance().getMessageDecriptor(messageName);
+        return MessageRegistry.getInstance().getMessageDescriptor(messageName);
     }
     
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
@@ -342,9 +340,8 @@ public class Message extends GeneratedMessageV3 {
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
-                        output.writeEnum(fieldDescriptor.getNumber(), getEnumIndex
-                                (fieldDescriptor.getEnumType().getValues(),
-                                        ((DescriptorProtos.EnumValueDescriptorProto) msgObject).getName()));
+                        output.writeEnum(fieldDescriptor.getNumber(), ((Descriptors.EnumValueDescriptor)
+                                msgObject).getNumber());
                         break;
                     }
                     default: {
@@ -357,22 +354,7 @@ public class Message extends GeneratedMessageV3 {
         }
         unknownFields.writeTo(output);
     }
-    
-    private static final int MAX_ENUM_ATTRIBUTES_COUNT = 50;
-    
-    public static int getEnumIndex(List enumValues, String value) {
-        try {
-            for (int i = 0; i < MAX_ENUM_ATTRIBUTES_COUNT; i++) {
-                if (value.equals(((Descriptors.EnumValueDescriptor) enumValues.get(i)).getName())) {
-                    return i;
-                }
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new GrpcServerValidationException("Enum attribute '" + value + "' cannot be found.");
-        }
-        return -1;
-    }
-    
+
     public int getSerializedSize() {
         int size = memoizedSize;
         if (size != -1) {
@@ -593,7 +575,7 @@ public class Message extends GeneratedMessageV3 {
         }
         
         private Descriptors.Descriptor getDescriptor() {
-            return MessageRegistry.getInstance().getMessageDecriptor(messageName);
+            return MessageRegistry.getInstance().getMessageDescriptor(messageName);
         }
         
         public Builder clear() {

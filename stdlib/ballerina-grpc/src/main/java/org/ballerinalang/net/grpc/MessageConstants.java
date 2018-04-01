@@ -87,7 +87,6 @@ public class MessageConstants {
     
     static {
         Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> wireMap = new HashMap<>();
-        ;
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, 1);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT, 5);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32, 0);
@@ -119,7 +118,7 @@ public class MessageConstants {
     public static final String FLOAT = "float";
     public static final String DOUBLE = "double";
     public static final String BOOLEAN = "boolean";
-    public static final String BOLB = "blob";
+    public static final String BLOB = "blob";
     
     
 }
