@@ -16,6 +16,11 @@ public struct Request {
     string httpVersion;
     string userAgent;
     string extraPathInfo;
+    RequestCacheControl cacheControl;
+}
+
+public function <Request request> Request() {
+    request.cacheControl = {};
 }
 
 //////////////////////////////
