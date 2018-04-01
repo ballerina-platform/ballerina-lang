@@ -32,7 +32,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
 public class BVarSymbol extends BSymbol implements VariableSymbol {
 
     public boolean field;
-    public Name originalName;
+    public Name originalName = null;
     /**
      * Represent the index of the variable in a memory block of the VM.
      */
