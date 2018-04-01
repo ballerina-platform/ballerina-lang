@@ -72,9 +72,9 @@ service<http:Service> hubService bind hubServiceEP {
             }
             return;
         } else if (mode == websub:MODE_REGISTER) {
-            if (!hubRemotePublishingEnabled) {
+            if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response = { statusCode:400 };
-                response.setStringPayload("Remote topic registration not allowed at the Hub");
+                response.setStringPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
                 _ = client -> respond(response);
                 return;
@@ -96,9 +96,9 @@ service<http:Service> hubService bind hubServiceEP {
             }
             _ = client -> respond(response);
         } else if (mode == websub:MODE_UNREGISTER) {
-            if (!hubRemotePublishingEnabled) {
+            if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response = { statusCode:400 };
-                response.setStringPayload("Remote unregistration not allowed at the Hub");
+                response.setStringPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
                 _ = client -> respond(response);
                 return;
@@ -125,27 +125,29 @@ service<http:Service> hubService bind hubServiceEP {
 
             if (mode == websub:MODE_PUBLISH && hubRemotePublishingEnabled) {
                 string topic = <string> params[websub:HUB_TOPIC];
-                if (websub:isTopicRegistered(topic)) {
+                if (!hubTopicRegistrationRequired || websub:isTopicRegistered(topic)) {
                     var reqJsonPayload = request.getJsonPayload(); //TODO: allow others
                     match (reqJsonPayload) {
                         json payload => {
                             response = { statusCode:202 };
                             _ = client -> respond(response);
-                            string secret = websub:retrievePublisherSecret(topic);
-                            if (secret != "") {
-                                if (request.hasHeader(websub:PUBLISHER_SIGNATURE)) {
-                                    string publisherSignature = request.getHeader(websub:PUBLISHER_SIGNATURE);
-                                    var signatureValidation = websub:validateSignature(publisherSignature,
-                                                                                       payload.toString(), secret);
-                                    match (signatureValidation) {
-                                        websub:WebSubError err => {
-                                            log:printWarn("Signature validation failed for publish request for topic["
-                                                          + topic + "]: " + err.errorMessage);
-                                            return;
-                                        }
-                                        null => {
-                                            log:printInfo("Signature validation successful for publish request for "
-                                            + "Topic [" + topic + "]");
+                            if (hubTopicRegistrationRequired) {
+                                string secret = websub:retrievePublisherSecret(topic);
+                                if (secret != "") {
+                                    if (request.hasHeader(websub:PUBLISHER_SIGNATURE)) {
+                                        string publisherSignature = request.getHeader(websub:PUBLISHER_SIGNATURE);
+                                        var signatureValidation = websub:validateSignature(publisherSignature,
+                                                                                           payload.toString(), secret);
+                                        match (signatureValidation) {
+                                            websub:WebSubError err => {
+                                                log:printWarn("Signature validation failed for publish request for "
+                                                              + "topic[" + topic + "]: " + err.errorMessage);
+                                                return;
+                                            }
+                                            null => {
+                                                log:printInfo("Signature validation successful for publish request "
+                                                      + "for Topic [" + topic + "]");
+                                            }
                                         }
                                     }
                                 }
@@ -191,7 +193,7 @@ function validateSubscriptionChangeRequest(string mode, map params) returns (boo
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
             return "Malformed URL specified as callback";
         }
-        if (!websub:isTopicRegistered(topic)) {
+        if (hubTopicRegistrationRequired && !websub:isTopicRegistered(topic)) {
             return "Subscription request denied for unregistered topic";
         }
         return true;
@@ -358,7 +360,9 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
 @Description {value:"Function to initiate set up activities on startup/restart"}
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        addTopicRegistrationsOnStartup();
+        if (hubTopicRegistrationRequired) {
+            addTopicRegistrationsOnStartup();
+        }
         addSubscriptionsOnStartup(); //TODO:verify against topics
     }
     return;

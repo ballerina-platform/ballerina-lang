@@ -22,6 +22,7 @@ const int hubPort = getIntConfig("hub.port", DEFAULT_PORT);
 const int hubLeaseSeconds = getIntConfig("hub.lease_seconds", DEFAULT_LEASE_SECONDS_VALUE);
 const string hubSignatureMethod = getStringConfig("hub.signature_method", DEFAULT_SIGNATURE_METHOD);
 const boolean hubRemotePublishingEnabled = getBooleanConfig("hub.remote_publishing.enabled", false);
+const boolean hubTopicRegistrationRequired = getBooleanConfig("hub.topic_registration.required", true);
 
 const boolean hubPersistenceEnabled = getBooleanConfig("hub.persistence.enabled", false);
 const string hubDatabaseHost = getStringConfig("hub.db.host", DEFAULT_HOST);
@@ -48,6 +49,12 @@ function getHubUrl () returns (string) {
 @Return {value:"True if persistence is enabled, false if not"}
 function isHubPersistenceEnabled () returns (boolean) {
     return hubPersistenceEnabled;
+}
+
+@Description {value:"Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing."}
+@Return {value:"True if persistence is enabled, false if not"}
+function isHubTopicRegistrationRequired () returns (boolean) {
+    return hubTopicRegistrationRequired;
 }
 
 @Description {value:"Function to retrieve a configuration set as a boolean, via the config API, or set a default value

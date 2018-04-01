@@ -55,6 +55,7 @@ public class Hub {
 
     private static Hub instance = new Hub();
     private String hubUrl;
+    private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
     private volatile boolean started = false;
     private ProgramFile hubProgramFile;
@@ -74,6 +75,9 @@ public class Hub {
     }
 
     public String registerTopic(String topic, String secret, boolean loadingOnStartUp) {
+        if (!hubTopicRegistrationRequired) {
+            return "";
+        }
         String errorMessage = "";
         if (isTopicRegistered(topic)) {
             errorMessage = "Topic registration not allowed at the Hub: topic already exists";
@@ -91,6 +95,9 @@ public class Hub {
     }
 
     public String unregisterTopic(String topic, String secret) {
+        if (!hubTopicRegistrationRequired) {
+            return "";
+        }
         String errorMessage = "";
         if (topic == null || !isTopicRegistered(topic)) {
             errorMessage = "Topic unavailable/invalid for unregistration at Hub";
@@ -125,7 +132,7 @@ public class Hub {
     public void registerSubscription(String topic, String callback, BStruct subscriptionDetails) {
         if (!started) {
             logger.error("Hub Service not started: subscription failed");
-        } else if (!topics.containsKey(topic)) {
+        } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {
             logger.warn("Subscription request ignored for unregistered topic[" + topic + "]");
         } else {
             if (subscribers.contains(new HubSubscriber("", topic, callback, null))) {
@@ -180,7 +187,7 @@ public class Hub {
         if (!started) {
             errorMessage = "Hub Service not started: publish failed";
             logger.error(errorMessage);
-        } else if (!topics.containsKey(topic)) {
+        } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {
             errorMessage = "Publish call ignored for unregistered topic[" + topic + "]";
             logger.warn(errorMessage);
         } else {
@@ -212,6 +219,9 @@ public class Hub {
                             hubPackageInfo.getFunctionInfo("getHubUrl"), args)[0]).stringValue();
                     hubPersistenceEnabled = Boolean.parseBoolean((BLangFunctions.invokeCallable(
                         hubPackageInfo.getFunctionInfo("isHubPersistenceEnabled"), args)[0]).stringValue());
+                    hubTopicRegistrationRequired = Boolean.parseBoolean((BLangFunctions.invokeCallable(
+                        hubPackageInfo.getFunctionInfo("isHubTopicRegistrationRequired"), args)[0])
+                                                                                .stringValue());
                     logger.info("Default Ballerina WebSub Hub started up at " + webSubHubUrl);
                     PrintStream console = System.out;
                     console.println("ballerina: Default Ballerina WebSub Hub started up at " + webSubHubUrl);
