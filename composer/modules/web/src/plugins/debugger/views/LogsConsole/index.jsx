@@ -475,7 +475,7 @@ class LogsConsole extends React.Component {
                     <div>
                         <ToolBar
                             messages={this.state.messages}
-                            filters={{ id: 'Activity Id', logger: 'Logger' }}
+                            filters={{ id: 'Activity Id', 'message.record.logger': 'Logger' }}
                             onFilteredMessages={this.onFilteredMessages}
                         />
                         <div >
@@ -513,7 +513,7 @@ class LogsConsole extends React.Component {
                                                 
                                                 const timeString =  moment(parseInt(message.message.record.millis)).format('HH:mm:ss.SSS');
                                                 return (
-                                                    <Grid.Row>
+                                                    <Grid.Row className={(details && details.id === message.id ) ? 'active': ''}>
                                                         <Grid.Column 
                                                             width={details ? 16 : 4} 
                                                             onClick={() => this.toggleDetails(message)}
@@ -544,7 +544,7 @@ class LogsConsole extends React.Component {
                                     {details &&
                                         <div width={12} style={{ height, overflow: 'auto' }}>
                                             <DetailView 
-                                                details={details} 
+                                                details={details.message.record.message} 
                                                 hideDetailView={() => { this.setState({ details: null }) }}
                                             />
                                         </div>

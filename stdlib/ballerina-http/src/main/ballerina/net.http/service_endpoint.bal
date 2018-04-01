@@ -3,10 +3,44 @@ package ballerina.net.http;
 /////////////////////////////
 /// HTTP Service Endpoint ///
 /////////////////////////////
+documentation {
+    Represents service endpoint where one or more services can be registered. so that ballerina program can offer service through this endpoint.
+
+    F{{conn}}  - Service endpoint connection.
+    F{{config}} - ServiceEndpointConfiguration configurations.
+    F{{remote}}  - The details of remote address.
+    F{{local}} - The details of local address.
+    F{{protocol}}  - The protocol associate with the service endpoint.
+}
 public struct ServiceEndpoint {
     // TODO : Make all field Read-Only
     Connection conn;
     ServiceEndpointConfiguration config;
+    Remote remote;
+    Local local;
+    string protocol;
+}
+
+documentation {
+    Represents the details of remote address.
+
+    F{{host}}  - The remote server host.
+    F{{port}} - The remote server port.
+}
+public struct Remote {
+    string host;
+    int port;
+}
+
+documentation {
+    Represents the details of local address.
+
+    F{{host}}  - The local server host.
+    F{{port}} - The local server port.
+}
+public struct Local {
+    string host;
+    int port;
 }
 
 @Description {value:"Request validation limits configuration for HTTP service endpoint"}
@@ -127,9 +161,17 @@ public native function <ServiceEndpoint ep> stop();
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 public struct WebSocketEndpoint{
+    //TODO: Make these readonly
     WebSocketConnector conn;
     ServiceEndpointConfiguration config;
     ServiceEndpoint httpEndpoint;
+    //Public attributes
+    map attributes;
+    string id;
+    string negotiatedSubProtocol;
+    boolean isSecure;
+    boolean isOpen;
+    map<string> upgradeHeaders;
 }
 
 public function <WebSocketEndpoint ep> WebSocketService() {
@@ -141,6 +183,7 @@ public function <WebSocketEndpoint ep> WebSocketService() {
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
 public function <WebSocketEndpoint ep> init(ServiceEndpointConfiguration config) {
+    ep.attributes = {};
     ep.httpEndpoint = {};
     ep.httpEndpoint.init(config);
 }

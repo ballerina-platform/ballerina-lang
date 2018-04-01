@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~   Copyright 2018, WSO2 Inc. (http://www.wso2.com)
  ~
  ~   Licensed under the Apache License, Version 2.0 (the "License");
  ~   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 <svg version="1.1" id="ellipsis" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-<path d="M3.7023978,8.7729197H0V5.0705218h3.7023978V8.7729197z M8.8345156,5.0705218H5.1321182v3.7023978h3.7023973V5.0705218z
-	 M14,5.0705218h-3.7023973v3.7023978H14V5.0705218z"/>
+<path d="M1.9,8.8L1.9,8.8C0.8,8.8,0,8,0,6.9v0c0-1,0.8-1.9,1.9-1.9h0c1,0,1.8,0.8,1.8,1.8v0C3.7,8,2.9,8.8,1.9,8.8z M7,5.1L7,5.1
+	c-1,0-1.9,0.8-1.9,1.9v0c0,1,0.8,1.9,1.9,1.9h0c1,0,1.9-0.8,1.9-1.9v0C8.8,5.9,8,5.1,7,5.1z M12.1,5.1L12.1,5.1
+	c-1,0-1.9,0.8-1.9,1.9v0c0,1,0.8,1.9,1.9,1.9h0c1,0,1.9-0.8,1.9-1.9v0C14,5.9,13.2,5.1,12.1,5.1z"/>
 </svg>

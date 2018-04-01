@@ -49,7 +49,7 @@ class DetailView extends React.Component {
                         Headers
                     </Accordion.Title>
                     <Accordion.Content active={activeIndex === 0}>
-                        <p>{details.headers}</p>
+                        <code>{details}</code>
                     </Accordion.Content>
                 </Accordion>
             </Segment>

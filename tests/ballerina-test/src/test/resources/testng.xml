@@ -56,7 +56,7 @@ under the License.
             <!--<package name="org.ballerinalang.test.services.basics"/>-->
             <!--<package name="org.ballerinalang.test.services.cors"/>-->
             <!--<package name="org.ballerinalang.test.services.configuration"/>-->
-            <!--<package name="org.ballerinalang.test.services.dispatching"/>-->
+            <package name="org.ballerinalang.test.services.dispatching"/>
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.launch.*"/>
@@ -72,6 +72,10 @@ under the License.
             <package name="org.ballerinalang.test.streaming.*"/>
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
+            <package name="org.ballerinalang.test.net.http.*">
+                <exclude name="org.ballerinalang.test.net.http.resiliency.*"/>
+                <exclude name="org.ballerinalang.test.net.http.HttpCachingClientTest"/>
+            </package>
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->

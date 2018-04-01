@@ -44,14 +44,13 @@ class ToolBar extends React.Component {
         });
 
         setTimeout(() => {
-            const filtered = this.props.messages.filter((_item) => {
-                const item = _item.message.record;
+            const filtered = this.props.messages.filter((item) => {
                 let isIncluded = true;
                 _.forEach(this.state.filterValue, (value, k) => {
                     if (value === 'all') {
                         isIncluded = isIncluded && true;
                     } else {
-                        isIncluded = isIncluded && (item[k] === value);
+                        isIncluded = isIncluded && (_.get(item, k) === value);
                     }
                 });
                 return isIncluded;
@@ -72,8 +71,8 @@ class ToolBar extends React.Component {
         messages.forEach((message) => {
             keys.forEach((key) => {
                 groupedMessages[key] = groupedMessages[key] || [];
-                if (groupedMessages[key].indexOf(message.message.record[key]) === -1) {
-                    groupedMessages[key].push(message.message.record[key]);
+                if (groupedMessages[key].indexOf(_.get(message, key)) === -1) {
+                    groupedMessages[key].push(_.get(message, key));
                 }
             });
         });

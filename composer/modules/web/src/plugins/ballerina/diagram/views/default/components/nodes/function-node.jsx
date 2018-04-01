@@ -65,9 +65,9 @@ class FunctionNode extends React.Component {
         const bBox = model.viewState.bBox;
         const name = model.getName().value;
         // change icon for main function
-        let icons = 'tool-icons/function';
+        let icons = 'function';
         if (TreeUtil.isMainFunction(model)) {
-            icons = 'tool-icons/main-function';
+            icons = 'main-function';
         }
         const body = this.props.model.getBody();
         const blockNode = getComponentForNodeArray(body, this.context.mode);
@@ -79,18 +79,14 @@ class FunctionNode extends React.Component {
             textClass: 'default-worker-icon',
         };
 
-        const connectors = this.props.model.body.statements
-            .filter((element) => {
-                const typeNode = _.get(element, 'variable.typeNode');
-                return typeNode && TreeUtil.isEndpointType(typeNode);
-            }).map((statement) => {
-                return (
-                    <EndpointDecorator
-                        model={statement}
-                        title={statement.variable.name.value}
-                        bBox={statement.viewState.bBox}
-                    />);
-            });
+        const connectors = this.props.model.endpointNodes.map((endpointNode) => {
+            return (
+                <EndpointDecorator
+                    model={endpointNode}
+                    title={endpointNode.name.value}
+                    bBox={endpointNode.viewState.bBox}
+                />);
+        });
         const nodeDetails = ({ x, y }) => (
             <ReceiverNode
                 x={x}

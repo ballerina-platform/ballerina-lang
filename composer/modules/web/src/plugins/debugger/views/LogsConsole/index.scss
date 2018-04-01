@@ -47,14 +47,17 @@
         .row:nth-child(odd) {
             background-color: #444;
         }
-        
+        .row.active{
+            background-color: #364b6b;
+        }
     }
     .detail-view {
+        background-color: inherit;
         .close {
-            // position: absolute;
-            // left: -18px;
-            // top: -3px;
             cursor: pointer;
+        }
+        .close:hover{
+            color: #FFF;
         }
         .accordion {
             .title {
@@ -68,6 +71,13 @@
                 background: #333;
             }
         }
-
+        .accordion .content{
+            padding: 10px;
+        }
+        code{
+            background-color: inherit;
+            border: none;
+        }
     }
+
 }

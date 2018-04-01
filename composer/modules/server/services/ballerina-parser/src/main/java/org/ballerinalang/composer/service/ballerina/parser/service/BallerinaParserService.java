@@ -35,8 +35,10 @@ import org.ballerinalang.composer.service.ballerina.parser.Constants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.BLangFragmentParser;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
+import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -64,6 +66,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
@@ -409,27 +412,13 @@ public class BallerinaParserService implements ComposerService {
      * @return List of errors if any
      */
     private JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException, IllegalAccessException {
-        final java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath());
+        final java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
-        final java.nio.file.Path packagePath = Paths.get(bFileRequest.getFilePath());
-
 
         BallerinaFile bFile = ParserUtils.compile(content, filePath);
+        String programDir = TextDocumentServiceUtil.getSourceRoot(filePath);
 
-        /*Pattern pkgPattern = Pattern.compile(PACKAGE_REGEX);
-        compile package in disk to resolve constructs in complete package (including constructs from other files)
-        final BLangPackage packageFromDisk = Files.exists(Paths.get(filePath, fileName))
-                ? ParserUtils.getBallerinaFile(programDir != null ? programDir : filePath, unitToCompile)
-                .getBLangPackage()
-                : null;
-        // always use dirty content from editor to generate model
-        // TODO: Remove this once in-memory file resolver with dirty content for compiler is implemented
-        final BallerinaFile balFileFromDirtyContent = ParserUtils.getBallerinaFileForContent(packagePath,
-                fileName, content,
-                CompilerPhase.CODE_ANALYZE);
-        // always get compilation unit and diagnostics from dirty content
-        */
         final BLangPackage model = bFile.getBLangPackage();
         final List<Diagnostic> diagnostics = bFile.getDiagnostics();
 
@@ -478,19 +467,8 @@ public class BallerinaParserService implements ComposerService {
             result.add("model", modelElement);
         }
 
-        /* todo implement package ditection
-        // adding current package info whenever we have a parsed model
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
-        // file is in a package, load constructs from package in disk
-        if (packageFromDisk != null) {
-            ParserUtils.loadPackageMap("Current Package", packageFromDisk, modelPackage);
-            // remove constructs from current file and later add them from dirty content
-            ParserUtils.removeConstructsOfFile("Current Package", fileName, modelPackage);
-        }
-        // add constructs in current file's dirty content to package map
-        ParserUtils.loadPackageMap("Current Package", balFileFromDirtyContent.getBLangPackage(),
-                modelPackage);
-        // Add 'packageInfo' only if there are any packages.
+        ParserUtils.loadPackageMap("Current Package", bFile.getBLangPackage(), modelPackage);
         Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
         if (packageInfoJson.isPresent() && bFileRequest.needPackageInfo()) {
             JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
@@ -498,7 +476,7 @@ public class BallerinaParserService implements ComposerService {
         }
         if (programDir != null) {
             result.addProperty("programDirPath", programDir);
-        }*/
+        }
         return result;
     }
 

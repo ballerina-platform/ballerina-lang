@@ -21,6 +21,7 @@ Arrays
 Array of Arrays
 Vector
 Table
+SQL queries on tables
 Lengthof
 Identifier Literals
 JSON
@@ -120,3 +121,4 @@ Testerina Depends On
 Testerina Function Mocks
 Testerina Groups
 Streams
+Streams within services

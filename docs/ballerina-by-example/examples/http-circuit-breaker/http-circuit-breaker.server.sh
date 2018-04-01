@@ -1,5 +1,5 @@
 $ ballerina run http-circuit-breaker.bal
-ballerina: deploying service(s) in 'http-circuit-breaker.bal'
+ballerina: initiating service(s) in 'http-circuit-breaker.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
 ballerina: started HTTP/WS server connector 0.0.0.0:8080
 2018-03-23 07:34:10,474 INFO  [ballerina.net.http] - CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.
