@@ -44,6 +44,12 @@ function getHubUrl () returns (string) {
     }
 }
 
+@Description {value:"Function to retrieve if persistence is enabled for the Hub."}
+@Return {value:"True if persistence is enabled, false if not"}
+function isHubPersistenceEnabled () returns (boolean) {
+    return hubPersistenceEnabled;
+}
+
 @Description {value:"Function to retrieve a configuration set as a boolean, via the config API, or set a default value
                     if not specified."}
 @Return {value:"The boolean configuration"}

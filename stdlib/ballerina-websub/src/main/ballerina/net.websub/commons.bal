@@ -15,10 +15,14 @@ public const string HUB_SECRET = "hub.secret";
 public const string MODE_SUBSCRIBE = "subscribe";
 public const string MODE_UNSUBSCRIBE = "unsubscribe";
 public const string MODE_PUBLISH = "publish";
+public const string MODE_REGISTER = "register";
+public const string MODE_UNREGISTER = "unregister";
+public const string PUBLISHER_SECRET = "publisher.secret";
 
 public const string X_HUB_UUID = "X-Hub-Uuid";
 public const string X_HUB_TOPIC = "X-Hub-Topic";
 public const string X_HUB_SIGNATURE = "X-Hub-Signature";
+public const string PUBLISHER_SIGNATURE = "Publisher-Signature";
 
 public const string CONTENT_TYPE = "Content-Type";
 public const string SHA1 = "SHA1";
@@ -127,7 +131,7 @@ public function processWebSubNotification(http:Request request, typedesc service
 @Param {value:"payload: The string representation of the notification payload received"}
 @Param {value:"secret: The secret used when subscribing"}
 @Return {value:"WebSubError if an error occurs validating the signature or the signature is invalid"}
-function validateSignature (string xHubSignature, string stringPayload, string secret) returns WebSubError|null {
+public function validateSignature (string xHubSignature, string stringPayload, string secret) returns WebSubError|null {
     WebSubError webSubError = {};
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
@@ -195,6 +199,40 @@ public function <WebSubHub ballerinaWebSubHub> shutdownBallerinaHub () returns (
     return stopHubService(hubUrl);
 }
 
+@Description {value:"Publishes an update against the topic in the initialized Ballerina Hub"}
+@Param {value:"topic: The topic for which the update should happen"}
+@Param {value:"payload: The update payload"}
+@Return {value:"WebSubError if the hub is not initialized or ballerinaWebSubHub does not represent the internal hub"}
+public function <WebSubHub ballerinaWebSubHub> publishUpdate (string topic, json payload) returns
+                                                                                          (WebSubError | null) {
+    WebSubError webSubError = {};
+    if (ballerinaWebSubHub.hubUrl == null) {
+        webSubError = { errorMessage:"Internal Ballerina Hub not initialized or incorrectly referenced" };
+        return webSubError;
+    } else {
+        string errorMessage = validateAndPublishToInternalHub(ballerinaWebSubHub.hubUrl, topic, payload);
+        if (errorMessage != "") {
+            webSubError = { errorMessage:errorMessage };
+            return webSubError;
+        }
+    }
+    return null;
+}
+
+@Description {value:"Registers a topic in the Ballerina Hub"}
+@Param {value:"topic: The topic to register"}
+@Return {value:"Error Message if an error occurred with registration"}
+public function <WebSubHub ballerinaWebSubHub> registerTopic (string topic) returns (string) {
+    return registerTopic(topic, "");
+}
+
+@Description {value:"Unregisters a topic in the Ballerina Hub"}
+@Param {value:"topic: The topic to unregister"}
+@Return {value:"Error Message if an error occurred with unregistration"}
+public function <WebSubHub ballerinaWebSubHub> unregisterTopic (string topic) returns (string) {
+    return unregisterTopic(topic, "");
+}
+
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Commons /////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -217,26 +255,6 @@ public function addWebSubLinkHeaders (http:Response response, string[] hubs, str
 @Field {value:"hubUrl: The URL of the WebSub Hub"}
 public struct WebSubHub {
     string hubUrl;
-}
-
-@Description {value:"Publishes an update against the topic in the initialized Ballerina Hub"}
-@Param {value:"topic: The topic for which the update should happen"}
-@Param {value:"payload: The update payload"}
-@Return {value:"WebSubError if the hub is not initialized or ballerinaWebSubHub does not represent the internal hub"}
-public function <WebSubHub ballerinaWebSubHub> publishUpdate (string topic, json payload) returns
-(WebSubError | null) {
-    WebSubError webSubError = {};
-    if (ballerinaWebSubHub.hubUrl == null) {
-        webSubError = { errorMessage:"Internal Ballerina Hub not initialized or incorrectly referenced" };
-        return webSubError;
-    } else {
-        string errorMessage = validateAndPublishToInternalHub(ballerinaWebSubHub.hubUrl, topic, payload);
-        if (errorMessage != "") {
-            webSubError = { errorMessage:errorMessage };
-            return webSubError;
-        }
-    }
-    return null;
 }
 
 @Description {value:"Struct to represent Subscription Details retrieved from the database"}
