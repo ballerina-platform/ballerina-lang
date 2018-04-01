@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * Test entity body content, with and without charset param.
  *
- * @since 0.967.0
+ * @since 0.970.0
  */
 public class EntityBodyWithCharsetTest {
 
@@ -44,36 +44,40 @@ public class EntityBodyWithCharsetTest {
     }
 
     //Request - Json tests with charset
-    @Test(description = "Set json payload with a given charset and when the content-type header is not present in request")
+    @Test(description = "Set json payload with a given charset and when the content-type header is not present in " +
+            "request")
     public void testSetJsonPayloadWithCharset() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonPayloadWithCharset", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=US-ASCII");
     }
 
-    @Test(description = "Set json payload without a charset param and when the content-type header is not present in request")
+    @Test(description = "Set json payload without a charset param and when the content-type header is not present " +
+            "in request")
     public void testSetJsonPayloadWithoutCharset() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonPayloadWithoutCharset");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=utf-8");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=utf-8");
     }
 
-    @Test(description = "Set json payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set json payload with a given charset and when the content-type header is present with a " +
+            "different charset")
     public void testCharsetWithExistingContentType() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentType", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=US-ASCII");
     }
 
-    @Test(description = "Set json payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set json payload with a given charset and when the content-type header is present with a " +
+            "different charset")
     public void testNoCharsetWithExistingContentType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNoCharsetWithExistingContentType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=UNICODE-1-1-UTF-7");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=UNICODE-1-1-UTF-7");
     }
 
     @Test(description = "Set content-type header after setting json payload")
@@ -82,40 +86,44 @@ public class EntityBodyWithCharsetTest {
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterJsonPayload", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=\"ISO_8859-1:1987\"");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=\"ISO_8859-1:1987\"");
     }
 
     //Request - Xml tests with charset
-    @Test(description = "Set xml payload with a given charset and when the content-type header is not present in request")
+    @Test(description = "Set xml payload with a given charset and when the content-type header is not present " +
+            "in request")
     public void testSetXmlPayloadWithCharset() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetXmlPayloadWithCharset", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload without a charset param and when the content-type header is not present in request")
+    @Test(description = "Set xml payload without a charset param and when the content-type header is not present " +
+            "in request")
     public void testSetXmlPayloadWithoutCharset() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetXmlPayloadWithoutCharset");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=utf-8");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=utf-8");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set xml payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testCharsetWithExistingContentTypeXml() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeXml", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set xml payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testNoCharsetWithExistingContentTypeXml() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNoCharsetWithExistingContentTypeXml");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=UNICODE-1-1-UTF-7");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=UNICODE-1-1-UTF-7");
     }
 
     @Test(description = "Set content-type header after setting xml payload")
@@ -124,82 +132,91 @@ public class EntityBodyWithCharsetTest {
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterXmlPayload", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=\"ISO_8859-1:1987\"");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=\"ISO_8859-1:1987\"");
     }
 
     //Request - String payload with charset
-    @Test(description = "Set xml payload with a given charset and when the content-type header is not present in request")
+    @Test(description = "Set string payload with a given charset and when the content-type header is not present " +
+            "in request")
     public void testSetStringPayloadWithCharset() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetStringPayloadWithCharset", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload without a charset param and when the content-type header is not present in request")
+    @Test(description = "Set string payload without a charset param and when the content-type header is not " +
+            "present in request")
     public void testSetStringPayloadWithoutCharset() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetStringPayloadWithoutCharset");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=utf-8");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=utf-8");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set string payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testCharsetWithExistingContentTypeString() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeString", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set string payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testNoCharsetWithExistingContentTypeString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNoCharsetWithExistingContentTypeString");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=UNICODE-1-1-UTF-7");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=UNICODE-1-1-UTF-7");
     }
 
-    @Test(description = "Set content-type header after setting xml payload")
+    @Test(description = "Set content-type header after setting string payload")
     public void testSetHeaderAfterStringPayload() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterStringPayload", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=\"ISO_8859-1:1987\"");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=\"ISO_8859-1:1987\"");
     }
 
     //Response tests - Json with charset
-    @Test(description = "Set json payload with a given charset and when the content-type header is not present in response")
+    @Test(description = "Set json payload with a given charset and when the content-type header is not " +
+            "present in response")
     public void testSetJsonPayloadWithCharsetResponse() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonPayloadWithCharsetResponse", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=US-ASCII");
     }
 
-    @Test(description = "Set json payload without a charset param and when the content-type header is not present in response")
+    @Test(description = "Set json payload without a charset param and when the content-type header is not " +
+            "present in response")
     public void testSetJsonPayloadWithoutCharsetResponse() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonPayloadWithoutCharsetResponse");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=utf-8");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=utf-8");
     }
 
-    @Test(description = "Set json payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set json payload with a given charset and when the content-type header is present " +
+            "with a different charset")
     public void testCharsetWithExistingContentTypeResponse() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeResponse", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeResponse",
+                args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=US-ASCII");
     }
 
-    @Test(description = "Set json payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set json payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testNoCharsetWithExistingContentTypeResponse() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNoCharsetWithExistingContentTypeResponse");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=UNICODE-1-1-UTF-7");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=UNICODE-1-1-UTF-7");
     }
 
     @Test(description = "Set content-type header after setting json payload")
@@ -208,40 +225,46 @@ public class EntityBodyWithCharsetTest {
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterJsonPayloadResponse", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/json;charset=\"ISO_8859-1:1987\"");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=\"ISO_8859-1:1987\"");
     }
 
     //Response - Xml tests with charset
-    @Test(description = "Set xml payload with a given charset and when the content-type header is not present in request")
+    @Test(description = "Set xml payload with a given charset and when the content-type header is not present " +
+            "in request")
     public void testSetXmlPayloadWithCharsetResponse() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetXmlPayloadWithCharsetResponse", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload without a charset param and when the content-type header is not present in request")
+    @Test(description = "Set xml payload without a charset param and when the content-type header is not present " +
+            "in request")
     public void testSetXmlPayloadWithoutCharsetResponse() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetXmlPayloadWithoutCharsetResponse");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=utf-8");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=utf-8");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set xml payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testCharsetWithExistingContentTypeXmlResponse() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeXmlResponse", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeXmlResponse",
+                args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set xml payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testNoCharsetWithExistingContentTypeXmlResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNoCharsetWithExistingContentTypeXmlResponse");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testNoCharsetWithExistingContentTypeXmlResponse");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=UNICODE-1-1-UTF-7");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=UNICODE-1-1-UTF-7");
     }
 
     @Test(description = "Set content-type header after setting xml payload")
@@ -250,48 +273,54 @@ public class EntityBodyWithCharsetTest {
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterXmlPayloadResponse", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "application/xml;charset=\"ISO_8859-1:1987\"");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=\"ISO_8859-1:1987\"");
     }
 
     //Response - String payload with charset
-    @Test(description = "Set xml payload with a given charset and when the content-type header is not present in request")
+    @Test(description = "Set string payload with a given charset and when the content-type header is not " +
+            "present in request")
     public void testSetStringPayloadWithCharsetResponse() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetStringPayloadWithCharsetResponse", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload without a charset param and when the content-type header is not present in request")
+    @Test(description = "Set string payload without a charset param and when the content-type header is not " +
+            "present in request")
     public void testSetStringPayloadWithoutCharsetResponse() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetStringPayloadWithoutCharsetResponse");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=utf-8");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=utf-8");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set string payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testCharsetWithExistingContentTypeStringResponse() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeStringResponse", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeStringResponse"
+                , args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=US-ASCII");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=US-ASCII");
     }
 
-    @Test(description = "Set xml payload with a given charset and when the content-type header is present with a different charset")
+    @Test(description = "Set string payload with a given charset and when the content-type header is present with " +
+            "a different charset")
     public void testNoCharsetWithExistingContentTypeStringResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNoCharsetWithExistingContentTypeStringResponse");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testNoCharsetWithExistingContentTypeStringResponse");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=UNICODE-1-1-UTF-7");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=UNICODE-1-1-UTF-7");
     }
 
-    @Test(description = "Set content-type header after setting xml payload")
+    @Test(description = "Set content-type header after setting string payload")
     public void testSetHeaderAfterStringPayloadResponse() {
         BString charset = new BString("US-ASCII");
         BValue[] args = {charset};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterStringPayloadResponse", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray)returns[0]).get(0), "text/plain;charset=\"ISO_8859-1:1987\"");
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=\"ISO_8859-1:1987\"");
     }
 }
