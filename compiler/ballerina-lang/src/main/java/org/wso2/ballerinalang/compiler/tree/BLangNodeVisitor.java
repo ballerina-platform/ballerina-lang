@@ -68,7 +68,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
@@ -76,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -419,6 +419,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangTableLiteral tableLiteral) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangArrayLiteral arrayLiteral) {
         throw new AssertionError();
     }
@@ -641,10 +645,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStructLiteral structLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangTableLiteral tableLiteral) {
         throw new AssertionError();
     }
 

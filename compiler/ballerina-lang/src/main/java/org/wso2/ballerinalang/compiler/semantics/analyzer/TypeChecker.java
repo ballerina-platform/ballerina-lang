@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -211,6 +212,13 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
         resultTypes = types.checkTypes(literalExpr, Lists.of(literalType), expTypes);
+    }
+
+    public void visit(BLangTableLiteral tableLiteral) {
+        List<BType> expTypesTemp = Lists.of(symTable.rootScope.lookup(new Name("TableConfig")).symbol.type);
+        checkExpr(tableLiteral.configurationExpr, env, expTypesTemp);
+
+        resultTypes = types.checkTypes(tableLiteral, Lists.of(expTypes.get(0)), expTypes);
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {

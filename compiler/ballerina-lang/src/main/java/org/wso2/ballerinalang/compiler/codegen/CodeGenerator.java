@@ -100,13 +100,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -772,9 +772,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        genNode(tableLiteral.configurationExpr, this.env);
+        Operand varRefRegIndex = tableLiteral.configurationExpr.regIndex;
+
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
-        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex);
+        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex, varRefRegIndex);
     }
 
     @Override

@@ -639,8 +639,10 @@ public class CPU {
                 case InstructionCodes.NEWTABLE:
                     i = operands[0];
                     cpIndex = operands[1];
+                    j = operands[2];
+                    BStruct configStruct = (BStruct) sf.refRegs[j];
                     typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
                     break;
                 case InstructionCodes.NEWSTREAM:
                     i = operands[0];
