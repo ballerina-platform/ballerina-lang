@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.hover.util;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSPackageCache;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -60,7 +60,7 @@ public class HoverUtil {
      * @param hoverContext context of the hover.
      * @return hover content.
      */
-    public static Hover getHoverInformation(BLangPackage bLangPackage, TextDocumentServiceContext hoverContext) {
+    public static Hover getHoverInformation(BLangPackage bLangPackage, LSServiceOperationContext hoverContext) {
         Hover hover;
         switch (hoverContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY)) {
             case ContextConstants.FUNCTION:
@@ -241,7 +241,7 @@ public class HoverUtil {
      * @param currentBLangPackage package which currently user working on.
      * @return return Hover object.
      */
-    public static Hover getHoverContent(TextDocumentServiceContext hoverContext, BLangPackage currentBLangPackage,
+    public static Hover getHoverContent(LSServiceOperationContext hoverContext, BLangPackage currentBLangPackage,
                                         LSPackageCache packageContext) {
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
         currentBLangPackage.accept(positionTreeVisitor);
