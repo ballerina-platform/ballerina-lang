@@ -8,12 +8,23 @@ import ballerina/mime;
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
 @Field {value:"server: The server header"}
+@Field {value:"cacheControl: The cache control directives configuration of the response"}
+@Field {value:"receivedTime: The time the response was received"}
+@Field {value:"requestTime: The time the request associated with this response was made"}
 public struct Response {
     int statusCode;
     string reasonPhrase;
     string server;
+    ResponseCacheControl cacheControl;
+
+    private:
+        int receivedTime;
+        int requestTime;
 }
 
+public function <Response response> Response() {
+    response.cacheControl = {};
+}
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////
@@ -107,57 +118,77 @@ public function <Response res> getCopyOfAllHeaders () returns (map) {
 
 @Description {value:"Gets the response payload in JSON format"}
 @Param {value:"response: The response message"}
-@Return {value:"The JSON reresentation of the message payload"}
-public function <Response response> getJsonPayload () returns (json | mime:EntityError) {
-    var mimeEntity = response.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getJson();
-        mime:EntityError err => return err;
+@Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
+public function <Response response> getJsonPayload () returns (json | PayloadError) {
+    match response.getEntity() {
+        mime:EntityError err => return <PayloadError>err;
+        mime:Entity mimeEntity => {
+            match mimeEntity.getJson() {
+                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                json jsonPayload => return jsonPayload;
+            }
+        }
     }
 }
 
 @Description {value:"Gets the response payload in XML format"}
 @Param {value:"response: The response message"}
-@Return {value:"The XML representation of the message payload"}
-public function <Response response> getXmlPayload () returns (xml | mime:EntityError) {
-    var mimeEntity = response.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getXml();
-        mime:EntityError err => return err;
+@Return {value:"The XML representation of the message payload or 'PayloadError' in case of errors"}
+public function <Response response> getXmlPayload () returns (xml | PayloadError) {
+    match response.getEntity() {
+        mime:EntityError err => return <PayloadError>err;
+        mime:Entity mimeEntity => {
+            match mimeEntity.getXml() {
+                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                xml xmlPayload => return xmlPayload;
+            }
+        }
     }
 }
 
 @Description {value:"Gets the response payload as a string"}
 @Param {value:"response: The response message"}
-@Return {value:"The string representation of the message payload"}
-public function <Response response> getStringPayload () returns (string | null | mime:EntityError) {
-    var mimeEntity = response.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getText();
-        mime:EntityError err => return err;
+@Return {value:"The string representation of the message payload or 'PayloadError' in case of errors"}
+public function <Response response> getStringPayload () returns (string | PayloadError) {
+    match response.getEntity() {
+        mime:EntityError err => return <PayloadError>err;
+        mime:Entity mimeEntity => {
+            match mimeEntity.getText() {
+                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                string textPayload => return textPayload;
+            }
+        }
     }
 }
 
 @Description {value:"Gets the response payload in blob format"}
 @Param {value:"response: The response message"}
-@Return {value:"The blob representation of the message payload"}
-public function <Response response> getBinaryPayload () returns (blob | mime:EntityError) {
-    var mimeEntity = response.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getBlob();
-        mime:EntityError err => return err;
+@Return {value:"The blob representation of the message payload or 'PayloadError' in case of errors"}
+public function <Response response> getBinaryPayload () returns (blob | PayloadError) {
+    match response.getEntity() {
+        mime:EntityError err => return <PayloadError>err;
+        mime:Entity mimeEntity => {
+            match mimeEntity.getBlob() {
+                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                blob binaryPayload => return binaryPayload;
+            }
+        }
     }
 }
 
 @Description {value:"Gets the response payload as a byte channel except for multiparts. In case of multiparts,
 please use 'getMultiparts()' instead."}
 @Param {value:"response: The response message"}
-@Return {value:"A byte channel as the message payload"}
-public function <Response response> getByteChannel () returns (io:ByteChannel | mime:EntityError) {
-    var mimeEntity = response.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getByteChannel();
-        mime:EntityError err => return err;
+@Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
+public function <Response response> getByteChannel () returns (io:ByteChannel | PayloadError) {
+    match response.getEntity() {
+        mime:EntityError err => return <PayloadError>err;
+        mime:Entity mimeEntity => {
+            match mimeEntity.getByteChannel() {
+                mime:EntityError payloadErr => return <PayloadError>payloadErr;
+                io:ByteChannel byteChannel => return byteChannel;
+            }
+        }
     }
 }
 

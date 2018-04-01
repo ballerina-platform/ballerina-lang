@@ -54,7 +54,7 @@ service<http:Service> contentBasedRouting bind cbrEP {
                     }
                 }
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 http:Response res = {};
                 res.statusCode = 500;
                 res.setStringPayload(err.message);

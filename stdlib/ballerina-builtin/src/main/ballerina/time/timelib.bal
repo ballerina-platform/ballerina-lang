@@ -46,6 +46,12 @@ public type Time object {
     @Return { value:"The formatted string of the given time."}
     public native function format(string format) returns (string);
 
+    @Description {value:"Formats the given string to the specified standard time format and returns the formatted string."}
+    @Param {value:"time: The time struct for which the string representation is needed"}
+    @Param {value:"format: The format which is used to format the given text"}
+    @Return { value:"The formatted string of the given time."}
+    public native function formatTo(TimeFormat format) returns (string);
+
     @Description {value:"Returns the year representation of the given time."}
     @Param {value:"time: The time struct which needs to get the year representation"}
     @Return { value:"The year representation."}
@@ -131,7 +137,10 @@ public type Time object {
     @Param {value:"zoneId: The new timezone id"}
     @Return { value:"Time struct containing time and zone information after the conversion."}
     public native function toTimezone(string zoneId) returns (Time);
+}
 
+public enum TimeFormat {
+    RFC_1123
 }
 
 @Description {value:"Returns the current time value with the system default timezone."}
@@ -157,3 +166,8 @@ public native function createTime(int year, int month, int date, int hour, int m
 @Return { value:"Time struct containing time and zone information."}
 public native function parse(string data, string format) returns (Time);
 
+@Description {value:"Returns the time for the given string representation based on the specified standard time format."}
+@Param {value:"timestamp: The time text to parse"}
+@Param {value:"format: The format which is used to parse the given date/time string"}
+@Return { value:"Time struct containing time and zone information."}
+public native function parseTo(string timestamp, TimeFormat format) returns Time;

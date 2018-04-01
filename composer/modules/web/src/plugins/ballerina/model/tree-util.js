@@ -263,7 +263,7 @@ class TreeUtil extends AbstractTreeUtil {
                 if (param === undefined) return false;
                 const c = param.name.value;
                 const action = node.find((e) => { return this.isInvocation(e); });
-                if (action && c === action.expression.variableName.value) {
+                if (action && c === _.get(action, 'expression.variableName.value', '++')) {
                     return true;
                 }
                 break;
