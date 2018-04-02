@@ -16,7 +16,7 @@
 
 package ballerina.observe;
 
-import ballerina/net.http;
+import ballerina/http;
 
 @Description {value:"Reference types between spans"}
 @Field {value:"CHILDOF: The parent span depends on the child span in some capacity"}

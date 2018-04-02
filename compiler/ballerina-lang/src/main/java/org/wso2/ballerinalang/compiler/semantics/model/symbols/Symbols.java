@@ -128,8 +128,10 @@ public class Symbols {
                                                         Name name,
                                                         PackageID pkgID,
                                                         BType type,
-                                                        BSymbol owner) {
+                                                        BSymbol owner,
+                                                        boolean bodyExist) {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner);
+        symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
     }

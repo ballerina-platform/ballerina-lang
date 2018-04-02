@@ -242,12 +242,12 @@ public class Desugar extends BLangNodeVisitor {
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         //Adding object functions to package level.
-        pkgNode.objects.forEach(o -> {
-            o.functions.forEach(f -> {
+        pkgNode.objects.forEach(o -> o.functions.forEach(f -> {
+            if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
                 pkgNode.functions.add(f);
                 pkgNode.topLevelNodes.add(f);
-            });
-        });
+            }
+        }));
         //Rewriting Object to struct
         pkgNode.objects.forEach(o -> pkgNode.structs.add(rewriteObjectToStruct(o, env)));
 
@@ -365,7 +365,7 @@ public class Desugar extends BLangNodeVisitor {
         bLangStruct.fields = objectNode.fields;
 //        bLangStruct.functions = rewrite(objectNode.functions, env);
         bLangStruct.initFunction = objectNode.initFunction;
-        bLangStruct.annAttachments = rewrite(objectNode.annAttachments, env);
+        bLangStruct.annAttachments = objectNode.annAttachments;
         bLangStruct.docAttachments = rewrite(objectNode.docAttachments, env);
         bLangStruct.deprecatedAttachments = rewrite(objectNode.deprecatedAttachments, env);
         bLangStruct.isAnonymous = objectNode.isAnonymous;
@@ -1060,7 +1060,11 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
-            return;
+            if (iExpr.exprSymbol == null) {
+                return;
+            }
+            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, (BVarSymbol) iExpr.exprSymbol);
+            iExpr.expr = rewriteExpr(iExpr.expr);
         }
 
         switch (iExpr.expr.type.tag) {
@@ -2040,7 +2044,7 @@ public class Desugar extends BLangNodeVisitor {
                 return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.STRUCT:
                 if (((BStructSymbol) type.tsymbol).isObject) {
-                    return new BLangTypeInit();
+                    return createTypeInitNode(type);
                 }
                 return new BLangStructLiteral(new ArrayList<>(), type);
             case TypeTags.ARRAY:
@@ -2052,6 +2056,30 @@ public class Desugar extends BLangNodeVisitor {
                 break;
         }
         return null;
+    }
+
+    private BLangTypeInit createTypeInitNode(BType type) {
+        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        objectInitNode.type = type;
+//        objectInitNode.pos = pos;
+//        objectInitNode.addWS(ws);
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.symbol = ((BStructSymbol) type.tsymbol).initializerFunc.symbol;
+//        invocationNode.pos = pos;
+//        invocationNode.addWS(ws);
+
+        BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
+
+        nameNode.setLiteral(false);
+        nameNode.setValue(Names.OBJECT_INIT_SUFFIX.getValue());
+        invocationNode.name = nameNode;
+//        invocationNode.addWS(nameReference.ws);
+        invocationNode.pkgAlias = pkgNameNode;
+
+        objectInitNode.objectInitInvocation = invocationNode;
+        return objectInitNode;
     }
 
     // TODO: Same function is used in symbol enter. Refactor this to reuse the same function.

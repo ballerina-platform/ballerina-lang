@@ -2437,7 +2437,7 @@ public class BallerinaParser extends Parser {
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public TerminalNode COMMA() { return getToken(BallerinaParser.COMMA, 0); }
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
-		public TerminalNode COLON() { return getToken(BallerinaParser.COLON, 0); }
+		public TerminalNode ASSIGN() { return getToken(BallerinaParser.ASSIGN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -2468,10 +2468,10 @@ public class BallerinaParser extends Parser {
 			match(Identifier);
 			setState(728);
 			_la = _input.LA(1);
-			if (_la==COLON) {
+			if (_la==ASSIGN) {
 				{
 				setState(726);
-				match(COLON);
+				match(ASSIGN);
 				setState(727);
 				expression(0);
 				}
@@ -2699,7 +2699,7 @@ public class BallerinaParser extends Parser {
 		public ObjectParameterContext objectParameter() {
 			return getRuleContext(ObjectParameterContext.class,0);
 		}
-		public TerminalNode COLON() { return getToken(BallerinaParser.COLON, 0); }
+		public TerminalNode ASSIGN() { return getToken(BallerinaParser.ASSIGN, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -2726,7 +2726,7 @@ public class BallerinaParser extends Parser {
 			setState(764);
 			objectParameter();
 			setState(765);
-			match(COLON);
+			match(ASSIGN);
 			setState(766);
 			expression(0);
 			}
@@ -15686,21 +15686,21 @@ public class BallerinaParser extends Parser {
 		"\5\u016a\u00b6\2\u02cf\u02ce\3\2\2\2\u02cf\u02d0\3\2\2\2\u02d0\u02d1\3"+
 		"\2\2\2\u02d1\u02d3\5> \2\u02d2\u02c8\3\2\2\2\u02d3\u02d4\3\2\2\2\u02d4"+
 		"\u02d2\3\2\2\2\u02d4\u02d5\3\2\2\2\u02d5\65\3\2\2\2\u02d6\u02d7\5Z.\2"+
-		"\u02d7\u02da\7\u00a6\2\2\u02d8\u02d9\7t\2\2\u02d9\u02db\5\u00eex\2\u02da"+
-		"\u02d8\3\2\2\2\u02da\u02db\3\2\2\2\u02db\u02dc\3\2\2\2\u02dc\u02dd\t\2"+
-		"\2\2\u02dd\67\3\2\2\2\u02de\u02e1\5:\36\2\u02df\u02e1\5<\37\2\u02e0\u02de"+
-		"\3\2\2\2\u02e0\u02df\3\2\2\2\u02e1\u02e9\3\2\2\2\u02e2\u02e5\7w\2\2\u02e3"+
-		"\u02e6\5:\36\2\u02e4\u02e6\5<\37\2\u02e5\u02e3\3\2\2\2\u02e5\u02e4\3\2"+
-		"\2\2\u02e6\u02e8\3\2\2\2\u02e7\u02e2\3\2\2\2\u02e8\u02eb\3\2\2\2\u02e9"+
-		"\u02e7\3\2\2\2\u02e9\u02ea\3\2\2\2\u02ea\u02ee\3\2\2\2\u02eb\u02e9\3\2"+
-		"\2\2\u02ec\u02ed\7w\2\2\u02ed\u02ef\5\u0100\u0081\2\u02ee\u02ec\3\2\2"+
-		"\2\u02ee\u02ef\3\2\2\2\u02ef\u02f2\3\2\2\2\u02f0\u02f2\5\u0100\u0081\2"+
-		"\u02f1\u02e0\3\2\2\2\u02f1\u02f0\3\2\2\2\u02f29\3\2\2\2\u02f3\u02f5\5"+
-		"p9\2\u02f4\u02f3\3\2\2\2\u02f5\u02f8\3\2\2\2\u02f6\u02f4\3\2\2\2\u02f6"+
+		"\u02d7\u02da\7\u00a6\2\2\u02d8\u02d9\7\177\2\2\u02d9\u02db\5\u00eex\2"+
+		"\u02da\u02d8\3\2\2\2\u02da\u02db\3\2\2\2\u02db\u02dc\3\2\2\2\u02dc\u02dd"+
+		"\t\2\2\2\u02dd\67\3\2\2\2\u02de\u02e1\5:\36\2\u02df\u02e1\5<\37\2\u02e0"+
+		"\u02de\3\2\2\2\u02e0\u02df\3\2\2\2\u02e1\u02e9\3\2\2\2\u02e2\u02e5\7w"+
+		"\2\2\u02e3\u02e6\5:\36\2\u02e4\u02e6\5<\37\2\u02e5\u02e3\3\2\2\2\u02e5"+
+		"\u02e4\3\2\2\2\u02e6\u02e8\3\2\2\2\u02e7\u02e2\3\2\2\2\u02e8\u02eb\3\2"+
+		"\2\2\u02e9\u02e7\3\2\2\2\u02e9\u02ea\3\2\2\2\u02ea\u02ee\3\2\2\2\u02eb"+
+		"\u02e9\3\2\2\2\u02ec\u02ed\7w\2\2\u02ed\u02ef\5\u0100\u0081\2\u02ee\u02ec"+
+		"\3\2\2\2\u02ee\u02ef\3\2\2\2\u02ef\u02f2\3\2\2\2\u02f0\u02f2\5\u0100\u0081"+
+		"\2\u02f1\u02e0\3\2\2\2\u02f1\u02f0\3\2\2\2\u02f29\3\2\2\2\u02f3\u02f5"+
+		"\5p9\2\u02f4\u02f3\3\2\2\2\u02f5\u02f8\3\2\2\2\u02f6\u02f4\3\2\2\2\u02f6"+
 		"\u02f7\3\2\2\2\u02f7\u02fa\3\2\2\2\u02f8\u02f6\3\2\2\2\u02f9\u02fb\5Z"+
 		".\2\u02fa\u02f9\3\2\2\2\u02fa\u02fb\3\2\2\2\u02fb\u02fc\3\2\2\2\u02fc"+
-		"\u02fd\7\u00a6\2\2\u02fd;\3\2\2\2\u02fe\u02ff\5:\36\2\u02ff\u0300\7t\2"+
-		"\2\u0300\u0301\5\u00eex\2\u0301=\3\2\2\2\u0302\u0304\7\6\2\2\u0303\u0302"+
+		"\u02fd\7\u00a6\2\2\u02fd;\3\2\2\2\u02fe\u02ff\5:\36\2\u02ff\u0300\7\177"+
+		"\2\2\u0300\u0301\5\u00eex\2\u0301=\3\2\2\2\u0302\u0304\7\6\2\2\u0303\u0302"+
 		"\3\2\2\2\u0303\u0304\3\2\2\2\u0304\u0306\3\2\2\2\u0305\u0307\7\b\2\2\u0306"+
 		"\u0305\3\2\2\2\u0306\u0307\3\2\2\2\u0307\u0308\3\2\2\2\u0308\u0309\7\13"+
 		"\2\2\u0309\u030c\5@!\2\u030a\u030d\5\32\16\2\u030b\u030d\7s\2\2\u030c"+

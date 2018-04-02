@@ -1,6 +1,6 @@
 import ballerina/mime;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
 const string constPath = getConstPath();
 
@@ -8,7 +8,7 @@ struct Person {
     string name;
     int age;
 }
-endpoint mock:NonListeningServiceEndpoint echoEP {
+endpoint http:NonListeningServiceEndpoint echoEP {
     port:9090
 };
 

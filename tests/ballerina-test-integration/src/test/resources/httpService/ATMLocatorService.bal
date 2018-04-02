@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint serviceEnpoint {
     port:9090
