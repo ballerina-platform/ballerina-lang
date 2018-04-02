@@ -45,7 +45,6 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
-    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -176,10 +175,6 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
-transformerDefinition
-    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? callableUnitBody
-    ;
-
 attachmentPoint
      : SERVICE
      | RESOURCE
@@ -190,7 +185,6 @@ attachmentPoint
      | CONST
      | PARAMETER
      | ANNOTATION
-     | TRANSFORMER
      ;
 
 constantDefinition
@@ -225,10 +219,10 @@ endpointInitlization
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
-    |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
+    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
     ;
 
@@ -239,6 +233,7 @@ simpleTypeName
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
+    |   emptyTupleLiteral // nil type name ()
     ;
 
 builtInTypeName
@@ -407,8 +402,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 foreachStatement
@@ -473,7 +468,7 @@ throwStatement
     ;
 
 returnStatement
-    :   RETURN expressionList? SEMICOLON
+    :   RETURN expression? SEMICOLON
     ;
 
 workerInteractionStatement
@@ -686,6 +681,7 @@ simpleLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
+    |   emptyTupleLiteral
     |   NullLiteral
     ;
 
@@ -695,6 +691,10 @@ integerLiteral
     |   HexIntegerLiteral
     |   OctalIntegerLiteral
     |   BinaryIntegerLiteral
+    ;
+
+emptyTupleLiteral
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;
 
 namedArgs

@@ -40,7 +40,7 @@ import org.ballerinalang.net.grpc.proto.definition.Service;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -218,7 +218,7 @@ public class ServiceProtoUtils {
                     serviceNode.getName().getValue());
         }
         if (responseMessage == null) {
-            responseMessage = generateMessageDefinition(new BNullType());
+            responseMessage = generateMessageDefinition(new BNilType());
             /*throw new GrpcServerException("Cannot find response message definition for streaming service: " +
                     serviceNode.getName().getValue());*/
         }
@@ -280,7 +280,7 @@ public class ServiceProtoUtils {
             responseType = getReturnType(sendExpression);
         } else {
             // if compiler plugin could not find
-            responseType = new BNullType();
+            responseType = new BNilType();
         }
         return responseType != null ? generateMessageDefinition(responseType) : null;
     }
@@ -301,7 +301,7 @@ public class ServiceProtoUtils {
                 throw new GrpcServerException("Request Message type is not supported, should be lang variable.");
             }
         } else {
-            requestType = new BNullType();
+            requestType = new BNilType();
         }
         return generateMessageDefinition(requestType);
     }
@@ -340,7 +340,7 @@ public class ServiceProtoUtils {
                 }
                 break;
             }
-            case NULL: {
+            case NIL: {
                 message = EmptyMessage.newBuilder().build();
                 break;
             }
@@ -442,7 +442,7 @@ public class ServiceProtoUtils {
                         .name());
             }
         } else {
-            return new BNullType();
+            return new BNilType();
         }
     }
 
