@@ -233,7 +233,7 @@ public class ParserUtils {
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         // TODO: remove once the packerina api for package listing is available
-        final String[] packageNames = {"http", "swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
+        final String[] packageNames = {"http", "swagger", "net.uri", "mime", "websub", "websub.hub",
                 "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
                 "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
                 "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",

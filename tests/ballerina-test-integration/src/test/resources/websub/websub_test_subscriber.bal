@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
-import ballerina/net.websub;
+import ballerina/websub;
 
 endpoint websub:SubscriberServiceEndpoint websubEP {
     host:"localhost",

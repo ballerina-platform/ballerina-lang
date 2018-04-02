@@ -87,7 +87,7 @@ public class Hub {
             topics.put(topic, secret);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 BValue[] args = { new BString("register"), new BString(topic), new BString(secret) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo("net.websub.hub")
+                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo("websub.hub")
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
@@ -107,7 +107,7 @@ public class Hub {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
                 BValue[] args = { new BString("unregister"), new BString(topic), new BString(secret) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo("net.websub.hub")
+                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo("websub.hub")
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
@@ -208,9 +208,9 @@ public class Hub {
         synchronized (this) {
             if (!isStarted()) {
                 URI balxPath = URI.create(String.valueOf(Hub.class.getClassLoader().getResource
-                        ("net.websub.hub.balx")));
+                        ("websub.hub.balx")));
                 ProgramFile hubProgramFile = readExecutableProgram(Paths.get(balxPath));
-                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo("net.websub.hub");
+                PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo("websub.hub");
                 if (hubPackageInfo != null) {
                     hubPackageInfo.setProgramFile(hubProgramFile);
                     BLangProgramRunner.runService(hubProgramFile);
