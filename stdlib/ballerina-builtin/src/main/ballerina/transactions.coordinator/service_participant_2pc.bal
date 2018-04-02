@@ -82,7 +82,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         match resResult {
             http:HttpConnectorError err => log:printErrorCause("Sending response for prepare request for transaction " +
                                                                transactionId + " failed", err);
-            null => return;
+            null => {}
         }
     }
 
@@ -150,7 +150,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         match connErr {
             error err => log:printErrorCause("Sending response for notify request for transaction " + transactionId +
                                              " failed", err);
-            null => return;
+            null => {}
         }
     }
 }

@@ -388,7 +388,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endCallableUnitSignature(getWS(ctx), ctx.Identifier().getText(),
+        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 ctx.formalParameterList() != null, ctx.returnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
@@ -674,7 +674,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endCallableUnitSignature(getWS(ctx), ctx.Identifier().getText(),
+        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 ctx.formalParameterList() != null, ctx.returnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
@@ -754,35 +754,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 ctx.Identifier().getText(), ctx.expression() != null, publicVar, safeAssignment);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startTransformerDef();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        TerminalNode identifier = ctx.Identifier();
-        String transformerName = identifier == null ? null : identifier.getText();
-        boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        boolean paramsAvailable = ctx.parameterList().size() > 1;
-        this.pkgBuilder.endTransformerDef(getCurrentPos(ctx), getWS(ctx), publicFunc, transformerName,
-                paramsAvailable);
-    }
-
     @Override
     public void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx) {
         if (ctx.exception != null) {
@@ -857,7 +828,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) {
+    public void exitTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1554,7 +1525,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addReturnStatement(this.getCurrentPos(ctx), getWS(ctx), ctx.expressionList() != null);
+        this.pkgBuilder.addReturnStatement(this.getCurrentPos(ctx), getWS(ctx), ctx.expression() != null);
     }
 
     @Override
@@ -2123,8 +2094,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
-        } else if (ctx.NullLiteral() != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NULL, null);
+        } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
         }
     }
 

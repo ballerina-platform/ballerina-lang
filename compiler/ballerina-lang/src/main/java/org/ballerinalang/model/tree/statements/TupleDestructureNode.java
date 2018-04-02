@@ -17,6 +17,7 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 
 import java.util.List;
 
@@ -25,7 +26,18 @@ import java.util.List;
  *
  * @since 0.966.0
  */
-public interface TupleDestructureStatementNode extends StatementNode {
+public interface TupleDestructureNode extends StatementNode {
 
     List<? extends ExpressionNode> getVariableRefs();
+
+    void addVariableRef(VariableReferenceNode variableReferenceNode);
+
+    ExpressionNode getExpression();
+
+    void setExpression(ExpressionNode expression);
+
+    boolean isDeclaredWithVar();
+
+    void setDeclaredWithVar(boolean isDeclaredWithVar);
+
 }

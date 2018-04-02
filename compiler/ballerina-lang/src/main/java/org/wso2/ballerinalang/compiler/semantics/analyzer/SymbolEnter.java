@@ -26,8 +26,10 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -92,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -104,7 +107,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -485,21 +487,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         invokableNode.defaultableParams.forEach(varDefNode -> {
             visitObjectAttachedFunctionParam(varDefNode.var, invokableEnv);
         });
+        
+        if (invokableNode.returnTypeNode != null) {
+            invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
+        }
 
-        invokableNode.retParams.forEach(varNode -> {
-            // assign the type to var type node
-            if (varNode.type == null) {
-                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
-            }
-            Name varName = names.fromIdNode(varNode.name);
-            if (varName == Names.EMPTY || varName == Names.IGNORE) {
-                // This is a variable created for a return type
-                // e.g. function foo() (int);
-                return;
-            }
-
-            visitObjectAttachedFunctionParamSymbol(varNode, invokableEnv);
-        });
         if (invokableNode.restParam != null) {
             visitObjectAttachedFunctionParam(invokableNode.restParam, invokableEnv);
         }
@@ -846,7 +838,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
     }
 
-    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol,
+    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
                                              SymbolEnv invokableEnv) {
         List<BVarSymbol> paramSymbols =
                 invokableNode.requiredParams.stream()
@@ -860,35 +852,25 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .map(varDefNode -> varDefNode.var.symbol)
                         .collect(Collectors.toList());
 
-        List<BVarSymbol> retParamSymbols =
-                invokableNode.retParams.stream()
-                        .peek(varNode -> defineNode(varNode, invokableEnv))
-                        .filter(varNode -> varNode.symbol != null)
-                        .map(varNode -> varNode.symbol)
-                        .collect(Collectors.toList());
-
-        symbol.params = paramSymbols;
-        symbol.retParams = retParamSymbols;
-        symbol.defaultableParams = namedParamSymbols;
+        if (!invokableNode.desugaredReturnType) {
+            symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
+        }
+        invokableSymbol.params = paramSymbols;
+        invokableSymbol.retType = invokableNode.returnTypeNode.type;
+        invokableSymbol.defaultableParams = namedParamSymbols;
 
         // Create function type
         List<BType> paramTypes = paramSymbols.stream()
                 .map(paramSym -> paramSym.type)
                 .collect(Collectors.toList());
-
         namedParamSymbols.forEach(paramSymbol -> paramTypes.add(paramSymbol.type));
 
         if (invokableNode.restParam != null) {
             defineNode(invokableNode.restParam, invokableEnv);
-            symbol.restParam = invokableNode.restParam.symbol;
-            paramTypes.add(symbol.restParam.type);
+            invokableSymbol.restParam = invokableNode.restParam.symbol;
+            paramTypes.add(invokableSymbol.restParam.type);
         }
-
-        List<BType> retTypes = invokableNode.retParams.stream()
-                .map(varNode -> varNode.type != null ? varNode.type : varNode.typeNode.type)
-                .collect(Collectors.toList());
-
-        symbol.type = new BInvokableType(paramTypes, retTypes, null);
+        invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
     }
 
     private void defineConnectorSymbolParams(BLangConnector connectorNode, BConnectorSymbol symbol,
@@ -1088,7 +1070,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (!funcNode.requiredParams.isEmpty() || !funcNode.retParams.isEmpty()) {
+        if (!funcNode.requiredParams.isEmpty() || funcNode.returnTypeNode.type != symTable.nilType) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
                     funcNode.name.value, funcNode.receiver.type.toString());
         }
@@ -1118,7 +1100,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (!funcNode.retParams.isEmpty()) {
+        if (funcNode.returnTypeNode.type != symTable.nilType) {
             //TODO change message
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
                     funcNode.name.value, funcNode.receiver.type.toString());
@@ -1143,7 +1125,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = exprVar;
         assignmentStmt.pos = variable.pos;
-        assignmentStmt.addVariable(varRef);
+        assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }
 
@@ -1157,7 +1139,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
         assignmentStmt.pos = variable.pos;
-        assignmentStmt.addVariable(varRef);
+        assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }
 
@@ -1231,6 +1213,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         initFunction.setName(createIdentifier(name + sufix.getValue()));
         initFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         initFunction.pos = pos;
+
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.pos = pos;
+        typeNode.typeKind = TypeKind.NIL;
+        initFunction.returnTypeNode = typeNode;
+
         //Create body of the init function
         BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
         body.pos = pos;
@@ -1255,9 +1243,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void addInitReturnStatement(BLangBlockStmt bLangBlockStmt) {
-        //Add return statement to the init function
-        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-        returnStmt.pos = bLangBlockStmt.pos;
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(bLangBlockStmt.pos, symTable.nilType);
         bLangBlockStmt.addStatement(returnStmt);
     }
 
@@ -1338,10 +1324,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType varType = symResolver.resolveTypeNode(transformerNode.source.typeNode, env);
         transformerNode.source.type = varType;
 
-        transformerNode.retParams.forEach(returnParams -> {
-            BType targetType = symResolver.resolveTypeNode(returnParams.typeNode, env);
-            returnParams.type = targetType;
-        });
+        symResolver.resolveTypeNode(transformerNode.returnTypeNode, env);
+//        transformerNode.retParams.forEach(returnParams -> {
+//            BType targetType = symResolver.resolveTypeNode(returnParams.typeNode, env);
+//            returnParams.type = targetType;
+//        });
     }
 
     private void defineTransformerMembers(List<BLangTransformer> transformers, SymbolEnv pkgEnv) {
