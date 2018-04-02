@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.internal.websocket;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -28,58 +29,61 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
 import java.nio.ByteBuffer;
-import javax.websocket.EncodeException;
 import javax.websocket.RemoteEndpoint;
+import javax.websocket.SendHandler;
 
 /**
  * This is {@link Basic} implementation for WebSocket Connection.
  */
 
-public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
+public class WebSocketAsyncRemoteEndpoint implements RemoteEndpoint.Async {
 
     private final ChannelHandlerContext ctx;
 
-    public WebSocketBasicRemoteEndpoint(ChannelHandlerContext ctx) {
+    public WebSocketAsyncRemoteEndpoint(ChannelHandlerContext ctx) {
         this.ctx = ctx;
     }
 
     @Override
-    public void sendText(String text) throws IOException {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
+    public long getSendTimeout() {
+        return 0;
     }
 
     @Override
-    public void sendBinary(ByteBuffer data) throws IOException {
+    public void setSendTimeout(long timeoutmillis) {
+
+    }
+
+    @Override
+    public void sendText(String text, SendHandler handler) {
+        throw new UnsupportedOperationException("Method is not supported");
+    }
+
+    @Override
+    public ChannelFuture sendText(String text) {
+        return ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
+    }
+
+    @Override
+    public ChannelFuture sendBinary(ByteBuffer data) {
         ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
-        ctx.channel().writeAndFlush(new BinaryWebSocketFrame(byteBuf));
+        return ctx.channel().writeAndFlush(new BinaryWebSocketFrame(byteBuf));
     }
 
     @Override
-    public void sendText(String partialMessage, boolean isLast) throws IOException {
+    public void sendBinary(ByteBuffer data, SendHandler handler) {
+        throw new UnsupportedOperationException("Method is not supported");
+    }
+
+
+    @Override
+    public ChannelFuture sendObject(Object data) {
         throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
-    public void sendBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-        ByteBuf partialByteBuf = Unpooled.wrappedBuffer(partialByte);
-        ctx.channel().writeAndFlush(new BinaryWebSocketFrame(isLast, 0, partialByteBuf));
-    }
-
-    @Override
-    public OutputStream getSendStream() throws IOException {
-        throw new UnsupportedOperationException("Method is not supported");
-    }
-
-    @Override
-    public Writer getSendWriter() throws IOException {
-        throw new UnsupportedOperationException("Method is not supported");
-    }
-
-    @Override
-    public void sendObject(Object data) throws IOException, EncodeException {
+    public void sendObject(Object data, SendHandler handler) {
         throw new UnsupportedOperationException("Method is not supported");
     }
 
