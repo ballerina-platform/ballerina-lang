@@ -37,20 +37,6 @@ public class TraceUtil {
         tracer.finishSpan();
     }
 
-    public static BTracer getParentTracer(WorkerExecutionContext ctx) {
-        if (ctx != null) {
-            WorkerExecutionContext parent = ctx;
-            do {
-                BTracer t = getTracer(parent);
-                if (t != null) {
-                    return t;
-                }
-                parent = parent.parent;
-            } while (parent != null);
-        }
-        return null;
-    }
-
     public static void setTracer(WorkerExecutionContext ctx, BTracer tracer) {
         if (ctx.localProps == null) {
             ctx.localProps = new HashMap<>();

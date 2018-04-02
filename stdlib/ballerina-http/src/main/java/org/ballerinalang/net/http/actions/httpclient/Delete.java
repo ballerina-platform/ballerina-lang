@@ -76,8 +76,7 @@ public class Delete extends AbstractHTTPAction {
 
         ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                 getParentWorkerExecutionContext());
-        Map<String, String> traceContext = ObservabilityUtils.getTraceContext(context.
-                getParentWorkerExecutionContext());
+        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
         HttpUtil.injectHeaders(cMsg, traceContext);
         observerContext.addTags(HttpUtil.extractTags(cMsg));
 

@@ -19,7 +19,7 @@ package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.util.tracer.BTracer;
-import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.tracer.TraceManager;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -196,8 +196,8 @@ public class ObservabilityUtils {
         });
     }
 
-    public static Map<String, String> getTraceContext(WorkerExecutionContext executionContext) {
-        BTracer tracer = TraceUtil.getParentTracer(executionContext);
+    public static Map<String, String> getTraceContext() {
+        BTracer tracer = TraceManager.getInstance().getParentTracer();
         if (tracer != null) {
             return tracer.getTraceContext();
         }

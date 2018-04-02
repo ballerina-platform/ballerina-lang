@@ -78,8 +78,7 @@ public class Head extends AbstractHTTPAction {
 
         ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                 getParentWorkerExecutionContext());
-        Map<String, String> traceContext = ObservabilityUtils.getTraceContext(context.
-                getParentWorkerExecutionContext());
+        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
         HttpUtil.injectHeaders(outboundReqMsg, traceContext);
         observerContext.addTags(HttpUtil.extractTags(outboundReqMsg));
 
