@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 const string NAME = "NAME";
 const string AGE = "AGE";

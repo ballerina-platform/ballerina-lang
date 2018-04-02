@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 function testGetMethod (message msg) (string) {
     return http:getMethod(msg);

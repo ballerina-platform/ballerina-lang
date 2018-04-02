@@ -33,11 +33,26 @@ import java.util.Map;
  */
 public class TesterinaRegistry {
 
+    private List<String> groups = new ArrayList<>();
+    private boolean shouldIncludeGroups;
+    private Map<String, TestSuite> testSuites = new HashMap<>();
+    /**
+     * This is required to stop the annotation processor from processing annotations upon the compilation of the
+     * service skeleton. This flag will make sure that @{@link TestAnnotationProcessor}'s methods will skip the
+     * annotation processing once the test suites are compiled.
+     */
+    private boolean testSuitesCompiled;
+    private List<ProgramFile> programFiles = new ArrayList<>();
+    private List<ProgramFile> skeletonProgramFiles = new ArrayList<>();
+    private static TesterinaRegistry instance = new TesterinaRegistry();
+
+    public static TesterinaRegistry getInstance() {
+        return instance;
+    }
+
     public Map<String, TestSuite> getTestSuites() {
         return testSuites;
     }
-
-    private List<String> groups = new ArrayList<>();
 
     public List<String> getGroups() {
         return groups;
@@ -55,30 +70,40 @@ public class TesterinaRegistry {
         this.shouldIncludeGroups = shouldIncludeGroups;
     }
 
-    private boolean shouldIncludeGroups;
+    public boolean isTestSuitesCompiled() {
+        return testSuitesCompiled;
+    }
+
+    public void setTestSuitesCompiled(boolean testSuitesCompiled) {
+        this.testSuitesCompiled = testSuitesCompiled;
+    }
 
     public void setTestSuites(Map<String, TestSuite> testSuites) {
         this.testSuites = testSuites;
+        this.testSuitesCompiled = false;
     }
 
-    private Map<String, TestSuite> testSuites = new HashMap<>();
-
-    public static void setProgramFiles(List<ProgramFile> programFiles) {
-        TesterinaRegistry.programFiles = programFiles;
-    }
-
-    private static List<ProgramFile> programFiles = new ArrayList<>();
-    private static final TesterinaRegistry instance = new TesterinaRegistry();
-
-    public static TesterinaRegistry getInstance() {
-        return instance;
+    public void setProgramFiles(List<ProgramFile> programFiles) {
+        this.programFiles = programFiles;
     }
 
     public Collection<ProgramFile> getProgramFiles() {
         return Collections.unmodifiableCollection(programFiles);
     }
 
+    public Collection<ProgramFile> getSkeletonProgramFiles() {
+        return Collections.unmodifiableCollection(skeletonProgramFiles);
+    }
+
     public void addProgramFile(ProgramFile programFile) {
         programFiles.add(programFile);
+    }
+
+    public TestSuite putTestSuiteIfAbsent(String packageName, TestSuite suite) {
+        return this.testSuites.putIfAbsent(packageName, suite);
+    }
+
+    public void addSkeletonProgramFile(ProgramFile programFile) {
+        skeletonProgramFiles.add(programFile);
     }
  }

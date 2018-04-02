@@ -357,7 +357,7 @@ class SwaggerServiceMapper {
     }
     
     /**
-     * Parses the ballerina.net.http@config annotation and builds swagger definition. Also create the consumes and
+     * Parses the ballerina/http@config annotation and builds swagger definition. Also create the consumes and
      * produces annotations.
      * @param service The ballerina service which has the annotation.
      * @param swagger The swagger to build up.

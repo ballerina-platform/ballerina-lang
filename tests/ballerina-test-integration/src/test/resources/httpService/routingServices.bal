@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
@@ -7,11 +7,11 @@ endpoint http:ServiceEndpoint serviceEP {
 };
 
 endpoint http:ClientEndpoint nasdaqEP {
-    targets: [{uri:"http://localhost:9090/nasdaqStocks"}]
+    targets:[{url:"http://localhost:9090/nasdaqStocks"}]
 };
 
 endpoint http:ClientEndpoint nyseEP {
-    targets: [{uri:"http://localhost:9090/nyseStocks"}]
+    targets:[{url:"http://localhost:9090/nyseStocks"}]
 };
 
 @http:ServiceConfig {basePath:"/cbr"}

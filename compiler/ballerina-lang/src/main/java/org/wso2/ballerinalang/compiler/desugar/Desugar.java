@@ -2076,8 +2076,6 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.BLOB:
                 // Int, float, boolean, string, blob types will get default values from VM side.
                 break;
-            case TypeTags.JSON:
-                return new BLangJSONLiteral(new ArrayList<>(), type);
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
             case TypeTags.TABLE:
