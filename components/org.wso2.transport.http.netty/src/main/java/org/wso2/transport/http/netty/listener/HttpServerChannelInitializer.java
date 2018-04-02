@@ -81,7 +81,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private int cacheDelay;
     private int cacheSize;
     private ChannelGroup allChannels;
-    private boolean ocspStaplingEnabled;
+    private boolean ocspStaplingEnabled = false;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -93,8 +93,20 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (http2Enabled) {
             if (sslConfig != null) {
-                SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForServer();
-                serverPipeline.addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
+                SslContext sslCtx = new SSLHandlerFactory(sslConfig)
+                        .createHttp2TLSContextForServer(ocspStaplingEnabled);
+                if (ocspStaplingEnabled) {
+                    OCSPResp response = getOcspResponse();
+
+                    ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) sslCtx;
+                    SslHandler sslHandler = context.newHandler(ch.alloc());
+
+                    ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+                    engine.setOcspResponse(response.getEncoded());
+                    ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer());
+                } else {
+                    serverPipeline.addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
+                }
             } else {
                 configureH2cPipeline(serverPipeline);
             }
@@ -107,21 +119,28 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
     }
 
+    private OCSPResp getOcspResponse()
+            throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
+            CertificateVerificationException {
+        OCSPResp response = OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
+        if (!OpenSsl.isAvailable()) {
+            throw new IllegalStateException("OpenSSL is not available!");
+        }
+        if (!OpenSsl.isOcspSupported()) {
+            throw new IllegalStateException("OCSP is not supported!");
+        }
+        return response;
+    }
+
     private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
             throws NoSuchAlgorithmException, CertificateVerificationException, UnrecoverableEntryException,
             KeyStoreException, IOException {
 
         if (ocspStaplingEnabled) {
-            OCSPResp response = OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
-            if (!OpenSsl.isAvailable()) {
-                throw new IllegalStateException("OpenSSL is not available!");
-            }
-            if (!OpenSsl.isOcspSupported()) {
-                throw new IllegalStateException("OCSP is not supported!");
-            }
+            OCSPResp response = getOcspResponse();
 
             ReferenceCountedOpenSslContext context = new SSLHandlerFactory(sslConfig)
-                    .getServerReferenceCountedOpenSslContext();
+                    .getServerReferenceCountedOpenSslContext(ocspStaplingEnabled);
             SslHandler sslHandler = context.newHandler(ch.alloc());
 
             ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();

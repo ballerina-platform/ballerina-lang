@@ -193,11 +193,24 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private void configureSslForHttp2(SocketChannel ch, ChannelPipeline clientPipeline, SSLConfig sslConfig)
             throws SSLException {
         connectionAvailabilityFuture.setSSLEnabled(true);
-        SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForClient();
-        clientPipeline.addLast(sslCtx.newHandler(ch.alloc()));
-        if (validateCertEnabled && sslEngine != null) {
-            clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                    new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+        if (senderConfiguration.isOcspStaplingEnabled()) {
+            ReferenceCountedOpenSslContext referenceCountedOpenSslContext =
+                    (ReferenceCountedOpenSslContext) new SSLHandlerFactory(sslConfig).
+                            createHttp2TLSContextForClient(senderConfiguration.isOcspStaplingEnabled());
+            if (referenceCountedOpenSslContext != null) {
+                SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(ch.alloc());
+                ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+                ch.pipeline().addLast(sslHandler);
+                ch.pipeline().addLast(new OCSPStaplingHandler(engine));
+            }
+        } else {
+            SslContext sslCtx = new SSLHandlerFactory(sslConfig)
+                    .createHttp2TLSContextForClient(false);
+            clientPipeline.addLast(sslCtx.newHandler(ch.alloc()));
+            if (validateCertEnabled && sslEngine != null) {
+                clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
+                        new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+            }
         }
         clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler,
                 connectionAvailabilityFuture));
