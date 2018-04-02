@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.hover.util;
 
-import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -242,7 +242,7 @@ public class HoverUtil {
      * @return return Hover object.
      */
     public static Hover getHoverContent(TextDocumentServiceContext hoverContext, BLangPackage currentBLangPackage,
-                                        BLangPackageContext packageContext) {
+                                        LSPackageCache packageContext) {
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
         currentBLangPackage.accept(positionTreeVisitor);
         Hover hover;
@@ -250,8 +250,8 @@ public class HoverUtil {
         // If the cursor is on a node of the current package go inside, else check builtin and native packages.
         if (hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null) {
             hover = getHoverInformation(packageContext
-                    .getPackageByName(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
-                            hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name), hoverContext);
+                    .findPackage(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
+                            hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY)), hoverContext);
         } else {
             hover = new Hover();
             List<Either<String, MarkedString>> contents = new ArrayList<>();

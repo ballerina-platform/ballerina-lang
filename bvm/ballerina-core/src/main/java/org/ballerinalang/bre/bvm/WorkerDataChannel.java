@@ -53,7 +53,7 @@ public class WorkerDataChannel {
         } else {
             this.pendingCtx = ctx;
             ctx.ip--; // we are going to execute the same worker receive operation later
-            BLangScheduler.switchToWaitForResponse(ctx);
+            BLangScheduler.workerWaitForResponse(ctx);
             return null;
         }
     }

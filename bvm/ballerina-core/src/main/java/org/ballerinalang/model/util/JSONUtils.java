@@ -32,7 +32,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode.Type;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloat;
@@ -1017,7 +1016,7 @@ public class JSONUtils {
     }
     
     public static String getTypeName(JsonNode jsonValue) {
-        if(jsonValue == null) {
+        if (jsonValue == null) {
             return "null";
         }
 

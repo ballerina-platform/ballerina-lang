@@ -17,22 +17,15 @@
 package org.ballerinalang.composer.service.ballerina.launcher.service;
 
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
-import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Command class represent the launcher commands.

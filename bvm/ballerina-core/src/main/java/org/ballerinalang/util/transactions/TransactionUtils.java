@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.transactions;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
