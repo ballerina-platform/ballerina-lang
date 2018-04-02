@@ -622,10 +622,19 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
+    |	expression matchExpression										  # matchExprExpression
     ;
 
 awaitExpression
     :   AWAIT expression                                                    # awaitExpr
+    ;
+
+matchExpression
+    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
+    	;
+
+matchExpressionPatternClause
+    :   typeName Identifier? EQUAL_GT expression
     ;
 
 //reusable productions

@@ -2898,6 +2898,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startMatchExpression();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitMatchExpression(BallerinaParser.MatchExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endMatchExpression(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitMatchExpressionPatternClause(BallerinaParser.MatchExpressionPatternClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        // TODO: pass the var name, if available
+        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null; 
+        this.pkgBuilder.addMatchExprPattaern(getCurrentPos(ctx), getWS(ctx), identifier);
+    }
+
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine() + 1;

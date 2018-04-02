@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -211,6 +212,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -1262,6 +1264,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitFunctionPointerLoad(bLangLambdaFunction, ((BLangFunction) bLangLambdaFunction.getFunctionNode()).symbol);
     }
 
+    public void visit(BLangStatementExpression bLangStatementExpression) {
+        bLangStatementExpression.regIndex = calcAndGetExprRegIndex(bLangStatementExpression);
+        genNode(bLangStatementExpression.stmt, this.env);
+        genNode(bLangStatementExpression.expr, this.env);
+        emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
+                bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
+    }
 
     // private methods
 
