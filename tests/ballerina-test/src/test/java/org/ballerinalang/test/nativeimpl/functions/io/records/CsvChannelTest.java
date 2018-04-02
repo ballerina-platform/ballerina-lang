@@ -40,10 +40,12 @@ import java.nio.file.Paths;
  */
 public class CsvChannelTest {
     private CompileResult recordsInputOutputProgramFile;
+    private String currentDirectoryPath = "/tmp";
 
     @BeforeClass
     public void setup() {
         recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
+        currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
     private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
@@ -56,7 +58,7 @@ public class CsvChannelTest {
         return pathValue;
     }
 
-    @Test(description = "Test successful data load")
+    @Test(description = "Test 'readDefaultCSVRecords'")
     public void readDefaultCsvTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStringArray records;
@@ -96,7 +98,23 @@ public class CsvChannelTest {
         BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test successful data load")
+    @Test(description = "Test 'writeDefaultCSVRecords'")
+    public void testWriteDefaultCsv() {
+        String[] content = {"Name", "Email", "Telephone"};
+        BStringArray record = new BStringArray(content);
+        String sourceToWrite = currentDirectoryPath + "/recordsDefault.csv";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite)};
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDefaultCsv", args);
+
+        args = new BValue[]{record};
+        BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
+
+        BRunUtil.invoke(recordsInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'readRfcCSVRecords'")
     public void readRfcTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleRfc.csv";
         BStringArray records;
@@ -136,7 +154,23 @@ public class CsvChannelTest {
         BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test successful data load")
+    @Test(description = "Test 'writeRfcCSVRecords'")
+    public void testWriteRfc() {
+        String[] content = {"Name", "Email", "Telephone"};
+        BStringArray record = new BStringArray(content);
+        String sourceToWrite = currentDirectoryPath + "/recordsRfc.csv";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite)};
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initRfc", args);
+
+        args = new BValue[]{record};
+        BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
+
+        BRunUtil.invoke(recordsInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'readTdfCSVRecords'")
     public void readTdfTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleTdf.tsv";
         BStringArray records;
@@ -175,5 +209,22 @@ public class CsvChannelTest {
 
         BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
+
+    @Test(description = "Test 'writeTdfCSVRecords'")
+    public void testWriteTdf() {
+        String[] content = {"Name", "Email", "Telephone"};
+        BStringArray record = new BStringArray(content);
+        String sourceToWrite = currentDirectoryPath + "/recordsTdf.csv";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite)};
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initTdf", args);
+
+        args = new BValue[]{record};
+        BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
+
+        BRunUtil.invoke(recordsInputOutputProgramFile, "close");
+    }
+
 
 }

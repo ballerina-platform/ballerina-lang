@@ -46,9 +46,12 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -317,14 +320,17 @@ public class IOUtils {
     public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, Format format)
             throws IOException {
         Path path = Paths.get(filePath);
-        if (Files.notExists(path)) {
-            String msg = "Unable to find a file in given path: " + filePath;
-            throw new IOException(msg);
+        Set<OpenOption> opts = new HashSet<>();
+        if(Files.exists(path)){
+            opts.add(StandardOpenOption.READ);
+        }else {
+            opts.add(StandardOpenOption.CREATE);
+            opts.add(StandardOpenOption.WRITE);
         }
-        FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ);
+        FileChannel sourceChannel = FileChannel.open(path, opts);
         FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
         CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
-        return new DelimitedRecordChannel(characterChannel, format.getRecordSeparator(), format.getFieldSeparator());
+        return new DelimitedRecordChannel(characterChannel, format);
     }
 
     /**

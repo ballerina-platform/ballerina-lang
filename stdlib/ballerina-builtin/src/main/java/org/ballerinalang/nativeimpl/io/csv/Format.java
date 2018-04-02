@@ -25,41 +25,59 @@ public enum Format {
     /**
      * The format would be similar to RFC4180, however empty lines will be allowed.
      */
-    DEFAULT(",", "\\r?\\n", false),
+    DEFAULT(",", "\\r?\\n", ",", "\n", false),
     /**
      * CSV should conform with RFC4180 specification.
      */
-    RFC4180(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", true),
+    RFC4180(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", ",", "\n", true),
     /**
      * Tab delimited records.
      */
-    TDF("\\t", "\\r?\\n", true);
+    TDF("\\t", "\\r?\\n", "\t", "\n", true);
 
     /**
      * Defines the record separator for the format.
      */
-    private String recordSeparator;
+    private String readRecSeparator;
     /**
      * Defines the field separator for the format.
      */
-    private String fieldSeparator;
+    private String readFieldSeparator;
+    /**
+     * Defines the record separator which should be used when writing.
+     */
+    private String writeRecSeparator;
+    /**
+     * Defines the field separator which should be used when writing.
+     */
+    private String writeFieldSeparator;
     /**
      * Specifies whether white spaces should be ignored.
      */
     private boolean ignoreSpaces;
 
-    Format(String fs, String rs, boolean ignoreSpaces) {
-        this.fieldSeparator = fs;
-        this.recordSeparator = rs;
+    Format(String rfs, String rrs, String wfs, String wrs, boolean ignoreSpaces) {
+        this.readFieldSeparator = rfs;
+        this.readRecSeparator = rrs;
+        this.writeFieldSeparator = wfs;
+        this.writeRecSeparator = wrs;
         this.ignoreSpaces = ignoreSpaces;
     }
 
-    public String getRecordSeparator() {
-        return recordSeparator;
+    public String getReadRecSeparator() {
+        return readRecSeparator;
     }
 
-    public String getFieldSeparator() {
-        return fieldSeparator;
+    public String getReadFieldSeparator() {
+        return readFieldSeparator;
+    }
+
+    public String getWriteRecSeparator() {
+        return writeRecSeparator;
+    }
+
+    public String getWriteFieldSeparator() {
+        return writeFieldSeparator;
     }
 
     public boolean isIgnoreSpaces() {
