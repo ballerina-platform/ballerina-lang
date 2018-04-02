@@ -2059,13 +2059,10 @@ public class Desugar extends BLangNodeVisitor {
     private BLangTypeInit createTypeInitNode(BType type) {
         BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
         objectInitNode.type = type;
-//        objectInitNode.pos = pos;
-//        objectInitNode.addWS(ws);
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.symbol = ((BStructSymbol) type.tsymbol).initializerFunc.symbol;
-//        invocationNode.pos = pos;
-//        invocationNode.addWS(ws);
+        invocationNode.type = type;
 
         BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
@@ -2073,7 +2070,6 @@ public class Desugar extends BLangNodeVisitor {
         nameNode.setLiteral(false);
         nameNode.setValue(Names.OBJECT_INIT_SUFFIX.getValue());
         invocationNode.name = nameNode;
-//        invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = pkgNameNode;
 
         objectInitNode.objectInitInvocation = invocationNode;
