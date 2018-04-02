@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,9 @@ package org.ballerinalang.langserver;
 
 /**
  * Ballerina Language server context.
- * @since 0.95.5
+ * @since 0.970.0
  */
-public interface LanguageServerContext {
+public interface LSContext {
 
     /**
      * Add new Context property.

@@ -15,24 +15,20 @@
  */
 package org.ballerinalang.langserver;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 
 /**
- * Language server context for the Workspace service.
- * @since v0.964.0
+ * Language Server Global Context Keys.
+ * 
+ * @since 0.970.0
  */
-public class WorkspaceServiceContext implements LanguageServerContext {
-    private Map<LanguageServerContext.Key<?>, Object> props = new HashMap<>();
-
-    @Override
-    public <V> void put(LanguageServerContext.Key<V> key, V value) {
-        props.put(key, value);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <V> V get(LanguageServerContext.Key<V> key) {
-        return (V) props.get(key);
-    }
+public class LSGlobalContextKeys {
+    public static final LSContext.Key<LSPackageCache> PKG_CACHE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<LSAnnotationCache> ANNOTATION_CACHE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<WorkspaceDocumentManagerImpl> DOCUMENT_MANAGER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY
+            = new LSContext.Key<>();
 }
