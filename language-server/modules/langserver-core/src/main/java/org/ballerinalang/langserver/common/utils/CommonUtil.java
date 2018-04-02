@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
@@ -440,7 +440,7 @@ public class CommonUtil {
      * @param terminalTokens List of terminal tokens
      * @return {@link Boolean}  Whether the cursor is within the brackets or not
      */
-    public static boolean isWithinBrackets(TextDocumentServiceContext context, List<String> terminalTokens) {
+    public static boolean isWithinBrackets(LSServiceOperationContext context, List<String> terminalTokens) {
         int currentTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         Token previousToken = tokenStream.get(currentTokenIndex);

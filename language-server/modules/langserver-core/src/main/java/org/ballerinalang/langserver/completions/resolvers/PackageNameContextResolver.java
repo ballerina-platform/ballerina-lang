@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSPackageCache;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
@@ -36,7 +36,7 @@ import java.util.List;
 public class PackageNameContextResolver extends AbstractItemResolver {
     
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         LSPackageCache lsPackageCache = completionContext.get(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY);
 

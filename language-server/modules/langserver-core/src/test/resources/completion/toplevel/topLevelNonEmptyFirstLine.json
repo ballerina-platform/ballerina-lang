@@ -3,7 +3,7 @@
     "line": 0,
     "character": 1
   },
-  "source": "completions/toplevel/source/topLevelNonEmptyFirstLine.bal",
+  "source": "toplevel/source/topLevelNonEmptyFirstLine.bal",
   "items": [
     {
       "label":"import",
@@ -51,7 +51,7 @@
       "label":"service",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:ServiceType}\u003e ${2:serviceName}{\n\t${3:newResource} () {\n\t}\n}",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName}{\n\t${3:newResource} (endpoint ${4:epReference}, ${5:http:Request request}) {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -94,6 +94,13 @@
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"type ${1:ObjectTypeName} object {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"endpoint",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};",
       "insertTextFormat":"Snippet"
     },
     {
