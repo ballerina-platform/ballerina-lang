@@ -1,6 +1,6 @@
 // This is server implementation for unary blocking/unblocking scenario
 import ballerina/io;
-import ballerina/net.grpc;
+import ballerina/grpc;
 
 // Server endpoint configuration
 endpoint grpc:Service ep {
