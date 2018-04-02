@@ -498,8 +498,7 @@ public class TypeChecker extends BLangNodeVisitor {
         final BType exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
         if (isIterableOperationInvocation(iExpr)) {
             iExpr.iterableOperationInvocation = true;
-            iterableAnalyzer.handlerIterableOperation(iExpr,
-                    expType == symTable.noType ? symTable.nilType : expType, env);
+            iterableAnalyzer.handlerIterableOperation(iExpr, expType, env);
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }

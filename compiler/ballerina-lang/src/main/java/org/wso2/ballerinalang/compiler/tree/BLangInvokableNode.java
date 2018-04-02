@@ -61,6 +61,8 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     public BInvokableSymbol symbol;
 
+    public boolean desugaredReturnType;
+
     public BLangInvokableNode() {
         this.requiredParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
