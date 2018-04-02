@@ -261,7 +261,10 @@ public const string TYPE = "type";
 public const string CHARSET = "charset";
 
 @Description {value:"Default charset to be used with MIME encoding and decoding"}
-public const string DEFAULT_CHARSET = "UTF-8";
+public const string DEFAULT_CHARSET = "utf-8";
+
+@Description {value:"Key name to be used for 'charset' parameter in content-type header"}
+public const string CHARSET_PARAM = ";charset=";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 const string READ_PERMISSION = "r";

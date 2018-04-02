@@ -254,6 +254,7 @@ public class HeaderUtil {
 
         } else {
             httpHeaders = new DefaultHttpHeaders();
+            struct.addNativeData(ENTITY_HEADERS, httpHeaders);
         }
         httpHeaders.set(key, value);
     }

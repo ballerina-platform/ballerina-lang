@@ -169,10 +169,12 @@ public class HttpUtil {
         httpCarbonMessage.waitAndReleaseAllEntities();
         BStruct entity = (BStruct) context.getRefArgument(ENTITY_INDEX);
         String contentType = MimeUtil.getContentTypeWithParameters(entity);
-        if (contentType == null) {
+        if (contentType == null && HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
             contentType = OCTET_STREAM;
         }
-        HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        if (contentType != null) {
+            HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
