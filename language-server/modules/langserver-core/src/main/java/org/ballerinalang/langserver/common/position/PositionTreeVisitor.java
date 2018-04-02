@@ -149,10 +149,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!funcNode.retParams.isEmpty()) {
-            funcNode.retParams.forEach(this::acceptNode);
-        }
-
         if (funcNode.body != null) {
             this.acceptNode(funcNode.body);
         }
@@ -334,10 +330,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 && assignNode.getPosition().eLine >= this.position.getLine()) {
             this.acceptNode(assignNode.expr);
         }
-
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
     }
 
     @Override
@@ -448,10 +440,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             actionNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!actionNode.retParams.isEmpty()) {
-            actionNode.retParams.forEach(this::acceptNode);
-        }
-
         if (actionNode.body != null) {
             acceptNode(actionNode.body);
         }
@@ -504,10 +492,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (!resourceNode.requiredParams.isEmpty()) {
             resourceNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (!resourceNode.retParams.isEmpty()) {
-            resourceNode.retParams.forEach(this::acceptNode);
         }
 
         if (resourceNode.body != null) {
@@ -603,10 +587,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             workerNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!workerNode.retParams.isEmpty()) {
-            workerNode.retParams.forEach(this::acceptNode);
-        }
-
         if (workerNode.body != null) {
             acceptNode(workerNode.body);
         }
@@ -635,9 +615,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         setPreviousNode(returnNode);
-        if (!returnNode.exprs.isEmpty()) {
-            returnNode.exprs.forEach(this::acceptNode);
-        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
