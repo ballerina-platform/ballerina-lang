@@ -534,6 +534,9 @@ public class IterableAnalyzer {
                             ((BTableType) expectedType).constraint, DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
                 return;
+            } else if (expectedType.tag == TypeTags.TUPLE) {
+                context.resultType = symTable.errType;
+                return;
             } else if (expectedType.tag == TypeTags.ANY) {
                 context.resultType = symTable.errType;
                 dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind);
