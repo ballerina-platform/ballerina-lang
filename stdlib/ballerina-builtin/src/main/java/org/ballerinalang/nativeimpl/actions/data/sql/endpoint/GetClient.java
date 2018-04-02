@@ -33,11 +33,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.965
  */
 
-@BallerinaFunction(orgName = "ballerina", packageName = "data.sql",
+@BallerinaFunction(orgName = "ballerina", packageName = "sql",
                    functionName = "getClient",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "Client",
-                                        structPackage = "ballerina.data.sql"),
+                                        structPackage = "ballerina.sql"),
                    returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)
 public class GetClient extends BlockingNativeCallableUnit {

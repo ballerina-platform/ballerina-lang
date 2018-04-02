@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 import ballerina/time;
 import ballerina/io;
 
