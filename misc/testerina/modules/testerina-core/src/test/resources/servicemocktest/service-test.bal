@@ -52,7 +52,6 @@ function testService () {
 
     http:Request req = {};
     // Send a GET request to the specified endpoint
-    io:println("GET request:");
     var response = httpEndpoint -> get("/events", req);
     match response {
                http:Response resp => {

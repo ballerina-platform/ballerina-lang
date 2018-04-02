@@ -211,7 +211,7 @@ public class EndpointDesugar {
                 env.enclService.vars.add(epVarDef);
             }
             final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, temp);
-            assignmentStmt.varRefs.add(ASTBuilderUtil.createVariableRef(pos, epVariable.symbol));
+            assignmentStmt.varRef = ASTBuilderUtil.createVariableRef(pos, epVariable.symbol);
             assignmentStmt.expr = newExpr;
         }
         return temp;

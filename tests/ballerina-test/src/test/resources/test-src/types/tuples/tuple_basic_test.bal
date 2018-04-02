@@ -81,3 +81,23 @@ function testFunctionReturnValue2() returns (string, float) {
     var (i, j, k) = testReturnTuples("x");
     return (i + k, j);
 }
+
+function testIgnoredValue1 () returns string {
+    (string, int) x = ("foo", 1);
+    var (a, _) = x;
+    return a;
+}
+
+function testIgnoredValue2 () returns string {
+    (string, int, int) x = ("foo", 1, 2);
+    string a;
+    var (a, _, c) = x;
+    return a;
+}
+
+function testIgnoredValue3 () returns string {
+    (string, int, int) x = ("foo", 1, 2);
+    string a;
+    (a, _, _) = x;
+    return a;
+}

@@ -104,7 +104,7 @@ function testBasicMap2 () returns string[] {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
     string[] values = m.map(mapToTuple)
                       .filter(function ((string, string) v) returns (boolean) {
-                                  var (k, _) = v;
+                                  var (k, t) = v;
                                   if (k == "a" || k == "e") {
                                       return true;
                                   }
