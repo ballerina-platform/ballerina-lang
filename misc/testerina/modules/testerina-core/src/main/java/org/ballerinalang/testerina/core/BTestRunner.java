@@ -107,7 +107,7 @@ public class BTestRunner {
                     try {
                         ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
                     } catch (Exception e) {
-                        errStream.println("[ERROR] Validation failed. Cause: " + e);
+                        errStream.println("[ERROR] Validation failed. Cause: " + e.getMessage());
                         throw new BallerinaException(e);
                     }
                 }
