@@ -1,6 +1,6 @@
-import ballerina/net.http;
-import ballerina/net.http.response;
-import ballerina/net.http.request;
+import ballerina/http;
+import ballerina/http.response;
+import ballerina/http.request;
 
 @http:configuration {basePath:"/echo"}
 service<http> echo {

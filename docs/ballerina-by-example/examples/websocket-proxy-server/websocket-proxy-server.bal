@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 const string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 endpoint http:ServiceEndpoint serviceEndpoint {

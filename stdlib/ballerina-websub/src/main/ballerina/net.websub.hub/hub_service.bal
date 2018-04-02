@@ -4,7 +4,7 @@ import ballerina/collections;
 import ballerina/data.sql;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.websub;
 import ballerina/security.crypto;
 import ballerina/time;
