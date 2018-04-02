@@ -1,4 +1,4 @@
-package ballerina.search;
+package packaging.search;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;

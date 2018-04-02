@@ -98,7 +98,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${basedir}/src/main/ballerina/pull</argument>
+                                <argument>${ballerina.source.directory}/packaging.pull</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -110,7 +110,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${basedir}/src/main/ballerina/push</argument>
+                                <argument>${ballerina.source.directory}/packaging.push</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -122,7 +122,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${basedir}/src/main/ballerina/search</argument>
+                                <argument>${ballerina.source.directory}/packaging.search</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -167,9 +167,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete file="${ballerina.source.directory}/pull/ballerina.pull.balx" />
-                                <delete file="${ballerina.source.directory}/push/ballerina.push.balx" />
-                                <delete file="${ballerina.source.directory}/search/ballerina.search.balx" />
+                                <delete file="${ballerina.source.directory}/packaging.pull/ballerina.pull.balx" />
+                                <delete file="${ballerina.source.directory}/packaging.push/ballerina.push.balx" />
+                                <delete file="${ballerina.source.directory}/packaging.search/ballerina.search.balx" />
                             </tasks>
                         </configuration>
                     </execution>

@@ -1,4 +1,4 @@
-package ballerina.pull;
+package packaging.pull;
 
 import ballerina/file;
 import ballerina/io;

@@ -38,15 +38,15 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         switch (cmdType) {
             case "pull":
                 resource = BVMEmbeddedExecutor.class.getClassLoader().getResource
-                        ("META-INF/ballerina/pull/ballerina.pull.balx");
+                        ("META-INF/ballerina/packaging.pull/ballerina.pull.balx");
                 break;
             case "push":
                 resource = BVMEmbeddedExecutor.class.getClassLoader().getResource
-                        ("META-INF/ballerina/push/ballerina.push.balx");
+                        ("META-INF/ballerina/packaging.push/ballerina.push.balx");
                 break;
             case "search":
                 resource = BVMEmbeddedExecutor.class.getClassLoader().getResource
-                        ("META-INF/ballerina/search/ballerina.search.balx");
+                        ("META-INF/ballerina/packaging.search/ballerina.search.balx");
                 break;
             default:
                 throw new BLangCompilerException("Invalid command type");

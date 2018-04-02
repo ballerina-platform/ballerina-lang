@@ -956,7 +956,7 @@
                 <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>cli/ballerina-cliutils</module>
+                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1005,7 +1005,7 @@
                 <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>cli/ballerina-cliutils</module>
+                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1046,7 +1046,7 @@
                 <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>cli/ballerina-cliutils</module>
+                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
