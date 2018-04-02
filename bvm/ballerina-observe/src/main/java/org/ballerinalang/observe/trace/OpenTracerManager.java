@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.observe.trace.Constants.DISABLE_OBSERVE_KEY;
+import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 
 /**
  * This is the class which holds the tracers that are enabled,
@@ -76,7 +77,8 @@ public class OpenTracerManager implements TraceManager {
             if (tracer != null) {
                 Span span = (Span) activeSpanEntry.getValue();
                 if (span != null) {
-                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new RequestInjector(carrierMap));
+                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, new RequestInjector(TRACE_PREFIX,
+                            carrierMap));
                 }
             }
         }
@@ -84,7 +86,7 @@ public class OpenTracerManager implements TraceManager {
     }
 
     @Override
-    public Map<String, Object> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
+    public Map<String, Object> startSpan(String spanName, Map<String, ?> spanContextMap,
                                          Map<String, String> tags, String serviceName) {
         Map<String, Object> spanMap = new HashMap<>();
         Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
