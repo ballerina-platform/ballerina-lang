@@ -15,64 +15,22 @@
 // under the License.
 import ballerina/io;
 import ballerina/net.grpc;
-import ballerina.runtime;
 
-string[] responses = [];
-int total = 0;
-function testUnaryNonBlockingClient () returns (string []) {
-    // Client endpoint configuration
-    endpoint helloWorldClient helloWorldEp {
+function main (string[] args) {
+    endpoint helloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
-        port:9090
+        port:9098
     };
-    // Executing unary non-blocking call registering server message listener.
-    error| null result = helloWorldEp -> hello("WSO2", typeof helloWorldMessageListener);
-    match result {
-        error payloadError => {
-            io:println("Error occured while sending event " + payloadError.message);
-            responses[total] = "Error occured while sending event " + payloadError.message;
-            return responses;
+
+    error|string unionResp = helloWorldBlockingEp -> hello("WSO2");
+    match unionResp {
+        string payload => {
+            io:println("Client got response : ");
+            io:println(payload);
         }
-        any| null => {
-            io:println("Connected successfully");
+        error err => {
+            io:println("Error from Connector: " + err.message);
         }
-    }
-
-    int wait = 0;
-    while(total < 2) {
-        runtime:sleepCurrentWorker(1000);
-        io:println("msg count: " + total);
-        if (wait > 5) {
-            break;
-        }
-        wait++;
-    }
-    io:println("Client got response successfully.");
-    return responses;
-}
-
-// Server Message Listener.
-service<grpc:Listener> helloWorldMessageListener {
-
-    // Resource registered to receive server messages
-    onMessage (string message) {
-        io:println("Response received from server: " + message);
-        responses[total] = message;
-        total = total + 1;
-    }
-
-    // Resource registered to receive server error messages
-    onError (grpc:ServerError err) {
-        if (err != null) {
-            io:println("Error reported from server: " + err.message);
-        }
-    }
-
-    // Resource registered to receive server completed message.
-    onComplete () {
-        io:println("Server Complete Sending Response.");
-        responses[total] = "Server Complete Sending Response.";
-        total = total + 1;
     }
 }
 
@@ -81,7 +39,7 @@ struct helloWorldBlockingStub {
     grpc:ServiceStub serviceStub;
 }
 
-function <helloWorldBlockingStub stub> initStub(grpc:Client clientEndpoint) {
+function <helloWorldBlockingStub stub> initStub (grpc:Client clientEndpoint) {
     grpc:ServiceStub navStub = {};
     navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
     stub.serviceStub = navStub;
@@ -92,21 +50,21 @@ struct helloWorldStub {
     grpc:ServiceStub serviceStub;
 }
 
-function <helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
+function <helloWorldStub stub> initStub (grpc:Client clientEndpoint) {
     grpc:ServiceStub navStub = {};
     navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
     stub.serviceStub = navStub;
 }
 
-function <helloWorldBlockingStub stub> hello (string req) returns (string| error) {
-    any | grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
+function <helloWorldBlockingStub stub> hello (string req) returns (string|error) {
+    any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
     match unionResp {
         grpc:ConnectorError payloadError => {
             error e = {message:payloadError.message};
             return e;
         }
-        //Below code snippet will change after the pending match fix.
-        any | string payload => {
+    //Below code snippet will change after the pending match fix.
+        any|string payload => {
             match payload {
                 string s => {
                     return s;
@@ -134,7 +92,7 @@ public struct helloWorldBlockingClient {
     helloWorldBlockingStub stub;
 }
 
-public function <helloWorldBlockingClient ep> init(grpc:ClientEndpointConfiguration config) {
+public function <helloWorldBlockingClient ep> init (grpc:ClientEndpointConfiguration config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);
@@ -145,7 +103,7 @@ public function <helloWorldBlockingClient ep> init(grpc:ClientEndpointConfigurat
     ep.stub = stub;
 }
 
-public function <helloWorldBlockingClient ep> getClient() returns (helloWorldBlockingStub) {
+public function <helloWorldBlockingClient ep> getClient () returns (helloWorldBlockingStub) {
     return ep.stub;
 }
 
@@ -154,7 +112,7 @@ public struct helloWorldClient {
     helloWorldStub stub;
 }
 
-public function <helloWorldClient ep> init(grpc:ClientEndpointConfiguration config) {
+public function <helloWorldClient ep> init (grpc:ClientEndpointConfiguration config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);
@@ -165,7 +123,7 @@ public function <helloWorldClient ep> init(grpc:ClientEndpointConfiguration conf
     ep.stub = stub;
 }
 
-public function <helloWorldClient ep> getClient() returns (helloWorldStub) {
+public function <helloWorldClient ep> getClient () returns (helloWorldStub) {
     return ep.stub;
 }
 

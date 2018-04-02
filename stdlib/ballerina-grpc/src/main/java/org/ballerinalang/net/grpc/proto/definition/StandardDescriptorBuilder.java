@@ -22,6 +22,9 @@ import com.google.protobuf.Descriptors;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Provides protobuf descriptor for well known dependency.
+ */
 public class StandardDescriptorBuilder {
 
     private static Map<String, Descriptors.FileDescriptor> standardLibDescriptor;

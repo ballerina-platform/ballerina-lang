@@ -117,7 +117,7 @@ public class SSLHandlerFactory {
     }
     
     /**
-     * This method will provide netty ssl context which supports HTTP2 over TLS using
+     * This method will provide netty ssl context which supports HTTP2 over TLS using ALPN.
      * Application Layer Protocol Negotiation (ALPN)
      *
      * @return instance of {@link SslContext}

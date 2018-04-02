@@ -38,7 +38,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -57,7 +56,6 @@ import static org.ballerinalang.net.grpc.MessageConstants.DOUBLE;
 import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
 import static org.ballerinalang.net.grpc.MessageConstants.INT;
 import static org.ballerinalang.net.grpc.MessageConstants.STRING;
-
 
 /**
  * Util methods to generate protobuf message.

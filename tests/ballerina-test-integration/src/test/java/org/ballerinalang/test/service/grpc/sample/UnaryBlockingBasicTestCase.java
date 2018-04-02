@@ -25,15 +25,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.grpc.builder.helloworld.ServerRunnable;
 import org.ballerinalang.test.util.grpc.client.helloworld.HelloClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -43,14 +42,13 @@ import java.nio.file.Paths;
  */
 public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
 
-    private ServerRunnable serverRunnable;
+    private ServerInstance ballerinaServer;
     
     @BeforeClass
     private void setup() throws Exception {
-        ServerInstance ballerinaServer = ServerInstance.initBallerinaServer(9090);
+        ballerinaServer = ServerInstance.initBallerinaServer(9090);
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpcService", "unary-server1.bal");
-        serverRunnable = new ServerRunnable(ballerinaServer, serviceBalPath.toFile());
-        serverRunnable.start();
+        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
     }
     
     @Test
@@ -95,8 +93,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     }
     
     @AfterClass
-    private void cleanup() {
-        serverRunnable.stopServer();
-        serverRunnable = null;
+    private void cleanup() throws BallerinaTestException {
+        ballerinaServer.stopServer();
     }
 }
