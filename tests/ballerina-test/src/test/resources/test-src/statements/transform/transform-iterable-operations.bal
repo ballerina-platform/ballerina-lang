@@ -13,7 +13,7 @@ struct VehicleInfo {
     string [] ids;
 }
 
-transformer<Person source,VehicleInfo target> {
+transformer<Person source,VehicleInfo target> foo() {
     target.numberOfCars = source.vehicles.filter(function(Vehicle vehicle) returns boolean {
                                                      return vehicle.vehicleType == "car";
                                                  }).count();
@@ -33,7 +33,7 @@ function testTransformerIterableOperations() returns (int, int, int) {
                                    {vid: "02", vehicleType:"bike"},
                                    {vid: "03", vehicleType:"car"}
                                   ]};
-    VehicleInfo vInfo = <VehicleInfo> person1;
+    VehicleInfo vInfo = <VehicleInfo, foo()> person1;
     return (vInfo.numberOfCars, vInfo.numberOfBikes, lengthof(vInfo.ids));
 }
 

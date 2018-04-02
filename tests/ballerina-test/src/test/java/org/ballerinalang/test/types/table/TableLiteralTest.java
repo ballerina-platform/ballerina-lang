@@ -137,7 +137,8 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testToJson");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"jane\","
+        Assert.assertEquals((returns[0]).stringValue(),
+                "[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"jane\","
                 + "\"married\":true},{\"id\":2,\"age\":20,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
                 + "{\"id\":3,\"age\":32,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
     }
@@ -156,7 +157,8 @@ public class TableLiteralTest {
     public void testTableWithAllDataToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1,\"jsonData\":{\"name\":\"apple\",\"color\":\"red\","
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1,\"jsonData\":{\"name\":\"apple\",\"color\":\"red\","
                 + "\"price\":30.3},\"xmlData\":\"<book>The Lost World</book>\"},{\"id\":2,\""
                 + "jsonData\":{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3},"
                 + "\"xmlData\":\"<book>The Lost World</book>\"}]");
@@ -211,7 +213,8 @@ public class TableLiteralTest {
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
-                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name><married>false</married></result></results>");
+                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name>" +
+                        "<married>false</married></result></results>");
     }
 
     @Test(priority = 1)
@@ -236,7 +239,8 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithArrayDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithArrayDataToXml");
-        Assert.assertEquals((returns[0]).stringValue(), "<results><result><id>1</id><intArrData><element>1</element>"
+        Assert.assertEquals((returns[0]).stringValue(),
+                "<results><result><id>1</id><intArrData><element>1</element>"
                 + "<element>2</element><element>3</element></intArrData>"
                 + "<floatArrData><element>11.1</element><element>22.2</element><element>33.3</element></floatArrData>"
                 + "<stringArrData><element>Hello</element><element>World</element></stringArrData>"
@@ -294,9 +298,11 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableAddAndAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+        Assert.assertEquals((returns[0]).stringValue(),
+                "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
                 + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
-        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+        Assert.assertEquals((returns[1]).stringValue(),
+                "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
                 + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
                 + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
     }
@@ -312,8 +318,9 @@ public class TableLiteralTest {
     @Test(priority = 1,
           description = "Test invalid empty table create",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*")
-    public void testFailedGeneratedKeyOnInsert() {
+          expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*",
+          enabled = false)
+    public void testEmptyTableCreateInvalid() {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }
 

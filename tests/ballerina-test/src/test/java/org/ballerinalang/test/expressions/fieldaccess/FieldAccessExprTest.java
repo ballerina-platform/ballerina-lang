@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.expressions.fieldaccess;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -28,8 +27,8 @@ public class FieldAccessExprTest {
     @Test
     public void testFieldAccess() {
         CompileResult compile = BCompileUtil.compile("test-src/expressions/fieldaccess/field-access.bal");
-//        Assert.assertEquals(compile.getErrorCount(), 1);
-        for(Diagnostic diag : compile.getDiagnostics()) {
+        // Assert.assertEquals(compile.getErrorCount(), 1);
+        for (Diagnostic diag : compile.getDiagnostics()) {
             System.out.println(diag.getPosition() + diag.getMessage());
         }
     }

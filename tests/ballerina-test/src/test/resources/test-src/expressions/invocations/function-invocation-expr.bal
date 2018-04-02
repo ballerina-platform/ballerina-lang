@@ -1,4 +1,4 @@
-import ballerina.math;
+import ballerina/math;
 
 function testFuncInvocation (int a, int b, int c) returns (int) {
     int x;
@@ -35,7 +35,7 @@ function testReturnNativeFuncInvocationWithinNativeFuncInvocation(float x) retur
     return math:sqrt(math:pow(x, 2));
 }
 
-function sum (int a) returns (@untainted{} int) {
+function sum (int a) returns @untainted int {
     int x;
     if (a > 0) {
         x = sum(a - 1);
@@ -44,7 +44,7 @@ function sum (int a) returns (@untainted{} int) {
     return a;
 }
 
-function getPowerOfN (float a, float n) returns (float v) {
-    v = math:pow(a, n);
-    return;
+function getPowerOfN (float a, float n) returns (float) {
+    float v = math:pow(a, n);
+    return v;
 }

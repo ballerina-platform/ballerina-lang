@@ -22,6 +22,8 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTupleType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -88,6 +90,9 @@ import javax.transaction.xa.XAResource;
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private Calendar utcCalendar;
+    private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));
+
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
@@ -164,7 +169,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             }
-            context.setReturnValues(updatedCount, generatedKeys);
+            BRefValueArray tuple = new BRefValueArray(executeUpdateWithKeysTupleType);
+            tuple.add(0, updatedCount);
+            tuple.add(1, generatedKeys);
+            context.setReturnValues(tuple);
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
@@ -200,7 +208,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
                 // returned result set or ref cursor OUT params we should cleanup the connection.
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
-                context.setReturnValues();
+                context.setReturnValues(null);
             }
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
@@ -210,7 +218,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private BRefValueArray createBRefValueArray(List<ResultSet> resultSets, TableResourceManager rm, Context context,
             BStructType structType) throws SQLException {
-        BRefValueArray bTableRefArray = new BRefValueArray();
+        BRefValueArray bTableRefArray = new BRefValueArray(new BArrayType(BTypes.typeTable));
         for (int i = 0; i < resultSets.size(); i++) {
             bTableRefArray.add(i, constructTable(rm, context, resultSets.get(i), structType));
         }

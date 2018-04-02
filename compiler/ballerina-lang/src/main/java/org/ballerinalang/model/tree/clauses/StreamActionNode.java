@@ -19,20 +19,18 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 
 /**
- * The interface with the APIs to implement the "group by" in ballerina streams/table SQLish syntax.
+ * The interface with the APIs to implement the straming action in ballerina streams/table SQLish syntax.
  * <pre>Grammar:
- *     INSERT INTO Identifier |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression |
- *     DELETE Identifier ON expression
+ *     EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS callableUnitBody
  *
  * E.g.
- *      insert into testInputStream
- *      update testTable set x == 20
- *      delete testTable on symbol="WSO2"
+ *      from teacherStream where age &gt; 18 window lengthBatch(3) select status, count(status) as totalCount
+ *      group by status having totalCount &gt; 1 =&gt; ( Teacher[] teachers) {
+ *          //Do something with Teacher[] array (Streaming action)
+ *      };
  * </pre>
  *
  * @since 0.965.0
@@ -40,23 +38,7 @@ import java.util.List;
 
 public interface StreamActionNode extends Node {
 
-    void setStreamActionType(String streamActionType);
+    void setInvokableBody(LambdaFunctionNode lambdaFunction);
 
-    void setIdentifier(String identifier);
-
-    void setSetClause(List<SetAssignmentNode> setAssignmentNodeList);
-
-    void setExpression(ExpressionNode expressionNode);
-
-    String getIdentifier();
-
-    List<SetAssignmentNode> getSetClause();
-
-    ExpressionNode getExpression();
-
-    String getActionType();
-
-    String getOutputEventType();
-
-    void setOutputEventType(boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents);
+    LambdaFunctionNode getInvokableBody();
 }

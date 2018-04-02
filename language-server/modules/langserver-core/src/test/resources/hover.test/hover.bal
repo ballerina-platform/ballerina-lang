@@ -1,6 +1,6 @@
 package hover.test;
 
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"Struct for represent person's details"}
 @Field{value:"name: string value name of the person"}
@@ -16,7 +16,7 @@ struct Person {
 @Param{value:"s: string parameter"}
 @Param{value:"sd: int parameter"}
 @Return{value:"return an int"}
-function test1 (string s, int sd)(int){
+function test1 (string s, int sd) returns (int){
     int a = 0;
     return a;
 }

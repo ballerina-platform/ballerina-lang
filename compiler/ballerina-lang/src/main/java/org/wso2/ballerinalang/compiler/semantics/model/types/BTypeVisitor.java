@@ -47,8 +47,6 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BConnectorType t, T s);
 
-    R visit(BStreamletType t, T s);
-
     R visit(BEnumType t, T s);
 
     R visit(BInvokableType t, T s);
@@ -59,7 +57,7 @@ public interface BTypeVisitor<T, R> {
     
     R visit(BFutureType t, T s);
 
-    default R visit(BTupleCollectionType t, T s) {
+    default R visit(BIntermediateCollectionType t, T s) {
         throw new AssertionError();
     }
 }

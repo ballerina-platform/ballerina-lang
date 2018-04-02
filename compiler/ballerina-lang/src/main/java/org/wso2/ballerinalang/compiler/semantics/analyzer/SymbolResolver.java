@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -142,20 +142,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
-    public BSymbol resolveExplicitCastOperator(BType sourceType,
+    public BSymbol resolveImplicitConversionOp(BType sourceType,
                                                BType targetType) {
-        return types.getCastOperator(sourceType, targetType);
-    }
-
-    public BSymbol resolveImplicitCastOperator(BType sourceType,
-                                               BType targetType) {
-
-        BSymbol symbol = resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
+        BSymbol symbol = resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         if (symbol == symTable.notFoundSymbol) {
             return symbol;
         }
 
-        BCastOperatorSymbol castSymbol = (BCastOperatorSymbol) symbol;
+        BConversionOperatorSymbol castSymbol = (BConversionOperatorSymbol) symbol;
         if (castSymbol.implicit) {
             return symbol;
         }
@@ -190,7 +184,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 (rhsType.tag == TypeTags.STRUCT ||
                         rhsType.tag == TypeTags.CONNECTOR ||
                         rhsType.tag == TypeTags.ENUM ||
-                        rhsType.tag == TypeTags.STREAMLET ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
             List<BType> retTypes = Lists.of(symTable.booleanType);
@@ -201,7 +194,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         if ((lhsType.tag == TypeTags.STRUCT ||
                 lhsType.tag == TypeTags.CONNECTOR ||
                 lhsType.tag == TypeTags.ENUM ||
-                lhsType.tag == TypeTags.STREAMLET ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NULL) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
@@ -315,12 +307,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.diagCode = preDiagCode;
 
         // If the typeNode.nullable is true then convert the resultType to a union type
-        // if it is not already a union type or a JSON type
+        // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
             unionType.memberTypes.add(symTable.nullType);
             unionType.setNullable(true);
-        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON) {
+        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
             Set<BType> memberTypes = new HashSet<BType>(2) {{
                 add(resultType);
                 add(symTable.nullType);
@@ -400,7 +392,9 @@ public class SymbolResolver extends BLangNodeVisitor {
      * Return the symbol with the given name.
      * This method only looks at the symbol defined in the given scope.
      *
+     * @param pos       diagnostic position
      * @param scope     current scope
+     * @param env       symbol environment
      * @param name      symbol name
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
@@ -610,6 +604,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             // Update error type to actual type.
             symbol.type = symTable.errStructType;
             symbol.scope = symbol.type.tsymbol.scope;
+            symbol.type.tsymbol = (BTypeSymbol) symbol;
             return true;
         }
         return false;

@@ -30,11 +30,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
@@ -63,21 +61,19 @@ public class ResponseNativeFunctionNegativeTest {
         resultNegative = BCompileUtil.compile(basePath + "in-response-compile-negative.bal");
     }
 
-    @Test(description = "Test when the content length header is not set")
-    public void testGetContentLength() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BValue[] inputArg = {inResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
-        Assert.assertEquals(Integer.parseInt(returnVals[0].stringValue()), -1);
-    }
-
     @Test
     public void testGetHeader() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
-        BValue[] inputArg = {inResponse, key};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
-        Assert.assertNull(((BString) returnVals[0]).value());
+        try {
+            BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                                 inRespStruct);
+            BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
+            BValue[] inputArg = {inResponse, key};
+            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
+            Assert.assertNull(returnVals[0]);
+        } catch (Exception exception) {
+            String errorMessage = exception.getMessage();
+            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+        }
     }
 
     @Test(description = "Test method without json payload")
@@ -87,7 +83,7 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("empty JSON document"));
+        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("empty JSON document"));
     }
 
     @Test(description = "Test method with string payload")
@@ -104,20 +100,6 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNull(returnVals[0]);
-    }
-
-    @Test
-    public void testGetProperty() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(true);
-        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-
-        BString propertyName = new BString("wso2");
-        BValue[] inputArg = {inResponse, propertyName};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "Test getStringPayload method without a paylaod")
@@ -139,7 +121,7 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("Error occurred while retrieving " +
+        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("Error occurred while retrieving " +
                 "xml data from entity : Unexpected EOF in prolog\n"));
     }
 
@@ -191,6 +173,7 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test
     public void testCompilationErrorTestCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testInResponseSetStatusCodeWithString
         BAssertUtil.validateError(resultNegative, 0,
@@ -199,5 +182,46 @@ public class ResponseNativeFunctionNegativeTest {
         BAssertUtil.validateError(resultNegative, 1,
                 "undefined field 'method' in struct 'ballerina.net.http:Response'",
                 9, 21);
+        //testInResponseAddHeader
+        BAssertUtil.validateError(resultNegative, 2,
+                "attempt to refer to non-public symbol 'InResponse.addHeader'",
+                14, 5);
+        BAssertUtil.validateError(resultNegative, 3,
+                "undefined function 'addHeader' in struct 'ballerina.net.http:InResponse'",
+                14, 5);
+        //testInResponseRemoveHeader
+        BAssertUtil.validateError(resultNegative, 4,
+                "attempt to refer to non-public symbol 'InResponse.removeHeader'",
+                19, 5);
+        BAssertUtil.validateError(resultNegative, 5,
+                                  "undefined function 'removeHeader' in struct 'ballerina.net.http:InResponse'",
+                                  19, 5);
+        //testInResponseRemoveAllHeaders
+        BAssertUtil.validateError(resultNegative, 6,
+                "undefined function 'removeAllHeaders' in struct 'ballerina.net.http:InResponse'",
+                24, 5);
+        //testInResponseSetHeader
+        BAssertUtil.validateError(resultNegative, 7,
+                "attempt to refer to non-public symbol 'InResponse.setHeader'",
+                29, 5);
+        BAssertUtil.validateError(resultNegative, 8,
+                                  "undefined function 'setHeader' in struct 'ballerina.net.http:InResponse'",
+                                  29, 5);
+        //testInResponseSetJsonPayload
+        BAssertUtil.validateError(resultNegative, 9,
+                "undefined function 'setJsonPayload' in struct 'ballerina.net.http:InResponse'",
+                34, 5);
+        //testInResponseSetProperty
+        BAssertUtil.validateError(resultNegative, 10,
+                "undefined function 'setProperty' in struct 'ballerina.net.http:InResponse'",
+                39, 5);
+        //testInResponseSetStringPayload
+        BAssertUtil.validateError(resultNegative, 11,
+                "undefined function 'setStringPayload' in struct 'ballerina.net.http:InResponse'",
+                44, 5);
+        //testInResponseSetXmlPayload
+        BAssertUtil.validateError(resultNegative, 12,
+                "undefined function 'setXmlPayload' in struct 'ballerina.net.http:InResponse'",
+                49, 5);
     }
 }

@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 function test1 (int value) returns (int) {
     int x = value > 10 ? 15 : 5;
@@ -40,11 +40,10 @@ function test6 (string s) returns (string) {
     return p.name;
 }
 
-function test7 (string s) returns (string, int) {
-    map m = {"data" : s == "one" ? <string>1 : 2};
-    var x, _ = (string)m["data"];
-    var y, _ = (int)m["data"];
-    return (x, y);
+function test7 (string s) returns (int) {
+    map m = {"data" : s == "one" ? 1 : 2};
+    var y =? <int>m["data"];
+    return y;
 }
 
 function test8 (string s) returns (string) {
@@ -79,8 +78,6 @@ function test11 (int input) returns (string) {
             if (i == 3) {
                 break;
             }
-        } catch (runtime:NullReferenceException e) {
-            output = output + "NullException";
         } catch (error e) {
             output = output + "Error";
         } finally {
@@ -100,9 +97,7 @@ function test12 (int input) returns (string) {
             if (i == 3) {
                 return output;
             }
-        } catch (runtime:NullReferenceException e) {
-            output = output + "NullException";
-        } catch (error e) {
+         } catch (error e) {
             output = output + "Error";
         } finally {
             output = output + (input == 1 ? "run_" : "time_");

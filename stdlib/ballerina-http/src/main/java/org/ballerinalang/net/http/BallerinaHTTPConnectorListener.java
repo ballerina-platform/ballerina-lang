@@ -28,6 +28,9 @@ import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -45,7 +48,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
-    private static final String HTTP_RESOURCE = "httpResource";
+    protected static final String HTTP_RESOURCE = "httpResource";
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
@@ -67,7 +70,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 return;
             }
             httpResource = HttpDispatcher.findResource(httpServicesRegistry, httpCarbonMessage);
-            if (HttpDispatcher.isDiffered(httpResource)) {
+            if (HttpDispatcher.shouldDiffer(httpResource, hasFilters())) {
                 httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
             }
@@ -83,16 +86,28 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     }
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
-                                                            HttpResource httpResource) {
-        Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
+                                                              HttpResource httpResource) {
+        boolean isTransactionInfectable = httpResource.isTransactionInfectable();
+        Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         // invoke the request path filters
         invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource));
+
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
+        httpCarbonMessage.getHeaders().entries().stream()
+                .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+
+        Map<String, String> tags = new HashMap<>();
+        tags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
+        tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
+        tracer.addTags(tags);
+
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(httpResource.getBalResource(), callback, properties, signatureParams);
+        Executor.submit(httpResource.getBalResource(), callback, properties, tracer, signatureParams);
     }
 
     private BValue getRequestFilterContext(HttpResource httpResource) {
@@ -106,22 +121,28 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return filterCtxtStruct;
     }
 
-    private boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
+    protected boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage) {
+    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
             properties.put(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        if (httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID) == null ||
-                httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL) == null) {
+        String txnId = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID);
+        String registerAtUrl = httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL);
+        //Return 500 if txn context is received when transactionInfectable=false
+        if (!isInfectable && txnId != null) {
+            throw new BallerinaConnectorException("Cannot create transaction context: " +
+                    "resource is not transactionInfectable");
+        }
+        if (isInfectable && txnId != null && registerAtUrl != null) {
+            properties.put(Constants.GLOBAL_TRANSACTION_ID, txnId);
+            properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;
         }
-        properties.put(Constants.GLOBAL_TRANSACTION_ID, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID));
-        properties.put(Constants.TRANSACTION_URL, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL));
         return properties;
     }
 
@@ -135,7 +156,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      */
     private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt) {
 
-        if (filterHolders == null || filterHolders.isEmpty()) {
+        if (!hasFilters()) {
             // no filters, return
             return;
         }
@@ -158,4 +179,12 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             // filter has returned true, can continue
         }
     }
+
+    /**
+     * Method to retrive if filters have been specified.
+     */
+    protected boolean hasFilters() {
+        return filterHolders != null && !filterHolders.isEmpty();
+    }
+
 }

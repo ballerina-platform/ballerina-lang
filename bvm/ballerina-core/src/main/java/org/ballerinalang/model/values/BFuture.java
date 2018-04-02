@@ -18,41 +18,32 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 
 /**
- * Ballerina value for the "future" type.
+ * Ballerina base value for the "future" type.
  */
-public class BFuture implements BRefType<WorkerResponseContext> {
+public interface BFuture extends BRefType<WorkerResponseContext> {
 
-    private String callableName;
+    /**
+     * Cancels the current future, if its possible to do so.
+     * 
+     * @return true if the target process was cancelled, or else, false
+     */
+    boolean cancel();
     
-    private WorkerResponseContext respCtx;
+    /**
+     * Checks if the current future is done. This can be done if the
+     * target process finished naturally, or else, if it was cancelled.
+     * 
+     * @return true if its done, or else, false
+     */
+    boolean isDone();
     
-    public BFuture(String callableName, WorkerResponseContext respCtx) {
-        this.callableName = callableName;
-        this.respCtx = respCtx;
-    }
+    /**
+     * Checks if the current future is cancelled. 
+     * 
+     * @return true if its cancelled, or else, false
+     */
+    boolean isCancelled();
     
-    @Override
-    public String stringValue() {
-        return "future: " + this.callableName;
-    }
-
-    @Override
-    public BType getType() {
-        return BTypes.typeFuture;
-    }
-
-    @Override
-    public BValue copy() {
-        return new BFuture(this.callableName, this.value());
-    }
-
-    @Override
-    public WorkerResponseContext value() {
-        return this.respCtx;
-    }
-
 }

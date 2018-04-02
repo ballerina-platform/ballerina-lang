@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -36,6 +37,9 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.tracer.Tracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.io.PrintStream;
@@ -323,11 +327,19 @@ public class BLangVMUtils {
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
-                    local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
+                    if (args[i] instanceof BString) {
+                        local.longRegs[longParamCount] = ((BString) args[i]).intValue();
+                    } else {
+                        local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
+                    }
                     longParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
-                    local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    if (args[i] instanceof BString) {
+                        local.doubleRegs[doubleParamCount] = ((BString) args[i]).floatValue();
+                    } else {
+                        local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    }
                     doubleParamCount++;
                     break;
                 case TypeTags.STRING_TAG:
@@ -335,7 +347,11 @@ public class BLangVMUtils {
                     stringParamCount++;
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    local.intRegs[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    if (args[i] instanceof BString) {
+                        local.intRegs[intParamCount] = ((BString) args[i]).value().toLowerCase().equals("true") ? 1 : 0;
+                    } else {
+                        local.intRegs[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    }
                     intParamCount++;
                     break;
                 case TypeTags.BLOB_TAG:
@@ -482,5 +498,34 @@ public class BLangVMUtils {
 
     public static boolean getGlobalTransactionenabled(WorkerExecutionContext ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
+    }
+
+    public static void initServerConnectorTrace(WorkerExecutionContext ctx, Resource resource, Tracer tracer) {
+        if (tracer == null) {
+            tracer = TraceManagerWrapper.newTracer(ctx, false);
+        } else {
+            tracer.setExecutionContext(ctx);
+        }
+        tracer.setConnectorName(resource.getServiceName());
+        tracer.setActionName(resource.getName());
+        tracer.generateInvocationID();
+        TraceUtil.setTracer(ctx, tracer);
+        tracer.startSpan();
+    }
+
+    public static void initClientConnectorTrace(WorkerExecutionContext ctx, String connectorName, String actionName) {
+        Tracer root = TraceUtil.getParentTracer(ctx);
+        Tracer active = TraceManagerWrapper.newTracer(ctx, true);
+        TraceUtil.setTracer(ctx, active);
+
+        if (root.getInvocationID() == null) {
+            active.generateInvocationID();
+        } else {
+            active.setInvocationID(root.getInvocationID());
+        }
+
+        active.setConnectorName(connectorName);
+        active.setActionName(actionName);
+        active.startSpan();
     }
 }

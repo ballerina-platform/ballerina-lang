@@ -32,7 +32,6 @@ import java.util.StringJoiner;
  * @since 0.966.0
  */
 public class BUnionType extends BType implements UnionType {
-    private String stringRep;
     private boolean nullable;
 
     public Set<BType> memberTypes;
@@ -65,19 +64,16 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        if (this.stringRep != null) {
-            return this.stringRep;
-        }
-
         StringJoiner joiner = new StringJoiner(getKind().typeName());
         this.memberTypes.forEach(memberType -> joiner.add(memberType.toString()));
-        this.stringRep = joiner.toString();
-        return this.stringRep;
+        return joiner.toString();
     }
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_ANY;
+        StringBuilder sig = new StringBuilder(TypeDescriptor.SIG_UNION + memberTypes.size() + ";");
+        memberTypes.forEach(memberType -> sig.append(memberType.getDesc()));
+        return sig.toString();
     }
 
     public void setNullable(boolean nullable) {

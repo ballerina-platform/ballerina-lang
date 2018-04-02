@@ -41,7 +41,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.mime",
+        orgName = "ballerina", packageName = "mime",
         functionName = "getByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
@@ -51,7 +51,7 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct byteChannelStruct = null;
+        BStruct byteChannelStruct;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
@@ -64,7 +64,8 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                     context.setReturnValues(MimeUtil.createEntityError(context,
                             "Byte channel is not available but payload can be obtain either as xml, " +
                                     "json, string or blob type"));
-                } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null) {
+                } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null && EntityBodyHandler.
+                        getBodyPartArray(entityStruct).size() != 0) {
                     context.setReturnValues(MimeUtil.createEntityError(context,
                             "Byte channel is not available since payload contains a set of body parts"));
                 } else {

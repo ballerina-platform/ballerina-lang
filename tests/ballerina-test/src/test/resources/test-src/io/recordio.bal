@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 struct Employee {
     string id;
@@ -6,70 +6,103 @@ struct Employee {
     float salary;
 }
 
-io:DelimitedRecordChannel delimitedRecordChannel;
+io:DelimitedRecordChannel|null txtChannel;
 
-function initFileChannel(string filePath,string permission,string encoding,string rs,string fs){
-    io:ByteChannel channel = io:openFile(filePath, permission);
-    io:CharacterChannel characterChannel;
-    var characterChannelResult = io:createCharacterChannel(channel, encoding);
-    match characterChannelResult{
-        io:CharacterChannel charChannel => {
-           characterChannel = charChannel;
+function initDelimitedRecordChannel (string filePath, string permission, string encoding, string rs, string fs)
+returns (boolean|io:IOError){
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
+    var characterChannelResult = io:createCharacterChannel(byteChannel, encoding);
+    match characterChannelResult {
+        io:CharacterChannel ch =>{
+            var delimitedRecordChannelResult = io:createDelimitedRecordChannel(ch, rs, fs);
+            match delimitedRecordChannelResult {
+                io:DelimitedRecordChannel recordChannel =>{
+                    txtChannel = recordChannel;
+                    return true;
+                }
+                io:IOError err =>{
+                    return err;
+                }
+            }
         }
-        io:IOError err => {
-           throw err;
-        }
-    }
-    var delimitedRecordChannelResult = io:createDelimitedRecordChannel(characterChannel, rs, fs);
-    match delimitedRecordChannelResult{
-        io:DelimitedRecordChannel recordChannel => {
-           delimitedRecordChannel = recordChannel;
-        }
-        io:IOError err => {
-           throw err;
+        io:IOError err =>{
+            io:println("Error occurred in record channel");
+            return err;
         }
     }
 }
 
-function nextRecord () returns (string[]) {
-    var result  = delimitedRecordChannel.nextTextRecord();
-    string [] empty = [];
-    match result{
-       string[] fields => {
-          return fields;
-       }
-       io:IOError err => {
-          throw err;
-       }
+function nextRecord () returns (string[]|io:IOError) {
+    string[] empty = [];
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel =>{
+            var result = delimChannel.nextTextRecord();
+            match result {
+                string[] fields =>{
+                    return fields;
+                }
+                io:IOError err =>{
+                    return err;
+                }
+            }
+        }
+        (any|null) =>{
+            return empty;
+        }
+
     }
-    return empty;
 }
 
 function writeRecord (string[] fields) {
-   var result = delimitedRecordChannel.writeTextRecord(fields);
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel =>{
+            var result = delimChannel.writeTextRecord(fields);
+        }
+        (any|null) =>{
+            io:println("Feilds cannot be written");
+        }
+    }
 }
 
-function close(){
-    var err = delimitedRecordChannel.closeDelimitedRecordChannel();
+function close () {
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel =>{
+            var err = delimChannel.closeDelimitedRecordChannel();
+        }
+        (any|null) =>{
+            io:println("Channel cannot be closed");
+        }
+    }
 }
+
 
 function hasNextRecord () returns (boolean) {
-    return delimitedRecordChannel.hasNextTextRecord();
+    boolean hasNext;
+    match txtChannel {
+        io:DelimitedRecordChannel delimChannel =>{
+            hasNext = delimChannel.hasNextTextRecord();
+            return hasNext;
+        }
+        (any|null) =>{
+            io:println("Channel cannot be closed");
+            return hasNext;
+        }
+    }
+
 }
 
-function loadToTable (string filePath) returns (float) {
+function loadToTable (string filePath) returns (float|io:IOError) {
     float total;
     var result = io:loadToTable(filePath, "\n", ",", "UTF-8", false, typeof Employee);
-    match result{
-      table <Employee> tb => {
-        foreach x in tb {
-          total = total + x.salary;
+    match result {
+        table<Employee> tb => {
+            foreach x in tb {
+                total = total + x.salary;
+            }
+            return total;
         }
-        return total;
-      }
-      io:IOError err => {
-        throw err;
-      }
+        io:IOError err => {
+            return err;
+        }
     }
-    return -1;
 }

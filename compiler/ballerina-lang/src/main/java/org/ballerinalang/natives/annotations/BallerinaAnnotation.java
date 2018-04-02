@@ -27,6 +27,13 @@ import java.lang.annotation.Repeatable;
 public @interface BallerinaAnnotation {
 
     /**
+     * Org name of the {@code AbstractNativeFunction}. Default is "".
+     *
+     * @return org name of the function.
+     */
+    String orgName() default "";
+    
+    /**
      * The name of the Ballerina package this annotation is from. Default is "".
      *
      * @return package name of the annotation.

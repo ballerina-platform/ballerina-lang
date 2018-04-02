@@ -29,6 +29,8 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -36,7 +38,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  * {@code Head} is the HEAD action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "head",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),
@@ -70,6 +72,11 @@ public class Head extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
+
+        Tracer tracer = TraceUtil.getParentTracer(context.getParentWorkerExecutionContext());
+        HttpUtil.injectHeaders(outboundReqMsg, tracer.getProperties());
+        tracer.addTags(HttpUtil.extractTraceTags(outboundReqMsg));
+
         return outboundReqMsg;
     }
 }

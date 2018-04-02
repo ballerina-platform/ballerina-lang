@@ -1,4 +1,4 @@
-import ballerina.task;
+import ballerina/task;
 
 int count;
 
@@ -12,7 +12,7 @@ function getCount () returns (int) {
 }
 
 function onTrigger () returns (error) {
-    error e;
+    error e = {};
     count = count + 1;
     return e;
 }

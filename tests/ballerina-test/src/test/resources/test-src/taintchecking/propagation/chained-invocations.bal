@@ -2,7 +2,7 @@ public function main (string[] args) {
     secureFunction(returnString("static data").trim(), returnString("static data").trim());
 }
 
-public function returnString(string data) (string) {
+public function returnString(string data) returns (string) {
     return data;
 }
 

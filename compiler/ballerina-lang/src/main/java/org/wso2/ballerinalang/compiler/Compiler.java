@@ -17,24 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.Name;
-import org.ballerinalang.model.tree.PackageNode;
-import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.desugar.Desugar;
-import org.wso2.ballerinalang.compiler.parser.BLangParserException;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.programfile.ProgramFile;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 /**
  * @since 0.94
@@ -44,23 +32,11 @@ public class Compiler {
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
 
-    private CompilerOptions options;
-    private BLangDiagnosticLog dlog;
-    private PackageLoader pkgLoader;
-    private SymbolTable symbolTable;
-    private SemanticAnalyzer semAnalyzer;
-    private CodeAnalyzer codeAnalyzer;
-    private TaintAnalyzer taintAnalyzer;
-    private CompilerPluginRunner annotationProcessor;
-    private Desugar desugar;
-    private CodeGenerator codeGenerator;
-
-    private CompilerPhase compilerPhase;
-    private ProgramFile programFile;
-    private BLangPackage pkgNode;
-
-    // TODO: separate the 'parse' and 'define' phases to properly fix this
-    private boolean containsSyntaxErrors = false;
+    private final SourceDirectoryManager sourceDirectoryManager;
+    private final CompilerDriver compilerDriver;
+    private final BinaryFileWriter binaryFileWriter;
+    private final BLangDiagnosticLog dlog;
+    private final PackageLoader pkgLoader;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -70,141 +46,64 @@ public class Compiler {
         return compiler;
     }
 
-    public Compiler(CompilerContext context) {
+    private Compiler(CompilerContext context) {
         context.put(COMPILER_KEY, this);
 
-        this.options = CompilerOptions.getInstance(context);
+        this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
+        this.compilerDriver = CompilerDriver.getInstance(context);
+        this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
-        this.symbolTable = SymbolTable.getInstance(context);
-        this.semAnalyzer = SemanticAnalyzer.getInstance(context);
-        this.codeAnalyzer = CodeAnalyzer.getInstance(context);
-        this.taintAnalyzer = TaintAnalyzer.getInstance(context);
-        this.annotationProcessor = CompilerPluginRunner.getInstance(context);
-        this.desugar = Desugar.getInstance(context);
-        this.codeGenerator = CodeGenerator.getInstance(context);
-
-        this.compilerPhase = getCompilerPhase();
     }
 
-    public void compile(String sourcePkg) {
-        // "ballerina/built-in" packages is only the pre-known package by the Ballerina compiler. So load it first.
-        BLangPackage builtInPackage = loadBuiltInPackage();
-        if (this.stopCompilation(CompilerPhase.DEFINE)) {
-            return;
+    public BLangPackage compile(String sourcePackage) {
+        PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
+        if (packageID == null) {
+            throw ProjectDirs.getPackageNotFoundError(sourcePackage);
         }
 
-        pkgNode = define(sourcePkg);
-        if (this.stopCompilation(CompilerPhase.TYPE_CHECK)) {
-            return;
-        }
-
-        pkgNode = typeCheck(pkgNode);
-        if (this.stopCompilation(CompilerPhase.CODE_ANALYZE)) {
-            return;
-        }
-
-        pkgNode = codeAnalyze(pkgNode);
-//        if (this.stopCompilation(CompilerPhase.TAINT_ANALYZE)) {
-////            return;
-////        }
-////
-////        pkgNode = taintAnalyze(pkgNode);
-        if (this.stopCompilation(CompilerPhase.COMPILER_PLUGIN)) {
-            return;
-        }
-
-        pkgNode = annotationProcess(pkgNode);
-        if (this.stopCompilation(CompilerPhase.DESUGAR)) {
-            return;
-        }
-
-        // TODO : Improve this.
-        desugar(builtInPackage);
-        pkgNode = desugar(pkgNode);
-        if (this.stopCompilation(CompilerPhase.CODE_GEN)) {
-            return;
-        }
-
-        gen(pkgNode);
+        return compile(packageID);
     }
 
-    private BLangPackage loadBuiltInPackage() {
-        // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
-        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
-        return builtInPkg;
+    public BLangPackage compile(PackageID packageID) {
+        BLangPackage packageNode = this.pkgLoader.loadPackage(packageID);
+        if (packageNode == null) {
+            throw ProjectDirs.getPackageNotFoundError(packageID);
+        }
+
+        if (dlog.errorCount > 0) {
+            return packageNode;
+        }
+        return compile(packageNode);
     }
 
-    public ProgramFile getCompiledProgram() {
-        return programFile;
+    public BLangPackage compile(BLangPackage packageNode) {
+        return this.compilerDriver.compilePackage(packageNode);
     }
 
-
-    public PackageNode getAST() {
-        return pkgNode;
+    public void build() {
+        // TODO Check for compilation errors
+        this.sourceDirectoryManager.listSourceFilesAndPackages()
+                .map(this.pkgLoader::loadPackage)
+                .map(this.compilerDriver::compilePackage)
+                .filter(bLangPackage -> this.dlog.errorCount == 0)
+                .forEach(this.binaryFileWriter::writeExecutableBinary);
     }
 
+    public void build(String sourcePackage, String targetFileName) {
+        BLangPackage bLangPackage = compile(sourcePackage);
+        if (this.dlog.errorCount > 0) {
+            return;
+        }
 
-    // private methods
+        // Code gen and save...
+        this.binaryFileWriter.writeExecutableBinary(bLangPackage, targetFileName);
+    }
 
-    private BLangPackage define(String sourcePkg) {
-        try {
-            return pkgLoader.loadEntryPackage(sourcePkg);
-        } catch (BLangParserException e) {
-            containsSyntaxErrors = true;
+    public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
+        if (dlog.errorCount > 0) {
             return null;
         }
-    }
-
-    private BLangPackage typeCheck(BLangPackage pkgNode) {
-        return semAnalyzer.analyze(pkgNode);
-    }
-
-    private BLangPackage codeAnalyze(BLangPackage pkgNode) {
-        return codeAnalyzer.analyze(pkgNode);
-    }
-
-    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
-        return taintAnalyzer.analyze(pkgNode);
-    }
-  
-    private BLangPackage annotationProcess(BLangPackage pkgNode) {
-        return annotationProcessor.runPlugins(pkgNode);
-    }
-
-    private BLangPackage desugar(BLangPackage pkgNode) {
-        return desugar.perform(pkgNode);
-    }
-
-    private void gen(BLangPackage pkgNode) {
-        programFile = this.codeGenerator.generate(pkgNode);
-    }
-
-    private CompilerPhase getCompilerPhase() {
-        String phaseName = options.get(CompilerOptionName.COMPILER_PHASE);
-        if (phaseName == null || phaseName.isEmpty()) {
-            return CompilerPhase.CODE_GEN;
-        }
-
-        return CompilerPhase.fromValue(phaseName);
-    }
-
-    private boolean stopCompilation(CompilerPhase phase) {
-        if (compilerPhase.compareTo(phase) < 0) {
-            return true;
-        }
-
-        if (containsSyntaxErrors) {
-            return true;
-        }
-
-        return (phase == CompilerPhase.TAINT_ANALYZE || phase == CompilerPhase.COMPILER_PLUGIN 
-                || phase == CompilerPhase.DESUGAR || phase == CompilerPhase.CODE_GEN) 
-                && (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
-    }
-
-    private BLangPackage getBuiltInPackage(Name name) {
-        return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue()))));
+        return this.binaryFileWriter.genExecutable(entryPackageNode);
     }
 }

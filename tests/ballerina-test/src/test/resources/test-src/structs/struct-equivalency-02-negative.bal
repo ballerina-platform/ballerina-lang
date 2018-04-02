@@ -1,12 +1,12 @@
 import org.foo;
 import org.foo.bar;
 
-function handleUser(foo:user u) (string) {
+function handleUser(foo:user u) returns (string) {
     return u.name;
 }
 
 
-function testStructEqViewFromThirdPackage() (string) {
+function testStructEqViewFromThirdPackage() returns (string) {
     bar:userBar ub = {name:"ball"};
-    return handleUser((foo:userFoo)ub);
+    return handleUser(<foo:userFoo>ub);
 }

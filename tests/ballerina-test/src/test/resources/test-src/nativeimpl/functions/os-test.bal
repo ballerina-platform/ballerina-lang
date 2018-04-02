@@ -1,4 +1,4 @@
-import ballerina.os;
+import ballerina/os;
 
 function testValidEnv () returns (string) {
     return os:getEnv("JAVA_HOME");

@@ -1,4 +1,4 @@
-import ballerina.lang.maps;
+import ballerina/lang.maps;
 
 function testLength (map data) (int) {
     string[] str;

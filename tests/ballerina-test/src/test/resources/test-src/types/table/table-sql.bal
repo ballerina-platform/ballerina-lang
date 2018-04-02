@@ -1,5 +1,3 @@
-import ballerina.io;
-
 struct Person {
     int id;
     int age = -1;
@@ -189,6 +187,5 @@ function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
         var rs = orderDetailsTable.getNext();
         recordCount = recordCount +1;
     }
-    io:println(orderDetailsTable);
     return recordCount;
 }

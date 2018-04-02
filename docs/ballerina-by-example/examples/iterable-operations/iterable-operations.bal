@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 public function main (string[] args) {
     map words = { a:"ant", b:"bear", c:"cat", d:"dear", e:"elephant" };
@@ -35,6 +35,8 @@ public function main (string[] args) {
 }
 
 function toUpper (any value) returns string {
-    var word, _ = (string) value;
-    return word.toUpperCase();
+    var word = <string> value;
+    match word {
+        string x => { return x.toUpperCase();}
+    }
 }

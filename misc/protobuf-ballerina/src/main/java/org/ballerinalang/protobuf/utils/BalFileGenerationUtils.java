@@ -28,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +35,7 @@ import java.nio.file.Paths;
 import java.util.Locale;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
 
 /**
@@ -67,7 +67,6 @@ public class BalFileGenerationUtils {
      * Execute command and generate file descriptor.
      *
      * @param command protoc executor command.
-     * @throws UnsupportedEncodingException when Character Encoding is not supported.
      */
     public static void generateDescriptor(String command) {
         boolean isWindows = System.getProperty("os.name")
@@ -107,6 +106,21 @@ public class BalFileGenerationUtils {
     }
     
     /**
+     * Resolve proto folder path from Proto file path.
+     *
+     * @param protoPath Proto file path
+     * @return
+     */
+    public static String resolveProtoFloderPath(String protoPath) {
+        int idx = protoPath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR);
+        String protofolderPath = EMPTY_STRING;
+        if (idx > 0) {
+            protofolderPath = protoPath.substring(0, idx);
+        }
+        return protofolderPath;
+    }
+    
+    /**
      * Generate proto file and convert it to byte array.
      *
      * @param exePath        protoc executor path
@@ -115,10 +129,9 @@ public class BalFileGenerationUtils {
      * @return byte array of generated proto file.
      */
     public static byte[] getProtoByteArray(String exePath, String protoPath, String descriptorPath) {
+        
         String command = new ProtocCommandBuilder
-                (exePath, protoPath, protoPath.substring(0, protoPath.lastIndexOf
-                        (BalGenerationConstants.FILE_SEPARATOR)),
-                        descriptorPath).build();
+                (exePath, protoPath, resolveProtoFloderPath(protoPath), descriptorPath).build();
         generateDescriptor(command);
         File initialFile = new File(descriptorPath);
         try (InputStream targetStream = new FileInputStream(initialFile)) {

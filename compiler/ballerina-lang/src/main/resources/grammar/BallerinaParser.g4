@@ -39,8 +39,7 @@ definition
     :   serviceDefinition
     |   functionDefinition
     |   structDefinition
-    |   objectDefinition
-    |   streamletDefinition
+    |   typeDefinition
     |   enumDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -101,8 +100,8 @@ privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
 
-objectDefinition
-    :   TYPE_TYPE Identifier OBJECT LEFT_BRACE objectBody RIGHT_BRACE
+typeDefinition
+    :   (PUBLIC)? TYPE_TYPE Identifier typeName
     ;
 
 objectBody
@@ -131,7 +130,7 @@ objectFunctions
 
 // TODO merge with fieldDefinition later
 objectFieldDefinition
-    :   typeName Identifier (COLON simpleLiteral)? (COMMA | SEMICOLON)
+    :   typeName Identifier (COLON expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -186,7 +185,6 @@ attachmentPoint
      | RESOURCE
      | FUNCTION
      | STRUCT
-     | STREAMLET
      | ENUM
      | ENDPOINT
      | CONST
@@ -231,17 +229,13 @@ typeName
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
-    |   annotatedTypeName                                                   # annotatedTypeNameLabel
-    ;
-
-annotatedTypeName
-    :   simpleTypeName
-    |   annotationAttachment* simpleTypeName
+    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
     ;
 
 // Temporary production rule name
 simpleTypeName
-    :   TYPE_ANY
+    :   NullLiteral
+    |   TYPE_ANY
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -284,8 +278,6 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
-    |   STREAMLET
-    |   TYPE_AGGREGATION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -328,8 +320,10 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
+    |   failStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   foreverStatement
     |   streamingQueryStatement
     ;
 
@@ -347,7 +341,7 @@ recordKeyValue
 
 recordKey
     :   Identifier
-    |   simpleLiteral
+    |   expression
     ;
 
 arrayLiteral
@@ -355,11 +349,12 @@ arrayLiteral
     ;
 
 typeInitExpr
-    :   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
+    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
     ;
 
 tupleDestructuringStatement
@@ -499,7 +494,8 @@ workerReply
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   functionInvocation                                                      # functionInvocationReference
+    |   ASYNC? functionInvocation                                               # functionInvocationReference
+    |   awaitExpression                                                         # awaitExpressionReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
@@ -507,7 +503,7 @@ variableReference
     ;
 
 field
-    : NOT? DOT Identifier
+    : NOT? DOT (Identifier | MUL)
     ;
 
 index
@@ -519,7 +515,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : ASYNC? nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -537,7 +533,7 @@ invocationArg
     ;
 
 actionInvocation
-    : nameReference RARROW functionInvocation
+    : ASYNC? nameReference RARROW functionInvocation
     ;
 
 expressionList
@@ -577,16 +573,20 @@ abortStatement
     :   ABORT SEMICOLON
     ;
 
+failStatement
+    :   FAIL SEMICOLON
+    ;
+
 retriesStatement
-    :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    :   RETRIES ASSIGN expression
     ;
 
 oncommitStatement
-    :   ONCOMMIT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    :   ONCOMMIT ASSIGN expression
     ;
 
 onabortStatement
-    :   ONABORT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    :   ONABORT ASSIGN expression
     ;
 
 namespaceDeclarationStatement
@@ -609,7 +609,6 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
@@ -622,7 +621,20 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   AWAIT expression                                                    # awaitExpression    
+    |   awaitExpression                                                     # awaitExprExpression
+    |	expression matchExpression										  # matchExprExpression
+    ;
+
+awaitExpression
+    :   AWAIT expression                                                    # awaitExpr
+    ;
+
+matchExpression
+    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
+    	;
+
+matchExpressionPatternClause
+    :   typeName Identifier? EQUAL_GT expression
     ;
 
 //reusable productions
@@ -632,7 +644,7 @@ nameReference
     ;
 
 returnParameter
-    : RETURNS typeName
+    : RETURNS annotationAttachment* typeName
     ;
 
 parameterTypeNameList
@@ -666,7 +678,7 @@ formalParameterList
     ;
 
 fieldDefinition
-    :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 simpleLiteral
@@ -797,27 +809,15 @@ aggregationQuery
 
     ;
 
-streamletDefinition
-    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
-    ;
-
-streamletBody
-    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
-    ;
-
-streamingQueryDeclaration
-    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
-    ;
-
-queryStatement
-    :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+foreverStatement
+    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
 
 streamingQueryStatement
     :   FROM (streamingInput (joinStreamingInput)? | patternClause)
         selectClause?
         orderByClause?
-        outputRate?
+        outputRateLimit?
         streamingAction
     ;
 
@@ -856,9 +856,7 @@ havingClause
     ;
 
 streamingAction
-    :   INSERT outputEventType? INTO Identifier
-    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
-    |   DELETE Identifier ON expression
+    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 setClause
@@ -877,8 +875,9 @@ joinStreamingInput
     :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
     ;
 
-outputRate
-    : OUTPUT outputRateType? EVERY integerLiteral EVENTS
+outputRateLimit
+    : OUTPUT (ALL | LAST | FIRST) EVERY ( DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS )
+    | OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
     ;
 
 patternStreamingInput
@@ -891,7 +890,7 @@ patternStreamingInput
     ;
 
 patternStreamingEdgeInput
-    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    :   variableReference whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 
 whereClause
@@ -918,10 +917,13 @@ joinType
     | INNER? JOIN
     ;
 
-outputRateType
-    : ALL
-    | LAST
-    | FIRST
+timeScale
+    : SECOND
+    | MINUTE
+    | HOUR
+    | DAY
+    | MONTH
+    | YEAR
     ;
 
 // Deprecated parsing.

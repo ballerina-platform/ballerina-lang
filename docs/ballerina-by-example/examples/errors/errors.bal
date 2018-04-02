@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 @Description {value:"As a best practice, error will be the last return value. Its type should be 'error', a built-in reference type."}
 function getAccountBalance (int accountID) returns (int) | error {
@@ -16,12 +16,12 @@ function main (string[] args) {
     // Best practice is to check whether an error has occurred.
     var r = getAccountBalance(24);
 
-match r {
-    int blnc => {
+    match r {
+        int blnc => {
             io:println(blnc);
-            }
-    error err => {
-            io:println("Error occurred");
-            }
-     }
+        }
+        error err => {
+            io:println("Error occurred: " + err.message);
+        }
+    }
 }

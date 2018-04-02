@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.definition;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -36,14 +37,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 
@@ -53,7 +57,7 @@ import java.util.stream.Collectors;
 /**
  * Tree visitor to find the definition of variables.
  */
-public class DefinitionTreeVisitor extends NodeVisitor {
+public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     private boolean terminateVisitor = false;
     private TextDocumentServiceContext context;
@@ -380,6 +384,82 @@ public class DefinitionTreeVisitor extends NodeVisitor {
 
         if (endpointNode.configurationExpr != null) {
             this.acceptNode(endpointNode.configurationExpr);
+        }
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        if (!stmt.varRefs.isEmpty()) {
+            stmt.varRefs.forEach(this::acceptNode);
+        }
+
+        if (stmt.expr != null) {
+            this.acceptNode(stmt.expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangObject objectNode) {
+        if (objectNode.name.getValue()
+                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, objectNode);
+            terminateVisitor = true;
+        }
+
+        if (!objectNode.fields.isEmpty()) {
+            objectNode.fields.forEach(this::acceptNode);
+        }
+
+        if (!objectNode.functions.isEmpty()) {
+            objectNode.functions.forEach(this::acceptNode);
+        }
+
+        if (objectNode.initFunction != null) {
+            this.acceptNode(objectNode.initFunction);
+        }
+
+        if (objectNode.receiver != null) {
+            this.acceptNode(objectNode.receiver);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        if (connectorInitExpr.userDefinedType != null) {
+            this.acceptNode(connectorInitExpr.userDefinedType);
+        }
+        if (!connectorInitExpr.argsExpr.isEmpty()) {
+            connectorInitExpr.argsExpr.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        if (matchNode.expr != null) {
+            this.acceptNode(matchNode.expr);
+        }
+
+        if (!matchNode.patternClauses.isEmpty()) {
+            matchNode.patternClauses.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
+        if (patternClauseNode.getVariableNode() != null &&
+                patternClauseNode.getVariableNode().getName() != null &&
+                patternClauseNode.getVariableNode().getName().getValue()
+                        .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, patternClauseNode.getVariableNode());
+            terminateVisitor = true;
+        }
+
+        if (patternClauseNode.variable != null) {
+            this.acceptNode(patternClauseNode.variable);
+        }
+
+        if (patternClauseNode.body != null) {
+            this.acceptNode(patternClauseNode.body);
         }
     }
 

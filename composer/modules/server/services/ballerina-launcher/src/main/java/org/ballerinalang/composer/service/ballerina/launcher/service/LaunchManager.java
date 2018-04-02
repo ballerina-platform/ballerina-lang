@@ -89,10 +89,10 @@ public class LaunchManager {
 
         try {
             String[] cmdArray = command.getCommandArray();
-            if (command.getPackageDir() == null) {
+            if (command.getSourceRoot() == null) {
                 program = Runtime.getRuntime().exec(cmdArray);
             } else {
-                program = Runtime.getRuntime().exec(cmdArray, null, new File(command.getPackageDir()));
+                program = Runtime.getRuntime().exec(cmdArray, null, new File(command.getSourceRoot()));
             }
 
             command.setProgram(program);

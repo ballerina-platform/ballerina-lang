@@ -38,6 +38,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -71,6 +72,7 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 
 /**
  * Test cases for ballerina.net.http request success native functions.
@@ -83,6 +85,7 @@ public class RequestNativeFunctionSuccessTest {
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String reqCacheControlStruct = REQUEST_CACHE_CONTROL;
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
     public static final String FILE = "File";
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
@@ -146,7 +149,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
-    @Test
+    @Test(description = "Enable this once the getContentLength() is added back in http package", enabled = false)
     public void testGetContentLength() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
@@ -163,7 +166,8 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
     }
 
-    @Test(description = "Test GetContentLength function within a service")
+    @Test(description = "Test GetContentLength function within a service. Enable this once this method is back in " +
+            "http package", enabled = false)
     public void testServiceGetContentLength() {
         String key = "lang";
         String value = "ballerina";
@@ -171,10 +175,10 @@ public class RequestNativeFunctionSuccessTest {
         String jsonString = "{\"" + key + "\":\"" + value + "\"}";
         int length = jsonString.length();
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST,
-                                                                        jsonString);
+                jsonString);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
 
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -189,7 +193,10 @@ public class RequestNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               reqCacheControlStruct);
+        RequestCacheControlStruct cacheControlStruct = new RequestCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControlStruct);
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inRequest, key};
@@ -221,7 +228,10 @@ public class RequestNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               reqCacheControlStruct);
+        RequestCacheControlStruct cacheControlStruct = new RequestCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControlStruct);
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inRequest, key};
@@ -263,36 +273,6 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().stringValue(), value);
-    }
-
-    @Test
-    public void testGetProperty() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        inRequestMsg.setProperty(propertyName, propertyValue);
-        HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
-        BString name = new BString(propertyName);
-        BValue[] inputArg = {inRequest, name};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), propertyValue);
-    }
-
-    @Test(description = "Test GetProperty function within a service")
-    public void testServiceGetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        String path = "/hello/GetProperty";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        inRequestMsg.setProperty(propertyName, propertyValue);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), propertyValue);
     }
 
     @Test
@@ -502,35 +482,6 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("lang").asText(), value);
-    }
-
-    @Test
-    public void testSetProperty() {
-        String propertyName = "wso2";
-        String propertyValue = "Ballerina";
-        BString name = new BString(propertyName);
-        BString value = new BString(propertyValue);
-        BValue[] inputArg = {name, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetProperty", inputArg);
-
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        HTTPCarbonMessage response = HttpUtil.getCarbonMsg((BStruct) returnVals[0], null);
-        Assert.assertEquals(response.getProperty(propertyName), propertyValue);
-    }
-
-    @Test(description = "Test SetProperty function within a service")
-    public void testServiceSetProperty() {
-        String key = "lang";
-        String value = "ballerina";
-        String path = "/hello/SetProperty/" + key + "/" + value;
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), value);
     }
 
     @Test

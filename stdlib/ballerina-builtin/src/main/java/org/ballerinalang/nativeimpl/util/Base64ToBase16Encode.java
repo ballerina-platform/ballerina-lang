@@ -36,7 +36,7 @@ import javax.xml.bind.DatatypeConverter;
  * @since 0.95.2
  */
 @BallerinaFunction(
-        packageName = "ballerina.util",
+        orgName = "ballerina", packageName = "util",
         functionName = "base64ToBase16Encode",
         args = {@Argument(name = "baseString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

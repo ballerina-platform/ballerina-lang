@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
@@ -39,9 +40,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BLangScheduler {
     
+    private static final String SCHEDULER_STATS_CONFIG_PROP = "scheduler.stats";
+
     private static AtomicInteger workerCount = new AtomicInteger(0);
     
     private static Semaphore workersDoneSemaphore = new Semaphore(1);
+    
+    private static SchedulerStats schedulerStats = new SchedulerStats();
+    
+    private static boolean schedulerStatsEnabled;
+    
+    static {
+        String statsConfigProp = ConfigRegistry.getInstance().getConfiguration(SCHEDULER_STATS_CONFIG_PROP);
+        if (statsConfigProp != null) {
+            schedulerStatsEnabled = Boolean.parseBoolean(statsConfigProp);
+        }
+    }
     
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx) {
         return schedule(ctx, ctx.runInCaller);
@@ -77,7 +91,7 @@ public class BLangScheduler {
     }
     
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
-        ctx.state = WorkerState.READY;
+        workerReady(ctx);
         workerCountUp();
         if (runInCaller) {
             return ctx;
@@ -96,7 +110,7 @@ public class BLangScheduler {
         if (ctx == null) {
             return null;
         }
-        ctx.state = WorkerState.READY;
+        workerReady(ctx);
         if (runInCaller) {
             return ctx;
         } else {
@@ -124,21 +138,45 @@ public class BLangScheduler {
         }
     }
     
+    public static void stopWorker(WorkerExecutionContext ctx) {
+        ctx.stop = true;
+    }
+    
     public static void workerDone(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
         workerCountDown();
     }
+    
+    public static void workerReady(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.READY);
+        ctx.state = WorkerState.READY;
+    }
 
     public static void workerPaused(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.PAUSED);
         ctx.state = WorkerState.PAUSED;
     }
     
-    public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
+    public static void workerWaitForResponse(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.WAITING_FOR_RESPONSE);
         ctx.state = WorkerState.WAITING_FOR_RESPONSE;
     }
 
     public static void workerWaitForLock(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.WAITING_FOR_LOCK);
         ctx.state = WorkerState.WAITING_FOR_LOCK;
+    }
+    
+    public static void workerRunning(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.RUNNING);
+        ctx.state = WorkerState.RUNNING;
+    }
+    
+    public static void workerExcepted(WorkerExecutionContext ctx) {
+        schedulerStats.stateTransition(ctx, WorkerState.EXCEPTED);
+        ctx.state = WorkerState.EXCEPTED;
+        workerCountDown();
     }
     
     public static void waitForWorkerCompletion() {
@@ -146,11 +184,6 @@ public class BLangScheduler {
             workersDoneSemaphore.acquire();
             workersDoneSemaphore.release();
         } catch (InterruptedException ignore) { /* ignore */ }
-    }
-    
-    public static void workerExcepted(WorkerExecutionContext ctx) {
-        ctx.state = WorkerState.EXCEPTED;
-        workerCountDown();
     }
     
     public static void dumpCallStack(WorkerExecutionContext ctx) {
@@ -162,24 +195,26 @@ public class BLangScheduler {
         }
     }
     
-    public static WorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
+    public static AsyncInvocableWorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
             Context nativeCtx) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
-        CallableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(), 1);
+        AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
         NativeCallExecutor exec = new NativeCallExecutor(nativeCallable, nativeCtx, respCtx);
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(exec);
         return respCtx;
     }
     
-    public static WorkerResponseContext executeNonBlockingNativeAsync(NativeCallableUnit nativeCallable, 
+    public static AsyncInvocableWorkerResponseContext executeNonBlockingNativeAsync(NativeCallableUnit nativeCallable,
             Context nativeCtx) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
-        WorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 1);
+        AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
         BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
-        workerCountUp();
         nativeCallable.execute(nativeCtx, callback);
         return respCtx;
+    }
+    
+    public static SchedulerStats getStats() {
+        return schedulerStats;
     }
     
     /**
@@ -216,6 +251,10 @@ public class BLangScheduler {
             this.nativeCallable = nativeCallable;
             this.nativeCtx = nativeCtx;
             this.respCtx = respCtx;
+            /* worker count needs to be incremented, since this represents a new execution, similar to
+             * scheduling a worker execution context. Afterwards, we should not call workerCountDown,
+             * since it will be automatically be called by the signals sent to response context */
+            workerCountUp();
         }
         
         @Override
@@ -225,7 +264,6 @@ public class BLangScheduler {
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
             try {
-                workerCountUp();
                 this.nativeCallable.execute(this.nativeCtx, null);
                 BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
                 runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
@@ -248,40 +286,109 @@ public class BLangScheduler {
     /**
      * This class represents the callback functionality for async non-blocking native calls.
      */
-    private static class BLangAsyncCallableUnitCallback implements CallableUnitCallback {
+    public static class BLangAsyncCallableUnitCallback implements CallableUnitCallback {
 
         private WorkerResponseContext respCtx;
         
         private Context nativeCallCtx;
-            
+
         public BLangAsyncCallableUnitCallback(WorkerResponseContext respCtx, Context nativeCallCtx) {
             this.respCtx = respCtx;
             this.nativeCallCtx = nativeCallCtx;
+            workerCountUp();
         }
         
         @Override
-        public void notifySuccess() {
+        public synchronized void notifySuccess() {
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
             BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
             WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
-            BLangScheduler.resume(ctx);
             workerCountDown();
+            BLangScheduler.resume(ctx);
         }
 
         @Override
-        public void notifyFailure(BStruct error) {
+        public synchronized void notifyFailure(BStruct error) {
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();
             BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCallCtx.getReturnValues(), retTypes);
             WorkerExecutionContext ctx = this.respCtx.signal(new WorkerSignal(
                     new WorkerExecutionContext(error), SignalType.ERROR, result));
-            BLangScheduler.resume(ctx);
             workerCountDown();
+            BLangScheduler.resume(ctx);
         }
 
+    }
+    
+    /**
+     * This class represents the scheduler statistics.
+     */
+    public static class SchedulerStats {
+        
+        private AtomicInteger[] stateCounts;
+        
+        public SchedulerStats() {
+            this.stateCounts = new AtomicInteger[6];
+            for (int i = 0; i < this.stateCounts.length; i++) {
+                this.stateCounts[i] = new AtomicInteger(0);
+            }
+        }
+
+        public int getReadyWorkerCount() {
+            return this.stateCounts[0].get();
+        }
+
+        public int getRunningWorkerCount() {
+            return this.stateCounts[1].get();
+        }
+
+        public int getExceptedWorkerCount() {
+            return this.stateCounts[2].get();
+        }
+
+        public int getWaitingForResponseWorkerCount() {
+            return this.stateCounts[3].get();
+        }
+
+        public int getPausedWorkerCount() {
+            return this.stateCounts[4].get();
+        }
+
+        public int getWaitingForLockWorkerCount() {
+            return this.stateCounts[5].get();
+        }
+        
+        public void stateTransition(WorkerExecutionContext currentCtx, WorkerState newState) {
+            if (!schedulerStatsEnabled || currentCtx.isRootContext()) {
+                return;
+            }
+            WorkerState oldState = currentCtx.state;
+            /* we are not considering CREATED state */
+            if (oldState != WorkerState.CREATED) {
+                this.stateCounts[oldState.ordinal()].decrementAndGet();
+            }
+            /* we are not counting the DONE state, since it is an ever increasing value */
+            if (newState != WorkerState.DONE) {
+                this.stateCounts[newState.ordinal()].incrementAndGet();
+            }
+        }
+        
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Worker Status:- \n");
+            builder.append("\tREADY: " + this.getReadyWorkerCount() + "\n");
+            builder.append("\tRUNNING: " + this.getRunningWorkerCount() + "\n");
+            builder.append("\tEXCEPTED: " + this.getExceptedWorkerCount() + "\n");
+            builder.append("\tWAITING FOR RESPONSE: " + this.getWaitingForResponseWorkerCount() + "\n");
+            builder.append("\tPAUSED: " + this.getPausedWorkerCount() + "\n");
+            builder.append("\tWAITING FOR LOCK: " + this.getWaitingForLockWorkerCount() + "\n");
+            return builder.toString();
+        }
+        
     }
     
 }

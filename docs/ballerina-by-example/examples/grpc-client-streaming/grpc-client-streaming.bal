@@ -1,14 +1,16 @@
-import ballerina.io;
-import ballerina.net.grpc;
+// This is server implementation for client streaming scenario
+import ballerina/io;
+import ballerina/net.grpc;
 
+// Server endpoint configuration
 endpoint grpc:Service ep {
-  host:"localhost",
-  port:9090
+    host:"localhost",
+    port:9090
 };
 
 @grpc:serviceConfig {rpcEndpoint:"LotsOfGreetings",
-                     clientStreaming:true,
-		     generateClientConnector:false}
+    clientStreaming:true,
+    generateClientConnector:false}
 service<grpc:Endpoint> helloWorld bind ep {
     onOpen (endpoint client) {
         io:println("connected sucessfully.");

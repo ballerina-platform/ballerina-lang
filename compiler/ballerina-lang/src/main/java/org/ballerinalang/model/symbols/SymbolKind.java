@@ -26,7 +26,6 @@ public enum SymbolKind {
     OBJECT,
     ENUM,
     CONNECTOR,
-    STREAMLET,
     ACTION,
     SERVICE,
     RESOURCE,

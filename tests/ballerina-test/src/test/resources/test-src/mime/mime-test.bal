@@ -1,7 +1,9 @@
-import ballerina.mime;
-import ballerina.log;
-import ballerina.file;
-import ballerina.io;
+import ballerina/mime;
+import ballerina/log;
+import ballerina/file;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/net.http.mock;
 
 function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
@@ -35,7 +37,7 @@ function testMimeBase64DecodeString (string content, string charset) returns (st
     return decoder.decodeString(content, charset);
 }
 
-function testSetAndGetJson (json jsonContent) returns json | null | mime:EntityError {
+function testSetAndGetJson (json jsonContent) returns json | mime:EntityError {
     mime:Entity entity = {};
     entity.setJson(jsonContent);
     return entity.getJson();
@@ -44,29 +46,26 @@ function testSetAndGetJson (json jsonContent) returns json | null | mime:EntityE
 function testGetJsonMultipleTimes (json jsonContent) returns (json) {
     mime:Entity entity = {};
     entity.setJson(jsonContent);
-    json | mime:EntityError | null returnContent1 = entity.getJson();
-    json | mime:EntityError | null returnContent2 = entity.getJson();
-    json | mime:EntityError | null returnContent3 = entity.getJson();
+    json | mime:EntityError returnContent1 = entity.getJson();
+    json | mime:EntityError returnContent2 = entity.getJson();
+    json | mime:EntityError returnContent3 = entity.getJson();
 
     json content1 = {};
     json content2 = {};
     json content3 = {};
 
     match returnContent1 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent1");
         json j => { content1 = j;}
 
      }
 
     match returnContent2 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent2");
         json j => { content2 = j;}
     }
 
     match returnContent3 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent3");
         json j => { content3 = j;}
     }
@@ -75,7 +74,7 @@ function testGetJsonMultipleTimes (json jsonContent) returns (json) {
     return returnContent;
 }
 
-function testSetAndGetXml (xml xmlContent) returns xml | null | mime:EntityError {
+function testSetAndGetXml (xml xmlContent) returns xml | mime:EntityError {
     mime:Entity entity = {};
     entity.setXml(xmlContent);
     return entity.getXml();
@@ -84,28 +83,25 @@ function testSetAndGetXml (xml xmlContent) returns xml | null | mime:EntityError
 function testGetXmlMultipleTimes (xml xmlContent) returns (xml) {
     mime:Entity entity = {};
     entity.setXml(xmlContent);
-    xml | mime:EntityError | null returnContent1 = entity.getXml();
-    xml | mime:EntityError | null returnContent2 = entity.getXml();
-    xml | mime:EntityError | null returnContent3 = entity.getXml();
+    xml | mime:EntityError returnContent1 = entity.getXml();
+    xml | mime:EntityError returnContent2 = entity.getXml();
+    xml | mime:EntityError returnContent3 = entity.getXml();
 
     xml content1;
     xml content2;
     xml content3;
 
     match returnContent1 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent1");
         xml j => { content1 = j;}
     }
 
     match returnContent2 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent2");
         xml j => { content2 = j;}
     }
 
     match returnContent3 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent3");
         xml j => { content3 = j;}
     }
@@ -221,7 +217,7 @@ function testSetJsonAndGetByteChannel (json jsonContent) returns io:ByteChannel 
     return entity.getByteChannel();
 }
 
-function testGetTextDataSource (io:ByteChannel byteChannel) returns string | null | mime:EntityError {
+function testGetTextDataSource (io:ByteChannel byteChannel) returns string | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     //Consume byte channel externally
@@ -233,7 +229,7 @@ function testGetTextDataSource (io:ByteChannel byteChannel) returns string | nul
     return entity.getText();
 }
 
-function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | null | mime:EntityError {
+function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     //Consume byte channel externally
@@ -247,29 +243,27 @@ function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | null 
 }
 
 function consumeChannel (io:ByteChannel channel) {
-    int numberOfBytesRead = 1;
-    blob readContent;
-    while (numberOfBytesRead != 0) {
-        var result = channel.read(1000000);
-    }
+    var result = channel.read(1000000);
 }
 
-//endpoint http:ServiceEndpoint mockEP {
-//    port:9090
-//};
-//
-//@http:ServiceConfig {endpoints:[mockEP]}
-//service<http:Service> echo bind echoEP {
-//    @http:ResourceConfig {
-//        methods:["POST"],
-//        path:"/largepayload"
-//    }
-//    getPayloadFromFileChannel (endpoint client, http:Request request) {
-//        var byteChannel, _ = request.getByteChannel();
-//        http:Response response = {};
-//        mime:Entity responseEntity = {};
-//        responseEntity.setByteChannel(byteChannel);
-//        response.setEntity(responseEntity);
-//        _ = client -> respond(response);
-//    }
-//}
+endpoint mock:NonListeningServiceEndpoint mockEP {
+    port:9090
+};
+
+@http:ServiceConfig {basePath:"/test"}
+service<http:Service> echo bind mockEP {
+    @http:ResourceConfig {
+        methods:["POST"],
+        path:"/largepayload"
+    }
+    getPayloadFromFileChannel (endpoint client, http:Request request) {
+        http:Response response = {};
+        mime:Entity responseEntity = {};
+        match request.getByteChannel() {
+            http:PayloadError err => log:printInfo("invalid value");
+            io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
+        }
+        response.setEntity(responseEntity);
+        _ = client -> respond(response);
+    }
+}

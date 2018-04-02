@@ -31,13 +31,23 @@ public class WebSubSubscriberConstants {
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
     public static final String WEBSUB_PACKAGE_PATH = "ballerina.net.websub";
 
-    public static final String RESOURCE_NAME_VERIFY_INTENT = "onVerifyIntent";
-    public static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
+    static final String RESOURCE_NAME_VERIFY_INTENT = "onVerifyIntent";
+    static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
 
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
     public static final String ANN_WEBSUB_ATTR_HUB = "hub";
     public static final String ANN_WEBSUB_ATTR_TOPIC = "topic";
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
+
+    static final String PARAM_HUB_MODE = "hub.mode";
+    static final String PARAM_HUB_TOPIC = "hub.topic";
+    static final String PARAM_HUB_CHALLENGE = "hub.challenge";
+    static final String PARAM_HUB_LEASE_SECONDS = "hub.lease_seconds";
+
+    static final String SUBSCRIBE = "subscribe";
+    static final String UNSUBSCRIBE = "unsubscribe";
+
+    static final String ANNOTATED_TOPIC = "annotatedTopic";
 
 }

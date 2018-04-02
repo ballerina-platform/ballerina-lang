@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 public struct testError {
     string message;
@@ -89,8 +89,8 @@ function testUncaughtException () {
 }
 
 function testErrorCallStackFrame () returns (runtime:CallStackElement, runtime:CallStackElement) {
-    runtime:CallStackElement trace1; 
-    runtime:CallStackElement trace2;
+    runtime:CallStackElement trace1 = {}; 
+    runtime:CallStackElement trace2 = {};
     try {
         testUncaughtException();
     } catch (error e) {

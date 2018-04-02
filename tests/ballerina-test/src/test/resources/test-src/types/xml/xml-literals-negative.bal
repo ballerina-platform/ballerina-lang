@@ -1,5 +1,5 @@
 
-import ballerina.math as x;
+import ballerina/math as x;
 
 function testRestrictedElementPrefix() returns (xml) {
     xml x = xml `<xmlns:foo>hello</xmlns:foo>`;
@@ -44,7 +44,7 @@ function testRedeclareNamespaces() {
 }
 
 function testXMlAttributesMapInvalidUsage() {
-    var x1, _ = <xml> "<root foo1=\"bar1\" foo2=\"bar2\"/>";
+    var x1 = xml `<root foo1="bar1" foo2="bar2"/>`;
     map m1 = x1@;
 }
 
@@ -77,8 +77,4 @@ function undefinedNamespace() {
 
 function defineEmptyNamespace() {
     xmlns "" as ns0;
-}
-
-function main (string[] args) {
-
 }

@@ -61,7 +61,7 @@ import javax.net.ssl.TrustManagerFactory;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io", functionName = "openSecureSocket",
+        orgName = "ballerina", packageName = "io", functionName = "openSecureSocket",
         args = { @Argument(name = "host", type = TypeKind.STRING),
                  @Argument(name = "port", type = TypeKind.INT),
                  @Argument(name = "option", type = TypeKind.STRUCT, structType = "SocketProperties",

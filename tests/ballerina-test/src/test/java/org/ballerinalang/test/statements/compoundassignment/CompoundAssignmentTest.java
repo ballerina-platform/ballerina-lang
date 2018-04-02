@@ -38,7 +38,7 @@ public class CompoundAssignmentTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "statements/compoundassignment/compound_assignment.bal");
+        result = BCompileUtil.compile("test-src/statements/compoundassignment/compound_assignment.bal");
     }
 
     @Test(description = "Test compound assignment with addition.")
@@ -291,8 +291,8 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound operator negative cases.")
     public void testDocumentationNegative() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src",
-                "statements/compoundassignment/compound_assignment_negative.bal");
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 12);
         BAssertUtil.validateError(compileResult, 0,
                 "operator '++' cannot be applied to type 'any'", 3, 5);
@@ -306,8 +306,8 @@ public class CompoundAssignmentTest {
                 "operator '++' cannot be applied to type 'string'", 33, 5);
         BAssertUtil.validateError(compileResult, 5,
                 "operator '--' cannot be applied to type 'string'", 39, 5);
-        BAssertUtil.validateError(compileResult, 6,
-                "unsafe conversion from 'string' to 'int', use multi-return conversion expression", 45, 10);
+//        BAssertUtil.validateError(compileResult, 6,
+//                "operator '+' not defined for 'int' and 'int|error'", 45, 5);
         BAssertUtil.validateError(compileResult, 7,
                 "invalid assignment in variable 'getInt()'", 51, 5);
         BAssertUtil.validateError(compileResult, 8,

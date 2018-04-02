@@ -25,7 +25,7 @@ function testUnreachableStmtInIfFunction2() {
     int i = 9;
 }
 
-function testUnreachableStmtInIfBlock()(int) {
+function testUnreachableStmtInIfBlock() returns (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -48,7 +48,7 @@ function testUnreachableStmtInWhileBlock() {
     }
 }
 
-function testCommentAfterReturnStmt()(int) {
+function testCommentAfterReturnStmt() returns (int) {
     int a = 2;
     if (a > 0) {
         string s1 = "hello if";
@@ -63,7 +63,7 @@ function testCommentAfterReturnStmt()(int) {
     return x;
 }
 
-function testUnreachableTryCatch()(string){
+function testUnreachableTryCatch() returns (string){
     string a;
     if (2 > 1) {
         return "one";
@@ -78,7 +78,7 @@ function testUnreachableTryCatch()(string){
     return a;
 }
 
-function testUnreachableNext()(string){
+function testUnreachableNext() returns (string){
     while (true) {
         return "unreachable next";
         next;
@@ -86,7 +86,7 @@ function testUnreachableNext()(string){
     return "done";
 }
 
-function testUnreachableBreak()(string){
+function testUnreachableBreak() returns (string){
     if (true) {
         return "unreachable break";
         break;
@@ -100,7 +100,7 @@ public struct testError {
     string code;
 }
 
-function testUnreachableThrow (int value) (string) {
+function testUnreachableThrow (int value) returns (string) {
     if (value > 10) {
         testError tError = {message:"error", code:"test"};
         return "unreachable throw";
