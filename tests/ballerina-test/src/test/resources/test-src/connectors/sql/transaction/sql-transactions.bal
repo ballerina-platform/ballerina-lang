@@ -1,5 +1,6 @@
 import ballerina/data.sql;
 import ballerina/io;
+import ballerina/runtime;
 
 struct ResultCount {
     int COUNTVAL;
