@@ -126,7 +126,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
 
-    private static final String TABLE_CONFIG = "tableConfig";
+    private static final String TABLE_CONFIG = "TableConfig";
 
     private Names names;
     private SymbolTable symTable;
