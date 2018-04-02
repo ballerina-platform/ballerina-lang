@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 documentation { Documentation for Test annotation
 F{{a}} annotation `field a` documentation

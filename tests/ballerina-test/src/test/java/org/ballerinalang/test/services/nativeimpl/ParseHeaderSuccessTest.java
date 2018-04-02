@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Success test cases for ballerina.net.http parseHeader native function.
+ * Success test cases for ballerina/http parseHeader native function.
  */
 public class ParseHeaderSuccessTest {
 

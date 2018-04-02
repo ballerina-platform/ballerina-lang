@@ -17,8 +17,8 @@
 package org.ballerinalang.code.generator.util;
 
 import org.ballerinalang.code.generator.CodeGenerator;
-import org.ballerinalang.code.generator.exception.CodeGeneratorException;
 import org.ballerinalang.code.generator.GeneratorConstants;
+import org.ballerinalang.code.generator.exception.CodeGeneratorException;
 import org.ballerinalang.code.generator.model.ClientContextHolder;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * Compiler plugin for ballerina client code generation.
  */
-@SupportedAnnotationPackages(value = { "ballerina.net.http.swagger" })
+@SupportedAnnotationPackages(value = { "ballerina.swagger" })
 public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
     List<EndpointNode> endpoints;
 
@@ -90,7 +90,7 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
             return false;
         }
 
-        BLangRecordLiteral bLiteral = ((BLangRecordLiteral)((BLangAnnotationAttachment) ann).getExpression());
+        BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression());
         List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
         Map<String, String[]> attrs =  GeneratorUtils.getKeyValuePairAsMap(list);
         String val = attrs.get("generate")[0];

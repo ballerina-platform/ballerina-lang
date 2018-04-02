@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint serviceEnpoint {
     port:9090
@@ -36,7 +36,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 branchLocatorReq.BranchLocator.ZipCode = zipCode;
                 backendServiceReq.setJsonPayload(branchLocatorReq);
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 io:println("Error occurred while reading ATM locator request");
                 return;
             }
@@ -64,7 +64,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 bankInfoReq.BranchInfo.BranchCode = branchCode;
                 backendServiceReq.setJsonPayload(bankInfoReq);
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 io:println("Error occurred while reading branch locator response");
                 return;
             }
@@ -110,7 +110,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
 
                 res.setJsonPayload(payload);
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 io:println("Error occurred while reading bank info request");
                 return;
             }
@@ -144,7 +144,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
                 }
                 res.setJsonPayload(payload);
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 io:println("Error occurred while reading bank locator request");
                 return;
             }

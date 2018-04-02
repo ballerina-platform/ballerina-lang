@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/runtime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 int count;
@@ -44,7 +44,7 @@ function main(string[] args) {
         json jsonPayload1 => {
           io:println(jsonPayload1);
         }
-        mime:EntityError payloadError1 => {
+        http:PayloadError payloadError1 => {
           io:println(payloadError1.message);
         }
       }

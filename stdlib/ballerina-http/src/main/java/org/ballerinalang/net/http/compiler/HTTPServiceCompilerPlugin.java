@@ -38,8 +38,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "ServiceEndpoint"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketEndpoint")}
+        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.http", name = "ServiceEndpoint"),
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.http", name = "WebSocketEndpoint")}
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
 
