@@ -1084,7 +1084,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Service resources are handled through BLangResource visitor.
         boolean isMainFunction = false;
         if (funcNode.name.value.equals(MAIN_FUNCTION_NAME) && funcNode.symbol.params.size() == 1
-                && funcNode.symbol.retType == null) {
+                && funcNode.symbol.retType == symTable.nilType) {
             BType paramType = funcNode.symbol.params.get(0).type;
             BArrayType arrayType = (BArrayType) paramType;
             if (paramType.tag == TypeTags.ARRAY && arrayType.eType.tag == TypeTags.STRING) {
