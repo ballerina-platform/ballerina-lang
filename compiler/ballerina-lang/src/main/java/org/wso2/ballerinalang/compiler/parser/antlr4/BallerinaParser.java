@@ -3210,7 +3210,6 @@ public class BallerinaParser extends Parser {
 		public TerminalNode CONST() { return getToken(BallerinaParser.CONST, 0); }
 		public TerminalNode PARAMETER() { return getToken(BallerinaParser.PARAMETER, 0); }
 		public TerminalNode ANNOTATION() { return getToken(BallerinaParser.ANNOTATION, 0); }
-		public TerminalNode TRANSFORMER() { return getToken(BallerinaParser.TRANSFORMER, 0); }
 		public AttachmentPointContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -3234,7 +3233,7 @@ public class BallerinaParser extends Parser {
 			{
 			setState(841);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << RESOURCE) | (1L << FUNCTION) | (1L << STRUCT) | (1L << ANNOTATION) | (1L << ENUM) | (1L << PARAMETER) | (1L << CONST) | (1L << TRANSFORMER) | (1L << ENDPOINT))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << RESOURCE) | (1L << FUNCTION) | (1L << STRUCT) | (1L << ANNOTATION) | (1L << ENUM) | (1L << PARAMETER) | (1L << CONST) | (1L << ENDPOINT))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			} else {
 				consume();
@@ -15517,7 +15516,7 @@ public class BallerinaParser extends Parser {
 		"\u013e\u0140\u0142\u0144\u0146\u0148\u014a\u014c\u014e\u0150\u0152\u0154"+
 		"\u0156\u0158\u015a\u015c\u015e\u0160\u0162\u0164\u0166\u0168\u016a\u016c"+
 		"\u016e\u0170\u0172\u0174\u0176\u0178\u017a\u017c\u017e\u0180\u0182\u0184"+
-		"\2\25\4\2ssww\4\2\177\177\u009b\u009b\5\2\t\f\16\22\24\24\3\2CG\3\2\u0097"+
+		"\2\25\4\2ssww\4\2\177\177\u009b\u009b\5\2\t\f\16\21\24\24\3\2CG\3\2\u0097"+
 		"\u009a\3\2\u009c\u009d\4\2zz||\4\2{{}}\4\2\u0082\u0082\u00a6\u00a6\6\2"+
 		"klpp\u0080\u0081\u0086\u0086\4\2\u0082\u0083\u0085\u0085\3\2\u0080\u0081"+
 		"\3\2\u0089\u008c\3\2\u0087\u0088\3\2\u009e\u00a1\4\2HHVV\4\2\61\62]]\3"+

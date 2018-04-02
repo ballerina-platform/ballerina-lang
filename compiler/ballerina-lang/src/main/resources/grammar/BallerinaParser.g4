@@ -185,7 +185,6 @@ attachmentPoint
      | CONST
      | PARAMETER
      | ANNOTATION
-     | TRANSFORMER
      ;
 
 constantDefinition
