@@ -29,9 +29,9 @@ public struct HubClientEndpoint {
 }
 
 @Description {value:"Struct representing the WebSub Hub Client Endpoint configuration"}
-@Field {value:"uri: The URI of the target Hub"}
+@Field {value:"url: The URL of the target Hub"}
 public struct HubClientEndpointConfiguration {
-    string uri;
+    string url;
     http:SecureSocket|null secureSocket;
     //TODO: include header, topic-resource map
 }
@@ -40,7 +40,7 @@ public struct HubClientEndpointConfiguration {
 @Param {value:"ep: The endpoint to be initialized"}
 @Param {value:"config: The configuration for the endpoint"}
 public function <HubClientEndpoint ep> init (HubClientEndpointConfiguration config) {
-    endpoint http:ClientEndpoint httpClientEndpoint {targets:[{url:config.uri, secureSocket:config.secureSocket}]};
+    endpoint http:ClientEndpoint httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}]};
     ep.httpClientEndpoint = httpClientEndpoint;
     ep.config = config;
 }
@@ -59,7 +59,7 @@ public function <HubClientEndpoint ep> start () {
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
 public function <HubClientEndpoint ep> getClient () returns (HubClientConnector) {
-    HubClientConnector webSubHubClientConn = { hubUri:ep.config.uri, httpClientEndpoint:ep.httpClientEndpoint };
+    HubClientConnector webSubHubClientConn = { hubUrl:ep.config.url, httpClientEndpoint:ep.httpClientEndpoint };
     return webSubHubClientConn;
 }
 

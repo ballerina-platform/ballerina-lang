@@ -22,7 +22,7 @@ import ballerina/security.crypto;
 
 @Description {value:"HTTP client connector for outbound WebSub Subscription/Unsubscription requests to a Hub"}
 public struct HubClientConnector {
-    string hubUri;
+    string hubUrl;
     http:ClientEndpoint httpClientEndpoint;
 }
 
@@ -35,7 +35,7 @@ public function <HubClientConnector client> subscribe (SubscriptionChangeRequest
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint -> post("", builtSubscriptionRequest);
-    return processHubResponse(client.hubUri, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(client.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
 }
 
 @Description {value:"Function to send an unsubscription request to a WebSub Hub"}
@@ -47,7 +47,7 @@ public function <HubClientConnector client> unsubscribe (SubscriptionChangeReque
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint -> post("", builtUnsubscriptionRequest);
-    return processHubResponse(client.hubUri, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(client.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
 @Description {value:"Function to register a topic in a Ballerina WebSub Hub against which subscribers can subscribe and
@@ -198,7 +198,7 @@ redirection from original hub"}
 @Param {value:"subscriptionChangeRequest: The request containing subscription details"}
 function invokeClientConnectorOnRedirection (string hub, string mode,
 SubscriptionChangeRequest subscriptionChangeRequest) returns @untainted  (SubscriptionChangeResponse|WebSubError) {
-    endpoint HubClientEndpoint websubHubClientEP { uri:hub };
+    endpoint HubClientEndpoint websubHubClientEP { url:hub };
     if (mode == MODE_SUBSCRIBE) {
         var response = websubHubClientEP -> subscribe(subscriptionChangeRequest);
         return response;

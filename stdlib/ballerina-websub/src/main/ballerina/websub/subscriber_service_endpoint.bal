@@ -120,7 +120,7 @@ function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
 @Param {value:"resourceUrl: The resource URL advertising hub and topic URLs"}
 @Return {value:"The (hub, topic) URLs if successful, WebSubError if not"}
 function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted (string, string)|WebSubError {
-    endpoint http:ClientEndpoint resourceEP {targets:[{uri:resourceUrl}]};
+    endpoint http:ClientEndpoint resourceEP {targets:[{url:resourceUrl}]};
     http:Request request = {};
     var discoveryResponse = resourceEP -> get("", request);
     WebSubError websubError = {};
@@ -241,7 +241,7 @@ public function interceptWebSubRequest (http:Request request, http:FilterContext
 @Param {value:"hub: The hub to which the subscription request is to be sent"}
 @Param {value:"subscriptionDetails: Map containing subscription details"}
 function invokeClientConnectorForSubscription (string hub, map subscriptionDetails) {
-    endpoint HubClientEndpoint websubHubClientEP { uri:hub };
+    endpoint HubClientEndpoint websubHubClientEP { url:hub };
 
     string topic = <string> subscriptionDetails["topic"];
     string callback = <string> subscriptionDetails["callback"];
