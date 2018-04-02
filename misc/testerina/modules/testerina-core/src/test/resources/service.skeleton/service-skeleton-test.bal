@@ -12,7 +12,7 @@ function init() {
 }
 
 function clean() {
-    boolean b = test:stopServiceSkeleton("mypackage");
+    test:stopServiceSkeleton("mypackage");
 }
 
 @test:Config{before: "init", after: "clean"}

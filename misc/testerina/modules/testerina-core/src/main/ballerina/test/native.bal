@@ -17,4 +17,4 @@ public native function startServiceSkeleton (string sourceRoot, string packageNa
 
 @Description { value:"Stop a service skeleton and cleanup created directories of a given ballerina package." }
 @Param {value:"packageName: Name of the package"}
-public native function stopServiceSkeleton (string packageName) returns (boolean);
+public native function stopServiceSkeleton (string packageName);
