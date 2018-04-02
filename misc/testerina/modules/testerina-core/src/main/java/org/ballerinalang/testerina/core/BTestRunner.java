@@ -107,12 +107,13 @@ public class BTestRunner {
                     try {
                         ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
                     } catch (Exception e) {
-                        errStream.println("[ERROR] Validation failed. Cause: " + e.getMessage());
+                        errStream.println("[ERROR] Validation failed. Cause: " + e);
                         throw new BallerinaException(e);
                     }
                 }
             });
         });
+        TesterinaRegistry.getInstance().setTestSuitesCompiled(true);
         // execute the test programs
         execute();
         // print the report
@@ -144,7 +145,7 @@ public class BTestRunner {
                 String errorMsg;
                 try {
                     test.invoke();
-                } catch (BallerinaException e) {
+                } catch (Throwable e) {
                     shouldSkip.set(true);
                     errorMsg = String.format("Failed to execute before test suite function [%s] of test suite " +
                                              "package [%s]. Cause: %s", test.getName(), packageName, e.getMessage());
@@ -158,7 +159,7 @@ public class BTestRunner {
                         String errorMsg;
                         try {
                             beforeEachTest.invoke();
-                        } catch (BallerinaException e) {
+                        } catch (Throwable e) {
                             shouldSkip.set(true);
                             errorMsg = String.format("Failed to execute before each test function [%s] for the "
                                                      + "test [%s] of test suite package [%s]. Cause: %s",
@@ -175,7 +176,7 @@ public class BTestRunner {
                         if (test.getBeforeTestFunctionObj() != null) {
                             test.getBeforeTestFunctionObj().invoke();
                         }
-                    } catch (BallerinaException e) {
+                    } catch (Throwable e) {
                         shouldSkip.set(true);
                         errorMsg = String.format("Failed to execute before test function" + " [%s] for the test " +
                                                  "[%s] of test suite package [%s]. Cause: %s",
@@ -213,7 +214,7 @@ public class BTestRunner {
                                 (), null);
                         tReport.addFunctionResult(packageName, functionResult);
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     String errorMsg = String.format("Failed to execute the test function [%s] of test suite package "
                             + "[%s]. Cause: %s", test.getTestFunction().getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
@@ -221,7 +222,6 @@ public class BTestRunner {
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
                             errorMsg);
                     tReport.addFunctionResult(packageName, functionResult);
-                    return;
                 }
 
                 // run the after tests
@@ -230,7 +230,7 @@ public class BTestRunner {
                     if (test.getAfterTestFunctionObj() != null) {
                         test.getAfterTestFunctionObj().invoke();
                     }
-                } catch (BallerinaException e) {
+                } catch (Throwable e) {
                     error = String.format("Failed to execute after test function" + " [%s] for the test [%s] of test " +
                                           "suite package [%s]. Cause: %s", test.getAfterTestFunctionObj().getName(),
                             test.getTestFunction().getName(), packageName, e.getMessage());
@@ -242,7 +242,7 @@ public class BTestRunner {
                     String errorMsg2;
                     try {
                         afterEachTest.invoke();
-                    } catch (BallerinaException e) {
+                    } catch (Throwable e) {
                         errorMsg2 = String.format("Failed to execute after each test function" + " [%s] for the test " +
                                                   "[%s] of test suite package [%s]. Cause: %s", afterEachTest.getName(),
                                 test.getTestFunction().getName(), packageName, e.getMessage());
@@ -257,7 +257,7 @@ public class BTestRunner {
                 String errorMsg;
                 try {
                     func.invoke();
-                } catch (BallerinaException e) {
+                } catch (Throwable e) {
                     errorMsg = String.format("Failed to execute after test suite function [%s] of test suite " +
                                              "package [%s]. Cause: %s", func.getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
