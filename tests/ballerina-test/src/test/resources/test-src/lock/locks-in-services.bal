@@ -1,9 +1,9 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/runtime;
-import ballerina/net.http.mock;
+import ballerina/http;
 
-endpoint<mock:NonListeningService> echoEP {
+endpoint<http:NonListeningService> echoEP {
     port:9090
 }
 

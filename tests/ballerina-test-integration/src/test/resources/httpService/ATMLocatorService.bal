@@ -1,18 +1,18 @@
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint serviceEnpoint {
     port:9090
 };
 
 endpoint http:ClientEndpoint bankInfoService {
-    targets: [{uri: "http://localhost:9090/bankinfo/product"}]
+    targets:[{url: "http://localhost:9090/bankinfo/product"}]
 
 };
 
 endpoint http:ClientEndpoint branchLocatorService {
-    targets: [{uri: "http://localhost:9090/branchlocator/product"}]
+    targets:[{url: "http://localhost:9090/branchlocator/product"}]
 };
 
 @http:ServiceConfig {

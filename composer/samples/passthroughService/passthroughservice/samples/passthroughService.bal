@@ -1,6 +1,6 @@
 package passthroughservice.samples;
 
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/passthrough"}
 service<http> passthrough {

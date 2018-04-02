@@ -32,17 +32,15 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Workspace service implementation for Ballerina.
  */
-public class BallerinaWorkspaceService implements WorkspaceService {
+class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManagerImpl workspaceDocumentManager;
     private LSPackageCache lSPackageCache;
     
-    public BallerinaWorkspaceService(BallerinaLanguageServer ballerinaLanguageServer,
-                                     WorkspaceDocumentManagerImpl workspaceDocumentManager,
-                                     LSPackageCache packageContext) {
-        this.ballerinaLanguageServer = ballerinaLanguageServer;
-        this.workspaceDocumentManager = workspaceDocumentManager;
-        this.lSPackageCache = packageContext;
+    BallerinaWorkspaceService(LSGlobalContext lsGlobalContext) {
+        this.ballerinaLanguageServer = lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.workspaceDocumentManager = lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+        this.lSPackageCache = lsGlobalContext.get(LSGlobalContextKeys.PKG_CACHE_KEY);
     }
 
     @Override
@@ -61,7 +59,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
-        WorkspaceServiceContext executeCommandContext = new WorkspaceServiceContext();
+        LSServiceOperationContext executeCommandContext = new LSServiceOperationContext();
         executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
         executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
         executeCommandContext.put(ExecuteCommandKeys.LS_PACKAGE_CACHE_KEY, this.lSPackageCache);

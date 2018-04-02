@@ -2,8 +2,8 @@ import ballerina/mime;
 import ballerina/log;
 import ballerina/file;
 import ballerina/io;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
 function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
@@ -246,7 +246,7 @@ function consumeChannel (io:ByteChannel channel) {
     var result = channel.read(1000000);
 }
 
-endpoint mock:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListeningServiceEndpoint mockEP {
     port:9090
 };
 

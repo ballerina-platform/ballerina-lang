@@ -16,7 +16,7 @@
 
 package ballerina.transactions.coordinator;
 
-import ballerina/net.http;
+import ballerina/http;
 
 struct InitiatorClientConfig {
     string registerAtURL;
@@ -32,7 +32,7 @@ struct InitiatorClientEP {
 }
 
 function <InitiatorClientEP ep> init (InitiatorClientConfig conf) {
-    endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.registerAtURL}],
+    endpoint http:ClientEndpoint httpEP {targets:[{url:conf.registerAtURL}],
         endpointTimeout:conf.endpointTimeout,
         retry:{count:conf.retryConfig.count,
                   interval:conf.retryConfig.interval}};

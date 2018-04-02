@@ -30,10 +30,10 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "cancelUpgradeToWebSocket",
         receiver = @Receiver(type = TypeKind.STRUCT, structType =  WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "status", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING)

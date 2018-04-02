@@ -1,11 +1,11 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint passthroughEP {
     port:9090
 };
 
 endpoint http:ClientEndpoint nyseEP {
-    targets: [{uri:"http://localhost:9090"}]
+    targets:[{url:"http://localhost:9090"}]
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}

@@ -47,10 +47,10 @@ import java.util.HashSet;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )

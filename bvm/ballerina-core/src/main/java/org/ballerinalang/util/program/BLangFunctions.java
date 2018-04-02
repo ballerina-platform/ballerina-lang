@@ -50,10 +50,9 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.tracer.TraceManagerWrapper;
-import org.ballerinalang.util.tracer.TraceUtil;
-import org.ballerinalang.util.tracer.TraceableCallback;
-import org.ballerinalang.util.tracer.TraceableCallbackWrapper;
+import org.ballerinalang.util.observability.CallableUnitCallbackObserver;
+import org.ballerinalang.util.observability.CallbackObserver;
+import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -144,9 +143,7 @@ public class BLangFunctions {
         SyncCallableWorkerResponseContext respCtx = new SyncCallableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length);
         respCtx.registerResponseCallback(responseCallback);
-        if (TraceManagerWrapper.getInstance().isTraceEnabled()) {
-            respCtx.registerResponseCallback(new TraceableCallback(parentCtx));
-        }
+        respCtx.registerResponseCallback(new CallbackObserver(parentCtx));
         respCtx.joinTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
 
@@ -177,8 +174,8 @@ public class BLangFunctions {
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse,
             int flags) {
         if (FunctionFlags.isObserved(flags)) {
-            BLangVMUtils.initClientConnectorTrace(parentCtx, callableUnitInfo.attachedToType.toString(),
-                    callableUnitInfo.getName());
+            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
+                    callableUnitInfo.getName(), parentCtx);
         }
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
@@ -222,8 +219,8 @@ public class BLangFunctions {
             respCallback = new WaitForResponseCallback();
             respCtx.registerResponseCallback(respCallback);
         }
-        if (TraceManagerWrapper.getInstance().isTraceEnabled() && FunctionFlags.isObserved(flags)) {
-            respCtx.registerResponseCallback(new TraceableCallback(parentCtx));
+        if (FunctionFlags.isObserved(flags)) {
+            respCtx.registerResponseCallback(new CallbackObserver(parentCtx));
         }
         respCtx.joinTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
@@ -314,15 +311,15 @@ public class BLangFunctions {
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
-                if (TraceManagerWrapper.getInstance().isTraceEnabled() && FunctionFlags.isObserved(flags)) {
-                    TraceUtil.finishTraceSpan(TraceUtil.getTracer(parentCtx));
+                if (FunctionFlags.isObserved(flags)) {
+                    ObservabilityUtils.stopObservation(parentCtx);
                 }
                 /* we want the parent to continue, since we got the response of the native call already */
                 return parentCtx;
             } else {
                 CallableUnitCallback callback;
-                if (TraceManagerWrapper.getInstance().isTraceEnabled() && FunctionFlags.isObserved(flags)) {
-                    callback = new TraceableCallbackWrapper(parentCtx,
+                if (FunctionFlags.isObserved(flags)) {
+                    callback = new CallableUnitCallbackObserver(parentCtx,
                             new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes));
                 } else {
                     callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);

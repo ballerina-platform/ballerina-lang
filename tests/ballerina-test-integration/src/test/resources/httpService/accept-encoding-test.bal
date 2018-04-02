@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 const string ACCEPT_ENCODING = "accept-encoding";
@@ -10,7 +10,7 @@ endpoint http:ServiceEndpoint passthroughEP {
 endpoint http:ClientEndpoint acceptEncodingAutoEP {
     targets: [
                  {
-                     uri: "http://localhost:9092/hello"
+                     url: "http://localhost:9092/hello"
                  }
              ],
     acceptEncoding:"auto"
@@ -19,7 +19,7 @@ endpoint http:ClientEndpoint acceptEncodingAutoEP {
 endpoint http:ClientEndpoint acceptEncodingEnableEP {
     targets: [
                  {
-                     uri: "http://localhost:9092/hello"
+                     url: "http://localhost:9092/hello"
                  }
              ],
     acceptEncoding:"enable"
@@ -28,7 +28,7 @@ endpoint http:ClientEndpoint acceptEncodingEnableEP {
 endpoint http:ClientEndpoint acceptEncodingDisableEP {
     targets: [
                  {
-                     uri: "http://localhost:9092/hello"
+                     url: "http://localhost:9092/hello"
                  }
              ],
     acceptEncoding:"disable"

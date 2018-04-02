@@ -25,12 +25,12 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
- * Native function ballerina.lang.test:stopService.
+ * Native function ballerina.test:stopServices.
  * Stops all the services in a ballerina package.
  *
  * @since 0.94.1
@@ -51,12 +51,13 @@ public class StopServices extends BlockingNativeCallableUnit {
         String packageName = ctx.getStringArgument(0);
 
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
-            // 1) First, we get the Service for the given serviceName from the original ProgramFile
-            ServiceInfo matchingService = programFile.getEntryPackage().getServiceInfo(packageName);
-            if (matchingService != null) {
-                BLangFunctions.invokeVMUtilFunction(matchingService.getPackageInfo().getStopFunctionInfo());
-                break;
+            PackageInfo servicesPackage = programFile.getEntryPackage();
+            if (servicesPackage == null || !servicesPackage.getPkgPath().equals(packageName)) {
+                continue;
             }
+
+            BLangFunctions.invokeVMUtilFunction(servicesPackage.getStopFunctionInfo());
+            break;
         }
     }
 

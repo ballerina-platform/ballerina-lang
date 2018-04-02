@@ -31,14 +31,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.96
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "respond",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                structPackage = "ballerina.net.http")},
+                structPackage = "ballerina.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.net.http"),
+                                 structPackage = "ballerina.http"),
         isPublic = true
 )
 public class Respond extends ConnectionAction {
