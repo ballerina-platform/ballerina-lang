@@ -27,10 +27,14 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.tracer.TraceUtil;
-import org.ballerinalang.util.tracer.Tracer;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.Map;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 
 /**
  * {@code Put} is the PUT action implementation of the HTTP Connector.
@@ -71,9 +75,11 @@ public class Put extends AbstractHTTPAction {
         HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PUT);
 
-        Tracer tracer = TraceUtil.getParentTracer(context.getParentWorkerExecutionContext());
-        HttpUtil.injectHeaders(outboundRequestMsg, tracer.getProperties());
-        tracer.addTags(HttpUtil.extractTraceTags(outboundRequestMsg));
+        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
+                getParentWorkerExecutionContext());
+        HttpUtil.injectHeaders(outboundRequestMsg, (Map<String, String>) observerContext.
+                getProperty(PROPERTY_TRACE_PROPERTIES));
+        observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;
     }
