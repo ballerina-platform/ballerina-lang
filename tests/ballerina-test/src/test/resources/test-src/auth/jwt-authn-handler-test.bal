@@ -1,9 +1,9 @@
-import ballerina/net.http.authadaptor;
-import ballerina/net.http;
+import ballerina/http;
+import ballerina/http;
 import ballerina/mime;
 
 function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
-    authadaptor:HttpJwtAuthnHandler handler = {};
+    http:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string authHeaderValue = "Basic xxxxxx";
@@ -14,7 +14,7 @@ function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
 }
 
 function testCanHandleHttpJwtAuth () returns (boolean) {
-    authadaptor:HttpJwtAuthnHandler handler = {};
+    http:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string authHeaderValue = "Bearer xxx.yyy.zzz";
@@ -25,7 +25,7 @@ function testCanHandleHttpJwtAuth () returns (boolean) {
 }
 
 function testHandleHttpJwtAuthFailure () returns (boolean) {
-    authadaptor:HttpJwtAuthnHandler handler = {};
+    http:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string authHeaderValue = "Bearer xxx.yyy.zzz";
@@ -36,7 +36,7 @@ function testHandleHttpJwtAuthFailure () returns (boolean) {
 }
 
 function testHandleHttpJwtAuth (string token) returns (boolean) {
-    authadaptor:HttpJwtAuthnHandler handler = {};
+    http:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string authHeaderValue = "Bearer " + token;

@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.swagger;
+import ballerina/http.swagger;
+
 @swagger:ServiceInfo {
     title:"Service5",
     termsOfService:"http://swagger.io/terms/",

@@ -1,7 +1,7 @@
 import ballerina/lang.messages;
 import ballerina/lang.system;
 import ballerina/lang.jsons;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
