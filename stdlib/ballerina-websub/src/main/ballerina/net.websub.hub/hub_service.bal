@@ -1,7 +1,7 @@
 package ballerina.net.websub.hub;
 
 import ballerina/collections;
-import ballerina/data.sql;
+import ballerina/sql;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/http;

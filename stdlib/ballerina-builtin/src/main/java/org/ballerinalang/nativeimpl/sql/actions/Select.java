@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.actions;
+package org.ballerinalang.nativeimpl.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.Constants;
+import org.ballerinalang.nativeimpl.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;

@@ -15,61 +15,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.actions;
+package org.ballerinalang.nativeimpl.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.sql.Constants;
+import org.ballerinalang.nativeimpl.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.observability.ObservabilityUtils;
-import org.ballerinalang.util.observability.ObserverContext;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_STATEMENT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_TYPE;
 
 /**
- * {@code Update} is the Update action implementation of the SQL Connector.
+ * {@code Close} is the Close action implementation of the SQL Connector Connection pool.
  *
- * @since 0.8.0
+ * @since 0.8.4
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
-        functionName = "update",
+        functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
-        args = {
-                @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")
-        },
         returnType = {
-                @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
                             structPackage = "ballerina.sql")
         }
 )
-public class Update extends AbstractSQLAction {
+public class Close extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
         try {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
-            String query = context.getStringArgument(0);
-            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-
-            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                    getParentWorkerExecutionContext());
-            observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
-            observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
-
-            executeUpdate(context, datasource, query, parameters);
+            closeConnections(datasource);
+            context.setReturnValues(null);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
