@@ -530,7 +530,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
                 op = " or ";
             }
 
-            BuildPatternWithAndOr(patternStreamingEdgeInputs, op);
+            buildPatternWithAndOr(patternStreamingEdgeInputs, op);
             return;
         }
 
@@ -562,7 +562,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         varRef = "";
     }
 
-    private void BuildPatternWithAndOr(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs, String op) {
+    private void buildPatternWithAndOr(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs, String op) {
         BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);
