@@ -158,9 +158,9 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
     </p:person>`;
 
 function xmlTest () returns (int, int, map) {
-    int nodeCount = xdata.children().count();
-    int elementCount = xdata.children().elements().count();
-    map<xml> m = xdata.children().elements()[1].children().elements()
+    int nodeCount = xdata.*.count();
+    int elementCount = xdata.*.elements().count();
+    map<xml> m = xdata.*.elements()[1].*.elements()
                  .map(function ((int, xml) tuple) returns (string, xml) {
                           var (i, x) = tuple;
                           return (<string>i, x);

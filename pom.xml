@@ -196,6 +196,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-cli-utils</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-logging</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -849,6 +854,56 @@
                 <artifactId>okio</artifactId>
                 <version>${okio.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-micrometer-extension</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-prometheus-extension</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>${micrometer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hdrhistogram</groupId>
+                <artifactId>HdrHistogram</artifactId>
+                <version>${hdrhistogram.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.latencyutils</groupId>
+                <artifactId>LatencyUtils</artifactId>
+                <version>${latencyutils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${prometheus.simple.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_common</artifactId>
+                <version>${prometheus.simple.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_httpserver</artifactId>
+                <version>${prometheus.simple.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-metrics</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -942,6 +997,7 @@
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/observability/ballerina-trace</module>
+                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
@@ -951,6 +1007,7 @@
                 <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -965,6 +1022,7 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
+                <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
 
                 <module>composer</module>
@@ -990,6 +1048,7 @@
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/observability/ballerina-trace</module>
+                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
@@ -999,6 +1058,7 @@
                 <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1009,6 +1069,7 @@
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
+                <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
 
                 <module>distribution/zip/ballerina</module>
@@ -1030,6 +1091,7 @@
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/observability/ballerina-trace</module>
+                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
 
@@ -1039,6 +1101,7 @@
                 <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1054,6 +1117,7 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
+                <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
 
                 <module>composer</module>
@@ -1144,7 +1208,6 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <skip>true</skip>
                                 <configLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/checkstyle.xml
                                 </configLocation>
@@ -1520,6 +1583,10 @@
         <libthrift.version>0.10.0</libthrift.version>
         <okhttp.version>3.9.1</okhttp.version>
         <okio.version>1.13.0</okio.version>
+        <micrometer.version>1.0.2</micrometer.version>
+        <hdrhistogram.version>2.1.10</hdrhistogram.version>
+        <latencyutils.version>2.0.3</latencyutils.version>
+        <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
 
     </properties>
 

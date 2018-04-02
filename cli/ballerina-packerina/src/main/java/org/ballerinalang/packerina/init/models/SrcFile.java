@@ -27,7 +27,7 @@ public class SrcFile {
 
     private static final String SERVICE_CONTENT = "// A system package containing protocol access constructs\n" +
                                                   "// Package objects referenced with 'http:' in code\n" +
-                                                  "import ballerina/net.http;\n" +
+                                                  "import ballerina/http;\n" +
                                                   "import ballerina/io;\n" +
                                                   "\n" +
                                                   "// A service endpoint represents a listener\n" +

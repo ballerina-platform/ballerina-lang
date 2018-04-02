@@ -15,14 +15,14 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint participant1EP {
     port:8889
 };
 
 endpoint http:ClientEndpoint participant2EP {
-    targets: [{uri: "http://localhost:8890"}]
+    targets:[{url: "http://localhost:8890"}]
 };
 
 State state = new();

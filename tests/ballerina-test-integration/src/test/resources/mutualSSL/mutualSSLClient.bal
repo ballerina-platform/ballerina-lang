@@ -1,10 +1,10 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
 endpoint http:ClientEndpoint clientEP {
     targets: [{
-        uri: "https://localhost:9095",
+        url: "https://localhost:9095",
         secureSocket: {
             keyStore: {
                 filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -30,9 +30,8 @@ function main (string[] args) {
         http:HttpConnectorError err => io:println(err.message);
         http:Response response => {
              match (response.getStringPayload()) {
-                mime:EntityError payloadError => io:println(payloadError.message);
+                http:PayloadError payloadError => io:println(payloadError.message);
                 string res => io:println(res);
-                any | null => io:println("Error occured");
              }
         }
     }
