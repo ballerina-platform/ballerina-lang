@@ -7,7 +7,7 @@ endpoint http:ServiceEndpoint serviceEndpoint {
 endpoint http:ClientEndpoint endPoint {
     targets: [
         {
-            uri: "http://localhost:9090"
+            url: "http://localhost:9090"
         }
     ]
 };

@@ -37,10 +37,10 @@ public enum Algorithm {
 }
 
 @Description {value:"Represents the configurations applied to a particular service."}
-@Field {value:"uri: Target service URI"}
+@Field {value:"url: Target service URI"}
 @Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
-    string uri;
+    string url;
     SecureSocket|null secureSocket;
 }
 
@@ -99,7 +99,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     boolean httpClientRequired = false;
-    string uri = config.targets[0].uri;
+    string uri = config.targets[0].url;
     match config.lbMode {
         FailoverConfig failoverConfig => {
             if (lengthof config.targets > 1) {
@@ -310,7 +310,7 @@ function createLoadBalancerClient(ClientEndpointConfiguration config, string lbA
     HttpClient[] lbClients = createHttpClientArray(config);
 
     LoadBalancer lb = {
-                        serviceUri: config.targets[0].uri,
+                        serviceUri: config.targets[0].url,
                         config: config,
                         loadBalanceClientsArray: lbClients,
                         algorithm: lbAlgorithm
@@ -327,7 +327,7 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                                             failoverCodesIndex : failoverCodes,
                                                             failoverInterval : foConfig.interval};
 
-        Failover failover = {serviceUri:config.targets[0].uri, config:config,
+        Failover failover = {serviceUri:config.targets[0].url, config:config,
                                 failoverInferredConfig:failoverInferredConfig};
         HttpClient foClient = failover;
         return foClient;

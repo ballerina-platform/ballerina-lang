@@ -42,7 +42,7 @@ function init() {
 function testService () {
     endpoint http:ClientEndpoint httpEndpoint {
         targets:[{
-            uri:url2
+            url:url2
         }]
     };
 
