@@ -256,7 +256,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        SymbolEnv funcEnv;
+        if (funcNode.attachedOuterFunction) {
+            BLangObject obj = findMatchingObject(env.enclPkg, funcNode.receiver.type.tsymbol.name.value).get(0);
+            SymbolEnv objectEnv = SymbolEnv.createObjectEnv(obj, funcNode.receiver.type.tsymbol.scope, env);
+            funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, objectEnv);
+        } else {
+            funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        }
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
@@ -285,6 +292,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.processWorkers(funcNode, funcEnv);
     }
 
+    private List<BLangObject> findMatchingObject(BLangPackage pkgNode, String name) {
+        return pkgNode.objects.stream().filter(o -> o.name.value.equals(name)).collect(Collectors.toList());
+    }
+
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
@@ -310,7 +321,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangObject objectNode) {
         BSymbol objectSymbol = objectNode.symbol;
-        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, env);
+        SymbolEnv objectEnv = SymbolEnv.createObjectEnv(objectNode, objectSymbol.scope, env);
         objectNode.fields.forEach(field -> analyzeDef(field, objectEnv));
 
         objectNode.annAttachments.forEach(annotationAttachment -> {

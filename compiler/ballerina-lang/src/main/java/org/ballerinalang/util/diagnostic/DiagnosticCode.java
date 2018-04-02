@@ -40,7 +40,9 @@ public enum DiagnosticCode {
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
-    
+    CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
+    IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
+
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
     UNKNOWN_TYPE("unknown.type"),

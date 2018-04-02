@@ -433,13 +433,94 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
+        if (funcNode.attachedOuterFunction) {
+            SymbolEnv objectEnv = SymbolEnv.createObjectEnv(null, funcNode.receiver.type.
+                    tsymbol.scope, env);
+            BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
+            if (funcSymbol == symTable.notFoundSymbol) {
+                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
+                        funcNode.receiver.type.tsymbol.name);
+                // This is only to keep the flow running so that at the end there will be proper semantic errors
+                funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                        getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
+                funcNode.symbol.scope = new Scope(funcNode.symbol);
+            } else {
+                funcNode.symbol = (BInvokableSymbol) funcSymbol;
+                if (funcNode.symbol.bodyExist) {
+                    dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+                }
+            }
+            //TODO check function parameters and return types
+            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, objectEnv);
+
+            invokableEnv.scope = funcNode.symbol.scope;
+            defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
+
+            if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
+                dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+                return;
+            }
+
+            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+
+            funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
+            return;
+        }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body == null);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
+        }
+    }
+
+    private void defineObjectAttachedInvokableSymbolParams(BLangInvokableNode invokableNode, SymbolEnv invokableEnv) {
+        // visit required params of the function
+        invokableNode.requiredParams.forEach(varNode -> {
+            visitObjectAttachedFunctionParam(varNode, invokableEnv);
+        });
+
+        invokableNode.defaultableParams.forEach(varDefNode -> {
+            visitObjectAttachedFunctionParam(varDefNode.var, invokableEnv);
+        });
+
+        invokableNode.retParams.forEach(varNode -> {
+            // assign the type to var type node
+            if (varNode.type == null) {
+                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            }
+            Name varName = names.fromIdNode(varNode.name);
+            if (varName == Names.EMPTY || varName == Names.IGNORE) {
+                // This is a variable created for a return type
+                // e.g. function foo() (int);
+                return;
+            }
+
+            visitObjectAttachedFunctionParamSymbol(varNode, invokableEnv);
+        });
+        if (invokableNode.restParam != null) {
+            visitObjectAttachedFunctionParam(invokableNode.restParam, invokableEnv);
+        }
+    }
+
+    void visitObjectAttachedFunctionParam(BLangVariable variable, SymbolEnv invokableEnv) {
+        // assign the type to var type node
+        if (variable.type == null) {
+            variable.type = symResolver.resolveTypeNode(variable.typeNode, env);
+        }
+
+        visitObjectAttachedFunctionParamSymbol(variable, invokableEnv);
+    }
+
+    void visitObjectAttachedFunctionParamSymbol(BLangVariable variable, SymbolEnv invokableEnv) {
+        BSymbol varSymbol = symResolver.lookupSymbol(invokableEnv, names.fromIdNode(variable.name),
+                SymTag.VARIABLE);
+        if (varSymbol == symTable.notFoundSymbol) {
+            defineNode(variable, invokableEnv);
+        } else {
+            variable.symbol = (BVarSymbol) varSymbol;
         }
     }
 
@@ -517,6 +598,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             varNode.type = fieldVar.type;
             varName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
+
+            // This is to identify variable when passing parameters TODO any alternative?
+            varSymbol.field = true;
+            varSymbol.originalName = names.fromIdNode(varNode.name);
 
             env.enclObject.initFunction.initFunctionStmts.put(fieldVar,
                     (BLangStatement) createAssignmentStmt(varNode, varSymbol, fieldVar));
