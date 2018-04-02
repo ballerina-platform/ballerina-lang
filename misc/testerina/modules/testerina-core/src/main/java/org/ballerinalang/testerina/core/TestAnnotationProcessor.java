@@ -75,6 +75,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private TestSuite suite;
+    private boolean enabled = true;
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
      * Annotation currently emits package import events too to the process method.
@@ -83,10 +84,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
+        if (registry.getInstance().isTestSuitesCompiled()) {
+            enabled = false;
+        }
     }
 
     @Override
     public void process(PackageNode packageNode) {
+        if (!enabled) {
+            return;
+        }
         if (!packageInit) {
             String packageName = ((BLangPackage) packageNode).packageID == null ? "." : ((BLangPackage) packageNode)
                     .packageID.getName().getValue();
@@ -97,6 +104,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        if (!enabled) {
+            return;
+        }
         // annotation processor currently triggers this function for the functions of imported packages too. In order
         // to avoid processing those, we have to have below check.
         if (!suite.getSuiteName().equals(functionNode.getPosition().getSource().getPackageName())) {
@@ -225,9 +235,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * @param programFile {@link ProgramFile} corresponds to the current ballerina package
      */
     public void packageProcessed(ProgramFile programFile) {
+        if (!enabled) {
+            return;
+        }
         packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
+        if (suite == null) {
+            throw new BallerinaException("No test suite found for [package]: " + programFile.getEntryPkgName());
+        }
         suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
                 TesterinaFunction.Type.INIT));
         // add all functions of the package as utility functions

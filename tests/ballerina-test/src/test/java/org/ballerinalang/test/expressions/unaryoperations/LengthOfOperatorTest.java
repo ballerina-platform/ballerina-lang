@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -224,7 +225,9 @@ public class LengthOfOperatorTest {
         BRunUtil.invoke(resNegative, "arrayLengthAccessNullArrayCase", args);
     }
 
-    @Test(description = "Test lengthof unary expression when reference point to json null.")
+    @Test(description = "Test lengthof unary expression when reference point to json null.",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
     public void testArrayLengthAccessTestJSONArrayNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);

@@ -5,7 +5,7 @@ endpoint http:ServiceEndpoint passthroughEP {
 };
 
 endpoint http:ClientEndpoint nyseEP {
-    targets: [{uri:"http://localhost:9090"}]
+    targets:[{url:"http://localhost:9090"}]
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}

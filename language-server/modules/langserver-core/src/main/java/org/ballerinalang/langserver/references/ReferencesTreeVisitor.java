@@ -122,10 +122,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!funcNode.retParams.isEmpty()) {
-            funcNode.retParams.forEach(this::acceptNode);
-        }
-
         if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
             funcNode.endpoints.forEach(this::acceptNode);
         }
@@ -192,10 +188,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             resourceNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!resourceNode.retParams.isEmpty()) {
-            resourceNode.retParams.forEach(this::acceptNode);
-        }
-
         if (resourceNode.body != null) {
             this.acceptNode(resourceNode.body);
         }
@@ -235,10 +227,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (!actionNode.requiredParams.isEmpty()) {
             actionNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (!actionNode.retParams.isEmpty()) {
-            actionNode.retParams.forEach(this::acceptNode);
         }
 
         if (actionNode.body != null) {
@@ -298,10 +286,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
-
         if (assignNode.expr != null) {
             this.acceptNode(assignNode.expr);
         }
@@ -453,9 +437,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        if (!returnNode.exprs.isEmpty()) {
-            returnNode.exprs.forEach(this::acceptNode);
-        }
     }
 
     @Override

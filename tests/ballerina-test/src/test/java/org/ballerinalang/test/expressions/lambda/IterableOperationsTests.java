@@ -65,7 +65,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, 8, "incompatible types: expected 'map', found '(any) collection'", 35, 22);
         BAssertUtil.validateError(negative, 9, "cannot assign return value of 'filter' operation here, use a reduce " +
                 "operation", 38, 22);
-        BAssertUtil.validateError(negative, 10, "'foreach()' does not return a value;", 46, 19);
+        BAssertUtil.validateError(negative, 10, "incompatible types: expected 'int', found '()'", 46, 19);
 
         BAssertUtil.validateError(negative, 11, "incompatible types: expected tuple, found '(int,string) " +
                 "collection'", 48, 5);
