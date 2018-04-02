@@ -1524,12 +1524,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {
-//        if (iExpr.iContext.operations.getLast().iExpr != iExpr) {
-//            result = null;
-//            return;
-//        }
-//        iterableCodeDesugar.desugar(iExpr.iContext);
-//        result = rewriteExpr(iExpr.iContext.iteratorCaller);
+        if (iExpr.iContext.operations.getLast().iExpr != iExpr) {
+            result = null;
+            return;
+        }
+        iterableCodeDesugar.desugar(iExpr.iContext);
+        result = rewriteExpr(iExpr.iContext.iteratorCaller);
     }
 
     private void visitActionInvocationEndpoint(BLangInvocation iExpr) {

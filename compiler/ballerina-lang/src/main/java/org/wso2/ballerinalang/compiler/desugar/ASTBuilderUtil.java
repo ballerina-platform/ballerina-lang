@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -137,6 +139,21 @@ public class ASTBuilderUtil {
         return bLangFunction;
     }
 
+    static BLangType createTypeNode(BType type) {
+        BLangType bLangType = new BLangType() {
+            @Override
+            public void accept(BLangNodeVisitor visitor) {
+            }
+
+            @Override
+            public NodeKind getKind() {
+                return null;
+            }
+        };
+        bLangType.type = type;
+        return bLangType;
+    }
+
     static BLangIf createIfStmt(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
@@ -205,6 +222,13 @@ public class ASTBuilderUtil {
         exprStmt.pos = pos;
         target.addStatement(exprStmt);
         return exprStmt;
+    }
+
+    static BLangReturn createReturnStmt(DiagnosticPos pos, BLangBlockStmt target) {
+        final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        returnStmt.pos = pos;
+        target.addStatement(returnStmt);
+        return returnStmt;
     }
 
     public static BLangReturn createNilReturnStmt(DiagnosticPos pos, BType nilType) {

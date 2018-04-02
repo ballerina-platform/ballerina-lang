@@ -107,7 +107,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -778,7 +777,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .map(varDefNode -> varDefNode.var.symbol)
                         .collect(Collectors.toList());
 
-        symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
+        if (!invokableNode.desugaredReturnType) {
+            symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
+        }
         invokableSymbol.params = paramSymbols;
         invokableSymbol.retType = invokableNode.returnTypeNode.type;
         invokableSymbol.defaultableParams = namedParamSymbols;

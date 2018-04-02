@@ -344,7 +344,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         return this.packageFile;
     }
 
-    private static void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
+    private void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
         if (mainFunc != null) {
             programFile.setMainEPAvailable(true);
@@ -355,11 +355,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private static BLangFunction getMainFunction(BLangPackage pkgNode) {
+    private BLangFunction getMainFunction(BLangPackage pkgNode) {
         List<BLangFunction> functions = pkgNode.functions.stream()
                 .filter(f -> (f.name.value.equals(MAIN_FUNCTION_NAME) &&
                         f.symbol.params.size() == 1 &&
-                        f.symbol.retType == null))
+                        f.symbol.retType == symTable.nilType))
                 .collect(Collectors.toList());
         if (functions.isEmpty()) {
             return null;
