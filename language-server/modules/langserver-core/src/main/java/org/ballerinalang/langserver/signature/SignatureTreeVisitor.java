@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -71,14 +71,14 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private boolean terminateVisitor = false;
     private SymbolEnter symbolEnter;
     private SymbolTable symTable;
-    private TextDocumentServiceContext documentServiceContext;
+    private LSServiceOperationContext documentServiceContext;
     private Stack<Node> blockOwnerStack;
 
     /**
      * Public constructor.
      * @param textDocumentServiceContext    Document service context for the signature operation
      */
-    public SignatureTreeVisitor(TextDocumentServiceContext textDocumentServiceContext) {
+    public SignatureTreeVisitor(LSServiceOperationContext textDocumentServiceContext) {
         blockOwnerStack = new Stack<>();
         this.documentServiceContext = textDocumentServiceContext;
         init(documentServiceContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));

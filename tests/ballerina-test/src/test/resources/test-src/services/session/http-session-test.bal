@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
@@ -7,7 +7,7 @@ struct Data {
     string name;
 }
 
-endpoint mock:NonListeningServiceEndpoint sessionEP {
+endpoint http:NonListeningServiceEndpoint sessionEP {
     port:9090
 };
 

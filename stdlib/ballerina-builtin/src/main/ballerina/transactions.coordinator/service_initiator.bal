@@ -17,7 +17,7 @@
 package ballerina.transactions.coordinator;
 
 import ballerina/log;
-import ballerina/net.http;
+import ballerina/http;
 
 enum CoordinationType {
     TWO_PHASE_COMMIT

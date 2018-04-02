@@ -1,7 +1,7 @@
 package servicemocktest2;
 
 import ballerina/config;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 

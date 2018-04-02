@@ -79,7 +79,7 @@
       "label":"endpoint",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"endpoint ${1:EndpointType} ${2:__endpoint} {\n\t${3}\n}",
+      "insertText":"endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};",
       "insertTextFormat":"Snippet"
     },
     {

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class AnnotationAttachmentResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         return filterAnnotations(completionContext);
     }
 
@@ -38,40 +38,9 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
      * @param completionContext - Completion operation context
      * @return {@link List}
      */
-    ArrayList<CompletionItem> filterAnnotations(TextDocumentServiceContext completionContext) {
-
-//        Set<Map.Entry<String, ModelPackage>> packages = dataModel.getPackages();
-//        if (packages == null) {
-//            packages = Utils.getAllPackages().entrySet();
-//        }
-//        Stream<AnnotationDef> annotationDefStream = packages.stream().map(i -> i.getValue().getAnnotations())
-//                .flatMap(Collection::stream);
-//        List<CompletionItem> collect = annotationDefStream.map(i -> {
-//            CompletionItem importItem = new CompletionItem();
-//
-//            String insertText = lastPart(i.getPackagePath()) + ":" + i.getName();
-//            importItem.setLabel("@" + insertText + " (" + i.getPackagePath() + ")");
-//            if (dataModel.getParserRuleContext() == null) {
-//                insertText = "@" + insertText;
-//            } else {
-//                if (findPreviousToken(dataModel, "@", 3) < 0) {
-//                    insertText = "@" + insertText;
-//                }
-//            }
-//            if (i.getAnnotationAttributeDefs().size() == 0) {
-//                importItem.setInsertText(insertText + "{}");
-//            } else {
-//                importItem.setInsertText(insertText + "{${1}}");
-//            }
-//            importItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-//            importItem.setSortText(ItemResolverConstants.PRIORITY_6);
-//            return importItem;
-//        }).collect(Collectors.toList());
-
-        ArrayList<CompletionItem> list = new ArrayList<>();
-//        collect.sort(Comparator.comparing(CompletionItem::getLabel));
-//        list.addAll(collect);
-        return list;
+    ArrayList<CompletionItem> filterAnnotations(LSServiceOperationContext completionContext) {
+        // TODO: Implementation needed with the new annotation cache.
+        return new ArrayList<>();
     }
 
     /**

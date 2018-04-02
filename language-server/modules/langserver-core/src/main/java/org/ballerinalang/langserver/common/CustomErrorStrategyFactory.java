@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.common;
 
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.LSContext;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 
@@ -33,7 +33,7 @@ public class CustomErrorStrategyFactory {
      * @return {@link LSCustomErrorStrategy} custom strategy
      */
     public static LSCustomErrorStrategy getCustomErrorStrategy(Class customErrorStrategyClass,
-                                                               LanguageServerContext context) {
+                                                               LSContext context) {
         LSCustomErrorStrategy lsCustomErrorStrategy;
         switch (customErrorStrategyClass.getSimpleName()) {
             case ContextConstants.COMPLETION_ERROR_STRATEGY:
