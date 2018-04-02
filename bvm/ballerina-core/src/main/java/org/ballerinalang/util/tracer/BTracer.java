@@ -161,4 +161,8 @@ public class BTracer {
     public boolean isRoot() {
         return isRoot;
     }
+
+    public Map<String, String> getTraceContext() {
+        return manager.extractTraceContext(spans, connectorName);
+    }
 }

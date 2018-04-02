@@ -24,6 +24,7 @@ import org.ballerinalang.util.tracer.config.TracerConfig;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,21 +39,25 @@ class TracersStore {
     private Map<String, Map<String, Tracer>> tracerStore;
 
     TracersStore(OpenTracingConfig openTracingConfig) {
-        this.tracers = new ArrayList<>();
-        this.tracerStore = new HashMap<>();
-
-        for (TracerConfig tracerConfig : openTracingConfig.getTracers()) {
-            if (tracerConfig.isEnabled()) {
-                try {
-                    Class<?> openTracerClass = Class
-                            .forName(tracerConfig.getClassName()).asSubclass(OpenTracer.class);
-                    this.tracers.add(new TracerGenerator(tracerConfig.getName(), (OpenTracer)
-                            openTracerClass.newInstance(), tracerConfig.getConfiguration()));
-                } catch (Throwable ignored) {
-                    //Tracers will get added only of there's no errors.
-                    //If tracers contains errors, empty map will return.
+        if (openTracingConfig != null) {
+            this.tracers = new ArrayList<>();
+            this.tracerStore = new HashMap<>();
+            for (TracerConfig tracerConfig : openTracingConfig.getTracers()) {
+                if (tracerConfig.isEnabled()) {
+                    try {
+                        Class<?> openTracerClass = Class
+                                .forName(tracerConfig.getClassName()).asSubclass(OpenTracer.class);
+                        this.tracers.add(new TracerGenerator(tracerConfig.getName(), (OpenTracer)
+                                openTracerClass.newInstance(), tracerConfig.getConfiguration()));
+                    } catch (Throwable ignored) {
+                        //Tracers will get added only of there's no errors.
+                        //If tracers contains errors, empty map will return.
+                    }
                 }
             }
+        } else {
+            this.tracers = Collections.emptyList();
+            this.tracerStore = Collections.emptyMap();
         }
     }
 
