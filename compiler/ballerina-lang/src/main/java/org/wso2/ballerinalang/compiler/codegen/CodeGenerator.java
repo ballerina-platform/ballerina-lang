@@ -130,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -141,12 +142,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -714,7 +715,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, valueExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(opcode, valueExpr.regIndex, refRegMapValue);
                 emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, refRegMapValue);
             }
         }
@@ -877,7 +878,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue);
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
             }
         } else {
@@ -934,7 +935,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
 
         RegIndex elementRegIndex = calcAndGetExprRegIndex(xmlIndexAccessExpr);
-        emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        if (xmlIndexAccessExpr.fieldType == FieldType.ALL) {
+            emit(InstructionCodes.XMLLOADALL, varRefRegIndex, elementRegIndex);
+        } else if (xmlIndexAccessExpr.indexExpr.type.tag == TypeTags.STRING) {
+            emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        } else {
+            emit(InstructionCodes.XMLSEQLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        }
+
         this.varAssignment = variableStore;
     }
 
@@ -1003,7 +1011,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
-        Operand typeCPIndex = getTypeCPIndex(new BArrayType(symTable.anyType));
+        Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
         emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex);
 
         // Emit instructions populate initial array values;
@@ -2869,7 +2877,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add children
         xmlElementLiteral.modifiedChildren.forEach(child -> {
             genNode(child, xmlElementEnv);
-            emit(InstructionCodes.XMLSTORE, xmlElementLiteral.regIndex, child.regIndex);
+            emit(InstructionCodes.XMLSEQSTORE, xmlElementLiteral.regIndex, child.regIndex);
         });
     }
 

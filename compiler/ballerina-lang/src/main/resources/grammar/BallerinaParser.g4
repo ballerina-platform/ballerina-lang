@@ -224,17 +224,12 @@ endpointInitlization
 
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   annotatedTypeName                                                   # annotatedTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
     |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    ;
-
-annotatedTypeName
-    :   annotationAttachment+ simpleTypeName
     ;
 
 // Temporary production rule name
@@ -517,7 +512,7 @@ variableReference
     ;
 
 field
-    : DOT Identifier
+    : DOT (Identifier | MUL)
     ;
 
 index
@@ -650,7 +645,7 @@ nameReference
     ;
 
 returnParameter
-    : RETURNS typeName
+    : RETURNS annotationAttachment* typeName
     ;
 
 parameterTypeNameList

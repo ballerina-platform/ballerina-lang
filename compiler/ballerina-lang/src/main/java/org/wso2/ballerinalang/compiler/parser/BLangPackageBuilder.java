@@ -70,13 +70,13 @@ import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -164,6 +164,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -178,7 +179,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -194,6 +194,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -981,12 +982,14 @@ public class BLangPackageBuilder {
         exprNodeStack.push(invocationExpr);
     }
 
-    public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName) {
+    public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName,
+                                           FieldType fieldType) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = (BLangIdentifier) createIdentifier(fieldName);
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
+        fieldBasedAccess.fieldType = fieldType;
         addExpressionNode(fieldBasedAccess);
     }
 
@@ -2016,8 +2019,9 @@ public class BLangPackageBuilder {
         this.matchStmtStack.addFirst(matchStmt);
     }
 
-    public void completeMatchNode(Set<Whitespace> ws) {
+    public void completeMatchNode(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangMatch matchStmt = this.matchStmtStack.removeFirst();
+        matchStmt.pos = pos;
         matchStmt.addWS(ws);
         matchStmt.expr = (BLangExpression) this.exprNodeStack.pop();
         addStmtToCurrentBlock(matchStmt);
@@ -2031,6 +2035,8 @@ public class BLangPackageBuilder {
         BLangMatchStmtPatternClause patternClause =
                 (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
         patternClause.pos = pos;
+
+        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
         patternClause.addWS(ws);
 
         // Create a variable node
@@ -2039,6 +2045,7 @@ public class BLangPackageBuilder {
         var.pos = pos;
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
+        var.addWS(varDefWS);
         patternClause.variable = var;
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
@@ -2139,6 +2146,12 @@ public class BLangPackageBuilder {
             attachDeprecatedNode(resourceNode);
         }
         if (hasParameters) {
+            BLangVariable firstParam = (BLangVariable) varListStack.peek().get(0);
+            if (firstParam.name.value.startsWith("$")) {
+                // This is an endpoint variable
+                Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
+                resourceNode.addWS(wsBeforeComma);
+            }
             varListStack.pop().forEach(variableNode -> {
                 ((BLangVariable) variableNode).docTag = DocTag.PARAM;
                 resourceNode.addParameter(variableNode);

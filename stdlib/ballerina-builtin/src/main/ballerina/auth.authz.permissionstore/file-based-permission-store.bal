@@ -30,21 +30,31 @@ public struct FileBasedPermissionStore {
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
 @Param {value:"username: user name"}
-@Param {value:"scopeName: name of the scope"}
+@Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorized, else false"}
-public function <FileBasedPermissionStore permissionStore> isAuthorized (string username, string scopeName) returns (boolean) {
-    string[] groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
-    if (lengthof groupsForScope == 0) {
-        // no groups for scope, no need to authorize
-        return true;
-        
-    }
+public function <FileBasedPermissionStore permissionStore> isAuthorized (string username,
+                                                                         string[] scopes) returns (boolean) {
     string[] groupsForUser = getGroupsArray(permissionStore.readGroupsOfUser(username));
     if (lengthof groupsForUser == 0) {
         // no groups for user
         return false;
     }
-    return matchGroups(groupsForScope, groupsForUser);
+    
+    string[] groupsForScope = [];
+    foreach scopeName in scopes  {
+        // read groups for each scope and see if there is a match between user's groups
+        // and the groups of the scope. There is no need to read groups for all scopes
+        // and do the comparison.
+        groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
+        if (lengthof groupsForScope > 0) {
+            // check if there is a match
+            if (matchGroups(groupsForScope, groupsForUser)) {
+                return true;
+            }
+            
+        }
+    }
+    return false;
 }
 
 @Description {value:"Reads groups for the given scopes"}
@@ -56,19 +66,18 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (st
 
 @Description {value:"Matches the groups passed"}
 @Param {value:"requiredGroupsForScope: array of groups for the scope"}
-@Param {value:"groupsReadFromPermissionstore: array of groups for the user"}
+@Param {value:"groupsOfUser: array of groups belonging to the user"}
 @Return {value:"boolean: true if two arrays are equal in content, else false"}
-function matchGroups (string[] requiredGroupsForScope, string[] groupsReadFromPermissionstore) returns (boolean) {
-    int groupCountRequiredForResource = lengthof requiredGroupsForScope;
-    int matchingRoleCount = 0;
-    foreach groupReadFromPermissiontore in groupsReadFromPermissionstore {
-        foreach groupRequiredForResource in requiredGroupsForScope {
-            if (groupRequiredForResource == groupReadFromPermissiontore) {
-                matchingRoleCount = matchingRoleCount + 1;
+function matchGroups (string[] groupsOfScope, string[] groupsOfUser) returns (boolean) {
+    foreach groupOfUser in groupsOfUser {
+        foreach groupOfScope in groupsOfScope {
+            if (groupOfUser == groupOfScope) {
+                // if user is in one group that is equal to a group of a scope, authorization passes
+                return true;
             }
         }
     }
-    return matchingRoleCount == groupCountRequiredForResource;
+    return false;
 }
 
 @Description {value:"Construct an array of groups from the comma separed group string passed"}

@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -133,7 +134,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -1481,10 +1481,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-            if (rhsTypes.get(0) != symTable.errType) {
+            if (rhsTypes.get(0) != symTable.errType && rhsTypes.get(0).tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) rhsTypes.get(0);
                 rhsTypes = tupleType.tupleTypes;
-            } else {
+            } else if (rhsTypes.get(0) != symTable.errType && rhsTypes.get(0).tag != TypeTags.TUPLE) {
+                dlog.error(assignNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsTypes.get(0));
                 rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
             }
         }

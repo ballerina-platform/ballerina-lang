@@ -146,7 +146,7 @@ public class CompletionTestUtil {
      */
     public static WorkspaceDocumentManagerImpl prepareDocumentManager(String uri, String balContent) {
         Path openedPath;
-        WorkspaceDocumentManagerImpl documentManager = new WorkspaceDocumentManagerImpl();
+        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
 
         openedPath = Paths.get(uri);
         documentManager.openFile(openedPath, balContent);

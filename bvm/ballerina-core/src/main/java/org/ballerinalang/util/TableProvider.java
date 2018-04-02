@@ -19,7 +19,6 @@ package org.ballerinalang.util;
 
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlobArray;
@@ -79,7 +78,9 @@ public class TableProvider {
         executeStatement(sqlStmt);
 
         //Add Index Data
-        generateIndexesForTable(tableName, indexeColumns);
+        if (indexeColumns != null) {
+            generateIndexesForTable(tableName, indexeColumns);
+        }
         return tableName;
     }
 
@@ -184,15 +185,17 @@ public class TableProvider {
             seperator = ",";
         }
         //Add primary key information
-        seperator = "";
-        int primaryKeyCount = (int) primaryKeys.size();
-        if(primaryKeyCount > 0) {
-            sb.append(TableConstants.PRIMARY_KEY);
-            for (int i = 0; i < primaryKeyCount; i++) {
-                sb.append(seperator).append(primaryKeys.get(i));
-                seperator = ",";
+        if (primaryKeys != null) {
+            seperator = "";
+            int primaryKeyCount = (int) primaryKeys.size();
+            if (primaryKeyCount > 0) {
+                sb.append(TableConstants.PRIMARY_KEY);
+                for (int i = 0; i < primaryKeyCount; i++) {
+                    sb.append(seperator).append(primaryKeys.get(i));
+                    seperator = ",";
+                }
+                sb.append(")");
             }
-            sb.append(")");
         }
         sb.append(")");
         return sb.toString();

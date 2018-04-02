@@ -28,4 +28,5 @@ public class BallerinaDocConstants {
     public static final String ENABLE_DEBUG_LOGS = "debugDocerina";
     public static final String PRIMITIVE_TYPES_PAGE_NAME = "Primitive Types";
     public static final String PRIMITIVE_TYPES_PAGE_HREF = "primitive-types";
+    public static final String OUTPUT_ZIP_PATH = "output.zip.path";
 }

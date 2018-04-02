@@ -83,10 +83,7 @@ public class AnnotationAttributeValue {
             return null;
         }
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
     public String toString() {
         return "AnnotationAttributeValue{" + "bValue='" + bValue + '\''

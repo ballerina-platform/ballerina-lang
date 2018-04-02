@@ -44,6 +44,8 @@ import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
@@ -68,6 +70,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
@@ -89,17 +93,21 @@ import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
+import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.util.tracer.TraceConstants.HTTP_HOST;
 import static org.ballerinalang.util.tracer.TraceConstants.HTTP_PORT;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_COMPONENT_BALLERINA;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_COMPONENT;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_HOST;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_PORT;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_PROTOCOL;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -107,6 +115,10 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCOD
  * Utility class providing utility methods.
  */
 public class HttpUtil {
+
+    public static final int TRUE = 1;
+    public static final int FALSE = 0;
+
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
@@ -354,7 +366,7 @@ public class HttpUtil {
     }
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
         log.error(errorMsg);
@@ -415,8 +427,7 @@ public class HttpUtil {
     }
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct
-                .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
@@ -473,13 +484,14 @@ public class HttpUtil {
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
-        struct.addNativeData(HttpConstants.TRANSPORT_MESSAGE, httpCarbonMessage);
+        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
-                                              HTTPCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(HttpConstants.REQUEST, true);
+                                              HTTPCarbonMessage inboundRequestMsg,
+                                              RequestCacheControlStruct requestCacheControl) {
+        inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
+        inboundRequestStruct.addNativeData(REQUEST, true);
 
         enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
@@ -487,6 +499,11 @@ public class HttpUtil {
         populateEntity(entity, mediaType, inboundRequestMsg);
         inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
         inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
+
+        if (inboundRequestMsg.getHeader(CACHE_CONTROL.toString()) != null) {
+            requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL.toString()));
+        }
+        inboundRequestStruct.setRefField(REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
@@ -514,31 +531,84 @@ public class HttpUtil {
         }
     }
 
-    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
-        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
+    /**
+     * Populate connection information.
+     *
+     * @param connection Represent the connection struct
+     * @param inboundMsg Represent carbon message.
+     */
+    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage inboundMsg) {
+        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
+    }
+
+    /**
+     * Populate serviceEndpoint information.
+     *
+     * @param serviceEndpoint Represent the serviceEndpoint struct
+     * @param inboundMsg Represent carbon message.
+     * @param httpResource Represent Http Resource.
+     */
+    public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg,
+            HttpResource httpResource) {
+        BStruct remote = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
+        BStruct local = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
+
+        Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
+        if (remoteSocketAddress != null && remoteSocketAddress instanceof InetSocketAddress) {
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
+            String remoteHost = inetSocketAddress.getHostName();
+            long remotePort = inetSocketAddress.getPort();
+            remote.setStringField(HttpConstants.REMOTE_HOST_INDEX, remoteHost);
+            remote.setIntField(HttpConstants.REMOTE_PORT_INDEX, remotePort);
+        }
+        serviceEndpoint.setRefField(HttpConstants.REMOTE_STRUCT_INDEX, remote);
+
+        Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
+        if (localSocketAddress != null && localSocketAddress instanceof InetSocketAddress) {
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
+            String localHost = inetSocketAddress.getHostName();
+            long localPort = inetSocketAddress.getPort();
+            local.setStringField(HttpConstants.LOCAL_HOST_INDEX, localHost);
+            local.setIntField(HttpConstants.LOCAL_PORT_INDEX, localPort);
+        }
+        serviceEndpoint.setRefField(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        serviceEndpoint.setStringField(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_INDEX,
+                (String) inboundMsg.getProperty(HttpConstants.PROTOCOL));
     }
 
     /**
      * Populate inbound response with headers and entity.
-     *
-     * @param inboundResponse    Ballerina struct to represent response
-     * @param entity             Entity of the response
-     * @param mediaType          Content type of the response
-     * @param inboundResponseMsg Represent carbon message.
+     * @param inboundResponse  Ballerina struct to represent response
+     * @param entity    Entity of the response
+     * @param mediaType Content type of the response
+     * @param responseCacheControl  Cache control struct which holds the cache control directives related to the
+     *                              response
+     * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
+                                               ResponseCacheControlStruct responseCacheControl,
                                                HTTPCarbonMessage inboundResponseMsg) {
-        inboundResponse.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = (Integer) inboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        inboundResponse.setIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX, statusCode);
-        inboundResponse.setStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX,
-                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+        inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
+        int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
+        inboundResponse.setIntField(RESPONSE_STATUS_CODE_INDEX, statusCode);
+        inboundResponse.setStringField(RESPONSE_REASON_PHRASE_INDEX,
+                                       HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
             inboundResponse.setStringField(HttpConstants.RESPONSE_SERVER_INDEX,
                                            inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
+
+        if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {
+            responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL.toString()));
+        }
+        inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
+
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
         inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
@@ -598,7 +668,7 @@ public class HttpUtil {
     }
 
     private static boolean isRequestStruct(BStruct struct) {
-        return struct.getType().getName().equals(HttpConstants.REQUEST);
+        return struct.getType().getName().equals(REQUEST);
     }
 
     private static boolean isResponseStruct(BStruct struct) {
@@ -609,13 +679,13 @@ public class HttpUtil {
         if (isRequestStruct(struct)) {
             if (struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX) != null && !struct.getStringField
                     (HttpConstants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
-                transportHeaders.add(HttpHeaderNames.USER_AGENT.toString(),
+                transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(),
                                      struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX) != null && !struct.getStringField
                     (HttpConstants.RESPONSE_SERVER_INDEX).isEmpty()) {
-                transportHeaders.add(HttpHeaderNames.SERVER.toString(),
+                transportHeaders.set(HttpHeaderNames.SERVER.toString(),
                                      struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX));
             }
         }
@@ -623,15 +693,15 @@ public class HttpUtil {
 
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage outboundResponseMsg, BStruct struct) {
         if (isResponseStruct(struct)) {
-            if (struct.getIntField(HttpConstants
-                    .RESPONSE_STATUS_CODE_INDEX) != 0) {
+            if (struct.getIntField(
+                    RESPONSE_STATUS_CODE_INDEX) != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(
-                        struct.getIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX)));
+                        struct.getIntField(RESPONSE_STATUS_CODE_INDEX)));
             }
-            if (struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX) != null && !struct
-                    .getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
+            if (struct.getStringField(RESPONSE_REASON_PHRASE_INDEX) != null && !struct
+                    .getStringField(RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE,
-                        struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX));
+                        struct.getStringField(RESPONSE_REASON_PHRASE_INDEX));
             }
         }
     }
@@ -718,8 +788,6 @@ public class HttpUtil {
         host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
     }
-
-
 
     @Deprecated
     private static void extractBasicConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
@@ -1132,12 +1200,10 @@ public class HttpUtil {
 
     public static Map<String, String> extractTraceTags(HTTPCarbonMessage msg) {
         Map<String, String> tags = new HashMap<>();
-        tags.put(TAG_KEY_COMPONENT, TAG_COMPONENT_BALLERINA);
         tags.put(TAG_KEY_HTTP_METHOD, String.valueOf(msg.getProperty(HttpConstants.HTTP_METHOD)));
         tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
         tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(HTTP_HOST)));
         tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(HTTP_PORT)));
-        tags.put(TAG_KEY_PROTOCOL, String.valueOf(msg.getProperty(HttpConstants.PROTOCOL)));
         return tags;
     }
 

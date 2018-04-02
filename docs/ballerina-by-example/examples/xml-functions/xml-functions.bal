@@ -10,19 +10,19 @@ function main (string[] args) {
     string xmlString = "<book/>";
     xml book =? <xml>xmlString;
 
-    // Get the type of the XML.
+    // Get the type of the XML element.
     io:println(bookComment.getItemType());
 
     // Get the name of an XML element.
     io:println(bookName.getElementName());
 
-    // Get the text content of an XML.
+    // Get the text content of an XML element.
     io:println(bookName.getTextValue());
 
-    // Is the XML emtpy?
+    // Check if the XML element is emtpy.
     io:println(content.isEmpty());
 
-    // Does the element have only one element?
+    // Check if the XML element has only one value.
     io:println(content.isSingleton());
 
     // Get a subsequence of an XML sequence.
@@ -33,19 +33,19 @@ function main (string[] args) {
     x = content.elements();
     io:println(x);
 
-    // An element with a particular name can also be retrieved.
+    // An XML element with a particular name can be retrieved.
     x = content.select("name");
     io:println(x);
 
-    // Set the children of an XML.
+    // Set the children of an XML element.
     book.setChildren(content);
     io:println(book);
 
-    // Get all the children of an XML.
-    x = book.children();
+    // Get all the children of an XML element.
+    x = book.*;
     io:println(x);
 
-    // Get a particular child of an XML.
+    // Get a particular child of an XML element.
     x = book.selectChildren("name");
     io:println(x);
 
@@ -53,7 +53,7 @@ function main (string[] args) {
     x = content.strip();
     io:println(x);
 
-    // Make a copy of an XML.
+    // Make a copy of an XML element.
     x = bookComment.copy();
     io:println(x);
 }

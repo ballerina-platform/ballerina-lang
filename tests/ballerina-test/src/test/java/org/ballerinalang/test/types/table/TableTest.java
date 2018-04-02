@@ -109,8 +109,8 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlWithAdd");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE></result></results>"
-                + "<results><result><INT_TYPE>1</INT_TYPE></result></results>");
+        Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE></result>"
+                + "</results><results><result><INT_TYPE>1</INT_TYPE></result></results>");
     }
 
     @Test(groups = "TableTest", description = "Check xml streaming when result set consumed once.")
@@ -531,7 +531,8 @@ public class TableTest {
         Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200||null|");
     }
 
-    @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.")
+    @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.",
+          enabled = false)
     public void testJsonXMLConversionwithDuplicateColumnNames() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonXMLConversionwithDuplicateColumnNames");
         Assert.assertEquals(returns.length, 2);
