@@ -36,6 +36,11 @@ public class TesterinaRegistry {
     private List<String> groups = new ArrayList<>();
     private boolean shouldIncludeGroups;
     private Map<String, TestSuite> testSuites = new HashMap<>();
+    /**
+     * This is required to stop the annotation processor from processing annotations upon the compilation of the
+     * service skeleton. This flag will make sure that @{@link TestAnnotationProcessor}'s methods will skip the
+     * annotation processing once the test suites are compiled.
+     */
     private boolean testSuitesCompiled;
     private List<ProgramFile> programFiles = new ArrayList<>();
     private List<ProgramFile> skeletonProgramFiles = new ArrayList<>();
