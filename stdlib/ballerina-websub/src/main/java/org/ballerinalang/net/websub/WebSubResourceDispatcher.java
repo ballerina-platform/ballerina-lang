@@ -66,6 +66,9 @@ class WebSubResourceDispatcher {
                         .getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
                                            WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
                         .get(0).getValue().getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC);
+                if (annotatedTopic.isEmpty() && service instanceof WebSubHttpService) {
+                    annotatedTopic = ((WebSubHttpService) service).getTopic();
+                }
                 inboundRequest.setProperty(WebSubSubscriberConstants.ANNOTATED_TOPIC, annotatedTopic);
                 inboundRequest.setProperty(Constants.HTTP_RESOURCE, WebSubSubscriberConstants.ANNOTATED_TOPIC);
             } else {

@@ -51,7 +51,7 @@ public class RetrieveSecret extends BlockingNativeCallableUnit {
                     ((BServiceType) ((BTypeDescValue) (context).getLocalWorkerData().refRegs[0]).value()))
                 .getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
                                    WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
-                .get(0).getValue().getVMValue()).getStringField(3);
+                .get(0).getValue().getVMValue()).getStringField(4);
 
         context.setReturnValues(new BString(secret));
     }

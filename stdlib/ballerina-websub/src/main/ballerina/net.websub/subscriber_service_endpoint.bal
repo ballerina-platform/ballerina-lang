@@ -1,6 +1,7 @@
 package ballerina.net.websub;
 
 import ballerina/net.http;
+import ballerina/net.uri;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -63,7 +64,7 @@ native function <SubscriberServiceEndpoint ep> startWebSubSubscriberServiceEndpo
 
 @Description {value:"Sends a subscription request to the specified hub if specified to subscribe on startup"}
 function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
-    map subscriptionDetails = ep.retrieveAnnotationsAndCallback();
+    map subscriptionDetails = ep.retrieveSubscriptionParameters();
     if (lengthof subscriptionDetails.keys() == 0) {
         return;
     }
@@ -72,13 +73,100 @@ function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
     boolean subscribeOnStartUp = <boolean> strSubscribeOnStartUp;
 
     if (subscribeOnStartUp) {
+        string resourceUrl = <string> subscriptionDetails["resourceUrl"];
         string hub = <string> subscriptionDetails["hub"];
+        string topic = <string> subscriptionDetails["topic"];
+        if (hub == "" || topic == "") {
+            if (resourceUrl == "") {
+                log:printError("Subscription Request not sent since hub and/or topic and resource URL are unavailable");
+                return;
+            }
+            match (retrieveHubAndTopicUrl(resourceUrl)) {
+                (string, string) discoveredDetails => {
+                    var (retHub, retTopic) = discoveredDetails;
+                    retHub =? uri:decode(retHub, "UTF-8");
+                    retTopic =? uri:decode(retTopic, "UTF-8");
+                    subscriptionDetails["hub"] = retHub;
+                    hub = retHub;
+                    subscriptionDetails["topic"] = retTopic;
+                    ep.setTopic(retTopic);
+                }
+                WebSubError websubError => {
+                    log:printError("Error sending out subscription request on start up: " + websubError.errorMessage);
+                    return;
+                }
+            }
+        }
         invokeClientConnectorForSubscription(hub, subscriptionDetails);
     }
 }
 
-@Description {value:"Retrieves the annotations specified and the callback URL to which notification should happen"}
-native function <SubscriberServiceEndpoint ep> retrieveAnnotationsAndCallback () returns (map);
+@Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}
+@Param {value:"resourceUrl: The resource URL advertising hub and topic URLs"}
+@Return {value:"The (hub, topic) URLs if successful, WebSubError if not"}
+function retrieveHubAndTopicUrl (string resourceUrl) returns (string, string)|WebSubError {
+    endpoint http:ClientEndpoint resourceEP {targets:[{uri:resourceUrl}]};
+    http:Request request = {};
+    var discoveryResponse = resourceEP -> get("", request);
+    WebSubError websubError = {};
+    match (discoveryResponse) {
+        http:Response response => {
+            string[] linkHeaders;
+            if (response.hasHeader("Link")) {
+                linkHeaders = response.getHeaders("Link");
+            }
+
+            if (lengthof linkHeaders > 0) {
+                string hub;
+                string topic;
+                string[] linkHeaderConstituents = [];
+                if (lengthof linkHeaders == 1) {
+                    linkHeaderConstituents = linkHeaders[0].split(",");
+                } else {
+                    linkHeaderConstituents = linkHeaders;
+                }
+
+                foreach link in linkHeaderConstituents {
+                    string[] linkConstituents = link.split(";");
+                    if (linkConstituents[1] != "") {
+                        string url = linkConstituents[0].trim();
+                        url = url.replace("<", "");
+                        url = url.replace(">", "");
+                        if (linkConstituents[1].contains("rel=\"hub\"") && hub == "") {
+                            hub = url;
+                        } else if (linkConstituents[1].contains("rel=\"self\"")) {
+                            if (topic != "") {
+                                websubError = { errorMessage:"Link Header contains >1 self URLs" };
+                            } else {
+                                topic = url;
+                            }
+                        }
+                    }
+                }
+                if (hub != "" && topic != "") {
+                    return (hub, topic);
+                } else {
+                    websubError = { errorMessage:"Hub and/or Topic URL(s) not identified in link header of resource "
+                                                 + "URL[" + resourceUrl + "]" };
+                }
+            } else {
+                websubError = { errorMessage:"Link header unavailable for resource URL[" + resourceUrl + "]" };
+            }
+        }
+        http:HttpConnectorError connErr => {
+            websubError = { errorMessage:"Error occurred with WebSub discovery for Resource URL ["
+                                                     + resourceUrl + "]: " + connErr.message};
+        }
+    }
+    return websubError;
+}
+
+@Description {value:"Sets the topic to which this service is subscribing, for auto intent verification"}
+native function <SubscriberServiceEndpoint ep> setTopic (string topic);
+
+@Description {value:"Retrieves the parameters specified for subscription as annotations and the callback URL to which
+notification should happen"}
+native function <SubscriberServiceEndpoint ep> retrieveSubscriptionParameters () returns (map);
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}

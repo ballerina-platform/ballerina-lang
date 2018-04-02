@@ -3,6 +3,7 @@ package ballerina.net.websub;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/net.http;
+import ballerina/net.uri;
 import ballerina/security.crypto;
 
 public const string HUB_CHALLENGE = "hub.challenge";
@@ -43,17 +44,29 @@ public struct WebSubError {
 @Description {value:"Function to build intent verification response for subscription requests sent"}
 @Param {value:"request: The intent verification request from the hub"}
 @Return {value:"The response to the hub verifying/denying intent to subscribe"}
-public function buildSubscriptionVerificationResponse(http:Request request) returns (http:Response|null) {
-    SubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
-    return buildIntentVerificationResponse(request, MODE_SUBSCRIBE, webSubSubscriberAnnotations);
+public function buildSubscriptionVerificationResponse(http:Request request, string topic = "")
+                                                                                        returns (http:Response|null) {
+    SubscriberServiceConfiguration subscriberServiceConfiguration = {};
+    if (topic == "") {
+        subscriberServiceConfiguration = retrieveAnnotations();
+    } else {
+        subscriberServiceConfiguration = { topic:topic };
+    }
+    return buildIntentVerificationResponse(request, MODE_SUBSCRIBE, subscriberServiceConfiguration);
 }
 
 @Description {value:"Function to build intent verification response for unsubscription requests sent"}
 @Param {value:"request: The intent verification request from the hub"}
 @Return {value:"The response to the hub verifying/denying intent to subscribe"}
-public function buildUnsubscriptionVerificationResponse(http:Request request) returns (http:Response|null) {
-    SubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
-    return buildIntentVerificationResponse(request, MODE_UNSUBSCRIBE, webSubSubscriberAnnotations);
+public function buildUnsubscriptionVerificationResponse(http:Request request, string topic = "") returns
+                                                                                                 (http:Response|null) {
+    SubscriberServiceConfiguration subscriberServiceConfiguration = {};
+    if (topic == "") {
+        subscriberServiceConfiguration = retrieveAnnotations();
+    } else {
+        subscriberServiceConfiguration = { topic:topic };
+    }
+    return buildIntentVerificationResponse(request, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
 }
 
 @Description { value : "Function to build intent verification response for subscription/unsubscription requests sent" }
@@ -73,6 +86,7 @@ function buildIntentVerificationResponse(http:Request request, string mode,
     string reqMode = <string> params[HUB_MODE];
     string challenge = <string> params[HUB_CHALLENGE];
     string reqTopic = <string> params[HUB_TOPIC];
+    reqTopic =? uri:decode(reqTopic, "UTF-8");
 
     string reqLeaseSeconds = <string> params[HUB_LEASE_SECONDS];
 

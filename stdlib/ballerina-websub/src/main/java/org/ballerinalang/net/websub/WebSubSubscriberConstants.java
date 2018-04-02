@@ -35,10 +35,12 @@ public class WebSubSubscriberConstants {
     static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
 
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
+    public static final String ANN_WEBSUB_ATTR_RESOURCE_URL = "resourceUrl";
     public static final String ANN_WEBSUB_ATTR_HUB = "hub";
     public static final String ANN_WEBSUB_ATTR_TOPIC = "topic";
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
+    public static final String ANN_WEBSUB_ATTR_CALLBACK = "callback";
 
     static final String PARAM_HUB_MODE = "hub.mode";
     static final String PARAM_HUB_TOPIC = "hub.topic";

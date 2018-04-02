@@ -5,6 +5,7 @@ import ballerina/data.sql;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/net.http;
+import ballerina/net.uri;
 import ballerina/net.websub;
 import ballerina/security.crypto;
 import ballerina/time;
@@ -68,6 +69,7 @@ service<http:Service> hubService bind hubServiceEP {
             _ = client -> respond(response);
             if (validSubscriptionRequest) {
                 string callback = <string> params[websub:HUB_CALLBACK];
+                callback =? uri:decode(callback, "UTF-8");
                 verifyIntent(callback, params);
             }
             return;
@@ -186,7 +188,7 @@ service<http:Service> hubService bind hubServiceEP {
 function validateSubscriptionChangeRequest(string mode, map params) returns (boolean|string) {
     string topic = <string> params[websub:HUB_TOPIC];
     string callback = <string> params[websub:HUB_CALLBACK];
-
+    callback =? uri:decode(callback, "UTF-8");
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = { mode:mode, topic:topic, callback:callback};
         pendingRequests.registerPendingRequest(pendingRequest);
