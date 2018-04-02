@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.cliutils;
+package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.util.codegen.ProgramFile;

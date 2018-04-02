@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.cliutils;
+package org.ballerinalang.cli.utils;
 
 
 import org.ballerinalang.compiler.CompilerPhase;

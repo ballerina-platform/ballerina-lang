@@ -85,7 +85,8 @@ public class PushUtils {
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("push", accessToken, resourcePath, pkgPathFromPrjtDir.toString(), msg);
+            executor.execute("packaging.push/ballerina.push.balx", accessToken, resourcePath,
+                             pkgPathFromPrjtDir.toString(), msg);
         } else {
             if (!installToRepo.equals("home")) {
                 throw new BLangCompilerException("Unknown repository provided to push the package");

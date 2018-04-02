@@ -70,7 +70,8 @@ public class URIConverter implements Converter<URI> {
         try {
             String fullPkgPath = orgName + "/" + pkgName;
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("pull", u.toString(), destDirPath.toString(), fullPkgPath, File.separator);
+            executor.execute("packaging.pull/ballerina.pull.balx", u.toString(), destDirPath.toString(),
+                             fullPkgPath, File.separator);
             // TODO Simplify using ZipRepo
             Patten pattern = new Patten(Patten.WILDCARD_DIR,
                                         Patten.path(pkgName + ".zip"),

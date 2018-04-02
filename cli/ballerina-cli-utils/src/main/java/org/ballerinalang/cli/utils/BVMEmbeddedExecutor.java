@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.cliutils;
+package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -33,24 +33,9 @@ import java.net.URL;
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
-    public void execute(String cmdType, String... args) {
-        URL resource;
-        switch (cmdType) {
-            case "pull":
-                resource = BVMEmbeddedExecutor.class.getClassLoader().getResource
-                        ("META-INF/ballerina/packaging.pull/ballerina.pull.balx");
-                break;
-            case "push":
-                resource = BVMEmbeddedExecutor.class.getClassLoader().getResource
-                        ("META-INF/ballerina/packaging.push/ballerina.push.balx");
-                break;
-            case "search":
-                resource = BVMEmbeddedExecutor.class.getClassLoader().getResource
-                        ("META-INF/ballerina/packaging.search/ballerina.search.balx");
-                break;
-            default:
-                throw new BLangCompilerException("Invalid command type");
-        }
+    public void execute(String balxPath, String... args) {
+        URL resource = BVMEmbeddedExecutor.class.getClassLoader()
+                                                .getResource("META-INF/ballerina/" + balxPath);
         try {
             URI balxResource = resource.toURI();
             ExecutorUtils.execute(balxResource, args);

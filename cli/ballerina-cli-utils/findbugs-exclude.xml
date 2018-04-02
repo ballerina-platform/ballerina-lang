@@ -17,7 +17,7 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Class name="org.ballerinalang.cliutils.ExecutorUtils"/>
+        <Class name="org.ballerinalang.cli.utils.ExecutorUtils"/>
         <Bug pattern="DE_MIGHT_IGNORE"/>
     </Match>
 </FindBugsFilter>
