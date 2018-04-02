@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 const string ACCEPT_ENCODING = "accept-encoding";

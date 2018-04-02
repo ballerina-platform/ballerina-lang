@@ -1,6 +1,6 @@
 package globalvar.pkg.srvc;
 
-import ballerina/net.http;
+import ballerina/http;
 import globalvar.pkg.varpkg;
 
 

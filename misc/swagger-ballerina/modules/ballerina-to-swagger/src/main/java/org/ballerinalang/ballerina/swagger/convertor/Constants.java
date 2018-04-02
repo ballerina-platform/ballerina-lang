@@ -21,8 +21,8 @@ package org.ballerinalang.ballerina.swagger.convertor;
 public class Constants {
     public static final String SERVICE_NAME = "ballerina-to-swagger";
     public static final String SERVICE_PATH = "ballerina/swagger";
-    public static final String SWAGGER_PACKAGE_NAME = "ballerina.net.http.swagger";
-    public static final String BALLERINA_HTTP_PACKAGE_NAME = "ballerina.net.http";
+    public static final String SWAGGER_PACKAGE_NAME = "ballerina.swagger";
+    public static final String BALLERINA_HTTP_PACKAGE_NAME = "ballerina/http";
     public static final String CURRENT_PACKAGE_NAME = "Current Package";
 
 }

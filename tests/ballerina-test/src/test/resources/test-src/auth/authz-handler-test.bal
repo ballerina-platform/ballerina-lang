@@ -1,9 +1,9 @@
-import ballerina/net.http.authadaptor;
-import ballerina/net.http;
+import ballerina/http;
+import ballerina/http;
 import ballerina/mime;
 
 function testHandleHttpAuthzFailure () returns (boolean) {
-    authadaptor:HttpAuthzHandler handler = {};
+    http:HttpAuthzHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXNoYXJhOmFiYw==";
@@ -15,7 +15,7 @@ function testHandleHttpAuthzFailure () returns (boolean) {
 }
 
 function testHandleAuthz () returns (boolean) {
-    authadaptor:HttpAuthzHandler handler = {};
+    http:HttpAuthzHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
@@ -27,7 +27,7 @@ function testHandleAuthz () returns (boolean) {
 }
 
 function testHandleAuthzWithMultipleScopes () returns (boolean) {
-    authadaptor:HttpAuthzHandler handler = {};
+    http:HttpAuthzHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
@@ -44,7 +44,7 @@ function testNonExistingBasicAuthHeaderValue () returns (string|null) {
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};
     mime:Entity requestEntity = {};
     inRequest.setEntity(requestEntity);
-    return authadaptor:extractBasicAuthHeaderValue(inRequest);
+    return http:extractBasicAuthHeaderValue(inRequest);
 }
 
 function testExtractBasicAuthHeaderValue () returns (string|null) {
@@ -55,5 +55,5 @@ function testExtractBasicAuthHeaderValue () returns (string|null) {
     mime:Entity requestEntity = {};
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
-    return authadaptor:extractBasicAuthHeaderValue(inRequest);
+    return http:extractBasicAuthHeaderValue(inRequest);
 }

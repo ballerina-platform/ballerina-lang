@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 function testGetHeader (http:Response res, string key) returns string {
