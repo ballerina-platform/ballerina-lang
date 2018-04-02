@@ -368,16 +368,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#transformerDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#transformerDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitTransformerDefinition(BallerinaParser.TransformerDefinitionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
 	 */
@@ -458,6 +448,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code tupleTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code tupleTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code unionTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
@@ -529,18 +531,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code tupleTypeName}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void enterTupleTypeName(BallerinaParser.TupleTypeNameContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code tupleTypeName}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void exitTupleTypeName(BallerinaParser.TupleTypeNameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#simpleTypeName}.
 	 * @param ctx the parse tree
@@ -1807,6 +1797,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitIntegerLiteral(BallerinaParser.IntegerLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#emptyTupleLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterEmptyTupleLiteral(BallerinaParser.EmptyTupleLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#emptyTupleLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitEmptyTupleLiteral(BallerinaParser.EmptyTupleLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namedArgs}.
 	 * @param ctx the parse tree
