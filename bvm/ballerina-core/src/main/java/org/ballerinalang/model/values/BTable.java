@@ -90,6 +90,10 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableName = tableProvider.createTable(((BTableType) type).getConstrainedType(), primaryKeys, indexColumns);
         this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
         this.isInMemoryTable = true;
+        //Insert initial data
+        if (data != null) {
+            insertInitialData(data);
+        }
     }
 
     @Override
@@ -222,6 +226,16 @@ public class BTable implements BRefType<Object>, BCollection {
     @Override
     public BIterator newIterator() {
         return new BTable.BTableIterator(this);
+    }
+
+    private void insertInitialData(BRefValueArray data) {
+        int count = (int) data.size();
+        for (int i = 0; i < count; i++) {
+            if (!(data.get(i) instanceof BStruct)) {
+                throw new BallerinaException("initial data should be in struct type");
+            }
+            addData((BStruct) data.get(i));
+        }
     }
 
     private void generateIterator() {

@@ -50,9 +50,11 @@ public class TableProvider {
 
     private static TableProvider tableProvider = null;
     private int tableID;
+    private int indexID;
 
     private TableProvider() {
         tableID = 0;
+        indexID = 0;
     }
 
     public static TableProvider getInstance() {
@@ -69,6 +71,10 @@ public class TableProvider {
 
     private synchronized int getTableID() {
         return this.tableID++;
+    }
+
+    private synchronized int getIndexID() {
+        return this.indexID++;
     }
 
     public String createTable(BType constrainedType, BStringArray primaryKeys, BStringArray indexeColumns) {
@@ -215,7 +221,8 @@ public class TableProvider {
                 StringBuilder sb = new StringBuilder();
                 String columnName = indexColumns.get(i);
                 sb.append(TableConstants.SQL_CREATE_INDEX).append(TableConstants.INDEX).append(columnName)
-                        .append(TableConstants.SQL_ON).append(tableName).append("(").append(columnName).append(")");
+                        .append(getIndexID()).append(TableConstants.SQL_ON).append(tableName).append("(")
+                        .append(columnName).append(")");
                 executeStatement(sb.toString());
             }
         }
