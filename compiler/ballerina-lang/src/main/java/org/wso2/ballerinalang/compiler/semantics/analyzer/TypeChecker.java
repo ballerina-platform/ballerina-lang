@@ -126,6 +126,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
 
+    private static final String TABLE_CONFIG = "tableConfig";
+
     private Names names;
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -216,9 +218,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
-        List<BType> expTypesTemp = Lists.of(symTable.rootScope.lookup(new Name("TableConfig")).symbol.type);
+        List<BType> expTypesTemp = Lists.of(symTable.rootScope.lookup(new Name(TABLE_CONFIG)).symbol.type);
         checkExpr(tableLiteral.configurationExpr, env, expTypesTemp);
-
         resultTypes = types.checkTypes(tableLiteral, Lists.of(expTypes.get(0)), expTypes);
     }
 

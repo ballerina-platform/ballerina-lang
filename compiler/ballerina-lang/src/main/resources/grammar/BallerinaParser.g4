@@ -352,7 +352,6 @@ tableInitlization
     :   recordLiteral
     ;
 
-
 arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;

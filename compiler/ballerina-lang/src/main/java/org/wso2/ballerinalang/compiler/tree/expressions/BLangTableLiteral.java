@@ -23,6 +23,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Implementation of {@link TableLiteralNode}.
+ *
+ * @since 0.970.0
  */
 public class BLangTableLiteral extends BLangExpression implements TableLiteralNode {
 
