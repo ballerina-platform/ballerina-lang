@@ -3,7 +3,7 @@ import ballerina/http;
 import ballerina/mime;
 
 endpoint http:ClientEndpoint clientEP {
-    targets:[{uri:"http://www.mocky.io"}],
+    targets:[{url:"http://www.mocky.io"}],
     followRedirects : { enabled : true, maxCount : 5 }
 };
 

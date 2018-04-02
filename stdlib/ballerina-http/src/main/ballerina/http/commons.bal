@@ -91,7 +91,7 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
     HttpClient[] httpClients = [];
     int i=0;
     boolean httpClientRequired = false;
-    string uri = config.targets[0].uri;
+    string uri = config.targets[0].url;
     var cbConfig = config.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
@@ -107,7 +107,7 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
     }
 
     foreach target in config.targets {
-        uri = target.uri;
+        uri = target.url;
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
             uri = uri.subString(0, lastIndex);
