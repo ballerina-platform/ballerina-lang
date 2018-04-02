@@ -3,7 +3,7 @@ import ballerina/mime;
 import ballerina/io;
 
 endpoint http:ClientEndpoint clientEP {
-    targets:[{uri:"http://localhost:9092"}]
+    targets:[{url:"http://localhost:9092"}]
 };
 
 endpoint http:ServiceEndpoint multipartEP {
