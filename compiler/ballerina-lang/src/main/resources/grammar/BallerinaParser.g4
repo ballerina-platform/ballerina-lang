@@ -124,12 +124,12 @@ objectInitializerParameterList
     ;
 
 objectFunctions
-    : (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
+    :   (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
     ;
 
 // TODO merge with fieldDefinition later
 objectFieldDefinition
-    :   typeName Identifier (COLON expression)? (COMMA | SEMICOLON)
+    :   typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -145,7 +145,7 @@ objectParameter
 
 // TODO try to merge with defaultableParameter later
 objectDefaultableParameter
-    :   objectParameter COLON expression
+    :   objectParameter ASSIGN expression
     ;
 
 // TODO merge with functionDefinition later

@@ -1046,7 +1046,23 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-        BSymbol funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+
+        BSymbol funcSymbol = symTable.notFoundSymbol;
+        // if no package alias, check for same object attached function
+        if (pkgAlias == Names.EMPTY && env.enclObject != null) {
+            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                    env.enclObject.name.value, iExpr.name.value));
+            funcSymbol = symResolver.lookupSymbol(env, objFuncName, SymTag.VARIABLE);
+            if (funcSymbol != symTable.notFoundSymbol) {
+                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
+            }
+        }
+
+        // if no such function found, then try resolving in package
+        if (funcSymbol == symTable.notFoundSymbol) {
+            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        }
+
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             resultType = symTable.errType;
@@ -1217,7 +1233,13 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkNamedArgs(List<BLangExpression> namedArgExprs, List<BVarSymbol> defaultableParams) {
         for (BLangExpression expr : namedArgExprs) {
             BLangIdentifier argName = ((NamedArgNode) expr).getName();
-            BVarSymbol varSym = defaultableParams.stream().filter(param -> param.getName().value.equals(argName.value))
+            BVarSymbol varSym = defaultableParams.stream().filter(param -> {
+                // identifying field param from the symbol TODO any alternative?
+                if (param.field) {
+                    return param.originalName.value.equals(argName.value);
+                }
+                return param.getName().value.equals(argName.value);
+            })
                     .findAny().orElse(null);
             if (varSym == null) {
                 dlog.error(expr.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);
