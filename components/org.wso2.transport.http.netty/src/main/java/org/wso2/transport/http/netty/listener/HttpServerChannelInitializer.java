@@ -276,7 +276,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.serverName = serverName;
     }
 
-    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+    void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
         this.ocspStaplingEnabled = ocspStaplingEnabled;
     }
 

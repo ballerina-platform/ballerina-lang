@@ -51,7 +51,6 @@ import java.util.List;
 public class OCSPResponseBuilder {
 
     private static OCSPResp response = null;
-    private static SingleResp singleResponse = null;
 
     public static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
             throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
@@ -186,7 +185,7 @@ public class OCSPResponseBuilder {
                 continue;
             }
             if (responses != null && responses.length == 1) {
-                singleResponse = responses[0];
+                SingleResp singleResponse = responses[0];
                 certificateStatus = singleResponse.getCertStatus();
                 if (certificateStatus != null) {
                     throw new IllegalStateException("certificate-status=" + certificateStatus);

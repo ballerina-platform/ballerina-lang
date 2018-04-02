@@ -156,19 +156,18 @@ public class OCSPCache implements ManageableCache {
 
     public synchronized SingleResp getCacheValue(BigInteger serialNumber) {
         OCSPCacheValue cacheValue = hashMap.get(serialNumber);
-        if (cacheValue != null) {
-            //If someone gets this cache value before cache manager task found it is invalid, update it and get the
-            // new value.
-            if (!cacheValue.isValid()) {
-                cacheValue.updateCacheWithNewValue();
-                OCSPCacheValue ocspCacheValue = hashMap.get(serialNumber);
-                return (ocspCacheValue != null ? ocspCacheValue.getValue() : null);
-            }
-
-            return cacheValue.getValue();
-        } else {
+        if (cacheValue == null) {
             return null;
         }
+        //If someone gets this cache value before cache manager task found it is invalid, update it and get the
+        // new value.
+        if (!cacheValue.isValid()) {
+            cacheValue.updateCacheWithNewValue();
+            OCSPCacheValue ocspCacheValue = hashMap.get(serialNumber);
+            return (ocspCacheValue != null ? ocspCacheValue.getValue() : null);
+        }
+
+        return cacheValue.getValue();
     }
 
     public synchronized OCSPResp getOCSPCacheValue(BigInteger serialNumber) {
