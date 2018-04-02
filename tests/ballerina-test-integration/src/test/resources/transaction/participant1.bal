@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint participant1EP {
     port:8889

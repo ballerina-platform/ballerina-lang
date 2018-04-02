@@ -2,9 +2,9 @@ package ballerina.net.websub.hub;
 
 import ballerina/collections;
 import ballerina/data.sql;
+import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/net.http;
 import ballerina/net.uri;
 import ballerina/net.websub;
 import ballerina/security.crypto;

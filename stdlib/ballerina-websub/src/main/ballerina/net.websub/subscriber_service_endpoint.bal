@@ -1,6 +1,6 @@
 package ballerina.net.websub;
 
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.uri;
 
 //////////////////////////////////////////

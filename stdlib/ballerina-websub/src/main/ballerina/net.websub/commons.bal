@@ -1,8 +1,8 @@
 package ballerina.net.websub;
 
+import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/net.http;
 import ballerina/net.uri;
 import ballerina/security.crypto;
 

@@ -43,7 +43,7 @@ function main (string[] args) {
                         <author>Sir Arthur Conan Doyle</author>
                     </book>`;
     // For xml: Use 1 variable to get the xml value. Use 2 variables to get both index (int) and xml value.
-    foreach i, x in book.children().elements(){
+    foreach i, x in book.*.elements(){
         io:println("xml at " + i + " : ");
         io:println(x);
     }

@@ -1,8 +1,8 @@
 package ballerina.net.websub;
 
+import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/net.http;
 import ballerina/security.crypto;
 
 @Description {value:"HTTP client connector for outbound WebSub Subscription/Unsubscription requests to a Hub"}
