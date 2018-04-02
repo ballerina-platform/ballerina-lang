@@ -33,7 +33,7 @@ public struct Participant2pcClientEP {
 }
 
 public function <Participant2pcClientEP ep> init (Participant2pcClientConfig conf) {
-    endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.participantURL}],
+    endpoint http:ClientEndpoint httpEP {targets:[{url:conf.participantURL}],
         endpointTimeout:conf.endpointTimeout,
         retry:{count:conf.retryConfig.count,
                   interval:conf.retryConfig.interval}};

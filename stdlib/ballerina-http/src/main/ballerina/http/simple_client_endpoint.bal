@@ -95,7 +95,7 @@ public function <SimpleClientEndpoint ep> init(SimpleClientEndpointConfiguration
     ep.httpEP.config = {};
     ep.httpEP.config.targets = [];
 
-    ep.httpEP.config.targets[0] = {uri: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
+    ep.httpEP.config.targets[0] = {url: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
     ep.httpEP.config.endpointTimeout = simpleConfig.endpointTimeout;
     ep.httpEP.config.httpVersion = simpleConfig.httpVersion;
     ep.httpEP.config.forwarded = simpleConfig.forwarded;
