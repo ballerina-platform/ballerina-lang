@@ -342,7 +342,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         // First analyze the variable reference expression.
-        BType actualType = symTable.errType;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
         if (fieldAccessExpr.fieldType == FieldType.ALL && varRefType.tag != TypeTags.XML) {
@@ -351,17 +350,22 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (varRefType.tag) {
             case TypeTags.UNION:
-                if (!fieldAccessExpr.safeNavigate) {
-                    break;
-                }
 
                 // Extract the types without the error and null, and revisit access expression
                 // TODO: Improve this logic. This will fail if the varRef is of type: error|null
                 // TODO: Add null/error to the final set of actual values
                 Set<BType> varRefMemberTypes = ((BUnionType) varRefType).memberTypes;
-                List<BType> lhsTypes = varRefMemberTypes.stream().filter(type -> {
-                    return type != symTable.errStructType && type != symTable.nilType;
-                }).collect(Collectors.toList());
+                List<BType> lhsTypes;
+
+                if (!fieldAccessExpr.safeNavigate) {
+                    lhsTypes = varRefMemberTypes.stream().filter(type -> {
+                        return type != symTable.errStructType && type != symTable.nilType;
+                    }).collect(Collectors.toList());
+                } else {
+                    lhsTypes = varRefMemberTypes.stream().filter(type -> {
+                        return type != symTable.nilType;
+                    }).collect(Collectors.toList());
+                }
 
                 if (lhsTypes.size() == 1) {
                     varRefType = lhsTypes.get(0);
@@ -372,8 +376,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-        actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
-        resultTypes = types.checkTypes(fieldAccessExpr, Lists.of(actualType), Lists.of(this.expType));
+        BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+        resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {

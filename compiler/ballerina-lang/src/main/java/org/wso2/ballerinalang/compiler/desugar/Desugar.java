@@ -977,12 +977,18 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+
         BLangVariableReference targetVarRef = fieldAccessExpr;
         if (fieldAccessExpr.expr.type.tag == TypeTags.ENUM) {
             targetVarRef = new BLangEnumeratorAccessExpr(fieldAccessExpr.pos,
                     fieldAccessExpr.field, fieldAccessExpr.symbol);
         } else {
             fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
+            BLangExpression temp = null;
+            if (fieldAccessExpr.safeNavigate) {
+                temp = handleSafeNavigation(fieldAccessExpr);
+            }
+            
             BType varRefType = fieldAccessExpr.expr.type;
             if (varRefType.tag == TypeTags.STRUCT) {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
@@ -1002,7 +1008,49 @@ public class Desugar extends BLangNodeVisitor {
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
         targetVarRef.type = fieldAccessExpr.type;
+
         result = targetVarRef;
+    }
+
+    private BLangExpression handleSafeNavigation(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(fieldAccessExpr.expr);
+
+        // Create error match pattern
+        // error e => e
+        String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_error";
+        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(fieldAccessExpr.pos, errorPatternVarName,
+                symTable.errType, null, new BVarSymbol(0, names.fromString(errorPatternVarName),
+                        this.env.scope.owner.pkgID, symTable.errType, this.env.scope.owner));
+
+        BLangMatchExprPatternClause errorPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        errorPattern.variable = errorPatternVar;
+        errorPattern.expr = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, errorPatternVar.symbol);
+        errorPattern.pos = fieldAccessExpr.pos;
+        matchExpr.patternClauses.add(errorPattern);
+
+        // Create success match pattern
+        // T x => x.foo
+        String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
+        BLangVariable successPatternVar = ASTBuilderUtil.createVariable(fieldAccessExpr.pos, successPatternVarName,
+                fieldAccessExpr.type, null, new BVarSymbol(0, names.fromString(successPatternVarName),
+                        this.env.scope.owner.pkgID, fieldAccessExpr.type, this.env.scope.owner));
+        BLangMatchExprPatternClause successPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        successPattern.variable = successPatternVar;
+
+        // Create x.foo
+        BLangFieldBasedAccess fieldAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        fieldAccess.expr = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, successPatternVar.symbol);
+        fieldAccess.field = fieldAccessExpr.field;
+        fieldAccess.fieldType = fieldAccessExpr.fieldType;
+        fieldAccess.type = fieldAccessExpr.type;
+        successPattern.expr = fieldAccess;
+        successPattern.pos = fieldAccessExpr.pos;
+        matchExpr.patternClauses.add(successPattern);
+        matchExpr.type = fieldAccessExpr.type;
+
+        return rewriteExpr(matchExpr);
     }
 
     @Override

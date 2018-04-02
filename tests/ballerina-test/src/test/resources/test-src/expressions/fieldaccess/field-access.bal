@@ -1,13 +1,13 @@
 function foo () {
-	Person|null p = {};
-	string|error|null x = p!.address!.city;
+	Person|() p = {};
+	string|error|() x = p!.address.city;
 }
 
 struct Person {
 	int a;
 	string fname = "John";
 	string lname;
-	Address|null address;
+	Address|() address;
 }
 
 struct Address {
