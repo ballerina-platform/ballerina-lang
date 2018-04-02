@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ClientEndpoint backendClientEP {
     targets: [{uri: "http://localhost:8080"}]

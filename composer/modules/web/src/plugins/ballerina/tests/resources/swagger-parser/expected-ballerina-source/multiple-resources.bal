@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.swagger;
+import ballerina/http;
+import ballerina/http.swagger;
 @swagger:ServiceInfo {
     title:"Service9",
     description:"A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",

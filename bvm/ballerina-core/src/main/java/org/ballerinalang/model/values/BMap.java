@@ -106,6 +106,14 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     /**
+     * Retrieve the internal map.
+     * @return map
+     */
+    public LinkedHashMap<K, V> getMap() {
+        return map;
+    }
+
+    /**
      * Get the size of the map.
      * @return returns the size of the map
      */

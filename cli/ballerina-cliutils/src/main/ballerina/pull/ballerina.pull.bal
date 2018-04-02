@@ -3,7 +3,7 @@ package ballerina.pull;
 import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
     endpoint http:ClientEndpoint httpEndpoint {

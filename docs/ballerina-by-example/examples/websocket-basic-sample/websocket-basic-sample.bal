@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 @Description {value:"This example gives you the basic idea of WebSocket endpoint."}
 endpoint http:ServiceEndpoint ep {

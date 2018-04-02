@@ -3,7 +3,7 @@ package ballerina.push;
 import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 function pushPackage (string accessToken, string url, string dirPath, string msg) {
     endpoint http:ClientEndpoint httpEndpoint {

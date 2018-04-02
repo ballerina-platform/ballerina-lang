@@ -32,10 +32,10 @@ import javax.websocket.Session;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "pushText",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "text", type = TypeKind.STRING)

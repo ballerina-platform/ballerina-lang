@@ -1,7 +1,7 @@
 package ballerina.search;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/time;
 
 function search (string url, string querySearched) {
