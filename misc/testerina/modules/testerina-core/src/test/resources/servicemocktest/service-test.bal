@@ -10,7 +10,7 @@ endpoint http:ServiceEndpoint eventEP {
 };
 
 string url1 = "http://0.0.0.0:9092/events";
-string url2 = "http://0.0.0.0:9090/portal";
+string url2 = "http://0.0.0.0:9093/portal";
 boolean isEventServiceStarted;
 boolean isPortalServiceStarted;
 boolean isNonExistingServiceStarted;
