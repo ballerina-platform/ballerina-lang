@@ -24,7 +24,7 @@ import java.util.Map;
  * Language server context for text document server.
  * @since 0.95.5
  */
-public class TextDocumentServiceContext implements LanguageServerContext {
+public class LSServiceOperationContext implements LSContext {
 
     private Map<Key<?>, Object> props = new HashMap<>();
 

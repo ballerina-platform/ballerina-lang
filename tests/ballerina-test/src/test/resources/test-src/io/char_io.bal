@@ -57,6 +57,46 @@ function writeCharacters (string content, int startOffset) returns (int|io:IOErr
     }
 }
 
+function readJson () returns (json|io:IOError) {
+    json empty = "";
+    match characterChannel {
+        io:CharacterChannel ch =>{
+            var result = ch.readJson();
+            match result {
+                json characters =>{
+                    return characters;
+                }
+                io:IOError err =>{
+                    return err;
+                }
+            }
+        }
+        (any|null) =>{
+            return empty;
+        }
+    }
+}
+
+function readXml () returns (xml|io:IOError) {
+    xml empty = xml `<name/>`;
+    match characterChannel {
+        io:CharacterChannel ch =>{
+            var result = ch.readXml();
+            match result {
+                xml characters =>{
+                    return characters;
+                }
+                io:IOError err =>{
+                    return err;
+                }
+            }
+        }
+        (any|null) =>{
+            return empty;
+        }
+    }
+}
+
 function close () {
     match characterChannel {
         io:CharacterChannel ch =>{
