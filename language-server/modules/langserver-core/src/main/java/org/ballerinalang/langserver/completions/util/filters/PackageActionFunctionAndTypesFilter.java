@@ -20,25 +20,26 @@ package org.ballerinalang.langserver.completions.util.filters;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -56,7 +57,7 @@ import java.util.stream.Collectors;
 public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
     @Override
-    public List<SymbolInfo> filterItems(TextDocumentServiceContext completionContext) {
+    public List<SymbolInfo> filterItems(LSServiceOperationContext completionContext) {
 
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int delimiterIndex = this.getPackageDelimiterTokenIndex(completionContext);
@@ -93,7 +94,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param context       Document service context
      * @return {@link Boolean} connector init or not
      */
-    private boolean isConnectorInit(int startIndex, TextDocumentServiceContext context) {
+    private boolean isConnectorInit(int startIndex, LSServiceOperationContext context) {
         int nonHiddenTokenCount = 0;
         int counter = startIndex - 1;
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
@@ -122,7 +123,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    private ArrayList<SymbolInfo> getActionsFunctionsAndTypes(TextDocumentServiceContext completionContext,
+    private ArrayList<SymbolInfo> getActionsFunctionsAndTypes(LSServiceOperationContext completionContext,
                                                               int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
@@ -157,13 +158,13 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    private ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(TextDocumentServiceContext context,
+    private ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
                                                                    int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
-        String variableName = tokenStream.get(delimiterIndex - 1).getText();
+        String variableName = CommonUtil.getPreviousDefaultToken(tokenStream, delimiterIndex).getText();
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
         String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
@@ -177,9 +178,17 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         BType bType = variable.getScopeEntry().symbol.getType();
         String bTypeValue;
 
-        if (bType.tsymbol instanceof BConnectorSymbol
-                && !UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenStream.get(delimiterIndex).getText())) {
-            return actionFunctionList;
+        if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol) {
+            BType getClientFuncType = ((BEndpointVarSymbol) variable.getScopeEntry().symbol)
+                    .getClientFunction.type;
+            if (!UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenStream.get(delimiterIndex).getText())
+                    || !(getClientFuncType instanceof BInvokableType)) {
+                return actionFunctionList;
+            }
+
+            BType boundType = ((BInvokableType) getClientFuncType).retTypes.get(0);
+            packageID = boundType.tsymbol.pkgID.toString();
+            bTypeValue = boundType.toString();
         } else if (bType instanceof BArrayType) {
             packageID = ((BArrayType) bType).eType.tsymbol.pkgID.toString();
             bTypeValue = bType.toString();
@@ -239,7 +248,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param completionContext     Text Document Service context (Completion Context)
      * @return {@link Integer}      Index of the delimiter
      */
-    private int getPackageDelimiterTokenIndex(TextDocumentServiceContext completionContext) {
+    private int getPackageDelimiterTokenIndex(LSServiceOperationContext completionContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
         int delimiterIndex = -1;
         int searchTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
@@ -292,17 +301,18 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param completionCtx     Completion context
      * @return                  {@link Map} Scope entries map
      */
-    private Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, TextDocumentServiceContext completionCtx) {
-        SymbolInfo filteredSymbolInfo = completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .stream()
-                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
-                        && symbolInfo.getScopeEntry().symbol.getType() != null 
-                        && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
-                .findFirst()
-                .orElse(null);
-
+    private Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, LSServiceOperationContext completionCtx) {
         HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
-        returnMap.put(filteredSymbolInfo.getScopeEntry().symbol.getName(), filteredSymbolInfo.getScopeEntry());
+        completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+                .forEach(symbolInfo -> {
+                    if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
+                            && symbolInfo.getScopeEntry().symbol.getType() != null
+                            && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
+                            || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
+                        returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
+                    }
+                });
+
         return returnMap;
     }
     
@@ -310,7 +320,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         BType bType = variable.getScopeEntry().symbol.getType();
 
         if (bType instanceof BArrayType || bType instanceof BMapType || bType instanceof BJSONType
-                || bType instanceof BXMLType || bType instanceof BTableType || bType instanceof BTupleCollectionType) {
+                || bType instanceof BXMLType || bType instanceof BTableType
+                || bType instanceof BIntermediateCollectionType) {
             fillForeachIterableOperation(bType, symbolInfoList);
             fillMapIterableOperation(bType, symbolInfoList);
             fillFilterIterableOperation(bType, symbolInfoList);

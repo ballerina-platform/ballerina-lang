@@ -17,27 +17,25 @@
  */
 package org.ballerinalang.test.services.nativeimpl.response;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -45,7 +43,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
- * Test cases for ballerina.net.http inbound response negative native functions.
+ * Test cases for ballerina/http inbound response negative native functions.
  */
 public class ResponseNativeFunctionNegativeTest {
 
@@ -63,21 +61,19 @@ public class ResponseNativeFunctionNegativeTest {
         resultNegative = BCompileUtil.compile(basePath + "in-response-compile-negative.bal");
     }
 
-    @Test(description = "Test when the content length header is not set")
-    public void testGetContentLength() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BValue[] inputArg = {inResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
-        Assert.assertEquals(Integer.parseInt(returnVals[0].stringValue()), -1);
-    }
-
     @Test
     public void testGetHeader() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
-        BValue[] inputArg = {inResponse, key};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
-        Assert.assertNull(((BString) returnVals[0]).value());
+        try {
+            BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                                 inRespStruct);
+            BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
+            BValue[] inputArg = {inResponse, key};
+            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
+            Assert.assertNull(returnVals[0]);
+        } catch (Exception exception) {
+            String errorMessage = exception.getMessage();
+            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+        }
     }
 
     @Test(description = "Test method without json payload")
@@ -87,7 +83,7 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("empty JSON document"));
+        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("empty JSON document"));
     }
 
     @Test(description = "Test method with string payload")
@@ -104,20 +100,6 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNull(returnVals[0]);
-    }
-
-    @Test
-    public void testGetProperty() {
-        BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(true);
-        HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-
-        BString propertyName = new BString("wso2");
-        BValue[] inputArg = {inResponse, propertyName};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test(description = "Test getStringPayload method without a paylaod")
@@ -139,7 +121,7 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("Error occurred while retrieving " +
+        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("Error occurred while retrieving " +
                 "xml data from entity : Unexpected EOF in prolog\n"));
     }
 
@@ -159,9 +141,9 @@ public class ResponseNativeFunctionNegativeTest {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String range = "Range";
-        BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put("Expect", new BStringArray(new String[]{"100-continue"}));
-        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        httpHeaders.add("Expect", "100-continue");
+        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         BString key = new BString(range);
         BValue[] inputArg = {outResponse, key};
@@ -171,8 +153,8 @@ public class ResponseNativeFunctionNegativeTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertNull(map.get("range"));
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("range"));
     }
 
     @Test
@@ -185,19 +167,61 @@ public class ResponseNativeFunctionNegativeTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertNull(map.get("Expect"));
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("Expect"));
     }
 
     @Test
     public void testCompilationErrorTestCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testInResponseSetStatusCodeWithString
         BAssertUtil.validateError(resultNegative, 0,
                 "incompatible types: expected 'int', found 'string'", 4, 22);
         //testInResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined field 'method' in struct 'ballerina.net.http:Response'",
+                "undefined field 'method' in struct 'ballerina/http:Response'",
                 9, 21);
+        //testInResponseAddHeader
+        BAssertUtil.validateError(resultNegative, 2,
+                "attempt to refer to non-public symbol 'InResponse.addHeader'",
+                14, 5);
+        BAssertUtil.validateError(resultNegative, 3,
+                "undefined function 'addHeader' in struct 'ballerina/http:InResponse'",
+                14, 5);
+        //testInResponseRemoveHeader
+        BAssertUtil.validateError(resultNegative, 4,
+                "attempt to refer to non-public symbol 'InResponse.removeHeader'",
+                19, 5);
+        BAssertUtil.validateError(resultNegative, 5,
+                                  "undefined function 'removeHeader' in struct 'ballerina/http:InResponse'",
+                                  19, 5);
+        //testInResponseRemoveAllHeaders
+        BAssertUtil.validateError(resultNegative, 6,
+                "undefined function 'removeAllHeaders' in struct 'ballerina/http:InResponse'",
+                24, 5);
+        //testInResponseSetHeader
+        BAssertUtil.validateError(resultNegative, 7,
+                "attempt to refer to non-public symbol 'InResponse.setHeader'",
+                29, 5);
+        BAssertUtil.validateError(resultNegative, 8,
+                                  "undefined function 'setHeader' in struct 'ballerina/http:InResponse'",
+                                  29, 5);
+        //testInResponseSetJsonPayload
+        BAssertUtil.validateError(resultNegative, 9,
+                "undefined function 'setJsonPayload' in struct 'ballerina/http:InResponse'",
+                34, 5);
+        //testInResponseSetProperty
+        BAssertUtil.validateError(resultNegative, 10,
+                "undefined function 'setProperty' in struct 'ballerina/http:InResponse'",
+                39, 5);
+        //testInResponseSetStringPayload
+        BAssertUtil.validateError(resultNegative, 11,
+                "undefined function 'setStringPayload' in struct 'ballerina/http:InResponse'",
+                44, 5);
+        //testInResponseSetXmlPayload
+        BAssertUtil.validateError(resultNegative, 12,
+                "undefined function 'setXmlPayload' in struct 'ballerina/http:InResponse'",
+                49, 5);
     }
 }

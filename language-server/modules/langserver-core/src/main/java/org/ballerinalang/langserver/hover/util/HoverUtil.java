@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.hover.util;
 
-import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSPackageCache;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -28,18 +28,25 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for Hover functionality of language server.
@@ -53,7 +60,7 @@ public class HoverUtil {
      * @param hoverContext context of the hover.
      * @return hover content.
      */
-    public static Hover getHoverInformation(BLangPackage bLangPackage, TextDocumentServiceContext hoverContext) {
+    public static Hover getHoverInformation(BLangPackage bLangPackage, LSServiceOperationContext hoverContext) {
         Hover hover;
         switch (hoverContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY)) {
             case ContextConstants.FUNCTION:
@@ -62,7 +69,11 @@ public class HoverUtil {
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangFunction != null) {
-                    hover = getAnnotationContent(bLangFunction.annAttachments);
+                    if (bLangFunction.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangFunction.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangFunction.annAttachments);
+                    }
                 } else {
                     hover = getDefaultHoverObject();
                 }
@@ -74,11 +85,30 @@ public class HoverUtil {
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangStruct != null) {
-                    hover = getAnnotationContent(bLangStruct.annAttachments);
+                    if (bLangStruct.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangStruct.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangStruct.annAttachments);
+                    }
                 } else {
                     hover = getDefaultHoverObject();
                 }
 
+                break;
+            case ContextConstants.OBJECT:
+                BLangObject bLangObject = bLangPackage.objects.stream()
+                        .filter(object -> object.name.getValue()
+                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                if (bLangObject != null) {
+                    if (bLangObject.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangObject.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangObject.annAttachments);
+                    }
+                } else {
+                    hover = getDefaultHoverObject();
+                }
                 break;
             case ContextConstants.ENUM:
                 BLangEnum bLangEnum = bLangPackage.enums.stream()
@@ -86,7 +116,11 @@ public class HoverUtil {
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangEnum != null) {
-                    hover = getAnnotationContent(bLangEnum.annAttachments);
+                    if (bLangEnum.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangEnum.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangEnum.annAttachments);
+                    }
                 } else {
                     hover = getDefaultHoverObject();
                 }
@@ -98,7 +132,11 @@ public class HoverUtil {
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangTransformer != null) {
-                    hover = getAnnotationContent(bLangTransformer.annAttachments);
+                    if (bLangTransformer.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangTransformer.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangTransformer.annAttachments);
+                    }
                 } else {
                     hover = getDefaultHoverObject();
                 }
@@ -111,7 +149,11 @@ public class HoverUtil {
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangConnector != null) {
-                    hover = getAnnotationContent(bLangConnector.annAttachments);
+                    if (bLangConnector.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangConnector.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangConnector.annAttachments);
+                    }
                 } else {
                     hover = getDefaultHoverObject();
                 }
@@ -128,11 +170,41 @@ public class HoverUtil {
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 if (bLangAction != null) {
-                    hover = getAnnotationContent(bLangAction.annAttachments);
+                    if (bLangAction.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangAction.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangAction.annAttachments);
+                    }
                 } else {
                     hover = getDefaultHoverObject();
                 }
+                break;
+            case ContextConstants.ENDPOINT:
+                BLangEndpoint bLangEndpoint = bLangPackage.globalEndpoints.stream()
+                        .filter(globalEndpoint -> globalEndpoint.name.value
+                                .equals(hoverContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                if (bLangEndpoint != null) {
+                    hover = getAnnotationContent(bLangEndpoint.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
+                }
+                break;
+            case ContextConstants.VARIABLE:
+                BLangVariable bLangVariable = bLangPackage.globalVars.stream()
+                        .filter(globalVar -> globalVar.name.getValue()
+                                .equals(hoverContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
 
+                if (bLangVariable != null) {
+                    if (bLangVariable.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangVariable.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangVariable.annAttachments);
+                    }
+                } else {
+                    hover = getDefaultHoverObject();
+                }
                 break;
             default:
                 hover = new Hover();
@@ -169,8 +241,8 @@ public class HoverUtil {
      * @param currentBLangPackage package which currently user working on.
      * @return return Hover object.
      */
-    public static Hover getHoverContent(TextDocumentServiceContext hoverContext, BLangPackage currentBLangPackage,
-                                        BLangPackageContext packageContext) {
+    public static Hover getHoverContent(LSServiceOperationContext hoverContext, BLangPackage currentBLangPackage,
+                                        LSPackageCache packageContext) {
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(hoverContext);
         currentBLangPackage.accept(positionTreeVisitor);
         Hover hover;
@@ -178,8 +250,8 @@ public class HoverUtil {
         // If the cursor is on a node of the current package go inside, else check builtin and native packages.
         if (hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null) {
             hover = getHoverInformation(packageContext
-                    .getPackageByName(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
-                            hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name), hoverContext);
+                    .findPackage(hoverContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
+                            hoverContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY)), hoverContext);
         } else {
             hover = new Hover();
             List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -230,6 +302,24 @@ public class HoverUtil {
     }
 
     /**
+     * Get the doc annotation attributes.
+     *
+     * @param attributes attributes to be extracted
+     * @return {@link String } extracted content of annotation
+     */
+    private static String getDocAttributes(List<BLangDocumentationAttribute> attributes) {
+        StringBuilder value = new StringBuilder();
+        for (BLangDocumentationAttribute attribute : attributes) {
+            value.append("- ")
+                    .append(attribute.documentationField.getValue().replace("\n", ""))
+                    .append(":")
+                    .append(attribute.documentationText.replaceAll("\n", "")).append("\r\n");
+        }
+
+        return value.toString();
+    }
+
+    /**
      * get the formatted string with markdowns.
      *
      * @param header  header.
@@ -238,6 +328,16 @@ public class HoverUtil {
      */
     private static String getFormattedHoverContent(String header, String content) {
         return "**" + header + "**\r\n```\r\n" + content + "\r\n```\r\n";
+    }
+
+    /**
+     * get the formatted string with markdowns.
+     *
+     * @param header header.
+     * @return {@link String} formatted string using markdown.
+     */
+    private static String getFormattedHoverDocContent(String header, String content) {
+        return "**" + header + "**\r\n" + content + "\r\n";
     }
 
     /**
@@ -274,6 +374,77 @@ public class HoverUtil {
         hover.setContents(contents);
 
         return hover;
+    }
+
+    /**
+     * Get documentation content.
+     *
+     * @param docAnnotation list of doc annotation
+     * @return {@link Hover} hover object.
+     */
+    private static Hover getDocumentationContent(List<BLangDocumentation> docAnnotation) {
+        Hover hover = new Hover();
+        StringBuilder content = new StringBuilder();
+        BLangDocumentation bLangDocumentation = docAnnotation.get(0);
+        Map<String, List<BLangDocumentationAttribute>> filterAttributes =
+                filterDocumentationAttributes(docAnnotation.get(0));
+
+        if (!bLangDocumentation.documentationText.isEmpty()) {
+            content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION,
+                    bLangDocumentation.documentationText));
+        }
+
+        if (filterAttributes.get(ContextConstants.DOC_RECEIVER) != null) {
+            content.append(getFormattedHoverDocContent(ContextConstants.DOC_RECEIVER,
+                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_RECEIVER))));
+        }
+
+        if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
+            content.append(getFormattedHoverDocContent(ContextConstants.DOC_PARAM,
+                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_PARAM))));
+        }
+
+        if (filterAttributes.get(ContextConstants.DOC_FIELD) != null) {
+            content.append(getFormattedHoverDocContent(ContextConstants.DOC_FIELD,
+                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD))));
+        }
+
+        if (filterAttributes.get(ContextConstants.DOC_RETURN) != null) {
+            content.append(getFormattedHoverDocContent(ContextConstants.DOC_RETURN,
+                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_RETURN))));
+        }
+
+        if (filterAttributes.get(ContextConstants.DOC_VARIABLE) != null) {
+            content.append(getFormattedHoverDocContent(ContextConstants.DOC_VARIABLE,
+                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_VARIABLE))));
+        }
+
+        List<Either<String, MarkedString>> contents = new ArrayList<>();
+        contents.add(Either.forLeft(content.toString()));
+        hover.setContents(contents);
+
+        return hover;
+    }
+
+    /**
+     * Filter documentation attributes to each tags.
+     *
+     * @param bLangDocumentation documentation node
+     * @return {@link Map} filtered content map
+     */
+    private static Map<String, List<BLangDocumentationAttribute>> filterDocumentationAttributes(
+            BLangDocumentation bLangDocumentation) {
+        Map<String, List<BLangDocumentationAttribute>> filteredAttributes = new HashMap<>();
+        for (BLangDocumentationAttribute bLangDocumentationAttribute : bLangDocumentation.attributes) {
+            if (filteredAttributes.get(bLangDocumentationAttribute.docTag.name()) == null) {
+                filteredAttributes.put(bLangDocumentationAttribute.docTag.name(), new ArrayList<>());
+                filteredAttributes.get(bLangDocumentationAttribute.docTag.name()).add(bLangDocumentationAttribute);
+            } else {
+                filteredAttributes.get(bLangDocumentationAttribute.docTag.name()).add(bLangDocumentationAttribute);
+            }
+        }
+
+        return filteredAttributes;
     }
 
     /**

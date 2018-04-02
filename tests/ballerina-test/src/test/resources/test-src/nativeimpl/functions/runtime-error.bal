@@ -1,18 +1,18 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
-function testGetCallStack () returns (runtime:CallStackElement[] trace) {
+function testGetCallStack () returns (runtime:CallStackElement[]) {
     return level1Function();
 }
 
-function level1Function () returns (runtime:CallStackElement[] trace) {
+function level1Function () returns (runtime:CallStackElement[]) {
     return level2Function();
 }
 
-function level2Function () returns (runtime:CallStackElement[] trace) {
+function level2Function () returns (runtime:CallStackElement[]) {
     return runtime:getCallStack();
 }
 
-function testErrorStackFrame () returns (runtime:CallStackElement trace) {
+function testErrorStackFrame () returns (runtime:CallStackElement|null) {
     try {
         int i = level1Error(-10);
     } catch (error e) {
@@ -21,16 +21,14 @@ function testErrorStackFrame () returns (runtime:CallStackElement trace) {
     return null;
 }
 
-function level1Error (int value) returns (int outValue) {
-    outValue = level2Error(value);
-    return;
+function level1Error (int value) returns (int) {
+    return level2Error(value);
 }
 
-function level2Error (int value) returns (int outValue) {
+function level2Error (int value) returns (int) {
     if (value < 0) {
         error e = {message:"less than zero"};
         throw e;
     }
-    outValue = value;
-    return;
+    return value;
 }

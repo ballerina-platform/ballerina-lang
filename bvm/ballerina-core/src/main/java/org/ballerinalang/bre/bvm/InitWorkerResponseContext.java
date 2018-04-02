@@ -40,10 +40,8 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
             BLangScheduler.errorThrown(this.targetCtx, signal.getSourceContext().getError());
             break;
         case HALT:
-            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         case RETURN:
-            BLangScheduler.workerDone(signal.getSourceContext());
             break;
         default:
             break;
@@ -63,11 +61,6 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
     @Override
     public WorkerDataChannel getWorkerDataChannel(String name) {
         return null;
-    }
-
-    @Override
-    public void waitForResponse() {
-        /* nothing to do */
     }
 
 }

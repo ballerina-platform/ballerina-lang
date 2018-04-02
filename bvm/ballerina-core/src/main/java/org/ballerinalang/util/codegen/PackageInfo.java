@@ -37,9 +37,9 @@ import java.util.Map;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
-    private int pkgNameCPIndex;
-    private String pkgPath;
-    private int pkgVersionCPIndex;
+    public int nameCPIndex;
+    public String pkgPath;
+    private int versionCPIndex;
     private String pkgVersion;
     private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
@@ -58,8 +58,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, ConnectorInfo> connectorInfoMap = new LinkedHashMap<>();
 
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
-
-    private Map<String, StreamletInfo> streamletInfoMap = new HashMap<>();
 
     private Map<String, EnumInfo> enumInfoMap = new HashMap<>();
 
@@ -82,7 +80,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     }
 
     public int getPkgNameCPIndex() {
-        return pkgNameCPIndex;
+        return nameCPIndex;
     }
 
     public String getPkgPath() {
@@ -161,19 +159,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public void addStructInfo(String structName, StructInfo structInfo) {
         structInfoMap.put(structName, structInfo);
         structureTypeInfoMap.put(structName, structInfo);
-    }
-
-    public StreamletInfo[] getStreamletInfoEntries() {
-        return streamletInfoMap.values().toArray(new StreamletInfo[0]);
-    }
-
-    public StreamletInfo getStreamletInfo(String streamletName) {
-        return streamletInfoMap.get(streamletName);
-    }
-
-    public void addStreamletInfo(String streamletName, StreamletInfo streamletInfo) {
-        streamletInfoMap.put(streamletName, streamletInfo);
-        streamletInfoMap.put(streamletName, streamletInfo);
     }
 
     public StructInfo[] getStructInfoEntries() {
@@ -264,16 +249,16 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     /**
      * This gets the line number info given the IP. The following example can be taken as a reference
      * to explain the below algorithm.
-     * 
+     *
      *     Code Line                           IP
      *     =======================================
      *     int a = 1 + 1;                      136
      *     runtime:CallStackElement trace1;    138
      *     runtime:CallStackElement trace2;    138
      *     myFunc(a + 1);                      138
-     *     int x = 1 + 2;                      140 
+     *     int x = 1 + 2;                      140
      *     int g = 1 + 3;                      142
-     * 
+     *
      * @param currentIP the current IP
      * @return the resolved line number information
      */

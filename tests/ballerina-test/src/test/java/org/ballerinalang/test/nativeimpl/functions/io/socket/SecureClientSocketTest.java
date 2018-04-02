@@ -58,7 +58,7 @@ public class SecureClientSocketTest {
     @BeforeClass
     public void setup() {
         port = ThreadLocalRandom.current().nextInt(47000, 55000);
-        socketClient = BCompileUtil.compile("test-src/io/secureclientsocketio.bal");
+        socketClient = BCompileUtil.compile("test-src/io/secure_client_socket_io.bal");
         boolean connectionStatus;
         int numberOfRetryAttempts = 10;
         try {
@@ -148,13 +148,12 @@ public class SecureClientSocketTest {
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
-    @Test(dependsOnMethods = "testOpenSecureClientSocket",
-          description = "Test content read/write")
+    @Test(dependsOnMethods = "testOpenSecureClientSocket", description = "Test content read/write")
     public void testWriteReadContent() {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;
         final byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BBlob(contentBytes), new BInteger(contentBytes.length) };
+        BValue[] args = { new BBlob(contentBytes)};
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");

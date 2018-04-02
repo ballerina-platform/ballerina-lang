@@ -1,8 +1,8 @@
-import ballerina.lang.jsons;
-import ballerina.lang.messages;
-import ballerina.net.http;
-import ballerina.net.ws;
-import ballerina.lang.system;
+import ballerina/lang.jsons;
+import ballerina/lang.messages;
+import ballerina/http;
+import ballerina/net.ws;
+import ballerina/lang.system;
 
 @http:configuration {basePath:"/store"}
 @ws:WebSocketUpgradePath {value:"/ws"}

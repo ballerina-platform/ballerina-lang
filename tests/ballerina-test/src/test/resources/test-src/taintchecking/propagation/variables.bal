@@ -14,6 +14,6 @@ public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 
-function testConcatHelper(string s1, string s2) (string) {
+function testConcatHelper(string s1, string s2) returns (string) {
     return s1 + s2;
 }

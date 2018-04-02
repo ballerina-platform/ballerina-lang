@@ -20,46 +20,46 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
+import java.util.Map;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
-@BallerinaAction(
-        packageName = "ballerina.net.http",
-        actionName = "execute",
-        connectorName = HttpConstants.CLIENT_CONNECTOR,
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "execute",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+                structPackage = "ballerina.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http"),
         }
 )
 public class Execute extends AbstractHTTPAction {
@@ -72,14 +72,14 @@ public class Execute extends AbstractHTTPAction {
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'execute' action in " +
-                    HttpConstants.CLIENT_CONNECTOR + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         String httpVerb = context.getStringArgument(0);
         String path = context.getStringArgument(1);
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
@@ -95,8 +95,15 @@ public class Execute extends AbstractHTTPAction {
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         if (outboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
             outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
-                                         ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+                    ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
+
+        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
+                getParentWorkerExecutionContext());
+        HttpUtil.injectHeaders(outboundRequestMsg, (Map<String, String>) observerContext.
+                getProperty(PROPERTY_TRACE_PROPERTIES));
+        observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
+
         return outboundRequestMsg;
     }
 }

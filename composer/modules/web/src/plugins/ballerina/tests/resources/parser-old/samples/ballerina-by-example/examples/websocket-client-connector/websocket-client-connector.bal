@@ -1,8 +1,8 @@
-import ballerina.lang.system;
-import ballerina.lang.messages;
-import ballerina.doc;
-import ballerina.net.http;
-import ballerina.net.ws;
+import ballerina/lang.system;
+import ballerina/lang.messages;
+import ballerina/doc;
+import ballerina/http;
+import ballerina/net.ws;
 
 @http:configuration {basePath:"/client-connector"}
 @ws:WebSocketUpgradePath {value:"/ws"}

@@ -20,6 +20,7 @@ package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OutputRateLimitNode;
 import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
@@ -35,7 +36,7 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
  *
  * E.g.
  *      from testStream
- *      where x > 50
+ *      where x &gt; 50
  *      select 10 as mo
  *      group by mo
  *      insert into test1
@@ -69,4 +70,8 @@ public interface StreamingQueryStatementNode extends StatementNode {
     OrderByNode getOrderbyClause();
 
     StreamActionNode getStreamingAction();
+
+    OutputRateLimitNode getOutputRateLimitNode();
+
+    void setOutputRateLimitNode(OutputRateLimitNode outputRateLimitNode);
 }

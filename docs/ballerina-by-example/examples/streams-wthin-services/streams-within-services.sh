@@ -1,0 +1,1 @@
+$ ballerina run streams-within-services.bal

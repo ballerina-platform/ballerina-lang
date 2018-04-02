@@ -1,7 +1,7 @@
-import ballerina.net.http;
-import ballerina.lang.messages;
-import ballerina.lang.errors;
-import ballerina.lang.strings;
+import ballerina/http;
+import ballerina/lang.messages;
+import ballerina/lang.errors;
+import ballerina/lang.strings;
 
 struct Data {
             string name;

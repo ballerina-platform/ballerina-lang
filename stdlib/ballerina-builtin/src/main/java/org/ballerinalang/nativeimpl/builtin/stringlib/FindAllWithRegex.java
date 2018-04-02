@@ -35,7 +35,7 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:findAllWithRegex.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.findAllWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
@@ -62,7 +62,7 @@ public class FindAllWithRegex extends AbstractRegexFunction {
             }
             context.setReturnValues(stringArray);
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(null, BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
     }
 }

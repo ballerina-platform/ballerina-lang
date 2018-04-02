@@ -50,8 +50,8 @@ class PositioningUtil {
                 variableRefName = node.expression.expression.variableName.value;
             }
             const allVisibleEndpoints = TreeUtil.getAllVisibleEndpoints(node.parent);
-            const endpoint = _.find(allVisibleEndpoints, (varDef) => {
-                return varDef.variable.name.value === variableRefName;
+            const endpoint = _.find(allVisibleEndpoints, (endpoint) => {
+                return endpoint.name.value === variableRefName;
             });
 
             // Move the x cordinates to centre align the action invocation statement
@@ -194,15 +194,12 @@ class PositioningUtil {
      * @param {object} node CompilationUnit object
      */
     positionCompilationUnitNode(node) {
-        this.positionTopLevelNodes(node);
         let width = 0;
         // Set the height of the toplevel nodes so that the other nodes would be positioned relative to it
-        let height = node.viewState.components.topLevelNodes.h + 50;
+        let height = this.config.canvas.padding.top;
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isStruct(child) || TreeUtil.isConnector(child)
-                || TreeUtil.isTransformer(child) || TreeUtil.isEnum(child);
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child);
         });
 
         children.forEach((child) => {
@@ -233,88 +230,6 @@ class PositioningUtil {
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = width;
-        // Imports
-        node.viewState.components.importsBbox = new SimpleBBox();
-        node.viewState.components.importsBbox.x = node.viewState.components.topLevelNodes.x + 35 + 15;
-        node.viewState.components.importsBbox.y = node.viewState.components.topLevelNodes.y;
-        // Imports Expanded
-        node.viewState.components.importsExpandedBbox = new SimpleBBox();
-        node.viewState.components.importsExpandedBbox.x = node.viewState.components.topLevelNodes.x;
-        node.viewState.components.importsExpandedBbox.y = node.viewState.components.topLevelNodes.y + 35;
-
-        // Globals
-        node.viewState.components.globalsBbox = new SimpleBBox();
-        node.viewState.components.globalsBbox.x = node.viewState.components.importsBbox.x
-            + 115 + 15;
-        node.viewState.components.globalsBbox.y = node.viewState.components.topLevelNodes.y;
-        // Globals Expanded
-        node.viewState.components.globalsExpandedBbox = new SimpleBBox();
-        node.viewState.components.globalsExpandedBbox.x = node.viewState.components.topLevelNodes.x;
-        node.viewState.components.globalsExpandedBbox.y = node.viewState.components.topLevelNodes.y + 35 + 10;
-
-         // Position imports
-        const imports = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isImport(child);
-        });
-        let lastImportElementY = node.viewState.components.importsExpandedBbox.y + 35;
-        imports.forEach((importDec) => {
-            importDec.viewState.bBox.x = node.viewState.components.importsExpandedBbox.x;
-            importDec.viewState.bBox.y = lastImportElementY;
-            importDec.viewState.bBox.h = 30;
-            importDec.viewState.bBox.w = 310;
-            lastImportElementY += 30;
-        });
-
-        // Position the global variables
-        const globals = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isVariable(child) || TreeUtil.isXmlns(child);
-        });
-        let lastGlobalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
-        globals.forEach((globalDec) => {
-            globalDec.viewState.bBox.x = node.viewState.components.globalsExpandedBbox.x;
-            globalDec.viewState.bBox.y = lastGlobalElementY;
-            globalDec.viewState.bBox.h = 30;
-            globalDec.viewState.bBox.w = 310;
-            lastGlobalElementY += 30;
-        });
-
-        // Check if package is expanded, position the imports and the globals
-        const packageDefTextWidth = 275;
-        if (node.viewState.packageDefExpanded) {
-            node.viewState.components.importsBbox.x += packageDefTextWidth;
-            node.viewState.components.globalsBbox.x += packageDefTextWidth;
-        } else if (node.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length > 0) {
-            const pkgDecNodes = node.filterTopLevelNodes({ kind: 'PackageDeclaration' });
-            if (node.getPackageName(pkgDecNodes[0])) {
-                node.viewState.components.importsBbox.x += packageDefTextWidth;
-                node.viewState.components.globalsBbox.x += packageDefTextWidth;
-            }
-        }
-
-        if (node.viewState.importsExpanded) {
-            const globalsExpandedY = (imports.length * this.config.variablesPane.importDeclarationHeight)
-                + this.config.variablesPane.topBarHeight + this.config.variablesPane.importInputHeight
-                + this.config.variablesPane.yGutterSize;
-            node.viewState.components.globalsExpandedBbox.y += globalsExpandedY;
-            node.viewState.components.globalsBbox.x += 30;
-            let globalElementY = node.viewState.components.globalsExpandedBbox.y + 35;
-            globals.forEach((globalDec) => {
-                globalDec.viewState.bBox.y = globalElementY;
-                globalElementY += 30;
-            });
-            node.viewState.components.globalsBbox.x -= (this.config.variablesPane.badgeWidth +
-            this.config.variablesPane.xGutterSize);
-        }
-    }
-
-    /**
-     * Position the packageDec, imports and globals
-     * @param node CompilationUnitNode
-     */
-    positionTopLevelNodes(node) {
-        const viewState = node.viewState;
-        viewState.components.topLevelNodes.x = this.config.panel.wrapper.gutter.v;
-        viewState.components.topLevelNodes.y = this.config.panel.wrapper.gutter.h;
     }
 
     /**
@@ -333,57 +248,7 @@ class PositioningUtil {
      * @param {object} node Enum object
      */
     positionEnumNode(node) {
-        const bBox = node.viewState.bBox;
-        const enumerators = node.getEnumerators();
-        const enumMaxWidth = bBox.w - this.config.panel.body.padding.right
-            - this.config.panel.body.padding.left;
-        const defaultEnumeratorX = bBox.x + this.config.panel.body.padding.left;
-        const defaultEnumeratorY = bBox.y + this.config.contentOperations.height
-            + this.config.panel.body.padding.top
-            + node.viewState.components.annotation.h + 10;
-
-        if (enumerators && enumerators.length > 0) {
-            let previousX = defaultEnumeratorX;
-            let previousY = defaultEnumeratorY;
-            let previousWidth = 120;
-            enumerators.forEach((enumerator) => {
-                if (TreeUtil.isEnumerator(enumerator)) {
-                    // If identifiers exceeded the panel width push them to a new line
-                    // else continue on the same line till meeting the max width.
-                    if (previousWidth > enumMaxWidth
-                        || (previousWidth + enumerator.viewState.w) > enumMaxWidth) {
-                        previousX = defaultEnumeratorX;
-                        previousY += enumerator.viewState.h
-                            + this.config.enumIdentifierStatement.padding.top;
-                        previousWidth = enumerator.viewState.w
-                            + enumerator.viewState.components.deleteIcon.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        enumerator.viewState.bBox.x = defaultEnumeratorX;
-                        enumerator.viewState.bBox.y = previousY;
-                        previousX += enumerator.viewState.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        enumerator.viewState.components.deleteIcon.x = previousX
-                            - this.config.enumIdentifierStatement.padding.left
-                            - enumerator.viewState.components.deleteIcon.w;
-                        enumerator.viewState.components.deleteIcon.y = previousY
-                            - this.config.enumIdentifierStatement.padding.top
-                            + this.config.enumIdentifierStatement.padding.top;
-                    } else {
-                        enumerator.viewState.bBox.x = previousX;
-                        enumerator.viewState.bBox.y = previousY;
-                        previousWidth += enumerator.viewState.w
-                            + enumerator.viewState.components.deleteIcon.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        previousX += enumerator.viewState.w
-                            + this.config.enumIdentifierStatement.padding.left;
-                        enumerator.viewState.components.deleteIcon.x = previousX
-                            - this.config.enumIdentifierStatement.padding.left
-                            - enumerator.viewState.components.deleteIcon.w;
-                        enumerator.viewState.components.deleteIcon.y = previousY;
-                    }
-                }
-            });
-        }
+        // Do nothing
     }
 
     /**
@@ -454,16 +319,14 @@ class PositioningUtil {
             });
         }
 
-        // Position Connectors
-        const statements = node.body.statements;
-        statements.forEach((statement) => {
-            if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                statement.viewState.bBox.x = xindex;
-                statement.viewState.bBox.y = cmp.defaultWorker.y;
-                xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
-                if (statement.viewState.showOverlayContainer) {
-                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
-                }
+        // Position Endpoints
+        const endpoints = node.endpointNodes;
+        endpoints.forEach((endpointNode) => {
+            endpointNode.viewState.bBox.x = xindex;
+            endpointNode.viewState.bBox.y = cmp.defaultWorker.y;
+            xindex += endpointNode.viewState.bBox.w + this.config.lifeLine.gutter.h;
+            if (endpointNode.viewState.showOverlayContainer) {
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(endpointNode);
             }
         });
     }
@@ -1223,7 +1086,7 @@ class PositioningUtil {
      * @param {object} node Transaction object
      */
     positionTransactionNode(node) {
-        const failedBody = node.failedBody;
+        const onRetryBody = node.onRetryBody;
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
@@ -1241,13 +1104,13 @@ class PositioningUtil {
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
         }
 
-        // Set the position of the failed body
-        if (failedBody) {
-            failedBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
+        // Set the position of the retry body
+        if (onRetryBody) {
+            onRetryBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
                 transactionBody.viewState.bBox.w;
-            failedBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
+            onRetryBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
                 transactionBody.viewState.components['statement-box'].h - this.config.compoundStatement.padding.top;
-            this.positionCompoundStatementComponents(failedBody);
+            this.positionCompoundStatementComponents(onRetryBody);
         }
     }
 
@@ -1263,7 +1126,7 @@ class PositioningUtil {
      *
      * @param {object} node Transaction Failed object
      */
-    positionFailedNode(node) {
+    positionNode(node) {
         // Not implemented.
     }
 

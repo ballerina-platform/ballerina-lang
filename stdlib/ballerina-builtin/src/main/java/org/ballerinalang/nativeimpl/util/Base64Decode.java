@@ -33,7 +33,7 @@ import java.util.Base64;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.util",
+        orgName = "ballerina", packageName = "util",
         functionName = "base64Decode",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

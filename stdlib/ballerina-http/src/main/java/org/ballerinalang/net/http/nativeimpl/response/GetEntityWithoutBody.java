@@ -32,9 +32,9 @@ import org.ballerinalang.net.http.HttpUtil;
  * @since 0.96
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "getEntityWithoutBody",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT)}
 )
 public class GetEntityWithoutBody extends BlockingNativeCallableUnit {

@@ -1,8 +1,8 @@
-function testMapWithUnsupportedKey () (map) {
+function testMapWithUnsupportedKey () returns (map) {
     map m = { foo(): "supun"};
     return m;
 }
 
-function foo() (string) {
+function foo() returns (string) {
   return "name";
 }

@@ -1,9 +1,9 @@
 package clientConnector.sample;
 
-import ballerina.net.http;
-import ballerina.net.ws;
-import ballerina.lang.messages;
-import ballerina.lang.system;
+import ballerina/http;
+import ballerina/net.ws;
+import ballerina/lang.messages;
+import ballerina/lang.system;
 
 @http:configuration {basePath:"/client-connector"}
 @ws:WebSocketUpgradePath {value:"/ws"}

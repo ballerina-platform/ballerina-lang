@@ -24,11 +24,13 @@ package org.ballerinalang.testerina.core.entity;
 public class TesterinaResult {
     private String testFunctionName;
     private boolean isPassed;
+    private boolean isSkipped;
     private String assertFailureMessage;
 
-    public TesterinaResult(String testFunctionName, boolean isPassed, String assertFailureMessage) {
+    public TesterinaResult(String testFunctionName, boolean isPassed, boolean isSkipped, String assertFailureMessage) {
         this.testFunctionName = testFunctionName;
         this.isPassed = isPassed;
+        this.isSkipped = isSkipped;
         this.assertFailureMessage = assertFailureMessage;
     }
 
@@ -38,6 +40,10 @@ public class TesterinaResult {
 
     public boolean isPassed() {
         return isPassed;
+    }
+
+    public boolean isSkipped() {
+        return isSkipped;
     }
 
     public String getAssertFailureMessage() {

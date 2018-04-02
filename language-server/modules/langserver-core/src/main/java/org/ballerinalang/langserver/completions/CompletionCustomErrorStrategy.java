@@ -24,10 +24,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.LSContext;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,9 +36,9 @@ import java.util.List;
  * Capture possible errors from source.
  */
 public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
-    private LanguageServerContext context;
+    private LSContext context;
 
-    public CompletionCustomErrorStrategy(LanguageServerContext context) {
+    public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
         this.context = context;
     }

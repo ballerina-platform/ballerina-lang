@@ -1,8 +1,8 @@
-import ballerina.lang.system;
-import ballerina.lang.messages;
-import ballerina.net.http;
-import ballerina.net.ws;
-import ballerina.doc;
+import ballerina/lang.system;
+import ballerina/lang.messages;
+import ballerina/http;
+import ballerina/net.ws;
+import ballerina/doc;
 
 @doc:Description {value:"WebSocket endpoint is defined as a composition of  BasePath + WebSocketUpgradePath."}
 @http:configuration {basePath:"/endpoint"}

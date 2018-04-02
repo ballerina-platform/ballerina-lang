@@ -1,43 +1,58 @@
-import ballerina.auth.authz;
-import ballerina.auth.authz.permissionstore;
-import ballerina.caching;
-import ballerina.auth.utils;
+import ballerina/auth.authz;
+import ballerina/auth.authz.permissionstore;
+import ballerina/caching;
+import ballerina/auth.utils;
 
-function testAuthzCheckerCreationWithoutCache () (authz:AuthzChecker,
+function testAuthzCheckerCreationWithoutCache () returns (authz:AuthzChecker,
                                                   permissionstore:PermissionStore,
-                                                  caching:Cache) {
+                                                  caching:Cache|null) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    authz:AuthzChecker checker = authz:createChecker((permissionstore:PermissionStore)fileBasedPermissionstore, null);
-    return checker, checker.permissionstore, checker.authzCache;
+    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, null);
+    return (checker, checker.permissionstore, checker.authzCache);
 }
 
-function testAuthzCheckerCreationWithCache () (authz:AuthzChecker,
+function testAuthzCheckerCreationWithCache () returns (authz:AuthzChecker,
                                                permissionstore:PermissionStore,
-                                               caching:Cache) {
+                                               caching:Cache|null) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    authz:AuthzChecker checker = authz:createChecker((permissionstore:PermissionStore)fileBasedPermissionstore,
-                                                     utils:createCache("authz_cache"));
-    return checker, checker.permissionstore, checker.authzCache;
+    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
+    return (checker, checker.permissionstore, checker.authzCache);
 }
 
-function testAuthzCheckerWithoutPermissionstore () {
-    _ = authz:createChecker(null, null);
+//function testAuthzCheckerWithoutPermissionstore () {
+//    _ = authz:createChecker(null, null);
+//}
+
+function testAuthorizationForNonExistingUser () returns (boolean) {
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
+    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
+    string[] scopes = ["scope1"];
+    return checker.check("ayoma", scopes);
 }
 
-function testAuthorizationForNonExistingUser () (boolean) {
+function testAuthorizationForNonExistingScope () returns (boolean) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    authz:AuthzChecker checker = authz:createChecker((permissionstore:PermissionStore)fileBasedPermissionstore, null);
-    return checker.check("ayoma", "scope-x");
+    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
+    string[] scopes = ["scope-y"];
+    return checker.check("ishara", scopes);
 }
 
-function testAuthorizationForNonExistingScope () (boolean) {
+function testAuthorizationSuccess () returns (boolean) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    authz:AuthzChecker checker = authz:createChecker((permissionstore:PermissionStore)fileBasedPermissionstore, null);
-    return checker.check("ishara", "scope-y");
+    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
+    string[] scopes = ["scope2"];
+    return checker.check("isuru", scopes);
 }
 
-function testAuthorizationSuccess () (boolean) {
+function testAuthorizationSuccessWithMultipleScopes () returns (boolean) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    authz:AuthzChecker checker = authz:createChecker((permissionstore:PermissionStore)fileBasedPermissionstore, null);
-    return checker.check("isuru", "scope2");
+    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
+    string[] scopes = ["scope2", "scope1"];
+    return checker.check("isuru", scopes);
 }

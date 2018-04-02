@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.CompletionItem;
@@ -39,11 +39,9 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
     
     private static final String INIT = "init";
     
-    private static final String CONFIG = "config";
-    
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> configurationFields = new ArrayList<>();
@@ -58,10 +56,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
                 .findFirst()
                 .orElseGet(null);
 
-        BVarSymbol configSymbol = initFunction.symbol.getParameters().stream()
-                .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(CONFIG))
-                .findFirst()
-                .orElseGet(null);
+        BVarSymbol configSymbol = initFunction.symbol.getParameters().get(0);
 
         BType configSymbolType = configSymbol.getType();
         if (configSymbolType instanceof BStructType) {

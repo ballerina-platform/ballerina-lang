@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
@@ -65,8 +65,6 @@ public class Close implements NativeCallableUnit {
 
     /**
      * Closes the byte channel.
-     * <p>
-     * <p>
      * {@inheritDoc}
      */
     @Override

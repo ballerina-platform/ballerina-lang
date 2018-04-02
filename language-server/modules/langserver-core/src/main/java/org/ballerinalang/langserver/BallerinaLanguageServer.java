@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +30,9 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -44,10 +45,17 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
-        WorkspaceDocumentManagerImpl documentManager = new WorkspaceDocumentManagerImpl();
-        BLangPackageContext bLangPackageContext = new BLangPackageContext();
-        textService = new BallerinaTextDocumentService(this, documentManager, bLangPackageContext);
-        workspaceService = new BallerinaWorkspaceService(this, documentManager, bLangPackageContext);
+        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        LSPackageCache packageCache = new LSPackageCache();
+        LSAnnotationCache annotationCache = new LSAnnotationCache(packageCache);
+        
+        lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
+        lsGlobalContext.put(LSGlobalContextKeys.PKG_CACHE_KEY, packageCache);
+        lsGlobalContext.put(LSGlobalContextKeys.ANNOTATION_CACHE_KEY, annotationCache);
+        lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
+        
+        textService = new BallerinaTextDocumentService(lsGlobalContext);
+        workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
     }
 
     public LanguageClient getClient() {
@@ -57,10 +65,11 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
+        final List<String> commandList = new ArrayList<>(Arrays.asList(CommandConstants.CMD_IMPORT_PACKAGE,
+                CommandConstants.CMD_ADD_DOCUMENTATION, CommandConstants.CMD_ADD_ALL_DOC));
+        final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">"));
-        final ExecuteCommandOptions executeCommandOptions =
-                new ExecuteCommandOptions(Collections.singletonList(CommandConstants.CMD_IMPORT_PACKAGE));
         
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);

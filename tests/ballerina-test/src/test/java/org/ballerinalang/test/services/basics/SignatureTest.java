@@ -43,7 +43,7 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "first parameter should be of type ballerina.net.http:ServerConnector")
+            expectedExceptionsMessageRegExp = "first parameter should be of type ballerina/http:ServerConnector")
     public void testSignatureWithoutConnectionParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-con-param.bal").getPath());
@@ -51,7 +51,7 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina.net.http:Request")
+            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina/http:Request")
     public void testSignatureWithResponseParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/with-res-param.bal").getPath());
@@ -59,7 +59,7 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina.net.http:Request")
+            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina/http:Request")
     public void testSignatureWithIntParamAsSecondParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/int-param.bal").getPath());

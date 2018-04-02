@@ -183,7 +183,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                return null;
+                throw new BallerinaIOException("Empty xml payload");
             }
             BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
             byteChannel.close();
@@ -203,7 +203,7 @@ public class EntityBodyHandler {
         try {
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
-                return null;
+                throw new BallerinaIOException("Payload is null");
             }
             String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
             byteChannel.close();
@@ -292,7 +292,7 @@ public class EntityBodyHandler {
      */
     public static BRefValueArray getBodyPartArray(BStruct entityStruct) {
         return entityStruct.getNativeData(BODY_PARTS) != null ?
-                (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
+                (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : new BRefValueArray();
     }
 
     public static Channel getByteChannel(BStruct entityStruct) {

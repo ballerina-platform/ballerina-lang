@@ -1,7 +1,7 @@
-import ballerina.lang.jsons;
-import ballerina.lang.messages;
-import ballerina.net.http;
-import ballerina.net.ws;
+import ballerina/lang.jsons;
+import ballerina/lang.messages;
+import ballerina/http;
+import ballerina/net.ws;
 
 @http:configuration {basePath:"/groups"}
 @ws:WebSocketUpgradePath {value:"/ws"}

@@ -38,10 +38,10 @@ import java.util.IllegalFormatException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "setAttribute",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {@Argument(name = "attributeKey", type = TypeKind.STRING),
                 @Argument(name = "attributeValue", type = TypeKind.ANY)},
         isPublic = true

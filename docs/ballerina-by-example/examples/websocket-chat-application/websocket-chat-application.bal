@@ -1,46 +1,55 @@
-import ballerina.io;
-import ballerina.net.ws;
+import ballerina/io;
+import ballerina/http;
 
-@ws:configuration {
-    basePath: "/chat/{name}",
+const string NAME = "NAME";
+const string AGE = "AGE";
+endpoint http:ServiceEndpoint ep {
     port:9090
+};
+
+@http:WebSocketServiceConfig {
+    basePath:"/chat/{name}"
 }
-service<ws> ChatApp {
+service<http:WebSocketService> ChatApp bind ep {
+    string msg;
+    map<http:WebSocketConnector> consMap = {};
+    onUpgrade (endpoint conn, http:Request req, string name) {
+        var params = req.getQueryParams();
+        conn.attributes[NAME] = name;
+        msg = string `{{untaint name}} connected to chat`;
+        string age = untaint <string>params.age;
 
-    map consMap = {};
-
-    resource onOpen(ws:Connection conn, string name) {
-        consMap[conn.getID()] = conn;
-        var params = conn.getQueryParams();
-        var age, err = (string)params.age;
-        string msg;
-        if (err == null) {
-            msg = string `{{name}} with age {{age}} connected to chat`;
-        } else {
-            msg = string `{{name}} connected to chat`;
+        if (age != null) {
+            conn.attributes[AGE] = age;
+            msg = string `{{untaint name}} with age {{age}} connected to chat`;
         }
+
+    }
+    onOpen (endpoint conn) {
+        io:println(msg);
+        consMap[conn.id] = conn.getClient();
         broadcast(consMap, msg);
     }
 
-    resource onTextMessage(ws:Connection con, ws:TextFrame frame, string name) {
-        string msg = string `{{name}}: {{frame.text}}`;
+    onTextMessage (endpoint conn, http:TextFrame frame) {
+        msg = untaint string `{{untaint <string>conn.attributes[NAME]}}: {{frame.text}}`;
         io:println(msg);
         broadcast(consMap, msg);
     }
 
-    resource onClose(ws:Connection con, ws:CloseFrame frame, string name) {
-        string msg = string `{{name}} left the chat`;
-        consMap.remove(con.getID());
+    onClose (endpoint conn, http:CloseFrame frame) {
+        msg = string `{{untaint <string>conn.attributes[NAME]}} left the chat`;
+        _ = consMap.remove(conn.id);
         broadcast(consMap, msg);
     }
 }
 
-function broadcast(map consMap, string text) {
+function broadcast (map<http:WebSocketConnector> consMap, string text) {
     string[] conKeys = consMap.keys();
     int len = lengthof conKeys;
     int i = 0;
     while (i < len) {
-        var con, _ = (ws:Connection) consMap[conKeys[i]];
+        http:WebSocketConnector con = consMap[conKeys[i]];
         con.pushText(text);
         i = i + 1;
     }

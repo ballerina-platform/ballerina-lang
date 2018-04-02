@@ -18,15 +18,21 @@
 
 package org.ballerinalang.config;
 
-import org.ballerinalang.config.utils.ConfigFileParserException;
-import org.ballerinalang.config.utils.parser.ConfigFileParser;
-import org.ballerinalang.config.utils.parser.ConfigParamParser;
+import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ballerinalang.bcl.parser.BConfig;
+import org.ballerinalang.bcl.parser.BConfigLangListener;
+import org.ballerinalang.toml.antlr4.TomlLexer;
+import org.ballerinalang.toml.antlr4.TomlParser;
 
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Locale;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -36,141 +42,106 @@ import java.util.Map;
  */
 public class ConfigProcessor {
 
-    private static final String BALLERINA_CONF = "ballerina.conf";
-
-    private Path ballerinaConfDefaultPath;
-    private Map<String, String> runtimeParams = new HashMap<>();
-    private Map<String, String> resolvedGlobalConfigs = new HashMap<>();
-    private Map<String, Map<String, String>> resolvedInstanceConfigs = new HashMap<>();
-    private ConfigRegistry configRegistry;
-
-    public ConfigProcessor(ConfigRegistry configRegistry) {
-        this.configRegistry = configRegistry;
-    }
-
-    /**
-     * Sets runtime config properties gathered from user as a map.
-     *
-     * @param params The Ballerina runtime parameters (i.e: -B params)
-     */
-    public void setRuntimeConfiguration(Map<String, String> params) {
-        this.runtimeParams = params;
-    }
-
-    /**
-     * Sets the given path as the path of the default ballerina.conf file.
-     *
-     * @param path The default path for ballerina.conf - i.e: {SOURCE_ROOT}/ballerina.conf
-     */
-    public void setBallerinaConfDefaultPath(Path path) {
-        this.ballerinaConfDefaultPath = path;
-    }
+    private static final String ENV_VAR_FORMAT = "[a-zA-Z_]+[a-zA-Z0-9_]*";
 
     /**
      * Processes runtime, environment and config file properties.This populates configRegistry with configs based on
      * the following precedence order. 1. Ballerina runtime properties, 2. External config
      * (environment vars, etcd or something similar), 3. ballerina.conf file
      *
-     * @throws ConfigFileParserException if an error occur while parsing the file
+     * @param runtimeParams             The -B params passed to the BVM as CLI parameters
+     * @param userProvidedConfigFile    The config file provided through the --config CLI parameter
+     * @param ballerinaConfDefaultPath  The default config file (ballerina.conf) located at the source root
+     * @return The parsed and resolved set of configurations
+     * @throws IOException  Thrown if there was an error while attempting to process the config file
      */
-    public void processConfiguration() throws ConfigFileParserException {
-        ConfigParamParser paramParser = new ConfigParamParser(runtimeParams);
-        Map<String, String> runtimeGlobalConfigs = paramParser.getGlobalConfigs();
-        Map<String, Map<String, String>> runtimeInstanceConfigs = paramParser.getInstanceConfigs();
+    public static BConfig processConfiguration(Map<String, String> runtimeParams,
+                                                           String userProvidedConfigFile,
+                                                           Path ballerinaConfDefaultPath) throws IOException {
+        String configFilePath = getConfigFile(userProvidedConfigFile, ballerinaConfDefaultPath);
 
-        File confFile = getConfigFile(runtimeParams.get(BALLERINA_CONF));
+        BConfig configEntries = new BConfig();
+        if (configFilePath != null) {
+            // Parse the config file
+            configEntries = parseConfigFile(configFilePath);
 
-        if (confFile != null) {
-            ConfigFileParser parser = new ConfigFileParser(confFile);
-            Map<String, String> fileGlobalConfigs = parser.getGlobalConfigs();
-            Map<String, Map<String, String>> fileInstanceConfigs = parser.getInstanceConfigs();
-
-            // TODO: make this variable replacement a pluggable process
-            // Give precedence to environment and system variables
-            lookUpVariables(fileGlobalConfigs, fileInstanceConfigs);
-
-            // Add the remaining global configs to the resolved pool
-            resolvedGlobalConfigs.putAll(fileGlobalConfigs);
-
-            // Add the remaining configs of each instance config to the resolved pool
-            resolvedInstanceConfigs.forEach((key, val) -> {
-                Map<String, String> map = fileInstanceConfigs.get(key);
-                if (map != null) {
-                    val.putAll(map);
-                }
-            });
-
-            // Add the remaining instance configs to the resolved pool
-            fileInstanceConfigs.forEach((key, val) -> resolvedInstanceConfigs.putIfAbsent(key, val));
+            // If there are environment variables which map to any config keys, replace their values with the value
+            // of the environment variable
+            lookUpVariables(configEntries.getConfigurations());
         }
 
-        // Merge the runtime configurations with the already resolved configs.
-        // Any configs already resolved and present are overridden.
-        resolvedGlobalConfigs.putAll(runtimeGlobalConfigs);
-        resolvedInstanceConfigs.forEach((key, val) -> {
-            if (runtimeInstanceConfigs.containsKey(key)) {
-                val.putAll(runtimeInstanceConfigs.get(key));
-            }
-        });
-        runtimeInstanceConfigs.forEach((key, val) -> resolvedInstanceConfigs.putIfAbsent(key, val));
-
-        configRegistry.setGlobalConfigs(resolvedGlobalConfigs);
-        configRegistry.setInstanceConfigs(resolvedInstanceConfigs);
+        if (runtimeParams != null && !runtimeParams.isEmpty()) {
+            configEntries.addConfigurations(parseRuntimeParams(runtimeParams).getConfigurations());
+        }
+        return configEntries;
     }
 
-    private void lookUpVariables(Map<String, String> globalConfigs, Map<String, Map<String, String>> instanceConfigs) {
-        globalConfigs.keySet().forEach(key -> {
-            String value = System.getenv(convertToEnvVarFormat(key));
-            value = (value == null) ? System.getProperty(key) : value;
+    private static void lookUpVariables(Map<String, String> configFileEntries) {
+        configFileEntries.keySet().forEach(key -> {
+            String envVarName = convertToEnvVarFormat(key);
+            if (envVarName.matches(ENV_VAR_FORMAT)) { // Not all config keys are valid environment variable names
+                String value = System.getenv(envVarName);
 
-            if (value != null) {
-                // replace the config value if there is an environment variable of the same name
-                resolvedGlobalConfigs.put(key, value);
-                globalConfigs.remove(key);
-            }
-        });
-
-        instanceConfigs.keySet().forEach(instanceId -> {
-            Map<String, String> configInstance = instanceConfigs.get(instanceId);
-            configInstance.keySet().forEach(key -> {
-                String value = System.getenv(convertToEnvVarFormat(key, instanceId));
-                value = (value == null) ? System.getProperty(key) : value;
                 if (value != null) {
                     // replace the config value if there is an environment variable of the same name
-                    if (resolvedInstanceConfigs.containsKey(instanceId)) {
-                        resolvedInstanceConfigs.get(instanceId).put(key, value);
-                    } else {
-                        Map<String, String> map = new HashMap<>();
-                        map.put(key, value);
-                        resolvedInstanceConfigs.put(instanceId, map);
-                    }
-                    configInstance.remove(key);
+                    configFileEntries.put(key, value);
                 }
-            });
+            }
         });
     }
 
-    private String convertToEnvVarFormat(String var) {
-        return var.toUpperCase(Locale.ROOT).replace('.', '_');
+    private static String convertToEnvVarFormat(String var) {
+        return var.replace('.', '_');
     }
 
-    private String convertToEnvVarFormat(String var, String instanceId) {
-        return instanceId.toUpperCase(Locale.ROOT) + "__" + convertToEnvVarFormat(var);
-    }
+    private static String getConfigFile(String fileLocation, Path defaultLocation) {
+        Path userProvidedPath = fileLocation != null ? Paths.get(fileLocation) : null;
 
-    private File getConfigFile(String fileLocation) {
-        File confFile;
-        if (fileLocation != null) {
-            confFile = new File(fileLocation);
-            if (!confFile.exists()) {
-                throw new RuntimeException("failed to start ballerina runtime: file not found: " + fileLocation);
+        if (userProvidedPath != null) {
+            if (!Files.exists(userProvidedPath)) {
+                throw new RuntimeException("failed to start ballerina runtime: config file not found: " + fileLocation);
             }
-        } else {
-            if (ballerinaConfDefaultPath == null || !Files.exists(ballerinaConfDefaultPath)) {
-                return null;
-            }
-            confFile = ballerinaConfDefaultPath.toFile();
+
+            // If there is an explicitly specified config file, use it.
+            return userProvidedPath.toString();
         }
-        return confFile;
+
+        if (defaultLocation == null || !Files.exists(defaultLocation)) {
+            // There isn't a default config file
+            return null;
+        }
+
+        // A default config file was found. Returning its path.
+        return defaultLocation.toString();
+    }
+
+    private static BConfig parseConfigFile(String path) throws IOException {
+        ANTLRFileStream configFileStream = new ANTLRFileStream(path);
+        BConfig configEntries = new BConfig();
+        ParseTreeWalker treeWalker = new ParseTreeWalker();
+        treeWalker.walk(new BConfigLangListener(configEntries), buildParseTree(configFileStream));
+        return configEntries;
+    }
+
+    private static BConfig parseRuntimeParams(Map<String, String> runtimeParams) {
+        StringBuilder stringBuilder = new StringBuilder();
+        runtimeParams.forEach(
+                (key, val) -> stringBuilder.append(key)
+                                            .append('=')
+                                            // TODO: need to handle this in a better way
+                                            .append('\"').append(val).append('\"')
+                                            .append('\n'));
+        ANTLRInputStream runtimeConfigsStream = new ANTLRInputStream(stringBuilder.toString());
+        BConfig runtimeConfigEntries = new BConfig();
+        ParseTreeWalker treeWalker = new ParseTreeWalker();
+        treeWalker.walk(new BConfigLangListener(runtimeConfigEntries), buildParseTree(runtimeConfigsStream));
+        return runtimeConfigEntries;
+    }
+
+    private static ParseTree buildParseTree(CharStream configEntriesStream) {
+        TomlLexer lexer = new TomlLexer(configEntriesStream);
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        TomlParser parser = new TomlParser(tokenStream);
+        return parser.toml();
     }
 }

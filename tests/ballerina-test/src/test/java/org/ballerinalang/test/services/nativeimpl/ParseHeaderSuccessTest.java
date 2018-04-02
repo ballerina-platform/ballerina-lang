@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Success test cases for ballerina.net.http parseHeader native function.
+ * Success test cases for ballerina/http parseHeader native function.
  */
 public class ParseHeaderSuccessTest {
 
@@ -51,7 +51,6 @@ public class ParseHeaderSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), Constants.TEXT_PLAIN);
         Assert.assertNull(returnVals[1]);
-        Assert.assertNull(returnVals[2]);
     }
 
     @Test(description = "Test function with single header value and params")
@@ -68,7 +67,6 @@ public class ParseHeaderSuccessTest {
         BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
         Assert.assertEquals(params.get("a").stringValue(), String.valueOf(2));
         Assert.assertEquals(params.get("b").stringValue(), String.valueOf(0.9));
-        Assert.assertNull(returnVals[2]);
 
     }
 
@@ -82,7 +80,6 @@ public class ParseHeaderSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), Constants.TEXT_PLAIN);
         Assert.assertNull(returnVals[1]);
-        Assert.assertNull(returnVals[2]);
     }
 
     @Test(description = "Test function with extra space in between values and params")
@@ -99,7 +96,6 @@ public class ParseHeaderSuccessTest {
         BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
         Assert.assertEquals(params.get("a").stringValue(), String.valueOf(2));
         Assert.assertEquals(params.get("b").stringValue(), String.valueOf(0.9));
-        Assert.assertNull(returnVals[2]);
     }
 
     @Test(description = "Test function with header value ends with semicolon")
@@ -112,7 +108,6 @@ public class ParseHeaderSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_XML);
         Assert.assertNull(returnVals[1]);
-        Assert.assertNull(returnVals[2]);
     }
 
     @Test(description = "Test function with empty header value")
@@ -125,7 +120,6 @@ public class ParseHeaderSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "");
         Assert.assertNull(returnVals[1]);
-        Assert.assertNull(returnVals[2]);
     }
 
     @Test(description = "Test function when param value is optional. i.e 'text/plain;a, application/xml' ")
@@ -141,6 +135,5 @@ public class ParseHeaderSuccessTest {
         Assert.assertTrue(returnVals[1] instanceof BMap);
         BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
         Assert.assertNull(params.get("a"));
-        Assert.assertNull(returnVals[2]);
     }
 }

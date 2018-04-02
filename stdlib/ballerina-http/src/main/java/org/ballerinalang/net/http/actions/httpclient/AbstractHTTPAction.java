@@ -22,20 +22,23 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -61,6 +64,12 @@ import java.net.URL;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_EP_RETRY;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
+import static org.ballerinalang.net.http.HttpConstants.RETRY_COUNT;
+import static org.ballerinalang.net.http.HttpConstants.RETRY_INTERVAL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
@@ -81,7 +90,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
 
         // Extract Argument values
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         String path = context.getStringArgument(0);
         BStruct requestStruct  = ((BStruct) context.getRefArgument(1));
         HTTPCarbonMessage requestMsg = HttpUtil
@@ -90,13 +99,47 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(context, bConnector, path, requestMsg);
-        if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
-            requestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
-        }
+        AcceptEncodingConfig acceptEncodingConfig = getAcceptEncodingConfig
+                                                        (getAcceptEncodingConfigFromEndpointConfig(bConnector));
+        handleAcceptEncodingHeader(requestMsg, acceptEncodingConfig);
         return requestMsg;
     }
 
-    protected void prepareOutboundRequest(Context context, BConnector connector, String path,
+    private String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
+        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
+        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
+        if (epConfig == null) {
+            return HttpConstants.AUTO;
+        }
+        return epConfig.getStringField(HttpConstants.CLIENT_EP_ACCEPT_ENCODING);
+    }
+
+    private static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
+        if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.AUTO;
+        } else if (HttpConstants.ENABLE.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.ENABLE;
+        } else if (HttpConstants.DISABLE.equalsIgnoreCase(acceptEncodingConfig)) {
+            return AcceptEncodingConfig.DISABLE;
+        } else {
+            throw new BallerinaConnectorException(
+                    "Invalid configuration found for Accept-Encoding: " + acceptEncodingConfig);
+        }
+    }
+
+    private void handleAcceptEncodingHeader(HTTPCarbonMessage outboundRequest,
+            AcceptEncodingConfig acceptEncodingConfig) {
+        if (acceptEncodingConfig == AcceptEncodingConfig.ENABLE && (
+                outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
+            outboundRequest
+                    .setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        } else if (acceptEncodingConfig == AcceptEncodingConfig.DISABLE && (
+                outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null)) {
+            outboundRequest.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
+        }
+    }
+
+    protected void prepareOutboundRequest(Context context, BStruct connector, String path,
                                           HTTPCarbonMessage outboundRequest) {
         validateParams(connector);
         if (context.isInTransaction()) {
@@ -185,7 +228,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return port;
     }
 
-    private void validateParams(BConnector connector) {
+    private void validateParams(BStruct connector) {
         if (connector == null || connector.getStringField(0) == null) {
             throw new BallerinaException("Connector parameters not defined correctly.");
         }
@@ -201,15 +244,15 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
-                    dataContext.context.getProperty(HttpConstants.SRC_HANDLER));
+                                           dataContext.context.getProperty(HttpConstants.SRC_HANDLER));
         }
         Object remoteAddress = outboundRequestMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteAddress == null) {
             outboundRequestMsg.setProperty(HttpConstants.REMOTE_ADDRESS,
-                    dataContext.context.getProperty(HttpConstants.REMOTE_ADDRESS));
+                                           dataContext.context.getProperty(HttpConstants.REMOTE_ADDRESS));
         }
         outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST,
-                dataContext.context.getProperty(HttpConstants.ORIGIN_HOST));
+                                       dataContext.context.getProperty(HttpConstants.ORIGIN_HOST));
         sendOutboundRequest(dataContext, outboundRequestMsg, async);
     }
 
@@ -220,7 +263,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, e));
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
-                    e, dataContext.context);
+                                                                  e, dataContext.context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, exception));
         }
     }
@@ -238,20 +281,21 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * @throws Exception When an error occurs while sending the outbound request via client connector
      */
     private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) throws Exception {
-        BConnector bConnector = (BConnector) dataContext.context.getRefArgument(0);
-        HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
+        BStruct bConnector = (BStruct) dataContext.context.getRefArgument(0);
+        Struct httpClient = BLangConnectorSPIUtil.toStruct(bConnector);
+        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.HTTP_CLIENT);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
+
         if (HeaderUtil.isMultipart(contentType)) {
             boundaryString = HttpUtil.addBoundaryIfNotExist(outboundRequestMsg, contentType);
         }
 
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        RetryConfig retryConfig = getRetryConfiguration(dataContext.context);
-        HTTPClientConnectorListener httpClientConnectorLister = new HTTPClientConnectorListener(dataContext,
-                retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
+        RetryConfig retryConfig = getRetryConfiguration(httpClient);
+        HTTPClientConnectorListener httpClientConnectorLister =
+                new HTTPClientConnectorListener(dataContext, retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         if (async) {
@@ -287,7 +331,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
             if (bodyParts != null && bodyParts.size() > 0) {
                 serializeMultipartDataSource(messageOutputStream, boundaryString,
-                        entityStruct);
+                                             entityStruct);
             } else { //If the content is in a byte channel
                 serializeDataSource(context, messageOutputStream);
             }
@@ -308,7 +352,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * @param messageOutputStream Output stream to which the payload is written
      */
     private void serializeMultipartDataSource(OutputStream messageOutputStream,
-            String boundaryString, BStruct entityStruct) {
+                                              String boundaryString, BStruct entityStruct) {
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
         multipartDataSource.serializeData(messageOutputStream);
         HttpUtil.closeMessageOutputStream(messageOutputStream);
@@ -332,19 +376,19 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private RetryConfig getRetryConfiguration(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
-        BStruct options = (BStruct) bConnector.getRefField(HttpConstants.OPTIONS_STRUCT_INDEX);
-        if (options == null) {
+    private RetryConfig getRetryConfiguration(Struct httpClient) {
+        Struct clientEndpointConfigs = httpClient.getStructField(CLIENT_ENDPOINT_CONFIG);
+        if (clientEndpointConfigs == null) {
             return new RetryConfig();
         }
 
-        BStruct retryConfig = (BStruct) options.getRefField(HttpConstants.RETRY_STRUCT_INDEX);
+        Struct retryConfig = clientEndpointConfigs.getStructField(CLIENT_EP_RETRY);
+
         if (retryConfig == null) {
             return new RetryConfig();
         }
-        long retryCount = retryConfig.getIntField(HttpConstants.RETRY_COUNT_INDEX);
-        long interval = retryConfig.getIntField(HttpConstants.RETRY_INTERVAL_INDEX);
+        long retryCount = retryConfig.getIntField(RETRY_COUNT);
+        long interval = retryConfig.getIntField(RETRY_INTERVAL);
         return new RetryConfig(retryCount, interval);
     }
 
@@ -404,7 +448,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("action invocation failed, retrying action, count - "
-                        + retryConfig.getCurrentCount() + " limit - " + retryConfig.getRetryCount());
+                                     + retryConfig.getCurrentCount() + " limit - " + retryConfig.getRetryCount());
             }
             retryConfig.incrementCountAndWait();
             return false;
@@ -415,10 +459,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
             if (throwable instanceof EndpointTimeOutException) {
                 httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_TIMEOUT_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                                                  HttpConstants.PROTOCOL_PACKAGE_HTTP);
             } else {
                 httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                                                  HttpConstants.PROTOCOL_PACKAGE_HTTP);
             }
 
             httpConnectorError.setStringField(0, throwable.getMessage());
@@ -455,10 +499,14 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      */
     BStruct createResponseStruct(Context context, HTTPCarbonMessage httpCarbonMessage) {
         BStruct responseStruct = createStruct(context, HttpConstants.RESPONSE,
-                                                HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                                              HttpConstants.PROTOCOL_PACKAGE_HTTP);
         BStruct entity = createStruct(context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
         BStruct mediaType = createStruct(context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, httpCarbonMessage);
+        ResponseCacheControlStruct responseCacheControl
+                = new ResponseCacheControlStruct(context.getProgramFile()
+                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
+                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
+        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, responseCacheControl, httpCarbonMessage);
         return responseStruct;
     }
 }

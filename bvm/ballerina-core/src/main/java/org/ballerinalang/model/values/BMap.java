@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -48,9 +49,15 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
+    private BType type = BTypes.typeMap;
 
     public BMap() {
         map =  new LinkedHashMap<>();
+    }
+
+    public BMap(BMapType type) {
+        this.map = new LinkedHashMap<>();
+        this.type = type;
     }
 
     /**
@@ -96,6 +103,14 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      */
     public boolean hasKey(K key) {
         return map.containsKey(key);
+    }
+
+    /**
+     * Retrieve the internal map.
+     * @return map
+     */
+    public LinkedHashMap<K, V> getMap() {
+        return map;
     }
 
     /**
@@ -170,7 +185,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public BType getType() {
-        return BTypes.typeMap;
+        return this.type;
     }
 
     @Override

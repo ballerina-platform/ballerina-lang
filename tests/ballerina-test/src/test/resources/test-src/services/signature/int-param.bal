@@ -1,16 +1,16 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
-endpoint<mock:NonListeningService> echoEP {
+endpoint http:NonListeningService echoEP {
     port:9090
-}
+};
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/signature",
     endpoints:[echoEP]
 }
 service<http:Service> echo {
-    resource echo1 (http:ServerConnector conn, int key, http:Request req) {
+    echo1 (http:ServerConnector conn, int key, http:Request req) {
         http:Response resp = {};
     }
 }

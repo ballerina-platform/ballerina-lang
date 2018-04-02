@@ -1,54 +1,53 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
-endpoint<mock:NonListeningService> testEP {
+endpoint http:NonListeningServiceEndpoint testEP {
     port:9090
-}
+};
 
-@http:serviceConfig {
-    basePath:"/hello",
-    endpoints:[testEP]
+@http:ServiceConfig {
+    basePath:"/hello"
 }
-service<http:Service> testService {
+service<http:Service> testService bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
-        path:"/t1/{person}/bar/{year}/foo"
+        path:"/t1/{person}/bar/{yearParam}/foo"
     }
-    resource test1 (http:ServerConnector conn, http:Request req, string person, string year) {
+     test1 (endpoint client, http:Request req, string person, string yearParam) {
         http:Response res = {};
         json outJson = {};
-        outJson.pathParams = string `{{person}}, {{year}}`;
+        outJson.pathParams = string `{{person}}, {{yearParam}}`;
 
         map personMParams = req.getMatrixParams(string `/hello/t1/{{person}}`);
-        var age, _ = (string) personMParams["age"];
-        var color, _ = (string) personMParams["color"];
+        string age = <string> personMParams["age"];
+        string color = <string> personMParams["color"];
         outJson.personMatrix = string `age={{age}};color={{color}}`;
 
-        map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}`);
-        var month, _ = (string) yearMParams["month"];
-        var day, _ = (string) yearMParams["day"];
-        outJson.yearMatrix = string `month={{month}};day={{day}}`;
+        map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}`);
+        string monthValue = <string> yearMParams["month"];
+        string dayValue = <string> yearMParams["day"];
+        outJson.yearMatrix = string `month={{monthValue}};day={{dayValue}}`;
 
-        map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}/foo`);
-        var a, _ = (string) fooMParams["a"];
-        var b, _ = (string) fooMParams["b"];
+        map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}/foo`);
+        string a = <string> fooMParams["a"];
+        string b = <string> fooMParams["b"];
         outJson.fooMatrix = string `a={{a}};b={{b}}`;
 
         map queryParams = req.getQueryParams();
-        var x, _ = (string) queryParams["x"];
-        var y, _ = (string) queryParams["y"];
+        string x = <string> queryParams["x"];
+        string y = <string> queryParams["y"];
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
         res.setJsonPayload(outJson);
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/t2/{person}/foo;a=5;b=10"
     }
-    resource testEncoded (http:ServerConnector conn, http:Request req, string person) {
+     testEncoded (endpoint client, http:Request req, string person) {
         http:Response res = {};
         json outJson = {};
         outJson.person = person;
@@ -60,6 +59,6 @@ service<http:Service> testService {
         outJson.fooParamSize = lengthof fooMParams;
 
         res.setJsonPayload(outJson);
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 }

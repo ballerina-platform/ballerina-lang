@@ -18,18 +18,26 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.List;
+import javax.websocket.Session;
 
 
 /**
@@ -45,11 +53,10 @@ public abstract class WebSocketUtil {
         return new BMap<>();
     }
 
-    public static BConnector createAndGetConnector(Resource resource) {
-        return BLangConnectorSPIUtil.createBConnector(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
-                                                      WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
+    public static BStruct createAndGetBStruct(Resource resource) {
+        return BLangConnectorSPIUtil.createBStruct(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
+                                                   WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
     }
-
 
 
     public static ProgramFile getProgramFile(Resource resource) {
@@ -70,5 +77,48 @@ public abstract class WebSocketUtil {
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    public static void handleHandshake(WebSocketService wsService,
+                                       HttpHeaders headers, BStruct wsConnection) {
+        String[] subProtocols = wsService.getNegotiableSubProtocols();
+        WebSocketInitMessage initMessage =
+                (WebSocketInitMessage) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+        int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
+        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers);
+        future.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(Session session) {
+                BStruct serviceEndpoint = (BStruct) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_ENDPOINT);
+                populateEndpoint(session, serviceEndpoint);
+                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+                WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
+                                                                                             serviceEndpoint);
+                WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
+
+                Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                if (onOpenResource == null) {
+                    return;
+                }
+                List<ParamDetail> paramDetails =
+                        onOpenResource.getParamDetails();
+                BValue[] bValues = new BValue[paramDetails.size()];
+                bValues[0] = serviceEndpoint;
+                //TODO handle BallerinaConnectorException
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                ErrorHandlerUtils.printError(throwable);
+            }
+        });
+    }
+
+    public static void populateEndpoint(Session session, BStruct endpoint) {
+        endpoint.setStringField(0, session.getId());
+        endpoint.setStringField(1, session.getNegotiatedSubprotocol());
+        endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
+        endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
     }
 }

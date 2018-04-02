@@ -1,8 +1,8 @@
 package connectionStoreSample.sample;
 
-import ballerina.lang.system;
-import ballerina.net.http;
-import ballerina.net.ws;
+import ballerina/lang.system;
+import ballerina/http;
+import ballerina/net.ws;
 
 @http:configuration {basePath:"/store"}
 @ws:WebSocketUpgradePath {value:"/ws"}

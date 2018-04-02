@@ -1,6 +1,6 @@
-import ballerina.lang.messages;
-import ballerina.net.http;
-import ballerina.net.ws;
+import ballerina/lang.messages;
+import ballerina/http;
+import ballerina/net.ws;
 
 @http:configuration {basePath:"/test"}
 @ws:WebSocketUpgradePath {value:"/websocket"}

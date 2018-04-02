@@ -60,7 +60,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     public ForkJoinWorkerResponseContext(WorkerExecutionContext targetCtx, int joinTargetIp, int joinVarReg,
             int timeoutTargetIp, int timeoutVarReg, int workerCount, int reqJoinCount, Set<String> joinWorkerNames,
             Map<String, String> channelNames) {
-        super(null, workerCount, false);
+        super(null, workerCount);
         this.targetCtx = targetCtx;
         this.joinTargetIp = joinTargetIp;
         this.joinVarReg = joinVarReg;
@@ -82,7 +82,6 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     @Override
     protected synchronized WorkerExecutionContext onHalt(WorkerSignal signal) {
-        BLangScheduler.workerDone(signal.getSourceContext());
         if (!joinWorkerNames.contains(signal.getSourceContext().workerInfo.getWorkerName())) {
             return null;
         }
@@ -100,7 +99,6 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     @Override
     protected synchronized WorkerExecutionContext onError(WorkerSignal signal) {
-        BLangScheduler.workerExcepted(signal.getSourceContext());
         BStruct error = signal.getSourceContext().getError();
         if (this.isFulfilled()) {
             printError(signal.getSourceContext().workerInfo.getWorkerName(), error);

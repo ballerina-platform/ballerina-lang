@@ -15,11 +15,9 @@
  */
 package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangFragmentParserConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangJSONModelConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
@@ -27,7 +25,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -122,15 +119,7 @@ public class BLangFragmentParser {
     }
 
     protected static JsonElement getJsonModel(String source) throws IOException {
-        String fileName = "untitled";
-        BLangCompilationUnit compilationUnit = null;
-        BLangPackage model = ParserUtils.getBallerinaFileForContent(fileName, source, CompilerPhase.DEFINE)
-                .getBLangPackage();
-        if (model != null) {
-            compilationUnit = model.getCompilationUnits().stream().
-                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
-        }
-        
+        BLangCompilationUnit compilationUnit = ParserUtils.compileFragment(source);
         return CommonUtil.generateJSON(compilationUnit, new HashMap<>());
     }
 

@@ -92,15 +92,17 @@ const ImportDeclaration = ({ bBox, viewState, noOfImports, onClick }) => {
             >
                 {noOfImports}
             </text>
-            <image
+            <text
                 width={iconSize}
                 height={iconSize}
+                fontFamily='font-ballerina'
+                fontSize={iconSize}
                 className='property-pane-action-button-delete'
-                xlinkHref={ImageUtil.getSVGIconString('view')}
+                xlinkHref={ImageUtil.getCodePoint('view')}
                 x={iconBbox.x}
                 y={iconBbox.y}
             >
-                <title>View Imported Packages</title> </image>
+                <title>View Imported Packages</title> </text>
         </g>
     );
 };

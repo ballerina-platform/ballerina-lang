@@ -1,4 +1,4 @@
-// Generated from src/main/resources/Toml.g4 by ANTLR 4.5.3
+// Generated from Toml.g4 by ANTLR 4.5.3
 package org.ballerinalang.toml.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -215,6 +215,18 @@ public class TomlBaseListener implements TomlListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBasicString(TomlParser.BasicStringContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBasicStringValue(TomlParser.BasicStringValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBasicStringValue(TomlParser.BasicStringValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

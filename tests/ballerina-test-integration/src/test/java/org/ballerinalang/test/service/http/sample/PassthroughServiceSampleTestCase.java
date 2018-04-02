@@ -44,7 +44,7 @@ public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "passthroughService.bal").getAbsolutePath();
+                + File.separator + "httpService" + File.separator + "passthrough_service.bal").getAbsolutePath();
         ballerinaServer.startBallerinaServer(balFile);
     }
 

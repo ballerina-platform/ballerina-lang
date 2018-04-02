@@ -35,9 +35,6 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * Test JWT token creation and verification.
  */
@@ -52,40 +49,25 @@ public class JwtTest {
     private static final String TRUST_STORE_TYPE = "type";
     private static final String TRUST_STORE_PASSWORD = "trustStorePassword";
 
-    private ConfigRegistry initialConfigRegistry;
+    private ConfigRegistry configRegistry;
     private String resourceRoot;
     private CompileResult compileResult;
     private String jwtToken;
 
     @BeforeClass
     public void setup() throws Exception {
-        initialConfigRegistry = ConfigRegistry.getInstance();
+        configRegistry = ConfigRegistry.getInstance();
 
-        ConfigRegistry configRegistry = mock(ConfigRegistry.class);
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_LOCATION))
-                .thenReturn(getClass().getClassLoader().getResource(
-                        "datafiles/security/keyStore/ballerinaKeystore.p12").getPath());
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_PASSWORD))
-                .thenReturn("ballerina");
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_TYPE))
-                .thenReturn("pkcs12");
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION))
-                .thenReturn(getClass().getClassLoader().getResource(
+        configRegistry.addConfiguration(KEY_STORE_CONFIG, KEY_STORE_LOCATION, getClass().getClassLoader().getResource(
+                "datafiles/security/keyStore/ballerinaKeystore.p12").getPath());
+        configRegistry.addConfiguration(KEY_STORE_CONFIG, KEY_STORE_PASSWORD, "ballerina");
+        configRegistry.addConfiguration(KEY_STORE_CONFIG, KEY_STORE_TYPE, "pkcs12");
+
+        configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION,
+                getClass().getClassLoader().getResource(
                         "datafiles/security/keyStore/ballerinaTruststore.p12").getPath());
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_PASSWORD))
-                .thenReturn("ballerina");
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_TYPE))
-                .thenReturn("pkcs12");
-
-        Field field = ConfigRegistry.class.getDeclaredField("configRegistry");
-        field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(ConfigRegistry.class, configRegistry);
-        modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
-        modifiersField.setAccessible(false);
-        field.setAccessible(false);
+        configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_PASSWORD, "ballerina");
+        configRegistry.addConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_TYPE, "pkcs12");
 
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "jwt");
@@ -96,7 +78,6 @@ public class JwtTest {
     public void testIssueJwt() throws Exception {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwt");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertNull(returns[1]);
         jwtToken = returns[0].stringValue();
     }
 
@@ -104,8 +85,7 @@ public class JwtTest {
     public void testValidateJwt() throws Exception {
         BValue[] inputBValues = {new BString(jwtToken)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwt", inputBValues);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertNull(returns[1]);
+        Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
 
     @AfterClass
@@ -115,10 +95,9 @@ public class JwtTest {
         Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(ConfigRegistry.class, initialConfigRegistry);
+        field.set(ConfigRegistry.class, configRegistry);
         modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
         modifiersField.setAccessible(false);
         field.setAccessible(false);
     }
-
 }

@@ -1,4 +1,4 @@
-import ballerina.lang.xmls;
+import ballerina/lang.xmls;
 
 function getString(xml msg, string xPath) (string) {
     return xmls:getString(msg, xPath);

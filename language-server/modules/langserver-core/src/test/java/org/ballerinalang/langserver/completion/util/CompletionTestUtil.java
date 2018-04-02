@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completion.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -50,8 +50,9 @@ public class CompletionTestUtil {
 
     /**
      * Get a new request message from the content.
-     * @param position      position of the cursor
-     * @param uri           documentURI
+     *
+     * @param position position of the cursor
+     * @param uri      documentURI
      * @return {@link TextDocumentPositionParams}
      */
     public static TextDocumentPositionParams getPositionParams(Position position, String uri) {
@@ -94,6 +95,7 @@ public class CompletionTestUtil {
 
     /**
      * Check whether list1 is a subset of list2.
+     *
      * @param list1 - completion item list being checked
      * @param list2 - completion item list being checked against
      * @return whether list1 is a subset of list2
@@ -104,17 +106,21 @@ public class CompletionTestUtil {
 
     /**
      * Get the completions list.
-     * @param documentManager   Document manager instance
-     * @param pos               {@link TextDocumentPositionParams} position params
+     *
+     * @param documentManager Document manager instance
+     * @param pos             {@link TextDocumentPositionParams} position params
      */
     public static List<CompletionItem> getCompletions(WorkspaceDocumentManagerImpl documentManager,
                                                       TextDocumentPositionParams pos) {
         List<CompletionItem> completions;
-        TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
+        LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager, false,
-                CompletionCustomErrorStrategy.class);
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
+                documentManager, false, CompletionCustomErrorStrategy.class, false)
+                .get(0);
+        completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                bLangPackage.symbol.getName().getValue());
         // Visit the package to resolve the symbols
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         bLangPackage.accept(treeVisitor);
@@ -133,13 +139,14 @@ public class CompletionTestUtil {
 
     /**
      * Prepare the Document manager instance with the given file and issue the did open operation.
-     * @param uri           File Uri
-     * @param balContent    File Content
-     * @return  {@link WorkspaceDocumentManagerImpl}
+     *
+     * @param uri        File Uri
+     * @param balContent File Content
+     * @return {@link WorkspaceDocumentManagerImpl}
      */
     public static WorkspaceDocumentManagerImpl prepareDocumentManager(String uri, String balContent) {
         Path openedPath;
-        WorkspaceDocumentManagerImpl documentManager = new WorkspaceDocumentManagerImpl();
+        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
 
         openedPath = Paths.get(uri);
         documentManager.openFile(openedPath, balContent);

@@ -17,7 +17,7 @@ function concatIntString (int i, string v) {
     output = output + i + ":" + v + " ";
 }
 
-function testXMLWithArityOne () (string) {
+function testXMLWithArityOne () returns (string) {
     output = "";
     foreach x in xdata {
         var s = <string> x;
@@ -26,7 +26,7 @@ function testXMLWithArityOne () (string) {
     return output;
 }
 
-function testXMLWithArityTwo () (string) {
+function testXMLWithArityTwo () returns (string) {
     output = "";
     foreach i,x in xdata {
         var s = <string> x;
@@ -35,9 +35,9 @@ function testXMLWithArityTwo () (string) {
     return output;
 }
 
-function testXMLWithArityChildren () (string) {
+function testXMLWithArityChildren () returns (string) {
     output = "";
-    foreach i,x in xdata.children().elements() {
+    foreach i,x in xdata.*.elements() {
         var s = <string> x;
         concatIntString(i,s);
     }

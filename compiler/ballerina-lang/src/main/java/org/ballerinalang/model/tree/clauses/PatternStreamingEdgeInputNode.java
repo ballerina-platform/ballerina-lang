@@ -36,13 +36,13 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 public interface PatternStreamingEdgeInputNode extends Node {
 
 
-    void setIdentifier(String identifier);
+    void setStreamReference(ExpressionNode ref);
 
     void setWhereClause(WhereNode whereNode);
 
     void setExpression(ExpressionNode expressionNode);
 
-    String getIdentifier();
+    ExpressionNode getStreamReference();
 
     WhereNode getWhereClause();
 

@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -37,13 +38,29 @@ import java.io.File;
 public class TableIterationTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
     private static final String DB_NAME = "TEST_DATA_TABLE__ITR_DB";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-iteration.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table-iteration-negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
+    }
+
+    @Test(groups = "TableIterTest", description = "Negative tests for select operation")
+    public void testNegative() {
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 24, 29);
+        BAssertUtil.validateError(resultNegative, 1,
+                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 55,
+                41);
+        BAssertUtil.validateError(resultNegative, 2,
+                "incompatible types: expected 'EmployeeSalary', found '" + "(EmployeeSalaryIncompatible) collection'",
+                62, 41);
+        BAssertUtil.validateError(resultNegative, 3,
+                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 69,
+                41);
     }
 
     @Test(groups = "TableIterTest", description = "Check accessing data using foreach iteration")
@@ -162,6 +179,42 @@ public class TableIterationTest {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(enabled = false)
+    public void testSelect() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelect");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+    }
+
+    @Test(enabled = false)
+    public void testSelectCompatibleLambdaInput() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+    }
+
+    @Test(enabled = false)
+    public void testSelectCompatibleLambdaOutput() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaOutput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+    }
+
+    @Test(enabled = false)
+    public void testSelectCompatibleLambdaInputOutput() {
+        BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInputOutput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
     @AfterSuite

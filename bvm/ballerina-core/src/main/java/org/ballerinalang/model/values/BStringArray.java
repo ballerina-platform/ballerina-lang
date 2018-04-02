@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.BLangConstants;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -40,6 +41,7 @@ public class BStringArray extends BNewArray {
 
     public BStringArray() {
         values = (String[]) newArrayInstance(String.class);
+        Arrays.fill(values, BLangConstants.STRING_EMPTY_VALUE);
     }
 
     public void add(long index, String value) {
@@ -50,6 +52,11 @@ public class BStringArray extends BNewArray {
     public String get(long index) {
         rangeCheckForGet(index, size);
         return values[(int) index];
+    }
+
+    @SuppressWarnings("unchecked")
+    public String[] getStringArray() {
+        return values;
     }
 
     @Override

@@ -1,8 +1,8 @@
-import ballerina.net.http;
-import ballerina.lang.messages;
-import ballerina.lang.errors;
-import ballerina.lang.system;
-import ballerina.doc;
+import ballerina/http;
+import ballerina/lang.messages;
+import ballerina/lang.errors;
+import ballerina/lang.system;
+import ballerina/doc;
 
 @doc:Description {
     value: "Defining Person struct"

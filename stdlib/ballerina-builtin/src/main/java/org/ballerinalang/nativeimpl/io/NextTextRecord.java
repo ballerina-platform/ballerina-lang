@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina", packageName = "io",
         functionName = "nextTextRecord",
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
@@ -67,8 +67,10 @@ public class NextTextRecord implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
+        } else {
+            context.setReturnValues(new BStringArray(fields));
         }
-        context.setReturnValues(new BStringArray(fields), errorStruct);
         callback.notifySuccess();
         return result;
     }

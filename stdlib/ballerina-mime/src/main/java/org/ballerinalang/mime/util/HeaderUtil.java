@@ -18,7 +18,9 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -29,6 +31,7 @@ import org.jvnet.mimepull.Header;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
@@ -125,21 +128,15 @@ public class HeaderUtil {
      * Set body part headers.
      *
      * @param bodyPartHeaders Represent decoded mime part headers
-     * @param headerMap       Represent ballerina header map
+     * @param httpHeaders       Represent netty headers
      * @return a populated ballerina map with body part headers
      */
-    static BMap<String, BValue> setBodyPartHeaders(List<? extends Header> bodyPartHeaders,
-                                                   BMap<String, BValue> headerMap) {
+    static HttpHeaders setBodyPartHeaders(List<? extends Header> bodyPartHeaders,
+                                                  HttpHeaders httpHeaders) {
         for (final Header header : bodyPartHeaders) {
-            if (headerMap.keySet().contains(header.getName())) {
-                BStringArray valueArray = (BStringArray) headerMap.get(header.getName());
-                valueArray.add(valueArray.size(), header.getValue());
-            } else {
-                BStringArray valueArray = new BStringArray(new String[]{header.getValue()});
-                headerMap.put(header.getName(), valueArray);
-            }
+            httpHeaders.add(header.getName(), header.getValue());
         }
-        return headerMap;
+        return httpHeaders;
     }
 
     /**
@@ -150,11 +147,9 @@ public class HeaderUtil {
      * @return a header value for the given header name
      */
     public static String getHeaderValue(BStruct bodyPart, String headerName) {
-        BMap<String, BValue> headerMap = (bodyPart.getRefField(ENTITY_HEADERS_INDEX) != null) ?
-                (BMap<String, BValue>) bodyPart.getRefField(ENTITY_HEADERS_INDEX) : null;
-        if (headerMap != null) {
-            BStringArray headerValue = (BStringArray) headerMap.get(headerName);
-            return headerValue.get(0);
+        if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
+            HttpHeaders httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
+            return httpHeaders.get(headerName);
         }
         return null;
     }
@@ -186,23 +181,6 @@ public class HeaderUtil {
     }
 
     /**
-     * Add a given header name and a value to entity headers.
-     *
-     * @param entityHeaders A map of entity headers
-     * @param headerName    Header name as a string
-     * @param headerValue   Header value as a string
-     */
-    private static void addToEntityHeaders(BMap<String, BValue> entityHeaders, String headerName, String headerValue) {
-        if (entityHeaders.keySet().contains(headerName)) {
-            BStringArray valueArray = (BStringArray) entityHeaders.get(headerName);
-            valueArray.add(valueArray.size(), headerValue);
-        } else {
-            BStringArray valueArray = new BStringArray(new String[]{headerValue});
-            entityHeaders.put(headerName, valueArray);
-        }
-    }
-
-    /**
      * Override a header with a given value.
      *
      * @param entityHeaders A map of entity headers
@@ -211,19 +189,8 @@ public class HeaderUtil {
      */
     public static void overrideEntityHeader(BMap<String, BValue> entityHeaders, String headerName, String
             headerValue) {
-            BStringArray valueArray = new BStringArray(new String[]{headerValue});
-            entityHeaders.put(headerName, valueArray);
-    }
-
-    /**
-     * Given an entity, get its header map. If it's null then return an empty map.
-     *
-     * @param entityStruct Represent a ballerina entity
-     * @return A map of headers
-     */
-    static BMap<String, BValue> getEntityHeaderMap(BStruct entityStruct) {
-        return entityStruct.getRefField(ENTITY_HEADERS_INDEX) != null ?
-                (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
+        BStringArray valueArray = new BStringArray(new String[]{headerValue});
+        entityHeaders.put(headerName, valueArray);
     }
 
     /**
@@ -232,9 +199,8 @@ public class HeaderUtil {
      * @param bodyPart      Represent a ballerina body part
      * @param entityHeaders Map of entity headers
      */
-    static void setContentTypeHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
-        String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
-        overrideEntityHeader(entityHeaders, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+    static void setContentTypeHeader(BStruct bodyPart, HttpHeaders entityHeaders) {
+
     }
 
     /**
@@ -259,7 +225,7 @@ public class HeaderUtil {
     static void setContentIdHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentId = bodyPart.getStringField(CONTENT_ID_INDEX);
         if (MimeUtil.isNotNullAndEmpty(contentId)) {
-            addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
+            overrideEntityHeader(entityHeaders, CONTENT_ID, contentId);
         }
     }
 
@@ -279,5 +245,30 @@ public class HeaderUtil {
             return paramMap.get(BOUNDARY) != null ? (BString) paramMap.get(BOUNDARY) : null;
         }
         return null;
+    }
+
+    public static void setHeaderToEntity(BStruct struct, String key, String value) {
+        HttpHeaders httpHeaders;
+        if (struct.getNativeData(ENTITY_HEADERS) != null) {
+            httpHeaders = (HttpHeaders) struct.getNativeData(ENTITY_HEADERS);
+
+        } else {
+            httpHeaders = new DefaultHttpHeaders();
+        }
+        httpHeaders.set(key, value);
+    }
+
+    public static BMap<String, BValue> getAllHeadersAsBMap(HttpHeaders headers) {
+        BMap<String, BValue> headerMap = new BMap<>();
+        for (Map.Entry<String, String> header : headers.entries()) {
+            if (headerMap.keySet().contains(header.getKey())) {
+                BStringArray valueArray = (BStringArray) headerMap.get(header.getKey());
+                valueArray.add(valueArray.size(), header.getValue());
+            } else {
+                BStringArray valueArray = new BStringArray(new String[]{header.getValue()});
+                headerMap.put(header.getKey(), valueArray);
+            }
+        }
+        return headerMap;
     }
 }

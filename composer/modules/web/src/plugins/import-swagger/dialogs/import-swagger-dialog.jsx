@@ -142,7 +142,7 @@ class ImportSwaggerDialog extends React.Component {
                         Import
                     </Button>
                 }
-                closeAction
+                closeDialog
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >

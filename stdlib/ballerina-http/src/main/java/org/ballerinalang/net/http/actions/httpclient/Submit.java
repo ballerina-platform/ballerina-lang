@@ -20,7 +20,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -30,26 +31,22 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 /**
  * {@code Submit} action can be used to invoke a http call with any httpVerb in asynchronous manner.
  */
-@BallerinaAction(
-        packageName = "ballerina.net.http",
-        actionName = "submit",
-        connectorName = HttpConstants.CLIENT_CONNECTOR,
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "submit",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+                structPackage = "ballerina.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "OutRequest",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpHandle", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "HttpHandle", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http"),
         }
 )
 public class Submit extends Execute {
@@ -61,7 +58,7 @@ public class Submit extends Execute {
             // Execute the operation
             executeNonBlockingAction(dataContext, createOutboundRequestMsg(context), true);
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.CLIENT_CONNECTOR
+            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.HTTP_CLIENT
                                          + ". " + clientConnectorException.getMessage(), context);
         }
     }

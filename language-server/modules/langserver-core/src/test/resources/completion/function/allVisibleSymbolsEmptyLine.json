@@ -1,162 +1,51 @@
 {
   "position": {
-    "line": 2,
+    "line": 5,
     "character": 4
   },
   "source": "function/source/allVisibleSymbolsEmptyLine.bal",
   "items": [
     {
-      "label": "const2",
-      "kind": 9,
-      "detail": "string",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "const2",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "const1",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "const1",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "var2",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "var2",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "var1",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "var1",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "param1",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "param1",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "param2",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "param2",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "return1",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "return1",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "return2",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "return2",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
+      "label":"const2",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"const2"
+    },
+    {
+      "label":"const1",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"const1"
+    },
+    {
+      "label":"var2",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"var2"
+    },
+    {
+      "label":"var1",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"var1"
+    },
+    {
+      "label":"param1",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"param1"
+    },
+    {
+      "label":"param2",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"param2"
     }
   ]
 }

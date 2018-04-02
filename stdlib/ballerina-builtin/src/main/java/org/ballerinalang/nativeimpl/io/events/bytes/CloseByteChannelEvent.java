@@ -59,12 +59,11 @@ public class CloseByteChannelEvent implements Event {
         try {
             channel.close();
             result = new BooleanResult(true, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while closing channel", e);
             context.setError(e);
             result = new BooleanResult(context);
-            return result;
         }
+        return result;
     }
 }

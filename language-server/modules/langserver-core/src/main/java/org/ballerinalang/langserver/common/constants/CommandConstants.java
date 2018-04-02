@@ -16,20 +16,35 @@
 package org.ballerinalang.langserver.common.constants;
 
 /**
- * Constants related to {@link org.eclipse.lsp4j.Command}
+ * Constants related to {@link org.eclipse.lsp4j.Command}.
  * @since v0.964.0
  */
 public class CommandConstants {
     public static final String UNDEFINED_PACKAGE = "undefined package";
-    
-    public static final String ARG_KEY_DOC_URI = "doc.uri";
+
 
     // Command Arguments
+    public static final String ARG_KEY_DOC_URI = "doc.uri";
+
     public static final String ARG_KEY_PKG_NAME = "package";
-    
+
+    public static final String ARG_KEY_NODE_TYPE = "node.type";
+
+    public static final String ARG_KEY_NODE_LINE = "node.line";
+
+
     // Command Titles
     public static final String IMPORT_PKG_TITLE = "Import Package ";
-    
+
+    public static final String ADD_DOCUMENTATION_TITLE = "Document This";
+
+    public static final String ADD_ALL_DOC_TITLE = "Document All";
+
+
     // Commands List
     public static final String CMD_IMPORT_PACKAGE = "IMPORT_PKG";
+
+    public static final String CMD_ADD_DOCUMENTATION = "ADD_DOC";
+
+    public static final String CMD_ADD_ALL_DOC = "ADD_ALL_DOC";
 }
