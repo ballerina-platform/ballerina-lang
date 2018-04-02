@@ -552,16 +552,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBuiltInTypeName(BallerinaParser.BuiltInTypeNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#nilTypeName}.
-	 * @param ctx the parse tree
-	 */
-	void enterNilTypeName(BallerinaParser.NilTypeNameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#nilTypeName}.
-	 * @param ctx the parse tree
-	 */
-	void exitNilTypeName(BallerinaParser.NilTypeNameContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#referenceTypeName}.
 	 * @param ctx the parse tree
 	 */
@@ -1807,6 +1797,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitIntegerLiteral(BallerinaParser.IntegerLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#emptyTupleLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterEmptyTupleLiteral(BallerinaParser.EmptyTupleLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#emptyTupleLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitEmptyTupleLiteral(BallerinaParser.EmptyTupleLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namedArgs}.
 	 * @param ctx the parse tree

@@ -1631,7 +1631,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // call funcRefCPIndex, nArgRegs, argRegs[nArgRegs], nRetRegs, retRegs[nRetRegs]
         int i = 0;
         int nArgRegs = iExpr.requiredArgs.size() + iExpr.namedArgs.size() + iExpr.restArgs.size();
-        int nRetRegs = iExpr.type == symTable.nilType ? 0 : 1;
+        int nRetRegs = 1; // TODO Improve balx format and VM side
         int flags = FunctionFlags.NOTHING;
         Operand[] operands = new Operand[nArgRegs + nRetRegs + 4];
         operands[i++] = getOperand(funcRefCPIndex);
@@ -1659,9 +1659,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Calculate registers to store return values
         operands[i++] = getOperand(nRetRegs);
-        if (iExpr.type == symTable.nilType) {
-            return operands;
-        }
 
         iExpr.regIndex = calcAndGetExprRegIndex(iExpr.regIndex, iExpr.type.tag);
         operands[i] = iExpr.regIndex;

@@ -232,9 +232,9 @@ simpleTypeName
     :   NullLiteral
     |   TYPE_ANY
     |   TYPE_DESC
-    |   nilTypeName
     |   valueTypeName
     |   referenceTypeName
+    |   emptyTupleLiteral // nil type name ()
     ;
 
 builtInTypeName
@@ -244,10 +244,6 @@ builtInTypeName
      |   builtInReferenceTypeName
      |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
      ;
-
-nilTypeName
-    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
-    ;
 
 referenceTypeName
     :   builtInReferenceTypeName
@@ -673,11 +669,11 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
-    |   (SUB)? integerLiteral
+    :   (SUB)? integerLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
+    |   emptyTupleLiteral
     |   NullLiteral
     ;
 
@@ -687,6 +683,10 @@ integerLiteral
     |   HexIntegerLiteral
     |   OctalIntegerLiteral
     |   BinaryIntegerLiteral
+    ;
+
+emptyTupleLiteral
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;
 
 namedArgs

@@ -851,7 +851,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.referenceTypeName() != null || ctx.valueTypeName() != null || ctx.nilTypeName() != null) {
+        if (ctx.referenceTypeName() != null || ctx.valueTypeName() != null) {
             return;
         }
 
@@ -874,15 +874,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         // This is 'any' type
-        this.pkgBuilder.addValueType(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
-    }
-
-    @Override
-    public void exitNilTypeName(BallerinaParser.NilTypeNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
         this.pkgBuilder.addValueType(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
     }
 
@@ -2095,7 +2086,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
-        } else if (ctx.NullLiteral() != null) {
+        } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
         }
     }
