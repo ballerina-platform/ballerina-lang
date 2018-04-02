@@ -27,14 +27,12 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 /**
- * Native function ballerina.lang.test:startServices.
+ * Native function ballerina.test:startServices.
  * Starts all the services in a ballerina package.
  *
  * @since 0.94.1
@@ -62,31 +60,13 @@ public class StartServices extends BlockingNativeCallableUnit {
                 continue;
             }
 
-            if (!programFile.isServiceEPAvailable()) {
-                throw new BallerinaException(String.format("no services found in package: %s", packageName));
-            }
-
-            Debugger debugger = new Debugger(programFile);
-            initDebugger(programFile, debugger);
-
-            // Invoke package init function
-            BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-
-            BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+            Utils.startService(programFile);
             ctx.setReturnValues(new BBoolean(true));
             return;
         }
 
         // package could not be found
         ctx.setReturnValues(new BBoolean(false));
-    }
-
-    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
-        programFile.setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
-            debugger.init();
-            debugger.waitTillDebuggeeResponds();
-        }
     }
 
 }
