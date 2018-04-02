@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
-import ballerina/net.grpc;
+import ballerina/grpc;
 
 function testUnaryBlockingClient () returns (string) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {

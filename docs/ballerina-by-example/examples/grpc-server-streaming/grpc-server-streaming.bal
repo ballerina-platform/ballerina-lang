@@ -1,7 +1,7 @@
 // This is server implementation for server streaming scenario
 import ballerina/io;
 import ballerina/log;
-import ballerina/net.grpc;
+import ballerina/grpc;
 
 // Server endpoint configuration
 endpoint grpc:Service ep {

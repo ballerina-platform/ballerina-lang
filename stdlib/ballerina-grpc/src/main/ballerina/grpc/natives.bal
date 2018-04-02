@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.net.grpc;
+package ballerina.grpc;
 
 @Description {value:"ConnectorError struct represents an error occured during the HTTP client invocation"}
 @Field {value:"message:  An error message explaining about the error"}
@@ -46,5 +46,3 @@ public struct ClientError {
     error cause;
     int statusCode;
 }
-
-public native function getHeader (string headerName) returns (string);

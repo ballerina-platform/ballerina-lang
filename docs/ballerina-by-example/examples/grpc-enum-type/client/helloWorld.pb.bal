@@ -1,6 +1,6 @@
 package client;
 
-import ballerina/net.grpc;
+import ballerina/grpc;
 import ballerina/io;
 
 struct helloWorldBlockingStub {
