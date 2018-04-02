@@ -9,7 +9,7 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
     endpoint http:ClientEndpoint httpEndpoint {
         targets: [
         {
-            uri: url,
+            url: url,
             secureSocket: {
                 trustStore: {
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
