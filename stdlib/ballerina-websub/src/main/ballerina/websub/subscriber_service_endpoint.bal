@@ -119,13 +119,17 @@ function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}
 @Param {value:"resourceUrl: The resource URL advertising hub and topic URLs"}
 @Return {value:"The (hub, topic) URLs if successful, WebSubError if not"}
-function retrieveHubAndTopicUrl (string resourceUrl) returns (string, string)|WebSubError {
+function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted (string, string)|WebSubError {
     endpoint http:ClientEndpoint resourceEP {targets:[{uri:resourceUrl}]};
     http:Request request = {};
     var discoveryResponse = resourceEP -> get("", request);
     WebSubError websubError = {};
     match (discoveryResponse) {
         http:Response response => {
+            int responseStatusCode = response.statusCode;
+            if (responseStatusCode == 301 || responseStatusCode == 302) {
+                return retrieveHubAndTopicUrl(response.getHeader("Location"));
+            }
             string[] linkHeaders;
             if (response.hasHeader("Link")) {
                 linkHeaders = response.getHeaders("Link");
