@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions.coordinator;
+package ballerina.transactions;
 import ballerina/io;
 
 documentation {
@@ -64,10 +64,10 @@ documentation {
 function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+        TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
         return txn.markForAbortion();
     } else if (initiatedTransactions.hasKey(transactionId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
         return txn.markForAbortion();
     } else {
         error err = {message:"Unknown transaction"};
@@ -94,7 +94,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>initiatedTransactions[transactionId];
+        TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
         if (txn.state == TransactionState.ABORTED) {
             return txn.abortInitiatorTransaction();
         } else {

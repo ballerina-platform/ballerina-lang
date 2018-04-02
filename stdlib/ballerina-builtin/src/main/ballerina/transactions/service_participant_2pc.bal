@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions.coordinator;
+package ballerina.transactions;
 
 import ballerina/log;
 import ballerina/http;
@@ -50,25 +50,25 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         PrepareResponse prepareRes = {};
 
         if (!participatedTransactions.hasKey(participatedTxnId)) {
-            res.statusCode = 404;
+            res.statusCode = http:NOT_FOUND_404;
             prepareRes.message = "Transaction-Unknown";
         } else {
-            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+            TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
             if (txn.state == TransactionState.ABORTED) {
-                res.statusCode = 200;
+                res.statusCode = http:OK_200;
                 prepareRes.message = OUTCOME_ABORTED;
                 removeParticipatedTransaction(participatedTxnId);
             } else {
                 // Call prepare on the local resource manager
                 boolean prepareSuccessful = prepareResourceManagers(transactionId, transactionBlockId);
                 if (prepareSuccessful) {
-                    res.statusCode = 200;
+                    res.statusCode = http:OK_200;
                     txn.state = TransactionState.PREPARED;
                     //PrepareResponse prepareRes = {message:"read-only"};
                     prepareRes.message = OUTCOME_PREPARED;
                     log:printInfo("Prepared transaction: " + transactionId);
                 } else {
-                    res.statusCode = 200;
+                    res.statusCode = http:OK_200;
                     prepareRes.message = OUTCOME_ABORTED;
                     txn.state = TransactionState.ABORTED;
                     removeParticipatedTransaction(participatedTxnId);
@@ -108,36 +108,36 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
         NotifyResponse notifyRes = {};
         if (!participatedTransactions.hasKey(participatedTxnId)) {
-            res.statusCode = 404;
+            res.statusCode = http:NOT_FOUND_404;
             notifyRes.message = "Transaction-Unknown";
         } else {
-            TwoPhaseCommitTransaction txn =? <TwoPhaseCommitTransaction>participatedTransactions[participatedTxnId];
+            TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
             if (notifyReq.message == COMMAND_COMMIT) {
                 if (txn.state != TransactionState.PREPARED) {
-                    res.statusCode = 400;
-                    notifyRes.message = "Not-Prepared";
+                    res.statusCode = http:BAD_REQUEST_400;
+                    notifyRes.message = OUTCOME_NOT_PREPARED;
                 } else {
                     // Notify commit to the resource manager
                     boolean commitSuccessful = commitResourceManagers(transactionId, transactionBlockId);
                     if (commitSuccessful) {
-                        res.statusCode = 200;
-                        notifyRes.message = "Committed";
+                        res.statusCode = http:OK_200;
+                        notifyRes.message = OUTCOME_COMMITTED;
                         txn.state = TransactionState.COMMITTED;
                     } else {
-                        res.statusCode = 500;
+                        res.statusCode = http:INTERNAL_SERVER_ERROR_500;
                         log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
-                        notifyRes.message = "Failed-EOT";
+                        notifyRes.message = OUTCOME_FAILED_EOT;
                     }
                 }
             } else if (notifyReq.message == COMMAND_ABORT) {
                 // Notify abort to the resource manager
                 boolean abortSuccessful = abortResourceManagers(transactionId, transactionBlockId);
                 if (abortSuccessful) {
-                    res.statusCode = 200;
+                    res.statusCode = http:OK_200;
                     notifyRes.message = OUTCOME_ABORTED;
                     txn.state = TransactionState.ABORTED;
                 } else {
-                    res.statusCode = 500;
+                    res.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
                     notifyRes.message = OUTCOME_FAILED_EOT;
                 }
