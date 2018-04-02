@@ -35,7 +35,7 @@ public native function <Counter counter> incrementByOne();
 @Param {value:"amount: float to be added with the counter value."}
 public native function <Counter counter> increment(float amount);
 
-@Description {value:"Get the value of the counter."}
+@Description {value:"Return the value of the counter."}
 @Param {value:"counter: The counter instance to be returned."}
 @Return {value:"The value of a counter"}
 public native function <Counter counter> count() returns (float);
@@ -73,7 +73,7 @@ public native function <Gauge gauge> decrement(float amount);
 @Param {value:"value: value to be set to the gauge."}
 public native function <Gauge gauge> setValue(float value);
 
-@Description {value:"Get the value of the gauge."}
+@Description {value:"Return the value of the gauge."}
 @Param {value:"gauge: The gauge instance to be returned."}
 @Return {value:"The value of a gauge"}
 public native function <Gauge gauge> value() returns (float);
@@ -88,28 +88,28 @@ public struct Summary {
     map tags;
 }
 
-@Description {value:"Returns the maximum value of a single event."}
+@Description {value: "Record the specific amount and update the summary."}
+@Param {value: "summary: The summary instance."}
+@Param {value: "amount: Amount for an event being measured."}
+public native function <Summary summary> record(float amount);
+
+@Description {value:"Return the maximum value of an event."}
 @Param {value:"summary: The summary instance."}
 @Return {value: "The maximum time of a single event."}
 public native function <Summary summary> max() returns (float);
 
-@Description {value: "Returns the distribution average for all recorded events."}
+@Description {value: "Return the mean value of all recorded events."}
 @Param {value: "summary: The summary instance."}
 @Return {value: "The distribution average for all recorded events."}
 public native function <Summary summary> mean() returns (float);
 
-@Description {value: "Returns the value at a specific percentile."}
+@Description {value: "Return the value at a specific percentile."}
 @Param {value: "summary: The summary instance."}
 @Param {value: "percentile: A percentile in the domain."}
 @Return {value: "The value at a specific percentile."}
 public native function <Summary summary> percentile(float percentile) returns (float);
 
-@Description {value: "Updates the statistics kept by the summary with the specified amount."}
-@Param {value: "summary: The summary instance."}
-@Param {value: "amount: Amount for an event being measured."}
-public native function <Summary summary> record(float amount);
-
-@Description {value: "Returns the number of times that record has been called since this summary was created."}
+@Description {value: "Return the number of values recorded in the summary."}
 @Param {value: "summary: The summary instance."}
 @Return {value: "The number of times that record has been called since this timer was created."}
 public native function <Summary summary> count() returns (int);
@@ -142,32 +142,32 @@ public struct Timer {
     map tags;
 }
 
-@Description {value: "Returns the maximum time of a single event."}
+@Description {value: "Record the specific amount with the time unit and update the timer."}
+@Param {value: "timer: The timer instance."}
+@Param {value: "amount: Duration of a single event being measured by this timer."}
+@Param {value: "timeUnit: Time unit for the amount being recorded."}
+public native function <Timer timer> record(int amount, TimeUnit timeUnit);
+
+@Description {value: "Return the maximum time of an event."}
 @Param {value: "timer: The timer instance."}
 @Param {value: "timeUnit: The base unit of time to scale the max to."}
 @Return {value: "The maximum time of a single event."}
 public native function <Timer timer> max(TimeUnit timeUnit) returns (float);
 
-@Description {value: "Returns the distribution average for all recorded events."}
+@Description {value: "Return the mean time of all recorded events."}
 @Param {value: "timer: The timer instance."}
 @Param {value: "timeUnit: The base unit of time to scale the mean to."}
 @Return {value: "The distribution average for all recorded events."}
 public native function <Timer timer> mean(TimeUnit timeUnit) returns (float);
 
-@Description {value: "Returns the latency at a specific percentile."}
+@Description {value: "Return the latency at a specific percentile."}
 @Param {value: "timer: The timer instance."}
 @Param {value: "percentiles: A percentile in the domain."}
 @Param {value: "timeUnit: The base unit of time to scale the percentile value to."}
 @Return {value: "The latency at a specific percentile."}
 public native function <Timer timer> percentile(float percentiles, TimeUnit timeUnit) returns (float);
 
-@Description {value: "Updates the statistics kept by the counter with the specified amount."}
-@Param {value: "timer: The timer instance."}
-@Param {value: "amount: Duration of a single event being measured by this timer."}
-@Param {value: "timeUnit: Time unit for the amount being recorded."}
-public native function <Timer timer> record(int amount, TimeUnit timeUnit);
-
-@Description {value: "Returns the number of times that stop has been called on this timer."}
+@Description {value: "Returns the number of times recorded in the timer."}
 @Param {value: "timer: The timer instance."}
 @Return {value: "The number of times that stop has been called on this timer."}
 public native function <Timer timer> count() returns (int);
