@@ -143,10 +143,18 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
                     }
                 }   
                 if (httpClientRequired) {
-                    if (config.cacheConfig.enabled) {
-                        ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
-                    } else{
-                        ep.httpClient = createHttpClient(uri, config);
+                    var retryConfig = config.retry;
+                    match retryConfig {
+                        Retry retry => {
+                            ep.httpClient = createRetryClient(uri, config);
+                        }
+                        int | null => {
+                            if (config.cacheConfig.enabled) {
+                                ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
+                            } else{
+                                ep.httpClient = createHttpClient(uri, config);
+                            }
+                        }
                     }
                 } else {
                     ep.httpClient = createCircuitBreakerClient(uri, config);                    
@@ -259,12 +267,19 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-
             HttpClient cbHttpClient = {};
-            if (configuration.cacheConfig.enabled) {
-                cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
-            } else{
-                cbHttpClient = createHttpClient(uri, configuration);
+            var retryConfig = configuration.retry;
+            match retryConfig {
+                Retry retry => {
+                    cbHttpClient = createRetryClient(uri, configuration);
+                }
+                int | null => {
+                    if (configuration.cacheConfig.enabled) {
+                        cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                    } else{
+                        cbHttpClient = createHttpClient(uri, configuration);
+                    }
+                }
             }
 
             time:Time circuitStartTime = time:currentTime();
@@ -331,4 +346,34 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                 failoverInferredConfig:failoverInferredConfig};
         HttpClient foClient = failover;
         return foClient;
+}
+
+function createRetryClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+    var retryConfig = configuration.retry;
+    match retryConfig {
+        Retry retry => {
+            HttpClient retryHttpClient = {};
+            if (configuration.cacheConfig.enabled) {
+                retryHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else{
+                retryHttpClient = createHttpClient(uri, configuration);
+            }
+            RetryClient retryClient = {
+                serviceUri:uri,
+                config:configuration,
+                retry: retry,
+                httpClient: retryHttpClient
+            };
+            HttpClient httpClient =  retryClient;
+            return httpClient;
+        }
+        int | null => {
+            //remove following once we can ignore
+            if (configuration.cacheConfig.enabled) {
+                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else {
+                return createHttpClient(uri, configuration);
+            }
+        }
+    }
 }
