@@ -302,7 +302,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(type -> type.tag == TypeTags.JSON || 
                         type.tag == TypeTags.MAP || 
                         type.tag == TypeTags.STRUCT ||
-                        type.tag == TypeTags.TABLE || 
                         type.tag == TypeTags.NONE || 
                         type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
