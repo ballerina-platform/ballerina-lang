@@ -29,8 +29,10 @@ import java.util.Map;
 public class RequestInjector implements TextMap {
 
     private final Map<String, String> carrier;
+    private final String prefix;
 
-    public RequestInjector(Map<String, String> carrier) {
+    public RequestInjector(String prefix, Map<String, String> carrier) {
+        this.prefix = prefix;
         this.carrier = carrier;
     }
 
@@ -42,6 +44,6 @@ public class RequestInjector implements TextMap {
 
     @Override
     public void put(String key, String value) {
-        carrier.put(key, value);
+        carrier.put(prefix + key, value);
     }
 }
