@@ -469,7 +469,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body == null);
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         // Define function receiver if any.
@@ -487,7 +487,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         invokableNode.defaultableParams.forEach(varDefNode -> {
             visitObjectAttachedFunctionParam(varDefNode.var, invokableEnv);
         });
-        
+
         if (invokableNode.returnTypeNode != null) {
             invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
         }
