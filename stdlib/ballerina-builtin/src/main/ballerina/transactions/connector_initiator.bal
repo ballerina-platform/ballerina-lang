@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions.coordinator;
+package ballerina.transactions;
 
 import ballerina/http;
 
@@ -60,7 +60,7 @@ function <InitiatorClient client> register (string transactionId,
     req.setJsonPayload(reqPayload);
     http:Response res =? httpClient -> post("", req);
     int statusCode = res.statusCode;
-    if (statusCode != 200) {
+    if (statusCode != http:OK_200) {
         error err = {message:"Registration for transaction: " + transactionId + " failed"};
         return err;
     }

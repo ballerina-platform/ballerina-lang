@@ -34,7 +34,7 @@ public class LSPackageCache {
     private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
             "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
             "collections", "config", "data.sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
-            "reflect", "runtime", "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
+            "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
 
     public LSPackageCache() {
         List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();

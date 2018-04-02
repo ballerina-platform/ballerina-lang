@@ -237,7 +237,7 @@ public class ParserUtils {
                 "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
                 "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
                 "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
-                "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
+                "security.crypto", "task", "time", "transactions", "user", "util"};
         try {
             List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
             for (BLangPackage bLangPackage : builtInPackages) {
