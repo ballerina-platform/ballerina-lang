@@ -1,4 +1,4 @@
-import ballerina/lang.system;import ballerina.net.http;
+import ballerina/lang.system;import ballerina/http;
 @http:configuration {
 }
 service<http> service1 {

@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint headerServiceEP {
     port: 9090
@@ -9,7 +9,7 @@ endpoint http:ServiceEndpoint stockServiceEP {
 };
 
 endpoint http:ClientEndpoint stockqEP {
-    targets: [{uri: "http://localhost:9091"}]
+    targets:[{url: "http://localhost:9091"}]
 };
 
 @http:ServiceConfig {

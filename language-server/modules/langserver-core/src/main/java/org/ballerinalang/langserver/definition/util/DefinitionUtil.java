@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.definition.util;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSPackageCache;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -49,7 +49,7 @@ public class DefinitionUtil {
      * @param lSPackageCache package context for language server.
      * @return position
      */
-    public static List<Location> getDefinitionPosition(TextDocumentServiceContext definitionContext,
+    public static List<Location> getDefinitionPosition(LSServiceOperationContext definitionContext,
                                                        LSPackageCache lSPackageCache) {
         List<Location> contents = new ArrayList<>();
         if (definitionContext.get(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY) == null) {
@@ -176,7 +176,7 @@ public class DefinitionUtil {
     /**
      * Get the package of the owner of given node.
      */
-    private static BLangPackage getPackageOfTheOwner(PackageID packageID, TextDocumentServiceContext definitionContext,
+    private static BLangPackage getPackageOfTheOwner(PackageID packageID, LSServiceOperationContext definitionContext,
                                                      LSPackageCache lSPackageCache) {
         return lSPackageCache.findPackage(definitionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), packageID);
     }

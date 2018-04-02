@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.common.position;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -95,11 +95,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     private Position position;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private Object previousNode;
     private Stack<BLangNode> nodeStack;
 
-    public PositionTreeVisitor(TextDocumentServiceContext context) {
+    public PositionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);

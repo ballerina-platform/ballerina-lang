@@ -71,7 +71,7 @@ public class HttpCachingClientTest {
     public void setup() {
         String httpModuleSourcePath = HttpConstants.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(httpModuleSourcePath, "META-INF", "ballerina");
-        compileResult = BCompileUtil.compile(sourceRoot.toString(), "net.http", CompilerPhase.CODE_GEN);
+        compileResult = BCompileUtil.compile(sourceRoot.toString(), "http", CompilerPhase.CODE_GEN);
     }
 
     @Test(description = "Tests whether the Age header is parsed correctly, according to the specification",

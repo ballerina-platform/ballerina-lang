@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 public class ResourceContextResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
         AbstractItemResolver itemResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
