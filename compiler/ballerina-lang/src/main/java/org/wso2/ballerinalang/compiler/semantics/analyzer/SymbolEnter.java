@@ -442,11 +442,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                         funcNode.receiver.type.tsymbol.name);
                 // This is only to keep the flow running so that at the end there will be proper semantic errors
                 funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                        getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                        getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
                 funcNode.symbol.scope = new Scope(funcNode.symbol);
             } else {
                 funcNode.symbol = (BInvokableSymbol) funcSymbol;
+                if (funcNode.symbol.bodyExist) {
+                    dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+                }
             }
+            //TODO check function parameters and return types
             SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, objectEnv);
 
             invokableEnv.scope = funcNode.symbol.scope;
@@ -463,7 +467,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body == null);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         // Define function receiver if any.
