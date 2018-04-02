@@ -186,7 +186,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 return actionFunctionList;
             }
 
-            BType boundType = ((BInvokableType) getClientFuncType).retTypes.get(0);
+            BType boundType = ((BInvokableType) getClientFuncType).retType;
             packageID = boundType.tsymbol.pkgID.toString();
             bTypeValue = boundType.toString();
         } else if (bType instanceof BArrayType) {

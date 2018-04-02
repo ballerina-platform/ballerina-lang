@@ -102,10 +102,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 funcNode.requiredParams.forEach(this::acceptNode);
             }
 
-            if (!funcNode.retParams.isEmpty()) {
-                funcNode.retParams.forEach(this::acceptNode);
-            }
-
             if (funcNode.body != null) {
                 this.acceptNode(funcNode.body);
             }
@@ -163,10 +159,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 resourceNode.requiredParams.forEach(this::acceptNode);
             }
 
-            if (!resourceNode.retParams.isEmpty()) {
-                resourceNode.retParams.forEach(this::acceptNode);
-            }
-
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
             }
@@ -197,10 +189,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
             if (!actionNode.requiredParams.isEmpty()) {
                 actionNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (!actionNode.retParams.isEmpty()) {
-                actionNode.retParams.forEach(this::acceptNode);
             }
 
             if (actionNode.body != null) {
@@ -249,9 +237,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
     }
 
     @Override
