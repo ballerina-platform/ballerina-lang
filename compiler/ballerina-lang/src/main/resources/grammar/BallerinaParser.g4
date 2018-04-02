@@ -80,7 +80,7 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
+    :  LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS EQUAL_GT lambdaReturnParameter? callableUnitBody
     ;
 
 callableUnitSignature
@@ -640,6 +640,10 @@ nameReference
 
 returnParameter
     : RETURNS annotationAttachment* typeName
+    ;
+
+lambdaReturnParameter
+    : annotationAttachment* typeName
     ;
 
 parameterTypeNameList
