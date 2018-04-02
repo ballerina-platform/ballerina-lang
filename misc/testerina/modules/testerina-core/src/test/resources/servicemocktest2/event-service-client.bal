@@ -11,7 +11,7 @@ public function getEvents () returns (json) {
 
     endpoint http:ClientEndpoint httpEndpoint {
         targets:[{
-            uri:eventServiceEP
+            url:eventServiceEP
         }]
     };
     http:Request req = {};

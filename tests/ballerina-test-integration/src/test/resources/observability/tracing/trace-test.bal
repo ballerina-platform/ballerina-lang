@@ -48,7 +48,7 @@ service<http:Service> echoService bind ep1 {
 
 function callNextResource() returns (http:Response) {
     endpoint http:ClientEndpoint httpEndpoint {
-        targets : [{uri : "http://localhost:9090/echoService"}]
+        targets : [{url: "http://localhost:9090/echoService"}]
     };
 
     http:Request request = {};

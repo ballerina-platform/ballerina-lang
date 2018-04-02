@@ -8,7 +8,7 @@ endpoint http:ServiceEndpoint cbrEP {
 
 @Description {value:"Attributes associated with the client endpoint is defined here."}
 endpoint http:ClientEndpoint locationEP {
-    targets: [{uri: "http://www.mocky.io"}]
+    targets:[{url: "http://www.mocky.io"}]
 };
 
 

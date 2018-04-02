@@ -6,7 +6,7 @@ endpoint http:ServiceEndpoint helloWorldEP {
 };
 
 endpoint http:ClientEndpoint clientEP {
-    targets: [{uri: "http://httpstat.us"}]
+    targets:[{url: "http://httpstat.us"}]
 };
 
 @http:ServiceConfig { basePath:"/hello", endpoints:[helloWorldEP] }
