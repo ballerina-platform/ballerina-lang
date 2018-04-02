@@ -56,7 +56,8 @@ public class TableIterationTest {
                 "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 55,
                 41);
         BAssertUtil.validateError(resultNegative, 2,
-                "incompatible types: expected 'EmployeeSalary', found '" + "(EmployeeSalaryIncompatible)'", 62, 41);
+                "incompatible types: expected 'EmployeeSalary', found '" + "(EmployeeSalaryIncompatible) collection'",
+                62, 41);
         BAssertUtil.validateError(resultNegative, 3,
                 "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 69,
                 41);
@@ -180,7 +181,7 @@ public class TableIterationTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelect() {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertNotNull(returns);
@@ -189,7 +190,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelectCompatibleLambdaInput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInput");
         Assert.assertNotNull(returns);
@@ -198,7 +199,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelectCompatibleLambdaOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaOutput");
         Assert.assertNotNull(returns);
@@ -207,7 +208,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSelectCompatibleLambdaInputOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInputOutput");
         Assert.assertNotNull(returns);

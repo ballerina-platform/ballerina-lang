@@ -26,7 +26,7 @@ import TreeUtil from '../../../../../model/tree-util';
  * with an action invocation expression.
  * Includes : assignment node, var def node and invocation statements with action invocations.
  * */
-class ActionInvocationNode extends React.Component {
+class InvocationNode extends React.Component {
 
 
     constructor(props) {
@@ -69,13 +69,13 @@ class ActionInvocationNode extends React.Component {
     }
 }
 
-ActionInvocationNode.propTypes = {
+InvocationNode.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-ActionInvocationNode.contextTypes = {
+InvocationNode.contextTypes = {
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default ActionInvocationNode;
+export default InvocationNode;

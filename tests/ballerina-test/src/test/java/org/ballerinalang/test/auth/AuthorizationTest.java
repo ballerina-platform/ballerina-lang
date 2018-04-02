@@ -92,12 +92,19 @@ public class AuthorizationTest {
     public void testAuthorizationForNonExistingScope() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationForNonExistingScope");
         Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for checking authorization success")
     public void testAuthorizationSuccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationSuccess");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for checking authorization success with multiple scopes")
+    public void testAuthorizationSuccessWithMultipleScopes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationSuccessWithMultipleScopes");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }

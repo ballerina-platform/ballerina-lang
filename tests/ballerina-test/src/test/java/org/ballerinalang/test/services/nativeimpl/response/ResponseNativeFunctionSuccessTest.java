@@ -27,7 +27,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -37,6 +36,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -57,6 +57,7 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 
 /**
  * Test cases for ballerina.net.http inbound inResponse success native functions.
@@ -67,6 +68,7 @@ public class ResponseNativeFunctionSuccessTest {
     private final String inResStruct = HttpConstants.RESPONSE;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String resCacheControlStruct = RESPONSE_CACHE_CONTROL;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
@@ -128,7 +130,7 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
-    @Test(description = "Enable this once the method is added back in http package", enabled = false)
+    @Test
     public void testGetContentLength() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
@@ -140,13 +142,16 @@ public class ResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               resCacheControlStruct);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
+        Assert.assertEquals(String.valueOf(payload.length()), returnVals[0].stringValue());
     }
 
     @Test
@@ -159,7 +164,10 @@ public class ResponseNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               resCacheControlStruct);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inResponse, key};
@@ -192,7 +200,10 @@ public class ResponseNativeFunctionSuccessTest {
         inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               resCacheControlStruct);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inResponse, key};

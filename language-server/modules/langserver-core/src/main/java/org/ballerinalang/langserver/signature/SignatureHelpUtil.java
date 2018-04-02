@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -167,8 +166,8 @@ public class SignatureHelpUtil {
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        BLangPackage bLangPackage = signatureContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY).
-                getPackageById(compilerContext, bInvokableSymbol.pkgID);
+        BLangPackage bLangPackage = signatureContext.get(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY).
+                findPackage(compilerContext, bInvokableSymbol.pkgID);
 
         BLangFunction blangFunction = bLangPackage.getFunctions().stream()
                 .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))

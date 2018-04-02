@@ -97,6 +97,7 @@ public class SymbolTable {
     public final BType connectorType = new BConnectorType(null, null);
     public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
     public final BType arrayType = new BArrayType(noType);
+    public final BType voidType = new BType(TypeTags.VOID, null);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
@@ -393,7 +394,7 @@ public class SymbolTable {
         defineConversionOperator(tableType, jsonType, false, InstructionCodes.DT2JSON);
         defineConversionOperator(xmlAttributesType, mapType, true, InstructionCodes.XMLATTRS2MAP);
 //        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
-//        defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
+        defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
     }
 

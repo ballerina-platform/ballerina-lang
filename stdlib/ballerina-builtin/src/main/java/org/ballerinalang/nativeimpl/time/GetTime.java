@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
@@ -26,6 +27,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.Arrays;
 
 /**
  * Get the hour, minute, second and millisecond value for the given time.
@@ -45,10 +48,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetTime extends AbstractTimeFunction {
 
+    private static final BTupleType getTimeTupleType = new BTupleType(
+            Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
+
     @Override
     public void execute(Context context) {
         BStruct timeStruct = ((BStruct) context.getRefArgument(0));
-        BRefValueArray time = new BRefValueArray(BTypes.typeInt);
+        BRefValueArray time = new BRefValueArray(getTimeTupleType);
         time.add(0, new BInteger(getHour(timeStruct)));
         time.add(1, new BInteger(getMinute(timeStruct)));
         time.add(2, new BInteger(getSecond(timeStruct)));

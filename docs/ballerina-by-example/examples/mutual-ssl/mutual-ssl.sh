@@ -1,6 +1,6 @@
 #Run the service
 $ ballerina run mutual-ssl.bal -s
-ballerina: deploying service(s) in 'mutual-ssl.bal'
+ballerina: initiating service(s) in 'mutual-ssl.bal'
 ballerina: started HTTPS/WSS server connector http-9095
 
 #Run the main function containing ballerina client

@@ -24,11 +24,13 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
+import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -1001,10 +1003,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        //TODO popping annotation attachments from type nodes temporarily, fix later.
-        boolean popAnnAttachmnt = ctx.getParent() instanceof BallerinaParser.AnnotatedTypeNameContext;
         this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx), ctx.recordLiteral() != null,
-                getCurrentPos(ctx), popAnnAttachmnt);
+                getCurrentPos(ctx), false);
     }
 
 
@@ -1285,7 +1285,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.completeMatchNode(getWS(ctx));
+        this.pkgBuilder.completeMatchNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -1610,8 +1610,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String fieldName = ctx.field().Identifier().getText();
-        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName);
+        FieldContext field = ctx.field();
+        String fieldName;
+        FieldType fieldType;
+        if (field.Identifier() != null) {
+            fieldName = field.Identifier().getText();
+            fieldType = FieldType.SINGLE;
+        } else {
+            fieldName = field.MUL().getText();
+            fieldType = FieldType.ALL;
+        }
+
+        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldType);
     }
 
     @Override
@@ -2006,8 +2016,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        //TODO setting annotation count 0 as parameters won't adding annotations to parameters.
-        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, 0);
+        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
     }
 
     @Override

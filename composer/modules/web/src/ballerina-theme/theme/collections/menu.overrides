@@ -1,3 +1,14 @@
 /*******************************
          Site Overrides
 *******************************/
+.ui.menu {
+    display         : flex;
+    margin          : @margin;
+    background      : @background;
+    font-weight     : @fontWeight;
+    border          : 0;
+    box-shadow      : none;
+    border-radius   : @borderRadius;
+    min-height      : @minHeight;
+    z-index         : 100;
+}

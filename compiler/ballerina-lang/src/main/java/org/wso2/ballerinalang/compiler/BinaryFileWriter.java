@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -38,9 +39,11 @@ import java.nio.file.Path;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
+
 
 /**
  * Write a compiled executable program(.balx) or a compiled package(balo.) to a file.
@@ -84,8 +87,10 @@ public class BinaryFileWriter {
         Path path = this.sourceDirectory.getPath();
         if (Files.isDirectory(path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
             ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
-            Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convert
-                    (projectSourceRepo.getConverterInstance());
+            Patten packageIDPattern = projectSourceRepo.calculate(packageNode.packageID);
+            Stream<Path> pathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
+            pathStream = Stream.concat(pathStream, packageIDPattern.sibling(path("Ballerina.md")).convert
+                    (projectSourceRepo.getConverterInstance()));
             String prjPath = projectSourceRepo.getConverterInstance().toString();
             ZipUtils.generateBalo(packageNode, prjPath, pathStream);
         }
@@ -109,8 +114,8 @@ public class BinaryFileWriter {
             throw new BLangCompilerException("error writing program file '" + fileName + "'", e);
         }
 
-        this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS.toByteArray()), fileName);
-        final Path execFilePath = this.sourceDirectory.getPath().resolve(fileName);
+        final Path execFilePath = this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS
+                .toByteArray()), fileName);
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
             plugin.codeGenerated(execFilePath);

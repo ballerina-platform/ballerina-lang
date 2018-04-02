@@ -40,7 +40,7 @@ public interface SourceDirectory {
 
     InputStream getLockFileContent();
 
-    void saveCompiledProgram(InputStream source, String fileName);
+    Path saveCompiledProgram(InputStream source, String fileName);
 
     void saveCompiledPackage(InputStream source, String fileName);
 

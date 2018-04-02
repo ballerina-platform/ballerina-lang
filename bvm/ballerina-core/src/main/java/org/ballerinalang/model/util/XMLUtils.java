@@ -300,6 +300,9 @@ public class XMLUtils {
         } else {
             //Process xml sequence
             BXMLSequence xmlSequence = (BXMLSequence) xml;
+            if (xmlSequence.isEmpty().booleanValue()) {
+                return new BJSON("[]");
+            }
             jsonNode = traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
 
         }
