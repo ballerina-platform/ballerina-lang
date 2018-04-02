@@ -37,7 +37,7 @@ public class ObservabilityConfig {
     }
 
     private boolean getEnabledFlag(String key) {
-        return Boolean.valueOf(configRegistry.getConfigOrDefault(key, String.valueOf(Boolean.TRUE)));
+        return Boolean.valueOf(configRegistry.getConfigOrDefault(key, String.valueOf(Boolean.FALSE)));
     }
 
     public static ObservabilityConfig getInstance() {
