@@ -31,12 +31,12 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 /**
- * Native function ballerina.transactions.coordinator:getAvailablePort.
+ * Native function ballerina.transactions:getAvailablePort.
  *
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "transactions.coordinator",
+        orgName = "ballerina", packageName = "transactions",
         functionName = "getHostAddress",
         returnType = {@ReturnType(type = TypeKind.STRING)}
 )

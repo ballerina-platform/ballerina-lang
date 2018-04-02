@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions.coordinator;
+package ballerina.transactions;
 
 import ballerina/http;
 
@@ -57,10 +57,10 @@ public function <Participant2pcClient client> prepare (string transactionId) ret
     req.setJsonPayload(j);
     http:Response res =? httpClient -> post("/prepare", req);
     int statusCode = res.statusCode;
-    if (statusCode == 404) {
+    if (statusCode == http:NOT_FOUND_404) {
         error err = {message:"Transaction-Unknown"};
         return err;
-    } else if (statusCode == 200) {
+    } else if (statusCode == http:OK_200) {
         json payload =? res.getJsonPayload();
         PrepareResponse prepareRes = <PrepareResponse>payload; //TODO: Change this this to use the safe assignment operator
         return prepareRes.message;
@@ -82,10 +82,11 @@ public function <Participant2pcClient client> notify (string transactionId, stri
     NotifyResponse notifyRes = <NotifyResponse>payload;  //TODO: Change this this to use the safe assignment operator
     string msg = notifyRes.message;
     int statusCode = res.statusCode;
-    if (statusCode == 200) {
+    if (statusCode == http:OK_200) {
         return msg;
-    } else if ((statusCode == 400 && msg == "Not-Prepared") || (statusCode == 404 && msg == "Transaction-Unknown") ||
-               (statusCode == 500 && msg == "Failed-EOT")) {
+    } else if ((statusCode == http:BAD_REQUEST_400 && msg == "Not-Prepared") ||
+               (statusCode == http:NOT_FOUND_404 && msg == "Transaction-Unknown") ||
+               (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == "Failed-EOT")) {
         error participantErr = {message:msg};
         return participantErr;
     } else {

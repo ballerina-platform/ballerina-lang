@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions.coordinator;
+package ballerina.transactions;
 
 import ballerina/caching;
 import ballerina/log;
@@ -141,7 +141,7 @@ function protocolCompatible (string coordinationType,
 function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     endpoint http:ServiceEndpoint ep = conn;
     log:printError(msg);
-    http:Response res = {statusCode:400};
+    http:Response res = {statusCode:http:BAD_REQUEST_400};
     RequestError err = {errorMessage:msg};
     json resPayload =? <json>err;
     res.setJsonPayload(resPayload);
