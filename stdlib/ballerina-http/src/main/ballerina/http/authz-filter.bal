@@ -60,11 +60,7 @@ public function authzRequestFilterFunc (Request request, FilterContext context) 
     boolean authorized;
     match scopes {
         string[] scopeNames => {
-            if (lengthof scopeNames == 0) {
-                authorized = true;
-            } else {
-                authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
-            }
+            authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
         }
         null => {
             // scopes are not defined, no need to authorize
