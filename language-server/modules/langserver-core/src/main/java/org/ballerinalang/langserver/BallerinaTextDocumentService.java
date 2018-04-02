@@ -37,7 +37,6 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -93,7 +92,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Text document service implementation for ballerina.
  */
-public class BallerinaTextDocumentService implements TextDocumentService {
+class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
     private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
 
@@ -104,12 +103,10 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     private final Debouncer diagPushDebouncer;
 
-    public BallerinaTextDocumentService(BallerinaLanguageServer ballerinaLanguageServer,
-                                        WorkspaceDocumentManagerImpl workspaceDocumentManager,
-                                        LSPackageCache packageContext) {
-        this.ballerinaLanguageServer = ballerinaLanguageServer;
-        this.documentManager = workspaceDocumentManager;
-        this.lSPackageCache = packageContext;
+    BallerinaTextDocumentService(LSGlobalContext lsGlobalContext) {
+        this.ballerinaLanguageServer = lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.documentManager = lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+        this.lSPackageCache = lsGlobalContext.get(LSGlobalContextKeys.PKG_CACHE_KEY);
         this.lastDiagnosticMap = new HashMap<>();
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
@@ -119,7 +116,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             List<CompletionItem> completions;
-            TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
+            LSServiceOperationContext completionContext = new LSServiceOperationContext();
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             completionContext.put(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY, lSPackageCache);
@@ -155,7 +152,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            TextDocumentServiceContext hoverContext = new TextDocumentServiceContext();
+            LSServiceOperationContext hoverContext = new LSServiceOperationContext();
             hoverContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             Hover hover;
@@ -182,7 +179,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String uri = position.getTextDocument().getUri();
             String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
-            TextDocumentServiceContext signatureContext = new TextDocumentServiceContext();
+            LSServiceOperationContext signatureContext = new LSServiceOperationContext();
             SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
@@ -206,7 +203,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            TextDocumentServiceContext definitionContext = new TextDocumentServiceContext();
+            LSServiceOperationContext definitionContext = new LSServiceOperationContext();
             definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
 
@@ -232,7 +229,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            TextDocumentServiceContext referenceContext = new TextDocumentServiceContext();
+            LSServiceOperationContext referenceContext = new LSServiceOperationContext();
             referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
             referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
             List<Location> contents = new ArrayList<>();
@@ -279,7 +276,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         String uri = params.getTextDocument().getUri();
         List<SymbolInformation> symbols = new ArrayList<>();
 
-        TextDocumentServiceContext symbolsContext = new TextDocumentServiceContext();
+        LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
         symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
 
@@ -334,7 +331,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String textEditContent = null;
 
-            TextDocumentServiceContext formatContext = new TextDocumentServiceContext();
+            LSServiceOperationContext formatContext = new LSServiceOperationContext();
             formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
 
             LSDocument document = new LSDocument(params.getTextDocument().getUri());
@@ -373,7 +370,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-            TextDocumentServiceContext renameContext = new TextDocumentServiceContext();
+            LSServiceOperationContext renameContext = new LSServiceOperationContext();
             renameContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
             renameContext.put(DocumentServiceKeys.POSITION_KEY,
                     new TextDocumentPositionParams(params.getTextDocument(), params.getPosition()));

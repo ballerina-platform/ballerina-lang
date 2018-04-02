@@ -20,7 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -50,7 +50,7 @@ public class TextDocumentFormatUtil {
      * @return {@link JsonObject}   AST as a Json Object
      */
     public static JsonObject getAST(DocumentFormattingParams params, WorkspaceDocumentManager documentManager,
-                                    TextDocumentServiceContext context) {
+                                    LSServiceOperationContext context) {
         String documentUri = params.getTextDocument().getUri();
         String[] uriParts = documentUri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];

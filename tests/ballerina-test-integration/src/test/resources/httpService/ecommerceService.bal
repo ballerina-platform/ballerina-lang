@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint serviceEndpoint {
     port:9090
@@ -30,7 +30,7 @@ service<http:Service> CustomerMgtService bind serviceEndpoint {
 }
 
 endpoint http:ClientEndpoint productsService {
-    targets: [{uri: "http://localhost:9090"}]
+    targets:[{url: "http://localhost:9090"}]
 };
 
 @http:ServiceConfig {
