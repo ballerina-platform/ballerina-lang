@@ -1716,6 +1716,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#lambdaReturnParameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterLambdaReturnParameter(BallerinaParser.LambdaReturnParameterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#lambdaReturnParameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitLambdaReturnParameter(BallerinaParser.LambdaReturnParameterContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#parameterTypeNameList}.
 	 * @param ctx the parse tree
 	 */

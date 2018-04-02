@@ -375,7 +375,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.formalParameterList() != null,
-                ctx.returnParameter() != null,
+                ctx.lambdaReturnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
@@ -1991,6 +1991,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
+    }
+
+    @Override
+    public void exitLambdaReturnParameter(BallerinaParser.LambdaReturnParameterContext ctx) {
         if (ctx.exception != null) {
             return;
         }
