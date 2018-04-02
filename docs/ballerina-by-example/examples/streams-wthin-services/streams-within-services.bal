@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
@@ -14,7 +14,7 @@ struct RequestCount {
 stream<RequestCount> requestCountStream = {};
 stream<ClientRequest> requestStream = {};
 
-function initRealtimeRequestCounter () returns (int) {
+function initRealtimeRequestCounter () {
 
     //Gather all the events which are coming to requestStream for 5 sec, then group by host and the count the number
     //of requests per host, then check if the count is more than 6. If so, publish the output (host and the count) to
@@ -34,10 +34,6 @@ function initRealtimeRequestCounter () returns (int) {
     //Whenever requestCountStream receives an event from the streaming rules defined in the forever block,
     //'printRequestCount' function will be invoked.
     requestCountStream.subscribe(printRequestCount);
-
-    // TODO: as a workaround, we return an int, as the functions with no return statements cannot be invoked in
-    // TODO: service scope.
-    return 0;
 }
 
 function printRequestCount (RequestCount reqCount) {
@@ -54,8 +50,7 @@ endpoint http:ServiceEndpoint storeServiceEndpoint {
 }
 service<http:Service> StoreService bind storeServiceEndpoint {
 
-    // TODO: right now there is no way to invoke a function which has no return statement.
-    int d = initRealtimeRequestCounter();
+    future ftr = async initRealtimeRequestCounter();
 
     @http:ResourceConfig {
         methods:["POST"],

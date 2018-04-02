@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.util.sorters;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -39,7 +39,7 @@ import java.util.List;
  */
 class CallableUnitBodyItemSorter extends CompletionItemSorter {
     @Override
-    public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
         TokenStream tokenStream = ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         
@@ -97,7 +97,7 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         return workerItem;
     }
     
-    private void clearItemsIfWorkerExists(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
+    private void clearItemsIfWorkerExists(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         BLangNode blockOwner = (BLangNode) ctx.get(CompletionKeys.BLOCK_OWNER_KEY);
         
         if (blockOwner instanceof BLangInvokableNode && !((BLangInvokableNode) blockOwner).getWorkers().isEmpty()) {

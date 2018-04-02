@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
@@ -26,7 +26,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
         var jsonMsg = req.getJsonPayload();
         string nameString;
         match jsonMsg {
-            mime:EntityError payloadError => io:println("Error getting payload");
+            http:PayloadError payloadError => io:println("Error getting payload");
             json payload =>  {
                 nameString = extractFieldValue(payload.name);
             }

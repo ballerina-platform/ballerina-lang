@@ -39,10 +39,10 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http.mock",
+        orgName = "ballerina", packageName = "http",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
-                structPackage = "ballerina.net.http.mock"),
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )

@@ -89,8 +89,8 @@ public abstract class WebSocketUtil {
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                populateWebSocketConnector(session, wsConnection);
                 BStruct serviceEndpoint = (BStruct) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_ENDPOINT);
+                populateEndpoint(session, serviceEndpoint);
                 wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              serviceEndpoint);
@@ -115,7 +115,7 @@ public abstract class WebSocketUtil {
         });
     }
 
-    public static void populateWebSocketConnector(Session session, BStruct endpoint) {
+    public static void populateEndpoint(Session session, BStruct endpoint) {
         endpoint.setStringField(0, session.getId());
         endpoint.setStringField(1, session.getNegotiatedSubprotocol());
         endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);

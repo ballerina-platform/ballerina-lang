@@ -259,28 +259,30 @@ public interface InstructionCodes {
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
 
-    int IRET = 231;
-    int FRET = 232;
-    int SRET = 233;
-    int BRET = 234;
-    int LRET = 235;
-    int RRET = 236;
-    int RET = 237;
+    int IRET = 229;
+    int FRET = 230;
+    int SRET = 231;
+    int BRET = 232;
+    int LRET = 233;
+    int RRET = 234;
+    int RET = 235;
 
-    int XML2XMLATTRS = 238;
-    int XMLATTRS2MAP = 239;
-    int XMLATTRLOAD = 240;
-    int XMLATTRSTORE = 241;
-    int S2QNAME = 242;
-    int NEWQNAME = 243;
-    int NEWXMLELEMENT = 244;
-    int NEWXMLCOMMENT = 245;
-    int NEWXMLTEXT = 246;
-    int NEWXMLPI = 247;
-    int XMLSTORE = 248;
-    int XMLLOAD = 249;
+    int XML2XMLATTRS = 236;
+    int XMLATTRS2MAP = 237;
+    int XMLATTRLOAD = 238;
+    int XMLATTRSTORE = 239;
+    int S2QNAME = 240;
+    int NEWQNAME = 241;
+    int NEWXMLELEMENT = 242;
+    int NEWXMLCOMMENT = 243;
+    int NEWXMLTEXT = 244;
+    int NEWXMLPI = 245;
+    int XMLSEQSTORE = 246;
+    int XMLSEQLOAD = 247;
+    int XMLLOAD = 248;
+    int XMLLOADALL = 249;
     int NEWXMLSEQ = 250;
-    
+
     int TYPEOF = 251;
     int TYPELOAD = 252;
 

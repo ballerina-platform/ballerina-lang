@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -962,6 +963,8 @@ public class ProgramFileReader {
                 typeStack.push(new BFunctionType());
                 return index + 1;
             case 'O':
+            case 'P':
+                typeChar = chars[index];
                 index++;
                 nameIndex = index;
                 while (chars[nameIndex] != ';') {
@@ -974,7 +977,11 @@ public class ProgramFileReader {
                     index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo) - 1;
                     memberTypes.add(typeStack.pop());
                 }
-                typeStack.push(new BUnionType(memberTypes));
+                if (typeChar == 'O') {
+                    typeStack.push(new BUnionType(memberTypes));
+                } else if (typeChar == 'P') {
+                    typeStack.push(new BTupleType(memberTypes));
+                }
                 return index + 1;
             case 'N':
                 typeStack.push(BTypes.typeNull);
@@ -1056,6 +1063,7 @@ public class ProgramFileReader {
                 // TODO : Fix this for type casting.
                 return new BFunctionType();
             case 'O':
+            case 'P':
                 Stack<BType> typeStack = new Stack<BType>();
                 createBTypeFromSig(desc.toCharArray(), 0, typeStack, null);
                 return typeStack.pop();
@@ -1413,7 +1421,7 @@ public class ProgramFileReader {
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
-                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLSEQSTORE:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
@@ -1471,6 +1479,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.CHECK_CONVERSION:
+                case InstructionCodes.XMLLOADALL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1555,6 +1564,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
+                case InstructionCodes.XMLSEQLOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

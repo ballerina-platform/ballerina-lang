@@ -36,10 +36,10 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * If there are more than one header value for the specified header name exists, the first value is returned.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "getHeader",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "PushPromise",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "headerName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

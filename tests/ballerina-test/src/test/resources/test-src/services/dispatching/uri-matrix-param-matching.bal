@@ -1,7 +1,7 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
-endpoint mock:NonListeningServiceEndpoint testEP {
+endpoint http:NonListeningServiceEndpoint testEP {
     port:9090
 };
 
@@ -12,31 +12,31 @@ service<http:Service> testService bind testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/t1/{person}/bar/{year}/foo"
+        path:"/t1/{person}/bar/{yearParam}/foo"
     }
-     test1 (endpoint client, http:Request req, string person, string year) {
+     test1 (endpoint client, http:Request req, string person, string yearParam) {
         http:Response res = {};
         json outJson = {};
-        outJson.pathParams = string `{{person}}, {{year}}`;
+        outJson.pathParams = string `{{person}}, {{yearParam}}`;
 
         map personMParams = req.getMatrixParams(string `/hello/t1/{{person}}`);
-        var age =? <string> personMParams["age"];
-        var color =? <string> personMParams["color"];
+        string age = <string> personMParams["age"];
+        string color = <string> personMParams["color"];
         outJson.personMatrix = string `age={{age}};color={{color}}`;
 
-        map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}`);
-        var month =? <string> yearMParams["month"];
-        var day =? <string> yearMParams["day"];
-        outJson.yearMatrix = string `month={{month}};day={{day}}`;
+        map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}`);
+        string monthValue = <string> yearMParams["month"];
+        string dayValue = <string> yearMParams["day"];
+        outJson.yearMatrix = string `month={{monthValue}};day={{dayValue}}`;
 
-        map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{year}}/foo`);
-        var a =? <string> fooMParams["a"];
-        var b =? <string> fooMParams["b"];
+        map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}/foo`);
+        string a = <string> fooMParams["a"];
+        string b = <string> fooMParams["b"];
         outJson.fooMatrix = string `a={{a}};b={{b}}`;
 
         map queryParams = req.getQueryParams();
-        var x =? <string> queryParams["x"];
-        var y =? <string> queryParams["y"];
+        string x = <string> queryParams["x"];
+        string y = <string> queryParams["y"];
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
         res.setJsonPayload(outJson);

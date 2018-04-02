@@ -137,12 +137,13 @@ class LifelineButton extends React.Component {
         const suggestions = [];
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
+        const endpointTypeName = endpointNode.endPointType.typeName.value;
         let endpointTypePkg = endpointNode.endPointType.packageAlias.getValue();
         endpointTypePkg = (endpointTypePkg === '') ? 'Current Package' : endpointTypePkg;
-        const pkg = _.find(packages, (ownerPackage) => (ownerPackage.getName() === endpointTypePkg));
+        const pkg = _.find(packages, (ownerPackage) => (ownerPackage.getName().endsWith(endpointTypePkg)));
         const getClientFunction = _.find(pkg.getFunctionDefinitions(),
-            (functionItem) => functionItem._name === 'getClient');
-        const clientStructType = (getClientFunction._returnParams[0]).type;
+            (functionItem) => functionItem._name === 'getClient' && functionItem._receiverType === endpointTypeName);
+        const clientStructType = ((getClientFunction)._returnParams[0]).type;
         const structTypeComponents = clientStructType.split(":");
         
         _.filter(pkg.getFunctionDefinitions(), (functionDef) => {
@@ -268,7 +269,7 @@ class LifelineButton extends React.Component {
                             {
                             currentEndpoints.map((statement) => {
                                 return (<Item
-                                    label={statement.getName().getValue()}
+                                    label={statement.name.getValue()}
                                     icon='fw fw-endpoint'
                                     callback={() => this.showEndpoints(statement)}
                                     closeMenu={false}

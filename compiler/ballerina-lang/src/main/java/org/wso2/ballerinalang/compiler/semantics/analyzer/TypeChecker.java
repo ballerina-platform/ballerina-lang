@@ -98,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -108,6 +109,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -140,7 +142,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private DiagnosticCode diagCode;
     private List<BType> resultTypes;
-
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -291,11 +292,11 @@ public class TypeChecker extends BLangNodeVisitor {
         };
 
         return expTypes.stream()
-                .filter(type -> type.tag == TypeTags.JSON || 
-                        type.tag == TypeTags.MAP || 
+                .filter(type -> type.tag == TypeTags.JSON ||
+                        type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.STRUCT ||
-                        type.tag == TypeTags.TABLE || 
-                        type.tag == TypeTags.NONE || 
+                        type.tag == TypeTags.TABLE ||
+                        type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -343,6 +344,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // First analyze the variable reference expression.
         BType actualType = symTable.errType;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
+
+        if (fieldAccessExpr.fieldType == FieldType.ALL && varRefType.tag != TypeTags.XML) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
+        }
+
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
@@ -383,6 +389,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldAccessExpr.symbol = (BVarSymbol) symbol;
                 actualType = fieldAccessExpr.expr.type;
 
+                break;
+            case TypeTags.XML:
+                if (fieldAccessExpr.lhsVar) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+                    break;
+                }
+                actualType = symTable.xmlType;
                 break;
             case TypeTags.ERROR:
                 // Do nothing
@@ -456,10 +469,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
                     break;
                 }
-                indexExprType = checkExpr(indexExpr, this.env, Lists.of(symTable.intType)).get(0);
-                if (indexExprType.tag == TypeTags.INT) {
-                    actualType = symTable.xmlType;
-                }
+                checkExpr(indexExpr, this.env).get(0);
+                actualType = symTable.xmlType;
                 break;
             case TypeTags.ERROR:
                 // Do nothing
@@ -491,8 +502,13 @@ public class TypeChecker extends BLangNodeVisitor {
         final List<BType> exprTypes = checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
         if (isIterableOperationInvocation(iExpr)) {
             iExpr.iterableOperationInvocation = true;
-            iterableAnalyzer.handlerIterableOperation(iExpr, expTypes, env);
-            resultTypes = iExpr.iContext.operations.getLast().resultTypes;
+            iterableAnalyzer.handlerIterableOperation(iExpr, expTypes.isEmpty() ? symTable.voidType : expTypes.get(0),
+                    env);
+            if (iExpr.iContext.operations.getLast().resultType == symTable.voidType) {
+                resultTypes = Collections.emptyList();
+            } else {
+                resultTypes = Lists.of(iExpr.iContext.operations.getLast().resultType);
+            }
             return;
         }
         if (iExpr.actionInvocation) {
@@ -539,6 +555,13 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
                 // allow map function for both constrained / un constrained maps
                 checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
+                break;
+            case TypeTags.ERROR:
+                break;
+            case TypeTags.INTERMEDIATE_COLLECTION:
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION_WITH_NAME, iExpr.name,
+                        iExpr.expr.type);
+                resultTypes = getListWithErrorTypes(expTypes.size());
                 break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
@@ -594,7 +617,7 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = expTypes;
         }
     }
-    
+
     public void visit(BLangAwaitExpr awaitExpr) {
         BType expType = checkExpr(awaitExpr.expr, env, Lists.of(this.symTable.futureType)).get(0);
         if (expType == symTable.errType) {
@@ -1109,22 +1132,23 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isIterableOperationInvocation(BLangInvocation iExpr) {
+        final IterableKind iterableKind = IterableKind.getFromString(iExpr.name.value);
         switch (iExpr.expr.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
             case TypeTags.JSON:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
-            case TypeTags.TUPLE_COLLECTION:
-                return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+            case TypeTags.INTERMEDIATE_COLLECTION:
+                return iterableKind != IterableKind.UNDEFINED;
             case TypeTags.XML: {
                 // This has been done as there are an iterable operation and a function both named "select"
                 // "select" function is applicable over XML type and select iterable operation is applicable over
                 // Table type. In order to avoid XML.select being confused for iterable function select at
                 // TypeChecker#visit(BLangInvocation iExpr) following condition is checked.
                 // TODO: There should be a proper way to resolve the conflict
-                return IterableKind.getFromString(iExpr.name.value) != IterableKind.SELECT
-                        && IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;
+                return iterableKind != IterableKind.SELECT
+                        && iterableKind != IterableKind.UNDEFINED;
             }
         }
         return false;
@@ -1194,14 +1218,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         checkNamedArgs(iExpr.namedArgs, invocableSymbol.defaultableParams);
         checkRestArgs(iExpr.restArgs, vararg, invocableSymbol.restParam);
-        
+
         if (iExpr.async) {
             return Arrays.asList(this.generateFutureType(invocableSymbol));
         } else {
             return invocableSymbol.type.getReturnTypes();
         }
     }
-    
+
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
         List<BType> retTypes = invocableSymbol.type.getReturnTypes();
         if (retTypes.isEmpty()) {
@@ -1313,7 +1337,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
     }
-    
+
     private void checkAsyncReturnTypes(BLangAwaitExpr awaitExpr, List<BType> actualTypes) {
         List<BType> newActualTypes = actualTypes;
         List<BType> newExpTypes = this.expTypes;

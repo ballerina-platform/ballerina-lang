@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 endpoint http:ServiceEndpoint infoServiceEP {
     port:9092
@@ -29,7 +29,7 @@ service<http:Service> infoService {
                 xml name =? <xml>payload;
                 res.setXmlPayload(name);
             }
-            mime:EntityError payloadError => {
+            http:PayloadError payloadError => {
                 res.statusCode = 500;
                 res.setStringPayload(payloadError.message);
 

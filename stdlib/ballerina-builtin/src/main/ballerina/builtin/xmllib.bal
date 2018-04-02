@@ -52,17 +52,6 @@ public native function <xml x> getElementName() returns (string);
 @Return { value:"Text value of the xml" }
 public native function <xml x> getTextValue() returns (string);
 
-@Description { value:"Selects all the children of the elements in an XML, and return as a sequence."}
-@Param { value:"x: An XML object" }
-@Return { value:"All the children of the elements in the xml" }
-public native function <xml x> children() returns (xml);
-
-@Description { value:"Selects all the children of the elements in this sequence that matches the given qualified name."}
-@Param { value:"x: An XML object" }
-@Param { value:"qname: Qualified name of the element" }
-@Return { value:"All the children of the elements in this sequence that matches the given qualified name" }
-public native function <xml x> selectChildren(string qname) returns (xml);
-
 @Description { value:"Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed."}
 @Param { value:"x: An XML object" }
 public native function <xml x> setChildren(xml children);

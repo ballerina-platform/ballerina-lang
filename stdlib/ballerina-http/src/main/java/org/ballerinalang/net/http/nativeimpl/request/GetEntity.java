@@ -31,11 +31,11 @@ import org.ballerinalang.net.http.HttpUtil;
  *
  * @since 0.96.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "net.http",
+@BallerinaFunction(orgName = "ballerina", packageName = "http",
                    functionName = "getEntity",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "Request",
-                                        structPackage = "ballerina.net.http"),
+                                        structPackage = "ballerina.http"),
                    returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)
 public class GetEntity extends BlockingNativeCallableUnit {

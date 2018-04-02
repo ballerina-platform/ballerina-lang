@@ -24,17 +24,22 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * Tests I/O related functions.
@@ -47,9 +52,9 @@ public class IOTest {
 
     @BeforeClass
     public void setup() {
-        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytesio.bal");
-        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/chario.bal");
-        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/recordio.bal");
+        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytes_io.bal");
+        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/char_io.bal");
+        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
@@ -226,5 +231,50 @@ public class IOTest {
         BRunUtil.invoke(recordsInputOutputProgramFile, "close");
     }
 
+    @Test(description = "Test 'readJson' function in ballerina.io package")
+    public void testJsonCharacters() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/text/web-app.json";
+
+        //Will initialize the channel
+        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8") };
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "readJson");
+        BJSON readJson = (BJSON) returns[0];
+        Assert.assertNotNull(readJson.getMessageAsString());
+        Assert.assertEquals(readJson.getMessageAsString(), readFileContent(resourceToRead), "JSON content mismatch.");
+
+        BRunUtil.invoke(characterInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'readXml' function in ballerina.io package")
+    public void testXmlCharacters() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/text/cd_catalog.xml";
+
+        //Will initialize the channel
+        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8") };
+        BRunUtil.invoke(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        BValue[] returns = BRunUtil.invoke(characterInputOutputProgramFile, "readXml");
+        BXML readJson = (BXML) returns[0];
+        Assert.assertNotNull(readJson.getMessageAsString());
+        Assert.assertEquals(readJson.getMessageAsString(), readFileContent(resourceToRead), "XML content mismatch.");
+
+        BRunUtil.invoke(characterInputOutputProgramFile, "close");
+    }
+
+    private String readFileContent(String filePath) throws URISyntaxException {
+        Path path = Paths.get(getAbsoluteFilePath(filePath));
+        StringBuilder data = new StringBuilder();
+        Stream<String> lines = null;
+        try {
+            lines = Files.lines(path);
+        } catch (IOException e) {
+            return "";
+        }
+        lines.forEach(line -> data.append(line.trim()));
+        lines.close();
+        return data.toString();
+    }
 }
 
