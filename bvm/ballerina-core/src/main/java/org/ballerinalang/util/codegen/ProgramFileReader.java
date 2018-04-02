@@ -331,14 +331,6 @@ public class ProgramFileReader {
 
     private void readPackageInfo(DataInputStream dataInStream) throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-//        int pkgNameCPIndex = dataInStream.readInt();
-//        UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgNameCPIndex);
-//        int pkgVersionCPIndex = dataInStream.readInt();
-//        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
-//        PackageInfo packageInfo = new PackageInfo(pkgNameCPIndex, pkgNameCPEntry.getValue(), pkgVersionCPIndex,
-//                pkgVersionCPEntry.getValue());
-//        packageInfo.setProgramFile(programFile);
-//        programFile.addPackageInfo(packageInfo.getPkgPath(), packageInfo);
 
         // Read constant pool in the package.
         readConstantPool(dataInStream, packageInfo);
@@ -347,6 +339,12 @@ public class ProgramFileReader {
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
         packageInfo.nameCPIndex = pkgNameCPIndex;
         packageInfo.pkgPath = pkgNameCPEntry.getValue();
+
+        int pkgVersionCPIndex = dataInStream.readInt();
+        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
+        packageInfo.versionCPIndex = pkgVersionCPIndex;
+        packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
+
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
