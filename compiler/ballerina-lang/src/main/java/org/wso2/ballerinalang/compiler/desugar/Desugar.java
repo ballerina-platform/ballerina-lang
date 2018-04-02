@@ -244,7 +244,7 @@ public class Desugar extends BLangNodeVisitor {
 
         //Adding object functions to package level.
         pkgNode.objects.forEach(o -> o.functions.forEach(f -> {
-            if (!pkgNode.objAttachedFunctions.containsKey(f.symbol)) {
+            if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
                 pkgNode.functions.add(f);
                 pkgNode.topLevelNodes.add(f);
             }
@@ -1067,7 +1067,11 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
-            return;
+            if (iExpr.exprSymbol == null) {
+                return;
+            }
+            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, (BVarSymbol) iExpr.exprSymbol);
+            iExpr.expr = rewriteExpr(iExpr.expr);
         }
 
         switch (iExpr.expr.type.tag) {

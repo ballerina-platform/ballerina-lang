@@ -36,7 +36,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     //TODO remove this and use ATTACHED flag instead
     // TODO remove when removing struct
     public boolean attachedFunction;
-    public boolean objAttachedFunction;
+    public boolean attachedOuterFunction;
 
     public boolean interfaceFunction;
 

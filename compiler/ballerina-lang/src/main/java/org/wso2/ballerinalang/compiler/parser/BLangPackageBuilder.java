@@ -1344,24 +1344,26 @@ public class BLangPackageBuilder {
             TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
                     objectNode.name);
 
-            //Create and add receiver to attached functions
-            BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-            receiver.pos = pos;
-
-            IdentifierNode name = createIdentifier(Names.SELF.getValue());
-            receiver.setName(name);
-            receiver.addWS(ws);
-
-            receiver.docTag = DocTag.RECEIVER;
-            receiver.setTypeNode(objectType);
-
             //Cache receiver to add to init function in symbolEnter
-            objectNode.receiver = receiver;
+            objectNode.receiver = createVariableNode(pos, ws, objectType);
 
-            objectNode.functions.forEach(f -> f.setReceiver(receiver));
+            objectNode.functions.forEach(f -> f.setReceiver(createVariableNode(pos, ws, objectType)));
 
             this.compUnit.addTopLevelNode(objectNode);
         }
+    }
+
+    private BLangVariable createVariableNode(DiagnosticPos pos, Set<Whitespace> ws, TypeNode objectType) {
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = pos;
+
+        IdentifierNode name = createIdentifier(Names.SELF.getValue());
+        receiver.setName(name);
+        receiver.addWS(ws);
+
+        receiver.docTag = DocTag.RECEIVER;
+        receiver.setTypeNode(objectType);
+        return receiver;
     }
 
 
@@ -1444,8 +1446,8 @@ public class BLangPackageBuilder {
         this.objectStack.peek().addFunction(function);
     }
 
-    void endObjectFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
-                              boolean bodyExists, String objectName) {
+    void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
+                                   boolean bodyExists, String objectName) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
@@ -1482,7 +1484,7 @@ public class BLangPackageBuilder {
         function.receiver = receiver;
         function.flagSet.add(Flag.ATTACHED);
 
-        function.objAttachedFunction = true;
+        function.attachedOuterFunction = true;
 
         if (!function.deprecatedAttachments.isEmpty()) {
             function.flagSet.add(Flag.DEPRECATED);

@@ -44,9 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -69,7 +67,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
-    public Map<BSymbol, BLangFunction> objAttachedFunctions;
+    public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
 
     public PackageID packageID;
@@ -96,7 +94,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
 
-        this.objAttachedFunctions = new HashMap<>();
+        this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
     }

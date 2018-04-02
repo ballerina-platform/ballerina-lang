@@ -433,7 +433,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
-        if (funcNode.objAttachedFunction) {
+        if (funcNode.attachedOuterFunction) {
             SymbolEnv objectEnv = SymbolEnv.createObjectEnv(null, funcNode.receiver.type.
                     tsymbol.scope, env);
             BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
@@ -452,12 +452,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             invokableEnv.scope = funcNode.symbol.scope;
             defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
 
-            if (env.enclPkg.objAttachedFunctions.containsKey(funcNode.symbol)) {
+            if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
                 dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
                 return;
             }
 
-            env.enclPkg.objAttachedFunctions.put(funcNode.symbol, funcNode);
+            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
 
             funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
             return;

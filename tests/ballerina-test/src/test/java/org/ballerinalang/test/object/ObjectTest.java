@@ -51,6 +51,25 @@ public class ObjectTest {
         Assert.assertEquals(returns[3].stringValue(), "february");
     }
 
+    @Test(description = "Test Object field defaultable")
+    public void testObjectFieldDefaultable() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-field-defaultable.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectFieldDefaultable");
+
+        Assert.assertEquals(returns.length, 4);
+
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BInteger.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
+        Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
     @Test(description = "Test Basic object as struct with just new")
     public void testBasicStructAsObjectWithJustNew() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-simple-struct.bal");
@@ -153,6 +172,64 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "added values february");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 99);
         Assert.assertEquals(returns[3].stringValue(), "february");
+    }
+
+    @Test(description = "Test object with self keyword")
+    public void testObjectWithSelfKeyword() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-self-keyword.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithSelfKeyword");
+
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "sample name");
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(returns[2].stringValue(), "sample name");
+        Assert.assertEquals(returns[3].stringValue(), "sample name");
+    }
+
+    @Test(description = "Test object with calling attached functions")
+    public void testObjectCallAttachedFunctions() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-call-attached-functions.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectCallAttachedFunctions");
+
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "sample name");
+        Assert.assertEquals(returns[1].stringValue(), "sample name");
+        Assert.assertEquals(returns[2].stringValue(), "sample name");
+        Assert.assertEquals(returns[3].stringValue(), "sample name");
+    }
+
+    @Test(description = "Test object inside object with different values")
+    public void testObjectInsideObject() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-self-keyword-pass-values.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInsideObject");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "sample name");
+        Assert.assertEquals(returns[1].stringValue(), "changed value");
+    }
+
+    @Test(description = "Test object self as a value")
+    public void testObjectPassSelfAsValue() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-self-keyword-pass-values.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetValueFromPassedSelf");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "sample name");
     }
 
     @Test(description = "Test object with init attached function")

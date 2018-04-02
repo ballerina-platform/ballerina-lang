@@ -44,6 +44,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public BLangIdentifier name;
     public List<BLangExpression> argExprs = new ArrayList<>();
     public BLangVariableReference expr;
+    //caching since at desugar level we need to identify whether this is actually attached function or not
+    public BSymbol exprSymbol;
     public List<BType> types = new ArrayList<>(0);
     public BSymbol symbol;
     public boolean functionPointerInvocation;
