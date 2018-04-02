@@ -9,7 +9,8 @@ import java.util.ServiceLoader;
  * Ballerina package provider class used in package management.
  */
 public class EmbeddedExecutorProvider {
-    private static EmbeddedExecutorProvider provider;
+    private static EmbeddedExecutorProvider provider = new EmbeddedExecutorProvider();
+
     private final ServiceLoader<EmbeddedExecutor> loader;
 
     /**
@@ -25,9 +26,6 @@ public class EmbeddedExecutorProvider {
      * @return instance of EmbeddedExecutorProvider
      */
     public static EmbeddedExecutorProvider getInstance() {
-        if (provider == null) {
-            provider = new EmbeddedExecutorProvider();
-        }
         return provider;
     }
 

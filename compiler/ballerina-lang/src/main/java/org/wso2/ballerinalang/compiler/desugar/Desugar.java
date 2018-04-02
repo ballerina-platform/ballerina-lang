@@ -609,6 +609,13 @@ public class Desugar extends BLangNodeVisitor {
 
         for (int index = 0; index < stmt.varRefs.size(); index++) {
             BLangExpression varRef = stmt.varRefs.get(index);
+            if (stmt.declaredWithVar) {
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                if (varName == Names.IGNORE) {
+                    continue;
+                }
+            }
             BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(stmt.pos, symTable.intType, (long) index);
             BLangIndexBasedAccess arrayAccess = ASTBuilderUtil.createIndexBasesAccessExpr(stmt.pos, symTable.anyType,
                     tuple.symbol, indexExpr);
@@ -2025,8 +2032,6 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.BLOB:
                 // Int, float, boolean, string, blob types will get default values from VM side.
                 break;
-            case TypeTags.JSON:
-                return new BLangJSONLiteral(new ArrayList<>(), type);
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
             case TypeTags.TABLE:
