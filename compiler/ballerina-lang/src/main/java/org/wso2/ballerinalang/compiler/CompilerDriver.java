@@ -110,11 +110,11 @@ public class CompilerDriver {
         }
 
         pkgNode = codeAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
-            return pkgNode;
-        }
-
-        pkgNode = taintAnalyze(pkgNode);
+//        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
+//            return pkgNode;
+//        }
+//
+//        pkgNode = taintAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
             return pkgNode;
         }
@@ -174,8 +174,10 @@ public class CompilerDriver {
     }
 
     private BLangPackage getBuiltInPackage(Name orgName, Name name) {
-        return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(orgName.getValue(),
-                name.getValue()))));
+        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(orgName.getValue(),
+                name.getValue())));
+//        return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(orgName.getValue(),
+//                name.getValue()))));
     }
 
     private BLangPackage loadBuiltInPackage() {

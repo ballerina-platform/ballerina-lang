@@ -31,10 +31,11 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Mo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
-import org.ballerinalang.langserver.BallerinaPackageLoader;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.Flag;
@@ -239,16 +240,16 @@ public class ParserUtils {
                 "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
                 "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
         try {
-            List<BLangPackage> builtInPackages = BallerinaPackageLoader.getBuiltinPackages();
+            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
             for (BLangPackage bLangPackage : builtInPackages) {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
 
-            CompilerContext context = BallerinaPackageLoader.prepareCompilerContext();
+            CompilerContext context = CommonUtil.prepareTempCompilerContext();
             for (String packageName : packageNames) {
                 PackageID packageID = new PackageID(new Name("ballerina"),
                         new Name(packageName), new Name("0.0.0"));
-                BLangPackage bLangPackage = BallerinaPackageLoader.getPackageById(context, packageID);
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
         } catch (Exception e) {

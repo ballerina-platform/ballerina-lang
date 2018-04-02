@@ -130,7 +130,7 @@ public enum DiagnosticCode {
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
-    RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
+    RETURN_STMT_NOT_VALID_IN_RESOURCE("return.stmt.not.valid.in.resource"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
     INVALID_FUNCTION_INVOCATION_WITH_NAME("invalid.function.invocation.with.name"),
     DUPLICATE_NAMED_ARGS("duplicate.named.args"),

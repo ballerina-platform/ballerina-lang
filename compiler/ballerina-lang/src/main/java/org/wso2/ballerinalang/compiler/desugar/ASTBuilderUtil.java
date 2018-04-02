@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -73,7 +75,7 @@ import java.util.List;
  *
  * @since 0.965.0
  */
-class ASTBuilderUtil {
+public class ASTBuilderUtil {
 
     /**
      * Prepend generated code to given body.
@@ -138,6 +140,21 @@ class ASTBuilderUtil {
         return bLangFunction;
     }
 
+    static BLangType createTypeNode(BType type) {
+        BLangType bLangType = new BLangType() {
+            @Override
+            public void accept(BLangNodeVisitor visitor) {
+            }
+
+            @Override
+            public NodeKind getKind() {
+                return null;
+            }
+        };
+        bLangType.type = type;
+        return bLangType;
+    }
+
     static BLangIf createIfStmt(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
@@ -191,11 +208,11 @@ class ASTBuilderUtil {
         return assignment;
     }
 
-    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, List<BLangExpression> varRefs,
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef,
                                                 BLangExpression rhsExpr, boolean declaredWithVar) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
-        assignment.varRefs = varRefs;
+        assignment.varRef = varRef;
         assignment.expr = rhsExpr;
         assignment.declaredWithVar = declaredWithVar;
         return assignment;
@@ -212,6 +229,13 @@ class ASTBuilderUtil {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         target.addStatement(returnStmt);
+        return returnStmt;
+    }
+
+    public static BLangReturn createNilReturnStmt(DiagnosticPos pos, BType nilType) {
+        final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        returnStmt.pos = pos;
+        returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE);
         return returnStmt;
     }
 
@@ -342,10 +366,7 @@ class ASTBuilderUtil {
                 .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
 
         invokeLambda.symbol = invokableSymbol;
-        invokeLambda.types.addAll(((BInvokableType) invokableSymbol.type).retTypes);
-        if (!invokeLambda.types.isEmpty()) {
-            invokeLambda.type = invokeLambda.types.get(0);
-        }
+        invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
         return invokeLambda;
     }
 
