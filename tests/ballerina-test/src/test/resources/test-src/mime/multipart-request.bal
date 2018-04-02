@@ -1,5 +1,4 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
@@ -8,7 +7,7 @@ function setErrorResponse(http:Response response,  mime:EntityError err) {
     response.setStringPayload(err.message);
 }
 
-endpoint mock:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListeningServiceEndpoint mockEP {
     port:9090
 };
 

@@ -1,6 +1,6 @@
 package routingServices.samples;
 
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {

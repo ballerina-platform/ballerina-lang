@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
  */
 public class AnnotationAttachmentContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         return new ArrayList<>();
     }
 }

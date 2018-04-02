@@ -1,7 +1,7 @@
 import ballerina/lang.system;
 import ballerina/lang.messages;
 import ballerina/doc;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.ws;
 
 @http:configuration {basePath:"/client-connector"}

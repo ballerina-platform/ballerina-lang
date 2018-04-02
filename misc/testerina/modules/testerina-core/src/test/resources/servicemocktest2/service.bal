@@ -1,6 +1,6 @@
 package servicemocktest2;
 
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 
 endpoint http:ServiceEndpoint portalEP {

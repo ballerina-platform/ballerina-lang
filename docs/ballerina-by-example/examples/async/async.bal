@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/runtime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 int count;

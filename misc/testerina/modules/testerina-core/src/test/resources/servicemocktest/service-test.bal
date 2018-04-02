@@ -1,6 +1,6 @@
 package servicemocktest;
 
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/test;
 import ballerina/config;

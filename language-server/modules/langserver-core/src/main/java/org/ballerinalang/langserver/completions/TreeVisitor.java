@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
@@ -122,10 +122,10 @@ public class TreeVisitor extends LSNodeVisitor {
     private Stack<BLangBlockStmt> blockStmtStack;
     private Stack<Boolean> isCurrentNodeTransactionStack;
     private Class cursorPositionResolver;
-    private TextDocumentServiceContext documentServiceContext;
+    private LSServiceOperationContext documentServiceContext;
     private BLangNode previousNode = null;
 
-    public TreeVisitor(TextDocumentServiceContext documentServiceContext) {
+    public TreeVisitor(LSServiceOperationContext documentServiceContext) {
         this.documentServiceContext = documentServiceContext;
         init(this.documentServiceContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
     }

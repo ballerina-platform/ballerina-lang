@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.LSContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 
@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrateg
  * Custom error strategy for language server.
  */
 public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
-    public LSCustomErrorStrategy(LanguageServerContext context) {
+    public LSCustomErrorStrategy(LSContext context) {
         super(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), null);
     }
 
