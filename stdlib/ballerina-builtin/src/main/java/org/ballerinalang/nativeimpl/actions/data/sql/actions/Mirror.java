@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http:www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http:www.apache.orglicensesLICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,44 +15,58 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasourceUtils;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * {@code Close} is the Close action implementation of the SQL Connector Connection pool.
+ * {@code Select} mirrors a SQL database table to a ballerina table.
  *
- * @since 0.8.4
+ * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "data.sql",
-        functionName = "close",
+        functionName = "mirror",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        args = {
+                @Argument(name = "tableName", type = TypeKind.STRING)
+        },
         returnType = {
+                @ReturnType(type = TypeKind.TABLE),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
                             structPackage = "ballerina.data.sql")
         }
 )
-public class Close extends AbstractSQLAction {
+public class Mirror extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        try {
-            BStruct bConnector = (BStruct) context.getRefArgument(0);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-            closeConnections(datasource);
-            context.setReturnValues(null);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
+        String tableName = context.getStringArgument(0);
+        BStructType structType = getStructType(context);
+        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+
+        createMirroredTable(context, datasource, tableName, structType);
+
+    }
+
+    protected BStructType getStructType(Context context) {
+        BStructType structType = null;
+        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(1);
+        if (type != null) {
+            structType = (BStructType) type.value();
         }
+        return structType;
     }
 }

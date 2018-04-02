@@ -37,8 +37,21 @@ public class TableResourceManager {
     private Statement statement;
     private Set<ResultSet> resultSets;
 
+    public TableResourceManager() {
+        this.resultSets = new HashSet<>(0);
+    }
+
     public TableResourceManager(Connection conn, Statement stmt) {
         this.connection = conn;
+        this.statement = stmt;
+        this.resultSets = new HashSet<>(0);
+    }
+
+    public void setConnection(Connection conn) {
+        this.connection = conn;
+    }
+
+    public void setStatement(Statement stmt) {
         this.statement = stmt;
     }
 
@@ -67,9 +80,6 @@ public class TableResourceManager {
      * @param rs the result set to be added
      */
     public void addResultSet(ResultSet rs) {
-        if (resultSets == null) {
-            resultSets = new HashSet<>(0);
-        }
         this.resultSets.add(rs);
     }
 
@@ -81,9 +91,6 @@ public class TableResourceManager {
      * @param resultSets the list of result sets to be added
      */
     public void addAllResultSets(List<ResultSet> resultSets) {
-        if (this.resultSets == null) {
-            this.resultSets = new HashSet<>(0);
-        }
         this.resultSets.addAll(resultSets);
     }
 

@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
+import org.ballerinalang.nativeimpl.actions.data.sql.BMirrorTable;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -44,7 +45,11 @@ public class Add extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BTable table = (BTable) context.getRefArgument(0);
         BStruct data = (BStruct) context.getRefArgument(1);
-        table.addData(data);
+        if (table instanceof BMirrorTable) {
+            ((BMirrorTable) table).addData(data, context);
+        } else {
+            table.addData(data);
+        }
         context.setReturnValues();
     }
 }

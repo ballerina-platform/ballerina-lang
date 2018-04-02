@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.nativeimpl.actions.data.sql.actions.SQLDatasourceUtils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -35,9 +34,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -57,6 +58,14 @@ public class SQLDataIterator extends TableIterator {
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
 
+    public SQLDataIterator(Calendar utcCalendar, BStructType structType, StructInfo timeStructInfo,
+            StructInfo zoneStructInfo, TableResourceManager rm) throws SQLException {
+        super(structType, rm);
+        this.utcCalendar = utcCalendar;
+        this.timeStructInfo = timeStructInfo;
+        this.zoneStructInfo = zoneStructInfo;
+    }
+
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
             StructInfo zoneStructInfo) throws SQLException {
@@ -64,6 +73,19 @@ public class SQLDataIterator extends TableIterator {
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
+    }
+
+    public void populateTableResourceManager(Connection conn, Statement stmt) {
+        resourceManager.setConnection(conn);
+        resourceManager.setStatement(stmt);
+    }
+
+    public void setResultSet(ResultSet rs) {
+        this.rs = rs;
+    }
+
+    public ResultSet getResultset() {
+        return rs;
     }
 
     @Override
@@ -240,6 +262,10 @@ public class SQLDataIterator extends TableIterator {
                             .getMessage());
         }
         return bStruct;
+    }
+
+    public void setColumnDefs(List<ColumnDefinition> columnDefs) {
+        this.columnDefs = columnDefs;
     }
 
     private BStruct createTimeStruct(long millis) {

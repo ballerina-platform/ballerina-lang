@@ -274,6 +274,9 @@ generated keys during the update action."}
 public native function <ClientConnector client> updateWithGeneratedKeys (@sensitive string sqlQuery,
 (Parameter[] | null) parameters, (string[] | null) keyColumns) returns (int, string[]) | SQLConnectorError;
 
+public native function <ClientConnector client> mirror (string tableName, typedesc structType) returns
+(table|SQLConnectorError);
+
 @Description { value:"SQLConnectorError struct represents an error occured during the SQL client invocation" }
 @Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error(s) that caused SQLConnectorError to get thrown"}

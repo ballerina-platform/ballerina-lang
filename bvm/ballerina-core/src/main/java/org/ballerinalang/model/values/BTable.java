@@ -36,12 +36,12 @@ import java.util.StringJoiner;
  */
 public class BTable implements BRefType<Object>, BCollection {
 
-    private DataIterator iterator;
-    private boolean hasNextVal;
-    private boolean nextPrefetched;
+    protected DataIterator iterator;
+    protected boolean hasNextVal;
+    protected boolean nextPrefetched;
     private TableProvider tableProvider;
     private String tableName;
-    private BStructType constraintType;
+    protected BStructType constraintType;
     private boolean isInMemoryTable;
 
     public BTable() {
@@ -62,6 +62,16 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableName = null;
         this.constraintType = null;
         this.isInMemoryTable = false;
+    }
+
+    public BTable(DataIterator dataIterator, String tableName, BStructType constraintType) {
+        this.iterator = dataIterator;
+        this.nextPrefetched = false;
+        this.hasNextVal = false;
+        this.tableProvider = null;
+        this.tableName = tableName;
+        this.isInMemoryTable = false;
+        this.constraintType = constraintType;
     }
 
     public BTable(String query, BTable fromTable, BTable joinTable, BStructType constraintType, BRefValueArray params) {
