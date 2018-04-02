@@ -15,12 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.util;
+package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.spi.EmbeddedExecutor;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * This represents the Ballerina package provider.
@@ -29,9 +32,15 @@ import java.net.URI;
  */
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
-
     @Override
-    public void execute(URI balxResource, String... args) {
-        org.wso2.ballerinalang.util.ExecutorUtils.execute(balxResource, args);
+    public void execute(String balxPath, String... args) {
+        URL resource = BVMEmbeddedExecutor.class.getClassLoader()
+                                                .getResource("META-INF/ballerina/" + balxPath);
+        try {
+            URI balxResource = resource.toURI();
+            ExecutorUtils.execute(balxResource, args);
+        } catch (URISyntaxException e) {
+            throw new BLangCompilerException("Missing internal modules when building package");
+        }
     }
 }
