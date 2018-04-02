@@ -22,7 +22,6 @@ import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -168,7 +167,7 @@ public class SSLHandlerFactory {
 
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
         ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
-                .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(keyManagerFactory)
+                .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(kmf)
                 .trustManager(tmf).protocols(sslConfig.getEnableProtocols()).build();
         return context;
     }
