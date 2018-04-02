@@ -53,7 +53,7 @@ public class DocumentServiceKeys {
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
             = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BLangPackageContext> B_LANG_PACKAGE_CONTEXT_KEY
+    public static final LanguageServerContext.Key<LSPackageCache> LS_PACKAGE_CACHE_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<String> CURRENT_PACKAGE_NAME_KEY
             = new LanguageServerContext.Key<>();
