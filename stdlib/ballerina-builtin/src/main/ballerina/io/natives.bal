@@ -193,3 +193,15 @@ public native function <Socket socket> closeSocket () returns (IOError);
 public native function loadToTable(@sensitive string filePath, string recordSeparator, string fieldSeparator,
                                    string encoding, boolean headerLineIncluded, typedesc structType)
                                    returns (table | IOError);
+
+@Description {value:"Function to convert a character channel to a JSON"}
+@Param {value:"channel: The source CharacterChannel that going to convert to JSON"}
+@Return {value:"Returns A JSON"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
+public native function <CharacterChannel channel> readJson () returns (json|IOError);
+
+@Description {value:"Function to convert a character channel to a XML"}
+@Param {value:"channel: The source CharacterChannel that going to convert to XML"}
+@Return {value:"Returns A XML"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
+public native function <CharacterChannel channel> readXml () returns (xml|IOError);
