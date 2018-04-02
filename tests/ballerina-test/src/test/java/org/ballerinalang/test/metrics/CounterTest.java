@@ -26,6 +26,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -45,12 +46,29 @@ public class CounterTest {
     @Test
     public void testCounterIncrementByOne() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrementByOne");
-        Assert.assertEquals(returns[0], new BFloat(1.0));
+        Assert.assertEquals(returns[0], new BFloat(1));
     }
 
     @Test
     public void testCounterIncrement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrement");
-        Assert.assertEquals(returns[0], new BFloat(5.0));
+        Assert.assertEquals(returns[0], new BFloat(5));
+    }
+
+    @Test
+    public void testCounterWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCounterWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(3));
+    }
+
+    @Test
+    public void testCounterWithoutDescription() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCounterWithoutDescription");
+        Assert.assertEquals(returns[0], new BFloat(4));
+    }
+
+    @Test (expectedExceptions = BLangRuntimeException.class)
+    public void testCounterWithEmptyStruct() {
+        BRunUtil.invoke(compileResult, "testCounterWithEmptyStruct");
     }
 }
