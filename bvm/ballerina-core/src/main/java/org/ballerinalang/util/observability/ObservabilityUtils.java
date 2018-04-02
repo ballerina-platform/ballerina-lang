@@ -18,7 +18,7 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.BSpan;
 import org.ballerinalang.util.tracer.TraceManager;
 
 import java.util.Collections;
@@ -197,9 +197,9 @@ public class ObservabilityUtils {
     }
 
     public static Map<String, String> getTraceContext() {
-        BTracer tracer = TraceManager.getInstance().getParentTracer();
-        if (tracer != null) {
-            return tracer.getTraceContext();
+        BSpan bSpan = TraceManager.getInstance().getParentBSpan();
+        if (bSpan != null) {
+            return bSpan.getTraceContext();
         }
         return Collections.emptyMap();
     }

@@ -31,7 +31,7 @@ public class TraceConstants {
     static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
     static final String DEFAULT_ACTION_NAME = "BallerinaAction";
     public static final String TRACE_PREFIX = "trace___";
-    public static final String KEY_TRACER = "_tracer_";
+    public static final String KEY_SPAN = "_span_";
 
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
 
@@ -50,6 +50,5 @@ public class TraceConstants {
     public static final int TRACE_PREFIX_LENGTH = TRACE_PREFIX.length();
 
     public static final String BALLERINA_TRACE_CONFIG_KEY = "trace.config";
-    public static final String DISABLE_OBSERVE_KEY = "disable.observe";
     public static final String DEFAULT_USER_API_GROUP = "user_trace_";
 }

@@ -31,11 +31,11 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_STR_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_STR_TRUE;
 
 /**
- * {@code BTracer} holds the trace of the current context.
+ * {@code BSpan} holds the trace of the current context.
  *
  * @since 0.964.1
  */
-public class BTracer {
+public class BSpan {
 
     private static final TraceManager manager = TraceManager.getInstance();
 
@@ -69,11 +69,11 @@ public class BTracer {
      */
     private boolean isRoot = false;
 
-    private BTracer() {
+    private BSpan() {
 
     }
 
-    public BTracer(WorkerExecutionContext executionContext, boolean isClientContext) {
+    public BSpan(WorkerExecutionContext executionContext, boolean isClientContext) {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
         this.executionContext = executionContext;
