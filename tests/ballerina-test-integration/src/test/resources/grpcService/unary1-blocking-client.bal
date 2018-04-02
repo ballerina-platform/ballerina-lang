@@ -16,20 +16,22 @@
 import ballerina/io;
 import ballerina/net.grpc;
 
-function main (string[] args) {
+function testUnaryBlockingClient () returns (string) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {
         host: "localhost",
-        port: 9098
+        port: 9090
     };
 
     error|string unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
         string payload => {
-            io:println("Client Got Response : ");
+            io:println("Client got response : ");
             io:println(payload);
+            return "Client got response: " + payload;
         }
         error err => {
             io:println("Error from Connector: " + err.message);
+            return "Error from Connector: " + err.message;
         }
     }
 }

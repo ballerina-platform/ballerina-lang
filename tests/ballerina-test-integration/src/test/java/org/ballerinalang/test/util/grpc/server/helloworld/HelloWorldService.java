@@ -31,7 +31,6 @@ public class HelloWorldService extends helloWorldGrpc.helloWorldImplBase {
     @Override
     public void hello(StringValue request, StreamObserver<StringValue> responseObserver) {
         name = request.getValue();
-        log.info("gRPC >> Server receive request '" + name + "'");
         log.info(" gRPC >> Server receive request '" + name + "'");
         StringValue response = StringValue.newBuilder().setValue("Get message from: " + name).build();
         responseObserver.onNext(response);

@@ -48,7 +48,7 @@ public class GrpcClientTestCase extends IntegrationTestCase {
         t.start();
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "grpcService" + File.separator + "helloWorldClient.bal").getAbsolutePath()};
+                + File.separator + "grpcService" + File.separator + "unary1-blocking-client.bal").getAbsolutePath()};
         ballerinaClient = new ServerInstance(serverZipPath);
         ballerinaClient.runMain(clientArgs);
     }
