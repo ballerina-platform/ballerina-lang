@@ -466,10 +466,3 @@ function getTypePreserveWhenCast() returns (int){
         return 0;
     }
 }
-
-function testTypeOfNullString(string|null s) returns (typedesc) {
-    io:println(typeof s);
-    io:println(s);
-    return (typeof s);
-}
-

@@ -193,7 +193,7 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.NULL && (isNullable(target) || target.tag == TypeTags.JSON)) {
+        if (source.tag == TypeTags.NIL && (isNullable(target) || target.tag == TypeTags.JSON)) {
             return true;
         }
 
@@ -294,8 +294,7 @@ public class Types {
     }
 
     public boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target) {
-        if (source.paramTypes.size() != target.paramTypes.size() ||
-                source.retTypes.size() != target.retTypes.size()) {
+        if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
 
@@ -306,14 +305,13 @@ public class Types {
             }
         }
 
-        for (int i = 0; i < source.retTypes.size(); i++) {
-            if (target.retTypes.get(i).tag != TypeTags.ANY
-                    && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
-                return false;
-            }
+        if (source.retType == null && target.retType == null) {
+            return true;
+        } else if (source.retType == null || target.retType == null) {
+            return false;
         }
 
-        return true;
+        return isAssignable(source.retType, target.retType);
     }
 
     public boolean checkArrayEquality(BType source, BType target) {
@@ -391,11 +389,6 @@ public class Types {
                 return false;
             }
         }
-        return true;
-    }
-
-    public boolean checkStremletEquivalency(BType actualType, BType expType) {
-        //TODO temporary fix.
         return true;
     }
 
@@ -633,22 +626,6 @@ public class Types {
 
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();
-    }
-
-    private boolean isAssignableToJSONType(BType source, BJSONType target) {
-        if (source.tag == TypeTags.JSON) {
-            return target.constraint.tag == TypeTags.NONE;
-        }
-        if (source.tag == TypeTags.ARRAY) {
-            return isArrayTypesAssignable(source, target);
-        }
-
-        if (source.tag == TypeTags.UNION) {
-            return ((BUnionType) source).memberTypes
-                            .stream()
-                            .anyMatch(memberType -> !isAssignable(memberType, target));
-        }
-        return false;
     }
 
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {

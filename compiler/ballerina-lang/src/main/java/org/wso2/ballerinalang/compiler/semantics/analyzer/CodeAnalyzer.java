@@ -130,7 +130,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -233,19 +232,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);
-        this.visitInvocable(funcNode);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
     }
 
-    private void visitInvocable(BLangInvokableNode invNode) {
+    private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
         this.resetFunction();
         this.initNewWorkerActionSystem();
         if (Symbols.isNative(invNode.symbol)) {
             return;
         }
-        boolean invokableReturns = invNode.retParams.size() > 0;
+        boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
         if (invNode.workers.isEmpty()) {
-            invNode.body.accept(this);
+            analyzeNode(invNode.body, invokableEnv);
             /* the function returns, but none of the statements surely returns */
             if (invokableReturns && !this.statementReturns) {
                 this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
@@ -254,7 +254,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else {
             boolean workerReturns = false;
             for (BLangWorker worker : invNode.workers) {
-                worker.accept(this);
+                analyzeNode(worker, invokableEnv);
                 workerReturns = workerReturns || this.statementReturns;
                 this.resetStatementReturns();
             }
@@ -383,6 +383,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
+
+        // Check whether this return statement is in resource
+        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
+            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_STMT_NOT_VALID_IN_RESOURCE);
+            return;
+        }
+
         if (this.inForkJoin() && this.inWorker()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
             return;
@@ -392,7 +399,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.statementReturns = true;
-        analyzeExprs(returnStmt.exprs);
+        analyzeExpr(returnStmt.expr);
     }
 
     @Override
@@ -548,11 +555,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        serviceNode.resources.forEach(res -> res.accept(this));
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
+        serviceNode.resources.forEach(res -> analyzeNode(res, serviceEnv));
     }
 
     public void visit(BLangResource resourceNode) {
-        this.visitInvocable(resourceNode);
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
+                resourceNode.symbol.scope, env);
+        this.visitInvocable(resourceNode, resourceEnv);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -565,7 +575,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
-        this.visitInvocable(actionNode);
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
+        this.visitInvocable(actionNode, actionEnv);
     }
 
     public void visit(BLangStruct structNode) {
@@ -626,16 +637,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     break;
                 case ASSIGNMENT:
                     BLangAssignment assignStmt = (BLangAssignment) stmt;
-                    assignStmt.varRefs.forEach(varRef -> {
-                        varRef.accept(new TransformerVarRefValidator(inputs,
-                                DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE));
+                    assignStmt.varRef.accept(new TransformerVarRefValidator(inputs,
+                            DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE));
 
-                        // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
-                        if (assignStmt.declaredWithVar && varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                                && !inputs.contains(((BLangSimpleVarRef) varRef).symbol)) {
-                            inputs.add(((BLangSimpleVarRef) varRef).symbol);
-                        }
-                    });
+                    // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
+                    if (assignStmt.declaredWithVar && assignStmt.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                            && !inputs.contains(((BLangSimpleVarRef) assignStmt.varRef).symbol)) {
+                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).symbol);
+                    }
                     assignStmt.expr.accept(
                             new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
                     break;
@@ -671,7 +680,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAssignment assignNode) {
         this.checkStatementExecutionValidity(assignNode);
-        analyzeExprs(assignNode.varRefs);
+        analyzeExpr(assignNode.varRef);
         analyzeExpr(assignNode.expr);
     }
 
@@ -1034,7 +1043,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(send.pos, DiagnosticCode.WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH);
         }
         for (int i = 0; i < typeList.size(); i++) {
-            this.typeChecker.checkExpr(send.exprs.get(i), send.env, Arrays.asList(typeList.get(i)));
+            this.typeChecker.checkExpr(send.exprs.get(i), send.env, typeList.get(i));
         }
     }
 

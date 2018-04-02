@@ -20,9 +20,8 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ public class ServiceTest {
     String sourceRoot = "src/test/resources";
 
     // TODO : Added as a temporary solution to create .ballerina directory
-    @BeforeSuite
+    @BeforeClass
     public void createDir() throws IOException {
         // TODO : Done as a workaround to create the .ballerina directory
         Path filePath = Paths.get(sourceRoot + "/.ballerina");
@@ -69,7 +68,7 @@ public class ServiceTest {
     }
 
     // TODO : Added as a temporary solution to cleanup .ballerina directory
-    @AfterSuite
+    @AfterClass
     public void cleanDirectory() throws IOException {
         Files.deleteIfExists(Paths.get(sourceRoot + "/.ballerina"));
     }

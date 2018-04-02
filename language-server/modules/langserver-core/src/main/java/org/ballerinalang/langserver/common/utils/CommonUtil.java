@@ -419,9 +419,7 @@ public class CommonUtil {
             BType type = ((BLangNode) node).type;
             if (node instanceof BLangInvocation) {
                 JsonArray jsonElements = new JsonArray();
-                for (BType returnType : ((BLangInvocation) node).types) {
-                    jsonElements.add(returnType.getKind().typeName());
-                }
+                jsonElements.add(((BLangInvocation) node).type.getKind().typeName());
                 return jsonElements;
             } else if (type != null) {
                 JsonArray jsonElements = new JsonArray();

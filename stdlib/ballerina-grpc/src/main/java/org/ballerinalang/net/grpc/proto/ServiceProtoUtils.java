@@ -45,7 +45,7 @@ import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -245,10 +245,10 @@ public class ServiceProtoUtils {
         }
         // if we cannot retrieve request/response messages. assuming it is empty type.
         if (requestMessage == null) {
-            requestMessage = generateMessageDefinition(new BNullType());
+            requestMessage = generateMessageDefinition(new BNilType());
         }
         if (responseMessage == null) {
-            responseMessage = generateMessageDefinition(new BNullType());
+            responseMessage = generateMessageDefinition(new BNilType());
         }
         // update file builder with request/response messages.
         if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
@@ -325,8 +325,8 @@ public class ServiceProtoUtils {
         if (sendExpression != null) {
             responseType = getReturnType(sendExpression);
         } else {
-            // if compiler plugin could not find send expression. assume service have empty response.
-            responseType = new BNullType();
+            // if compiler plugin could not find
+            responseType = new BNilType();
         }
         return responseType != null ? generateMessageDefinition(responseType) : null;
     }
@@ -336,7 +336,7 @@ public class ServiceProtoUtils {
             throw new GrpcServerException("Service resource definition should contain either one param or two params." +
                     " but contains " + resourceNode.getParameters().size());
         }
-        
+
         org.wso2.ballerinalang.compiler.semantics.model.types.BType requestType;
         if (resourceNode.getParameters().size() == 2) {
             VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants
@@ -347,7 +347,7 @@ public class ServiceProtoUtils {
                 throw new GrpcServerException("Request Message type is not supported, should be lang variable.");
             }
         } else {
-            requestType = new BNullType();
+            requestType = new BNilType();
         }
         return generateMessageDefinition(requestType);
     }
@@ -394,7 +394,7 @@ public class ServiceProtoUtils {
                 }
                 break;
             }
-            case NULL: {
+            case NIL: {
                 message = EmptyMessage.newBuilder().build();
                 break;
             }
@@ -430,7 +430,7 @@ public class ServiceProtoUtils {
         }
         return messageBuilder.build();
     }
-    
+
     private static UserDefinedEnumMessage getEnumMessage(BEnumType messageType) throws GrpcServerException {
         UserDefinedEnumMessage.Builder messageBuilder = UserDefinedEnumMessage.newBuilder(messageType.toString());
         int fieldIndex = 0;
@@ -516,10 +516,10 @@ public class ServiceProtoUtils {
                         .name());
             }
         } else {
-            return new BNullType();
+            return new BNilType();
         }
     }
-    
+
     /**
      * Returns file descriptor for the service.
      * Reads file descriptor from the .desc file generated at compile time.

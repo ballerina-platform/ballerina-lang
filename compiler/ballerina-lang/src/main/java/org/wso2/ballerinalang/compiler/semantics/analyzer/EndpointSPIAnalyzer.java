@@ -91,14 +91,13 @@ public class EndpointSPIAnalyzer {
         for (BStructSymbol.BAttachedFunction attachedFunc : serviceType.attachedFuncs) {
             if (Names.EP_SERVICE_GET_ENDPOINT.equals(attachedFunc.funcName)) {
                 if (attachedFunc.type.getParameterTypes().size() != 0
-                        || attachedFunc.type.retTypes.size() != 1
-                        || attachedFunc.type.retTypes.get(0).tag != TypeTags.STRUCT) {
+                        || attachedFunc.type.retType.tag != TypeTags.STRUCT) {
                     dlog.error(pos, DiagnosticCode.SERVICE_INVALID_STRUCT_TYPE, serviceType);
                     return null;
                 }
-                final BStructSymbol endPointType = (BStructSymbol) attachedFunc.type.retTypes.get(0).tsymbol;
+                final BStructSymbol endPointType = (BStructSymbol) attachedFunc.type.retType.tsymbol;
                 if (isValidEndpointSPI(pos, endPointType)) {
-                    return (BStructType) attachedFunc.type.retTypes.get(0);
+                    return (BStructType) attachedFunc.type.retType;
                 }
                 break;
             }
@@ -169,7 +168,7 @@ public class EndpointSPIAnalyzer {
         }
         // validate init function.
         final BStructSymbol.BAttachedFunction init = ep.attachedFunctionMap.get(EP_SPI_INIT);
-        if (init.type.getParameterTypes().size() != 1 || init.type.retTypes.size() != 0
+        if (init.type.getParameterTypes().size() != 1 || init.type.retType != symTable.nilType
                 || init.type.getParameterTypes().get(0).tag != TypeTags.STRUCT) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_INIT);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
@@ -185,15 +184,14 @@ public class EndpointSPIAnalyzer {
         // validate getClient function
         final BStructSymbol.BAttachedFunction getClient = ep.attachedFunctionMap.get(EP_SPI_GET_CLIENT);
         if (getClient.type.getParameterTypes().size() != 0
-                || getClient.type.retTypes.size() != 1
-                || getClient.type.retTypes.get(0).tag != TypeTags.STRUCT) {
+                || getClient.type.retType.tag != TypeTags.STRUCT) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_GET_CLIENT);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
             return;
         }
         ep.interactable = true;
         ep.getClientFunction = getClient.symbol;
-        ep.clientStruct = (BStructType) getClient.type.retTypes.get(0);
+        ep.clientStruct = (BStructType) getClient.type.retType;
     }
 
     private void checkValidStartableEndpoint(Endpoint ep) {
@@ -202,7 +200,7 @@ public class EndpointSPIAnalyzer {
         }
         // validate start function
         final BStructSymbol.BAttachedFunction start = ep.attachedFunctionMap.get(EP_SPI_START);
-        if (start.type.getParameterTypes().size() != 0 || start.type.retTypes.size() != 0) {
+        if (start.type.getParameterTypes().size() != 0 || start.type.retType != symTable.nilType) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_START);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
             return;
@@ -216,7 +214,7 @@ public class EndpointSPIAnalyzer {
         }
         // validate stop function
         final BStructSymbol.BAttachedFunction stop = ep.attachedFunctionMap.get(EP_SPI_STOP);
-        if (stop.type.getParameterTypes().size() != 0 || stop.type.retTypes.size() != 0) {
+        if (stop.type.getParameterTypes().size() != 0 || stop.type.retType != symTable.nilType) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_STOP);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
             return;
@@ -230,7 +228,7 @@ public class EndpointSPIAnalyzer {
         }
         // validate register function
         final BStructSymbol.BAttachedFunction register = ep.attachedFunctionMap.get(EP_SPI_REGISTER);
-        if (register.type.getParameterTypes().size() != 1 || register.type.retTypes.size() != 0
+        if (register.type.getParameterTypes().size() != 1 || register.type.retType != symTable.nilType
                 || register.type.getParameterTypes().get(0).tag != TypeTags.TYPEDESC) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_REGISTER);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
