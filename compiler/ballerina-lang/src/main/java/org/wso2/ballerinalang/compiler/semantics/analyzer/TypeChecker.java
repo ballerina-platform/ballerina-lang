@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -93,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -111,6 +113,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -997,6 +1000,30 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangForever foreverStatement) {
         /* ignore */
+    }
+
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
+        checkExpr(bLangMatchExpression.expr, matchExprEnv);
+        Set<BType> matchExprTypes = new HashSet<>();
+        bLangMatchExpression.patternClauses.forEach(pattern -> {
+            if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
+                symbolEnter.defineNode(pattern.variable, matchExprEnv);
+            }
+            checkExpr(pattern.expr, matchExprEnv);
+            pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
+            matchExprTypes.add(pattern.expr.type);
+        });
+
+        if (matchExprTypes.size() == 1) {
+            bLangMatchExpression.type = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
+        } else {
+            bLangMatchExpression.type =
+                    new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nilType));
+        }
+
+        types.checkTypes(bLangMatchExpression, Lists.of(bLangMatchExpression.type), Lists.of(expType));
     }
 
     // Private methods
