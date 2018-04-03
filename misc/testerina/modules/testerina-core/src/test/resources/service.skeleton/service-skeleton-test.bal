@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/test;
 import ballerina/config;
 
-string url = "http://0.0.0.0:9090/v1";
+string uri = "http://0.0.0.0:9095/v1";
 boolean isServiceSkeletonStarted;
 
 function init() {
@@ -19,7 +19,7 @@ function clean() {
 function testService () {
     endpoint http:ClientEndpoint httpEndpoint {
         targets:[{
-            uri:url
+            url:uri
         }]
     };
 
@@ -34,6 +34,6 @@ function testService () {
                     string expected = "Sample listPets Response";
                     test:assertEquals(strRes, expected);
                }
-               http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+url);
+               http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+uri);
     }
 }
