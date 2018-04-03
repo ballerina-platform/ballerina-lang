@@ -76,15 +76,14 @@ public class EndpointSPIAnalyzer {
             dlog.error(endpoint.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, "");
             return;
         }
-        if (isValidEndpointType(endpoint.pos, endpoint.symbol.type)) {
-            // Update endpoint variable symbol
-            populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
-        }
+        isValidEndpointType(endpoint.pos, endpoint.symbol.type);
+        // Update endpoint variable symbol
+        populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
     }
 
     public BStructType getEndpointTypeFromServiceType(DiagnosticPos pos, BType type) {
         if (type.tag != TypeTags.STRUCT) {
-            dlog.error(pos, DiagnosticCode.ENDPOINT_STRUCT_TYPE_REQUIRED);
+            dlog.error(pos, DiagnosticCode.ENDPOINT_OBJECT_TYPE_REQUIRED);
             return null;
         }
         final BStructSymbol serviceType = (BStructSymbol) type.tsymbol;
@@ -92,7 +91,7 @@ public class EndpointSPIAnalyzer {
             if (Names.EP_SERVICE_GET_ENDPOINT.equals(attachedFunc.funcName)) {
                 if (attachedFunc.type.getParameterTypes().size() != 0
                         || attachedFunc.type.retType.tag != TypeTags.STRUCT) {
-                    dlog.error(pos, DiagnosticCode.SERVICE_INVALID_STRUCT_TYPE, serviceType);
+                    dlog.error(pos, DiagnosticCode.SERVICE_INVALID_OBJECT_TYPE, serviceType);
                     return null;
                 }
                 final BStructSymbol endPointType = (BStructSymbol) attachedFunc.type.retType.tsymbol;
@@ -102,7 +101,7 @@ public class EndpointSPIAnalyzer {
                 break;
             }
         }
-        dlog.error(pos, DiagnosticCode.SERVICE_INVALID_STRUCT_TYPE, serviceType);
+        dlog.error(pos, DiagnosticCode.SERVICE_INVALID_OBJECT_TYPE, serviceType);
         return null;
     }
 
@@ -113,7 +112,7 @@ public class EndpointSPIAnalyzer {
 
     public boolean isValidEndpointType(DiagnosticPos pos, BType type) {
         if (type.tag != TypeTags.STRUCT) {
-            dlog.error(pos, DiagnosticCode.ENDPOINT_STRUCT_TYPE_REQUIRED);
+            dlog.error(pos, DiagnosticCode.ENDPOINT_OBJECT_TYPE_REQUIRED);
             return false;
         }
         return isValidEndpointSPI(pos, (BStructSymbol) type.tsymbol);
@@ -156,11 +155,21 @@ public class EndpointSPIAnalyzer {
                 ep.attachedFunctionMap.put(Names.EP_SPI_STOP, attachedFunc);
             } else if (Names.EP_SPI_REGISTER.equals(attachedFunc.funcName)) {
                 ep.attachedFunctionMap.put(Names.EP_SPI_REGISTER, attachedFunc);
+            } else if (Names.OBJECT_INIT_SUFFIX.equals(attachedFunc.funcName)) {
+                ep.attachedFunctionMap.put(Names.OBJECT_INIT_SUFFIX, attachedFunc);
             }
         }
     }
 
     private void checkValidBaseEndpointSPI(Endpoint ep) {
+        if (ep.attachedFunctionMap.containsKey(Names.OBJECT_INIT_SUFFIX)) {
+            final BStructSymbol.BAttachedFunction newFunc = ep.attachedFunctionMap.get(Names.OBJECT_INIT_SUFFIX);
+            if (newFunc.symbol.getParameters().size() > 0) {
+                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_OBJECT_NEW_HAS_PARAM);
+                invalidSPIs.putIfAbsent(ep.structSymbol, ep);
+            }
+        }
+
         if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_INIT)) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE_NO_FUNCTION, ep.structSymbol, Names.EP_SPI_INIT);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
@@ -241,6 +250,10 @@ public class EndpointSPIAnalyzer {
 
     BType getEndpointConfigType(BStructSymbol structSymbol) {
         if (!isProcessedValidEndpoint(structSymbol)) {
+            final Endpoint endpoint = invalidSPIs.get(structSymbol);
+            if (endpoint != null && endpoint.initFunction != null && endpoint.initFunction.getParameters().size() > 0) {
+                return endpoint.initFunction.getParameters().get(0).type;
+            }
             return symTable.errType;
         }
         final Endpoint endpoint = validSPIs.get(structSymbol);
@@ -256,21 +269,24 @@ public class EndpointSPIAnalyzer {
     }
 
     public void populateEndpointSymbol(BStructSymbol structSymbol, BEndpointVarSymbol endpointVarSymbol) {
-        final Endpoint endpoint = validSPIs.get(structSymbol);
-        if (endpoint != null) {
-            final Endpoint endPoint = validSPIs.get(structSymbol);
-            endpointVarSymbol.initFunction = endPoint.initFunction;
-
-            endpointVarSymbol.interactable = endPoint.interactable;
-            endpointVarSymbol.getClientFunction = endPoint.getClientFunction;
-            endpointVarSymbol.clientSymbol = (BStructSymbol) endPoint.clientStruct.tsymbol;
-
-            endpointVarSymbol.startFunction = endPoint.startFunction;
-            endpointVarSymbol.stopFunction = endPoint.stopFunction;
-
-            endpointVarSymbol.registrable = endPoint.registrable;
-            endpointVarSymbol.registerFunction = endPoint.registerFunction;
+        Endpoint endPoint = validSPIs.get(structSymbol);
+        if (endPoint == null) {
+            endPoint = invalidSPIs.get(structSymbol);
         }
+        if (endPoint == null) {
+            return;
+        }
+        endpointVarSymbol.initFunction = endPoint.initFunction;
+
+        endpointVarSymbol.interactable = endPoint.interactable;
+        endpointVarSymbol.getClientFunction = endPoint.getClientFunction;
+        endpointVarSymbol.clientSymbol = (BStructSymbol) endPoint.clientStruct.tsymbol;
+
+        endpointVarSymbol.startFunction = endPoint.startFunction;
+        endpointVarSymbol.stopFunction = endPoint.stopFunction;
+
+        endpointVarSymbol.registrable = endPoint.registrable;
+        endpointVarSymbol.registerFunction = endPoint.registerFunction;
     }
 
     /**

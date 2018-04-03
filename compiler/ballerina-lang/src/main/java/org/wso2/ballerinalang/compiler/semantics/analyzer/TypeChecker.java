@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -116,7 +117,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -1332,7 +1332,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (conSymbol == null
                 || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
-                || conSymbol.tag != SymTag.STRUCT) {
+                || !(conSymbol.tag == SymTag.OBJECT || conSymbol.tag == SymTag.STRUCT)) {
+            // TODO : Remove struct dependency.
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
@@ -1344,6 +1345,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BPackageSymbol packageSymbol = (BPackageSymbol) conSymbol.owner;
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 uniqueFuncName, SymTag.FUNCTION);
+        if (actionSym == symTable.notFoundSymbol) {
+            actionSym = symResolver.resolveStructField(iExpr.pos, env, uniqueFuncName, (BTypeSymbol) conSymbol);
+        }
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.name, conSymbol.type);
             resultType = actualType;

@@ -289,19 +289,19 @@ $white:#fff;
     .bottom-label-icon-wrapper {
       height: 30px;
       width: 30px;
-      background-color: #e8e8e8;
+      background-color: #3c3c3c;
       margin: 0 5px;
       float: left;
       padding: 2px 8px;
-      border: 1px solid #c1c1c1;
-      color: #333;
+      color: #fff;
+      line-height: 26px; 
     }
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-      background-color: #333;
-      border: 1px solid #333;
-      color: #f1f1f1;
+      background-color: #1e1e1e;
+      color: #e7eaeb;
+      font-weight: 400;
     }
     .bottom-view-label {
       display: none;
@@ -583,4 +583,11 @@ a.item.menu-button.ui.button.primary {
 }
 .composer-logo{
   font-size: 15px;
+}
+.aboutWrapper{
+  margin: 0em 0em 1em;
+  line-height: 1em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: #ccc;
 }
