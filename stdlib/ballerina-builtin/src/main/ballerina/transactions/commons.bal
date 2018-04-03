@@ -143,7 +143,7 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     log:printError(msg);
     http:Response res = {statusCode:http:BAD_REQUEST_400};
     RequestError err = {errorMessage:msg};
-    json resPayload =? <json>err;
+    json resPayload = check <json>err;
     res.setJsonPayload(resPayload);
     var respondResult = ep -> respond(res);
     match respondResult {
@@ -300,7 +300,7 @@ function removeInitiatedTransaction (string transactionId) {
 
 function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     if (httpClientCache.hasKey(registerAtURL)) {
-        InitiatorClientEP initiatorEP =? <InitiatorClientEP>httpClientCache.get(registerAtURL);
+        InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
         return initiatorEP;
     } else {
         InitiatorClientEP initiatorEP = {};
@@ -314,7 +314,7 @@ function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
 
 function getParticipant2pcClientEP (string participantURL) returns Participant2pcClientEP {
     if (httpClientCache.hasKey(participantURL)) {
-        Participant2pcClientEP participantEP =? <Participant2pcClientEP>httpClientCache.get(participantURL);
+        Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
         Participant2pcClientEP participantEP = {};
