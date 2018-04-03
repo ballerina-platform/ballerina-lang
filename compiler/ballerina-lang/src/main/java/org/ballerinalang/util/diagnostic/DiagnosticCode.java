@@ -76,6 +76,7 @@ public enum DiagnosticCode {
     SERVICE_STRUCT_TYPE_REQUIRED("service.struct.type.required"),
     SERVICE_INVALID_STRUCT_TYPE("service.invalid.struct.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
+    SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS("service.service.type.required.anonymous"),
     ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
     ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),

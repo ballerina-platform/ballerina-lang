@@ -67,6 +67,7 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -2188,6 +2189,11 @@ public class BLangPackageBuilder {
         serviceNode.addWS(ws);
         blockNodeStack.pop().getStatements()
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+    }
+
+    public void addAnonymousEndpointBind() {
+        BLangService serviceNode = (BLangService) serviceNodeStack.peek();
+        serviceNode.addAnonymousEndpointBind((RecordLiteralNode) exprNodeStack.pop());
     }
 
     public void addServiceEndpointAttachments(int size, Set<Whitespace> ws) {

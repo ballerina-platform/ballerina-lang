@@ -761,6 +761,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
         handleServiceTypeStruct(serviceNode);
         handleServiceEndpointBinds(serviceNode, serviceSymbol);
+        handleAnonymousEndpointBind(serviceNode);
         serviceNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE);
@@ -777,14 +778,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void handleServiceTypeStruct(BLangService serviceNode) {
-        if (serviceNode.serviceTypeStruct != null) {
-            final BType serviceStructType = symResolver.resolveTypeNode(serviceNode.serviceTypeStruct, env);
-            serviceNode.endpointType = endpointSPIAnalyzer.getEndpointTypeFromServiceType(
-                    serviceNode.serviceTypeStruct.pos, serviceStructType);
-            if (serviceNode.endpointType != null) {
-                serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
-                        (BStructSymbol) serviceNode.endpointType.tsymbol);
-            }
+        if (serviceNode.serviceTypeStruct == null) {
+            return;
+        }
+        final BType serviceStructType = symResolver.resolveTypeNode(serviceNode.serviceTypeStruct, env);
+        serviceNode.endpointType = endpointSPIAnalyzer.getEndpointTypeFromServiceType(
+                serviceNode.serviceTypeStruct.pos, serviceStructType);
+        if (serviceNode.endpointType != null) {
+            serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
+                    (BStructSymbol) serviceNode.endpointType.tsymbol);
         }
     }
 
@@ -815,6 +817,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (serviceNode.endpointType == null) {
             dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_INVALID_ENDPOINT_TYPE, serviceNode.name);
         }
+    }
+
+    private void handleAnonymousEndpointBind(BLangService serviceNode) {
+        if (serviceNode.anonymousEndpointBind == null) {
+            return;
+        }
+        if (serviceNode.endpoints == null) {
+            dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS, serviceNode.name);
+            return;
+        }
+        this.typeChecker.checkExpr(serviceNode.anonymousEndpointBind, env,
+                endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) serviceNode.endpointType.tsymbol));
     }
 
     public void visit(BLangResource resourceNode) {

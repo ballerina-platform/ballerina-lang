@@ -218,6 +218,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+        if (ctx.recordLiteral() != null) {
+            this.pkgBuilder.addAnonymousEndpointBind();
+            return;
+        }
         this.pkgBuilder.addServiceEndpointAttachments(ctx.nameReference().size(), getWS(ctx));
     }
 
