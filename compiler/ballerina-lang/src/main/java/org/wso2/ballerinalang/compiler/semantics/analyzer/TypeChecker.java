@@ -347,7 +347,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         env.enclEnv.enclEnv != null) {
                     BLangVariable closureVar = symResolver.findClosureVar(env.enclEnv, symbol);
                     if (closureVar != null) {
-                        ((BLangFunction)env.enclInvokable).closureVarList.add(closureVar);
+                        ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
                     }
                 }
             } else {

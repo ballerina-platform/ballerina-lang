@@ -110,8 +110,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
-import static org.ballerinalang.model.elements.Flag.LAMBDA;
-import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 
 /**
