@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.grpc;
+import ballerina/grpc;
 
 endpoint grpc:Service ep {
     host:"localhost",

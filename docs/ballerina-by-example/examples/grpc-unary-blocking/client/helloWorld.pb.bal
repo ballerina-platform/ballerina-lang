@@ -1,7 +1,7 @@
 // This is an auto generated client stub which is used to connect to gRPC server.
 package client;
 
-import ballerina/net.grpc;
+import ballerina/grpc;
 import ballerina/io;
 
 // Blocking client
@@ -41,7 +41,7 @@ function <helloWorldBlockingStub stub> hello (string req) returns (string|error)
                     return s;
                 }
                 any nonOccurance => {
-                    error e = {message:"Unexpeted type."};
+                    error e = {message:"Unexpected type."};
                     return e;
                 }
             }
