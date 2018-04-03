@@ -1,5 +1,5 @@
 import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/doc;
 
 @doc:Description {value:"By default Ballerina assumes that the service is to be exposed via HTTP/1.1 using the system default port and that all requests coming to the HTTP server will be delivered to this service."}

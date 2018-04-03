@@ -18,19 +18,11 @@
 
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BStruct;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import static org.ballerinalang.util.tracer.TraceConstants.KEY_TRACER;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Utility call to perform trace related functions.
@@ -39,46 +31,23 @@ import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
  */
 public class TraceUtil {
     private TraceUtil() {
-
     }
 
-    public static void finishTraceSpan(Tracer tracer) {
-        tracer.finishSpan();
+    public static void finishBSpan(BSpan bSpan) {
+        bSpan.finishSpan();
     }
 
-    public static void finishTraceSpan(Tracer tracer, BStruct error) {
-        Map<String, Object> logProps = new HashMap<>();
-        logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
-        logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
-        logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
-        tracer.logError(logProps);
-        finishTraceSpan(tracer);
-    }
-
-    public static Tracer getParentTracer(WorkerExecutionContext ctx) {
-        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx != null) {
-            WorkerExecutionContext parent = ctx;
-            do {
-                if (getTracer(parent).getInvocationID() != null) {
-                    return getTracer(parent);
-                }
-                parent = parent.parent;
-            } while (parent != null);
-        }
-        return NoOpTracer.getInstance();
-    }
-
-    public static void setTracer(WorkerExecutionContext ctx, Tracer tracer) {
+    public static void setBSpan(WorkerExecutionContext ctx, BSpan span) {
         if (ctx.localProps == null) {
             ctx.localProps = new HashMap<>();
         }
-        ctx.localProps.put(KEY_TRACER, tracer);
+        ctx.localProps.put(KEY_SPAN, span);
     }
 
-    public static Tracer getTracer(WorkerExecutionContext ctx) {
-        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx.localProps != null) {
-            return (Tracer) ctx.localProps.getOrDefault(KEY_TRACER, NoOpTracer.getInstance());
+    public static BSpan getBSpan(WorkerExecutionContext ctx) {
+        if (ctx.localProps != null) {
+            return (BSpan) ctx.localProps.get(KEY_SPAN);
         }
-        return NoOpTracer.getInstance();
+        return null;
     }
 }

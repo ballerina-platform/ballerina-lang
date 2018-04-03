@@ -6,6 +6,7 @@ $white:#fff;
       &.ballerina-design-view {
         background-color: #e7eaeb;
         color: #7D7D7D;
+        height: 40px;
         .close-tab {
           color: #7D7D7D;
           background-color: #e7eaeb;
@@ -288,19 +289,19 @@ $white:#fff;
     .bottom-label-icon-wrapper {
       height: 30px;
       width: 30px;
-      background-color: #e8e8e8;
+      background-color: #3c3c3c;
       margin: 0 5px;
       float: left;
       padding: 2px 8px;
-      border: 1px solid #c1c1c1;
-      color: #333;
+      color: #fff;
+      line-height: 26px; 
     }
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-      background-color: #333;
-      border: 1px solid #333;
-      color: #f1f1f1;
+      background-color: #1e1e1e;
+      color: #e7eaeb;
+      font-weight: 400;
     }
     .bottom-view-label {
       display: none;
@@ -344,7 +345,7 @@ $white:#fff;
     width: 400px;
     margin: auto;
     top: 20px;
-    background-color: #d8d8d8;
+    background-color: #988686;
     .list-heading {
       text-align: center;
       font-size: 16px;
@@ -483,6 +484,66 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   fill: #f8f8f8;
 }
 
+.top-menu {
+  position: fixed;
+  padding: 3px 26px 6px !important;
+}
+
+.top-bar {
+  height: 30px !important;
+  overflow: hidden;
+  margin-top: 5px !important;
+  width: 500px !important;
+  background: $white !important;
+  
+  .divided{
+    width: 500px !important;
+    height: 30px !important;
+    overflow: hidden;
+    margin-top: 0px !important;
+  }
+  
+  .ui[class*="left pointing"].label:before {
+    border: 0;
+  }
+  .column{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    background: #fff !important;
+  }
+  .column:not(.row) {
+    padding-top: 0rem !important;
+    padding-bottom: 0rem !important;
+  
+    button {
+      background: $white !important;
+      color: #555 !important;
+      margin: 0 !important;
+    }
+    a.ui.left.pointing.basic.label{
+      margin: 0 !important;
+    }
+    .ui.label {
+      background: $white !important;
+      border: 0 !important;
+      margin: 0 !important;
+    }
+  }
+}
+.ui.right.labeled.button.top-bar{
+  background: #fff !important;
+}
+
+.title-text {
+  fill: #333 !important;
+}
+
+.menu-pop-content{
+  width: 484px !important;
+  background: white !important;
+  margin-right: -2px !important;
+}
+
 .definition-icon {
   opacity: 0 !important;
 }
@@ -494,31 +555,39 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .definition-name {
   cursor: pointer;
-}
-
-.top-menu {
-  position: fixed;
-  padding: 3px 26px 6px !important;
-}
-
-.top-bar{
-  height: 30px !important;
+  font-size: 12px !important; 
+  font-weight: 300px !important;
+  color: #555 !important;
   overflow: hidden;
-  margin-top: 5px !important;
-  background: darkgreen !important;
-  button{
-    background: $white!important;
-    color: #555 !important;
-  }
-  .ui.label{
-    background: $white!important;
-    border: 0 !important;
-  }
-  .ui[class*="left pointing"].label:before{
-    border: 0;
-  }
+  text-overflow: ellipsis;
+  width: 165px;
+  white-space: nowrap;
 }
 
-.title-text {
-  fill: #333 !important;
+a.item.menu-button.ui.button.primary {
+  background: $brand-primary;
+  color: #fff;
+  padding: 7px 10px !important;
+  margin-top: 3px;
+  margin-left: 5px;
+  font-weight: 300;
+  
+  &:hover {
+    background: #27a9a3 !important;
+    font-weight: 300 !important;
+  }
+  
+  .icon {
+    padding-right: 25px !important;
+  }
+}
+.composer-logo{
+  font-size: 15px;
+}
+.aboutWrapper{
+  margin: 0em 0em 1em;
+  line-height: 1em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: #ccc;
 }

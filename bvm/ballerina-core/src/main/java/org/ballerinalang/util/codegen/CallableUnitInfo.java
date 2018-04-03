@@ -55,20 +55,19 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     
-    private WorkerInfo[] workerInfoEntries = new WorkerInfo[0];
-
     // Key - data channel name
     private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
     private PackageInfo packageInfo;
     protected WorkerInfo defaultWorkerInfo;
-    protected WorkerInfo[] defaultWorkerInfoArray = new WorkerInfo[0];
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
     
     public WorkerDataIndex paramWorkerIndex;
     public WorkerDataIndex retWorkerIndex;
     
     private NativeCallableUnit nativeCallableUnit;
+    
+    private WorkerSet workerSet = new WorkerSet();
 
     private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
         WorkerDataIndex index = new WorkerDataIndex();
@@ -192,19 +191,10 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public WorkerInfo getDefaultWorkerInfo() {
         return defaultWorkerInfo;
     }
-    
-    /**
-     * This method is implemented as an optimization mechanism, where in the BVM,
-     * we frequently need the default worker as an array.
-     * @return the default worker wrapped as an array
-     */
-    public WorkerInfo[] getDefaultWorkerInfoAsArray() {
-        return defaultWorkerInfoArray;
-    }
 
     public void setDefaultWorkerInfo(WorkerInfo defaultWorkerInfo) {
         this.defaultWorkerInfo = defaultWorkerInfo;
-        this.defaultWorkerInfoArray = new WorkerInfo[] { this.defaultWorkerInfo };
+        this.pupulateWorkerSet();
     }
 
     public WorkerInfo getWorkerInfo(String workerName) {
@@ -213,19 +203,24 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
         workerInfoMap.put(workerName, workerInfo);
-        this.populateWorkerInfoEntries();
+        this.pupulateWorkerSet();
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
         return workerInfoMap;
     }
     
-    private void populateWorkerInfoEntries() {
-        this.workerInfoEntries = this.workerInfoMap.values().toArray(new WorkerInfo[0]);
+    private void pupulateWorkerSet() {
+        this.workerSet.generalWorkers = this.workerInfoMap.values().toArray(new WorkerInfo[0]);
+        if (this.workerSet.generalWorkers.length == 0) {
+            this.workerSet.generalWorkers = new WorkerInfo[] { this.getDefaultWorkerInfo() };
+        } else {
+            this.workerSet.initWorker = this.getDefaultWorkerInfo();
+        }
     }
-
-    public WorkerInfo[] getWorkerInfoEntries() {
-        return workerInfoEntries;
+    
+    public WorkerSet getWorkerSet() {
+        return workerSet;
     }
 
     @Override
@@ -279,6 +274,17 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     
     public void setNativeCallableUnit(NativeCallableUnit nativeCallableUnit) {
         this.nativeCallableUnit = nativeCallableUnit;
+    }
+    
+    /**
+     * This represents a worker set with different execution roles.
+     */
+    public static class WorkerSet {
+
+        public WorkerInfo initWorker;
+
+        public WorkerInfo[] generalWorkers;
+
     }
     
 }

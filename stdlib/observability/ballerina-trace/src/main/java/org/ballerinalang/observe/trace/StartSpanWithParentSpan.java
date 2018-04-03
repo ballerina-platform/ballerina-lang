@@ -26,7 +26,10 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
+import org.ballerinalang.util.tracer.ReferenceType;
 
+import java.io.PrintStream;
 import java.util.Collections;
 
 /**
@@ -57,6 +60,7 @@ public class StartSpanWithParentSpan extends BlockingNativeCallableUnit {
         BMap tags = (BMap) context.getRefArgument(0);
         String reference = context.getRefArgument(1).stringValue();
         BStruct parentSpan = (BStruct) context.getRefArgument(2);
+        PrintStream err = System.err;
 
         String spanId;
         if (ReferenceType.valueOf(reference) != ReferenceType.ROOT && parentSpan != null) {
@@ -72,7 +76,7 @@ public class StartSpanWithParentSpan extends BlockingNativeCallableUnit {
             context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));
         } else {
             context.setReturnValues(Utils.createSpanStruct(context, null, null, null));
-            System.err.println("ballerina: Can not use tracing API when tracing is disabled");
+            err.println("ballerina: Can not use tracing API when tracing is disabled");
         }
     }
 }

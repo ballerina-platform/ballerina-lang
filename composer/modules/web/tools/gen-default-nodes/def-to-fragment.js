@@ -29,6 +29,14 @@ export default {
                 }
             `);
     },
+    createHTTPEndpointDef: () => {
+        return FragmentUtils.createTopLevelNodeFragment(
+            `
+                endpoint http:ServiceEndpoint serviceEp {
+                    port:9090
+                };
+            `);
+    },
     createWSServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
@@ -46,6 +54,14 @@ export default {
 
                 }
             }
+            `);
+    },
+    createWSEndpointDef: () => {
+        return FragmentUtils.createTopLevelNodeFragment(
+            `
+endpoint http:ServiceEndpoint ep {
+    port:9090
+};
             `);
     },
     createJMSServiceDef: () => {
