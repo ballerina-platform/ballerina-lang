@@ -1436,7 +1436,7 @@ public class BLangPackageBuilder {
     }
 
     public void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
-        //TODO only adding object type for now
+        //TODO refactor this.
         if (!this.objectStack.isEmpty()) {
             BLangObject objectNode = (BLangObject) this.objectStack.pop();
             objectNode.pos = pos;
@@ -1462,6 +1462,10 @@ public class BLangPackageBuilder {
         } else {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
             typeDefinition.setName(this.createIdentifier(identifier));
+
+            if (publicStruct) {
+                typeDefinition.flagSet.add(Flag.PUBLIC);
+            }
 
             BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
             while (!typeNodeStack.isEmpty()) {

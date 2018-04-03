@@ -217,8 +217,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
-        if (expType.tag == TypeTags.FINITE) {
-            BFiniteType expType = (BFiniteType) expType.get(0);
+        if (this.expType.tag == TypeTags.FINITE) {
+            BFiniteType expType = (BFiniteType) this.expType;
             boolean foundMember = expType.valueSpace
                     .stream()
                     .map(memberLiteral -> {
@@ -1725,15 +1725,15 @@ public class TypeChecker extends BLangNodeVisitor {
             types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
             int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
             List<BType> paramTypes = Lists.of(symTable.anyType, symTable.anyType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BType retType = symTable.booleanType;
+            BInvokableType opType = new BInvokableType(paramTypes, retType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         } else if (lhsType.tag == TypeTags.FINITE
                 && rhsType.tag == TypeTags.FINITE && lhsType == rhsType) {
             int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BType retType = symTable.booleanType;
+            BInvokableType opType = new BInvokableType(paramTypes, retType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 

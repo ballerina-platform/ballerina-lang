@@ -101,7 +101,8 @@ privateStructBody
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE_TYPE Identifier (typeName | finiteType)
+    :   (PUBLIC)? TYPE_TYPE Identifier typeName
+    |   (PUBLIC)? TYPE_TYPE Identifier finiteType
     ;
 
 objectBody
@@ -218,7 +219,7 @@ endpointInitlization
     ;
 
 finiteType
-    :  finiteTypeUnit ( PIPE finiteTypeUnit)*
+    :  finiteTypeUnit (PIPE finiteTypeUnit)*
     ;
 
 finiteTypeUnit
