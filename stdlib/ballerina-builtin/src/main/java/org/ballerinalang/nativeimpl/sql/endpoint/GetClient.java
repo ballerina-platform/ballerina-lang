@@ -16,13 +16,13 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.actions.data.sql.endpoint;
+package org.ballerinalang.nativeimpl.sql.endpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
+import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,11 +33,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.965
  */
 
-@BallerinaFunction(orgName = "ballerina", packageName = "data.sql",
+@BallerinaFunction(orgName = "ballerina", packageName = "sql",
                    functionName = "getClient",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "Client",
-                                        structPackage = "ballerina.data.sql"),
+                                        structPackage = "ballerina.sql"),
                    returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)
 public class GetClient extends BlockingNativeCallableUnit {

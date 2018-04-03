@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql;
+package org.ballerinalang.nativeimpl.sql;
 
 /**
  * Constants for SQL Data Connectors.
@@ -181,7 +181,7 @@ public final class Constants {
     public static final String PASSWORD = "password";
 
     public static final String CLIENT_CONNECTOR = "ClientConnector";
-    public static final String SQL_PACKAGE_PATH = "ballerina.data.sql";
+    public static final String SQL_PACKAGE_PATH = "ballerina.sql";
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final String B_CONNECTOR = "BConnector";
 
