@@ -20,7 +20,7 @@ package org.ballerinalang.util.tracer;
 import io.opentracing.Tracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * This is the interface that OpenTracerManager will be using to obtain the {@link Tracer} implementation.
@@ -36,6 +36,6 @@ public interface OpenTracer {
      * @return Specific {@link Tracer} instance throws {@link InvalidConfigurationException}
      * if the configuration or tracer name is invalid.
      */
-    Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
+    Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
             throws InvalidConfigurationException;
 }
