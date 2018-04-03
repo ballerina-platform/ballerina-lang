@@ -26,6 +26,8 @@ import java.nio.file.Path;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKAGE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.LIST_PACKAGE_DEPENDENCIES;
+import static org.ballerinalang.compiler.CompilerOptionName.NO_DISC_WRITE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -38,11 +40,14 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public class BuilderUtils {
 
     public static void compileAndWrite(Path sourceRootPath, Path packagePath,
-                                       Path targetPath, boolean buildCompiledPkg, boolean offline) {
+                                       Path targetPath, boolean buildCompiledPkg, boolean offline,
+                                       boolean listPackageDependencies, boolean noDiscWrite) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(offline));
+        options.put(LIST_PACKAGE_DEPENDENCIES, Boolean.toString(listPackageDependencies));
+        options.put(NO_DISC_WRITE, Boolean.toString(noDiscWrite));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));

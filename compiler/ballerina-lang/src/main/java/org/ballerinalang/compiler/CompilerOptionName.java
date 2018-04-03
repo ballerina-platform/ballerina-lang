@@ -36,6 +36,10 @@ public enum CompilerOptionName {
 
     BUILD_COMPILED_PACKAGE("buildCompiledPackage"),
 
+    LIST_PACKAGE_DEPENDENCIES("listPackageDependencies"),
+
+    NO_DISC_WRITE("noDiscWrite"),
+
     TARGET_BINARY_PATH("targetBinaryPath");
 
     public final String name;
