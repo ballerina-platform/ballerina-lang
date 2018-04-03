@@ -341,10 +341,10 @@ recordKey
     ;
 
 tableLiteral
-    :   TYPE_TABLE tableInitlization
+    :   TYPE_TABLE tableInitialization
     ;
 
-tableInitlization
+tableInitialization
     :   recordLiteral
     ;
 
