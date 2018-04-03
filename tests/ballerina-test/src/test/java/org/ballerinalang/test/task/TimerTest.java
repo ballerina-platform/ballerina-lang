@@ -37,12 +37,14 @@ package org.ballerinalang.test.task;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -123,6 +125,11 @@ public class TimerTest {
         BValue[] error = BRunUtil.invokeStateful(timerCompileResult, "getError");
         assertNotNull(error[0], "Expected error not returned.");
         assertEquals(error[0].stringValue(), errMsg, "Expected error message not returned.");
+
+        // Now let's try stopping the task
+        BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult,
+                                                      "stopTask", new BValue[]{new BString(taskId)});
+        assertNull(stopResult[0], "Task stopping resulted in an error");
     }
 
     @Test(description = "Tests running a timer started within workers")
