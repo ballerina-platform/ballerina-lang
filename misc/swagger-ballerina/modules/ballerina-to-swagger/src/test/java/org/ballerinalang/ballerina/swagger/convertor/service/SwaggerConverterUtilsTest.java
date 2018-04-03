@@ -28,8 +28,8 @@ import java.io.IOException;
 public class SwaggerConverterUtilsTest {
     //Sample Ballerina Service definitions to be used for tests.
     private static String sampleBallerinaServiceString = "\n" +
-            "import ballerina/net.http;\n" +
-            "import ballerina/net.http.swagger;\n" +
+            "import ballerina/http;\n" +
+            "import ballerina/http.swagger;\n" +
             "\n" +
             "\n" +
             "endpoint http:ServiceEndpoint ep0 {\n" +
@@ -39,15 +39,20 @@ public class SwaggerConverterUtilsTest {
             "\n" +
             "@swagger:ServiceInfo { \n" +
             "    title: \"Swagger Petstore\",\n" +
-            "    description: \"This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key &#x60;special-key&#x60; to test the authorization filters.\",\n" +
+            "    description: \"This is a sample server Petstore server.  You can find out more about Swagger at "
+            + "[http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  "
+            + "For this sample, you can use the api key &#x60;special-key&#x60; to test the authorization "
+            + "filters.\",\n" +
             "    serviceVersion: \"1.0.0\",\n" +
             "    termsOfService: \"http://swagger.io/terms/\",\n" +
             "    contact: {name: \"\", email: \"apiteam@swagger.io\", url: \"\"},\n" +
             "    license: {name: \"Apache 2.0\", url: \"http://www.apache.org/licenses/LICENSE-2.0.html\"},\n" +
             "    tags: [\n" +
-            "        {name: \"pet\", description: \"Everything about your Pets\", externalDocs: { description: \"Find out more\", url: \"http://swagger.io\" } },\n" +
+            "        {name: \"pet\", description: \"Everything about your Pets\", externalDocs: { description: "
+            + "\"Find out more\", url: \"http://swagger.io\" } },\n" +
             "        {name: \"store\", description: \"Access to Petstore orders\", externalDocs: {  } },\n" +
-            "        {name: \"user\", description: \"Operations about user\", externalDocs: { description: \"Find out more about our store\", url: \"http://swagger.io\" } }\n" +
+            "        {name: \"user\", description: \"Operations about user\", externalDocs: { description: "
+            + "\"Find out more about our store\", url: \"http://swagger.io\" } }\n" +
             "    ],\n" +
             "    externalDocs: { description: \"Find out more about Swagger\", url: \"http://swagger.io\" },\n" +
             "    security: [\n" +
@@ -128,7 +133,8 @@ public class SwaggerConverterUtilsTest {
             "    @swagger:ResourceInfo {\n" +
             "        tags: [\"pet\"],\n" +
             "        summary: \"Finds Pets by tags\",\n" +
-            "        description: \"Muliple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.\",\n" +
+            "        description: \"Muliple tags can be provided with comma separated strings. Use tag1, tag2, tag3 "
+            + "for testing.\",\n" +
             "        externalDocs: {  },\n" +
             "        parameters: [\n" +
             "            {\n" +
@@ -310,7 +316,8 @@ public class SwaggerConverterUtilsTest {
             "    @swagger:ResourceInfo {\n" +
             "        tags: [\"store\"],\n" +
             "        summary: \"Find purchase order by ID\",\n" +
-            "        description: \"For valid response try integer IDs with value &gt;&#x3D; 1 and &lt;&#x3D; 10. Other values will generated exceptions\",\n" +
+            "        description: \"For valid response try integer IDs with value &gt;&#x3D; 1 and &lt;&#x3D; 10. "
+            + "Other values will generated exceptions\",\n" +
             "        externalDocs: {  },\n" +
             "        parameters: [\n" +
             "            {\n" +
@@ -337,7 +344,8 @@ public class SwaggerConverterUtilsTest {
             "    @swagger:ResourceInfo {\n" +
             "        tags: [\"store\"],\n" +
             "        summary: \"Delete purchase order by ID\",\n" +
-            "        description: \"For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors\",\n" +
+            "        description: \"For valid response try integer IDs with positive integer value. Negative or "
+            + "non-integer values will generate API errors\",\n" +
             "        externalDocs: {  },\n" +
             "        parameters: [\n" +
             "            {\n" +
@@ -558,8 +566,7 @@ public class SwaggerConverterUtilsTest {
             "\n" +
             "}\n";
 
-    private static String complexServiceSample = "import ballerina.net.http;\n" +
-            "import ballerina.net.http.resiliency;\n" +
+    private static String complexServiceSample = "import ballerina/http;\n" +
             "import ballerina.runtime;service<http> failoverService {\n" +
             "    int[] failoverHttpStatusCodes = [400, 404, 500];\n" +
             "    resiliency:FailoverConfig errorCode = {failoverCodes:failoverHttpStatusCodes};\n" +

@@ -21,12 +21,15 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 
+import java.util.List;
+
 /**
  * @since 0.94.2
  */
 public class BLangTransformer extends BLangInvokableNode implements TransformerNode {
 
     public BLangVariable source;
+    public List<BLangVariable> retParams;
 
     public VariableNode getSource() {
         return source;

@@ -26,6 +26,8 @@ import org.ballerinalang.nativeimpl.log.AbstractLogFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +40,11 @@ import java.util.Map;
         packageName = "observe",
         functionName = "log",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {@Argument(name = "event", type = TypeKind.STRING),
-                @Argument(name = "message", type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "event", type = TypeKind.STRING),
+                @Argument(name = "message", type = TypeKind.STRING)
+        },
+        returnType = @ReturnType(type = TypeKind.VOID),
         isPublic = true
 )
 public class Log extends AbstractLogFunction {

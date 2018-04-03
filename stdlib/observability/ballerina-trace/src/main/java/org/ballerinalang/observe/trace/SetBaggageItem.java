@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
 
 /**
  * This function adds baggage items to a span.
@@ -34,8 +35,10 @@ import org.ballerinalang.natives.annotations.Receiver;
         packageName = "observe",
         functionName = "setBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {@Argument(name = "baggageKey", type = TypeKind.STRING),
-                @Argument(name = "baggageValue", type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "baggageKey", type = TypeKind.STRING),
+                @Argument(name = "baggageValue", type = TypeKind.STRING)
+        },
         isPublic = true
 )
 public class SetBaggageItem extends BlockingNativeCallableUnit {

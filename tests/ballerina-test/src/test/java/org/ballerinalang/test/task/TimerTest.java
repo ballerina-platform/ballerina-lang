@@ -123,6 +123,11 @@ public class TimerTest {
         BValue[] error = BRunUtil.invokeStateful(timerCompileResult, "getError");
         assertNotNull(error[0], "Expected error not returned.");
         assertEquals(error[0].stringValue(), errMsg, "Expected error message not returned.");
+
+        // Now let's try stopping the task
+        BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult,
+                                                      "stopTask", new BValue[]{new BString(taskId)});
+        assertNull(stopResult[0], "Task stopping resulted in an error");
     }
 
     @Test(description = "Tests running a timer started within workers")

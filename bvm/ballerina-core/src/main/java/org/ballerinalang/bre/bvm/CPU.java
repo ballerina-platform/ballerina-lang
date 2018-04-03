@@ -160,7 +160,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void tryExec(WorkerExecutionContext ctx) {
-        ctx.state = WorkerState.RUNNING;
+        BLangScheduler.workerRunning(ctx);
 
         int i;
         int j;
@@ -364,8 +364,7 @@ public class CPU {
                 case InstructionCodes.TYPEOF:
                     i = operands[0];
                     j = operands[1];
-                    BValue val = sf.refRegs[i];
-                    if (val == null || (val instanceof BString && ((BString) val).value() == null)) {
+                    if (sf.refRegs[i] == null) {
                         sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
                         break;
                     }
@@ -643,8 +642,10 @@ public class CPU {
                 case InstructionCodes.NEWTABLE:
                     i = operands[0];
                     cpIndex = operands[1];
+                    j = operands[2];
+                    BStruct configStruct = (BStruct) sf.refRegs[j];
                     typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
                     break;
                 case InstructionCodes.NEWSTREAM:
                     i = operands[0];
@@ -720,8 +721,10 @@ public class CPU {
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
-                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLSEQSTORE:
+                case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.XMLLOAD:
+                case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.NEWXMLSEQ:
                     execXMLOpcodes(ctx, sf, opcode, operands);
                     break;
@@ -1890,7 +1893,7 @@ public class CPU {
 
                 sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
                 break;
-            case InstructionCodes.XMLLOAD:
+            case InstructionCodes.XMLSEQLOAD:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
@@ -1904,11 +1907,37 @@ public class CPU {
                 long index = sf.longRegs[j];
                 sf.refRegs[k] = xmlVal.getItem(index);
                 break;
+            case InstructionCodes.XMLLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError(ctx);
+                    break;
+                }
+
+                String qname = sf.stringRegs[j];
+                sf.refRegs[k] = xmlVal.children(qname);
+                break;
+            case InstructionCodes.XMLLOADALL:
+                i = operands[0];
+                j = operands[1];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError(ctx);
+                    break;
+                }
+
+                sf.refRegs[j] = xmlVal.children();
+                break;
             case InstructionCodes.NEWXMLELEMENT:
             case InstructionCodes.NEWXMLCOMMENT:
             case InstructionCodes.NEWXMLTEXT:
             case InstructionCodes.NEWXMLPI:
-            case InstructionCodes.XMLSTORE:
+            case InstructionCodes.XMLSEQSTORE:
             case InstructionCodes.NEWXMLSEQ:
                 execXMLCreationOpcodes(ctx, sf, opcode, operands);
                 break;
@@ -2405,7 +2434,7 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
-            case InstructionCodes.XMLSTORE:
+            case InstructionCodes.XMLSEQSTORE:
                 i = operands[0];
                 j = operands[1];
 

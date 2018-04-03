@@ -15,18 +15,15 @@
  */
 package org.ballerinalang.langserver.command;
 
-import org.ballerinalang.langserver.BLangPackageContext;
+import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.repository.PackageRepository;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
@@ -41,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
@@ -88,13 +84,11 @@ public class CommandUtil {
      * Get the command instances for a given diagnostic.
      * @param diagnostic        Diagnostic to get the command against
      * @param params            Code Action parameters
-     * @param documentManager   Document Manager instance
-     * @param pkgContext        BLang Package Context
+     * @param lsPackageCache    Lang Server Package cache
      * @return  {@link List}    List of commands related to the given diagnostic
      */
-    public static List<Command> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params,
-                                                        WorkspaceDocumentManager documentManager,
-                                                        BLangPackageContext pkgContext) {
+    public static List<Command> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params, 
+                                                        LSPackageCache lsPackageCache) {
         String diagnosticMessage = diagnostic.getMessage();
         List<Command> commands = new ArrayList<>();
         if (isUndefinedPackage(diagnosticMessage)) {
@@ -104,17 +98,19 @@ public class CommandUtil {
             Path openedPath = CommonUtil.getPath(sourceDocument);
             String sourceRoot = TextDocumentServiceUtil.getSourceRoot(openedPath);
             sourceDocument.setSourceRoot(sourceRoot);
-            
-            PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-            CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
-                    false, documentManager);
-            ArrayList<PackageID> sdkPackages = pkgContext.getSDKPackages(context);
-            sdkPackages.stream()
-                    .filter(packageID -> packageID.getName().toString().endsWith("." + packageAlias))
-                    .forEach(packageID -> {
+
+            lsPackageCache.getPackageMap().entrySet().stream()
+                    .filter(pkgEntry -> {
+                        String fullPkgName = pkgEntry.getValue().packageID.orgName.getValue()
+                                + "/" + pkgEntry.getValue().packageID.getName().getValue();
+                        return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
+                    })
+                    .forEach(pkgEntry -> {
+                        PackageID packageID = pkgEntry.getValue().packageID;
                         String commandTitle = CommandConstants.IMPORT_PKG_TITLE + " " + packageID.getName().toString();
+                        String fullPkgName = packageID.getOrgName() + "/" + packageID.getName().getValue();
                         CommandArgument pkgArgument =
-                                new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME, packageID.getName().toString());
+                                new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME, fullPkgName);
                         CommandArgument docUriArgument = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI,
                                 params.getTextDocument().getUri());
                         commands.add(new Command(commandTitle, CommandConstants.CMD_IMPORT_PACKAGE,
@@ -165,12 +161,13 @@ public class CommandUtil {
         }
         bLangFunction.getParameters().forEach(bLangVariable ->
                         attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset)));
-        bLangFunction.getReturnParameters()
-                .forEach(bLangVariable -> {
-                    if (!bLangVariable.getName().getValue().isEmpty()) {
-                        attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset));
-                    }
-                });
+        // TODO: Fix with the latest changes properly
+//        bLangFunction.getReturnParameters()
+//                .forEach(bLangVariable -> {
+//                    if (!bLangVariable.getName().getValue().isEmpty()) {
+//                        attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset));
+//                    }
+//                });
 
         return new DocAttachmentInfo(getDocumentationAttachment(attributes, functionPos.getStartColumn()), replaceFrom);
     }

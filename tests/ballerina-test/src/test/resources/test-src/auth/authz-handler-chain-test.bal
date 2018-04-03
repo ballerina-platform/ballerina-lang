@@ -1,14 +1,14 @@
-import ballerina/net.http.authadaptor;
+import ballerina/http;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
-function testCreateAuthzHandlerChain () returns (authadaptor:AuthzHandlerChain) {
-    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
+function testCreateAuthzHandlerChain () returns (http:AuthzHandlerChain) {
+    http:AuthzHandlerChain authzHandlerChain = http:createAuthzHandlerChain();
     return authzHandlerChain;
 }
 
 function testAuthzFailure () returns (boolean) {
-    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
+    http:AuthzHandlerChain authzHandlerChain = http:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "123Basic xxxxx";
@@ -20,7 +20,7 @@ function testAuthzFailure () returns (boolean) {
 }
 
 function testAuthzFailureNonMatchingScope () returns (boolean) {
-    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
+    http:AuthzHandlerChain authzHandlerChain = http:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXNoYXJhOmFiYw==";
@@ -32,7 +32,7 @@ function testAuthzFailureNonMatchingScope () returns (boolean) {
 }
 
 function testAuthzSucess () returns (boolean) {
-    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
+    http:AuthzHandlerChain authzHandlerChain = http:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
@@ -44,7 +44,7 @@ function testAuthzSucess () returns (boolean) {
 }
 
 function testAuthzSucessWithMultipleScopes () returns (boolean) {
-    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
+    http:AuthzHandlerChain authzHandlerChain = http:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                  userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";

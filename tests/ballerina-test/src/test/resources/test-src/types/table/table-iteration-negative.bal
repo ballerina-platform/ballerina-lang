@@ -36,7 +36,7 @@ function getSalaryIncompatibleInputOutput(EmployeeIncompatible e) returns (Emplo
 }
 
 function createTable() returns (table<Employee>) {
-    table<Employee> dt = {};
+    table<Employee> dt = table{};
 
     Employee e1 = {id:1, name:"A", salary:100};
     Employee e2 = {id:2, name:"B", salary:200};
