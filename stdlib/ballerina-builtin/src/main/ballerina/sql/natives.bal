@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.data.sql;
+package ballerina.sql;
 
 @Description {value:"Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
 @Field {value:"sqlType: The data type of the corresponding SQL parameter"}

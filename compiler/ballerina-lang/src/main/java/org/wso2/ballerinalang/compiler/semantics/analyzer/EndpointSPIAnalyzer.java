@@ -175,6 +175,7 @@ public class EndpointSPIAnalyzer {
             return;
         }
         ep.initFunction = init.symbol;
+        ep.endpointConfig = (BStructType) init.type.getParameterTypes().get(0);
     }
 
     private void checkValidInteractableEndpoint(Endpoint ep) {
@@ -282,17 +283,19 @@ public class EndpointSPIAnalyzer {
         final BStructSymbol structSymbol;
         Map<Name, BStructSymbol.BAttachedFunction> attachedFunctionMap = new HashMap<>();
 
-        BInvokableSymbol initFunction;
+        BInvokableSymbol initFunction = null;
+        // Make this record Literal.
+        BStructType endpointConfig = null;
 
         boolean interactable;
-        BInvokableSymbol getClientFunction;
-        BStructType clientStruct;
+        BInvokableSymbol getClientFunction = null;
+        BStructType clientStruct = null;
 
-        BInvokableSymbol startFunction;
-        BInvokableSymbol stopFunction;
+        BInvokableSymbol startFunction = null;
+        BInvokableSymbol stopFunction = null;
 
         boolean registrable;
-        BInvokableSymbol registerFunction;
+        BInvokableSymbol registerFunction = null;
 
         Endpoint(DiagnosticPos pos, BStructSymbol structSymbol) {
             this.pos = pos;

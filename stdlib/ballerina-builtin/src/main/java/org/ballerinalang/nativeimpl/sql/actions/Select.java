@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.actions;
+package org.ballerinalang.nativeimpl.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.Constants;
+import org.ballerinalang.nativeimpl.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -41,7 +41,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "data.sql",
+        orgName = "ballerina", packageName = "sql",
         functionName = "select",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
         args = {
@@ -52,7 +52,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.data.sql")
+                            structPackage = "ballerina.sql")
         }
 )
 public class Select extends AbstractSQLAction {
