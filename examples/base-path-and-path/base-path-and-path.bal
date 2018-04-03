@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
@@ -18,15 +18,15 @@ service<http:Service> echo bind echoEP {
     }
     echo (endpoint conn, http:Request req) {
         // A util method that can get the request payload.
-        json|mime:EntityError result = req.getJsonPayload();
+        var result = req.getJsonPayload();
         http:Response res = {};
         match result {
-            json value =>{
-                res.setJsonPayload(value);
-            }
-            mime:EntityError err =>{
+            http:PayloadError err => {
                 res = {statusCode:500};
                 res.setStringPayload(err.message);
+            }
+            json value =>{
+                res.setJsonPayload(value);
             }
         }
         // Reply to the client with the response.
