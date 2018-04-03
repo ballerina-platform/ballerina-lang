@@ -65,7 +65,7 @@ class AboutDialog extends React.Component {
                 onHide={this.onDialogHide}
                 className='modal-about'
             >
-                <p>
+                <p className='aboutWrapper'>
                     Ballerina Composer provides a flexible and powerful browser-based tool for creating your
                     Ballerina programs. You can build your integrations by creating sequence diagrams, dragging
                     elements from a tool palette onto a canvas. As you build the diagrams, the underlying code
