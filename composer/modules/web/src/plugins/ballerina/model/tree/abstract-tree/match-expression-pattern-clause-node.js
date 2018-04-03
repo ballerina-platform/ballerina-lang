@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractXmlQnameNode extends ExpressionNode {
+class AbstractMatchExpressionPatternClauseNode extends Node {
 
 
-    setPrefix(newValue, silent, title) {
-        const oldValue = this.prefix;
+    setVariableNode(newValue, silent, title) {
+        const oldValue = this.variableNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.prefix = newValue;
+        this.variableNode = newValue;
 
-        this.prefix.parent = this;
+        this.variableNode.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractXmlQnameNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'prefix',
+                    attributeName: 'variableNode',
                     newValue,
                     oldValue,
                 },
@@ -43,18 +43,18 @@ class AbstractXmlQnameNode extends ExpressionNode {
         }
     }
 
-    getPrefix() {
-        return this.prefix;
+    getVariableNode() {
+        return this.variableNode;
     }
 
 
 
-    setLocalname(newValue, silent, title) {
-        const oldValue = this.localname;
+    setStatement(newValue, silent, title) {
+        const oldValue = this.statement;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.localname = newValue;
+        this.statement = newValue;
 
-        this.localname.parent = this;
+        this.statement.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -62,7 +62,7 @@ class AbstractXmlQnameNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'localname',
+                    attributeName: 'statement',
                     newValue,
                     oldValue,
                 },
@@ -70,37 +70,12 @@ class AbstractXmlQnameNode extends ExpressionNode {
         }
     }
 
-    getLocalname() {
-        return this.localname;
-    }
-
-
-
-    setNamespaceUri(newValue, silent, title) {
-        const oldValue = this.namespaceUri;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.namespaceUri = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'namespaceUri',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getNamespaceUri() {
-        return this.namespaceUri;
+    getStatement() {
+        return this.statement;
     }
 
 
 
 }
 
-export default AbstractXmlQnameNode;
+export default AbstractMatchExpressionPatternClauseNode;

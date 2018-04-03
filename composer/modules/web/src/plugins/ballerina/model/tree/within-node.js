@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractEnumeratorNode from './abstract-tree/enumerator-node';
+import AbstractWithinNode from './abstract-tree/within-node';
 
-class EnumeratorNode extends AbstractEnumeratorNode {
+class WithinNode extends AbstractWithinNode {
 
 }
 
-export default EnumeratorNode;
+export default WithinNode;

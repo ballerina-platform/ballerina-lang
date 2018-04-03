@@ -23,6 +23,7 @@ under the License.
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.TestSuiteListener"/>
+        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
     <!-- Ballerina language Test Cases. -->

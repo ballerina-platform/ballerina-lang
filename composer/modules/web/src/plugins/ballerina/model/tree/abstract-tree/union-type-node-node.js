@@ -141,6 +141,52 @@ class AbstractUnionTypeNodeNode extends Node {
     }
 
 
+
+    isNullable() {
+        return this.nullable;
+    }
+
+    setNullable(newValue, silent, title) {
+        const oldValue = this.nullable;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.nullable = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'nullable',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+
+    isGrouped() {
+        return this.grouped;
+    }
+
+    setGrouped(newValue, silent, title) {
+        const oldValue = this.grouped;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.grouped = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'grouped',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
 }
 
 export default AbstractUnionTypeNodeNode;

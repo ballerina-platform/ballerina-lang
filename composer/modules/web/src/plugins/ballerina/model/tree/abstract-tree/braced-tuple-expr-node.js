@@ -19,13 +19,13 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractXmlTextLiteralNode extends ExpressionNode {
+class AbstractBracedTupleExprNode extends ExpressionNode {
 
 
-    setTextFragments(newValue, silent, title) {
-        const oldValue = this.textFragments;
+    setExpressions(newValue, silent, title) {
+        const oldValue = this.expressions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.textFragments = newValue;
+        this.expressions = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractXmlTextLiteralNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'textFragments',
+                    attributeName: 'expressions',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class AbstractXmlTextLiteralNode extends ExpressionNode {
         }
     }
 
-    getTextFragments() {
-        return this.textFragments;
+    getExpressions() {
+        return this.expressions;
     }
 
 
-    addTextFragments(node, i = -1, silent) {
+    addExpressions(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.textFragments.push(node);
-            index = this.textFragments.length;
+            this.expressions.push(node);
+            index = this.expressions.length;
         } else {
-            this.textFragments.splice(i, 0, node);
+            this.expressions.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class AbstractXmlTextLiteralNode extends ExpressionNode {
         }
     }
 
-    removeTextFragments(node, silent) {
-        const index = this.getIndexOfTextFragments(node);
-        this.removeTextFragmentsByIndex(index, silent);
+    removeExpressions(node, silent) {
+        const index = this.getIndexOfExpressions(node);
+        this.removeExpressionsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class AbstractXmlTextLiteralNode extends ExpressionNode {
         }
     }
 
-    removeTextFragmentsByIndex(index, silent) {
-        this.textFragments.splice(index, 1);
+    removeExpressionsByIndex(index, silent) {
+        this.expressions.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +99,9 @@ class AbstractXmlTextLiteralNode extends ExpressionNode {
         }
     }
 
-    replaceTextFragments(oldChild, newChild, silent) {
-        const index = this.getIndexOfTextFragments(oldChild);
-        this.textFragments[index] = newChild;
+    replaceExpressions(oldChild, newChild, silent) {
+        const index = this.getIndexOfExpressions(oldChild);
+        this.expressions[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +116,8 @@ class AbstractXmlTextLiteralNode extends ExpressionNode {
         }
     }
 
-    replaceTextFragmentsByIndex(index, newChild, silent) {
-        this.textFragments[index] = newChild;
+    replaceExpressionsByIndex(index, newChild, silent) {
+        this.expressions[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,15 +132,15 @@ class AbstractXmlTextLiteralNode extends ExpressionNode {
         }
     }
 
-    getIndexOfTextFragments(child) {
-        return _.findIndex(this.textFragments, ['id', child.id]);
+    getIndexOfExpressions(child) {
+        return _.findIndex(this.expressions, ['id', child.id]);
     }
 
-    filterTextFragments(predicateFunction) {
-        return _.filter(this.textFragments, predicateFunction);
+    filterExpressions(predicateFunction) {
+        return _.filter(this.expressions, predicateFunction);
     }
 
 
 }
 
-export default AbstractXmlTextLiteralNode;
+export default AbstractBracedTupleExprNode;

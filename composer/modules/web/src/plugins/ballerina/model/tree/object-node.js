@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractRecordLiteralKeyValueNode from './abstract-tree/record-literal-key-value-node';
+import AbstractObjectNode from './abstract-tree/object-node';
 
-class RecordLiteralKeyValueNode extends AbstractRecordLiteralKeyValueNode {
+class ObjectNode extends AbstractObjectNode {
 
 }
 
-export default RecordLiteralKeyValueNode;
+export default ObjectNode;

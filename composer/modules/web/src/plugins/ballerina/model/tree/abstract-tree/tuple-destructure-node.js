@@ -17,15 +17,17 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import StatementNode from '../statement-node';
 
-class AbstractXmlQuotedStringNode extends ExpressionNode {
+class AbstractTupleDestructureNode extends StatementNode {
 
 
-    setTextFragments(newValue, silent, title) {
-        const oldValue = this.textFragments;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.textFragments = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'textFragments',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +43,44 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
         }
     }
 
-    getTextFragments() {
-        return this.textFragments;
+    getExpression() {
+        return this.expression;
     }
 
 
-    addTextFragments(node, i = -1, silent) {
+
+    setVariableRefs(newValue, silent, title) {
+        const oldValue = this.variableRefs;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.variableRefs = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'variableRefs',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getVariableRefs() {
+        return this.variableRefs;
+    }
+
+
+    addVariableRefs(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.textFragments.push(node);
-            index = this.textFragments.length;
+            this.variableRefs.push(node);
+            index = this.variableRefs.length;
         } else {
-            this.textFragments.splice(i, 0, node);
+            this.variableRefs.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +95,9 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
         }
     }
 
-    removeTextFragments(node, silent) {
-        const index = this.getIndexOfTextFragments(node);
-        this.removeTextFragmentsByIndex(index, silent);
+    removeVariableRefs(node, silent) {
+        const index = this.getIndexOfVariableRefs(node);
+        this.removeVariableRefsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +111,8 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
         }
     }
 
-    removeTextFragmentsByIndex(index, silent) {
-        this.textFragments.splice(index, 1);
+    removeVariableRefsByIndex(index, silent) {
+        this.variableRefs.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +126,9 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
         }
     }
 
-    replaceTextFragments(oldChild, newChild, silent) {
-        const index = this.getIndexOfTextFragments(oldChild);
-        this.textFragments[index] = newChild;
+    replaceVariableRefs(oldChild, newChild, silent) {
+        const index = this.getIndexOfVariableRefs(oldChild);
+        this.variableRefs[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +143,8 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
         }
     }
 
-    replaceTextFragmentsByIndex(index, newChild, silent) {
-        this.textFragments[index] = newChild;
+    replaceVariableRefsByIndex(index, newChild, silent) {
+        this.variableRefs[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,15 +159,38 @@ class AbstractXmlQuotedStringNode extends ExpressionNode {
         }
     }
 
-    getIndexOfTextFragments(child) {
-        return _.findIndex(this.textFragments, ['id', child.id]);
+    getIndexOfVariableRefs(child) {
+        return _.findIndex(this.variableRefs, ['id', child.id]);
     }
 
-    filterTextFragments(predicateFunction) {
-        return _.filter(this.textFragments, predicateFunction);
+    filterVariableRefs(predicateFunction) {
+        return _.filter(this.variableRefs, predicateFunction);
     }
 
+
+
+    isDeclaredWithVar() {
+        return this.declaredWithVar;
+    }
+
+    setDeclaredWithVar(newValue, silent, title) {
+        const oldValue = this.declaredWithVar;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.declaredWithVar = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'declaredWithVar',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 
-export default AbstractXmlQuotedStringNode;
+export default AbstractTupleDestructureNode;

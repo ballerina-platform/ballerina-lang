@@ -17,36 +17,9 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractXmlAttributeAccessExprNode extends Node {
-
-
-    setIndex(newValue, silent, title) {
-        const oldValue = this.index;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.index = newValue;
-
-        this.index.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'index',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getIndex() {
-        return this.index;
-    }
-
+class AbstractNamedArgsExprNode extends ExpressionNode {
 
 
     setExpression(newValue, silent, title) {
@@ -76,6 +49,33 @@ class AbstractXmlAttributeAccessExprNode extends Node {
 
 
 
+    setName(newValue, silent, title) {
+        const oldValue = this.name;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.name = newValue;
+
+        this.name.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'name',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getName() {
+        return this.name;
+    }
+
+
+
 }
 
-export default AbstractXmlAttributeAccessExprNode;
+export default AbstractNamedArgsExprNode;

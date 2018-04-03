@@ -19,13 +19,15 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractXmlPiLiteralNode extends ExpressionNode {
+class AbstractMatchExpressionNode extends ExpressionNode {
 
 
-    setDataTextFragments(newValue, silent, title) {
-        const oldValue = this.dataTextFragments;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.dataTextFragments = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractXmlPiLiteralNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'dataTextFragments',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +43,44 @@ class AbstractXmlPiLiteralNode extends ExpressionNode {
         }
     }
 
-    getDataTextFragments() {
-        return this.dataTextFragments;
+    getExpression() {
+        return this.expression;
     }
 
 
-    addDataTextFragments(node, i = -1, silent) {
+
+    setPatternClauses(newValue, silent, title) {
+        const oldValue = this.patternClauses;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.patternClauses = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'patternClauses',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getPatternClauses() {
+        return this.patternClauses;
+    }
+
+
+    addPatternClauses(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.dataTextFragments.push(node);
-            index = this.dataTextFragments.length;
+            this.patternClauses.push(node);
+            index = this.patternClauses.length;
         } else {
-            this.dataTextFragments.splice(i, 0, node);
+            this.patternClauses.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +95,9 @@ class AbstractXmlPiLiteralNode extends ExpressionNode {
         }
     }
 
-    removeDataTextFragments(node, silent) {
-        const index = this.getIndexOfDataTextFragments(node);
-        this.removeDataTextFragmentsByIndex(index, silent);
+    removePatternClauses(node, silent) {
+        const index = this.getIndexOfPatternClauses(node);
+        this.removePatternClausesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +111,8 @@ class AbstractXmlPiLiteralNode extends ExpressionNode {
         }
     }
 
-    removeDataTextFragmentsByIndex(index, silent) {
-        this.dataTextFragments.splice(index, 1);
+    removePatternClausesByIndex(index, silent) {
+        this.patternClauses.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +126,9 @@ class AbstractXmlPiLiteralNode extends ExpressionNode {
         }
     }
 
-    replaceDataTextFragments(oldChild, newChild, silent) {
-        const index = this.getIndexOfDataTextFragments(oldChild);
-        this.dataTextFragments[index] = newChild;
+    replacePatternClauses(oldChild, newChild, silent) {
+        const index = this.getIndexOfPatternClauses(oldChild);
+        this.patternClauses[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +143,8 @@ class AbstractXmlPiLiteralNode extends ExpressionNode {
         }
     }
 
-    replaceDataTextFragmentsByIndex(index, newChild, silent) {
-        this.dataTextFragments[index] = newChild;
+    replacePatternClausesByIndex(index, newChild, silent) {
+        this.patternClauses[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,42 +159,15 @@ class AbstractXmlPiLiteralNode extends ExpressionNode {
         }
     }
 
-    getIndexOfDataTextFragments(child) {
-        return _.findIndex(this.dataTextFragments, ['id', child.id]);
+    getIndexOfPatternClauses(child) {
+        return _.findIndex(this.patternClauses, ['id', child.id]);
     }
 
-    filterDataTextFragments(predicateFunction) {
-        return _.filter(this.dataTextFragments, predicateFunction);
+    filterPatternClauses(predicateFunction) {
+        return _.filter(this.patternClauses, predicateFunction);
     }
-
-
-    setTarget(newValue, silent, title) {
-        const oldValue = this.target;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.target = newValue;
-
-        this.target.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'target',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getTarget() {
-        return this.target;
-    }
-
 
 
 }
 
-export default AbstractXmlPiLiteralNode;
+export default AbstractMatchExpressionNode;

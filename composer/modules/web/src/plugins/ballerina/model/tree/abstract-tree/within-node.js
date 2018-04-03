@@ -19,15 +19,15 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractXmlnsNode extends Node {
+class AbstractWithinNode extends Node {
 
 
-    setPrefix(newValue, silent, title) {
-        const oldValue = this.prefix;
+    setWithinTimePeriod(newValue, silent, title) {
+        const oldValue = this.withinTimePeriod;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.prefix = newValue;
+        this.withinTimePeriod = newValue;
 
-        this.prefix.parent = this;
+        this.withinTimePeriod.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractXmlnsNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'prefix',
+                    attributeName: 'withinTimePeriod',
                     newValue,
                     oldValue,
                 },
@@ -43,39 +43,12 @@ class AbstractXmlnsNode extends Node {
         }
     }
 
-    getPrefix() {
-        return this.prefix;
-    }
-
-
-
-    setNamespaceURI(newValue, silent, title) {
-        const oldValue = this.namespaceURI;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.namespaceURI = newValue;
-
-        this.namespaceURI.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'namespaceURI',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getNamespaceURI() {
-        return this.namespaceURI;
+    getWithinTimePeriod() {
+        return this.withinTimePeriod;
     }
 
 
 
 }
 
-export default AbstractXmlnsNode;
+export default AbstractWithinNode;

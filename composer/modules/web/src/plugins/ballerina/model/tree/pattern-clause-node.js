@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlAttributeAccessExprNode from './abstract-tree/xml-attribute-access-expr-node';
+import AbstractPatternClauseNode from './abstract-tree/pattern-clause-node';
 
-class XmlAttributeAccessExprNode extends AbstractXmlAttributeAccessExprNode {
+class PatternClauseNode extends AbstractPatternClauseNode {
 
 }
 
-export default XmlAttributeAccessExprNode;
+export default PatternClauseNode;

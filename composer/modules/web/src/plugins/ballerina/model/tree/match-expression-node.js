@@ -16,9 +16,10 @@
  * under the License.
  */
 
+import AbstractMatchExpressionNode from './abstract-tree/match-expression-node';
 
-class TypeNodeAbstract {
+class MatchExpressionNode extends AbstractMatchExpressionNode {
 
 }
 
-export default TypeNodeAbstract;
+export default MatchExpressionNode;
