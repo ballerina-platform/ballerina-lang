@@ -58,10 +58,10 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {

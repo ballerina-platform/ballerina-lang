@@ -9,7 +9,7 @@ function func1 (int a, int b) returns (int) {
 }
 
 function test2 () returns (string) {
-    function (int , int ) returns (string) sumFunction = function (int a, int b) returns (string) {
+    function (int , int ) returns (string) sumFunction = (int a, int b) => (string) {
                                        int value =  a + b;
                                        return "sum is " + value;
                                    };
@@ -33,7 +33,7 @@ function test4() returns (string){
 }
 
 function test4Callee() returns (function (string a, string b) returns (string)){
-   return function(string x, string y) returns (string){
+   return (string x, string y) => (string){
              string z = x + y;
              return z;
           };

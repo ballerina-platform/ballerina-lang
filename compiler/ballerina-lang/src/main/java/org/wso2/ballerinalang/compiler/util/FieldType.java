@@ -19,13 +19,11 @@ package org.wso2.ballerinalang.compiler.util;
 
 /**
  * Type of field to access using {@code BLangFieldBasedAccess}.
- * <p>
  * Supported Types:
  * <ul>
  * <li>SINGLE - Access a single field by name</li>
  * <li>ALL - Access all fields</li>
  * </ul>
- * </p>
  * @since 0.970.0
  */
 public enum FieldType {

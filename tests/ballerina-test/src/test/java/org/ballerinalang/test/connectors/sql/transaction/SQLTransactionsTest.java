@@ -154,6 +154,12 @@ public class SQLTransactionsTest {
         Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
     }
 
+    @Test(groups = "TransactionTest", enabled = false)
+    public void testTransactionWithWorkers() {
+        BValue[] returns = BRunUtil.invoke(result, "testTransactionWithWorkers");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
     @Test(dependsOnGroups = "TransactionTest")
     public void testCloseConnectionPool() {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");

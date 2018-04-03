@@ -31,11 +31,10 @@ public class LSPackageCache {
 
     private Map<String, BLangPackage> packageMap = new HashMap<>();
 
-    private static final String[] staticPkgNames = {"net.http", "net.http.authadaptor", "net.http.endpoints",
-            "net.http.mock", "net.http.swagger", "net.uri", "mime", "auth", "auth.authz", "auth.authz.permissionstore",
-            "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config",
-            "data.sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
-            "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
+    private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
+            "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
+            "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
+            "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
 
     public LSPackageCache() {
         List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
