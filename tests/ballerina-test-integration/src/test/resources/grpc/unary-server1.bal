@@ -77,6 +77,20 @@ service<grpc:Endpoint> helloWorld bind ep {
         }
         _ = client -> complete();
     }
+
+    testNoRequest (endpoint client) {
+        string resp = "service invoked with no request";
+        grpc:ConnectorError err = client -> send(resp);
+        io:println("response : " + resp);
+        if (err != null) {
+            io:println("Error at test : " + err.message);
+        }
+        _ = client -> complete();
+    }
+
+    testNoResponse (endpoint client, string msg) {
+        io:println("Request: " + msg);
+    }
 }
 
 struct Request {
