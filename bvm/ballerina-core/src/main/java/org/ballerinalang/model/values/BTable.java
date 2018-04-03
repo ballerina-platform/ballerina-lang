@@ -85,7 +85,7 @@ public class BTable implements BRefType<Object>, BCollection {
             indexColumns = (BStringArray) configStruct.getRefField(1);
             data = (BRefValueArray) configStruct.getRefField(2);
         }
-
+        //Create table with given contraints.
         this.tableProvider = TableProvider.getInstance();
         this.tableName = tableProvider.createTable(((BTableType) type).getConstrainedType(), primaryKeys, indexColumns);
         this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();

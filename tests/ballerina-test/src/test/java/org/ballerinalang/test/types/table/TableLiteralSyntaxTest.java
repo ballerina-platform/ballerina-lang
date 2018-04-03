@@ -71,7 +71,18 @@ public class TableLiteralSyntaxTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*initial data should be in struct type.*")
     public void testTableLiteralDataWithInit() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableLiteralDataWithInit");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        BRunUtil.invoke(result, "testTableLiteralDataWithInit");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error:Unique index or primary key violation:.*")
+    public void testTableAddOnConstrainedTableWithViolation() {
+        BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error:Unique index or primary key violation:.*")
+    public void testTableAddOnConstrainedTableWithViolation2() {
+        BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
     }
 }

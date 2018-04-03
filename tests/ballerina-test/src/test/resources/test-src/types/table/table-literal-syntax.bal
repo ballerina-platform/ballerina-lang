@@ -1,5 +1,3 @@
-import ballerina/sql;
-
 struct Person {
     int id;
     int age;
@@ -8,15 +6,8 @@ struct Person {
     boolean married;
 }
 
-
-struct Employee {
-    int id;
-    int age;
-}
-
-
 function testTableAddOnUnconstrainedTable() returns (int) {
-    table<Person> t1 = table{};
+    table<Person> t1 = table {};
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     t1.add(p1);
     int count = t1.count();
@@ -24,7 +15,7 @@ function testTableAddOnUnconstrainedTable() returns (int) {
 }
 
 function testTableAddOnConstrainedTable() returns (int) {
-    table<Person> t1 = table{
+    table<Person> t1 = table {
                            primaryKey : ["id", "salary"],
                            index : ["id", "salary"]
                        };
@@ -48,8 +39,7 @@ function testTableLiteralData() returns (int) {
     Person p2 = {id:2, age:30, salary:300.50, name:"anne", married:true};
     Person p3 = {id:3, age:30, salary:300.50, name:"peter", married:true};
 
-
-    table<Person> t1 = table{
+    table<Person> t1 = table {
         primaryKey : ["id", "salary"],
         index : ["id", "salary"],
         data : [p1, p2, p3]
@@ -66,8 +56,7 @@ function testTableLiteralDataAndAdd() returns (int) {
     Person p4 = {id:4, age:30, salary:300.50, name:"john", married:true};
     Person p5 = {id:5, age:30, salary:300.50, name:"mary", married:true};
 
-
-    table<Person> t1 = table{
+    table<Person> t1 = table {
         primaryKey : ["id", "salary"],
         index : ["id", "salary"],
         data : [p1, p2, p3]
@@ -81,7 +70,7 @@ function testTableLiteralDataAndAdd() returns (int) {
 }
 
 function testTableLiteralDataWithInit() returns (int) {
-    table<Person> t1 = table{
+    table<Person> t1 = table {
         primaryKey : ["id", "salary"],
         index : ["id", "salary"],
         data : [{id:1, age:30, salary:300.50, name:"jane", married:true},
@@ -89,6 +78,36 @@ function testTableLiteralDataWithInit() returns (int) {
                ]
     };
 
+    int count = t1.count();
+    return count;
+}
+
+function testTableAddOnConstrainedTableWithViolation() returns (int) {
+    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
+    Person p2 = {id:1, age:30, salary:300.50, name:"jane", married:true};
+
+    table<Person> t1 = table {
+        primaryKey : ["id"],
+        index : ["id"],
+        data : [p1, p2]
+    };
+
+    int count = t1.count();
+    return count;
+}
+
+function testTableAddOnConstrainedTableWithViolation2() returns (int) {
+    Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
+    Person p2 = {id:2, age:30, salary:300.50, name:"jane", married:true};
+    Person p3 = {id:2, age:30, salary:300.50, name:"jane", married:true};
+
+    table<Person> t1 = table {
+        primaryKey : ["id"],
+        index : ["id"],
+        data : [p1, p2]
+    };
+
+    t1.add(p3);
     int count = t1.count();
     return count;
 }
