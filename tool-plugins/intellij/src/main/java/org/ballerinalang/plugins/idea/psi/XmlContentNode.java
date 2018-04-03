@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an XmlContent in PSI tree.
+ */
 public class XmlContentNode extends ANTLRPsiNode {
 
     public XmlContentNode(@NotNull ASTNode node) {

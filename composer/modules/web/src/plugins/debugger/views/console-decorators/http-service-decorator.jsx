@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button } from 'semantic-ui-react';
 import Linkify from 'react-linkify';
 import { COMMANDS as TRY_IT_COMMANDS } from 'plugins/try-it/constants';
 import { COMMANDS as TOOLBAR_COMMANDS } from 'core/toolbar/constants';
@@ -47,15 +47,18 @@ class HttpServiceDecorator extends React.Component {
     render() {
         return (<div className='console-http-service-decorator'>
             <Linkify properties={{ target: '_blank' }}>{this.props.message.message}</Linkify>
+            <span>&nbsp;</span>
             <Button
-                bsStyle='primary'
+                size='mini'
+                inverted
                 disabled={!LaunchManager.active}
+                color='orange'
                 onClick={() => {
                     this.props.command.dispatch(TRY_IT_COMMANDS.SHOW_TRY_IT);
                 }}
             >
                 Try-It
-        </Button>
+            </Button>
         </div>);
     }
 }

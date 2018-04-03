@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.lang.messages;
-import ballerina.doc;
+import ballerina/http;
+import ballerina/lang.messages;
+import ballerina/doc;
 
 @doc:Description {value:"Service is invoke using BasePath value (/hbr)."}
 @http:configuration {basePath:"/hbr"}

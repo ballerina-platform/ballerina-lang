@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.doc;
+import ballerina/http;
+import ballerina/doc;
 
 @doc:Description {value:"Since the basepath is not specified, it's value will be '/passthrough' which is the name of the service."}
 service<http> passthrough {

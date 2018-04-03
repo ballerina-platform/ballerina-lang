@@ -1,0 +1,11 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+@selectionVisibleBorderColor    : @primaryColor ;
+@selectionItemDivider           : @defaultColor ;
+@selectionMenuBorderRadius      : 0 !important;
+@selectInvertColor              : @off-white ;
+@selectedBackground             : @invertedInputBackgroundColor;
+@@selectedColor                 : @off-white;
+@selectionVisibleTextColor      : @off-white;
+@selectionInvertItemDivider     : @defaultColor;

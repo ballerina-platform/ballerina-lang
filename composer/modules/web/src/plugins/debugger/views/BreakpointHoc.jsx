@@ -48,6 +48,7 @@ function breakpointHoc(WrappedComponent) {
          */
         componentDidMount() {
             if (this.props.model.isBreakpoint) {
+                /* eslint-disable react/no-did-mount-set-state */
                 this.setState({
                     isBreakpoint: true,
                 });
@@ -101,6 +102,40 @@ function breakpointHoc(WrappedComponent) {
                 this.props.model.isBreakpoint = false;
             }
         }
+
+        /**
+         * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
+         *
+         */
+        onBreakpointClick() {
+            const { isBreakpoint } = this.state;
+            if (isBreakpoint) {
+                this.setState({
+                    isBreakpoint: false,
+                });
+                this.removeBreakpoint();
+            } else {
+                this.setState({
+                    isBreakpoint: true,
+                });
+                this.addBreakpoint();
+            }
+        }
+        /**
+         * @description Get package name from astRoot
+         * @returns string - Package name
+         */
+        getPackageName() {
+            const { astRoot } = this.context;
+            return TreeUtil.getPackageNameString(astRoot);
+        }
+
+        end() {
+            this.setState({
+                isDebugHit: false,
+            });
+        }
+
         /**
          * indicate a debug hit
          */
@@ -133,20 +168,6 @@ function breakpointHoc(WrappedComponent) {
                 });
             }
         }
-
-        end() {
-            this.setState({
-                isDebugHit: false,
-            });
-        }
-        /**
-         * @description Get package name from astRoot
-         * @returns string - Package name
-         */
-        getPackageName() {
-            const { astRoot } = this.context;
-            return TreeUtil.getPackageNameString(astRoot);
-        }
         /**
          * add breakpoint
          */
@@ -173,31 +194,14 @@ function breakpointHoc(WrappedComponent) {
             const packagePath = this.getPackageName();
             DebugManager.removeBreakPoint(lineNumber, fileName, packagePath);
         }
-
-        /**
-         * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
-         *
-         */
-        onBreakpointClick() {
-            const { isBreakpoint } = this.state;
-            if (isBreakpoint) {
-                this.setState({
-                    isBreakpoint: false,
-                });
-                this.removeBreakpoint();
-            } else {
-                this.setState({
-                    isBreakpoint: true,
-                });
-                this.addBreakpoint();
-            }
-        }
         /**
          * @inheritdoc
          */
         render() {
             const newProps = {
-                isBreakpoint: this.state.isBreakpoint,
+                /*  Hide breakpoint design view doesn't display it properly.(this.state.isBreakpoint) */
+                /*  TODO: Need to rethink indicating, debug hit and breakpoints. */
+                isBreakpoint: false,
                 isDebugHit: this.state.isDebugHit,
                 onBreakpointClick: this.onBreakpointClick.bind(this),
             };

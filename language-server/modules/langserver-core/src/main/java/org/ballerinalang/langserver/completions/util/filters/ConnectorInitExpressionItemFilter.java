@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.util.filters;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -32,11 +32,11 @@ import java.util.stream.Collectors;
 /**
  * Filter the items for connector init expression, based on the current context.
  */
-public class ConnectorInitExpressionItemFilter extends SymbolFilter {
+public class ConnectorInitExpressionItemFilter extends AbstractSymbolFilter {
 
     private static final String CREATE_KEYWORD = "create";
 
-    public List filterItems(TextDocumentServiceContext context) {
+    public List<SymbolInfo> filterItems(LSServiceOperationContext context) {
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int capturedTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         // Since the lang server is zero based indexing, we need to increase the line number to align with antlr token
@@ -68,7 +68,7 @@ public class ConnectorInitExpressionItemFilter extends SymbolFilter {
         }
 
         if (evaluatorToken == null) {
-            return new ArrayList();
+            return new ArrayList<>();
         }
 
         return getItemsList(evaluatorToken, context);
@@ -100,7 +100,7 @@ public class ConnectorInitExpressionItemFilter extends SymbolFilter {
      * @param context           TextDocumentServiceCOntext
      * @return  {@link List}    List of filtered SymbolsInfos
      */
-    private List<SymbolInfo> getItemsList(Token evaluatorToken, TextDocumentServiceContext context) {
+    private List<SymbolInfo> getItemsList(Token evaluatorToken, LSServiceOperationContext context) {
         List<SymbolInfo> filteredList = new ArrayList<>();
         if (evaluatorToken == null) {
             return filteredList;

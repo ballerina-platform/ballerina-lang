@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ReturnStatement in PSI tree.
+ */
 public class ReturnStatementNode extends StatementNode {
 
     public ReturnStatementNode(@NotNull ASTNode node) {

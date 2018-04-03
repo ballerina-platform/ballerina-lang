@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+import { Button, Form, TextArea } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import './LauncherConfigDialog.scss';
 /**
@@ -35,13 +35,11 @@ class LauncherConfigDialog extends React.Component {
         this.state = {
             error: '',
             showDialog: true,
-            configArguments: this.props.configArguments || [],
+            configArguments: this.props.configArguments.join(''),
         };
         this.onDialogHide = this.onDialogHide.bind(this);
-        this.onAddArgument = this.onAddArgument.bind(this);
-        this.onChangeArgument = this.onChangeArgument.bind(this);
-        this.saveConfigs = this.saveConfigs.bind(this);
-        this.onDeleteArgument = this.onDeleteArgument.bind(this);
+        this.onSave = this.onSave.bind(this);
+        this.onChangeTextInput = this.onChangeTextInput.bind(this);
     }
     /**
      * Called when user hides the dialog
@@ -56,44 +54,19 @@ class LauncherConfigDialog extends React.Component {
      * Add command argument text field
      * @memberof LauncherConfigDialog
      */
-    onAddArgument() {
-        this.setState({
-            configArguments: this.state.configArguments,
-        });
-    }
-    /**
-     * on change argument text field
-     * @param {int} idx - Array Index
-     * @param {Object} evt - Text field change event
-     * @memberof LauncherConfigDialog
-     */
-    onChangeArgument(idx, evt) {
-        const newConfigArguments = [...this.state.configArguments];
-        newConfigArguments[idx] = evt.target.value;
-        this.setState({ configArguments: newConfigArguments });
-    }
-
-    /**
-     * Save launcher configs
-     * @memberof LauncherConfigDialog
-     */
-    saveConfigs() {
-        this.props.onSaveConfigs(this.state.configArguments);
+    onSave() {
+        this.props.onSaveConfigs([this.state.configArguments]);
         this.setState({
             showDialog: false,
         });
     }
     /**
-     * Remove command argument text field
-     * @param {int} deleteIndex - Array index
-     * @memberof LauncherConfigDialog
+     * Handle text input change event
+     * @param e - Element onChange event
      */
-    onDeleteArgument(deleteIndex) {
-        const newConfigArguments = this.state.configArguments.filter((config, index) => {
-            return index !== deleteIndex;
-        });
+    onChangeTextInput(e, { value }) {
         this.setState({
-            configArguments: newConfigArguments,
+            configArguments: value,
         });
     }
 
@@ -104,11 +77,11 @@ class LauncherConfigDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title="Configure Application Arguments"
+                title='Configure Application Arguments'
                 actions={
                     <Button
-                        bsStyle="primary"
-                        onClick={this.saveConfigs}
+                        primary
+                        onClick={this.onSave}
                     >
                         Save
                     </Button>
@@ -117,43 +90,14 @@ class LauncherConfigDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Form horizontal>
-
-                    {this.state.configArguments.map((config, idx) => {
-                        return (
-                            <FormGroup key={idx}>
-                                <InputGroup>
-                                    <FormControl
-                                        autoFocus
-                                        value={config}
-                                        onChange={event => this.onChangeArgument(idx, event)}
-                                        type="text"
-                                    />
-                                    <InputGroup.Button>
-                                        <Button
-                                            bsStyle="primary"
-                                            onClick={() => this.onDeleteArgument(idx)}
-                                            className="launcher-config-delete"
-                                        >
-                                            <i className="fw fw-delete" />
-                                        </Button>
-                                    </InputGroup.Button>
-                                </InputGroup>
-                            </FormGroup>
-                        );
-                    })}
-
-                    <FormGroup>
-                        <Button
-                            bsStyle="primary"
-                            onClick={this.onAddArgument}
-                        >
-                            <i className="fw fw-add" />
-                            &nbsp; Add argument
-                        </Button>
-
-
-                    </FormGroup>
+                <Form onSubmit={this.onSave}>
+                    <Form.Field
+                        label='Arguments for ballerina programme command line execution'
+                        placeholder='Command line arguments'
+                        value={this.state.configArguments}
+                        control={TextArea}
+                        onChange={this.onChangeTextInput}
+                    />
                 </Form>
             </Dialog>
         );
@@ -161,7 +105,12 @@ class LauncherConfigDialog extends React.Component {
 }
 
 LauncherConfigDialog.propTypes = {
+    onSaveConfigs: PropTypes.func.isRequired,
+    configArguments: PropTypes.arrayOf(PropTypes.string),
+};
 
+LauncherConfigDialog.defaultProps = {
+    configArguments: [],
 };
 
 export default LauncherConfigDialog;

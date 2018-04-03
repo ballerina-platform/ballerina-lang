@@ -19,12 +19,11 @@
 package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -34,27 +33,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "xml.setAttributes",
         args = {@Argument(name = "attributes", type = TypeKind.MAP)},
         isPublic = true
 )
-public class SetAttributes extends AbstractNativeFunction {
+public class SetAttributes extends BlockingNativeCallableUnit {
 
     private static final String OPERATION = "set attributes";
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML<?> xml = (BXML<?>) getRefArgument(ctx, 0);
-            BMap<String, ?> attributes = (BMap<String, ?>) getRefArgument(ctx, 1);
+            BXML<?> xml = (BXML<?>) ctx.getRefArgument(0);
+            BMap<String, ?> attributes = (BMap<String, ?>) ctx.getRefArgument(1);
             xml.setAttributes(attributes);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
         
         // Setting output value.
-        return VOID_RETURN;
+        ctx.setReturnValues();
     }
 }

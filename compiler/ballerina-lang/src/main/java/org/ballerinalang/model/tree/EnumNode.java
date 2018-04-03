@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface EnumNode extends TopLevelNode, AnnotatableNode {
+public interface EnumNode extends TopLevelNode, AnnotatableNode, DocumentableNode {
 
     IdentifierNode getName();
 

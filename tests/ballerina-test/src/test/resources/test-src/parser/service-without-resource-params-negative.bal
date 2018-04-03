@@ -1,10 +1,13 @@
-import ballerina.net.http;
+import ballerina/http;
 
-service<http> HelloService {
+service<http:Service> HelloService {
 
-  @Path {value:"/tweet"}
-  resource tweet {
+ @http:ResourceConfig {
+      methods:["GET"],
+      path:"/"
+}
+   tweet (){
       int b;
-      reply m;
+      return m;
   }
 }

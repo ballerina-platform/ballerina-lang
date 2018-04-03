@@ -40,6 +40,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Optimizes Ballerina imports.
+ */
 public class BallerinaImportOptimizer implements ImportOptimizer {
 
     @Override

@@ -34,6 +34,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Represents Ballerina library service.
+ *
+ * @param <T> a library state
+ */
 public class BallerinaLibrariesService<T extends BallerinaLibraryState> extends SimpleModificationTracker
         implements PersistentStateComponent<T> {
 
@@ -109,6 +114,9 @@ public class BallerinaLibrariesService<T extends BallerinaLibraryState> extends 
         return ContainerUtil.mapNotNull(urls, url -> VirtualFileManager.getInstance().findFileByUrl(url));
     }
 
+    /**
+     * Library listener.
+     */
     public interface LibrariesListener {
         void librariesChanged(@NotNull Collection<String> newRootUrls);
     }

@@ -33,7 +33,7 @@ public class TypeTags {
     public static final int XML_TAG = 8;
     public static final int JSON_TAG = 9;
     public static final int MESSAGE_TAG = 10;
-    public static final int DATATABLE_TAG = 11;
+    public static final int TABLE_TAG = 11;
     public static final int VOID_TAG = 12;
     public static final int CONNECTOR_TAG = 13;
     public static final int FUNCTION_POINTER_TAG = 14;
@@ -43,6 +43,12 @@ public class TypeTags {
     public static final int NULL_TAG = 18;
     public static final int XML_ATTRIBUTES_TAG = 19;
     public static final int TYPE_TAG = 20;
+    public static final int TYPEDESC_TAG = 20;
     public static final int ENUM_TAG = 21;
     public static final int ITERATOR_TAG = 22;
+    public static final int SERVICE_TAG = 23;
+    public static final int STREAM_TAG = 25;
+    public static final int FUTURE_TAG = 26;
+    public static final int UNION_TAG = 27;
+    public static final int TUPLE_TAG = 28;
 }

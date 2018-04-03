@@ -1,6 +1,6 @@
 // Year 2017
+import ballerina/io;
 
-import ballerina.net.http; // importing http package
 
 function testComments () {
     // defining start name
@@ -13,22 +13,22 @@ function testComments () {
         xml `<{{startName}}>hello</{{startName}}>`;
 
 
-    println(x);
+    io:println(x);
     fooFunc("hello","world");
     
     Day day = Day.MONDAY;
     if (day == Day.TUESDAY) {
-        println("day is wrong!");
+        io:println("day is wrong!");
     }
 }
 
 function fooFunc(string a, // foo function
     string b) {
     // printing a
-    println(a);
+    io:println(a);
 
     // printing b
-    println(b);
+    io:println(b);
     return;
 }
 
@@ -47,24 +47,33 @@ enum Day { // enum Day
 } // end of enum
 
 
-@http:configuration {basePath:"/FooService"} // http config annotation
-service<http> FooService {
+@Description {value:"/FooService"} // http config annotation
+service<DummyService> FooService {
 
-    @http:resourceConfig{ methods:["POST"], // http method post
+    @Description{ value:"POST" // http method post
                           // http resource path 
-                          path:"/fooResource/" 
+
                         }
-        resource fooResource (http:Connection conn, http:InRequest req) {
-            http:OutResponse res = {};
-            var xmlpayload = req.getXmlPayload();
-            res.setXmlPayload(xmlpayload);
-            _ = conn.respond(res);
-    }
+        fooResource (string s) {
+            io:println(s);
+        }
 }
 
-transformer <Person p,string s> {
+//transformer <Person p,string s> {
   // send the name of the person
-  s = p.name;
-}
+//  s = p.name;
+//}
 
 // end of file
+
+struct DummyEndpoint {}
+
+function <DummyEndpoint s> init (struct {} conf)  {
+}
+
+struct DummyService {}
+
+function <DummyService s> getEndpoint() returns (DummyEndpoint) {
+    DummyEndpoint myDummyEndpoint = {};
+    return myDummyEndpoint ;
+}

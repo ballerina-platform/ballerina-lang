@@ -1,23 +1,22 @@
-struct InvalidNameError {
-    string msg;
-    error cause;
-    StackFrame[] stackTrace;
+public struct InvalidNameError {
+    string message;
+    error[] cause;
     string companyName;
 }
 
-function getQuote(string name)( float , InvalidNameError ) {
+function getQuote(string name) returns (float|InvalidNameError) {
 
-    if(name == "FOO"){
-        return 10.5, null;
+    if (name == "FOO") {
+        return 10.5;
     } else if (name == "BAR") {
-        return 11.5, null;
+        return 11.5;
     }
 
-    InvalidNameError err = { msg : "invalid name", companyName : name };
-    return -1.0, err;
+    InvalidNameError err = { message: "invalid name", companyName : name };
+    return err;
 }
 
-function testReturnError()(string, string, string, string) {
+function testReturnError() returns (string, string, string, string) {
 
     string a;
     string b;
@@ -25,50 +24,56 @@ function testReturnError()(string, string, string, string) {
     string d;
 
     float quoteValue;
-    // Special identifier "_" will be used to ignore values.
+    // Special identifier "=?" will be used to ignore values.
 
-    quoteValue, _ = getQuote("FOO");
+    quoteValue =? getQuote("FOO");
     a = "FOO:" + quoteValue;
 
     // Ignore error.
-    quoteValue, _ = getQuote("QUX");
-    b = "QUX:" + quoteValue;
+    var r = getQuote("QUX");
+    match r {
+        float qVal => b = "QUX:" + qVal;
+        InvalidNameError err => b = "QUX:ERROR";
+    }
 
     // testing for errors.
-    InvalidNameError errorBAZ;
-    quoteValue, errorBAZ = getQuote("BAZ");
-
-    if(errorBAZ != null){
-        // error occurred. Recover from the error by assigning 0.
-        quoteValue = 0.0;
+    // error occurred. Recover from the error by assigning 0.
+    var q = getQuote("BAZ");
+    match q {
+        float qVal => c = "BAZ:" + quoteValue;
+        InvalidNameError errorBAZ => {
+            quoteValue = 0.0;
+            c = "BAZ:" + quoteValue;
+        }
     }
-    c = "BAZ:" + quoteValue;
 
-    InvalidNameError errorBAR;
-    quoteValue, errorBAR = getQuote("BAR");
-    if(errorBAR != null){
-        // error occurred. Recover from the error by assigning 0.
-        quoteValue = 0.0;
+    var p = getQuote("BAR");
+
+    match p {
+        float qVal => d = "BAR:" + qVal;
+        InvalidNameError errorBAR => {
+            quoteValue = 0.0;
+            d = "BAR:ERROR";
+        }
     }
-    d = "BAR:" + quoteValue;
-
-    return a,b,c,d;
+    return (a,b,c,d);
 }
 
-function testReturnAndThrowError()(string){
+function testReturnAndThrowError() returns (string){
     try{
         checkAndThrow();
     }catch(error e){
-        return e.msg;
+        return e.cause[0].message;
     }
     return "OK";
 }
 
 function checkAndThrow(){
-    InvalidNameError err;
-    float quoteValue;
-    quoteValue, err = getQuote("BAZ");
-    if(err !=null){
-        throw err;
+    float qVal;
+    var p = getQuote("BAZ");
+
+    match p {
+        float quoteValue => qVal = quoteValue;
+        InvalidNameError err => throw err;
     }
 }

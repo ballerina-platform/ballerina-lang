@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 3,
-    "character": 7
+    "line": 4,
+    "character": 8
   },
   "source": "resource/source/emptyLinePrimitiveDataTypes.bal",
   "items": [
@@ -30,12 +30,12 @@
       "insertText": "any",
       "data": null
     }, {
-      "label": "datatable",
+      "label": "table",
       "kind": 2,
       "detail": "BType",
       "documentation": null,
       "sortText": 6,
-      "insertText": "datatable",
+      "insertText": "table",
       "data": null
     }, {
       "label": "xml",

@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an Ballerina element reference.
+ */
 public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode> {
 
     public BallerinaElementReference(@NotNull IdentifierPSINode element) {

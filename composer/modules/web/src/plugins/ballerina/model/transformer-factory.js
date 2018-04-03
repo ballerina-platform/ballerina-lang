@@ -76,6 +76,40 @@ class TransformerFactory {
     }
 
     /**
+     * create a iterable operation for provided name and type
+     * @param {string} name collection name
+     * @param {string} type iterable operation type
+     * @param {string} sourceType source collection type
+     * @param {boolean} isLamda is given iterable operation has a lambda function
+     * @return {object} created iterable operation node
+     */
+    static createIterableOperation(name, type, sourceType, isLamda) {
+        let lambdaFunction = '';
+        if (isLamda) {
+            lambdaFunction = `function(${sourceType} item)(boolean){ return true; }`;
+        }
+        const fragment = FragmentUtils.createExpressionFragment(`${name}.${type}(${lambdaFunction})`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const exp = TreeBuilder.build(parsedJson).getVariable().getInitialExpression();
+        TransformerFactory.updateItreableOperation(exp, sourceType);
+        exp.clearWS();
+        return exp;
+    }
+
+    /**
+     * Update iterable flag recursive for chained iterable operations
+     * @param {object} node expression node
+     * @param {*} sourceType source collection type
+     */
+    static updateItreableOperation(node, sourceType) {
+        node.iterableOperation = true;
+        node.symbolType[0] = sourceType;
+        if (TreeUtil.isInvocation(node.getExpression())) {
+            TransformerFactory.updateItreableOperation(node.getExpression(), sourceType);
+        }
+    }
+
+    /**
      * Create default expression based on argument type
      * @static
      * @param {any} type type
@@ -177,6 +211,26 @@ class TransformerFactory {
         const tree = TreeBuilder.build(parsedJson);
         tree.clearWS();
         return tree;
+    }
+
+    /**
+     * Create Transformer conversion expression for given transformer and expression
+     * @param {string} targetType statement target type
+     * @param {object} expression statement expression
+     * @param {strong} transformerName transformer name
+     * @param {[object]} parameters transformer parameters
+     */
+    static createTransformerConversion(targetType, expression, transformerName, parameters) {
+        let params = '';
+        parameters.forEach((param, i) => {
+            params += (i === 0 ? '' : ',') + param.getName().getValue();
+        });
+        transformerName = transformerName ? `, ${transformerName}(${params})` : '';
+        const fragment = FragmentUtils.createExpressionFragment(`<${targetType}${transformerName}>${expression}`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const conExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        conExpr.clearWS();
+        return conExpr;
     }
 }
 

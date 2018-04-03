@@ -18,6 +18,9 @@ package org.ballerinalang.plugins.idea.debugger.dto;
 
 import java.util.List;
 
+/**
+ * Represent a variable.
+ */
 public class Variable {
 
     private String scope, name;

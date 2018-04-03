@@ -32,6 +32,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Represents Ballerina remote configuration.
+ */
 public class BallerinaRemoteConfiguration extends BallerinaRunConfigurationWithMain<BallerinaRemoteRunningState> {
 
     private static final String IP_REGEX = "^(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|localhost)$";

@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents a ConnectorBody in PSI tree.
+ */
 public class ConnectorBodyNode extends ANTLRPsiNode implements VariableContainer {
 
     public ConnectorBodyNode(@NotNull ASTNode node) {

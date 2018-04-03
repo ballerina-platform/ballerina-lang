@@ -44,6 +44,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a field reference.
+ */
 public class FieldReference extends BallerinaElementReference {
 
     public FieldReference(@NotNull IdentifierPSINode element) {

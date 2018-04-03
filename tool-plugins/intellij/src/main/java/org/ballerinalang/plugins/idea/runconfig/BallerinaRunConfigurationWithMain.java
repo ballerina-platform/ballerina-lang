@@ -30,6 +30,11 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Configuration base for main files which will save/load configuration settings.
+ *
+ * @param <T>
+ */
 public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunningState> extends
         BallerinaRunConfigurationBase<T> {
 

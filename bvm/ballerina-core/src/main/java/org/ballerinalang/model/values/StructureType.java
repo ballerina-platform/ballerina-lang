@@ -45,4 +45,5 @@ public interface StructureType {
     BRefType getRefField(int index);
 
     void setRefField(int index, BRefType value);
+
 }

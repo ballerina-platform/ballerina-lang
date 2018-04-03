@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -32,20 +31,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.96
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "forward",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "InResponse",
-                structPackage = "ballerina.net.http")},
+                             structPackage = "ballerina.http"),
+        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
+                structPackage = "ballerina.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.net.http"),
+                                 structPackage = "ballerina.http"),
         isPublic = true
 )
 public class Forward extends ConnectionAction {
 
     @Override
-    public BValue[] execute(Context context) {
-        return super.execute(context);
+    public void execute(Context context) {
+        super.execute(context);
     }
 }

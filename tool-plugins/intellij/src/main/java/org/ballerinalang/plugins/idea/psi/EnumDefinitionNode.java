@@ -34,6 +34,9 @@ import java.util.Collection;
 
 import javax.swing.Icon;
 
+/**
+ * Represents an EnumDefinition in PSI tree.
+ */
 public class EnumDefinitionNode extends IdentifierDefSubtree implements TopLevelDefinition, ParameterContainer {
 
     public EnumDefinitionNode(@NotNull ASTNode node) {

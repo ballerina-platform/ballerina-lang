@@ -1,8 +1,8 @@
-import ballerina.lang.messages;
-import ballerina.net.http;
-import ballerina.lang.system;
-import ballerina.lang.strings;
-import ballerina.lang.jsons;
+import ballerina/lang.messages;
+import ballerina/http;
+import ballerina/lang.system;
+import ballerina/lang.strings;
+import ballerina/lang.jsons;
 @http:BasePath ("/ecommerceservice")
 service Ecommerce {
     http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");

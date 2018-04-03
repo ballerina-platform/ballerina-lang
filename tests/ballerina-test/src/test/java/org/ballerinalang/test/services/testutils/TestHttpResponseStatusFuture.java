@@ -22,7 +22,7 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultOperationStatus;
 
 /**
- * Test HttpResponseStatusFuture implementation for service tests
+ * Test HttpResponseStatusFuture implementation for service tests.
  */
 public class TestHttpResponseStatusFuture extends DefaultHttpResponseFuture {
 

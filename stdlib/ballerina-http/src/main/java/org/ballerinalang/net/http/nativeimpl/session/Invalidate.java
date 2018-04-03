@@ -19,13 +19,12 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -35,18 +34,18 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "invalidate",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         isPublic = true
 )
-public class Invalidate extends AbstractNativeFunction {
+public class Invalidate extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
-            Session session = (Session) sessionStruct.getNativeData(Constants.HTTP_SESSION);
+            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
+            Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null && session.isValid()) {
                 session.invalidate();
             } else {
@@ -55,6 +54,6 @@ public class Invalidate extends AbstractNativeFunction {
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
-        return new BValue[0];
+        context.setReturnValues();
     }
 }

@@ -29,6 +29,9 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+/**
+ * Represents a variable group in debug window.
+ */
 public class BallerinaXValueGroup extends XValueGroup {
 
     private final BallerinaDebugProcess myProcess;

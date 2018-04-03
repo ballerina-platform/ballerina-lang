@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea;
 import com.intellij.lang.Commenter;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Ballerina commenting support provider.
+ */
 public class BallerinaCommenter implements Commenter {
 
     @Nullable

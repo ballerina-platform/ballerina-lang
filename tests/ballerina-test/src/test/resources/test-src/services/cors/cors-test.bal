@@ -1,123 +1,141 @@
-import ballerina.net.http;
+import ballerina/http;
+import ballerina/http;
 
-@http:configuration {
+endpoint http:NonListeningServiceEndpoint testEP {
+    host: "localhost",
+    port: 9090
+};
+
+@http:ServiceConfig {
     basePath:"/hello1",
-    allowOrigins :["http://www.m3.com", "http://www.hello.com"],
-    allowCredentials : true,
-    allowHeaders : ["CORELATION_ID"],
-    exposeHeaders : ["CORELATION_ID"],
-    maxAge : 1
-}
-service<http> echo1 {
-
-    @http:resourceConfig {
-         methods:["POST"],
-         path : "/test1",
-         allowOrigins :["http://www.wso2.com", "http://www.facebook.com"],
-         allowCredentials : true,
-         allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
+    cors:{
+        allowOrigins:["http://www.m3.com", "http://www.hello.com"],
+        allowCredentials:true,
+        allowHeaders:["CORELATION_ID"],
+        exposeHeaders:["CORELATION_ID"],
+        maxAge:1
     }
-    resource info1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+}
+service<http:Service> echo1 bind testEP {
+
+    @http:ResourceConfig {
+        methods:["POST"],
+        path : "/test1",
+        cors: {
+            allowOrigins :["http://www.wso2.com", "http://www.facebook.com"],
+            allowCredentials : true,
+            allowHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
+        }
+    }
+    info1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"resCors"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
          methods:["GET"],
          path : "/test2"
     }
-    resource info2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    info2 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"serCors"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path : "/test3",
-        allowOrigins :["http://www.wso2.com", "http://facebook.com", "http://www.amazon.com"],
-        allowCredentials : true
+        cors:{
+            allowOrigins :["http://www.wso2.com", "http://facebook.com", "http://www.amazon.com"],
+            allowCredentials:true
+        }
     }
-    resource info3 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    info3 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"moreOrigins"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-service<http> hello2 {
+service<http:Service> hello2 bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
          methods:["POST"],
          path : "/test1",
-         allowOrigins :["http://www.hello.com"," http://www.facebook.com  "],
-         exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
+         cors: {
+            allowOrigins :["http://www.hello.com", " http://www.facebook.com  "],
+            exposeHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
+        }
     }
-    resource info1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    info1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"resOnlyCors"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PUT"],
         path : "/test2",
-        allowMethods :["HEAD", "PUT"],
-        allowOrigins :["http://www.bbc.com"," http://www.amazon.com  "],
-        exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
+        cors:{
+            allowMethods :["HEAD", "PUT"],
+            allowOrigins:["http://www.bbc.com", " http://www.amazon.com  "],
+            exposeHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
+        }
     }
-    resource info2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    info2 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"optionsOnly"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {
+@http:ServiceConfig {
     basePath:"/hello3",
-    allowCredentials : true,
-    allowMethods :["GET", "PUT"],
-    allowOrigins :["http://www.m3.com","http://www.facebook.com"],
-    allowHeaders: ["X-Content-Type-Options","X-PINGOTHER"],
-    maxAge : 1
+    cors:{
+        allowCredentials : true,
+        allowMethods:["GET", "PUT"],
+        allowOrigins:["http://www.m3.com", "http://www.facebook.com"],
+        allowHeaders:["X-Content-Type-Options", "X-PINGOTHER"],
+        maxAge:1
+    }
 }
-service<http> echo3 {
+service<http:Service> echo3 bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST", "PUT"]
     }
-    resource info1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    info1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"cors"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-service<http> echo4 {
-    @http:resourceConfig {
+service<http:Service> echo4 bind testEP {
+    @http:ResourceConfig {
         methods:["POST"]
     }
-    resource info1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    info1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"noCors"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["OPTIONS"]
     }
-    resource info2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    info2 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"noCorsOPTIONS"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

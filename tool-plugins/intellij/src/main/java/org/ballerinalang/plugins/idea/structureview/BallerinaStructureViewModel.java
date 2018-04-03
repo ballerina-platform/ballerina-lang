@@ -28,6 +28,9 @@ import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Provides the model for structure view.
+ */
 public class BallerinaStructureViewModel extends StructureViewModelBase
         implements StructureViewModel.ElementInfoProvider {
 

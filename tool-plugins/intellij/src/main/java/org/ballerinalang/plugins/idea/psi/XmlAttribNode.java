@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an XmlAttrib in PSI tree.
+ */
 public class XmlAttribNode extends ANTLRPsiNode {
 
     public XmlAttribNode(@NotNull ASTNode node) {

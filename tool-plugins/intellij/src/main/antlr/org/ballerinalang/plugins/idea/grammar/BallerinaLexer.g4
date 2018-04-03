@@ -2,147 +2,215 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inDocTemplate = false;
+    boolean inDeprecatedTemplate = false;
+    boolean inSiddhi = false;
+    boolean inTableSqlQuery = false;
+    boolean inSiddhiInsertQuery = false;
+    boolean inSiddhiTimeScaleQuery = false;
+    boolean inSiddhiOutputRateLimit = false;
 }
 
 // Reserved words
 
-PACKAGE         : 'package';
-IMPORT          : 'import';
-AS              : 'as';
-PUBLIC          : 'public';
-NATIVE          : 'native';
-SERVICE         : 'service';
-RESOURCE        : 'resource';
-FUNCTION        : 'function';
-CONNECTOR       : 'connector';
-ACTION          : 'action';
-STRUCT          : 'struct';
-ANNOTATION      : 'annotation';
-ENUM            : 'enum' ;
-PARAMETER       : 'parameter';
-CONST           : 'const';
-TRANSFORMER     : 'transformer';
-WORKER          : 'worker';
-ENDPOINT        : 'endpoint';
-XMLNS           : 'xmlns';
-RETURNS         : 'returns';
-VERSION         : 'version';
+PACKAGE     : 'package' ;
+IMPORT      : 'import' ;
+AS          : 'as' ;
+PUBLIC      : 'public' ;
+PRIVATE     : 'private' ;
+NATIVE      : 'native' ;
+SERVICE     : 'service' ;
+RESOURCE    : 'resource' ;
+FUNCTION    : 'function' ;
+STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
+ANNOTATION  : 'annotation' ;
+ENUM        : 'enum' ;
+PARAMETER   : 'parameter' ;
+CONST       : 'const' ;
+TRANSFORMER : 'transformer' ;
+WORKER      : 'worker' ;
+ENDPOINT    : 'endpoint' ;
+BIND        : 'bind' ;
+XMLNS       : 'xmlns' ;
+RETURNS     : 'returns';
+VERSION     : 'version';
+DOCUMENTATION  : 'documentation';
+DEPRECATED  :  'deprecated';
 
-TYPE_INT        : 'int';
-TYPE_FLOAT      : 'float';
-TYPE_BOOL       : 'boolean';
-TYPE_STRING     : 'string';
-TYPE_BLOB       : 'blob';
-TYPE_MAP        : 'map';
-TYPE_JSON       : 'json';
-TYPE_XML        : 'xml';
-TYPE_DATATABLE  : 'datatable';
-TYPE_ANY        : 'any';
-TYPE_TYPE       : 'type';
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
+ON          : 'on' ;
+SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
+GROUP       : 'group' ;
+BY          : 'by' ;
+HAVING      : 'having' ;
+ORDER       : 'order' ;
+WHERE       : 'where' ;
+FOLLOWED    : 'followed' ;
+INSERT      : {inSiddhi}? 'insert' { inSiddhi = false; } ;
+INTO        : 'into' ;
+UPDATE      : {inSiddhi}? 'update' { inSiddhi = false; } ;
+DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
+SET         : 'set' ;
+FOR         : 'for' ;
+WINDOW      : 'window' ;
+QUERY       : 'query' ;
+EXPIRED     : 'expired' ;
+CURRENT     : 'current' ;
+EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
+EVERY       : 'every' ;
+WITHIN      : 'within' ;
+LAST        : {inSiddhiOutputRateLimit}? 'last' { inSiddhiOutputRateLimit = false; } ;
+FIRST       : {inSiddhiOutputRateLimit}? 'first' { inSiddhiOutputRateLimit = false; } ;
+SNAPSHOT    : 'snapshot' ;
+OUTPUT      : {inSiddhiOutputRateLimit}? 'output' { inSiddhiTimeScaleQuery = true; } ;
+INNER       : 'inner' ;
+OUTER       : 'outer' ;
+RIGHT       : 'right' ;
+LEFT        : 'left' ;
+FULL        : 'full' ;
+UNIDIRECTIONAL  : 'unidirectional' ;
+REDUCE      : 'reduce' ;
+SECOND      : {inSiddhiTimeScaleQuery}? 'second' { inSiddhiTimeScaleQuery = false; } ;
+MINUTE      : {inSiddhiTimeScaleQuery}? 'minute' { inSiddhiTimeScaleQuery = false; } ;
+HOUR        : {inSiddhiTimeScaleQuery}? 'hour' { inSiddhiTimeScaleQuery = false; } ;
+DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; } ;
+MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
+YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
+WHENEVER     : 'whenever' ;
 
-VAR             : 'var';
-CREATE          : 'create';
-ATTACH          : 'attach';
-IF              : 'if';
-ELSE            : 'else';
-FOREACH         : 'foreach';
-WHILE           : 'while';
-NEXT            : 'next';
-BREAK           : 'break';
-FORK            : 'fork';
-JOIN            : 'join';
-SOME            : 'some';
-ALL             : 'all';
-TIMEOUT         : 'timeout';
-TRY             : 'try';
-CATCH           : 'catch';
-FINALLY         : 'finally';
-THROW           : 'throw';
-RETURN          : 'return';
-TRANSACTION     : 'transaction';
-ABORT           : 'abort';
-FAILED          : 'failed';
-RETRIES         : 'retries';
-LENGTHOF        : 'lengthof';
-TYPEOF          : 'typeof';
-WITH            : 'with';
-BIND            : 'bind';
-IN              : 'in';
-LOCK            : 'lock';
+TYPE_INT        : 'int' ;
+TYPE_FLOAT      : 'float' ;
+TYPE_BOOL       : 'boolean' ;
+TYPE_STRING     : 'string' ;
+TYPE_BLOB       : 'blob' ;
+TYPE_MAP        : 'map' ;
+TYPE_JSON       : 'json' ;
+TYPE_XML        : 'xml' ;
+TYPE_TABLE      : 'table' ;
+TYPE_STREAM     : 'stream' ;
+TYPE_ANY        : 'any' ;
+TYPE_DESC       : 'typedesc' ;
+TYPE_TYPE       : 'type' ;
+TYPE_FUTURE     : 'future' ;
+
+VAR         : 'var' ;
+NEW         : 'new' ;
+IF          : 'if' ;
+MATCH       : 'match' ;
+ELSE        : 'else' ;
+FOREACH     : 'foreach' ;
+WHILE       : 'while' ;
+NEXT        : 'next' ;
+BREAK       : 'break' ;
+FORK        : 'fork' ;
+JOIN        : 'join' ;
+SOME        : 'some' ;
+ALL         : 'all' ;
+TIMEOUT     : 'timeout' ;
+TRY         : 'try' ;
+CATCH       : 'catch' ;
+FINALLY     : 'finally' ;
+THROW       : 'throw' ;
+RETURN      : 'return' ;
+TRANSACTION : 'transaction' ;
+ABORT       : 'abort' ;
+FAIL        : 'fail' ;
+ONRETRY     : 'onretry' ;
+RETRIES     : 'retries' ;
+ONABORT     : 'onabort' ;
+ONCOMMIT    : 'oncommit' ;
+LENGTHOF    : 'lengthof' ;
+TYPEOF      : 'typeof' ;
+WITH        : 'with' ;
+IN          : 'in' ;
+LOCK        : 'lock' ;
+UNTAINT     : 'untaint' ;
+ASYNC       : 'async' ;
+AWAIT       : 'await' ;
+BUT         : 'but' ;
 
 // Separators
 
-SEMICOLON           : ';';
-COLON               : ':';
-DOT                 : '.';
-COMMA               : ',';
-LEFT_BRACE          : '{';
-RIGHT_BRACE         : '}';
-LEFT_PARENTHESIS    : '(';
-RIGHT_PARENTHESIS   : ')';
-LEFT_BRACKET        : '[';
-RIGHT_BRACKET       : ']';
-QUESTION_MARK       : '?';
+SEMICOLON           : ';' ;
+COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
+DOT                 : '.' ;
+COMMA               : ',' ;
+LEFT_BRACE          : '{' ;
+RIGHT_BRACE         : '}' ;
+LEFT_PARENTHESIS    : '(' ;
+RIGHT_PARENTHESIS   : ')' ;
+LEFT_BRACKET        : '[' ;
+RIGHT_BRACKET       : ']' ;
+QUESTION_MARK       : '?' ;
 
 // Arithmetic operators
 
-ASSIGN          : '=';
-ADD             : '+';
-SUB             : '-';
-MUL             : '*';
-DIV             : '/';
-POW             : '^';
-MOD             : '%';
+ASSIGN  : '=' ;
+ADD     : '+' ;
+SUB     : '-' ;
+MUL     : '*' ;
+DIV     : '/' ;
+POW     : '^' ;
+MOD     : '%';
 
 // Relational operators
 
-NOT         : '!';
-EQUAL       : '==';
-NOT_EQUAL   : '!=';
-GT          : '>';
-LT          : '<';
-GT_EQUAL    : '>=';
-LT_EQUAL    : '<=';
-AND         : '&&';
-OR          : '||';
+NOT         : '!' ;
+EQUAL       : '==' ;
+NOT_EQUAL   : '!=' ;
+GT          : '>' ;
+LT          : '<' ;
+GT_EQUAL    : '>=' ;
+LT_EQUAL    : '<=' ;
+AND         : '&&' ;
+OR          : '||' ;
 
 // Additional symbols
 
 RARROW      : '->' ;
-LARROW      : '<-';
-AT          : '@';
-BACKTICK    : '`';
-RANGE       : '..';
+LARROW      : '<-' ;
+AT          : '@' ;
+BACKTICK    : '`' ;
+RANGE       : '..' ;
+ELLIPSIS    : '...' ;
+PIPE        : '|' ;
+EQUAL_GT    : '=>' ;
 
 TILDE           : '~';
 BITAND          : '&';
 BITOR           : '|';
 DOUBLEQUOTE     : '"';
 
-// §3.10.1 Integer Literals
-IntegerLiteral
-    :   DecimalIntegerLiteral
-    |   HexIntegerLiteral
-    |   OctalIntegerLiteral
-    |   BinaryIntegerLiteral
-    ;
+// Compound Assignment operators.
 
-fragment
+COMPOUND_ADD   : '+=' ;
+COMPOUND_SUB   : '-=' ;
+COMPOUND_MUL   : '*=' ;
+COMPOUND_DIV   : '/=' ;
+
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
+
+// Post Arithmetic operators.
+
+INCREMENT      : '++' ;
+DECREMENT      : '--' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 HexIntegerLiteral
     :   HexNumeral IntegerTypeSuffix?
     ;
 
-fragment
 OctalIntegerLiteral
     :   OctalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 BinaryIntegerLiteral
     :   BinaryNumeral IntegerTypeSuffix?
     ;
@@ -389,7 +457,7 @@ LetterOrDigit
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
 
-XMLStart
+XMLLiteralStart
     :   TYPE_XML WS* BACKTICK   { inTemplate = true; } -> pushMode(XML)
     ;
 
@@ -397,8 +465,20 @@ StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
+DocumentationTemplateStart
+    :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
+    ;
+
+DeprecatedTemplateStart
+    :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
+    ;
+
 ExpressionEnd
     :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    ;
+
+DocumentationTemplateAttributeEnd
+    :   {inDocTemplate}? RIGHT_BRACE WS* RIGHT_BRACE               ->  popMode
     ;
 
 // Whitespace and comments
@@ -407,16 +487,16 @@ WS  :  [ \t\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> channel(HIDDEN)
+    :   '//' ~[\r\n]*   -> channel(HIDDEN)
     ;
 
 fragment
 IdentifierLiteral
-    : '|' IdentifierLiteralChar+ '|' ;
+    : '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|\\\b\f\n\r\t]
+    : ~[|"\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
@@ -427,15 +507,14 @@ IdentifierLiteralEscapeSequence
     | UnicodeEscape
     ;
 
-ERRCHAR
-	:	.	-> channel(HIDDEN)
-	;
-
-
 fragment
 ExpressionStart
     :   '{{'
     ;
+
+ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
 
 mode XML;
 
@@ -466,6 +545,7 @@ fragment
 XMLEscapedSequence
     :   '\\\\'
     |   '\\{{'
+    |   '\\}}'
     ;
 
 fragment
@@ -475,6 +555,178 @@ XMLValidCharSequence
     ;
 
 XML_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode DOCUMENTATION_TEMPLATE;
+
+DocumentationTemplateEnd
+    :   RIGHT_BRACE { inDocTemplate = false; }                                 -> popMode
+    ;
+
+DocumentationTemplateAttributeStart
+    :   AttributePrefix ExpressionStart                                        -> pushMode(DEFAULT_MODE)
+    ;
+
+SBDocInlineCodeStart
+    :  AttributePrefix? DocBackTick                                            -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    ;
+
+DBDocInlineCodeStart
+    :  AttributePrefix? DocBackTick DocBackTick                                -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    ;
+
+TBDocInlineCodeStart
+    :  AttributePrefix? DocBackTick DocBackTick DocBackTick                    -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    ;
+
+DocumentationTemplateText
+    :   DocumentationValidCharSequence? (DocumentationTemplateStringChar DocumentationValidCharSequence?)+
+    |   DocumentationValidCharSequence  (DocumentationTemplateStringChar DocumentationValidCharSequence?)*
+    ;
+
+fragment
+DocumentationTemplateStringChar
+    :   ~[`{}\\FPTRV]
+    |   '\\' [{}`]
+    |   WS
+    |   DocumentationEscapedSequence
+    ;
+
+fragment
+AttributePrefix
+    :   [FPTRV]
+    ;
+
+fragment
+DocBackTick
+    :   '`'
+    ;
+
+fragment
+DocumentationEscapedSequence
+    :   '\\\\'
+    ;
+
+fragment
+DocumentationValidCharSequence
+     :  [FPTRV] ~[`{}\\]
+     |  [FPTRV] '\\' [{}`]
+     |  [FPTRV] '\\' ~[{}`]
+     |  '\\' ~'\\'
+     ;
+
+DOCUMENTATION_TEMPLATE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode TRIPLE_BACKTICK_INLINE_CODE;
+
+TripleBackTickInlineCodeEnd
+    : BACKTICK BACKTICK BACKTICK              -> popMode
+    ;
+
+TripleBackTickInlineCode
+    : TripleBackTickInlineCodeChar+
+    ;
+
+fragment
+TripleBackTickInlineCodeChar
+    :  ~[`]
+    |   [`] ~[`]
+    |   [`] [`] ~[`]
+    ;
+
+TRIPLE_BACKTICK_INLINE_CODE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode DOUBLE_BACKTICK_INLINE_CODE;
+
+DoubleBackTickInlineCodeEnd
+    : BACKTICK BACKTICK                       -> popMode
+    ;
+
+DoubleBackTickInlineCode
+    : DoubleBackTickInlineCodeChar+
+    ;
+
+fragment
+DoubleBackTickInlineCodeChar
+    :  ~[`]
+    |   [`] ~[`]
+    ;
+
+DOUBLE_BACKTICK_INLINE_CODE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode SINGLE_BACKTICK_INLINE_CODE;
+
+SingleBackTickInlineCodeEnd
+    : BACKTICK                                -> popMode
+    ;
+
+SingleBackTickInlineCode
+    : SingleBackTickInlineCodeChar+
+    ;
+
+fragment
+SingleBackTickInlineCodeChar
+    :  ~[`]
+    ;
+
+SINGLE_BACKTICK_INLINE_CODE_ERRCHAR
+	:	.	-> channel(HIDDEN)
+	;
+
+mode DEPRECATED_TEMPLATE;
+
+DeprecatedTemplateEnd
+    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
+    ;
+
+SBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
+    ;
+
+DBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
+    ;
+
+TBDeprecatedInlineCodeStart
+    :  DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
+    ;
+
+DeprecatedTemplateText
+    :   DeprecatedValidCharSequence? (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)+
+    |   DeprecatedValidCharSequence (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)*
+    ;
+
+fragment
+DeprecatedTemplateStringChar
+    :   ~[`{}\\]
+    |   '\\' [{}`]
+    |   WS
+    |   DeprecatedEscapedSequence
+    ;
+
+fragment
+DeprecatedBackTick
+    :   '`'
+    ;
+
+fragment
+DeprecatedEscapedSequence
+    :   '\\\\'
+    ;
+
+fragment
+DeprecatedValidCharSequence
+     :  '\\' ~'\\'
+     ;
+
+DEPRECATED_TEMPLATE_ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
 
@@ -515,6 +767,6 @@ StringTemplateValidCharSequence
     |   '\\' ~'\\'
     ;
 
-TEMPLATE_ERRCHAR
+STRING_TEMPLATE_ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;

@@ -52,6 +52,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a Name Reference reference.
+ */
 public class NameReference extends BallerinaElementReference {
 
     public NameReference(@NotNull IdentifierPSINode element) {

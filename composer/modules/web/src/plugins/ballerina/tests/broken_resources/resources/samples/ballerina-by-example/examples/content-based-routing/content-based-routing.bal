@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.lang.messages;
-import ballerina.doc;
+import ballerina/http;
+import ballerina/lang.messages;
+import ballerina/doc;
 
 @http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {

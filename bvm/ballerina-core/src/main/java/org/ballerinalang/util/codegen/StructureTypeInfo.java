@@ -33,15 +33,19 @@ public class StructureTypeInfo implements AttributeInfoPool {
     protected int nameCPIndex;
     protected String name;
 
+    public int flags;
+
     private PackageInfo packageInfo;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructureTypeInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
+    public StructureTypeInfo(int pkgPathCPIndex, String packagePath,
+                             int nameCPIndex, String name, int flags) {
         this.pkgPathCPIndex = pkgPathCPIndex;
         this.packagePath = packagePath;
         this.nameCPIndex = nameCPIndex;
         this.name = name;
+        this.flags = flags;
     }
 
     public int getNameCPIndex() {

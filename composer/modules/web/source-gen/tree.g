@@ -2,8 +2,11 @@ PackageDeclaration
    : package <packageName-joined-by.>* ;
 
 Import
-   : <userDefinedAlias?>    import <packageName-joined-by.>* as <alias.value> ;
-   :                        import <packageName-joined-by.>* ;
+   : <isInternal?>
+   : <userDefinedAlias?> import <orgName.value> / <packageName-joined-by.>* as <alias.value> ;
+   : <userDefinedAlias?> import                   <packageName-joined-by.>* as <alias.value> ;
+   :                     import <orgName.value> / <packageName-joined-by.>* ;
+   :                     import                   <packageName-joined-by.>* ;
 
 Identifier
    : <valueWithBar>
@@ -14,33 +17,18 @@ Abort
    ;
 
 Action
-   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <body.source> <workers>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <body.source> <workers>* }
    ;
 
 Annotation
-   : annotation <name.value> { <attributes-suffixed-by-;>* }
-   | annotation <name.value> attach resource { }
+   : <annotationAttachments>* annotation < <attachmentPoints-joined-by-,>* > <name.value> <typeNode.source> ;
    ;
 
 AnnotationAttachment
-   : <builtin?> @                        <annotationName.value> { <attributes-joined-by,>* }
-   :            @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
-   |            @ <annotationName.value>                        { <attributes-joined-by,>* }
-   ;
-
-AnnotationAttachmentAttribute
-   : <name.value> : <value.source>
-   ;
-
-AnnotationAttachmentAttributeValue
-   : <value.source>
-   | [ <valueArray-joined-by,>+ ]
-   ;
-
-AnnotationAttribute
-   : <typeNode.source> <name.value> = <initialExpression.source>
-   | <typeNode.source> <name.value>
+   : <builtin?> @                        <annotationName.value> <expression.source>
+   :            @ <packageAlias.value> : <annotationName.value> <expression.source>
+   |            @ <annotationName.value>                        <expression.source>
    ;
 
 ArrayLiteralExpr
@@ -82,8 +70,8 @@ Comment
    ;
 
 Connector
-   : <annotationAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
-   | <annotationAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
+   | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
    ;
 
 ConnectorInitExpr
@@ -93,6 +81,18 @@ ConnectorInitExpr
 
 ConstrainedType
    : <type.source> < <constraint.source> >
+   ;
+
+Documentation
+   : documentation { <documentationText> }
+   ;
+
+Deprecated
+   : deprecated { <documentationText> }
+   ;
+
+Endpoint
+   :  <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
    ;
 
 EndpointType
@@ -129,12 +129,12 @@ ForkJoin
    ;
 
 Function
-   : <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   | <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <lambda?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <lambda?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) returns ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) returns ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 FunctionType
@@ -153,7 +153,8 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
    | <packageAlias.value> :   <name.value> ( <argumentExpressions-joined-by,>* )
    |                          <name.value> ( <argumentExpressions-joined-by,>* )
    ;
@@ -167,6 +168,14 @@ Literal
    : <inTemplateLiteral?>
    | <value>
    ;
+
+Match
+   : match <expression.source> { <patternClauses>* }
+   ;
+
+MatchPatternClause
+   : <withoutCurlies?> <variableNode.source> =>   <statement.source>
+   :                   <variableNode.source> => { <statement.source> }
 
 Next
    : next ;
@@ -182,7 +191,7 @@ RecordLiteralKeyValue
    ;
 
 Resource
-   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 Return
@@ -190,7 +199,7 @@ Return
    ;
 
 Service
-   : <annotationAttachments>* service < <protocolPackageIdentifier.value> > <name.value> { <variables>* <resources>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <boundEndpoints-joined-by,>* { <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -205,7 +214,7 @@ StringTemplateLiteral
 
 Struct
    : <anonStruct?>                          <public?public> struct              { <fields-suffixed-by-;>* }
-   |                <annotationAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
+   |                <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
 TernaryExpr
@@ -217,10 +226,22 @@ Throw
    ;
 
 Transaction
-   : transaction with retries ( <condition.source> ) { <transactionBody.source> } failed { <failedBody.source> }
-   | transaction { <transactionBody.source> } failed { <failedBody.source> }
-   | transaction with retries ( <condition.source> ) { <transactionBody.source> }
-   | transaction { <transactionBody.source> }
+   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with                                 oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with retries = <retryCount.source> ,                                        onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with retries = <retryCount.source> ,                                                                           { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with                                 oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with                                                                        onabort = <onAbortFunction.source> { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction                                                                                                                { <transactionBody.source> } onretry { <onRetryBody.source> }
+   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> }
+   : transaction with retries = <retryCount.source> , oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> }
+   : transaction with retries = <retryCount.source> ,                                        onabort = <onAbortFunction.source> { <transactionBody.source> }
+   : transaction with                                 oncommit = <onCommitFunction.source> , onabort = <onAbortFunction.source> { <transactionBody.source> }
+   : transaction with retries = <retryCount.source> ,                                                                           { <transactionBody.source> }
+   : transaction with                                 oncommit = <onCommitFunction.source> ,                                    { <transactionBody.source> }
+   : transaction with                                                                        onabort = <onAbortFunction.source> { <transactionBody.source> }
+   : transaction                                                                                                                { <transactionBody.source> }
    ;
 
 Transform
@@ -267,13 +288,14 @@ ValueType
    ;
 
 Variable
-   : <endpoint?>                                             endpoint <typeNode.source> <name.value> { <initialExpression.source> ; }
-   | <endpoint?>                                             endpoint <typeNode.source> <name.value> { }
-   | <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
-   | <global?> <annotationAttachments>*                               <typeNode.source> <name.value>                              ;
-   |                                                                  <typeNode.source> <name.value> = <initialExpression.source>
-   |           <annotationAttachments>*                               <typeNode.source> <name.value>
-   |                                                                  <typeNode.source>
+   : <endpoint?>                                                                                                  endpoint <typeNode.source> <name.value> { <initialExpression.source> ; }
+   | <endpoint?>                                                                                                  endpoint <typeNode.source> <name.value> { }
+   | <serviceEndpoint?>                                                                                                             endpoint <name.value> 
+   | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                               <typeNode.source> <name.value>                              ;
+   |                                                                                                                       <typeNode.source> <name.value> = <initialExpression.source>
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                               <typeNode.source> <name.value>
+   |                                                                                                                       <typeNode.source>
    ;
 
 VariableDef

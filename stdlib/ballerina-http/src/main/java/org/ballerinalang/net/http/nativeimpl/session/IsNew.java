@@ -19,15 +19,14 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -37,21 +36,21 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "isNew",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class IsNew extends AbstractNativeFunction {
+public class IsNew extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct sessionStruct = ((BStruct) getRefArgument(context, 0));
-            Session session = (Session) sessionStruct.getNativeData(Constants.HTTP_SESSION);
+            BStruct sessionStruct = ((BStruct) context.getRefArgument(0));
+            Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null && session.isValid()) {
-                return getBValues(new BBoolean(session.isNew()));
+                context.setReturnValues(new BBoolean(session.isNew()));
             } else {
                 throw new IllegalStateException("Failed to get session status: No such session in progress");
             }

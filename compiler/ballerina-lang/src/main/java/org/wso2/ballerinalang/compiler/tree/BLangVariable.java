@@ -17,8 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
@@ -38,17 +41,24 @@ import java.util.Set;
  */
 public class BLangVariable extends BLangNode implements VariableNode {
 
+    public DocTag docTag;
     public BLangType typeNode;
     public BLangIdentifier name;
     public BLangExpression expr;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangDocumentation> docAttachments;
+    public List<BLangDeprecatedNode> deprecatedAttachments;
+    public boolean safeAssignment = false;
+    public boolean isField;
 
     public BVarSymbol symbol;
 
     public BLangVariable() {
+        this.docAttachments = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.deprecatedAttachments = new ArrayList<>();
     }
 
     @Override
@@ -92,6 +102,26 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
+    public List<BLangDocumentation> getDocumentationAttachments() {
+        return docAttachments;
+    }
+
+    @Override
+    public void addDocumentationAttachment(DocumentationNode docAttachment) {
+        this.docAttachments.add((BLangDocumentation) docAttachment);
+    }
+
+    @Override
+    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
+        return deprecatedAttachments;
+    }
+
+    @Override
+    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
+        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
+    }
+
+    @Override
     public void setTypeNode(TypeNode typeNode) {
         this.typeNode = (BLangType) typeNode;
     }
@@ -107,14 +137,17 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
+    public boolean isSafeAssignment() {
+        return safeAssignment;
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.VARIABLE;
     }
 
     @Override
     public String toString() {
-        return "BLangVariable: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") +
-                (this.name != null ? this.name : "") + "[" + this.typeNode + "]" +
-                (this.expr != null ? " = " + this.expr : "");
+        return String.valueOf(type) + " " + symbol.name.value + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

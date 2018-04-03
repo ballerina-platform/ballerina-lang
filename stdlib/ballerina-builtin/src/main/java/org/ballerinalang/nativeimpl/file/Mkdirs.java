@@ -19,11 +19,11 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,43 +33,40 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
-
 /**
  * This function creates the directory structure denoted by the given File struct.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "mkdirs",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT),
                 @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class Mkdirs extends AbstractNativeFunction {
+public class Mkdirs extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(Mkdirs.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct fileStruct = (BStruct) context.getRefArgument(0);
         String path = fileStruct.getStringField(0);
         File dir = Paths.get(path).toFile();
 
-        boolean dirCreated;
         try {
-            dirCreated = dir.mkdirs();
+            if (dir.mkdirs()) {
+                context.setReturnValues(new BBoolean(true));
+            } else {
+                context.setReturnValues(BLangVMErrors.createError(context,
+                        "Permission denied to create the requested directory structure: " + path));
+            }
         } catch (SecurityException e) {
             log.error("Could not create directory structure: " + path, e);
-            return getBValues(new BBoolean(false), null,
-                              createIOError(context, "Could not create the requested directory structure: " + path));
+            context.setReturnValues(
+                    BLangVMErrors.createError(context, "Could not create the requested directory structure: " + path));
         }
-
-        return dirCreated ? getBValues(new BBoolean(true), null, null) :
-                getBValues(new BBoolean(false), createAccessDeniedError
-                        (context, "Permission denied to create the requested directory structure: " + path), null);
     }
 }

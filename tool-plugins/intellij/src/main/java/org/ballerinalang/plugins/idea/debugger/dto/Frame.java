@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.debugger.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represent a frame.
+ */
 public class Frame {
 
     private String packageName, frameName, fileName;

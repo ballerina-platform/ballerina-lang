@@ -1,17 +1,15 @@
-function test1 () (string) {
+function test1 () returns (string) {
 
-    function (string,int)returns(string) fp = function (string a, int b) returns (string){
+    function (string,int) returns (string) fp = (string a, int b) => (string){
                                                      return a + b;
                                                  };
     any aValue = fp;
     return test2(aValue);
 }
 
-function test2(any a)(string){
-   var fp2, error = (function (string,int) returns (string)) a;
-   if(error != null){
-        return error.msg;
-   }
+function test2(any a) returns (string){
+   var fp2 =? (function (string,int) returns (string)) a;
+
    return fp2("test", 1);
 }
 

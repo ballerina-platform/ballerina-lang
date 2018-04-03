@@ -21,6 +21,9 @@ import com.intellij.spellchecker.tokenizer.TokenConsumer;
 import com.intellij.spellchecker.tokenizer.Tokenizer;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Used to tokenize words in identifiers.
+ */
 public class BallerinaIdentifierTokenizer extends Tokenizer<PsiNameIdentifierOwner> {
 
     @Override

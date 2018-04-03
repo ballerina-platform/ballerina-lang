@@ -20,6 +20,7 @@
 const { workspace, commands, window, ExtensionContext, debug } = require('vscode');
 const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode-languageclient');
 const path = require('path');
+const fs = require('fs');
 
 let oldConfig;
 
@@ -33,6 +34,16 @@ const debugConfigResolver = {
 			}
 		}
 
+		if (config['ballerina.sdk']) {
+			if (fs.readdirSync(config['ballerina.sdk']).indexOf('bin') < 0) {
+				const msg = "Couldn't find a bin directory inside the configured sdk path. Please set ballerina.sdk correctly."
+				window.showErrorMessage(msg);
+			}
+		} else {
+			const msg = "To start the debug server please set ballerina.sdk."
+			window.showErrorMessage(msg);
+		}
+
 		return config;
 	}
 }
@@ -41,6 +52,11 @@ exports.activate = function(context) {
 	// The server is implemented in java
 	let serverModule = context.asAbsolutePath(path.join('server-build', 'langserver.jar'));
 	const main = 'org.ballerinalang.langserver.launchers.stdio.Main';
+
+	// Options to control the language client
+	const clientOptions = {
+		documentSelector: [{ scheme: 'file', language: 'ballerina' }],
+	}
 
 	const config = workspace.getConfiguration('ballerina');
 	oldConfig = config;
@@ -52,10 +68,15 @@ exports.activate = function(context) {
 		serverModule = context.asAbsolutePath(path.join('server-build', 'langserver-no-bal-deps.jar'));
 		serverModule += (sep + path.join(config.sdk, 'bre', 'lib', '*'));
 	}
+
+	if (!config.showLSErrors) {
+		clientOptions.outputChannel = dropOutputChannel;
+	}
+
 	const args = ['-cp', serverModule, main];
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
-	let serverOptions = {
+	const serverOptions = {
 		run: { command: 'java', args },
 		debug: {
 			command: 'java', 
@@ -65,14 +86,10 @@ exports.activate = function(context) {
 			],
 		},
 	}
-	// Options to control the language client
-	let clientOptions = {
-		documentSelector: [{ scheme: 'file', language: 'ballerina' }],
-	}
 
 	const forceDebug = (process.env.LSDEBUG === "true");
 
-	let disposable = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
+	const disposable = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
 		serverOptions, clientOptions, forceDebug).start();
 
 	// Push the disposable to the context's subscriptions so that the 
@@ -94,5 +111,30 @@ workspace.onDidChangeConfiguration(params => {
 		});
 	}
 
+	if (newConfig.showLSErrors != oldConfig.showLSErrors) {
+		const msg = 'Configuration for displaying output from language server changed. Please restart vscode for changes to take effect.';
+		const action = 'Restart Now';
+		window.showWarningMessage(msg, action).then((selection) => {
+			if (action === selection) {
+				commands.executeCommand('workbench.action.reloadWindow');
+			}
+		});
+	}
+
 	oldConfig = newConfig;
 });
+
+
+
+// This channel ignores(drops) all requests it receives.
+// So the user won't see any output sent through this channel
+const dropOutputChannel = {
+	name: 'dropOutputChannel',
+	append: () => {},
+	appendLine: () => {},
+	clear: () => {},
+	show: () => {},
+	show: () => {},
+	hide: () => {},
+	dispose: () => {},
+}

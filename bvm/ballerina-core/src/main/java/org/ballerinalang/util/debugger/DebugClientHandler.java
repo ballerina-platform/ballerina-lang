@@ -18,7 +18,10 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
+
+import java.util.Map;
 
 /**
  * Represents a debug client handler which is used to communicate with the debug client.
@@ -30,24 +33,24 @@ public interface DebugClientHandler {
     /**
      * Called when adding a context.
      *
-     * @param debugContext to be added to the map.
+     * @param ctx to be added to the map.
      */
-    void addContext(DebugContext debugContext);
+    void addWorkerContext(WorkerExecutionContext ctx);
 
     /**
-     * Method to get debug context given the threadId.
+     * Method to get worker context given the workerId.
      *
-     * @param threadId of the thread.
-     * @return  debug context.
+     * @param workerId of the thread.
+     * @return  worker context.
      */
-    DebugContext getContext(String threadId);
+    WorkerExecutionContext getWorkerContext(String workerId);
 
     /**
-     * Method to update all debug context objects.
+     * Method to get all worker contexts.
      *
-     * @param debugCommand to be used.
+     * @return methodContext map.
      */
-    void updateAllDebugContexts(DebugCommand debugCommand);
+    Map<String, WorkerExecutionContext> getAllWorkerContexts();
 
     /**
      * Method to set web socket channel required for communication.

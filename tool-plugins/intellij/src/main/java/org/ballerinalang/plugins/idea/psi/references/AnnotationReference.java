@@ -33,6 +33,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents an annotation reference.
+ */
 public class AnnotationReference extends BallerinaElementReference {
 
     public AnnotationReference(@NotNull IdentifierPSINode element) {
@@ -114,6 +117,9 @@ public class AnnotationReference extends BallerinaElementReference {
         List<IdentifierPSINode> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(currentPackage,
                 includePrivate, true);
         for (IdentifierPSINode annotation : annotations) {
+            if (annotation == null) {
+                continue;
+            }
             String text = annotation.getText();
             if (text.equals(identifier.getText())) {
                 return annotation;

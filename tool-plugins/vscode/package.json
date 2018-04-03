@@ -1,10 +1,13 @@
 {
-    "name": "Ballerina",
+    "name": "ballerina",
     "displayName": "Ballerina",
     "description": " Ballerina is a flexible, powerful, beautiful programming language designed for integration",
-    "version": "0.96.0",
+    "version": "0.970.0-alpha1-SNAPSHOT",
     "publisher": "WSO2",
-    "repository": "https://github.com/ballerinalang/plugin-vscode",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ballerina-lang/ballerina"
+    },
     "icon": "images/ballerina.png",
     "engines": {
         "vscode": "^1.0.0"
@@ -47,6 +50,13 @@
                     ],
                     "default": null,
                     "description": "Specifies the path to the ballerina sdk"
+                },
+                "ballerina.showLSErrors": {
+                    "type": [
+                        "boolean"
+                    ],
+                    "default": false,
+                    "description": "If set to true the language server's error log will be printed in the plugins console"
                 }
             }
         },
@@ -96,6 +106,11 @@
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
+                            },
+                            "debugServerTimeout": {
+                                "type": "integer",
+                                "default": 5000,
+                                "description": "How long to wait for the debug server to start up in miliseconds"
                             }
                         }
                     }
@@ -121,7 +136,10 @@
     "main": "./extension.js",
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "node ./node_modules/vscode/bin/test"
+        "build:grammar": "tsc -p syntaxes/build && node syntaxes/build/build.js",
+        "test": "node ./node_modules/vscode/bin/test",
+        "clean": "rimraf server-build target",
+        "package": "vsce package"
     },
     "dependencies": {
         "openport": "0.0.4",
@@ -129,5 +147,12 @@
         "vscode-debugadapter": "^1.25.0",
         "vscode-languageclient": "^3.4.2",
         "ws": "^4.0.0"
+    },
+    "devDependencies": {
+        "@types/js-yaml": "^3.10.1",
+        "js-yaml": "^3.10.0",
+        "plist": "^2.1.0",
+        "typescript": "^2.7.2",
+        "vsce": "^1.36.2"
     }
 }

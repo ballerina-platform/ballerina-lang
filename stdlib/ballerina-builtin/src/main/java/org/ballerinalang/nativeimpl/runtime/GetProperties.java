@@ -16,11 +16,10 @@
 package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -32,18 +31,18 @@ import java.util.Properties;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.runtime",
+        orgName = "ballerina", packageName = "runtime",
         functionName = "getProperties",
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
-public class GetProperties extends AbstractNativeFunction {
+public class GetProperties extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Properties properties = System.getProperties();
         BMap<String, BString> propertyMap = new BMap<>();
         properties.forEach((key, value) -> propertyMap.put(key.toString(), new BString(value.toString())));
-        return getBValues(propertyMap);
+        context.setReturnValues(propertyMap);
     }
 }

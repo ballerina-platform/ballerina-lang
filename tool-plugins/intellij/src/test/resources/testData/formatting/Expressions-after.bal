@@ -23,4 +23,6 @@ function test () {
     boolean a = b != c;
     boolean a = b && c;
     boolean a = b || c;
+
+    int c = (b - a) > 5 ? 2 : 5;
 }

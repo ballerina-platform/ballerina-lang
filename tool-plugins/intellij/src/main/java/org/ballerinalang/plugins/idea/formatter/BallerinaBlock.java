@@ -33,8 +33,51 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.BallerinaTypes.*;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSES;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.CODE_BLOCK_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMENT_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_IF_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ENUM_FIELD_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FORK_JOIN_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.MATCH_PATTERN_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.NON_EMPTY_CODE_BLOCK_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_FIELD_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_FUNCTION_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT_INITIALIZER;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_ABORT_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_COMMIT_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_RETRY_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PRIVATE_STRUCT_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STREAMING_QUERY_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TIMEOUT_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSACTION_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TRY_CATCH_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.VARIABLE_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE_STATEMENT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_BODY;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER_DECLARATION;
 
+/**
+ * Represents a code block.
+ */
 public class BallerinaBlock extends AbstractBlock {
 
     private SpacingBuilder spacingBuilder;
@@ -88,10 +131,6 @@ public class BallerinaBlock extends AbstractBlock {
                     if (isADefinitionElement(parentElementType) || isACodeBlock(parentElementType)) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == ANNOTATION_ATTRIBUTE_LIST) {
-                    if (parentElementType == ANNOTATION_ATTACHMENT) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
                 } else if (childElementType == WORKER_DECLARATION) {
                     if (parentElementType == FORK_JOIN_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
@@ -101,15 +140,26 @@ public class BallerinaBlock extends AbstractBlock {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == RECORD_KEY_VALUE) {
-                    if (parentElementType == RECORD_LITERAL) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
-                } else if (childElementType == CODE_BLOCK_BODY || childElementType == ENUM_FIELD_LIST) {
+                    indent = Indent.getSpaceIndent(4);
+                } else if (childElementType == CODE_BLOCK_BODY || childElementType == NON_EMPTY_CODE_BLOCK_BODY
+                        || childElementType == ENUM_FIELD_LIST) {
                     indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == EXPRESSION_LIST) {
                     if (parentElementType == VARIABLE_REFERENCE) {
                         indent = Indent.getSpaceIndent(4);
                     }
+                } else if (childElementType == FIELD_DEFINITION) {
+                    if (parentElementType == PRIVATE_STRUCT_BODY) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
+                } else if (childElementType == MATCH_PATTERN_CLAUSE) {
+                    indent = Indent.getSpaceIndent(4);
+                } else if (childElementType == OBJECT_BODY) {
+                    indent = Indent.getSpaceIndent(4);
+                } else if (childElementType == OBJECT_FIELD_DEFINITION) {
+                    indent = Indent.getSpaceIndent(4);
+                } else if (childElementType == STREAMING_QUERY_STATEMENT) {
+                    indent = Indent.getSpaceIndent(4);
                 }
 
                 // If the child node text is empty, the IDEA core will throw an exception.
@@ -132,17 +182,15 @@ public class BallerinaBlock extends AbstractBlock {
 
     private static boolean isADefinitionElement(@NotNull final IElementType parentElementType) {
         if (parentElementType == FUNCTION_DEFINITION || parentElementType == SERVICE_DEFINITION
-                || parentElementType == RESOURCE_DEFINITION || parentElementType == CONNECTOR_DEFINITION
-                || parentElementType == ACTION_DEFINITION || parentElementType == STRUCT_DEFINITION) {
+                || parentElementType == RESOURCE_DEFINITION || parentElementType == STRUCT_DEFINITION
+                || parentElementType == OBJECT_INITIALIZER || parentElementType == OBJECT_FUNCTION_DEFINITION) {
             return true;
         }
         return false;
     }
 
     private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
-        if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
-                || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
-                || childElementType == ANNOTATION_BODY || childElementType == ENDPOINT_BODY) {
+        if (childElementType == FUNCTION_BODY || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY) {
             return true;
         }
         return false;
@@ -156,8 +204,8 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
                 || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
                 || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
-                || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRANSACTION_STATEMENT
-                || parentElementType == FAILED_CLAUSE) {
+                || parentElementType == TIMEOUT_CLAUSE || parentElementType == ON_ABORT_CLAUSE
+                || parentElementType == ON_COMMIT_CLAUSE || parentElementType == ON_RETRY_CLAUSE) {
             return true;
         }
         return false;

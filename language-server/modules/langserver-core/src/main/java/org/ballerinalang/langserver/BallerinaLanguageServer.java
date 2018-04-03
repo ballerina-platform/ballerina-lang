@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,10 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
@@ -27,7 +30,9 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -40,8 +45,17 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
-        textService = new BallerinaTextDocumentService(this);
-        workspaceService = new BallerinaWorkspaceService();
+        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        LSPackageCache packageCache = new LSPackageCache();
+        LSAnnotationCache annotationCache = new LSAnnotationCache(packageCache);
+        
+        lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
+        lsGlobalContext.put(LSGlobalContextKeys.PKG_CACHE_KEY, packageCache);
+        lsGlobalContext.put(LSGlobalContextKeys.ANNOTATION_CACHE_KEY, annotationCache);
+        lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
+        
+        textService = new BallerinaTextDocumentService(lsGlobalContext);
+        workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
     }
 
     public LanguageClient getClient() {
@@ -51,12 +65,23 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        res.getCapabilities().setCompletionProvider(new CompletionOptions());
+        final List<String> commandList = new ArrayList<>(Arrays.asList(CommandConstants.CMD_IMPORT_PACKAGE,
+                CommandConstants.CMD_ADD_DOCUMENTATION, CommandConstants.CMD_ADD_ALL_DOC));
+        final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
+        final CompletionOptions completionOptions = new CompletionOptions();
+        completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">"));
+        
+        res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
+        res.getCapabilities().setReferencesProvider(true);
+        res.getCapabilities().setCodeActionProvider(true);
+        res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
+        res.getCapabilities().setDocumentFormattingProvider(true);
+        res.getCapabilities().setRenameProvider(true);
 
         return CompletableFuture.supplyAsync(() -> res);
     }

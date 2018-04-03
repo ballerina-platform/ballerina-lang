@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an SourceNotation in PSI tree.
+ */
 public class SourceNotationNode extends ANTLRPsiNode {
 
     public SourceNotationNode(@NotNull ASTNode node) {

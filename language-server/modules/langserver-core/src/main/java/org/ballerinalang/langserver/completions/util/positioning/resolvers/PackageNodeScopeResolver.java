@@ -16,7 +16,7 @@
 
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class PackageNodeScopeResolver extends CursorPositionResolver {
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
-                                      TextDocumentServiceContext completionContext) {
+                                      LSServiceOperationContext completionContext) {
         // TODO: Finalize the implementation
         return false;
     }

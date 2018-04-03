@@ -26,9 +26,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
+/**
+ * Provides statement completion support.
+ */
 public class StatementCompletionInsertHandler implements InsertHandler<LookupElement> {
 
-    public final static InsertHandler<LookupElement> INSTANCE = new StatementCompletionInsertHandler();
+    public static final InsertHandler<LookupElement> INSTANCE = new StatementCompletionInsertHandler();
 
     private final String myIgnoreOnChars;
 

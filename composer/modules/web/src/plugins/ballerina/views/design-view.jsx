@@ -24,9 +24,9 @@ import TransformerExpanded from 'plugins/ballerina/diagram/views/default/compone
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import { TOOL_PALETTE_WIDTH } from './constants';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
+import DiagramMenu from './diagram-menu';
 
 class DesignView extends React.Component {
 
@@ -34,7 +34,6 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
-            mode: 'action',
         };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
@@ -46,9 +45,6 @@ class DesignView extends React.Component {
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
-        this.props.commandProxy.on('diagram-mode-change', ({ mode }) => {
-            this.setMode(mode);
-        });
         this.props.commandProxy.on('go-to-node', (node) => {
             this.scrollbars.scrollTop(node.viewState.bBox.y);
         });
@@ -60,6 +56,7 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
+            fitToWidth: this.props.fitToWidth,
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
@@ -147,10 +144,6 @@ class DesignView extends React.Component {
         return this.toolPaletteContainer;
     }
 
-    setMode(diagramMode) {
-        this.setState({ mode: diagramMode });
-    }
-
     render() {
         const { isTransformActive, activeTransformSignature } = this.state;
 
@@ -174,13 +167,19 @@ class DesignView extends React.Component {
                     <DragLayer />
                     <Scrollbars
                         style={{
-                            width: this.props.width - TOOL_PALETTE_WIDTH,
+                            width: this.props.width,
                             height: this.props.height,
-                            marginLeft: TOOL_PALETTE_WIDTH,
                         }}
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
                     >
+                        <DiagramMenu
+                            width={this.props.width}
+                            model={this.props.model}
+                            onModeChange={(data) => { this.props.onModeChange(data); }}
+                            fitToWidth={this.props.fitToWidth}
+                            mode={this.props.mode}
+                        />
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
@@ -189,10 +188,11 @@ class DesignView extends React.Component {
                                     <DesignViewErrorBoundary>
                                         <BallerinaDiagram
                                             model={this.props.model}
-                                            mode={this.state.mode}
-                                            width={this.props.width - TOOL_PALETTE_WIDTH}
+                                            mode={this.props.mode}
+                                            width={this.props.width}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
+                                            fitToWidth={this.props.fitToWidth}
                                         />
                                     </DesignViewErrorBoundary>
                                 }
@@ -203,8 +203,7 @@ class DesignView extends React.Component {
                         <TransformerExpanded
                             model={activeTransformModel}
                             panelResizeInProgress={this.props.panelResizeInProgress}
-                            leftOffset={TOOL_PALETTE_WIDTH}
-                            width={this.props.width - TOOL_PALETTE_WIDTH}
+                            width={this.props.width}
                             height={this.props.height}
                         />
                     }
@@ -227,12 +226,17 @@ DesignView.propTypes = {
     height: PropTypes.number.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
     disabled: PropTypes.bool.isRequired,
+    zoomLevel: PropTypes.number,
+    setZoom: PropTypes.func.isRequired,
+    fitToWidth: PropTypes.bool,
 };
 
 DesignView.defaultProps = {
     show: true,
     model: undefined,
     disabled: false,
+    zoomLevel: 1,
+    fitToWidth: true,
 };
 
 DesignView.contextTypes = {
@@ -244,6 +248,7 @@ DesignView.childContextTypes = {
     designView: PropTypes.instanceOf(DesignView).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    fitToWidth: PropTypes.bool,
 };
 
 export default DesignView;

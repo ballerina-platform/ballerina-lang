@@ -40,6 +40,7 @@ public class ServerLauncher {
     private static final String PROP_BALLERINA_HOME = "ballerina.home";
     private static final String PROP_COMPOSER_CONFIG_PATH = "composer.config.path";
     private static final String PROP_COMPOSER_PUBLIC_PATH = "composer.public.path";
+    private static final String PROP_OPEN_BROWSER = "open.browser";
     private static final String PROP_MSF4J_HOST = "msf4j.host";
     private static final String DEFAULT_INTERFACE = "127.0.0.1";
     private static final int DEFAULT_PORT = 9091;
@@ -140,7 +141,9 @@ public class ServerLauncher {
             String uRL = "http://" + config.getHost() + ":" + config.getPort();
             PrintStream out = System.out;
             out.println("Composer started successfully at " + uRL);
-            BrowserLauncher.startInDefaultBrowser(uRL);
+            if (System.getProperty(PROP_OPEN_BROWSER).equals("true")) {
+                BrowserLauncher.startInDefaultBrowser(uRL);
+            }
         } catch (Exception e) {
             logger.error("Error while starting Composer Backend Server.", e);
         }

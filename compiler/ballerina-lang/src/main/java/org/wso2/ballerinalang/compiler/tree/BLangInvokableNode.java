@@ -19,13 +19,20 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
+import org.ballerinalang.model.tree.DocumentationNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,21 +46,33 @@ import java.util.Set;
 public abstract class BLangInvokableNode extends BLangNode implements InvokableNode {
 
     public BLangIdentifier name;
-    public List<BLangVariable> params;
-    public List<BLangVariable> retParams;
+    public List<BLangVariable> requiredParams;
+    public BLangType returnTypeNode;
+    public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
     public BLangBlockStmt body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public List<BLangDocumentation> docAttachments;
+    public List<BLangDeprecatedNode> deprecatedAttachments;
+    public List<BLangEndpoint> endpoints;
     public List<BLangWorker> workers;
+    public List<BLangVariableDef> defaultableParams;
+    public BLangVariable restParam;
 
     public BInvokableSymbol symbol;
 
+    public boolean desugaredReturnType;
+
     public BLangInvokableNode() {
-        this.params = new ArrayList<>();
-        this.retParams = new ArrayList<>();
+        this.requiredParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
+        this.returnTypeAnnAttachments = new ArrayList<>();
+        this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
+        this.docAttachments = new ArrayList<>();
+        this.deprecatedAttachments = new ArrayList<>();
+        this.defaultableParams = new ArrayList<>();
     }
 
     @Override
@@ -68,7 +87,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     @Override
     public List<BLangVariable> getParameters() {
-        return params;
+        return requiredParams;
     }
 
     @Override
@@ -77,13 +96,23 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public List<BLangVariable> getReturnParameters() {
-        return retParams;
+    public BLangType getReturnTypeNode() {
+        return returnTypeNode;
     }
 
     @Override
-    public void addReturnParameter(VariableNode retParam) {
-        this.getReturnParameters().add((BLangVariable) retParam);
+    public void setReturnTypeNode(TypeNode returnTypeNode) {
+        this.returnTypeNode = (BLangType) returnTypeNode;
+    }
+
+    @Override
+    public List<BLangAnnotationAttachment> getReturnTypeAnnotationAttachments() {
+        return returnTypeAnnAttachments;
+    }
+
+    @Override
+    public void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.returnTypeAnnAttachments.add((BLangAnnotationAttachment) annAttachment);
     }
 
     @Override
@@ -117,6 +146,26 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
+    public List<BLangDocumentation> getDocumentationAttachments() {
+        return docAttachments;
+    }
+
+    @Override
+    public void addDocumentationAttachment(DocumentationNode docAttachment) {
+        this.docAttachments.add((BLangDocumentation) docAttachment);
+    }
+
+    @Override
+    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
+        return deprecatedAttachments;
+    }
+
+    @Override
+    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
+        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
+    }
+
+    @Override
     public void addWorker(WorkerNode worker) {
         this.workers.add((BLangWorker) worker);
     }
@@ -127,9 +176,34 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
+    public List<BLangVariableDef> getDefaultableParameters() {
+        return defaultableParams;
+    }
+
+    @Override
+    public void addDefaultableParameter(VariableDefinitionNode param) {
+        this.defaultableParams.add((BLangVariableDef) param);
+    }
+
+    @Override
+    public VariableNode getRestParameters() {
+        return restParam;
+    }
+
+    @Override
+    public void setRestParameter(VariableNode restParam) {
+        this.restParam = (BLangVariable) restParam;
+    }
+
+    @Override
+    public List<? extends EndpointNode> getEndpointNodes() {
+        return endpoints;
+    }
+
+    @Override
     public String toString() {
-        return this.flagSet + " " + this.getName() + " (" + this.params +
-                ") (" + this.retParams + ") Body: {" + this.body + "}"
+        return this.flagSet + " " + this.getName() + " (" + this.requiredParams +
+                ") (" + this.returnTypeNode + ") Body: {" + this.body + "}"
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }
 

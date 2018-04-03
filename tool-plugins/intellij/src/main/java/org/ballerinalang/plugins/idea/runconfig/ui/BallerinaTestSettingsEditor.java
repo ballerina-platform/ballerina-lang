@@ -30,7 +30,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-
+/**
+ * Provides the UI for test settings editor.
+ */
 public class BallerinaTestSettingsEditor extends SettingsEditor<BallerinaTestConfiguration> {
 
     private JPanel myPanel;

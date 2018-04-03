@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an StringTemplateLiteral in PSI tree.
+ */
 public class StringTemplateLiteralNode extends ANTLRPsiNode {
 
     public StringTemplateLiteralNode(@NotNull ASTNode node) {

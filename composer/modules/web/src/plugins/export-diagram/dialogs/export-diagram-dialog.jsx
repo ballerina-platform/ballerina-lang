@@ -21,7 +21,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import { getPathSeperator, getUserHome } from 'api-client/api-client';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, FormControl, ControlLabel, Col } from 'react-bootstrap';
+import { Button, Form, Select, Input } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import FileTree from 'core/view/tree-view/FileTree';
 import { createOrUpdate, exists as checkFileExists } from 'core/workspace/fs-util';
@@ -353,11 +353,9 @@ class ExportDiagramDialog extends React.Component {
      * @param {function} callServer - call back to server.
      * */
     sendPayload(location, configName, fileType, callServer) {
-        let payload = '';
-        const config = this.getSVG();
+        const svgContent = this.getSVG();
         if (fileType === 'SVG') {
-            payload = `location=${btoa(location)}&configName=${btoa(configName)}&config=${encodeURIComponent(config)}`;
-            callServer(payload);
+            callServer(btoa(svgContent));
         } else if (fileType === 'PNG') {
             const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
             const svgElement = tab.find('.svg-container');
@@ -369,11 +367,9 @@ class ExportDiagramDialog extends React.Component {
                 const png = canvas.toDataURL('image/png');
                 let img = png.replace('data:image/png;base64,', '');
                 img = img.replace(' ', '+');
-                payload = `location=${btoa(location)}&configName=${btoa(configName)}`
-                    + `&imageFile=true&config=${encodeURIComponent(img)}`;
-                callServer(payload);
+                callServer(img);
             };
-            image.src = 'data:image/svg+xml;charset-utf-8,' + encodeURIComponent(config);
+            image.src = 'data:image/svg+xml;charset-utf-8,' + svgContent;
         }
     }
 
@@ -388,56 +384,45 @@ class ExportDiagramDialog extends React.Component {
                     title='Export Diagram'
                     actions={
                         <Button
-                            bsStyle='primary'
+                            primary
                             onClick={this.onFileSave}
                             disabled={this.state.filePath === '' && this.state.fileName === ''}
                         >
                             Export
                         </Button>
                     }
-                    closeAction
+                    closeDialog
                     onHide={this.onDialogHide}
                     error={this.state.error}
                 >
-                    <Form horizontal>
-                        <FormGroup controlId='filePath'>
-                            <Col componentClass={ControlLabel} sm={2}>
-                                File Path
-                            </Col>
-                            <Col sm={10}>
-                                <FormControl
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            this.onFileSave();
-                                        } else if (e.key === 'Escape') {
-                                            this.onDialogHide();
-                                        }
-                                    }}
-                                    value={this.state.filePath}
-                                    onChange={(evt) => {
-                                        this.setState({
-                                            error: '',
-                                            filePath: evt.target.value,
-                                        });
-                                    }}
+                    <Form
+                        widths='equal'
+                        onSubmit={(e) => {
+                            this.onFileSave();
+                        }}
+                    >
+                        <Form.Group controlId='filePath'>
+                            <Form.Input
+                                fluid
+                                className='inverted'
+                                label='File Path'
+                                placeholder='eg: /home/user/diagrams'
+                                value={this.state.filePath}
+                                onChange={(evt) => {
+                                    this.setState({
+                                        error: '',
+                                        filePath: evt.target.value,
+                                    });
+                                }}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId='fileName' inline className='inverted'>
+                            <Form.Field width={3} htmlFor='fileName'>
+                                <label>File Name</label>
+                            </Form.Field>
+                            <Form.Field width={10} className='inverted'>
+                                <Input
                                     type='text'
-                                    placeholder='eg: /home/user/diagrams'
-                                />
-                            </Col>
-                        </FormGroup>
-                        <FormGroup controlId='fileName'>
-                            <Col componentClass={ControlLabel} sm={2}>
-                                File Name
-                            </Col>
-                            <Col sm={7}>
-                                <FormControl
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            this.onFileSave();
-                                        } else if (e.key === 'Escape') {
-                                            this.onDialogHide();
-                                        }
-                                    }}
                                     value={this.state.fileName}
                                     onChange={(evt) => {
                                         this.setState({
@@ -445,33 +430,21 @@ class ExportDiagramDialog extends React.Component {
                                             fileName: evt.target.value,
                                         });
                                     }}
-                                    type='text'
-                                    placeholder='eg: routing.png'
                                 />
-                            </Col>
-                            <Col sm={3}>
-                                <div className='file-type-selector'>
-                                    <select
-                                        id='fileType'
-                                        className='file-type-list btn btn-default'
-                                        onChange={(evt) => {
-                                            this.setState({
-                                                fileType: evt.target.value,
-                                            });
-                                        }}
-                                    >
-                                        <option className='file-type-item'>SVG</option>
-                                        <option className='file-type-item'>PNG</option>
-                                    </select>
-                                </div>
-                            </Col>
-                        </FormGroup>
+                            </Form.Field>
+                            <Form.Select
+                                placeholder='Type'
+                                className='inverted'
+                                width={3}
+                                compact
+                                options={[{ text: 'SVG', value: 'SVG' }, { text: 'PNG', value: 'PNG' }]}
+                            />
+
+                        </Form.Group>
                     </Form>
                     <ScrollBarsWithContextAPI
                         style={{
-                            margin: '15px 0 15px 40px',
-                            width: 608,
-                            height: 500,
+                            height: 300,
                         }}
                         autoHide
                     >

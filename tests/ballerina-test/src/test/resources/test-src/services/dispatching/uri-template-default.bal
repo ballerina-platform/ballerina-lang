@@ -1,41 +1,58 @@
-import ballerina.net.http;
+import ballerina/http;
+import ballerina/http;
 
-@http:configuration {
-    allowCredentials : true
+endpoint http:NonListeningServiceEndpoint testEP {
+    port:9090
+};
+
+@http:ServiceConfig {
+    cors: {
+        allowCredentials: true
+    }
 }
-service<http> serviceName {
+service<http:Service> serviceName bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:""
     }
-    resource test1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    test1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"dispatched to service name"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {
-    basePath:""
+@http:ServiceConfig {
+    basePath:"/"
 }
-service<http> serviceEmptyName {
+service<http:Service> serviceEmptyName bind testEP {
 
-    resource test1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    test1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"dispatched to empty service name"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        path:"/*"
+    }
+    proxy (endpoint conn, http:Request req) {
+        http:Response res = {};
+        json responseJson = {"echo":"dispatched to a proxy service"};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
     }
 }
 
-service<http> serviceWithNoAnnotation {
+service<http:Service> serviceWithNoAnnotation bind testEP {
 
-    resource test1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    test1 (endpoint conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

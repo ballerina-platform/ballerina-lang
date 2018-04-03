@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an IfElseStatement in PSI tree.
+ */
 public class IfElseStatementNode extends ANTLRPsiNode {
 
     public IfElseStatementNode(@NotNull ASTNode node) {

@@ -46,6 +46,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a package name reference.
+ */
 public class PackageNameReference extends BallerinaElementReference implements PsiPolyVariantReference {
 
     public PackageNameReference(@NotNull IdentifierPSINode element) {

@@ -36,6 +36,9 @@ import org.ballerinalang.plugins.idea.runconfig.ui.BallerinaApplicationSettingsE
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents Ballerina application configuration.
+ */
 public class BallerinaApplicationConfiguration
         extends BallerinaRunConfigurationWithMain<BallerinaApplicationRunningState> {
 

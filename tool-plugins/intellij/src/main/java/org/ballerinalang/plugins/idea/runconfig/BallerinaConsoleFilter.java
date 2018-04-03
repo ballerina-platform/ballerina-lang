@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Highlights and creates hyperlinks to source file paths printed in console.
+ */
 public class BallerinaConsoleFilter implements Filter {
 
     private static final Pattern MESSAGE_PATTERN = Pattern.compile("(?:^|\\s)(\\S+\\.\\w+):(\\d+)(:(\\d+))?" +
@@ -160,6 +163,9 @@ public class BallerinaConsoleFilter implements Filter {
         return null;
     }
 
+    /**
+     * Craetes hyperlinks in console.
+     */
     public static class BallerinaGetHyperlinkInfo implements HyperlinkInfo {
 
         private final String myPackageName;

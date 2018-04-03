@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an ExpressionAssignmentStatement in PSI tree.
+ */
 public class ExpressionAssignmentStatementNode extends AssignmentStatementNode {
 
     public ExpressionAssignmentStatementNode(@NotNull ASTNode node) {

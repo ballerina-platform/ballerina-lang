@@ -35,8 +35,7 @@ public interface AttributeInfo {
      */
     enum Kind {
         CODE_ATTRIBUTE("Code"),
-        ANNOTATIONS_ATTRIBUTE("Annotations"),
-        PARAMETER_ANNOTATIONS_ATTRIBUTE("ParameterAnnotations"),
+        PARAMETER_DEFAULTS_ATTRIBUTE("ParameterDefaults"),
         LOCAL_VARIABLES_ATTRIBUTE("LocalVariables"),
         VARIABLE_TYPE_COUNT_ATTRIBUTE("VariableTypeCount"),
         ERROR_TABLE("ErrorTable"),

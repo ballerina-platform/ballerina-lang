@@ -19,12 +19,11 @@
 package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -35,22 +34,22 @@ import org.slf4j.LoggerFactory;
  * Native function ballerina.model.json:toString.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "json.toString",
         args = {@Argument(name = "j", type = TypeKind.JSON)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ToString extends AbstractNativeFunction {
+public class ToString extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(ToString.class);
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         String jsonStr = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) getRefArgument(ctx, 0);
+            BJSON json = (BJSON) ctx.getRefArgument(0);
 
             jsonStr = json.stringValue();
             if (log.isDebugEnabled()) {
@@ -60,6 +59,6 @@ public class ToString extends AbstractNativeFunction {
             ErrorHandler.handleJsonException("convert json to string", e);
         }
 
-        return getBValues(new BString(jsonStr));
+        ctx.setReturnValues(new BString(jsonStr));
     }
 }

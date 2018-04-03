@@ -1,14 +1,21 @@
-import ballerina.net.http;
+import ballerina/http;
+import ballerina/io;
 
-service<http> sessionTest {
+endpoint http:ServiceEndpoint sessionTestEP {
+    port:9090
+};
+
+@http:ServiceConfig { basePath:"/sessionTest" }
+service<http:Service> sessionTest bind sessionTestEP {
 
     string key = "status";
-    @http:resourceConfig {
-        methods:["GET"]
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/sayHello"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    sayHello (endpoint outboundEP, http:Request req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         string result;
         //Session status(new or already existing) is informed by isNew() as boolean value.
         if (session.isNew()) {
@@ -18,35 +25,37 @@ service<http> sessionTest {
         }
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
-        _ = conn.respond(res);
+        _ = outboundEP -> respond(res);
     }
 
-    @http:resourceConfig {
-        methods:["GET"]
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/doTask"
     }
-    resource doTask (http:Connection conn, http:InRequest req) {
+    doTask (endpoint outboundEP, http:Request req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         string attributeValue;
         if (session != null) {
             //Returns the object bound with the specified key.
-            attributeValue, _ = (string)session.getAttribute(key);
+            attributeValue = <string>session.getAttribute(key);
         } else {
             attributeValue = "Session unavailable";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(attributeValue);
-        _ = conn.respond(res);
+        _ = outboundEP -> respond(res);
     }
 
-    @http:resourceConfig {
-        methods:["GET"]
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/sayBye"
     }
-    resource sayBye (http:Connection conn, http:InRequest req) {
-        http:Session session = conn.getSession();
-        http:OutResponse res = {};
+    sayBye (endpoint outboundEP, http:Request req) {
+        http:Session session = req.getSession();
+        http:Response res = {};
         if (session != null) {
             //Returns session id.
             string id = session.getId();
@@ -56,6 +65,6 @@ service<http> sessionTest {
         } else {
             res.setStringPayload("Session unavailable");
         }
-        _ = conn.respond(res);
+        _ = outboundEP -> respond(res);
     }
 }

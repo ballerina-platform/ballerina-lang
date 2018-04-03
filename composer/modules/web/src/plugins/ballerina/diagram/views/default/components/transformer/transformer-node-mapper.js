@@ -556,7 +556,7 @@ class TransformerNodeMapper {
                     nestedNodes.push(paramExp);
                 }
             });
-        } else {
+        } else if (!TreeUtil.isTypeConversionExpr(nodeExpression)) {
             nodeName = nodeExpression.getOperatorKind();
             if (TreeUtil.isUnaryExpr(nodeExpression)
                     && this.isComplexExpression(nodeExpression.getExpression())) {
@@ -1367,7 +1367,7 @@ class TransformerNodeMapper {
         const varDeclarations = this._transformStmt.getBody().getStatements()
           .filter((node) => { return TreeUtil.isVariableDef(node); });
 
-        const inputOutput = [this._transformStmt.getSourceParam(), ...this._transformStmt.getParameters(),
+        const inputOutput = [this._transformStmt.getSource(), ...this._transformStmt.getParameters(),
             ...this._transformStmt.getReturnParameters(), ...varDeclarations.map(varNode => varNode.getVariable())];
         const ioReference = inputOutput.find((io) => {
             return io.name.getSource().trim() === expression.getSource().trim();
@@ -1685,6 +1685,40 @@ class TransformerNodeMapper {
             }
         });
         return kvp;
+    }
+
+    /**
+     * Generate iterable operation to the given connection
+     * @param {object} connection where iterable operation should be added
+     * @param {string} type iterable operation type
+     * @param {boolean} isLamda is given iterable operation has a lambda function
+     */
+    addIterableOperator(connection, type, isLamda) {
+        this.getMappingStatements().forEach((stmt) => {
+            if (TreeUtil.isAssignment(stmt)) {
+                if ((stmt.getVariables()[0].getSource().trim() === connection.target.name
+                    || (connection.target.funcInv && connection.target.funcInv.iterableOperation)) &&
+                    (stmt.getExpression().getSource().trim() === connection.source.name
+                    || (connection.source.funcInv && connection.source.funcInv.iterableOperation))) {
+                    const sourceContent = stmt.getExpression().getSource().trim() === connection.source.name ?
+                    connection.source.name : connection.source.funcInv.getSource();
+                    let typeName = connection.source.type.replace('[]', '');
+                    if (typeName === '') {
+                        typeName = stmt.getExpression().argumentExpressions[0]
+                        .functionNode.getParameters()[0].getTypeNode().getTypeName().getValue();
+                    }
+                    stmt.setExpression(
+                        TransformerFactory.createIterableOperation(sourceContent,
+                            type, typeName, isLamda));
+                    stmt.trigger('tree-modified', {
+                        origin: stmt,
+                        type: 'variable-update',
+                        title: `Variable update ${connection.source.name}`,
+                        data: {},
+                    });
+                }
+            }
+        });
     }
 }
 

@@ -18,6 +18,7 @@
 
 import $ from 'jquery';
 import { getServiceEndpoint } from 'api-client/api-client';
+import codepoints from 'font-ballerina/codepoints.json';
 
 /**
  * Gets the base name of a file.
@@ -65,6 +66,18 @@ class ImageUtils {
      */
     static getSVGIconString(iconName) {
         return images[iconName];
+    }
+
+    /**
+     * Gets the unicode codepoint for an icon name.
+     *
+     * @static
+     * @param {string} iconName The name of the icon.
+     * @returns {string} The codepoint.
+     * @memberof ImageUtils
+     */
+    static getCodePoint(iconName) {
+        return codepoints[iconName];
     }
 
     /**

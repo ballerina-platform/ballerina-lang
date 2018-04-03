@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import PanelDecorator from '../decorators/panel-decorator';
 import ImageUtil from '../../../../image-util';
-import StatementDropZone from '../../../../../drag-drop/DropZone';
 import LifeLine from '../decorators/lifeline';
 import Client from '../decorators/client';
 import FunctionNodeModel from '../../../../../model/tree/function-node';
@@ -66,35 +65,28 @@ class FunctionNode extends React.Component {
         const bBox = model.viewState.bBox;
         const name = model.getName().value;
         // change icon for main function
-        let icons = 'tool-icons/function';
+        let icons = 'function';
         if (TreeUtil.isMainFunction(model)) {
-            icons = 'tool-icons/main-function';
+            icons = 'main-function';
         }
         const body = this.props.model.getBody();
-        const bodyBBox = body.viewState.bBox;
         const blockNode = getComponentForNodeArray(body, this.context.mode);
         const workers = getComponentForNodeArray(this.props.model.workers, this.context.mode);
 
         const classes = {
             lineClass: 'default-worker-life-line',
             polygonClass: 'default-worker-life-line-polygon',
+            textClass: 'default-worker-icon',
         };
 
-        const argumentParameters = this.props.model.getParameters();
-        const returnParameters = this.props.model.getReturnParameters();
-
-        const connectors = this.props.model.body.statements
-            .filter((element) => {
-                const typeNode = _.get(element, 'variable.typeNode');
-                return typeNode && TreeUtil.isEndpointType(typeNode);
-            }).map((statement) => {
-                return (
-                    <EndpointDecorator
-                        model={statement}
-                        title={statement.variable.name.value}
-                        bBox={statement.viewState.bBox}
-                    />);
-            });
+        const connectors = this.props.model.endpointNodes.map((endpointNode) => {
+            return (
+                <EndpointDecorator
+                    model={endpointNode}
+                    title={endpointNode.name.value}
+                    bBox={endpointNode.viewState.bBox}
+                />);
+        });
         const nodeDetails = ({ x, y }) => (
             <ReceiverNode
                 x={x}
@@ -120,8 +112,6 @@ class FunctionNode extends React.Component {
                     icon={icons}
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
-                    argumentParams={argumentParameters}
-                    returnParams={returnParameters}
                     title={name}
                     receiver={receiverType}
                 >
@@ -130,38 +120,17 @@ class FunctionNode extends React.Component {
                         bBox={this.props.model.viewState.components.client}
                     />
                     { this.props.model.getWorkers().length === 0 &&
-                    <g>
-                        <StatementDropZone
-                            x={bodyBBox.x}
-                            y={bodyBBox.y}
-                            width={bodyBBox.w}
-                            height={bodyBBox.h}
-                            baseComponent='rect'
-                            dropTarget={body}
-                            enableDragBg
-                        />
-                        <LifeLine
-                            title='default'
-                            bBox={this.props.model.viewState.components.defaultWorkerLine}
-                            classes={classes}
-                            icon={ImageUtil.getSVGIconString('tool-icons/worker')}
-                            iconColor='#025482'
-                        />
-                        {blockNode}
-                    </g>
-                }{
-                    this.props.model.workers.map((item) => {
-                        return (<StatementDropZone
-                            x={item.getBody().viewState.bBox.x}
-                            y={item.getBody().viewState.bBox.y}
-                            width={item.getBody().viewState.bBox.w}
-                            height={item.getBody().viewState.bBox.h}
-                            baseComponent='rect'
-                            dropTarget={item.getBody()}
-                            enableDragBg
-                        />);
-                    })
-                }
+                        <g>
+                            <LifeLine
+                                title='default'
+                                bBox={this.props.model.viewState.components.defaultWorkerLine}
+                                classes={classes}
+                                icon={ImageUtil.getCodePoint('worker')}
+                                model={this.props.model}
+                            />
+                            {blockNode}
+                        </g>
+                    }
                     {workers}
                     {connectors}
                 </PanelDecorator> </g>);

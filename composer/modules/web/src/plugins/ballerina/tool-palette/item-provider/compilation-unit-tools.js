@@ -60,15 +60,6 @@ const tools = [
         description: 'Single operation that is intended to be a unit of reusable functionality',
     },
     {
-        id: 'connectorDefinition',
-        name: 'Connector',
-        icon: 'connector',
-        title: 'Connector',
-        nodeFactoryMethod: DefaultNodeFactory.createConnector,
-        description: 'Participant in the integration and is used to interact with an external'
-        + ' system or a service defined',
-    },
-    {
         id: 'struct',
         name: 'Struct',
         icon: 'struct',
@@ -83,14 +74,6 @@ const tools = [
         title: 'Transformer',
         nodeFactoryMethod: DefaultNodeFactory.createTransformer,
         description: 'Custom type conversion for transforming data',
-    },
-    {
-        id: 'enum',
-        name: 'Enum',
-        icon: 'enum',
-        title: 'Enum',
-        nodeFactoryMethod: DefaultNodeFactory.createEnum,
-        description: 'User defined enums',
     },
 ];
 

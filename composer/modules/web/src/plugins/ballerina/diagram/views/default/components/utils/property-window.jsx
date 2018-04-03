@@ -24,6 +24,8 @@ import TagInput from './tag-input';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
 import TreeUtils from './../../../../../model/tree-util';
+import { Button, Checkbox, Form, Grid } from 'semantic-ui-react';
+
 /**
  * React component for a service definition.
  *
@@ -182,53 +184,60 @@ class PropertyWindow extends React.Component {
         }
 
         return (
-            <div key={key.identifier} className='form-group'>
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-4 property-dialog-label'
-                >
-                    {_.startCase(key.identifier)}</label>
-                <div className='col-sm-7'>
-                    <input
-                        className='property-dialog-form-control'
-                        id={key.identifier}
-                        name={key.identifier}
-                        type='text'
-                        placeholder={_.startCase(key.identifier)}
-                        value={value}
-                        onChange={event => this.onChange(event, key)}
-                    />
-                </div>
-            </div>);
+            <Grid key={key.identifier}>
+                <Grid.Row>
+                    <Grid.Column width={6}>
+                        <label
+                            htmlFor={key.identifier}
+                        >
+                            {_.startCase(key.identifier)}
+                        </label>
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <input
+                            id={key.identifier}
+                            name={key.identifier}
+                            type='text'
+                            placeholder={_.startCase(key.identifier)}
+                            value={value}
+                            onChange={event => this.onChange(event, key)}
+                        />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>);
     }
 
-  /**
-   * Renders a select box
-   * @param key
-   * @returns {select box}
-   */
+    /**
+     * Renders a select box
+     * @param key
+     * @returns {select box}
+     */
     renderSelectBox(key) {
         return (
-            <div key={key.identifier} className='form-group'>
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-4 property-dialog-label'
-                >
-                    {_.startCase(key.identifier)}</label>
-                <div className='col-sm-7'>
-                    <select
-                        className='property-dialog-form-control'
-                        value={key.value}
-                        onChange={event => this.onChange(event, key)}
-                    >
-                        <option value='null'>Select {key.identifier}</option>
-                        {key.fields.map((option) => {
-                            return <option value={option} key={option} >{option}</option>;
-                        })}
-                    </select>
-                </div>
-            </div>);
+            <Grid key={key.identifier}>
+                <Grid.Row>
+                    <Grid.Column width={6}>
+                        <label
+                            htmlFor={key.identifier}
+                        >
+                            {_.startCase(key.identifier)}
+                        </label>
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <select
+                            value={key.value}
+                            onChange={event => this.onChange(event, key)}
+                        >
+                            <option value='null'>Select {key.identifier}</option>
+                            {key.fields.map((option) => {
+                                return <option value={option} key={option}>{option}</option>;
+                            })}
+                        </select>
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>);
     }
+
     /**
      * Renders numeric input for form
      * @param key
@@ -236,59 +245,64 @@ class PropertyWindow extends React.Component {
      */
     renderNumericInputs(key) {
         return (
-            <div key={key.identifier} className='form-group'>
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-4 property-dialog-label'
-                >
-                    {_.startCase(key.identifier)}</label>
-                <div className='col-sm-7'>
-                    <input
-                        className='property-dialog-form-control'
-                        id={key.identifier}
-                        name={key.identifier}
-                        type='number'
-                        placeholder={_.startCase(key.identifier)}
-                        value={Math.abs(key.value)}
-                        onChange={event => this.onChange(event, key)}
-                    />
-                </div>
-            </div>);
+            <Grid key={key.identifier}>
+                <Grid.Row>
+                    <Grid.Column width={6}>
+                        <label
+                            htmlFor={key.identifier}
+                        >
+                            {_.startCase(key.identifier)}
+                        </label>
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <input
+                            id={key.identifier}
+                            name={key.identifier}
+                            type='number'
+                            placeholder={_.startCase(key.identifier)}
+                            value={Math.abs(key.value)}
+                            onChange={event => this.onChange(event, key)}
+                        />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>);
     }
 
     renderVariableReferenceSection(key) {
         const label = 'Variable Reference';
         return (
-            <div key='vardef' className='form-group'>
-                <label
-                    htmlFor='varRefEnable'
-                    className='col-sm-4 property-dialog-label'
-                >
-                    <input
-                        type='checkbox'
-                        name='varRefEnable'
-                        id='varRefEnable'
-                        value='variable ref'
-                        onClick={event => this.clickVarDefCheck(event)}
-                        checked={this.isVarDefEnabled}
-                    />
-                    <span>&nbsp;</span>
-                    {label}
-                </label>
-                <div
-                    className={'col-sm-7' + (this.isVarDefEnabled ? '' : ' content-disabled')}
-                >
-                    <input
-                        className='property-dialog-form-control'
-                        id='vardef'
-                        name='vardef'
-                        type='text'
-                        placeholder='var1'
-                        value={this.isVarDefEnabled ? this.varDefInitRef.value : ''}
-                        onChange={event => this.onChange(event, key)}
-                    />
-                </div>
-            </div>
+            <Grid key='vardef'>
+                <Grid.Row>
+                    <Grid.Column width={6}>
+                        <label
+                            htmlFor='varRefEnable'
+                        >
+                            <input
+                                type='checkbox'
+                                name='varRefEnable'
+                                id='varRefEnable'
+                                value='variable ref'
+                                onClick={event => this.clickVarDefCheck(event)}
+                                checked={this.isVarDefEnabled}
+                            />
+                            <span>&nbsp;</span>
+                            {label}
+                        </label>
+                    </Grid.Column>
+                    <Grid.Column
+                        width={(this.isVarDefEnabled ? '' : ' content-disabled' + ' ten')}
+                    >
+                        <input
+                            id='vardef'
+                            name='vardef'
+                            type='text'
+                            placeholder='var1'
+                            value={this.isVarDefEnabled ? this.varDefInitRef.value : ''}
+                            onChange={event => this.onChange(event, key)}
+                        />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
         );
     }
 
@@ -300,22 +314,25 @@ class PropertyWindow extends React.Component {
      */
     renderBooleanInputs(key, booleanValue) {
         return (
-            <div key={key.identifier} className='form-group'>
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-4 property-dialog-label'
-                >
-                    {_.startCase(key.identifier)}</label>
-                <div className='col-sm-7 properties-checkbox'>
-                    <input
-                        className='toggle'
-                        type='checkbox'
-                        id={key.identifier}
-                        checked={booleanValue}
-                        onChange={event => this.onChange(event, key)}
-                    />
-                </div>
-            </div>);
+            <Grid key={key.identifier}>
+                <Grid.Row>
+                    <Grid.Column width={6}>
+                        <label
+                            htmlFor={key.identifier}
+                        >
+                            {_.startCase(key.identifier)}
+                        </label>
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <Checkbox
+                            toggle
+                            id={key.identifier}
+                            // checked={booleanValue}
+                            // onChange={event => this.onChange(event, key)}
+                        />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>);
     }
 
     /**
@@ -466,6 +483,7 @@ class PropertyWindow extends React.Component {
         }
         return value;
     }
+
     /**
      * Get value of structs
      */
@@ -490,17 +508,19 @@ class PropertyWindow extends React.Component {
 
     // TODO: Add the icon to the button
     renderConnectorProps(key) {
-        return (<div className='propWindowStruct'>
-            <div id='optionGroup' key={key.identifier} className='form-group'>
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-4 property-dialog-label'
-                >
-                    {_.startCase(key.identifier)}</label>
-                <div className='col-sm-7'>
-                    <div className='input-group'>
+        return (
+
+            <Grid id='optionGroup' key={key.identifier}>
+                <Grid.Row>
+                    <Grid.Column width={6}>
+                        <label
+                            htmlFor={key.identifier}
+                        >
+                            {_.startCase(key.identifier)}
+                        </label>
+                    </Grid.Column>
+                    <Grid.Column width={10}>
                         <input
-                            className='property-dialog-form-control'
                             id={key.identifier}
                             name={key.identifier}
                             type='text'
@@ -509,7 +529,7 @@ class PropertyWindow extends React.Component {
                             onChange={event => this.onChange(event, key)}
                         />
                         <span className='input-group-btn'>
-                            <button
+                            <Button
                                 id='viewOptionParams'
                                 onClick={() => {
                                     this.toggleConnectorParamProperties(key.identifier, key.connectorParams);
@@ -518,12 +538,11 @@ class PropertyWindow extends React.Component {
                                 <i
                                     className='fw fw-configurations connector-init-configure'
                                 />
-                            </button>
+                            </Button>
                         </span>
-                    </div>
-                </div>
-            </div>
-        </div>);
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>);
     }
 
     /**
@@ -541,53 +560,60 @@ class PropertyWindow extends React.Component {
                 wrongInput = 'wrongInput';
             }
         }
-        return (<div className='propWindowStruct'>
-            <div id='optionGroup' key={key.identifier} className='form-group'>
-                <label
-                    htmlFor={key.identifier}
-                    className='col-sm-4 property-dialog-label'
-                >
-                    {_.startCase(key.identifier)}</label>
-                <div className='col-sm-7'>
-                    <div className='input-group'>
-                        {wrongInput &&
+        return (
+            <div className='propWindowStruct'>
+                <div id='optionGroup' key={key.identifier}>
+                    <label
+                        htmlFor={key.identifier}
+                        className='col-sm-4 property-dialog-label'
+                    >
+                        {_.startCase(key.identifier)}</label>
+                    <div className='col-sm-7'>
+                        <div className='input-group'>
+                            {wrongInput &&
                             <div className='errorMsgDiv'>
                                 <i
                                     className='fw fw-error errorIcon'
-                                    onClick={() => { this.clearStructFieldValues(key, key.fields); }}
+                                    onClick={() => {
+                                        this.clearStructFieldValues(key, key.fields);
+                                    }}
                                 />
-                                <span className='errorMsg'> Configure properties </span> </div>
-                        }
-                        <input
-                            className={['property-dialog-form-control',
-                                disabled ? 'disabledInput' : '', wrongInput ? 'wrongInput' : ''].join(' ')}
-                            id={key.identifier}
-                            name={key.identifier}
-                            type='text'
-                            placeholder='Defined option object or a method'
-                            value={key.value}
-                            onChange={event => this.onChange(event, key)}
-                            disabled={disabled}
-                        />
-                        <span className='input-group-btn'>
-                            { (disabled && !wrongInput) &&
+                                <span className='errorMsg'> Configure properties </span></div>
+                            }
                             <input
-                                id='viewOptionParams'
-                                type='button'
-                                value='x'
-                                onClick={() => { this.clearStructFieldValues(key, key.fields); }}
-                            /> }
-                            <input
-                                id='viewOptionParams'
-                                type='button'
-                                value='+'
-                                onClick={() => { this.toggleStructProperties(key.identifier, key.fields); }}
+                                className={['property-dialog-form-control',
+                                    disabled ? 'disabledInput' : '', wrongInput ? 'wrongInput' : ''].join(' ')}
+                                id={key.identifier}
+                                name={key.identifier}
+                                type='text'
+                                placeholder='Defined option object or a method'
+                                value={key.value}
+                                onChange={event => this.onChange(event, key)}
+                                disabled={disabled}
                             />
-                        </span>
+                            <span className='input-group-btn'>
+                                { (disabled && !wrongInput) &&
+                                <input
+                                    id='viewOptionParams'
+                                    type='button'
+                                    value='x'
+                                    onClick={() => {
+                                        this.clearStructFieldValues(key, key.fields);
+                                    }}
+                                /> }
+                                <input
+                                    id='viewOptionParams'
+                                    type='button'
+                                    value='+'
+                                    onClick={() => {
+                                        this.toggleStructProperties(key.identifier, key.fields);
+                                    }}
+                                />
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>);
+            </div>);
     }
 
     /**
@@ -596,23 +622,32 @@ class PropertyWindow extends React.Component {
      * @returns {XML}
      */
     renderTagInputs(key) {
-        return (<div key={key.identifier} className='form-group'>
-            <label
-                className='col-sm-4 property-dialog-label'
-                htmlFor='tags'
-            >{_.startCase(key.identifier)}</label>
-            <div className='col-sm-7 properties-tags'>
-                <TagInput
-                    id={key.identifier}
-                    taggedElements={key.value}
-                    onTagsAdded={event =>
-                        this.onTagsAdded(event, key)}
-                    removeTagsAdded={this.removeTagsAdded}
-                    placeholder={`${_.startCase(key.identifier)} (↵ or comma-separated)`}
-                    ref={(node) => { this.node = node; }}
-                />
-            </div>
-        </div>);
+        return (
+            <Grid key={key.identifier}>
+                <Grid.Row>
+                    <Grid.Column width={6}>
+                        <label
+                            className='col-sm-4 property-dialog-label'
+                            htmlFor='tags'
+                        >
+                            {_.startCase(key.identifier)}
+                        </label>
+                    </Grid.Column>
+                    <Grid.Column width={10}>
+                        <TagInput
+                            id={key.identifier}
+                            taggedElements={key.value}
+                            onTagsAdded={event =>
+                                this.onTagsAdded(event, key)}
+                            removeTagsAdded={this.removeTagsAdded}
+                            placeholder={`${_.startCase(key.identifier)} (↵ or comma-separated)`}
+                            ref={(node) => {
+                                this.node = node;
+                            }}
+                        />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>);
     }
 
     /**
@@ -647,6 +682,7 @@ class PropertyWindow extends React.Component {
         values.splice(index, 1);
         this.forceUpdate();
     }
+
     /**
      * Renders the view for a property window
      *
@@ -663,7 +699,7 @@ class PropertyWindow extends React.Component {
                 );
             } else {
                 return (
-                    <li key={`breadCrumb-${key}`}> <a
+                    <li key={`breadCrumb-${key}`}><a
                         className='previousBreadcrumbItem'
                         onClick={() => {
                             this.toggleStructView(index);
@@ -683,12 +719,14 @@ class PropertyWindow extends React.Component {
                 />
                 <div
                     id='property-modal'
-                    ref={(node) => { this.node = node; }}
+                    ref={(node) => {
+                        this.node = node;
+                    }}
                     key={`propertiesForm/${this.props.model.id}`}
                     style={this.props.styles.popover}
                 >
                     <div className='formHeader'>
-                        <button
+                        <Button
                             id='dismissBtn'
                             type='button'
                             className='close'
@@ -696,7 +734,7 @@ class PropertyWindow extends React.Component {
                             onClick={this.closePropertyWindow}
                         >
                             <span aria-hidden='true'>&times;</span>
-                        </button>
+                        </Button>
                         <h5 className='form-title file-dialog-title'>
                             {this.props.formHeading}</h5>
                         {this.props.propertiesExist &&
@@ -713,65 +751,69 @@ class PropertyWindow extends React.Component {
                     </div>
                     }
                     {this.props.propertiesExist &&
-                    <div className='form-body formContainer'>
-                        <div className='container-fluid'>
-                            <form className='form-horizontal propertyForm'>
+                    <Grid className='form-body formContainer'>
+                        <Grid.Row>
+                            <Form size='small'>
+                                <Form.Group>
 
-                                {!_.isNil(this.isVarDefEnabled) &&
+                                    {!_.isNil(this.isVarDefEnabled) &&
                                 this.renderVariableReferenceSection(this.varDefInitRef)}
-                                <div
-                                    className={this.isVarDefEnabled ? 'content-disabled' : ''}
-                                >
-                                    {this.state.properties.map((key) => {
-                                        if (key.bType === 'int') {
-                                            return this.renderNumericInputs(key);
-                                        } else if (key.bType === 'string') {
-                                            return this.renderTextInputs(key);
-                                        } else if (key.bType === 'boolean') {
-                                            let booleanValue = false;
-                                            if (key.value) {
-                                                booleanValue = JSON.parse(key.value);
+                                    <div
+                                        className={this.isVarDefEnabled ? 'content-disabled' : ''}
+                                    >
+                                        {this.state.properties.map((key) => {
+                                            if (key.bType === 'int') {
+                                                return this.renderNumericInputs(key);
+                                            } else if (key.bType === 'string') {
+                                                return this.renderTextInputs(key);
+                                            } else if (key.bType === 'boolean') {
+                                                let booleanValue = false;
+                                                if (key.value) {
+                                                    booleanValue = JSON.parse(key.value);
+                                                }
+                                                return this.renderBooleanInputs(key, booleanValue);
+                                            } else if (key.bType === 'array') {
+                                                return this.renderTagInputs(key);
+                                            } else if (key.bType === 'map') {
+                                                return this.renderTextInputs(key);
+                                            } else if (key.bType === 'struct') {
+                                                return this.renderStructs(key);
+                                            } else if (key.bType === 'enum') {
+                                                return this.renderSelectBox(key);
+                                            } else if (key.isConnector) {
+                                                return this.renderConnectorProps(key);
+                                            } else { // If not any of the types render a simple text box
+                                                return this.renderTextInputs(key);
                                             }
-                                            return this.renderBooleanInputs(key, booleanValue);
-                                        } else if (key.bType === 'array') {
-                                            return this.renderTagInputs(key);
-                                        } else if (key.bType === 'map') {
-                                            return this.renderTextInputs(key);
-                                        } else if (key.bType === 'struct') {
-                                            return this.renderStructs(key);
-                                        } else if (key.bType === 'enum') {
-                                            return this.renderSelectBox(key);
-                                        } else if (key.isConnector) {
-                                            return this.renderConnectorProps(key);
-                                        } else { // If not any of the types render a simple text box
-                                            return this.renderTextInputs(key);
-                                        }
-                                    })}
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                                        })}
+                                    </div>
+                                </Form.Group>
+                            </Form>
+                        </Grid.Row>
+                    </Grid>
                     }
                     <div className='formFooter'>
                         {!_.isEmpty(this.previousItems) &&
-                            <button
-                                className='btn propWindowBackBtn'
-                                type='button'
-                                onClick={this.goToPreviousView}
-                            > <i className='fw fw-left propWindowBackIcon' /> Back </button>
-                        }
-                        <button
+                        <Button
+                            // className='btn propWindowBackBtn'
                             type='button'
-                            className='btn propWindowCancelBtn'
-                            onClick={this.closePropertyWindow}
-                        >Cancel</button>
+                            onClick={this.goToPreviousView}
+                        > <i className='fw fw-left propWindowBackIcon' /> Back </Button>
+                                }
                         {this.props.propertiesExist &&
-                        <button
+                        <Button
+                            primary
                             type='button'
-                            className='propWindowApplyBtn btn'
+                            // className='propWindowApplyBtn btn'
                             onClick={this.handleDismiss}
-                        >Apply</button>
+                        >Apply</Button>
                         }
+                        <Button
+                            type='button'
+                            // className='btn propWindowCancelBtn'
+                            onClick={this.closePropertyWindow}
+                        >Cancel</Button>
+
                     </div>
                 </div>
             </div>);

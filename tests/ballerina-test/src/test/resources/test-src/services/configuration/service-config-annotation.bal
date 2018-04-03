@@ -1,16 +1,21 @@
-import ballerina.net.http;
+import ballerina/http;
+import ballerina/http;
 
-@http:configuration {basePath:"/hello"}
-@http:configuration {port: 9090}
-service<http> helloWorldServiceConfig {
+endpoint http:NonListeningServiceEndpoint helloEP {
+    port:9090
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/hello"}
+@http:ServiceConfig {transactionInfectable: false}
+service<http:Service> helloWorldServiceConfig bind helloEP{
+
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        res.setStringPayload("Hello World !!!");
-        _ = conn.respond(res);
+    sayHello (endpoint conn, http:Request req) {
+        http:Response res = {};
+        res.setStringPayload("Hello World!!!");
+        _ = conn -> respond(res);
     }
 }

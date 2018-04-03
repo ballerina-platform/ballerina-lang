@@ -33,12 +33,14 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+
 /**
  * Test class for XML literal.
  *
  * @since 0.94
  */
-public class XMLLiteralTest {
+public class    XMLLiteralTest {
 
     CompileResult result;
     CompileResult literalWithNamespacesResult;
@@ -336,7 +338,7 @@ public class XMLLiteralTest {
     }
 
     @Test
-    public void testComplexXMLLiteral() {
+    public void testComplexXMLLiteral() throws IOException {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
         Assert.assertEquals(returns[0].stringValue(),
@@ -403,8 +405,7 @@ public class XMLLiteralTest {
     }
     
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: invalid xml qualified name: unsupported " +
-                    "characters in 'foo&gt;bar'.*")
+            expectedExceptionsMessageRegExp = ".*invalid xml qualified name: unsupported characters in 'foo&gt;bar'.*")
     public void testIvalidAttributeName() {
         BRunUtil.invoke(result, "testIvalidAttributeName");
     }

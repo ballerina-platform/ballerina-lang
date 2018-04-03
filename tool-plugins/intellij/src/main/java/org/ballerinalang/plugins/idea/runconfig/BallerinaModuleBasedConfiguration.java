@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.runconfig;
 import com.intellij.execution.configurations.RunConfigurationModule;
 import com.intellij.openapi.project.Project;
 
+/**
+ * Represents Ballerina module base configuration.
+ */
 public class BallerinaModuleBasedConfiguration extends RunConfigurationModule {
 
     public BallerinaModuleBasedConfiguration(Project project) {

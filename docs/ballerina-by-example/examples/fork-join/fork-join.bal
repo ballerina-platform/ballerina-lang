@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function main (string[] args) {
     //The fork-join allows developers to spawn(fork) multiple workers within a ballerina program and join
     //the results from those workers and execute code on joined results.
@@ -5,14 +7,14 @@ function main (string[] args) {
         worker w1 {
             int i = 23;
             string s = "Colombo";
-            println("[w1] i: " + i + " s: " + s);
+            io:println("[w1] i: " + i + " s: " + s);
             // Reply to the join block from worker w1.
             i, s -> fork;
         }
 
         worker w2 {
             float f = 10.344;
-            println("[w2] f: " + f);
+            io:println("[w2] f: " + f);
             // Reply to the join block from worker w2.
             f -> fork;
         }
@@ -23,13 +25,13 @@ function main (string[] args) {
         //the returned values from the workers.
 
         // Get values received from worker 'w1'.
-        var resW1, _ = (any[])results["w1"];
-        var iW1, _ = (int)resW1[0];
-        var sW1, _ = (string)resW1[1];
-        println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
+        any[] resW1 =? <any[]>results["w1"];
+        int iW1 =? <int>resW1[0];
+        string sW1 = <string>resW1[1];
+        io:println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
         // Get values received from worker 'w2'.
-        var resW2, _ = (any[])results["w2"];
-        var fW2, _ = (float)resW2[0];
-        println("[join-block] fW2: " + fW2);
+        any[] resW2 =? <any[]>results["w2"];
+        float fW2 =? <float>resW2[0];
+        io:println("[join-block] fW2: " + fW2);
     }
 }

@@ -40,6 +40,9 @@ import org.jetbrains.annotations.TestOnly;
 import java.io.File;
 import java.util.Set;
 
+/**
+ * Provides Ballerina SDK service.
+ */
 public abstract class BallerinaSdkService extends SimpleModificationTracker {
 
     public static final Logger LOG = Logger.getInstance(BallerinaSdkService.class);
@@ -74,7 +77,8 @@ public abstract class BallerinaSdkService extends SimpleModificationTracker {
     public abstract void chooseAndSetSdk(@Nullable Module module);
 
     /**
-     * Use this method in order to check whether the method is appropriate for providing Ballerina-specific code insight
+     * Use this method in order to check whether the method is appropriate for providing Ballerina-specific code
+     * insight.
      */
     @Contract("null -> false")
     public boolean isBallerinaModule(@Nullable Module module) {

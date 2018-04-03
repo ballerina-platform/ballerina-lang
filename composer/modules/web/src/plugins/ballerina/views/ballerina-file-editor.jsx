@@ -21,7 +21,7 @@ import React from 'react';
 import cn from 'classnames';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Loader, Dimmer } from 'semantic-ui-react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
@@ -29,14 +29,16 @@ import { parseFile } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
 import File from 'core/workspace/model/file';
-import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
-import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES, CLASSES, SPLIT_VIEW } from './constants';
+import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW,
+        CHANGE_EVT_TYPES, CLASSES, SPLIT_VIEW } from './constants';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
@@ -44,8 +46,6 @@ import TreeUtils from './../model/tree-util';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import FragmentUtils from '../utils/fragment-utils';
-import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
-import { DOC_VIEW_ID } from 'plugins/ballerina/constants';
 import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS } from '../constants';
@@ -74,8 +74,10 @@ class BallerinaFileEditor extends React.Component {
             parseFailed: true,
             syntaxErrors: [],
             model: undefined,
-            activeView: SPLIT_VIEW,
-            splitSize: (this.props.width / 2),
+            activeView: this.fetchState('activeView', SPLIT_VIEW),
+            splitSize: this.fetchState('splitSize', (this.props.width / 2)),
+            diagramMode: this.fetchState('diagramMode', 'action'),
+            diagramFitToWidth: this.fetchState('diagramFitToWidth', true),
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
@@ -151,18 +153,8 @@ class BallerinaFileEditor extends React.Component {
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
+        this.onModeChange = this.onModeChange.bind(this);
     }
-
-
-    /**
-     * @override
-     * @param {any} nextProps next props.
-     * @memberof BallerinaFileEditor
-     */
-    componentWillReceiveProps(nextProps) {
-        this.state.splitSize = nextProps.width / 2;
-    }
-
 
     /**
      * @override
@@ -235,157 +227,11 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
-     * Adds relevent imports needed to be automatically imported When a node (eg: a function invocation) is dragged in
-     * @param {Node} node the node added
+     * @description Get package name from astRoot
+     * @returns string - Package name
      */
-    addAutoImports(node) {
-        let fullPackageName;
-        if (TreeUtils.isAssignment(node) && TreeUtils.isInvocation(node.getExpression())) {
-            fullPackageName = node.getExpression().getFullPackageName();
-        } else if (TreeUtils.isExpressionStatement(node) && TreeUtils.isInvocation(node.getExpression())) {
-            if (node.getExpression().getFullPackageName()) {
-                fullPackageName = node.getExpression().getFullPackageName();
-            } else {
-                return;
-            }
-        } else if (TreeUtils.isVariableDef(node)
-            && node.getVariable().getInitialExpression()
-            && (TreeUtils.isInvocation(node.getVariable().getInitialExpression()) ||
-                TreeUtils.isConnectorInitExpr(node.getVariable().getInitialExpression()))) {
-            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
-        } else if (TreeUtils.isEndpointTypeVariableDef(node)) {
-            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
-        } else if (TreeUtils.isService(node)) {
-            fullPackageName = node.getFullPackageName();
-        } else {
-            return;
-        }
-
-        if (fullPackageName === 'Current Package' || fullPackageName === ''
-            || fullPackageName === 'ballerina.builtin') {
-            return;
-        }
-
-        const importString = 'import ' + fullPackageName + ';\n';
-        const fragment = FragmentUtils.createTopLevelNodeFragment(importString);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        this.state.model.addImport(TreeBuilder.build(parsedJson));
-    }
-
-    getConnectorDeclarations(node) {
-        // Check if the node is an action invocation
-        if (TreeUtils.statementIsInvocation(node)) {
-            let immediateParent = node.parent;
-            let connectorExists = false;
-            while (!TreeUtils.isCompilationUnit(immediateParent)) {
-                if (TreeUtils.isResource(immediateParent) || TreeUtils.isFunction(immediateParent)
-                    || TreeUtils.isAction(immediateParent)) {
-                    const connectors = immediateParent.getBody().filterStatements((statement) => {
-                        return TreeUtils.isEndpointTypeVariableDef(statement);
-                    });
-                    connectors.forEach((connector) => {
-                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
-                            === node.getExpression().getPackageAlias().value) {
-                            connectorExists = true;
-                            node.getExpression().getExpression().getVariableName()
-                                .setValue(connector.getVariableName().value);
-                        }
-                    });
-                } else if (TreeUtils.isService(immediateParent)) {
-                    const connectors = immediateParent.filterVariables((statement) => {
-                        return TreeUtils.isEndpointTypeVariableDef(statement);
-                    });
-                    connectors.forEach((connector) => {
-                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
-                            === node.getExpression().getPackageAlias().value) {
-                            connectorExists = true;
-                            node.getExpression().getExpression().getVariableName()
-                                .setValue(connector.getVariableName().value);
-                        }
-                    });
-                } else if (TreeUtils.isConnector(immediateParent)) {
-                    const connectors = immediateParent.filterVariableDefs((statement) => {
-                        return TreeUtils.isEndpointTypeVariableDef(statement);
-                    });
-                    connectors.forEach((connector) => {
-                        if (connector.getVariable().getInitialExpression().getConnectorType().getPackageAlias().value
-                            === node.getExpression().getPackageAlias().value) {
-                            connectorExists = true;
-                            node.getExpression().getExpression().getVariableName()
-                                .setValue(connector.getVariableName().value);
-                        }
-                    });
-                }
-                if (connectorExists) {
-                    break;
-                }
-                immediateParent = immediateParent.parent;
-            }
-            if (!connectorExists) {
-                // const { connector, packageName, fullPackageName } = args;
-                const packageName = node.getExpression().getPackageAlias().value;
-                // Iterate through the params and create the parenthesis with the default param values
-                let paramString = '';
-                let connector = null;
-                let fullPackageName;
-                const packages = (BallerinaEnvironment.getPackages()).concat(this.environment.getCurrentPackage());
-                for (const packageDefintion of packages) {
-                    fullPackageName = TreeUtils.getFullPackageName(node.getExpression());
-                    if (packageDefintion.getName() === fullPackageName
-                        || (packageDefintion.getName() === 'Current Package' && fullPackageName === '')) {
-                        connector = packageDefintion.getConnectors()[0];
-                    }
-                }
-
-                if (connector.getParams()) {
-                    const connectorParams = connector.getParams().map((param) => {
-                        let defaultValue = BallerinaEnvironment.getDefaultValue(param.type);
-                        if (defaultValue === undefined) {
-                            defaultValue = '{}';
-                        }
-                        return defaultValue;
-                    });
-                    paramString = connectorParams.join(', ');
-                }
-                const pkgStr = packageName !== 'Current Package' ? `${packageName}:` : '';
-
-                const connectorInit = `create ${pkgStr}${connector.getName()}(${paramString});`;
-                const constraint = `<${pkgStr}${connector.getName()}>`;
-                const endpointSource = `endpoint ${constraint} endpoint1 {${connectorInit}}`;
-                const fragment = FragmentUtils.createStatementFragment(endpointSource);
-                const parsedJson = FragmentUtils.parseFragment(fragment);
-                const connectorDeclaration = TreeBuilder.build(parsedJson);
-                connectorDeclaration.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
-                connectorDeclaration.viewState.showOverlayContainer = true;
-                // Get the top most parent of the node
-                const parentNode = this.getParent(node);
-                if (TreeUtils.isBlock(node.parent)) {
-                    TreeUtils.getNewTempVarName(node.parent, '__endpoint')
-                        .then((varNames) => {
-                            connectorDeclaration.getVariable().getName().setValue(varNames[0]);
-                            node.getExpression().getExpression().getVariableName()
-                                .setValue(connectorDeclaration.getVariableName().value);
-                            parentNode.getBody().addStatements(connectorDeclaration, 0);
-                        });
-                } else if (TreeUtils.isService(node.parent)) {
-                    TreeUtils.getNewTempVarName(node.parent, '__endpoint')
-                        .then((varNames) => {
-                            connectorDeclaration.getVariable().getName().setValue(varNames[0]);
-                            node.getExpression().getExpression().getVariableName()
-                                .setValue(connectorDeclaration.getVariableName().value);
-                            parentNode.addVariables(connectorDeclaration, 0);
-                        });
-                } else if (TreeUtils.isConnector(node.parent)) {
-                    TreeUtils.getNewTempVarName(node.parent, '__endpoint')
-                        .then((varNames) => {
-                            connectorDeclaration.getVariable().getName().setValue(varNames[0]);
-                            node.getExpression().getExpression().getVariableName()
-                                .setValue(connectorDeclaration.getVariableName().value);
-                            parentNode.addVariableDefs(connectorDeclaration, 0);
-                        });
-                }
-            }
-        }
+    getPackageName(astRoot) {
+        return TreeUtil.getPackageNameString(astRoot);
     }
 
     /**
@@ -421,16 +267,40 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Change the diagram mode.
+     *
+     * @param {any} data event data
+     * @memberof BallerinaFileEditor
+     */
+    onModeChange(data) {
+        this.setState({
+            diagramMode: data.mode,
+            diagramFitToWidth: data.fitToWidth,
+        });
+        this.persistState();
+    }
+
+    /**
      * @returns {File} file associated with the editor
      */
     getFile() {
         return this.props.file;
     }
 
-    resetSwaggerView() {
-        this.hideSwaggerAceEditor = false;
+    /**
+     * Change the diagram fitto width.
+     *
+     * @param {any} newState
+     * @memberof BallerinaFileEditor
+     */
+    handleFitToWidthChange(state) {
+        this.setState({ diagramFitToWidth: state });
+        this.persistState();
     }
 
+    handleSplitChange(size) {
+        this.setState({ splitSize: size });
+    }
     /**
      * Sync updated information into current AST instance
      * @param {ASTNode} currentAST Currently used AST instance
@@ -661,16 +531,73 @@ class BallerinaFileEditor extends React.Component {
         });
     }
 
-    handleSplitChange(size) {
-        this.setState({ splitSize: size });
+    /**
+     * Adds relevent imports needed to be automatically imported When a node (eg: a function invocation) is dragged in
+     * @param {Node} node the node added
+     */
+    addAutoImports(node) {
+        let fullPackageName;
+        if (TreeUtils.isAssignment(node) && TreeUtils.isInvocation(node.getExpression())) {
+            fullPackageName = node.getExpression().getFullPackageName();
+        } else if (TreeUtils.isExpressionStatement(node) && TreeUtils.isInvocation(node.getExpression())) {
+            if (node.getExpression().getFullPackageName()) {
+                fullPackageName = node.getExpression().getFullPackageName();
+            } else {
+                return;
+            }
+        } else if (TreeUtils.isVariableDef(node)
+            && node.getVariable().getInitialExpression()
+            && (TreeUtils.isInvocation(node.getVariable().getInitialExpression()) ||
+                TreeUtils.isConnectorInitExpr(node.getVariable().getInitialExpression()))) {
+            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
+        } else if (TreeUtils.isEndpointTypeVariableDef(node)) {
+            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
+        } else if (TreeUtils.isService(node)) {
+            fullPackageName = node.getFullPackageName();
+        } else {
+            return;
+        }
+
+        if (fullPackageName === 'Current Package' || fullPackageName === ''
+            || fullPackageName === 'ballerina.builtin') {
+            return;
+        }
+
+        const importString = 'import ' + fullPackageName + ';\r\n';
+        const fragment = FragmentUtils.createTopLevelNodeFragment(importString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        this.state.model.addImport(TreeBuilder.build(parsedJson));
+    }
+
+
+    /**
+     * Save editor state in to localstorage.
+     *
+     * @memberof BallerinaFileEditor
+     */
+    persistState() {
+        const appContext = this.props.ballerinaPlugin.appContext;
+        appContext.pref.put(this.props.file.id, {
+            activeView: this.state.activeView,
+            splitSize: this.state.splitSize,
+            diagramFitToWidth: this.state.diagramFitToWidth,
+            diagramMode: this.state.diagramMode,
+        });
     }
 
     /**
-     * @description Get package name from astRoot
-     * @returns string - Package name
+     * Fetch editor active state if stored in localstorage.
+     *
+     * @memberof BallerinaFileEditor
      */
-    getPackageName(astRoot) {
-        return TreeUtil.getPackageNameString(astRoot);
+    fetchState(attribute, defaultVal = undefined) {
+        const appContext = this.props.ballerinaPlugin.appContext;
+        const data = appContext.pref.get(this.props.file.id);
+        return (data && !_.isNil(data[attribute])) ? data[attribute] : defaultVal;
+    }
+
+    resetSwaggerView() {
+        this.hideSwaggerAceEditor = false;
     }
 
     /**
@@ -678,6 +605,8 @@ class BallerinaFileEditor extends React.Component {
      * @memberof BallerinaFileEditor
      */
     render() {
+        // persist state before render
+        this.persistState();
         // Decision on which view to show, depends on several factors.
         // Even-though we have a state called activeView, we cannot simply decide on that value.
         // For example, for swagger-view to be active, we need to make sure
@@ -720,8 +649,9 @@ class BallerinaFileEditor extends React.Component {
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         const sourceWidth = (this.state.activeView === SOURCE_VIEW) ? this.props.width :
+            this.state.splitSize;
+        const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
-        const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width : this.state.splitSize;
 
         const sourceView = (
             <SourceView
@@ -737,16 +667,32 @@ class BallerinaFileEditor extends React.Component {
         );
 
         const designView = (
-            <DesignView
-                model={this.state.model}
-                show={showDesignView}
-                file={this.props.file}
-                commandProxy={this.props.commandProxy}
-                width={designWidth}
-                height={this.props.height}
-                panelResizeInProgress={this.props.panelResizeInProgress}
-                disabled={this.state.parseFailed}
-            />
+            <div>
+                <CSSTransitionGroup
+                    transitionName='loading-overlay'
+                    transitionEnterTimeout={300}
+                    transitionLeaveTimeout={300}
+                >
+                    {showLoadingOverlay &&
+                        <Dimmer active inverted>
+                            <Loader size='large'>Loading</Loader>
+                        </Dimmer>
+                    }
+                </CSSTransitionGroup>
+                <DesignView
+                    model={this.state.model}
+                    show={showDesignView}
+                    file={this.props.file}
+                    commandProxy={this.props.commandProxy}
+                    width={designWidth}
+                    height={this.props.height}
+                    panelResizeInProgress={this.props.panelResizeInProgress}
+                    disabled={this.state.parseFailed}
+                    onModeChange={this.onModeChange}
+                    mode={this.state.diagramMode}
+                    fitToWidth={this.state.diagramFitToWidth}
+                />
+            </div>
         );
 
         return (
@@ -754,19 +700,6 @@ class BallerinaFileEditor extends React.Component {
                 id={`bal-file-editor-${this.props.file.id}`}
                 className='bal-file-editor'
             >
-                <CSSTransitionGroup
-                    transitionName='loading-overlay'
-                    transitionEnterTimeout={300}
-                    transitionLeaveTimeout={300}
-                >
-                    {showLoadingOverlay &&
-                        <div className='bal-file-editor-loading-container'>
-                            <div id='parse-pending-loader'>
-                                Loading
-                            </div>
-                        </div>
-                    }
-                </CSSTransitionGroup>
                 {(() => {
                     switch (this.state.activeView) {
                         case SPLIT_VIEW:
@@ -774,9 +707,10 @@ class BallerinaFileEditor extends React.Component {
                                 <div className='split-view-container'>
                                     <SplitPane
                                         split='vertical'
-                                        defaultSize={(this.props.width / 2)}
+                                        defaultSize={this.state.splitSize}
                                         onChange={this.handleSplitChange}
                                     >
+                                        {sourceView}
                                         <div>
                                             {this.state.activeView === SPLIT_VIEW
                                                 && !_.isEmpty(this.state.syntaxErrors) &&
@@ -790,12 +724,11 @@ class BallerinaFileEditor extends React.Component {
                                             }
                                             {designView}
                                         </div>
-                                        {sourceView}
                                     </SplitPane>
                                 </div>
                             );
                         default:
-                            return [designView, sourceView];
+                            return [sourceView, designView];
                     }
                 })()}
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
@@ -804,28 +737,32 @@ class BallerinaFileEditor extends React.Component {
                         commandProxy={this.props.commandProxy}
                         hideSwaggerAceEditor={this.hideSwaggerAceEditor}
                         resetSwaggerViewFun={this.resetSwaggerView}
+                        height={this.props.height}
+                        width={this.props.width}
                     />
                 </div>
-                <div className={cn('bottom-right-controls-container')}>
-                    <ViewButton
-                        label='Design View'
-                        icon='design-view'
-                        onClick={() => { this.setActiveView(DESIGN_VIEW); }}
-                        active={this.state.activeView === DESIGN_VIEW}
-                    />
-                    <ViewButton
-                        label='Source View'
-                        icon='code'
-                        onClick={() => { this.setActiveView(SOURCE_VIEW); }}
-                        active={this.state.activeView === SOURCE_VIEW}
-                    />
-                    <ViewButton
-                        label='Split View'
-                        icon='split-view'
-                        onClick={() => { this.setActiveView(SPLIT_VIEW); }}
-                        active={this.state.activeView === SPLIT_VIEW}
-                    />
-                </div>
+                { !showSwaggerView &&
+                    <div className={cn('bottom-right-controls-container')}>
+                        <ViewButton
+                            label='Source View'
+                            icon='code'
+                            onClick={() => { this.setActiveView(SOURCE_VIEW); }}
+                            active={this.state.activeView === SOURCE_VIEW}
+                        />
+                        <ViewButton
+                            label='Split View'
+                            icon='split-view'
+                            onClick={() => { this.setActiveView(SPLIT_VIEW); }}
+                            active={this.state.activeView === SPLIT_VIEW}
+                        />
+                        <ViewButton
+                            label='Design View'
+                            icon='design-view'
+                            onClick={() => { this.setActiveView(DESIGN_VIEW); }}
+                            active={this.state.activeView === DESIGN_VIEW}
+                        />
+                    </div>
+                }
             </div>
         );
     }
@@ -834,6 +771,7 @@ class BallerinaFileEditor extends React.Component {
 BallerinaFileEditor.propTypes = {
     editorModel: PropTypes.objectOf(Object).isRequired,
     file: PropTypes.instanceOf(File).isRequired,
+    ballerinaPlugin: PropTypes.objectOf(Object).isRequired,
     isActive: PropTypes.func.isRequired,
     commandProxy: PropTypes.shape({
         on: PropTypes.func.isRequired,
@@ -842,6 +780,7 @@ BallerinaFileEditor.propTypes = {
     isPreviewViewEnabled: PropTypes.bool,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+    panelResizeInProgress: PropTypes.bool.isRequired,
 };
 
 BallerinaFileEditor.defaultProps = {

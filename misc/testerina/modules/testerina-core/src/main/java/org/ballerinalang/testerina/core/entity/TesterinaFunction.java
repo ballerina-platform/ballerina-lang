@@ -17,14 +17,16 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TesterinaFunction entity class.
@@ -33,21 +35,31 @@ public class TesterinaFunction {
 
     private String name;
     private Type type;
+
+    public FunctionInfo getbFunction() {
+        return bFunction;
+    }
+
     private FunctionInfo bFunction;
     private ProgramFile programFile;
+    private boolean runTest = true;
 
-    private static final int WORKER_TIMEOUT = 10;
+    // Annotation info
+    private List<String> groups = new ArrayList<>();
 
-    public static final String PREFIX_TEST = "TEST";
-    public static final String PREFIX_BEFORETEST = "BEFORETEST";
-    public static final String PREFIX_AFTERTEST = "AFTERTEST";
-    public static final String INIT_SUFFIX = ".<INIT>";
+    static final String PREFIX_TEST = "TEST";
+    static final String PREFIX_UTIL = "UTIL";
+    static final String PREFIX_BEFORETEST = "BEFORETEST";
+    static final String PREFIX_AFTERTEST = "AFTERTEST";
+    static final String PREFIX_MOCK = "MOCK";
+    static final String INIT_SUFFIX = ".<INIT>";
 
     /**
      * Prefixes for the test function names.
      */
     public enum Type {
-        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST);
+        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
+                (INIT_SUFFIX), UTIL(PREFIX_UTIL);
 
         String prefix;
 
@@ -55,13 +67,12 @@ public class TesterinaFunction {
             this.prefix = prefix;
         }
 
-        @Override
-        public String toString() {
+        @Override public String toString() {
             return prefix;
         }
     }
 
-    TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type) {
+    public TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type) {
         this.name = bFunction.getName();
         this.type = type;
         this.bFunction = bFunction;
@@ -76,16 +87,14 @@ public class TesterinaFunction {
      * Invokes a ballerina test function, in blocking mode.
      *
      * @param args function arguments
-     * @return values returned by the ballerina function
+     * @return a BValue array
      */
     public BValue[] invoke(BValue[] args) {
-        Context ctx = new Context(programFile);
+        WorkerExecutionContext ctx = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
-        initDebugger(ctx, debugger);
-        return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(),
-                args, ctx);
+        initDebugger(programFile, debugger);
+        return BLangFunctions.invokeCallable(bFunction, ctx, args);
     }
-
 
     public String getName() {
         return name;
@@ -103,22 +112,27 @@ public class TesterinaFunction {
         this.type = type;
     }
 
-    public FunctionInfo getbFunction() {
-        return this.bFunction;
+    public List<String> getGroups() {
+        return groups;
     }
 
-    public void setbFunctionInfo(FunctionInfo bFunction) {
-        this.bFunction = bFunction;
+    public void setGroups(List<String> groups) {
+        this.groups = groups;
     }
 
-    private static void initDebugger(Context bContext, Debugger debugger) {
-        bContext.getProgramFile().setDebugger(debugger);
+    public boolean getRunTest() {
+        return runTest;
+    }
+
+    public void setRunTest() {
+        this.runTest = false;
+    }
+
+    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+        programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
             debugger.init();
-            debugger.addDebugContextAndWait(debugContext);
+            debugger.waitTillDebuggeeResponds();
         }
     }
-
 }

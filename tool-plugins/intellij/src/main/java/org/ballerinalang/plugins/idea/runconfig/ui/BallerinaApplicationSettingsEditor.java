@@ -39,6 +39,9 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
+/**
+ * Provides the UI for application settings editor.
+ */
 public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaApplicationConfiguration> {
 
     private JPanel myPanel;

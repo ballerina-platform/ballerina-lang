@@ -32,6 +32,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Provides Ballerina item presentation in structure view.
+ */
 public class BallerinaItemPresentation implements ItemPresentation {
 
     protected final PsiElement element;

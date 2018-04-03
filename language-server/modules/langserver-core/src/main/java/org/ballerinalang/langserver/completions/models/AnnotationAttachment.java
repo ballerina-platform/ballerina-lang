@@ -88,7 +88,7 @@ public class AnnotationAttachment {
             AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
 //            tempAnnotationAttachment.setName(annotationAttachment.getName());
 //            tempAnnotationAttachment.setPackageName(annotationAttachment.getPkgName());
-            tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
+//            tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
             BLangAnnotationAttachmentPoint.AttachmentPoint attachmentPoint = annotationAttachment.getAttachmentPoint();
             if (attachmentPoint != null) {
                 tempAnnotationAttachment.setAttachedPoint(attachmentPoint.getValue());
@@ -120,10 +120,7 @@ public class AnnotationAttachment {
             return null;
         }
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
     public String toString() {
         return "AnnotationAttachment{" + "name='" + name + '\'' + ", packagePath='" + packagePath + '\'' + ", " +

@@ -21,7 +21,7 @@ package org.ballerinalang.test.services.configuration;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
 /**
@@ -33,8 +33,8 @@ public class ResourceConfigurationTest {
 
     private CompileResult compileResult;
 
-    @Test(expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = "multiple resource configuration annotations found in resource:.*")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*multiple resource configuration annotations found in resource:.*")
     public void testDuplicateResourceConfigAnnotations() {
         compileResult = BCompileUtil.compile("test-src/services/configuration/resource-config-annotation.bal");
         BServiceUtil.runService(compileResult);

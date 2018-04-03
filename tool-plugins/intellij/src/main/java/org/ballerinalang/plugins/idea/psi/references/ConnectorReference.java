@@ -34,6 +34,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents a connector reference.
+ */
 public class ConnectorReference extends BallerinaElementReference {
 
     public ConnectorReference(@NotNull IdentifierPSINode element) {

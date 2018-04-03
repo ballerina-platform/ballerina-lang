@@ -1,4 +1,4 @@
-function checkGreaterThanForUnsupportedType () (boolean) {
+function checkGreaterThanForUnsupportedType () returns (boolean) {
     json j1;
     json j2;
     j1 = {"name":"Jack"};
@@ -7,7 +7,7 @@ function checkGreaterThanForUnsupportedType () (boolean) {
     return j1 > j2;
 }
 
-function checkGreaterThanEualForUnsupportedType () (boolean) {
+function checkGreaterThanEualForUnsupportedType () returns (boolean) {
     json j1;
     json j2;
     j1 = {"name":"Jack"};
@@ -17,7 +17,7 @@ function checkGreaterThanEualForUnsupportedType () (boolean) {
 }
 
 
-function checkLessThanForUnsupportedType () (boolean) {
+function checkLessThanForUnsupportedType () returns (boolean) {
     json j1;
     json j2;
     j1 = {"name":"Jack"};
@@ -26,7 +26,7 @@ function checkLessThanForUnsupportedType () (boolean) {
     return j1 < j2;
 }
 
-function checkLessThanEqualForUnsupportedType () (boolean) {
+function checkLessThanEqualForUnsupportedType () returns (boolean) {
     json j1;
     json j2;
     j1 = {"name":"Jack"};
@@ -35,25 +35,25 @@ function checkLessThanEqualForUnsupportedType () (boolean) {
     return j1 <= j2;
 }
 
-function checkGreaterThan () (boolean) {
+function checkGreaterThan () returns (boolean) {
     int a;
     string b;
     return a > b;
 }
 
-function checkGreaterThanEual () (boolean) {
+function checkGreaterThanEual () returns (boolean) {
     int a;
     string b;
     return a >= b;
 }
 
-function checkLessThan () (boolean) {
+function checkLessThan () returns (boolean) {
     int a;
     string b;
     return a < b;
 }
 
-function checkLessThanEqual () (boolean) {
+function checkLessThanEqual () returns (boolean) {
     int a;
     string b;
     return a <= b;

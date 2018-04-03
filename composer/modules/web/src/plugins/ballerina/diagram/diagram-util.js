@@ -29,6 +29,7 @@ import ActionSizingUtil from './views/action/sizing-util';
 import DefaultPositioningUtil from './views/default/positioning-util';
 import ActionPositioningUtil from './views/action/positioning-util';
 
+import EndpointAggregatorUtil from './views/default/endpoint-aggregator-util';
 
 import DefaultWorkerInvocationSyncUtil from './views/default/worker-invocation-sync-util';
 import WorkerInvocationArrowPositionUtil from './views/default/worker-invocation-arrow-position-util';
@@ -49,6 +50,7 @@ const actionSizingUtil = new ActionSizingUtil();
 
 const defaultPositioningUtil = new DefaultPositioningUtil();
 const actionPositioningUtil = new ActionPositioningUtil();
+const endpointAggregatorUtil = new EndpointAggregatorUtil();
 
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
 const defaultInvocationArrowPositionUtil = new WorkerInvocationArrowPositionUtil();
@@ -64,7 +66,7 @@ actionSizingUtil.config = ActionConfig;
 // require all react components
 function requireAll(requireContext) {
     const comp = {};
-    requireContext.keys().map((item) => {
+    requireContext.keys().forEach((item) => {
         const module = requireContext(item);
         if (module.default) {
             comp[module.default.name] = module.default;
@@ -74,6 +76,10 @@ function requireAll(requireContext) {
 }
 
 function getComponentForNodeArray(nodeArray, mode = 'default') {
+    // if undefined or null is passws return null.
+    if (!nodeArray) {
+        return null;
+    }
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/nodes', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));
@@ -142,6 +148,10 @@ function getPositioningUtil(mode) {
     }
 }
 
+function getEndpointAggregatorUtil(mode) {
+    return endpointAggregatorUtil;
+}
+
 
 function getErrorCollectorUtil(mode) {
     return defaultErrorCollectorUtil;
@@ -194,6 +204,7 @@ export {
     requireAll,
     getSizingUtil,
     getPositioningUtil,
+    getEndpointAggregatorUtil,
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,

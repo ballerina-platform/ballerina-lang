@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Grid, Col } from 'react-bootstrap';
+import { Button } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 
 /**
@@ -62,6 +62,8 @@ class OpenProgramDirConfirmDialog extends React.Component {
             <Dialog
                 show={this.state.showDialog}
                 title='Open Program Directory'
+                titleIcon='info circle'
+                size='small'
                 actions={
                 [
                     <Button
@@ -71,6 +73,7 @@ class OpenProgramDirConfirmDialog extends React.Component {
                             });
                             this.props.onConfirm();
                         }}
+                        primary
                     >
                         Open
                     </Button>,
@@ -79,21 +82,12 @@ class OpenProgramDirConfirmDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
-                <Grid fluid>
-                    <Row>
-                        <Col md={2}>
-                            <i className='fw fw-4x fw-info' />
-                        </Col>
-                        <Col md={10}>
-                            <h4 style={{ marginTop: 0 }}>
-                                {`File "${file.name + '.' + file.extension}" resides within a program directory.`}
-                            </h4>
-                            <p>
-                                {`Do you want to open the program directory at ${programDirPath}?`}
-                            </p>
-                        </Col>
-                    </Row>
-                </Grid>
+                <h4>
+                    {`File "${file.name + '.' + file.extension}" resides within a program directory.`}
+                </h4>
+                <p>
+                    {`Do you want to open the program directory at ${programDirPath}?`}
+                </p>
             </Dialog>
         );
     }

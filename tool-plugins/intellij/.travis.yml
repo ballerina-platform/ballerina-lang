@@ -1,5 +1,0 @@
-language: java
-
-cache:
-  directories:
-  - $HOME/.gradle

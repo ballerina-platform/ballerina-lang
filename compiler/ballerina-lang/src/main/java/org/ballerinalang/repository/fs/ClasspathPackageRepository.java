@@ -18,6 +18,7 @@
 package org.ballerinalang.repository.fs;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,12 +40,13 @@ import java.util.Map;
 public class ClasspathPackageRepository extends GeneralFSPackageRepository {
     
     private static final String JAR_URI_SCHEME = "jar";
+    private static final String JAR_SOURCE_LOCATION = "/META-INF/";
 
-    public ClasspathPackageRepository(Class<? extends Object> providerClassRef, String basePath) {
-        super(generatePath(providerClassRef, basePath));
+    public ClasspathPackageRepository(Class<? extends Object> providerClassRef, String orgName) {
+        super(generatePath(providerClassRef, orgName), new Name(orgName));
     }
-    
-    private static Path generatePath(Class<? extends Object> providerClassRef, String basePath) {
+
+    private static Path generatePath(Class<? extends Object> providerClassRef, String orgName) {
         try {
             URI classURI = providerClassRef.getProtectionDomain().getCodeSource().getLocation().toURI();
             String classPath = classURI.getPath();
@@ -53,6 +55,7 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
                 classPath = classPath.replace(" ", "%20");
             }
             URI pathUri;
+            String basePath = JAR_SOURCE_LOCATION + orgName;
             if (classPath.endsWith(".jar")) {
                 pathUri = URI.create("jar:file:" + classPath + "!" + basePath);
             } else {
@@ -62,8 +65,7 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
                 pathUri = URI.create("file:" + classPath + basePath);
             }
             initFS(pathUri);
-            Path result = Paths.get(pathUri);
-            return result;
+            return Paths.get(pathUri);
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }

@@ -38,12 +38,12 @@ public class GlobalVarServicePkgTest {
 
     CompileResult result;
 
-    @BeforeClass
+    @BeforeClass(enabled = false)
     public void setup() {
         result = BServiceUtil.setupProgramFile(this, "test-src/statements/variabledef/", "globalvar.pkg.srvc");
     }
 
-    @Test(description = "Test accessing global variables in other packages")
+    @Test(description = "Test accessing global variables in other packages", enabled = false)
     public void testAccessingGlobalVarInOtherPackages() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/defined", "GET");
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
@@ -55,7 +55,7 @@ public class GlobalVarServicePkgTest {
         Assert.assertEquals(bJson.value().get("glbVarFloat").asText(), "6342.234234");
     }
 
-    @Test(description = "Test assigning global variable from other package when defining")
+    @Test(description = "Test assigning global variable from other package when defining", enabled = false)
     public void testAssignGlobalVarFromOtherPkgWhenDefining() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-from-other-pkg", "GET");
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
@@ -65,7 +65,7 @@ public class GlobalVarServicePkgTest {
         Assert.assertEquals(bJson.value().get("glbVarFloat1").asText(), "6342.234234");
     }
 
-    @Test(description = "Test assigning function invocation from same package")
+    @Test(description = "Test assigning function invocation from same package", enabled = false)
     public void testAssigningFuncInvFromSamePkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-same-pkg", "GET");
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
@@ -75,7 +75,7 @@ public class GlobalVarServicePkgTest {
         Assert.assertEquals(bJson.value().get("glbVarFunc").asText(), "423277.72343");
     }
 
-    @Test(description = "Test assigning function invocation from different package")
+    @Test(description = "Test assigning function invocation from different package", enabled = false)
     public void testAssigningFuncInvFromDiffPkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/func-inv-from-diff-pkg", "GET");
         HTTPCarbonMessage response = Services.invokeNew(result, cMsg);
@@ -85,7 +85,7 @@ public class GlobalVarServicePkgTest {
         Assert.assertEquals(bJson.value().get("glbVarPkgFunc").asText(), "8876");
     }
 
-    @Test(description = "Test assigning global variable to service variable from different package")
+    @Test(description = "Test assigning global variable to service variable from different package", enabled = false)
     public void testAssigningGlobalVarToServiceVarFromDiffPkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-to-service-var-from-diff-pkg",
                                                                   "GET");
@@ -96,7 +96,7 @@ public class GlobalVarServicePkgTest {
         Assert.assertEquals(bJson.value().get("serviceVarString").asText(), "stringval");
     }
 
-    @Test(description = "Test change global var in different package and access it")
+    @Test(description = "Test change global var in different package and access it", enabled = false)
     public void testChangeAndAccessGlobalVarInDiffPkg() {
         HTTPTestRequest cMsgChange = MessageUtils.generateHTTPMessage("/globalvar-pkg/change-global-var-diff-pkg",
                                                                         "GET");

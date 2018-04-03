@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.lang.jsons;
-import ballerina.lang.messages;
+import ballerina/http;
+import ballerina/lang.jsons;
+import ballerina/lang.messages;
 @http:BasePath ("/cbr")
 service contentBasedRouting {
     

@@ -33,6 +33,9 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
+/**
+ * Provides module editor window configs, etc.
+ */
 public class BallerinaModuleEditorsProvider implements ModuleConfigurationEditorProvider {
 
     @Override

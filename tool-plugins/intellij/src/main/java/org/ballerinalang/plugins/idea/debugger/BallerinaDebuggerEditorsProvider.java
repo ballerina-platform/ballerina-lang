@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Ballerina debug editor provider.
+ */
 public class BallerinaDebuggerEditorsProvider extends XDebuggerEditorsProviderBase {
 
     @Override

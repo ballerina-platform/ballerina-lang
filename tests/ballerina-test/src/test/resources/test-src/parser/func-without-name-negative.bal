@@ -1,4 +1,4 @@
-function {
+function () returns (string ){
 	int b;
-	reply m;
+	return m;
 }

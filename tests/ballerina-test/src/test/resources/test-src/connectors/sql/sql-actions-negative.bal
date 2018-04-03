@@ -1,68 +1,115 @@
-import ballerina.data.sql;
+import ballerina/sql;
 
-function testSelectData () (string firstName) {
-    endpoint<sql:ClientConnector> testDB {}
+function testSelectData () returns (string) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+    string firstName;
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:5});
-        bind con with testDB;
+        var x = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
 
-        datatable dt = testDB.select("SELECT Name from Customers where registrationID = 1", null, null);
-        var j, _ = <json>dt;
-        firstName = j.toString();
+        match x {
+            table dt => {
+                var j =? <json>dt;
+                firstName = j.toString();
+            }
+            sql:SQLConnectorError err1 => {
+               firstName = err1.message;
+            }
+        }
+
     } finally {
-        testDB.close();
+        _ = testDB -> close();
     }
-    return;
+    return firstName;
 }
 
 
-function testGeneratedKeyOnInsert () (string) {
-    endpoint<sql:ClientConnector> testDB {}
+function testGeneratedKeyOnInsert () returns (string) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
     string id = "";
     try {
         string[] generatedID;
-        sql:ClientConnector con = create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
-        bind con with testDB;
-
         int insertCount;
-        insertCount, generatedID = testDB.updateWithGeneratedKeys("insert into Customers (name,lastName,
+        var x = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
                                                                   null, null);
-        id = generatedID[0];
+
+        match x {
+            (int, string[] ) =>{
+                id = generatedID[0];
+            }
+                sql:SQLConnectorError err1 =>{
+                id = err1.message;
+            }
+        }
+
     } finally {
-        testDB.close();
+        _ = testDB -> close();
     }
     return id;
 }
 
 
-function testCallProcedure () (string firstName) {
-    endpoint<sql:ClientConnector> testDB {}
-    try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
-        bind con with testDB;
 
-        _ = testDB.call("{call InsertPersonDataInfo(100,'James')}", null, null);
-        datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 100", null, null);
-        var j, _ = <json>dt;
-        firstName = j.toString();
+function testCallProcedure () returns (string) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+    string firstName;
+    try {
+        var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
+        match x {
+            table[] dt  =>{
+                var j =? <json>dt[0];
+                firstName = j.toString();
+            }
+            sql:SQLConnectorError err1 =>{
+                firstName = err1.message;
+            }
+        }
+
     } finally {
-        testDB.close();
+        _ = testDB -> close();
     }
-    return;
+    return firstName;
 }
 
-function testBatchUpdate () (int[]) {
-    endpoint<sql:ClientConnector> testDB {}
-    int[] updateCount;
-    try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
-        bind con with testDB;
+function testBatchUpdate () returns (string) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
 
+    int[] updateCount;
+    string returnVal;
+    try {
         //Batch 1
         sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
         sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
@@ -80,30 +127,53 @@ function testBatchUpdate () (int[]) {
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
         sql:Parameter[][] parameters = [parameters1, parameters2];
 
-        updateCount = testDB.batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+        var x = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters);
+        match x {
+            int[] data  =>{
+                updateCount = data;
+                returnVal = "success";
+            }
+            sql:SQLConnectorError err1 =>{
+                returnVal = err1.message;
+            }
+        }
     } finally {
-        testDB.close();
+        _ = testDB -> close();
     }
-    return updateCount;
+    return returnVal;
 }
 
-function testInvalidArrayofQueryParameters () (string value) {
-    endpoint<sql:ClientConnector> testDB {}
+function testInvalidArrayofQueryParameters () returns (string) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+    string value;
     try {
-        sql:ClientConnector con = create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
-                                                   0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
-        bind con with testDB;
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
         sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:xmlDataArray};
         sql:Parameter[] parameters = [para0];
-        datatable dt = testDB.select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
-        var j, _ = <json>dt;
-        value = j.toString();
+        var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
+        match x {
+            table dt  =>{
+                var j =? <json>dt;
+                value = j.toString();
+            }
+            sql:SQLConnectorError err1 =>{
+                value = err1.message;
+            }
+        }
+
     } finally {
-        testDB.close();
+        _ = testDB -> close();
     }
-    return;
+    return value;
 }

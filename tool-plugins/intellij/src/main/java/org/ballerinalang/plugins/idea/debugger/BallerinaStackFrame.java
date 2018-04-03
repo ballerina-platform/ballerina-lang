@@ -40,6 +40,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents a stack frame in debug window.
+ */
 public class BallerinaStackFrame extends XStackFrame {
 
     private final BallerinaDebugProcess myProcess;

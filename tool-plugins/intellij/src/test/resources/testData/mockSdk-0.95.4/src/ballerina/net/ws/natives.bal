@@ -1,4 +1,4 @@
-package ballerina.net.ws;
+package ballerina.http;
 
 @Description {value:"Represents a WebSocket text frame in Ballerina."}
 @Field {value: "text: Text in the text frame"}
@@ -140,7 +140,7 @@ public struct ClientConnectorConfig {
 @Field {value:"stackTrace: Represents the invocation stack if WsConnectorError is thrown"}
 public struct WsConnectorError {
     string msg;
-    error cause;
+    error[] cause;
     StackFrame[] stackTrace;
 }
 

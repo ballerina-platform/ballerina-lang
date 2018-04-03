@@ -18,13 +18,16 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface InvokableNode extends AnnotatableNode {
+public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     
     IdentifierNode getName();
 
@@ -33,11 +36,15 @@ public interface InvokableNode extends AnnotatableNode {
     List<? extends VariableNode> getParameters();
     
     void addParameter(VariableNode param);
-    
-    List<? extends VariableNode> getReturnParameters();
-    
-    void addReturnParameter(VariableNode retParam);
-    
+
+    TypeNode getReturnTypeNode();
+
+    void setReturnTypeNode(TypeNode typeNode);
+
+    List<? extends AnnotationAttachmentNode> getReturnTypeAnnotationAttachments();
+
+    void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment);
+
     BlockNode getBody();
     
     void setBody(BlockNode body);
@@ -45,5 +52,15 @@ public interface InvokableNode extends AnnotatableNode {
     void addWorker(WorkerNode worker);
 
     List<? extends WorkerNode> getWorkers();
+
+    List<? extends EndpointNode> getEndpointNodes();
+
+    void addDefaultableParameter(VariableDefinitionNode param);
+
+    List<BLangVariableDef> getDefaultableParameters();
+
+    VariableNode getRestParameters();
+
+    void setRestParameter(VariableNode restParam);
 
 }

@@ -29,6 +29,9 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
+/**
+ * Creates the Ballerina color settings page.
+ */
 public class BallerinaColorSettingsPage implements ColorSettingsPage {
 
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
@@ -56,7 +59,7 @@ public class BallerinaColorSettingsPage implements ColorSettingsPage {
     @Override
     public String getDemoText() {
         return "import ballerina.lang.messages;\n" +
-                "import ballerina.net.http;\n" +
+                "import ballerina/http;\n" +
                 "\n" +
                 "service<http> helloWorld {\n" +
                 "    \n" +

@@ -1,7 +1,7 @@
 package routingServices.samples;
 
-import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina/http;
+import ballerina/lang.messages;
 
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {

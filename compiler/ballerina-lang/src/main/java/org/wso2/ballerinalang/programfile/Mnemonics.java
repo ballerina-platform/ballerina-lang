@@ -63,12 +63,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
-        mnemonics[InstructionCodes.ISTORE] = "istore";
-        mnemonics[InstructionCodes.FSTORE] = "fstore";
-        mnemonics[InstructionCodes.SSTORE] = "sstore";
-        mnemonics[InstructionCodes.BSTORE] = "bstore";
-        mnemonics[InstructionCodes.LSTORE] = "lstore";
-        mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
         mnemonics[InstructionCodes.SASTORE] = "sastore";
@@ -152,7 +146,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.HALT] = "halt";
         mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
-        mnemonics[InstructionCodes.NCALL] = "ncall";
+        mnemonics[InstructionCodes.VCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
@@ -185,6 +179,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2F] = "json2f";
         mnemonics[InstructionCodes.JSON2S] = "json2s";
         mnemonics[InstructionCodes.JSON2B] = "json2b";
+        mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
 
         mnemonics[InstructionCodes.TYPEOF] = "typeof";
@@ -205,6 +200,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
+        mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
 
         // Transactions
         mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";
@@ -213,6 +209,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKSEND] = "wrksend";
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
+        
+        mnemonics[InstructionCodes.AWAIT] = "await";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
@@ -227,7 +225,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
-        mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
+        mnemonics[InstructionCodes.NEWTABLE] = "newtable";
+        mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
 
         mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
@@ -252,11 +251,16 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWXMLCOMMENT] = "newxmlcomment";
         mnemonics[InstructionCodes.NEWXMLTEXT] = "newxmltext";
         mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
-        mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
+        mnemonics[InstructionCodes.XMLSEQSTORE] = "xmlseqstore";
+        mnemonics[InstructionCodes.XMLSEQLOAD] = "xmlseqload";
         mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
+        mnemonics[InstructionCodes.XMLLOADALL] = "xmlloadall";
+        mnemonics[InstructionCodes.NEWXMLSEQ] = "newxmlseq";
         mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.S2JSONX] = "s2jsonx";
+        mnemonics[InstructionCodes.LOCK] = "lock";
+        mnemonics[InstructionCodes.UNLOCK] = "unlock";
     }
 
     public static String getMnem(int opcode) {

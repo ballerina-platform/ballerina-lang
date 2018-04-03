@@ -1,248 +1,255 @@
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/http;
 
-@http:configuration {basePath:"/ecommerceservice"}
-service<http> Ecommerce {
-    @http:resourceConfig {
+endpoint http:NonListeningServiceEndpoint testEP {
+    port:9090
+};
+
+@http:ServiceConfig {
+    basePath:"/ecommerceservice"
+}
+service<http:Service> Ecommerce bind testEP {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{productId}/{regId}"
     }
-    resource productsInfo1 (http:Connection conn, http:InRequest req, string productId, string regId) {
+     productsInfo1 (endpoint client, http:Request req, string productId, string regId) {
         string orderId = req.getHeader("X-ORDER-ID");
-        println("Order ID " + orderId);
-        println("Product ID " + productId);
-        println("Reg ID " + regId);
+        io:println("Order ID " + orderId);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + regId);
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products2/{productId}/{regId}/item"
     }
-    resource productsInfo2 (http:Connection conn, http:InRequest req, string productId, string regId) {
+     productsInfo2 (endpoint client, http:Request req, string productId, string regId) {
         json responseJson;
-        println("Product ID " + productId);
-        println("Reg ID " + regId);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + regId);
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products3/{productId}/{regId}/*"
     }
-    resource productsInfo3 (http:Connection conn, http:InRequest req, string productId, string regId) {
+     productsInfo3 (endpoint client, http:Request req, string productId, string regId) {
         json responseJson;
-        println("Product ID " + productId);
-        println("Reg ID " + regId);
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + regId);
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products/{productId}"
     }
-    resource productsInfo4 (http:Connection conn, http:InRequest req, string productId) {
+     productsInfo4 (endpoint client, http:Request req, string productId) {
         json responseJson;
         map params = req.getQueryParams();
         string rID;
-        rID, _ = (string)params.regID;
-        println("Product ID " + productId);
-        println("Reg ID " + rID);
+        rID = <string>params.regID;
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products"
     }
-    resource productsInfo6 (http:Connection conn, http:InRequest req) {
+     productsInfo6 (endpoint client, http:Request req) {
         json responseJson;
         map params = req.getQueryParams();
         string prdID;
         string rID;
-        prdID, _ = (string)params.prodID;
-        rID, _ = (string)params.regID;
-        println ("Product ID " + prdID);
-        println ("Reg ID " + rID);
+        prdID = <string>params.prodID;
+        rID = <string>params.regID;
+        io:println ("Product ID " + prdID);
+        io:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
-        println (responseJson.toString ());
+        io:println (responseJson.toString ());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/products5/{productId}/reg"
     }
-    resource productsInfo5 (http:Connection conn, http:InRequest req, string productId) {
+     productsInfo5 (endpoint client, http:Request req, string productId) {
         json responseJson;
         map params = req.getQueryParams();
         string rID;
-        rID, _ = (string)params.regID;
-        println("Product ID " + productId);
-        println("Reg ID " + rID);
+        rID = <string>params.regID;
+        io:println("Product ID " + productId);
+        io:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
-        println(responseJson.toString());
+        io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:""
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+     echo1 (endpoint client, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo11":"echo11"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 }
 
-@http:configuration {
+@http:ServiceConfig {
     basePath:"/options"
 }
-service<http> echo111 {
+service<http:Service> echo111 bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST", "UPDATE"],
         path : "/test"
     }
-    resource productsInfo99 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        _ = conn.respond(res);
+     productsInfo99 (endpoint client, http:Request req) {
+        http:Response res = {};
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["OPTIONS"],
         path : "/hi"
     }
-    resource productsOptions (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+     productsOptions (endpoint client, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"wso2"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET", "PUT"],
         path : "/test"
     }
-    resource productsInfo98 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        _ = conn.respond(res);
+     productsInfo98 (endpoint client, http:Request req) {
+        http:Response res = {};
+        _ = client -> respond(res);
 
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path : "/getme"
     }
-    resource productsGet (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+     productsGet (endpoint client, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"get"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path : "/post"
     }
-    resource productsPOST (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+     productsPOST (endpoint client, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"post"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PUT"],
         path : "/put"
     }
-    resource productsPUT (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+     productsPUT (endpoint client, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"put"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 }
 
-@http:configuration {
+@http:ServiceConfig {
     basePath:"/noResource"
 }
-service<http> echo112 {
+service<http:Service> echo112 bind testEP {
 }
 
-@http:configuration {
+@http:ServiceConfig {
     basePath:"hello/"
 }
-service<http> serviceHello {
+service<http:Service> serviceHello bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test/"
     }
-    resource productsInfo (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+     productsInfo (endpoint client, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo":"sanitized"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 }
 
-@http:configuration {
-    basePath:"ech[o"
+@http:ServiceConfig {
+    basePath:"/ech[o"
 }
-service<http> echo113 {
+service<http:Service> echo113 bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/ech[o/{foo}"
     }
-    resource productsInfo (http:Connection conn, http:InRequest req, string foo) {
-        http:OutResponse res = {};
+     productsInfo (endpoint client, http:Request req, string foo) {
+        http:Response res = {};
         json responseJson = {"echo113": foo};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 }
 
-@http:configuration {
-    basePath:"ech%5Bo14"
+@http:ServiceConfig {
+    basePath:"/ech%5Bo14"
 }
-service<http> echo114 {
+service<http:Service> echo114 bind testEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/ech%5Bo14/{foo}"
     }
-    resource productsInfo (http:Connection conn, http:InRequest req, string foo) {
-        http:OutResponse res = {};
+     productsInfo (endpoint client, http:Request req, string foo) {
+        http:Response res = {};
         json responseJson = {"echo114": foo};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = client -> respond(res);
     }
 }

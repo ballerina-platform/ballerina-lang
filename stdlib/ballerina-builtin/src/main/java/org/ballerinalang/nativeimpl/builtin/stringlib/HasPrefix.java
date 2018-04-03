@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,21 +32,21 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.hasPrefix",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "prefix", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasPrefix extends AbstractNativeFunction {
+public class HasPrefix extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String param1 = getStringArgument(context, 0);
-        String prefix = getStringArgument(context, 1);
+    public void execute(Context context) {
+        String param1 = context.getStringArgument(0);
+        String prefix = context.getStringArgument(1);
 
         BBoolean booleanValue = new BBoolean(param1.startsWith(prefix));
-        return getBValues(booleanValue);
+        context.setReturnValues(booleanValue);
     }
 }

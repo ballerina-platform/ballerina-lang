@@ -1,8 +1,8 @@
 
-string |global var| = "this is a IL with global var";
+string ^"global var" = "this is a IL with global var";
 
-function getGlobalVarWithIL() (string) {
-    return |global v " ar|;
+function getGlobalVarWithIL() returns (string) {
+    return ^"global v \" ar";
 }
 
 

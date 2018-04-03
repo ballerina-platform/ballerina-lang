@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.lang.messages;
+import ballerina/http;
+import ballerina/lang.messages;
 
 @http:configuration {basePath:"/echo66"}
 service<http> echo66 {

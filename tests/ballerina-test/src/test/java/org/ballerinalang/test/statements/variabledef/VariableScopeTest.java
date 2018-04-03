@@ -66,7 +66,7 @@ public class VariableScopeTest {
 
     @Test(description = "Test variable scope with errors")
     public void testVariableScopeNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         //testVariableIfScope
         BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'k'", 14, 12);
         //testVariableElseScope
@@ -74,6 +74,11 @@ public class VariableScopeTest {
         //testVariableWhileScope
         BAssertUtil.validateError(resultNegative, 2, "undefined symbol 'b'", 34, 15);
         //testVariableResourceScope
-        BAssertUtil.validateError(resultNegative, 3, "undefined symbol 'b'", 48, 17);
+        BAssertUtil.validateError(resultNegative, 3, "undefined symbol 'b'", 47, 17);
+        BAssertUtil.validateError(resultNegative,
+                                  4,
+                                  "incompatible types: expected 'DummyEndpoint', found '()'",
+                                  59,
+                                  12);
     }
 }

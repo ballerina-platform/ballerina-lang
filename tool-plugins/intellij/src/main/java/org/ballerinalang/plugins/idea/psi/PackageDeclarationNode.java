@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an PackageDeclaration in PSI tree.
+ */
 public class PackageDeclarationNode extends ANTLRPsiNode {
 
     public PackageDeclarationNode(@NotNull ASTNode node) {

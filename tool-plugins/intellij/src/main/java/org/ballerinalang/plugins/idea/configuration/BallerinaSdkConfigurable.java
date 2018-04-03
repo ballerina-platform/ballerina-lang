@@ -69,6 +69,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 
+/**
+ * Responsible for Ballerina SDK configuration window in small IDEs.
+ */
 public class BallerinaSdkConfigurable implements SearchableConfigurable, Configurable.NoScroll {
 
     private static final String VERSION_GETTING = "VERSION_GETTING_CARD";

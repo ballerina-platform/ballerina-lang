@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Contains util methods related to Ballerina environment.
+ */
 public class BallerinaEnvironmentUtil {
 
     private BallerinaEnvironmentUtil() {

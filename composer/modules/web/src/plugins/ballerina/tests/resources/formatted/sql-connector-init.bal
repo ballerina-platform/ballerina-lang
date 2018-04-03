@@ -1,5 +1,5 @@
-import ballerina.data.sql;
-import ballerina.lang.datatables;
+import ballerina/data.sql;
+import ballerina/lang.datatables;
 
 struct ResultCustomers {
     string FIRSTNAME;

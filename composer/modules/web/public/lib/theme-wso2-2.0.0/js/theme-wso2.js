@@ -235,6 +235,7 @@ $.fn.tree_view = function() {
  * Sidebar function
  * @return {Null}
  */
+/*
 $.sidebar_toggle = function(action, target, container) {
     var elem = '[data-toggle=sidebar]',
         button,
@@ -252,7 +253,7 @@ $.sidebar_toggle = function(action, target, container) {
     
     /**
      * Dynamically adjust the height of sidebar to fill parent
-     */
+     *
     function sidebarHeightAdjust(){
         $('.sidebar-wrapper').each(function(){
             var elemOffsetBottom = $(this).data('offset-bottom'),
@@ -442,7 +443,7 @@ $.sidebar_toggle = function(action, target, container) {
         /**
          * Sidebar function on data container divide
          * @return {Null}
-         */
+         *
         if(button.attr('aria-expanded') == 'false'){
             sidebar_window.show();
         }
@@ -458,6 +459,7 @@ $.sidebar_toggle = function(action, target, container) {
         .scroll(sidebarHeightAdjust);
 
 };
+*/
 
 $('.sidebar-wrapper[data-fixed-offset-top]').on('affix.bs.affix', function() {
     $(this).css('top', $(this).data('fixed-offset-top'));
@@ -628,11 +630,11 @@ var responsiveTextRatio = 0.2,
 
 $(document).ready(function() {
 
-    $('.tree-view').tree_view();
-    $.file_input();
-    $.sidebar_toggle();
+    //$('.tree-view').tree_view();
+    //$.file_input();
+    //$.sidebar_toggle();
 
-    $('.dropdown-menu input').click(function(e) {
+    /*$('.dropdown-menu input').click(function(e) {
         e.stopPropagation();
     });
 
@@ -700,7 +702,7 @@ $(document).ready(function() {
         }
         $(arrow).css("top",arrowPosition - 10);
     }
-
+    */
 });
 
 $(window).scroll(function() {

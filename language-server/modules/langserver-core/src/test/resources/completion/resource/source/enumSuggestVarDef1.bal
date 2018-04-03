@@ -1,11 +1,10 @@
-import ballerina.net.http;
+import ballerina/http;
 
-service<http> service1 {
-    resource echo1 (http:Connection conn, http:InRequest inRequest) {
+service<http:Service> hello {
+    sayHello (endpoint client, http:Request request) {
         testEnum e = testEnum.
     }
 }
-
 enum testEnum {
     ENUMERATOR1,
     ENUMERATOR2

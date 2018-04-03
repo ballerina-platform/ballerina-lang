@@ -1,4 +1,4 @@
-import ballerina.lang.messages;
+import ballerina/lang.messages;
 @http:BasePath ("/hello")
 service helloWorld {
     

@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function main (string[] args) {
     //Here you create 'any' typed variable.
     any variable;
@@ -5,15 +7,15 @@ function main (string[] args) {
     variable = 5;
 
     //Use 'typeof' unary operator to return type of variable.
-    type typeOfVariable = (typeof variable);
+    typedesc typeOfVariable = (typeof variable);
 
     //Use 'typeof' unary operator to return type from type name.
-    type intType = (typeof int);
+    typedesc intType = (typeof int);
 
     //Check for runtime type equivalency of 'any' typed variable.
     if (typeOfVariable == intType) {
-        println("This 'variable' is an integer typed variable.");
+        io:println("This 'variable' is an integer typed variable.");
     } else {
-        println("This 'variable' is 'NOT' an integer typed variable.");
+        io:println("This 'variable' is 'NOT' an integer typed variable.");
     }
 }

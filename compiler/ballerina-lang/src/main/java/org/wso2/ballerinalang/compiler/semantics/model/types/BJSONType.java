@@ -40,8 +40,8 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
     }
 
     @Override
-    public <R> R accept(BTypeVisitor<R> visitor, BType type) {
-        return visitor.visit(this, type);
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
     }
 
     @Override
@@ -51,6 +51,10 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
         }
 
         return super.toString() + "<" + constraint + ">";
+    }
+
+    public boolean isNullable() {
+        return true;
     }
 
     @Override

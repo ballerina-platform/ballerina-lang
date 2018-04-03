@@ -36,6 +36,12 @@ import java.nio.charset.Charset;
  */
 public class JsonParser {
 
+    private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
+        @Override public StateMachine initialValue() {
+            return new StateMachine();
+        }
+    };
+
     /**
      * Parses the contents in the given {@link InputStream} and returns a {@link JsonNode}.
      * 
@@ -82,7 +88,9 @@ public class JsonParser {
      * @throws BallerinaException for any parsing error
      */
     public static JsonNode parse(Reader reader) throws BallerinaException {
-        return new StateMachine(reader).execute();
+        StateMachine sm = tlStateMachine.get();
+        sm.reset();
+        return sm.execute(reader);
     }
     
     /**
@@ -149,19 +157,21 @@ public class JsonParser {
         private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE = 
                 new StringValueUnicodeHexProcessingState();
         
-        private Reader reader;
         private JsonNode currentJsonNode;
         private StringBuilder hexBuilder = new StringBuilder(4);
         private char[] charBuff = new char[1024];
         private int charBuffIndex;
         
         private int index;
-        private int line = 1;
-        private int column = 0;
+        private int line;
+        private int column;
         private char currentQuoteChar;
         
-        public StateMachine(Reader reader) {
-            this.reader = reader;
+        public void reset() {
+            this.index = 0;
+            this.currentJsonNode = null;
+            this.line = 1;
+            this.column = 0;
         }
         
         private static boolean isWhitespace(char ch) {
@@ -181,12 +191,12 @@ public class JsonParser {
             }
         }
         
-        public JsonNode execute() throws BallerinaException {
+        public JsonNode execute(Reader reader) throws BallerinaException {
             State currentState = DOC_START_STATE;
             try {
                 char[] buff = new char[1024];
                 int count;
-                while ((count = this.reader.read(buff)) > 0) {
+                while ((count = reader.read(buff)) > 0) {
                     this.index = 0;
                     while (this.index < count) {
                         currentState = currentState.transition(this, buff, this.index, count);
@@ -770,22 +780,7 @@ public class JsonParser {
         
         private void processNonStringValue(ValueType type) throws JsonParserException {
             String str = value();
-            try {
-                long longValue = Long.parseLong(str);
-                switch (type) {
-                case ARRAY_ELEMENT:
-                    currentJsonNode.add(new JsonNode(longValue));
-                    break;
-                case FIELD:
-                    currentJsonNode.set(currentJsonNode.fieldName, longValue);
-                    break;
-                case VALUE:
-                    currentJsonNode.setNumber(longValue);
-                    break;
-                default:
-                    break;                
-                }
-            } catch (NumberFormatException ignore) {
+            if (str.indexOf('.') >= 0) {
                 try {
                     double doubleValue = Double.parseDouble(str);
                     switch (type) {
@@ -799,52 +794,72 @@ public class JsonParser {
                         currentJsonNode.setNumber(doubleValue);
                         break;
                     default:
+                        break;
+                    }
+                } catch (NumberFormatException ignore) {
+                    throw new JsonParserException("unrecognized token '" + str + "'");
+                }
+            } else {
+                char ch = str.charAt(0);
+                if (ch == 't' && TRUE.equals(str)) {
+                    switch (type) {
+                    case ARRAY_ELEMENT:
+                        currentJsonNode.add(new JsonNode(true));
+                        break;
+                    case FIELD:
+                        currentJsonNode.set(currentJsonNode.fieldName, true);
+                        break;
+                    case VALUE:
+                        currentJsonNode.setBooleanValue(true);
+                        break;
+                    default:
+                        break;
+                    }
+                } else if (ch == 'f' && FALSE.equals(str)) {
+                    switch (type) {
+                    case ARRAY_ELEMENT:
+                        currentJsonNode.add(new JsonNode(false));
+                        break;
+                    case FIELD:
+                        currentJsonNode.set(currentJsonNode.fieldName, false);
+                        break;
+                    case VALUE:
+                        currentJsonNode.setBooleanValue(false);
+                        break;
+                    default:
+                        break;
+                    }
+                } else if (ch == 'n' && NULL.equals(str)) {
+                    switch (type) {
+                    case ARRAY_ELEMENT:
+                        currentJsonNode.add(new JsonNode(Type.NULL));
+                        break;
+                    case FIELD:
+                        currentJsonNode.set(currentJsonNode.fieldName, (String) null);
+                        break;
+                    case VALUE:
+                        currentJsonNode.setNull();
+                        break;
+                    default:
                         break;                
                     }
-                } catch (NumberFormatException ignore2) {
-                    if (NULL.equals(str)) {
+                } else {
+                    try {
+                        long longValue = Long.parseLong(str);
                         switch (type) {
                         case ARRAY_ELEMENT:
-                            currentJsonNode.add(new JsonNode(Type.NULL));
+                            currentJsonNode.add(new JsonNode(longValue));
                             break;
                         case FIELD:
-                            currentJsonNode.set(currentJsonNode.fieldName, (String) null);
+                            currentJsonNode.set(currentJsonNode.fieldName, longValue);
                             break;
                         case VALUE:
-                            currentJsonNode.setNull();
+                            currentJsonNode.setNumber(longValue);
                             break;
                         default:
                             break;                
                         }
-                    } else if (TRUE.equals(str)) {
-                        switch (type) {
-                        case ARRAY_ELEMENT:
-                            currentJsonNode.add(new JsonNode(true));
-                            break;
-                        case FIELD:
-                            currentJsonNode.set(currentJsonNode.fieldName, true);
-                            break;
-                        case VALUE:
-                            currentJsonNode.setBooleanValue(true);
-                            break;
-                        default:
-                            break;                
-                        }
-                    } else if (FALSE.equals(str)) {
-                        switch (type) {
-                        case ARRAY_ELEMENT:
-                            currentJsonNode.add(new JsonNode(false));
-                            break;
-                        case FIELD:
-                            currentJsonNode.set(currentJsonNode.fieldName, false);
-                            break;
-                        case VALUE:
-                            currentJsonNode.setBooleanValue(false);
-                            break;
-                        default:
-                            break;                
-                        }
-                    } else {
+                    } catch (NumberFormatException ignore) {
                         throw new JsonParserException("unrecognized token '" + str + "'");
                     }
                 }
@@ -1006,7 +1021,7 @@ public class JsonParser {
                 for (; i < count; i++) {
                     ch = buff[i];
                     sm.processLocation(ch);
-                    if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F')) {
+                    if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')) {
                         sm.hexBuilder.append(ch);
                         if (sm.hexBuilder.length() >= 4) {
                             sm.append(this.extractUnicodeChar(sm));

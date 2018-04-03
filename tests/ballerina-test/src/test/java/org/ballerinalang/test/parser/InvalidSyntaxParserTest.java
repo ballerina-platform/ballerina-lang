@@ -36,13 +36,13 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testParseSemicolonMissingSerivce() {
         CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-service-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input 'reply'. expecting ';'", 10, 7);
+        BAssertUtil.validateError(result, 0, "missing token ';' before 'return'", 10, 7);
     }
 
     @Test
     public void testParseSemicolonMissingMainFunc() {
         CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-func-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input 'reply'. expecting ';'", 5, 2);
+        BAssertUtil.validateError(result, 0, "missing token ';' before 'return'", 5, 2);
     }
 
     /**
@@ -74,38 +74,38 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting Identifier", 6, 12);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 14);
+        BAssertUtil.validateError(result, 0, "invalid token 'endpoint'", 6, 6);
+        BAssertUtil.validateError(result, 3, "invalid token ';'", 8, 15);
     }
 
     @Test
     public void testParseMainFuncWithoutName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 10);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 3, 9);
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting {'[', '?', '|', Identifier}", 1, 30);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 3, 10);
     }
 
     /**
      * Test mismatched input. i.e. {@link org.antlr.v4.runtime.InputMismatchException}
      */
 
-    @Test
+    @Test(enabled = false)
     public void testServiceWithoutResourceParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 6, 18);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 14);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '|', Identifier}", 8, 15);
     }
 
     @Test
     public void testParseMainFuncWithoutParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 1, 15);
+        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 15);
     }
 
     @Test
-    public void testResourceWithEmptyReply() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-empty-reply-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token 'reply'", 9, 5);
+    public void testResourceWithReply() {
+        CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-reply-negative.bal");
+        BAssertUtil.validateError(result, 0, "undefined symbol 'reply'", 6, 5);
     }
 
     // token recognition.

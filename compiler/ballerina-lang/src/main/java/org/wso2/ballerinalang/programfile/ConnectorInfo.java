@@ -42,8 +42,8 @@ public class ConnectorInfo extends StructureTypeInfo {
 
     private boolean isFilterConnector = false;
 
-    public ConnectorInfo(int pkgPathCPIndex, int nameCPIndex) {
-        super(pkgPathCPIndex, nameCPIndex);
+    public ConnectorInfo(int pkgPathCPIndex, int nameCPIndex, int flags) {
+        super(pkgPathCPIndex, nameCPIndex, flags);
     }
 
     public boolean isFilterConnector() {

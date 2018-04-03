@@ -33,11 +33,11 @@ import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.TableOMDataSource;
 import org.ballerinalang.model.util.JsonNode.Type;
-import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
@@ -45,11 +45,11 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -119,7 +119,7 @@ public class XMLUtils {
     /**
      * Create a XML sequence from string inputstream.
      *
-     * @param xmlStream XML imput stream
+     * @param xmlStream XML input stream
      * @return  XML Sequence
      */
     @SuppressWarnings("unchecked")
@@ -128,6 +128,31 @@ public class XMLUtils {
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(xmlStream).getDocument();
+            Iterator<OMNode> docChildItr = doc.getChildren();
+            int i = 0;
+            while (docChildItr.hasNext()) {
+                elementsSeq.add(i++, new BXMLItem(docChildItr.next()));
+            }
+        } catch (DeferredParsingException e) {
+            throw new BallerinaException(e.getCause().getMessage());
+        } catch (Throwable e) {
+            throw new BallerinaException("failed to create xml: " + e.getMessage());
+        }
+        return new BXMLSequence(elementsSeq);
+    }
+
+    /**
+     * Create a XML sequence from string reader.
+     *
+     * @param reader XML reader
+     * @return XML Sequence
+     */
+    @SuppressWarnings("unchecked")
+    public static BXML<?> parse(Reader reader) {
+        BRefValueArray elementsSeq = new BRefValueArray();
+        OMDocument doc;
+        try {
+            doc = OMXMLBuilderFactory.createOMBuilder(reader).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int i = 0;
             while (docChildItr.hasNext()) {
@@ -180,16 +205,16 @@ public class XMLUtils {
     }
 
     /**
-     * Converts a {@link BDataTable} to {@link BXML}.
+     * Converts a {@link BTable} to {@link BXML}.
      *
-     * @param dataTable {@link BDataTable} to convert
+     * @param table {@link BTable} to convert
      * @param isInTransaction   Within a transaction or not
      * @return converted {@link BXML}
      */
     @SuppressWarnings("rawtypes")
-    public static BXML datatableToXML(BDataTable dataTable, boolean isInTransaction) {
+    public static BXML tableToXML(BTable table, boolean isInTransaction) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null, isInTransaction));
+        omSourcedElement.init(new TableOMDataSource(table, null, null, isInTransaction));
         return new BXMLItem(omSourcedElement);
     }
 
@@ -300,6 +325,9 @@ public class XMLUtils {
         } else {
             //Process xml sequence
             BXMLSequence xmlSequence = (BXMLSequence) xml;
+            if (xmlSequence.isEmpty().booleanValue()) {
+                return new BJSON("[]");
+            }
             jsonNode = traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
 
         }

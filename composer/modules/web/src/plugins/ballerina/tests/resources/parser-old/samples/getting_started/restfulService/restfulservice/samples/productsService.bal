@@ -1,8 +1,8 @@
 package restfulservice.samples;
 
-import ballerina.lang.messages;
-import ballerina.lang.system;
-import ballerina.net.http;
+import ballerina/lang.messages;
+import ballerina/lang.system;
+import ballerina/http;
 
 @http:configuration {basePath:"/productsservice"}
 service<http> productmgt {

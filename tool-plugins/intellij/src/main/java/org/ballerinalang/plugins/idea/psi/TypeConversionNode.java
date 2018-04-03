@@ -20,6 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an TypeConversion in PSI tree.
+ */
 public class TypeConversionNode extends ANTLRPsiNode {
 
     public TypeConversionNode(@NotNull ASTNode node) {

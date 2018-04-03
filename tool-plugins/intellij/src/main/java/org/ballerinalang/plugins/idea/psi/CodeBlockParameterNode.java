@@ -21,6 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a CodeBlockParameter in PSI tree.
+ */
 public class CodeBlockParameterNode extends IdentifierDefSubtree {
 
     public CodeBlockParameterNode(@NotNull ASTNode node) {

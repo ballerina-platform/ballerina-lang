@@ -30,12 +30,12 @@
       "insertText": "any",
       "data": null
     }, {
-      "label": "datatable",
+      "label": "table",
       "kind": 2,
       "detail": "BType",
       "documentation": null,
       "sortText": 6,
-      "insertText": "datatable",
+      "insertText": "table",
       "data": null
     }, {
       "label": "xml",

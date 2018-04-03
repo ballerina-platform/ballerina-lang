@@ -21,16 +21,14 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import PanelDecorator from './../decorators/panel-decorator';
 import { getComponentForNodeArray } from './../../../../diagram-util';
-import GlobalExpanded from './globals-expanded';
-import GlobalDefinitions from './global-definitions';
 import PanelDecoratorButton from './../decorators/panel-decorator-button';
-import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './../../../../image-util';
 import ServerConnectorProperties from '../utils/server-connector-properties';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
 import FragmentUtils from './../../../../../utils/fragment-utils';
 import TreeBuilder from './../../../../../model/tree-builder';
+import HttpServiceHeader from '../decorators/http-service-header';
 
 /**
  * React component for a service definition.
@@ -65,11 +63,23 @@ class ServiceNode extends React.Component {
         this.context.editor.showSwaggerViewForService(this.props.model);
     }
 
-    canDropToPanelBody(dragSource) {
-        return TreeUtil.isEndpointTypeVariableDef(dragSource);
+    /**
+     * Handles the mouse enter event on the service definition
+     */
+    onMouseEnter() {
+        this.setState({ style: 'showResourceGroup', addResource: true });
     }
 
     /**
+     * Handles the mouse leave event on the service definition
+     */
+    onMouseLeave() {
+        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
+            this.setState({ style: 'hideResourceGroup', addResource: false });
+        }
+    }
+
+        /**
      * Handles global variable delete event.
      *
      * @param {ASTNode} deletedGlobal Variable AST.
@@ -108,21 +118,7 @@ class ServiceNode extends React.Component {
         this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
         this.context.editor.update();
     }
-    /**
-     * Handles the mouse enter event on the service definition
-     */
-    onMouseEnter() {
-        this.setState({ style: 'showResourceGroup', addResource: true });
-    }
 
-    /**
-     * Handles the mouse leave event on the service definition
-     */
-    onMouseLeave() {
-        if (_.isEmpty(this.props.model.viewState.overlayContainer)) {
-            this.setState({ style: 'hideResourceGroup', addResource: false });
-        }
-    }
     /**
      * Renders the view for a service definition.
      *
@@ -131,20 +127,17 @@ class ServiceNode extends React.Component {
      */
     render() {
         const model = this.props.model;
-        const viewState = model.viewState;
         const bBox = model.viewState.bBox;
-        const variables = model.getVariables();
 
         // get the service name
         const title = model.getName().value;
 
-        const connectors = variables
-            .filter((element) => { return TreeUtil.isEndpointTypeVariableDef(element); }).map((statement) => {
+        const endpoints = this.props.model.endpointNodes.map((endpoint) => {
                 return (
                     <EndpointDecorator
-                        model={statement}
-                        title={statement.variable.name.value}
-                        bBox={statement.viewState.bBox}
+                        model={endpoint}
+                        title={endpoint.name.value}
+                        bBox={endpoint.viewState.bBox}
                     />);
             });
         /**
@@ -155,13 +148,13 @@ class ServiceNode extends React.Component {
 
         // TODO: Check whether the service is a http/https and then only allow. JMS services does not need swagger defs.
         // eslint-disable-next-line no-constant-condition
-        if (this.props.model.getProtocolPackageIdentifier().value === 'http') {
+        if (this.props.model.getType() === 'HttpService') {
             // Pushing swagger edit button.
             rightComponents.push({
                 component: PanelDecoratorButton,
                 props: {
                     key: `${model.getID()}-swagger-button`,
-                    icon: ImageUtil.getSVGIconString('swagger'),
+                    icon: ImageUtil.getCodePoint('swagger'),
                     tooltip: 'Swagger Source',
                     onClick: () => this.onSwaggerButtonClicked(),
                 },
@@ -175,35 +168,51 @@ class ServiceNode extends React.Component {
                 = resources[resources.length - 1].body.viewState.bBox.y - 15;
         }
 
+        let panelAdditionalProps = {};
+
+        const protocol = model.getType();
+        if (protocol === 'HttpService') {
+            const nodeDetails = ({ x, y }) => {
+                return (
+                    <HttpServiceHeader
+                        x={x}
+                        y={y}
+                        model={this.props.model}
+                    />
+                );
+            };
+
+            panelAdditionalProps = {
+                title: null,
+                headerComponent: nodeDetails,
+                protocol: null,
+            };
+        }
+
         return (
             <g
-                className={`protocol-${model.getProtocolPackageIdentifier().value}`}
+                className={`protocol-${model.getType()}`}
                 onMouseLeave={this.onMouseLeave}
                 onMouseEnter={this.onMouseEnter}
             >
                 <PanelDecorator
-                    icon='tool-icons/service'
+                    icon='service'
                     title={title}
                     bBox={bBox}
                     model={model}
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
                     rightComponents={rightComponents}
-                    protocol={model.getProtocolPackageIdentifier().value}
+                    protocol={model.getType()}
+                    {...panelAdditionalProps}
                 >
-                    <ServiceTransportLine
-                        model={this.props.model}
-                        bBox={this.props.model.viewState.components.transportLine}
-                        resources={resources}
-                        addResource={this.state.addResource}
-                    />
                     {blockNode}
-                    {connectors}
+                    {endpoints}
                 </PanelDecorator>
                 <ServerConnectorProperties
                     bBox={this.props.model.viewState.components.transportLine}
                     model={this.props.model}
-                    protocol={model.getProtocolPackageIdentifier().value}
+                    protocol={model.getType()}
                 />
             </g>);
     }

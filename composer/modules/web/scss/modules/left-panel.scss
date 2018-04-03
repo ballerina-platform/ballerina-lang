@@ -3,8 +3,9 @@
     background-color: #333;
     width: 100%;
     & .tab-content {
-      left: $activity-bar-width !important;
-      position: fixed;
+        left: $activity-bar-width !important;
+        position: fixed;
+        background-color: #252525;
       & .tab-pane {
           text-align: center;
       }
@@ -17,6 +18,21 @@
         color: #c7c7c7;
         font-size: 14px;
         text-align: left;
+    }
+    .item i {
+        color: #999999;
+        border: none !important;
+    }
+    .item.active {
+        cursor: pointer !important;
+        border-left: 3px solid #2fb8b0 !important;
+        padding-left: 12px;
+        background-color: #252525 !important;
+        color: #d2d2d2 !important;
+    }
+    .item:hover i{
+        cursor: pointer !important;
+        color: #d2d2d2 !important;
     }
     .panel-actions {
         float: right;

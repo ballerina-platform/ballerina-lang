@@ -1,6 +1,6 @@
 package bal.test.intercept.faulty;
 
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 function requestInterceptor (message msg) (boolean, message) {
     string[] a;

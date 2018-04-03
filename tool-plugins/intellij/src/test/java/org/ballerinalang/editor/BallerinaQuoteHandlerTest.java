@@ -18,6 +18,9 @@ package org.ballerinalang.editor;
 
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
+/**
+ * Quote handler tests.
+ */
 public class BallerinaQuoteHandlerTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testNewlineInStringLiteral() {

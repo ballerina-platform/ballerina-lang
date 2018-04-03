@@ -16,8 +16,8 @@
  * under the License.
  */
 import React from 'react';
+import { Button } from 'semantic-ui-react';
 import './toolbar.css';
-
 /**
  * Tool Component which render a tool in toolbar.
  *
@@ -44,7 +44,7 @@ class ToolItemView extends React.Component {
      */
     render() {
         return (
-            <button
+            <Button
                 className={this.props.className}
                 id={`${this.props.id}-tool`}
                 title={this.props.title}
@@ -64,7 +64,7 @@ class ToolItemView extends React.Component {
                     style={{ width: '13px' }}
                 />
                 }
-            </button>
+            </Button>
 
         );
     }

@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
+import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.apache.axiom.om.impl.dom.CommentImpl;
 import org.apache.axiom.om.impl.dom.TextImpl;
@@ -36,6 +37,7 @@ import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLValidationUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
@@ -225,7 +227,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         if (localName == null || localName.isEmpty()) {
-            throw new BallerinaException("localname of the attribute cannot be empty");
+            throw new BLangRuntimeException("localname of the attribute cannot be empty");
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -271,7 +273,7 @@ public final class BXMLItem extends BXML<OMNode> {
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
             if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
+                throw new BLangRuntimeException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
                         prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
 
@@ -444,7 +446,16 @@ public final class BXMLItem extends BXML<OMNode> {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
-                Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildrenWithName(getQname(qname));
+                /*
+                 * Here we are not using "((OMElement) omNode).getChildrenWithName(qname))" method, since as per the 
+                 * documentation of AxiomContainer.getChildrenWithName, if the namespace part of the qname is empty, it
+                 * will look for the elements which matches only the local part and returns. i.e: It will not match the
+                 * namespace. This is not the behavior we want. Hence we are explicitly creating an iterator which 
+                 * will return elements that will match both namespace and the localName, regardless whether they are
+                 * empty or not.
+                 */
+                Iterator<OMNode> childrenItr =
+                        new OMChildrenQNameIterator(((OMElement) omNode).getFirstOMChild(), getQname(qname));
                 int i = 0;
                 while (childrenItr.hasNext()) {
                     OMNode node = childrenItr.next();
@@ -703,7 +714,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public BXML<?> getItem(long index) {
         if (index != 0) {
-            throw new BallerinaException("index out of range: index: " + index + ", size: 1");
+            throw new BLangRuntimeException("index out of range: index: " + index + ", size: 1");
         }
 
         return this;

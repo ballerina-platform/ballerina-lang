@@ -19,6 +19,9 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.psi.tree.IElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiLeafNode;
 
+/**
+ * Represents a FloatingPointLiteral in PSI tree.
+ */
 public class FloatingPointLiteral extends ANTLRPsiLeafNode {
 
     public FloatingPointLiteral(IElementType type, CharSequence text) {

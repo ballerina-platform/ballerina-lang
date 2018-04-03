@@ -1,4 +1,4 @@
-package ballerina.net.http;
+package ballerina.http;
 
 @Description { value:"Represents an HTTP request message"}
 public struct Request {
@@ -325,7 +325,7 @@ public native function <Session session> setMaxInactiveInterval (int timeInterva
 @Field {value:"statusCode: HTTP status code"}
 public struct HttpConnectorError {
 	string msg;
-	error cause;
+	error[] cause;
 	StackFrame[] stackTrace;
 	int statusCode;
 }

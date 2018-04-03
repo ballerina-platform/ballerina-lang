@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an EndpointBody in PSI tree.
+ */
 public class EndpointBodyNode extends ANTLRPsiNode implements CodeBlockScope {
 
     public EndpointBodyNode(@NotNull ASTNode node) {

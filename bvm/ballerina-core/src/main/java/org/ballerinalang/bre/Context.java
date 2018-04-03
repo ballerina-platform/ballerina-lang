@@ -1,33 +1,33 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.WorkerCounter;
-import org.ballerinalang.connector.impl.BServerConnectorFuture;
+import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,172 +35,57 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class Context {
+public interface Context {
 
-    //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
-    //TODO remove below after jms and ftp full migration.
-    private CarbonMessage cMsg;
-    private BServerConnectorFuture connectorFuture;
-    protected Map<String, Object> properties = new HashMap<>();
-    private ServiceInfo serviceInfo;
-    private BallerinaTransactionManager ballerinaTransactionManager;
-    private DebugContext debugContext;
+    WorkerExecutionContext getParentWorkerExecutionContext();
 
-    private int startIP;
-    private BStruct unhandledError;
+    CallableUnitInfo getCallableUnitInfo();
 
-    protected WorkerCounter workerCounter;
+    WorkerData getLocalWorkerData();
 
-    public ProgramFile programFile;
-    // TODO : Temporary solution to make non-blocking working.
-    public NonBlockingContext nonBlockingContext;
-    // TODO : Fix this. Added this for fork-join. Issue #3718.
-    public boolean blockingInvocation;
+    DebugContext getDebugContext();
 
-    @Deprecated
-    public Context() {
-        this.controlStack = new ControlStack();
-    }
+    void setDebugContext(DebugContext debugContext);
 
-    public Context(ProgramFile programFile) {
-        this.programFile = programFile;
-        this.controlStack = new ControlStack();
-        this.workerCounter = new WorkerCounter();
-    }
+    Object getProperty(String key);
 
-    public DebugContext getDebugContext() {
-        return debugContext;
-    }
-    
-    public void setDebugContext(DebugContext debugContext) {
-        this.debugContext = debugContext;
-    }
+    Map<String, Object> getProperties();
 
-    public ControlStack getControlStack() {
-        return controlStack;
-    }
+    void setProperty(String key, Object value);
 
-    public CarbonMessage getCarbonMessage() {
-        return this.cMsg;
-    }
+    ServiceInfo getServiceInfo();
 
-    public void setCarbonMessage(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
-    }
+    void setServiceInfo(ServiceInfo serviceInfo);
 
-    public Object getProperty(String key) {
-        return this.properties.get(key);
-    }
+    boolean isInTransaction();
 
-    public Map<String, Object> getProperties() {
-        return this.properties;
-    }
+    BStruct getError();
 
-    public void setProperty(String key, Object value) {
-        this.properties.put(key, value);
-    }
+    void setError(BStruct error);
 
-    public BServerConnectorFuture getConnectorFuture() {
-        return connectorFuture;
-    }
+    ProgramFile getProgramFile();
 
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        this.connectorFuture = connectorFuture;
-    }
+    LocalTransactionInfo getLocalTransactionInfo();
 
-    public ServiceInfo getServiceInfo() {
-        return this.serviceInfo;
-    }
+    long getIntArgument(int index);
 
-    public void setServiceInfo(ServiceInfo serviceInfo) {
-        this.serviceInfo = serviceInfo;
-    }
+    String getStringArgument(int index);
 
-    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-        this.ballerinaTransactionManager = ballerinaTransactionManager;
-    }
+    String getNullableStringArgument(int index);
 
-    public BallerinaTransactionManager getBallerinaTransactionManager() {
-        return this.ballerinaTransactionManager;
-    }
+    double getFloatArgument(int index);
 
-    public boolean isInTransaction() {
-        return this.ballerinaTransactionManager != null;
-    }
+    boolean getBooleanArgument(int index);
 
-    public BStruct getError() {
-        if (controlStack.currentFrame != null) {
-            return controlStack.currentFrame.getErrorThrown();
-        }
-        return this.unhandledError;
-    }
+    byte[] getBlobArgument(int index);
 
-    public void setError(BStruct error) {
-        if (controlStack.currentFrame != null) {
-            controlStack.currentFrame.setErrorThrown(error);
-        } else {
-            this.unhandledError = error;
-        }
-    }
+    BValue getRefArgument(int index);
 
-    public int getStartIP() {
-        return startIP;
-    }
+    BValue getNullableRefArgument(int index);
 
-    public void setStartIP(int startIP) {
-        this.startIP = startIP;
-    }
+    void setReturnValues(BValue... values);
 
-    public ProgramFile getProgramFile() {
-        return programFile;
-    }
-
-    /**
-     * start tracking current worker.
-     */
-    public void startTrackWorker() {
-        workerCounter.countUp();
-    }
-
-    /**
-     * end tracking current worker.
-     */
-    public void endTrackWorker() {
-        workerCounter.countDown();
-    }
-
-    /**
-     * Wait until all spawned workers are completed.
-     */
-    public void await() {
-        workerCounter.await();
-    }
-
-    /**
-     * Wait until all spawned worker are completed within the given waiting time.
-     *
-     * @param timeout time out duration in seconds.
-     * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
-     */
-    public boolean await(int timeout) {
-        return workerCounter.await(timeout);
-    }
-
-    /**
-     * Mark this context is associated with a resource.
-     */
-    public void setAsResourceContext() {
-        this.workerCounter.setResourceContext(this);
-    }
-
-    public void resetWorkerContextFlow() {
-        this.workerCounter = new WorkerCounter();
-    }
-
-    public WorkerCounter getWorkerCounter() {
-        return workerCounter;
-    }
+    BValue[] getReturnValues();
 
     /**
      * Data holder for Non-Blocking Action invocation.

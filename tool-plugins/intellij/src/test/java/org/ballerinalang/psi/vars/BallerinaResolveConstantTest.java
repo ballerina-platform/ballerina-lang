@@ -20,6 +20,9 @@ import org.ballerinalang.psi.BallerinaResolveTestBase;
 
 import java.io.IOException;
 
+/**
+ * Test constant resolving.
+ */
 public class BallerinaResolveConstantTest extends BallerinaResolveTestBase {
 
     private String constant = "public const int /*def*/a;";

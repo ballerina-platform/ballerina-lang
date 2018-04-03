@@ -19,14 +19,13 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -38,21 +37,21 @@ import java.util.IllegalFormatException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "setMaxInactiveInterval",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {@Argument(name = "timeInterval", type = TypeKind.INT)},
         isPublic = true
 )
-public class SetMaxInactiveInterval extends AbstractNativeFunction {
+public class SetMaxInactiveInterval extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) throws IllegalFormatException {
+    public void execute(Context context) throws IllegalFormatException {
         try {
-            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
-            int timeInterval = (int) getIntArgument(context, 0);
-            Session session = (Session) sessionStruct.getNativeData(Constants.HTTP_SESSION);
+            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
+            int timeInterval = (int) context.getIntArgument(0);
+            Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
 
             if (timeInterval == 0) {
                 throw new IllegalStateException("Failed to set max time interval: Time interval: " + timeInterval);
@@ -65,7 +64,7 @@ public class SetMaxInactiveInterval extends AbstractNativeFunction {
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }
 

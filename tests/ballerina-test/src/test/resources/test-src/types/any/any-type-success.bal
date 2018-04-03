@@ -1,27 +1,59 @@
-function jsonReturnTest() (any) {
+function jsonReturnTest() returns (any) {
   any abc = jsonReturnFunction();
   return abc;
 }
 
-function jsonReturnFunction()(json) {
+function jsonReturnFunction() returns (json) {
   json val = {"PropertyName" : "Value"};
   return val;
 }
 
+function tableReturnTestAsAny() returns (any) {
+    any abc = tableReturnFunction();
+    return abc;
+}
 
-function anyMethodParameter() (any) {
+function inputAnyAsTableTest() returns (table) | error {
+    return anyToTableCastFunction(tableReturnFunction());
+}
+
+function anyToTableCastFunction (any aTable) returns (table) | error {
+    var result = <table> aTable;
+    match result {
+        table casted => return casted;
+        error e => return e;
+    }
+}
+
+function tableReturnFunction () returns (table) {
+    table <Employee> tb = table{};
+    Employee e1 = {id:1, name:"Jane"};
+    Employee e2 = {id:2, name:"Anne"};
+    tb.add(e1);
+    tb.add(e2);
+
+    return tb;
+}
+
+struct Employee {
+    int id;
+    string name;
+}
+
+
+function anyMethodParameter() returns (any) {
   int i = 9;
   return anyParam(i);
 }
 
-function anyParam(any val)(int) {
+function anyParam(any val) returns (int) {
   int m;
-  m, _ = (int)val;
+  m =? <int>val;
   return m;
 }
 
 
-function anyInStructTest()(any) {
+function anyInStructTest() returns (any) {
   Sample sample = {i:1, val:true, msg:"sampleVal"};
   return sample.val;
 }
@@ -33,58 +65,59 @@ struct Sample {
 }
 
 
-function successfulIntCasting()(int) {
+function successfulIntCasting() returns (int) {
   any abc = floatReturn();
   float floatVal;
-  floatVal, _ = (float)abc;
+  floatVal =? <float>abc;
   //Int to float is a conversion now
   int intVal;
   intVal = <int>floatVal;
   return intVal;
 }
 
-function floatReturn()(float) {
+function floatReturn() returns (float) {
   float val = 5.6;
   return val;
 }
 
 
-function anyToAnyExplicitCasting() (any) {
+function anyToAnyExplicitCasting() returns (any) {
   any abc = jsonReturnFunction();
   any val = abc;
   return val;
 }
 
 
-function multipleReturnWithAny() (any, int) {
+function multipleReturnWithAny() returns (any, int) {
   any abc = jsonReturnFunction();
-  return abc, 7;
+  return (abc, 7);
 }
 
 
-function multipleParamWithAny() (int) {
+function multipleParamWithAny() returns (int) {
   any abc = jsonReturnFunction();
   int val = multipleParam(abc, 5);
   return val;
 }
 
-function multipleParam(any val, int sam) (int) {
+function multipleParam(any val, int sam) returns (int) {
   return sam;
 }
 
-function variableDefTest()(any a) {
+function variableDefTest() returns (any) {
     any val = 5;
     return val;
 }
 
-function assignmentTest()(any a) {
+function assignmentTest() returns (any) {
     any val;
     val = 44.3;
     return val;
 }
 
-function anyArrayWithMapArray()(any[] a) {
+function anyArrayWithMapArray() returns (any[]) {
     map[] ma = [];
-    a = ma;
-    return;
+    any[] a = ma;
+    return a;
 }
+

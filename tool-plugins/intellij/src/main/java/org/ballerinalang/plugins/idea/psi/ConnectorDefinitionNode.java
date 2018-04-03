@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
+/**
+ * Represents a ConnectorDefinition in PSI tree.
+ */
 public class ConnectorDefinitionNode extends IdentifierDefSubtree implements TopLevelDefinition, ParameterContainer {
 
     public ConnectorDefinitionNode(@NotNull ASTNode node) {

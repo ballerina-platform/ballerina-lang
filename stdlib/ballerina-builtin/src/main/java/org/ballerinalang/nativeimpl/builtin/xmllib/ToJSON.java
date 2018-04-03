@@ -18,14 +18,13 @@
 package org.ballerinalang.nativeimpl.builtin.xmllib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,22 +35,22 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "xml.toJSON",
         args = {@Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
                           structPackage = "ballerina.lang.xmls")},
         returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
 )
-public class ToJSON extends AbstractNativeFunction {
+public class ToJSON extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         BJSON json = null;
         try {
             // Accessing Parameters
-            BXML xml = (BXML) getRefArgument(ctx, 0);
-            BStruct optionsStruct = ((BStruct) getRefArgument(ctx, 1));
+            BXML xml = (BXML) ctx.getRefArgument(0);
+            BStruct optionsStruct = ((BStruct) ctx.getRefArgument(1));
             String attributePrefix = optionsStruct.getStringField(0);
             Boolean preserveNamespaces = optionsStruct.getBooleanField(0) == 1;
             //Converting to json
@@ -60,7 +59,7 @@ public class ToJSON extends AbstractNativeFunction {
             ErrorHandler.handleXMLException("convert xml to json", e);
         }
 
-        return getBValues(json);
+        ctx.setReturnValues(json);
     }
 }
 

@@ -37,6 +37,9 @@ import org.ballerinalang.plugins.idea.configuration.BallerinaSdkConfigurable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Provides SDK support for small IDEs.
+ */
 public class BallerinaSmallIDEsSdkService extends BallerinaSdkService {
 
     public static final String LIBRARY_NAME = "Ballerina SDK";

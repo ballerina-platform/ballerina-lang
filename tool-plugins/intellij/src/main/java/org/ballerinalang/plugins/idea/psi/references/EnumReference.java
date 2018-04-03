@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents an enum reference.
+ */
 public class EnumReference extends BallerinaElementReference {
 
     public EnumReference(@NotNull IdentifierPSINode element) {

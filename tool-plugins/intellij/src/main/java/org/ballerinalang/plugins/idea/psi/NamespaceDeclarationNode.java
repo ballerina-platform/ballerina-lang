@@ -21,6 +21,9 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an NamespaceDeclaration in PSI tree.
+ */
 public class NamespaceDeclarationNode extends IdentifierDefSubtree {
 
     public NamespaceDeclarationNode(@NotNull ASTNode node) {

@@ -1,12 +1,12 @@
-import ballerina.net.http;
+import ballerina/http;
 
-service<http> HelloService {
+service<http:Service> HelloService {
 
   @POST {}
   @Path {value:"/tweet"}
-  resource tweet (message m) {
+  tweet (message m) {
       // Following line is invalid.
       int b
-      reply m;
+      return m;
   }
 }

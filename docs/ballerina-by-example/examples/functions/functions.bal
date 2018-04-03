@@ -1,10 +1,12 @@
+import ballerina/io;
+
 @Description {value:"This function takes a string argument."}
 function printValue (string value) {
-    println(value);
+    io:println(value);
 }
 
 @Description {value:"This function takes two int values and return their sum as an int."}
-function add (int a, int b) (int) {
+function add (int a, int b) returns (int) {
     return a + b;
 }
 
@@ -14,5 +16,5 @@ function main (string[] args) {
 
     // Directly print a value to the console.
     int result = add(5, 6);
-    print(result);
+    io:print(result);
 }

@@ -16,12 +16,11 @@
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-
-import static org.ballerinalang.langserver.TextDocumentServiceUtil.toZeroBasedPosition;
 
 /**
  * Position resolver for the top level nodes.
@@ -38,10 +37,10 @@ public class TopLevelNodeScopeResolver extends CursorPositionResolver {
      */
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
-                                      TextDocumentServiceContext completionContext) {
+                                      LSServiceOperationContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos zeroBasedPos = toZeroBasedPosition(nodePosition);
+        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;
 

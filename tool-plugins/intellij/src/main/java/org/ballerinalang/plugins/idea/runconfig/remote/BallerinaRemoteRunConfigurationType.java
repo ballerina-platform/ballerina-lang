@@ -25,6 +25,9 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents Ballerina remote configuration type. This is used to create Ballerina remote configurations.
+ */
 public class BallerinaRemoteRunConfigurationType extends ConfigurationTypeBase {
 
     public BallerinaRemoteRunConfigurationType() {

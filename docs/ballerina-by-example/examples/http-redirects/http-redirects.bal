@@ -1,22 +1,24 @@
-import ballerina.net.http;
+import ballerina/io;
+import ballerina/http;
+import ballerina/mime;
+
+endpoint http:ClientEndpoint clientEP {
+    targets:[{url:"http://www.mocky.io"}],
+    followRedirects : { enabled : true, maxCount : 5 }
+};
 
 function main (string[] args) {
-    endpoint<http:HttpClient> httpEndoint {
-        create http:HttpClient("http://www.mocky.io", getConnectorConfigs());
-    }
-    http:OutRequest req = {};
+    http:Request req = {};
 
     //Send a GET request to the specified endpoint
-    http:InResponse resp;
-    resp, _ = httpEndoint.get("/v2/59d590762700000a049cd694", req);
-
-    println("Response received for the GET request is : " + resp.getStringPayload());
-}
-
-function getConnectorConfigs () (http:Options) {
-    //Enable auto redirects and give a maximum redirect count.
-    http:Options option = {ssl:{}, followRedirects:{}};
-    option.followRedirects.enabled = true;
-    option.followRedirects.maxCount = 5;
-    return option;
+    var returnResult = clientEP -> get("/v2/59d590762700000a049cd694", req);
+    match returnResult {
+        http:HttpConnectorError connectorErr => {io:println("Connector error!");}
+        http:Response resp => {
+            match resp.getStringPayload() {
+                http:PayloadError payloadError => {io:println(payloadError.message);}
+                string payload => io:println("Response received for the GET request is : " + payload);
+            }
+        }
+    }
 }

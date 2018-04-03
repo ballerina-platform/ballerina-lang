@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,21 +32,21 @@ import java.io.UnsupportedEncodingException;
  * Convert String to Blob.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.toBlob",
         args = {@Argument(name = "string", type = TypeKind.STRING),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
-public class ToBlob extends AbstractNativeFunction {
+public class ToBlob extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         try {
-            String string = getStringArgument(ctx, 0);
-            String encoding = getStringArgument(ctx, 1);
+            String string = ctx.getStringArgument(0);
+            String encoding = ctx.getStringArgument(1);
             byte[] arr = string.getBytes(encoding);
-            return getBValues(new BBlob(arr));
+            ctx.setReturnValues(new BBlob(arr));
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Unsupported Encoding", e);
         }

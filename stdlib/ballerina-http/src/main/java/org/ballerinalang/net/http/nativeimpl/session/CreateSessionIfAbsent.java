@@ -19,14 +19,13 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.Constants;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.http.session.SessionManager;
@@ -43,35 +42,36 @@ import java.util.NoSuchElementException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "createSessionIfAbsent",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.http")},
+                structPackage = "ballerina.http")},
         isPublic = true
 )
-public class CreateSessionIfAbsent extends AbstractNativeFunction {
+public class CreateSessionIfAbsent extends BlockingNativeCallableUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateSessionIfAbsent.class);
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct connectionStruct  = ((BStruct) getRefArgument(context, 0));
+            BStruct requestStruct  = ((BStruct) context.getRefArgument(0));
             //TODO check below line
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(connectionStruct, HttpUtil.createHttpCarbonMessage(true));
-            String cookieHeader = httpCarbonMessage.getHeader(Constants.COOKIE_HEADER);
-            String path = (String) httpCarbonMessage.getProperty(Constants.BASE_PATH);
-            Session session = (Session) httpCarbonMessage.getProperty(Constants.HTTP_SESSION);
+                    .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+            String cookieHeader = httpCarbonMessage.getHeader(HttpConstants.COOKIE_HEADER);
+            String path = (String) httpCarbonMessage.getProperty(HttpConstants.BASE_PATH);
+            Session session = (Session) httpCarbonMessage.getProperty(HttpConstants.HTTP_SESSION);
             if (cookieHeader != null) {
                 try {
                     String sessionId = HttpUtil.getSessionID(cookieHeader);
                     //return value from cached session
                     if (session != null && sessionId.equals(session.getId())) {
                         session = session.setAccessed();
-                        return new BValue[]{HttpUtil.createSessionStruct(context, session)};
+                        context.setReturnValues(HttpUtil.createSessionStruct(context, session));
+                        return;
                     }
                     session = SessionManager.getInstance().getHTTPSession(sessionId);
                 } catch (NoSuchElementException e) {
@@ -90,14 +90,16 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 //cached session will return of this function is called twice.
                 if (session != null) {
                     session = session.setAccessed();
-                    return new BValue[]{HttpUtil.createSessionStruct(context, session)};
+                    context.setReturnValues(HttpUtil.createSessionStruct(context, session));
+                    return;
                 }
                 //create session since request doesn't have a cookie
                 session = SessionManager.getInstance().createHTTPSession(path);
             }
-            httpCarbonMessage.setProperty(Constants.HTTP_SESSION, session);
-            httpCarbonMessage.removeHeader(Constants.COOKIE_HEADER);
-            return new BValue[]{HttpUtil.createSessionStruct(context, session)};
+            httpCarbonMessage.setProperty(HttpConstants.HTTP_SESSION, session);
+            httpCarbonMessage.removeHeader(HttpConstants.COOKIE_HEADER);
+            context.setReturnValues(HttpUtil.createSessionStruct(context, session));
+            return;
 
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);

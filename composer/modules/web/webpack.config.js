@@ -19,6 +19,7 @@
 
  /* eslint-disable */
 const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin;
@@ -31,11 +32,16 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
+const isProductionBuild = process.env.NODE_ENV === 'production';
+
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
 const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name]-[hash].css', allChunks: true });
-
-const isProductionBuild = process.env.NODE_ENV === 'production';
+const extractLessBundle = new ExtractTextPlugin({ filename: './[name]-less-[hash].css', allChunks: true});
 let exportConfig = {};
+
+// Keeps unicode codepoints of font-ballerina for each icon name
+const codepoints = {}
+
 const config = [{
     target: 'web',
     entry: {
@@ -100,6 +106,26 @@ const config = [{
                 },
             ],
         },
+        {
+            test: /\.less$/,
+            exclude: /node_modules/,
+            use: extractLessBundle.extract({
+                fallback: 'style-loader',
+                use: [{
+                    loader: 'css-loader', 
+                    options: {
+                        hmr: !isProductionBuild,
+                        sourceMap: !isProductionBuild,
+                    },
+                }, {
+                    loader: 'less-loader',
+                    options: {
+                        hmr: !isProductionBuild,
+                        sourceMap: !isProductionBuild,
+                    },
+                }],
+            }),
+        },
         ],
     },
     plugins: [
@@ -118,6 +144,7 @@ const config = [{
                 return context && context.indexOf('node_modules') >= 0;
             },
         }),
+        extractLessBundle,
         extractCSSBundle,
         // new UnusedFilesWebpackPlugin({
         //    pattern: 'js/**/*.*',
@@ -133,20 +160,33 @@ const config = [{
         new webpack.WatchIgnorePlugin([path.resolve(__dirname, './font/dist/')]),
         new WebfontPlugin({
             files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
-            css: true,
             cssTemplateFontPath: '../fonts/',
             fontName: 'font-ballerina',
             fontHeight: 1000,
             normalize: true,
             cssTemplateClassName: 'fw', // TODO: map with proper class name
             template: path.resolve(__dirname, './font/font-ballerina/template.css.njk'),
+            glyphTransformFn: (obj) => {
+                codepoints[obj.name] = obj.unicode;
+            },
             dest: {
                 fontsDir: path.resolve(__dirname, './font/dist/font-ballerina/fonts'),
                 stylesDir: path.resolve(__dirname, './font/dist/font-ballerina/css'),
                 outputFilename: 'font-ballerina.css',
             },
             hash: new Date().getTime(),
-        }),
+        }), {
+            apply: function(compiler) {
+                compiler.plugin('compile', function(compilation, callback) {
+                    fs.writeFile(
+                        path.resolve(__dirname, './font/dist/font-ballerina/codepoints.json'),
+                        JSON.stringify(codepoints),
+                        'utf8',
+                        callback
+                    );
+                });
+            }
+        },
         new WriteFilePlugin(),
         new CopyWebpackPlugin([
             {
@@ -195,6 +235,7 @@ const config = [{
             event_channel: 'core/event/channel',
             plugins: 'plugins',
             images: 'public/images',
+            '../../theme.config$': path.join(__dirname, 'src/ballerina-theme/theme.config')
         },
     },
 

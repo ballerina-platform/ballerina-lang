@@ -60,6 +60,9 @@ public class DocerinaMojo extends AbstractMojo {
     @Parameter(property = "nativeCode", required = false)
     private boolean nativeCode;
 
+    @Parameter(property = "outputZip", required = false)
+    private String outputZip;
+
     /**
      * enable debug level logs.
      */
@@ -73,6 +76,10 @@ public class DocerinaMojo extends AbstractMojo {
         if (templatesDir != null) {
             System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         }
+        if (outputZip != null) {
+            System.setProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH, outputZip);
+        }
+
         String[] sources = sourceDir.split(",");
         BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeCode, sources);
     }

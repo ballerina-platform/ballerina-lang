@@ -24,6 +24,9 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an TransformStatementBody in PSI tree.
+ */
 public class TransformStatementBodyNode extends ANTLRPsiNode implements VariableContainer {
 
     public TransformStatementBodyNode(@NotNull ASTNode node) {

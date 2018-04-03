@@ -32,8 +32,8 @@ import org.testng.annotations.Test;
  */
 public class TransactionStmtFlowTest {
 
-    CompileResult programFile;
-    CompileResult resultNegative;
+    private CompileResult programFile;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
@@ -57,7 +57,6 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "BeforeTR WithinTR BeforAbort AfterTR ");
     }
-
 
     @Test
     public void testTransactionStmt2() {
@@ -141,7 +140,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx abort endOuterTrx  end");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNestedTransaction3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -161,7 +160,7 @@ public class TransactionStmtFlowTest {
                 "start inOuterTrx inInnerTrx trxErr endInnerTrx endOuterTrx  end");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNestedTransactionWithFailed1() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);
@@ -302,9 +301,33 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "done");
     }
 
+    @Test()
+    public void testTransactionStmtWithFail() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFail");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  inTrx inFailed inTrx inFailed inTrx inFailed inTrx inFailed end");
+    }
+
+    @Test()
+    public void testSimpleNestedTransactionAbort() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testSimpleNestedTransactionAbort");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  inOuterTxstart  inInnerTxstart  abortingInnerTxstart  endOuterTxstart");
+    }
+
+    @Test()
+    public void testValidReturn() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testValidReturn");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  inOuterTxstart  inInnerTxstart  foo endInnerTx foo endOuterTx");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         BAssertUtil.validateError(resultNegative, 0, "abort cannot be used outside of a transaction block", 3, 5);
         BAssertUtil.validateError(resultNegative, 1, "unreachable code", 12, 9);
         BAssertUtil.validateError(resultNegative, 2, "unreachable code", 27, 17);
@@ -313,6 +336,8 @@ public class TransactionStmtFlowTest {
                 .validateError(resultNegative, 4, "break statement cannot be used to exit from a transaction", 41, 17);
         BAssertUtil
                 .validateError(resultNegative, 5, "next statement cannot be used to exit from a transaction", 54, 17);
+        BAssertUtil
+                .validateError(resultNegative, 6, "return statement cannot be used to exit from a transaction", 67, 17);
     }
 
     @Test(description = "Test transaction statement with errors")

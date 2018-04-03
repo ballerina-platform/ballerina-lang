@@ -17,22 +17,25 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 
 import java.util.List;
 
 /**
  * @since 0.94
  */
-public interface ServiceNode extends AnnotatableNode, TopLevelNode {
+public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
     
     IdentifierNode getName();
     
     void setName(IdentifierNode name);
 
-    IdentifierNode getProtocolPackageIdentifier();
-    
-    void setProtocolPackageIdentifier(IdentifierNode protocolPkgIdentifier);
+    UserDefinedTypeNode getServiceTypeStruct();
+
+    void setServiceTypeStruct(UserDefinedTypeNode endpointType);
 
     List<? extends VariableDefinitionNode> getVariables();
     
@@ -42,8 +45,18 @@ public interface ServiceNode extends AnnotatableNode, TopLevelNode {
     
     void addResource(ResourceNode resource);
 
+    List<? extends EndpointNode> getEndpointNodes();
+
     void setInitFunction(FunctionNode function);
 
     FunctionNode getInitFunction();
-    
+
+    void bindToEndpoint(SimpleVariableReferenceNode endpointRef);
+
+    List<? extends SimpleVariableReferenceNode> getBoundEndpoints();
+
+    RecordLiteralNode getAnonymousEndpointBind();
+
+    void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode);
+
 }

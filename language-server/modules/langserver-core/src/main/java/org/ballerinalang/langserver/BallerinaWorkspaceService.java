@@ -15,8 +15,12 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.command.CommandExecutor;
+import org.ballerinalang.langserver.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl; 
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
+import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
@@ -28,7 +32,17 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Workspace service implementation for Ballerina.
  */
-public class BallerinaWorkspaceService implements WorkspaceService {
+class BallerinaWorkspaceService implements WorkspaceService {
+    private BallerinaLanguageServer ballerinaLanguageServer;
+    private WorkspaceDocumentManagerImpl workspaceDocumentManager;
+    private LSPackageCache lSPackageCache;
+    
+    BallerinaWorkspaceService(LSGlobalContext lsGlobalContext) {
+        this.ballerinaLanguageServer = lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.workspaceDocumentManager = lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+        this.lSPackageCache = lsGlobalContext.get(LSGlobalContextKeys.PKG_CACHE_KEY);
+    }
+
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
         List<SymbolInformation> symbols = new ArrayList<>();
@@ -41,5 +55,19 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+    }
+
+    @Override
+    public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
+        LSServiceOperationContext executeCommandContext = new LSServiceOperationContext();
+        executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
+        executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
+        executeCommandContext.put(ExecuteCommandKeys.LS_PACKAGE_CACHE_KEY, this.lSPackageCache);
+        executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
+        
+        return CompletableFuture.supplyAsync(() -> {
+            CommandExecutor.executeCommand(params, executeCommandContext);
+            return true;
+        });
     }
 }

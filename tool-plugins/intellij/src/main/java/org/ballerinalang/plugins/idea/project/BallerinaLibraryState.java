@@ -21,6 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
+/**
+ * Represents Ballerina library state.
+ */
 public class BallerinaLibraryState {
 
     @NotNull

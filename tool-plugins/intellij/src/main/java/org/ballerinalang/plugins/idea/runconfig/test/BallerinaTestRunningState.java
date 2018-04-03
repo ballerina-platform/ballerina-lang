@@ -30,6 +30,9 @@ import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents Ballerina test running state.
+ */
 public class BallerinaTestRunningState extends BallerinaRunningState<BallerinaTestConfiguration> {
 
     private int myDebugPort = 5006;

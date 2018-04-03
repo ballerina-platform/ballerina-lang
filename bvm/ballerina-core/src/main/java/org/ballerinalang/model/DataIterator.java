@@ -25,7 +25,6 @@ import java.util.List;
 /**
  *  This interface represents an data iterator operations.
  *  Each data source need to implement their own implementation by implementing this interface.
- *  Methods which belongs to DataIterator will expose through native functions in ballerina.model.datatables package.
  *  Known implementations: {@code SQLDataIterator}
  *
  *  @since 0.8.0

@@ -35,6 +35,7 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public BLangIdentifier version;
     public BLangIdentifier alias;
     public BPackageSymbol symbol;
+    public BLangIdentifier orgName;
 
     @Override
     public List<BLangIdentifier> getPackageName() {
@@ -65,6 +66,11 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     @Override
     public void setAlias(IdentifierNode alias) {
         this.alias = (BLangIdentifier) alias;
+    }
+
+    @Override
+    public IdentifierNode getOrgName() {
+        return orgName;
     }
 
     @Override
@@ -113,6 +119,7 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     }
     
     public String getQualifiedPackageName() {
+        String orgName = this.orgName.toString();
         String pkgName = String.join(".", pkgNameComps.stream()
                 .map(id -> id.value)
                 .collect(Collectors.toList()));
@@ -127,6 +134,6 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
             aliasStr = " as " + aliasStr;
         }
 
-        return pkgName + versionStr + aliasStr;
+        return orgName + '.' + pkgName + versionStr + aliasStr;
     }
 }

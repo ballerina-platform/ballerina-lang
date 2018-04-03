@@ -1,4 +1,6 @@
-import ballerina.file;
+import ballerina/file;
+import ballerina/io;
+import ballerina/time;
 
 function main (string[] args) {
     //Create 'File' struct and open for writing.
@@ -10,59 +12,58 @@ function main (string[] args) {
 
     //Check whether the file exists.
     boolean b = target.exists();
-    println("file exists: " + b);
+    io:println("file exists: " + b);
 
     //Here's how you can copy a file.
     file:File source = {path:"/tmp/result.txt"};
     file:File destination = {path:"/tmp/copy.txt"};
     file:copy(source, destination);
-    println("file copied: /tmp/result.txt to /tmp/copy.txt");
+    io:println("file copied: /tmp/result.txt to /tmp/copy.txt");
 
     //How to delete a file.
     destination.delete();
-    println("file deleted: /tmp/copy.txt");
+    io:println("file deleted: /tmp/copy.txt");
 
     //Move source file to destination.
     destination = {path:"/tmp/move.txt"};
     file:move(source, destination);
-    println("file moved: /tmp/result.txt to /tmp/move.txt");
+    io:println("file moved: /tmp/result.txt to /tmp/move.txt");
 
     destination.delete();
-    println("file deleted: /tmp/move.txt");
+    io:println("file deleted: /tmp/move.txt");
 
     //Create a directory, along with the parent directories.
     file:File dirs = {path:"/tmp/dir/abc/def"};
-    var dirCreated, _, _ = dirs.mkdirs();
+    _ = dirs.mkdirs();
 
     //Check if a file is a directory.
     file:File possibleDir = {path:"/tmp/dir/abc"};
-    println("file is a directory: " + possibleDir.isDirectory());
+    io:println("file is a directory: " + possibleDir.isDirectory());
 
     //Create new files inside a directory (ignoring all 3 possible return values).
     file:File newFile1 = {path:"/tmp/dir/abc/file1.txt"};
-    _,_,_ = newFile1.createNewFile();
+    _ = newFile1.createNewFile();
 
     file:File newFile2 = {path:"/tmp/dir/abc/file2.txt"};
-    _,_,_ = newFile2.createNewFile();
+    _ = newFile2.createNewFile();
 
     file:File newFile3 = {path:"/tmp/dir/abc/file3.txt"};
-    _,_,_ = newFile3.createNewFile();
+    _ = newFile3.createNewFile();
 
     //Get the list of files in a directory.
-    var filesList, _, _ = possibleDir.list();
+    var filesList =? possibleDir.list();
 
     //Print the list of files in directory "/tmp/dir/abc".
     int i=0;
     while (i < lengthof filesList) {
-        println(filesList[i]);
+        io:println(filesList[i]);
         i = i + 1;
     }
 
     //Get file meta data.
     string name = newFile1.getName();
-    Time lastModifiedTime;
-    lastModifiedTime, _, _ = newFile1.getModifiedTime();
-    println(name + " modified at: " + lastModifiedTime.time);
-    println(name + " is readable: " + newFile1.isReadable());
-    println(name + " is writable: " + newFile1.isWritable());
+    time:Time lastModifiedTime =? newFile1.getModifiedTime();
+    io:println(name + " modified at: " + lastModifiedTime.time);
+    io:println(name + " is readable: " + newFile1.isReadable());
+    io:println(name + " is writable: " + newFile1.isWritable());
 }
