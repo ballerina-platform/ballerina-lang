@@ -45,11 +45,11 @@ import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
         packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "errorResponse",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+                structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = CLIENT_ERROR,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)},
+                structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC)},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+                structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
 public class ErrorResponse extends BlockingNativeCallableUnit {

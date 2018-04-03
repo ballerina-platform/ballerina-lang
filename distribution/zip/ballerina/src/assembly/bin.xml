@@ -136,6 +136,7 @@
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
+                <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
@@ -193,6 +194,7 @@
                 <include>io.ballerina.messaging:broker-coordination</include>
                 <include>com.google.guava:guava</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
+                <include>io.netty:netty-tcnative-boringssl-static</include>
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-trace:jar</include>

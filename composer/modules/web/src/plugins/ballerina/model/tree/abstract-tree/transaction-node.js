@@ -22,60 +22,6 @@ import StatementNode from '../statement-node';
 class AbstractTransactionNode extends StatementNode {
 
 
-    setCondition(newValue, silent, title) {
-        const oldValue = this.condition;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.condition = newValue;
-
-        this.condition.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'condition',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getCondition() {
-        return this.condition;
-    }
-
-
-
-    setFailedBody(newValue, silent, title) {
-        const oldValue = this.failedBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.failedBody = newValue;
-
-        this.failedBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'failedBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFailedBody() {
-        return this.failedBody;
-    }
-
-
-
     setTransactionBody(newValue, silent, title) {
         const oldValue = this.transactionBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -99,6 +45,114 @@ class AbstractTransactionNode extends StatementNode {
 
     getTransactionBody() {
         return this.transactionBody;
+    }
+
+
+
+    setOnRetryBody(newValue, silent, title) {
+        const oldValue = this.onRetryBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.onRetryBody = newValue;
+
+        this.onRetryBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'onRetryBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getOnRetryBody() {
+        return this.onRetryBody;
+    }
+
+
+
+    setRetryCount(newValue, silent, title) {
+        const oldValue = this.retryCount;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.retryCount = newValue;
+
+        this.retryCount.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'retryCount',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getRetryCount() {
+        return this.retryCount;
+    }
+
+
+
+    setOnCommitFunction(newValue, silent, title) {
+        const oldValue = this.onCommitFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.onCommitFunction = newValue;
+
+        this.onCommitFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'onCommitFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getOnCommitFunction() {
+        return this.onCommitFunction;
+    }
+
+
+
+    setOnAbortFunction(newValue, silent, title) {
+        const oldValue = this.onAbortFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.onAbortFunction = newValue;
+
+        this.onAbortFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'onAbortFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getOnAbortFunction() {
+        return this.onAbortFunction;
     }
 
 

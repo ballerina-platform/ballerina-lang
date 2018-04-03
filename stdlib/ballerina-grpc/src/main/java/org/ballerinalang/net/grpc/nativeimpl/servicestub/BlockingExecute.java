@@ -101,8 +101,8 @@ public class BlockingExecute extends AbstractExecute {
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     Message responseMsg = grpcBlockingStub.executeUnary(requestMsg, methodName);
                     Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
-                    BValue responseBValue = MessageUtils.generateRequestStruct(responseMsg, outputDescriptor.getName(),
-                            getBalType(outputDescriptor.getName(), context), context);
+                    BValue responseBValue = MessageUtils.generateRequestStruct(responseMsg, context.getProgramFile(),
+                            outputDescriptor.getName(), getBalType(outputDescriptor.getName(), context));
                     context.setReturnValues(responseBValue);
                     return;
                 } else {

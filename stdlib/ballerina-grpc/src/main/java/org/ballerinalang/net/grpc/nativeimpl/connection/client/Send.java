@@ -48,10 +48,10 @@ import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
         packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "send",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+                structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "response", type = TypeKind.STRING)},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+                structPackage = MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
 public class Send extends BlockingNativeCallableUnit {
@@ -61,15 +61,15 @@ public class Send extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
-        StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
+        StreamObserver<Message> requestSender = (StreamObserver<Message>) connectionStruct.getNativeData
+                (REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "response sender doesnot exist"))));
+                            "response sender does not exist"))));
         } else {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
                     .REQUEST_MESSAGE_DEFINITION);
-
             try {
                 Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
                 requestSender.onNext(requestMessage);
