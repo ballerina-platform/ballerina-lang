@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
@@ -36,8 +37,10 @@ import java.util.concurrent.TimeUnit;
  * Represents a timer.
  */
 public class Timer {
+
     private String id = TaskIdGenerator.generate();
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private boolean isDaemon;
 
     /**
      * Triggers the timer.
@@ -46,11 +49,12 @@ public class Timer {
      * @param ctx               The ballerina context.
      * @param delay             The initial delay.
      * @param interval          The interval between two task executions.
+     * @param isDaemon          Whether this timer should run in daemon mode.
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      * @throws SchedulingException if cannot create the scheduler
      */
-    public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval,
+    public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval, boolean isDaemon,
                  FunctionRefCPEntry onTriggerFunction,
                  FunctionRefCPEntry onErrorFunction) throws SchedulingException {
 
@@ -61,10 +65,13 @@ public class Timer {
         final Runnable schedulerFunc = () -> {
             callTriggerFunction(fn, ctx, onTriggerFunction, onErrorFunction);
         };
-        
+
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
+        this.isDaemon = isDaemon;
         TaskRegistry.getInstance().addTimer(this);
-        //BLangScheduler.workerCountUp();
+        if (isDaemon) {
+            BLangScheduler.workerCountUp();
+        }
     }
 
     /**
@@ -86,7 +93,9 @@ public class Timer {
     }
 
     public void stop() throws TaskException {
-        //BLangScheduler.workerCountDown();
+        if (isDaemon) {
+            BLangScheduler.workerCountDown();
+        }
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
     }
