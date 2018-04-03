@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/util;
-import ballerina/data.sql;
+import ballerina/sql;
 
 endpoint http:ServiceEndpoint participant2EP {
     port:8890

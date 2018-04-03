@@ -51,8 +51,8 @@ public class IterableOperationsTests {
     @Test
     public void testNegative() {
         Assert.assertEquals(negative.getErrorCount(), 20);
-        BAssertUtil.validateError(negative, 0, "unknown type 'person'", 67, 23);
-        BAssertUtil.validateError(negative, 1, "unknown type 'person'", 68, 47);
+        BAssertUtil.validateError(negative, 0, "unknown type 'person'", 67, 15);
+        BAssertUtil.validateError(negative, 1, "unknown type 'person'", 68, 33);
         BAssertUtil.validateError(negative, 2, "undefined function 'int.foreach'", 6, 5);
         BAssertUtil.validateError(negative, 3, "undefined function 'string.map'", 8, 5);
         BAssertUtil.validateError(negative, 4, "variable assignment is required", 14, 5);

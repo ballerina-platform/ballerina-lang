@@ -40,7 +40,9 @@ public enum DiagnosticCode {
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
-    
+    CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
+    IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
+
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
     UNKNOWN_TYPE("unknown.type"),
@@ -189,6 +191,10 @@ public enum DiagnosticCode {
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
+
+    // Checked expression related errors
+    CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
+    CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

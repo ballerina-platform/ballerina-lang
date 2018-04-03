@@ -19,7 +19,7 @@ function clean() {
 function testService () {
     endpoint http:ClientEndpoint httpEndpoint {
         targets:[{
-            uri:url
+            url:url
         }]
     };
 
