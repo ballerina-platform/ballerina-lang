@@ -1,7 +1,7 @@
 package servicechaining.samples;
 
 import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/branchlocator"}
 service<http> Banklocator {

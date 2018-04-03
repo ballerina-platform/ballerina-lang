@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/runtime;
 
 const string TEST_SCENARIO_HEADER = "test-scenario";

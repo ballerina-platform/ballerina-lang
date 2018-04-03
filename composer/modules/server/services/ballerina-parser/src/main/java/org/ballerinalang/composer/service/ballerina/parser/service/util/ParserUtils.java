@@ -31,10 +31,11 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Mo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
-import org.ballerinalang.langserver.BallerinaPackageLoader;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.Flag;
@@ -232,23 +233,22 @@ public class ParserUtils {
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         // TODO: remove once the packerina api for package listing is available
-        final String[] packageNames = {"net.http", "net.http.authadaptor", "net.http.endpoints",
-                "net.http.mock", "net.http.swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
+        final String[] packageNames = {"http", "swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
                 "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
                 "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
                 "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
-                "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
+                "security.crypto", "task", "time", "transactions", "user", "util"};
         try {
-            List<BLangPackage> builtInPackages = BallerinaPackageLoader.getBuiltinPackages();
+            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
             for (BLangPackage bLangPackage : builtInPackages) {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
 
-            CompilerContext context = BallerinaPackageLoader.prepareCompilerContext();
+            CompilerContext context = CommonUtil.prepareTempCompilerContext();
             for (String packageName : packageNames) {
                 PackageID packageID = new PackageID(new Name("ballerina"),
                         new Name(packageName), new Name("0.0.0"));
-                BLangPackage bLangPackage = BallerinaPackageLoader.getPackageById(context, packageID);
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
         } catch (Exception e) {
@@ -481,7 +481,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -500,7 +500,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -611,7 +611,7 @@ public class ParserUtils {
         addAnnotations(annotations, action.getAnnotationAttachments());
 
         List<Parameter> returnParameters = new ArrayList<>();
-        addParameters(returnParameters, action.getReturnParameters());
+        //addParameters(returnParameters, action.getReturnParameters());
 
         String fileName = action.getPosition().getSource().getCompilationUnitName();
         return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations, fileName);

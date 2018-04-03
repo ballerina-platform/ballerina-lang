@@ -66,8 +66,8 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -180,14 +180,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ_NULL : InstructionCodes.RNE_NULL;
-        if (lhsType.tag == TypeTags.NULL &&
+        if (lhsType.tag == TypeTags.NIL &&
                 (rhsType.tag == TypeTags.STRUCT ||
                         rhsType.tag == TypeTags.CONNECTOR ||
                         rhsType.tag == TypeTags.ENUM ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
@@ -195,19 +193,15 @@ public class SymbolResolver extends BLangNodeVisitor {
                 lhsType.tag == TypeTags.CONNECTOR ||
                 lhsType.tag == TypeTags.ENUM ||
                 lhsType.tag == TypeTags.INVOKABLE)
-                && rhsType.tag == TypeTags.NULL) {
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+                && rhsType.tag == TypeTags.NIL) {
+            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
 
         }
 
         if (lhsType.tag == TypeTags.ENUM && rhsType.tag == TypeTags.ENUM && lhsType == rhsType) {
             opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            List<BType> retTypes = Lists.of(symTable.booleanType);
-            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
@@ -310,12 +304,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
-            unionType.memberTypes.add(symTable.nullType);
+            unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            Set<BType> memberTypes = new HashSet<BType>(2) {{
+            Set<BType> memberTypes = new LinkedHashSet<BType>(2) {{
                 add(resultType);
-                add(symTable.nullType);
+                add(symTable.nilType);
             }};
             this.resultType = new BUnionType(null, memberTypes, true);
         }
@@ -482,9 +476,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         memBType.tag == TypeTags.UNION ?
                                 ((BUnionType) memBType).memberTypes.stream() :
                                 Stream.of(memBType))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         resultType = new BUnionType(null, memberTypes,
-                memberTypes.contains(symTable.nullType));
+                memberTypes.contains(symTable.nilType));
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
@@ -566,10 +560,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         List<BType> paramTypes = new ArrayList<>();
-        List<BType> retParamTypes = new ArrayList<>();
         functionTypeNode.getParamTypeNode().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t, env)));
-        functionTypeNode.getReturnParamTypeNode().forEach(t -> retParamTypes.add(resolveTypeNode((BLangType) t, env)));
-        resultType = new BInvokableType(paramTypes, retParamTypes, null);
+        BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
+        resultType = new BInvokableType(paramTypes, retParamType, null);
     }
 
     /**

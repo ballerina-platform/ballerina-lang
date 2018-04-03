@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 endpoint http:ServiceEndpoint helloWorldEP {

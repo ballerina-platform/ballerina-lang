@@ -28,10 +28,10 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
+import org.ballerinalang.util.tracer.TraceConstants;
 
 import java.util.Map;
-
-import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
 
 /**
  * This function returns the span context of a given span.
@@ -49,13 +49,14 @@ public class InjectTraceContext extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
-        String group = context.getStringArgument(0) == null ? DEFAULT_USER_API_GROUP : context.getStringArgument(0);
+        String group = context.getStringArgument(0) == null ? TraceConstants.DEFAULT_USER_API_GROUP
+                : context.getStringArgument(0);
         String spanId = span.getStringField(0);
 
-        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
+        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(group, spanId);
 
         BMap<String, BString> headerMap = new BMap<>();
-        propertiesToInject.forEach((key, value) -> headerMap.put(group + key, new BString(value)));
+        propertiesToInject.forEach((key, value) -> headerMap.put(key, new BString(value)));
         context.setReturnValues(headerMap);
     }
 }

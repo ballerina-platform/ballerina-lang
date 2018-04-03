@@ -31,6 +31,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 import org.testng.log4testng.Logger;
 
 import java.io.File;
@@ -59,7 +60,7 @@ public abstract class CompletionTest {
         org.apache.commons.io.FileUtils.copyDirectory(source, destination);
     }
 
-//    @Test(dataProvider = "completion-data-provider")
+    @Test(dataProvider = "completion-data-provider", enabled = false)
     public void test(String config, String configPath) {
         String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
         JsonObject jsonObject = FileUtils.fileContentAsObject(configJsonPath);

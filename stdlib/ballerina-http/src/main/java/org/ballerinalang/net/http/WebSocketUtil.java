@@ -18,8 +18,11 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
@@ -37,6 +40,7 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.websocket.Session;
 
 
@@ -80,7 +84,8 @@ public abstract class WebSocketUtil {
     }
 
     public static void handleHandshake(WebSocketService wsService,
-                                       HttpHeaders headers, BStruct wsConnection) {
+                                       HttpHeaders headers, BStruct wsConnection, Context context,
+                                       CallableUnitCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         WebSocketInitMessage initMessage =
                 (WebSocketInitMessage) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
@@ -95,21 +100,34 @@ public abstract class WebSocketUtil {
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              serviceEndpoint);
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
-
-                Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
-                if (onOpenResource == null) {
-                    return;
+                if (context != null && callback != null) {
+                    context.setReturnValues(serviceEndpoint);
+                    callback.notifySuccess();
+                } else {
+                    Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                    if (onOpenResource != null) {
+                        List<ParamDetail> paramDetails =
+                                onOpenResource.getParamDetails();
+                        BValue[] bValues = new BValue[paramDetails.size()];
+                        bValues[0] = serviceEndpoint;
+                        //TODO handle BallerinaConnectorException
+                        Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
+                    }
                 }
-                List<ParamDetail> paramDetails =
-                        onOpenResource.getParamDetails();
-                BValue[] bValues = new BValue[paramDetails.size()];
-                bValues[0] = serviceEndpoint;
-                //TODO handle BallerinaConnectorException
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
             }
 
             @Override
             public void onError(Throwable throwable) {
+                if (context != null) {
+                    context.setReturnValues();
+                }
+                if (callback != null) {
+                    callback.notifyFailure(BLangConnectorSPIUtil
+                                                   .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                  WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
+                                                                  "Unable to complete handshake: " +
+                                                                          throwable.getMessage()));
+                }
                 ErrorHandlerUtils.printError(throwable);
             }
         });
@@ -120,5 +138,22 @@ public abstract class WebSocketUtil {
         endpoint.setStringField(1, session.getNegotiatedSubprotocol());
         endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
         endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
+    }
+
+    public static BValue[] getWebSocketError(Context context, ChannelFuture webSocketChannelFuture, String message)
+            throws InterruptedException {
+        AtomicReference<BValue[]> error = new AtomicReference<>();
+        webSocketChannelFuture.addListener((ChannelFutureListener) future1 -> {
+            Throwable cause = future1.cause();
+            if (!future1.isSuccess() && cause != null) {
+                error.set(new BValue[]{BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                           WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
+                                                                           message, new BValue[]{})});
+            } else {
+                error.set(new BValue[0]);
+            }
+        });
+        webSocketChannelFuture.sync();
+        return error.get();
     }
 }

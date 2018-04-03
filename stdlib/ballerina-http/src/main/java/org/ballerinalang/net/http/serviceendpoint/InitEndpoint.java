@@ -58,10 +58,10 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -225,6 +225,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct keyStore = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
         Struct protocols = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
         Struct validateCert = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+        Struct ocspStapling = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
 
         if (keyStore != null) {
             String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
@@ -282,6 +283,21 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             long cacheValidationPeriod = validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(validateCertificateEnabled);
             if (validateCertificateEnabled) {
+                if (cacheSize != 0) {
+                    listenerConfiguration.setCacheSize(Math.toIntExact(cacheSize));
+                }
+                if (cacheValidationPeriod != 0) {
+                    listenerConfiguration.setCacheValidityPeriod(Math.toIntExact(cacheValidationPeriod));
+                }
+            }
+        }
+        if (ocspStapling != null) {
+            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(HttpConstants.ENABLE);
+            listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
+            long cacheSize = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            listenerConfiguration.setValidateCertEnabled(ocspStaplingEnabled);
+            if (ocspStaplingEnabled) {
                 if (cacheSize != 0) {
                     listenerConfiguration.setCacheSize(Math.toIntExact(cacheSize));
                 }

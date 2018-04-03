@@ -16,6 +16,13 @@
 
 package ballerina.io;
 
+@Description {value:"Specifies the format for the csv files"}
+public enum RecordFormat{
+    DEFAULT,
+    RFC4180,
+    TDF
+}
+
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public struct ByteChannel {
 }
@@ -101,6 +108,14 @@ public native function createCharacterChannel (ByteChannel byteChannel,
 @Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
 public native function createDelimitedRecordChannel (CharacterChannel channel, string recordSeparator,
                                                      string fieldSeparator) returns (DelimitedRecordChannel | IOError);
+
+@Description {value:"Function to create CSV channel to read CSV input"}
+@Param {value:"path: Specfies the path to the CSV file"}
+@Param {value: "rf: Specifies the format of the CSV file"}
+@Return {value:"DelimitedRecordChannel converted from CSV Channel"}
+@Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
+public native function createCsvChannel (string path, RecordFormat rf,string charset="UTF-8")
+returns (DelimitedRecordChannel | IOError);
 
 @Description {value:"Function to read bytes"}
 @Param {value:"channel: The ByteChannel to read bytes from"}
@@ -193,3 +208,15 @@ public native function <Socket socket> closeSocket () returns (IOError);
 public native function loadToTable(@sensitive string filePath, string recordSeparator, string fieldSeparator,
                                    string encoding, boolean headerLineIncluded, typedesc structType)
                                    returns (table | IOError);
+
+@Description {value:"Function to convert a character channel to a JSON"}
+@Param {value:"channel: The source CharacterChannel that going to convert to JSON"}
+@Return {value:"Returns A JSON"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
+public native function <CharacterChannel channel> readJson () returns (json|IOError);
+
+@Description {value:"Function to convert a character channel to a XML"}
+@Param {value:"channel: The source CharacterChannel that going to convert to XML"}
+@Return {value:"Returns A XML"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
+public native function <CharacterChannel channel> readXml () returns (xml|IOError);

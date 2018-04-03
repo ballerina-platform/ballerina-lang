@@ -55,7 +55,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "createHttpClient",
         args = {@Argument(name = "uri", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
@@ -186,6 +186,8 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 }
                 boolean hostNameVerificationEnabled = secureSocket
                         .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
+                boolean ocspStaplingEnabled = secureSocket.getBooleanField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+                senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
                 senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
                 String ciphers = secureSocket.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);

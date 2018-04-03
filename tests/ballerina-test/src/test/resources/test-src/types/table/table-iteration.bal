@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 
 struct Person {
     int id;
@@ -81,7 +81,7 @@ function testForEachInTable () returns (int, int, float, string) {
     table dt1 =? testDB-> select("SELECT * from Person where id = 1", null, typeof Person);
     table<Person> dt = dt1; //TODO:remove this
 
-    dt.foreach (function (Person p) {
+    dt.foreach ((Person p) => {
                     idValue = p.id;
                     ageValue = p.age;
                     salValue = p.salary;
@@ -148,7 +148,7 @@ function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
 
     table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
     table<Person> dt = dt1; //TODO:remove this
-    Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
+    Person[] personBelow35 = dt.filter((Person p) => (boolean) {
                                            return p.age < 35;
                                        });
     int count = lengthof personBelow35;
@@ -393,7 +393,7 @@ function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) returns (E
 }
 
 function createTable() returns (table<Employee>) {
-    table<Employee> dt = {};
+    table<Employee> dt = table{};
 
     Employee e1 = {id:1, name:"A", salary:100};
     Employee e2 = {id:2, name:"B", salary:200};
