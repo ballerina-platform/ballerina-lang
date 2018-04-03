@@ -140,8 +140,9 @@ public class BLangFunctions {
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
             CallableUnitCallback responseCallback) {
         WorkerSet workerSet = callableUnitInfo.getWorkerSet();
-        SyncCallableWorkerResponseContext respCtx = new SyncCallableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length);
+        int generalWorkersCount = workerSet.generalWorkers.length;
+        CallableWorkerResponseContext respCtx = createWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
+                generalWorkersCount);
         respCtx.registerResponseCallback(responseCallback);
         respCtx.registerResponseCallback(new CallbackObserver(parentCtx));
         respCtx.joinTargetContextInfo(parentCtx, retRegs);
