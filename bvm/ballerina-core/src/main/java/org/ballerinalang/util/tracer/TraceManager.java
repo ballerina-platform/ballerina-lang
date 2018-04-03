@@ -32,7 +32,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX_LENGTH;
 
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
