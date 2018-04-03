@@ -67,6 +67,7 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -143,6 +144,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -903,6 +905,14 @@ public class BLangPackageBuilder {
         recordTypeLiteralNode.pos = pos;
         recordTypeLiteralNode.addWS(ws);
         addExpressionNode(recordTypeLiteralNode);
+    }
+
+    public void addTableLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
+        final BLangTableLiteral tableLiteral = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
+        tableLiteral.addWS(ws);
+        tableLiteral.pos = pos;
+        tableLiteral.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
+        addExpressionNode(tableLiteral);
     }
 
     public void startMapStructLiteral() {
@@ -2179,6 +2189,11 @@ public class BLangPackageBuilder {
         serviceNode.addWS(ws);
         blockNodeStack.pop().getStatements()
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+    }
+
+    public void addAnonymousEndpointBind() {
+        BLangService serviceNode = (BLangService) serviceNodeStack.peek();
+        serviceNode.addAnonymousEndpointBind((RecordLiteralNode) exprNodeStack.pop());
     }
 
     public void addServiceEndpointAttachments(int size, Set<Whitespace> ws) {

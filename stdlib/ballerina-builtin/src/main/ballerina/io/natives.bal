@@ -16,6 +16,13 @@
 
 package ballerina.io;
 
+@Description {value:"Specifies the format for the csv files"}
+public enum RecordFormat{
+    DEFAULT,
+    RFC4180,
+    TDF
+}
+
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public struct ByteChannel {
 }
@@ -101,6 +108,14 @@ public native function createCharacterChannel (ByteChannel byteChannel,
 @Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
 public native function createDelimitedRecordChannel (CharacterChannel channel, string recordSeparator,
                                                      string fieldSeparator) returns (DelimitedRecordChannel | IOError);
+
+@Description {value:"Function to create CSV channel to read CSV input"}
+@Param {value:"path: Specfies the path to the CSV file"}
+@Param {value: "rf: Specifies the format of the CSV file"}
+@Return {value:"DelimitedRecordChannel converted from CSV Channel"}
+@Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
+public native function createCsvChannel (string path, RecordFormat rf,string charset="UTF-8")
+returns (DelimitedRecordChannel | IOError);
 
 @Description {value:"Function to read bytes"}
 @Param {value:"channel: The ByteChannel to read bytes from"}

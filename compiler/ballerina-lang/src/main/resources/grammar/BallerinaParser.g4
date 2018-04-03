@@ -53,6 +53,7 @@ serviceDefinition
 
 serviceEndpointAttachments
     :   BIND nameReference (COMMA nameReference)*
+    |   BIND recordLiteral
     ;
 
 serviceBody
@@ -339,6 +340,14 @@ recordKey
     |   expression
     ;
 
+tableLiteral
+    :   TYPE_TABLE tableInitlization
+    ;
+
+tableInitlization
+    :   recordLiteral
+    ;
+
 arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
@@ -597,6 +606,7 @@ expression
     |   arrayLiteral                                                        # arrayLiteralExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
+    |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
