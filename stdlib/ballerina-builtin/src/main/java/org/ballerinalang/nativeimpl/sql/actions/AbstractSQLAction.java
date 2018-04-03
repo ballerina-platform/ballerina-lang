@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.actions;
+package org.ballerinalang.nativeimpl.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -44,10 +44,10 @@ import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLTransactionContext;
+import org.ballerinalang.nativeimpl.sql.Constants;
+import org.ballerinalang.nativeimpl.sql.SQLDataIterator;
+import org.ballerinalang.nativeimpl.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.SQLTransactionContext;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;

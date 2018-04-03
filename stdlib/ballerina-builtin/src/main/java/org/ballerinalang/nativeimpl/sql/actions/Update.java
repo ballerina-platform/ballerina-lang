@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.actions;
+package org.ballerinalang.nativeimpl.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.Constants;
+import org.ballerinalang.nativeimpl.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -35,32 +35,27 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_TYPE;
 
 /**
- * {@code BatchUpdate} is the Batch update action implementation of the SQL Connector.
+ * {@code Update} is the Update action implementation of the SQL Connector.
  *
- * @since 0.8.6
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "data.sql",
-        functionName = "batchUpdate",
-        receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "ClientConnector",
-                             structPackage = "ballerina.data.sql"),
+        orgName = "ballerina", packageName = "sql",
+        functionName = "update",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters",
-                          type = TypeKind.ARRAY,
-                          elementType = TypeKind.STRUCT,
-                          arrayDimensions = 2,
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                           structType = "Parameter")
         },
         returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
+                @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.data.sql")
+                            structPackage = "ballerina.sql")
         }
 )
-public class BatchUpdate extends AbstractSQLAction {
+public class Update extends AbstractSQLAction {
+
     @Override
     public void execute(Context context) {
         try {
@@ -74,7 +69,7 @@ public class BatchUpdate extends AbstractSQLAction {
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 
-            executeBatchUpdate(context, datasource, query, parameters);
+            executeUpdate(context, datasource, query, parameters);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
