@@ -12,7 +12,6 @@ function main (string[] args) {
             }
     };
 
-    io:println(helloWorldBlockingEp);
     string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
         string payload => {

@@ -39,8 +39,8 @@ function <helloWorldBlockingStub stub> hello (string req) returns (string|error)
                     return s;
                 }
                 any nonOccurance => {
-                    io:println("This condition should not occur.");
-                    return "";
+                    error e = {message:"Unexpected type."};
+                    return e;
                 }
             }
         }
