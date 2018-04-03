@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 @Description {value:"This example gives you the basic idea of WebSocket endpoint."}
 endpoint http:ServiceEndpoint ep {
@@ -46,9 +46,11 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
             io:println("Pinging...");
             conn -> ping(pingData);
         } else if (text == "closeMe") {
-            conn -> closeConnection(1001, "You asked me to close connection");
+            var val = conn -> closeConnection(1001, "You asked me to close the connection");
+            handleError(val);
         } else {
-            conn -> pushText("You said: " + frame.text);
+            var val = conn -> pushText("You said: " + frame.text);
+            handleError(val);
         }
     }
 
@@ -57,7 +59,8 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         io:println("\nNew binary message received");
         blob b = frame.data;
         io:println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
-        conn -> pushBinary(b);
+        var val = conn -> pushBinary(b);
+        handleError(val);
     }
 
     @Description {value:"This resource is triggered when a ping message is received from the client. If this resource is not implemented then pong message will be sent automatically to the connected endpoint when a ping is received."}
@@ -75,7 +78,8 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         io:println("\nReached idle timeout");
         io:println("Closing connection " + conn.id);
-        conn -> closeConnection(1001, "Connection timeout");
+        var val = conn -> closeConnection(1001, "Connection timeout");
+        handleError(val);
     }
 
     @Description {value:"This resource is triggered when a client connection is closed from the client side."}
@@ -93,5 +97,14 @@ function printHeaders (map<string> headers) {
         var value = headers[key];
         io:println(key + ": " + value);
         i = i + 1;
+    }
+}
+
+function handleError(http:WebSocketConnectorError|null val){
+    match val {
+        http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
+        any|null err => {//ignore x
+            var x = err;
+        }
     }
 }

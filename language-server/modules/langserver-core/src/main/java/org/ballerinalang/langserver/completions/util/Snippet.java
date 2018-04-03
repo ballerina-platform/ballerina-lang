@@ -27,7 +27,7 @@ public enum Snippet {
     BREAK("break;"),
     CONNECTOR_ACTION("action ${1:name} (${2}) (${3}) {\n\t${4}\n}"),
     CONNECTOR_DEFINITION("connector ${1:name} (${2}) {\n\t${3}\n}"),
-    ENDPOINT("endpoint ${1:http:ServiceEndpoint} ${2:_endpoint} {\n\t${3}\n};"),
+    ENDPOINT("endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};"),
     ENUM("enum ${1:name} {\n\t\n}"),
     FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),

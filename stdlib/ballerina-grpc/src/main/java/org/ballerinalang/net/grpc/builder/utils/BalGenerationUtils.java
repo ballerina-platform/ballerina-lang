@@ -66,7 +66,7 @@ public class BalGenerationUtils {
     }
     
     /**
-     * This function returns the ballerina data type which is mapped to  protobuff data type.
+     * This function returns the ballerina data type which is mapped to  protobuf data type.
      *
      * @param protoType .proto data type
      * @return Ballerina data type.

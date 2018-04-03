@@ -18,12 +18,17 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Test cases for ballerina.security.crypto native functions.
@@ -91,5 +96,49 @@ public class CryptoTest {
         returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA256", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
+    }
+
+    @Test(description = "Testing CRC32 generation for strings")
+    public void testCRC32ForText() {
+        String payload = "Ballerina CRC32 Hash Test";
+        String expectedCRC32Hash = "e1ad4853";
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForText",
+                                                new BValue[]{new BString(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
+    }
+
+    @Test(description = "Testing CRC32 generation for blobs")
+    public void testCRC32ForBinary() {
+        String payload = "Ballerina CRC32 Hash Test for Blob";
+        String expectedCRC32Hash = "f3638b7f";
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForBinary",
+                                                new BValue[]{new BBlob(payload.getBytes(StandardCharsets.UTF_8))});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
+    }
+
+    @Test(description = "Testing CRC32 generation for JSON")
+    public void testCRC32ForJSON() {
+        String payload = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
+        String expectedCRC32Hash = "ce5879b2";
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON",
+                                                new BValue[]{new BJSON(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
+    }
+
+    @Test(description = "Testing CRC32 generation for XML")
+    public void testCRC32ForXML() {
+        String payload = "<foo>hello</foo>";
+        String expectedCRC32Hash = "748efc2";
+
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForXML",
+                                                new BValue[]{new BXMLItem(payload)});
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 }

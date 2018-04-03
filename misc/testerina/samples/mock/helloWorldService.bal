@@ -1,23 +1,25 @@
 package mock;
 
-import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
+import ballerina/io;
 
-@http:configuration {basePath:"/hello"}
-service<http> helloWorld {
-    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
+endpoint http:ServiceEndpoint helloEP {
+    port: 9092
+};
 
-    @http:resourceConfig{
+@http:ServiceConfig {
+    basePath: "/hello"
+}
+service<http:Service> HelloServiceMock bind helloEP {
+
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello(message m) {
-        string action1;
-        message beRep = {};
-        message response = {};
-        string ep = messages:getStringPayload(m);
-        action1 = testConnector.action1();
-        messages:setStringPayload(response, action1);
-        reply response;
+    getEvents (endpoint client, http:Request req) {
+        http:Response res = {};
+        json j = {"Hello":"World"};
+        res.setJsonPayload(j);
+        _ = client -> respond(res);
     }
 }

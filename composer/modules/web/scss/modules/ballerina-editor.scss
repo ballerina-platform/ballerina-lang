@@ -6,6 +6,7 @@ $white:#fff;
       &.ballerina-design-view {
         background-color: #e7eaeb;
         color: #7D7D7D;
+        height: 40px;
         .close-tab {
           color: #7D7D7D;
           background-color: #e7eaeb;
@@ -288,19 +289,19 @@ $white:#fff;
     .bottom-label-icon-wrapper {
       height: 30px;
       width: 30px;
-      background-color: #e8e8e8;
+      background-color: #3c3c3c;
       margin: 0 5px;
       float: left;
       padding: 2px 8px;
-      border: 1px solid #c1c1c1;
-      color: #333;
+      color: #fff;
+      line-height: 26px; 
     }
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-      background-color: #333;
-      border: 1px solid #333;
-      color: #f1f1f1;
+      background-color: #1e1e1e;
+      color: #e7eaeb;
+      font-weight: 400;
     }
     .bottom-view-label {
       display: none;
@@ -344,7 +345,7 @@ $white:#fff;
     width: 400px;
     margin: auto;
     top: 20px;
-    background-color: #d8d8d8;
+    background-color: #988686;
     .list-heading {
       text-align: center;
       font-size: 16px;
@@ -543,22 +544,6 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   margin-right: -2px !important;
 }
 
-.ui.header{
-  font-weight: 300;
-  font-size: 12px;
-  color: #555;
-
-  .icon{
-    font-size: 13px !important;
-    color: #555 !important;
-  }
-  .content{
-    font-size: 12px !important;
-    font-weight: 300 !important;
-    color: #555 !important;
-  
-  }
-}
 .definition-icon {
   opacity: 0 !important;
 }
@@ -580,7 +565,7 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 a.item.menu-button.ui.button.primary {
-  background: #2fb8b0;
+  background: $brand-primary;
   color: #fff;
   padding: 7px 10px !important;
   margin-top: 3px;
@@ -595,4 +580,14 @@ a.item.menu-button.ui.button.primary {
   .icon {
     padding-right: 25px !important;
   }
+}
+.composer-logo{
+  font-size: 15px;
+}
+.aboutWrapper{
+  margin: 0em 0em 1em;
+  line-height: 1em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: #ccc;
 }

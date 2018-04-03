@@ -44,7 +44,9 @@ public enum NodeKind {
     SERVICE,
     STRUCT,
     TYPE_DEFINITION,
+    RECORD,
     OBJECT,
+    TABLE,
     VARIABLE,
     WORKER,
     XMLNS,
@@ -86,6 +88,10 @@ public enum NodeKind {
     XML_COMMENT_LITERAL,
     XML_PI_LITERAL,
     XML_SEQUENCE_LITERAL,
+    STATEMENT_EXPRESSION,
+    MATCH_EXPRESSION,
+    MATCH_EXPRESSION_PATTERN_CLAUSE,
+    CHECK_EXPR,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,

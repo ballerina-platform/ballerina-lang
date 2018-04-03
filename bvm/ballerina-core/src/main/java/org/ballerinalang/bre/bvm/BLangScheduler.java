@@ -32,6 +32,7 @@ import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -74,7 +75,7 @@ public class BLangScheduler {
         CPU.exec(ctx);
     }
     
-    private static void workerCountUp() {
+    public static void workerCountUp() {
         int count = workerCount.incrementAndGet();
         if (count == 1) {
             try {
@@ -83,7 +84,7 @@ public class BLangScheduler {
         }
     }
     
-    private static void workerCountDown() {
+    public static void workerCountDown() {
         int count = workerCount.decrementAndGet();
         if (count <= 0) {
             workersDoneSemaphore.release();
@@ -328,37 +329,37 @@ public class BLangScheduler {
      */
     public static class SchedulerStats {
         
-        private AtomicInteger[] stateCounts;
+        private LongAdder[] stateCounts;
         
         public SchedulerStats() {
-            this.stateCounts = new AtomicInteger[6];
+            this.stateCounts = new LongAdder[6];
             for (int i = 0; i < this.stateCounts.length; i++) {
-                this.stateCounts[i] = new AtomicInteger(0);
+                this.stateCounts[i] = new LongAdder();
             }
         }
 
-        public int getReadyWorkerCount() {
-            return this.stateCounts[0].get();
+        public long getReadyWorkerCount() {
+            return this.stateCounts[0].longValue();
         }
 
-        public int getRunningWorkerCount() {
-            return this.stateCounts[1].get();
+        public long getRunningWorkerCount() {
+            return this.stateCounts[1].longValue();
         }
 
-        public int getExceptedWorkerCount() {
-            return this.stateCounts[2].get();
+        public long getExceptedWorkerCount() {
+            return this.stateCounts[2].longValue();
         }
 
-        public int getWaitingForResponseWorkerCount() {
-            return this.stateCounts[3].get();
+        public long getWaitingForResponseWorkerCount() {
+            return this.stateCounts[3].longValue();
         }
 
-        public int getPausedWorkerCount() {
-            return this.stateCounts[4].get();
+        public long getPausedWorkerCount() {
+            return this.stateCounts[4].longValue();
         }
 
-        public int getWaitingForLockWorkerCount() {
-            return this.stateCounts[5].get();
+        public long getWaitingForLockWorkerCount() {
+            return this.stateCounts[5].longValue();
         }
         
         public void stateTransition(WorkerExecutionContext currentCtx, WorkerState newState) {
@@ -368,11 +369,11 @@ public class BLangScheduler {
             WorkerState oldState = currentCtx.state;
             /* we are not considering CREATED state */
             if (oldState != WorkerState.CREATED) {
-                this.stateCounts[oldState.ordinal()].decrementAndGet();
+                this.stateCounts[oldState.ordinal()].decrement();
             }
             /* we are not counting the DONE state, since it is an ever increasing value */
             if (newState != WorkerState.DONE) {
-                this.stateCounts[newState.ordinal()].incrementAndGet();
+                this.stateCounts[newState.ordinal()].increment();
             }
         }
         

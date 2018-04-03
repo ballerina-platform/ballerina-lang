@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}

@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.command;
 
-import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.LSContext;
+import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 
 import java.util.List;
@@ -27,14 +27,14 @@ import java.util.List;
  * @since v0.964.0
  */
 public class ExecuteCommandKeys {
-    public static final LanguageServerContext.Key<WorkspaceDocumentManagerImpl> DOCUMENT_MANAGER_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BLangPackageContext> BALLERINA_PKG_CONTEXT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> PKG_NAME_KEY
-            = new LanguageServerContext.Key<>();
+    public static final LSContext.Key<WorkspaceDocumentManagerImpl> DOCUMENT_MANAGER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<LSPackageCache> LS_PACKAGE_CACHE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> PKG_NAME_KEY
+            = new LSContext.Key<>();
 }

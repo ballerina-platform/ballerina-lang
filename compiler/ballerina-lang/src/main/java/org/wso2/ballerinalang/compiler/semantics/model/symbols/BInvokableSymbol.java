@@ -34,11 +34,12 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public List<BVarSymbol> params;
     public List<BVarSymbol> defaultableParams;
     public BVarSymbol restParam;
-    public List<BVarSymbol> retParams;
+    public BType retType;
     public Map<Integer, TaintRecord> taintTable;
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;
+    public boolean bodyExist;
 
     public BInvokableSymbol(int tag,
                             int flags,
@@ -49,7 +50,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         super(flags, name, pkgID, type, owner);
         this.tag = tag;
         this.params = new ArrayList<>();
-        this.retParams = new ArrayList<>();
     }
 
     @Override
@@ -58,8 +58,8 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     }
 
     @Override
-    public List<BVarSymbol> getReturnParameters() {
-        return retParams;
+    public BType getReturnType() {
+        return retType;
     }
 
     @Override

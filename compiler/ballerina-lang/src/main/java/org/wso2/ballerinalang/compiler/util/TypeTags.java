@@ -43,8 +43,8 @@ public class TypeTags {
     public static final int ENUM = SERVICE + 1;
     public static final int ARRAY = ENUM + 1;
     public static final int UNION = ARRAY + 1;
-    public static final int NULL = UNION + 1;
-    public static final int PACKAGE = NULL + 1;
+    public static final int NIL = UNION + 1;
+    public static final int PACKAGE = NIL + 1;
     public static final int NONE = PACKAGE + 1;
     public static final int VOID = NONE + 1;
     public static final int XMLNS = VOID + 1;

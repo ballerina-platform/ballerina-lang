@@ -100,9 +100,9 @@ $ docker tag ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT ballerina/ballerina
 5. If the Docker images are listed, it should show an output similar to the following. Notice that the `Image ID` column contains the same value for all four tags. This is because they all point to the same AUFS layer.
 ```
 REPOSITORY                                        TAG                                 IMAGE ID            CREATED             SIZE
-ballerinalang/ballerina                           0.970.0-alpha1-SNAPSHOT                    4daa1c1f2089        1 minute ago        142MB
+ballerinalang/ballerina                           0.970.0-alpha1-SNAPSHOT             4daa1c1f2089        1 minute ago        142MB
 ballerinalang/ballerina                           latest                              4daa1c1f2089        1 minute ago        142MB
-ballerina/ballerina                               0.970.0-alpha1-SNAPSHOT                    4daa1c1f2089        1 minute ago        142MB
+ballerina/ballerina                               0.970.0-alpha1-SNAPSHOT             4daa1c1f2089        1 minute ago        142MB
 ballerina/ballerina                               latest                              4daa1c1f2089        1 minute ago        142MB
 ```
 

@@ -43,37 +43,16 @@ public class ProxyBuildListener extends TomlBaseListener {
         this.proxy = proxy;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterKeyVal(TomlParser.KeyValContext ctx) {
         currentKey.push(ctx.key().getText());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterBasicStringValue(TomlParser.BasicStringValueContext ctx) {
         setToProxy(ctx.getText());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterStdTable(TomlParser.StdTableContext ctx) {
         addHeader(ctx.key().getText());

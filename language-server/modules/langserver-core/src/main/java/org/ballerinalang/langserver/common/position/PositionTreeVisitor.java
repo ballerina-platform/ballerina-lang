@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.common.position;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -95,11 +95,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     private Position position;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private Object previousNode;
     private Stack<BLangNode> nodeStack;
 
-    public PositionTreeVisitor(TextDocumentServiceContext context) {
+    public PositionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
@@ -147,10 +147,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (!funcNode.requiredParams.isEmpty()) {
             funcNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (!funcNode.retParams.isEmpty()) {
-            funcNode.retParams.forEach(this::acceptNode);
         }
 
         if (funcNode.body != null) {
@@ -334,10 +330,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 && assignNode.getPosition().eLine >= this.position.getLine()) {
             this.acceptNode(assignNode.expr);
         }
-
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
     }
 
     @Override
@@ -448,10 +440,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             actionNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!actionNode.retParams.isEmpty()) {
-            actionNode.retParams.forEach(this::acceptNode);
-        }
-
         if (actionNode.body != null) {
             acceptNode(actionNode.body);
         }
@@ -504,10 +492,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (!resourceNode.requiredParams.isEmpty()) {
             resourceNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (!resourceNode.retParams.isEmpty()) {
-            resourceNode.retParams.forEach(this::acceptNode);
         }
 
         if (resourceNode.body != null) {
@@ -603,10 +587,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             workerNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!workerNode.retParams.isEmpty()) {
-            workerNode.retParams.forEach(this::acceptNode);
-        }
-
         if (workerNode.body != null) {
             acceptNode(workerNode.body);
         }
@@ -635,9 +615,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         setPreviousNode(returnNode);
-        if (!returnNode.exprs.isEmpty()) {
-            returnNode.exprs.forEach(this::acceptNode);
-        }
     }
 
     public void visit(BLangInvocation invocationExpr) {

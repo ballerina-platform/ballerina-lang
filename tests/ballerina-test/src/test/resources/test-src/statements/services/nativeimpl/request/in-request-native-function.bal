@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
@@ -81,7 +81,7 @@ function testGetXmlPayload (http:Request req) returns (xml | http:PayloadError) 
     return req.getXmlPayload();
 }
 
-endpoint mock:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListeningServiceEndpoint mockEP {
     port:9090
 };
 

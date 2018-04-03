@@ -45,7 +45,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
- * Test cases for ballerina.net.http request negative native functions.
+ * Test cases for ballerina/http request negative native functions.
  */
 public class RequestNativeFunctionNegativeTest {
 
@@ -201,8 +201,8 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
         BAssertUtil.validateError(resultNegative, 0,
-                "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
+                "undefined function 'setStatusCode' in struct 'ballerina/http:Request'", 4, 5);
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined field 'statusCode' in struct 'ballerina.net.http:Request'", 5, 5);
+                "undefined field 'statusCode' in struct 'ballerina/http:Request'", 5, 5);
     }
 }
