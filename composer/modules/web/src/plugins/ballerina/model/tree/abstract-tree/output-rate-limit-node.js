@@ -19,13 +19,13 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractEndpointTypeNode extends Node {
+class AbstractOutputRateLimitNode extends Node {
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
+    setOutputRateType(newValue, silent, title) {
+        const oldValue = this.outputRateType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.outputRateType = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractEndpointTypeNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'outputRateType',
                     newValue,
                     oldValue,
                 },
@@ -41,18 +41,16 @@ class AbstractEndpointTypeNode extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
+    getOutputRateType() {
+        return this.outputRateType;
     }
 
 
 
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
+    setTimeScale(newValue, silent, title) {
+        const oldValue = this.timeScale;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
-
-        this.packageAlias.parent = this;
+        this.timeScale = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -60,7 +58,7 @@ class AbstractEndpointTypeNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'packageAlias',
+                    attributeName: 'timeScale',
                     newValue,
                     oldValue,
                 },
@@ -68,18 +66,16 @@ class AbstractEndpointTypeNode extends Node {
         }
     }
 
-    getPackageAlias() {
-        return this.packageAlias;
+    getTimeScale() {
+        return this.timeScale;
     }
 
 
 
-    setTypeName(newValue, silent, title) {
-        const oldValue = this.typeName;
+    setRateLimitValue(newValue, silent, title) {
+        const oldValue = this.rateLimitValue;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.typeName = newValue;
-
-        this.typeName.parent = this;
+        this.rateLimitValue = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -87,7 +83,7 @@ class AbstractEndpointTypeNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'typeName',
+                    attributeName: 'rateLimitValue',
                     newValue,
                     oldValue,
                 },
@@ -95,28 +91,28 @@ class AbstractEndpointTypeNode extends Node {
         }
     }
 
-    getTypeName() {
-        return this.typeName;
+    getRateLimitValue() {
+        return this.rateLimitValue;
     }
 
 
 
 
-    isNullable() {
-        return this.nullable;
+    isSnapshot() {
+        return this.snapshot;
     }
 
-    setNullable(newValue, silent, title) {
-        const oldValue = this.nullable;
+    setSnapshot(newValue, silent, title) {
+        const oldValue = this.snapshot;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.nullable = newValue;
+        this.snapshot = newValue;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'nullable',
+                    attributeName: 'snapshot',
                     newValue,
                     oldValue,
                 },
@@ -125,21 +121,21 @@ class AbstractEndpointTypeNode extends Node {
     }
 
 
-    isGrouped() {
-        return this.grouped;
+    isEventBasedRateLimit() {
+        return this.eventBasedRateLimit;
     }
 
-    setGrouped(newValue, silent, title) {
-        const oldValue = this.grouped;
+    setEventBasedRateLimit(newValue, silent, title) {
+        const oldValue = this.eventBasedRateLimit;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.grouped = newValue;
+        this.eventBasedRateLimit = newValue;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'grouped',
+                    attributeName: 'eventBasedRateLimit',
                     newValue,
                     oldValue,
                 },
@@ -149,4 +145,4 @@ class AbstractEndpointTypeNode extends Node {
 
 }
 
-export default AbstractEndpointTypeNode;
+export default AbstractOutputRateLimitNode;

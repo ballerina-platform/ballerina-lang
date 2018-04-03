@@ -19,15 +19,15 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractXmlAttributeAccessExprNode extends Node {
+class AbstractMatchExpressionPatternClauseNode extends Node {
 
 
-    setIndex(newValue, silent, title) {
-        const oldValue = this.index;
+    setVariableNode(newValue, silent, title) {
+        const oldValue = this.variableNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.index = newValue;
+        this.variableNode = newValue;
 
-        this.index.parent = this;
+        this.variableNode.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractXmlAttributeAccessExprNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'index',
+                    attributeName: 'variableNode',
                     newValue,
                     oldValue,
                 },
@@ -43,18 +43,18 @@ class AbstractXmlAttributeAccessExprNode extends Node {
         }
     }
 
-    getIndex() {
-        return this.index;
+    getVariableNode() {
+        return this.variableNode;
     }
 
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setStatement(newValue, silent, title) {
+        const oldValue = this.statement;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.statement = newValue;
 
-        this.expression.parent = this;
+        this.statement.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -62,7 +62,7 @@ class AbstractXmlAttributeAccessExprNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'statement',
                     newValue,
                     oldValue,
                 },
@@ -70,12 +70,12 @@ class AbstractXmlAttributeAccessExprNode extends Node {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getStatement() {
+        return this.statement;
     }
 
 
 
 }
 
-export default AbstractXmlAttributeAccessExprNode;
+export default AbstractMatchExpressionPatternClauseNode;

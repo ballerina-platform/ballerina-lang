@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
+class AbstractPatternClauseNode extends Node {
 
 
-    setValue(newValue, silent, title) {
-        const oldValue = this.value;
+    setPatternStreamingNode(newValue, silent, title) {
+        const oldValue = this.patternStreamingNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.value = newValue;
+        this.patternStreamingNode = newValue;
 
-        this.value.parent = this;
+        this.patternStreamingNode.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'value',
+                    attributeName: 'patternStreamingNode',
                     newValue,
                     oldValue,
                 },
@@ -43,18 +43,18 @@ class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
         }
     }
 
-    getValue() {
-        return this.value;
+    getPatternStreamingNode() {
+        return this.patternStreamingNode;
     }
 
 
 
-    setKey(newValue, silent, title) {
-        const oldValue = this.key;
+    setWithinClause(newValue, silent, title) {
+        const oldValue = this.withinClause;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.key = newValue;
+        this.withinClause = newValue;
 
-        this.key.parent = this;
+        this.withinClause.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -62,7 +62,7 @@ class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'key',
+                    attributeName: 'withinClause',
                     newValue,
                     oldValue,
                 },
@@ -70,12 +70,35 @@ class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
         }
     }
 
-    getKey() {
-        return this.key;
+    getWithinClause() {
+        return this.withinClause;
     }
 
 
+
+
+    isForAllEvents() {
+        return this.forAllEvents;
+    }
+
+    setForAllEvents(newValue, silent, title) {
+        const oldValue = this.forAllEvents;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.forAllEvents = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'forAllEvents',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 
-export default AbstractRecordLiteralKeyValueNode;
+export default AbstractPatternClauseNode;

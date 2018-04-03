@@ -19,7 +19,34 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractXmlAttributeNode extends ExpressionNode {
+class AbstractNamedArgsExprNode extends ExpressionNode {
+
+
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
 
 
     setName(newValue, silent, title) {
@@ -49,33 +76,6 @@ class AbstractXmlAttributeNode extends ExpressionNode {
 
 
 
-    setValue(newValue, silent, title) {
-        const oldValue = this.value;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.value = newValue;
-
-        this.value.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'value',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getValue() {
-        return this.value;
-    }
-
-
-
 }
 
-export default AbstractXmlAttributeNode;
+export default AbstractNamedArgsExprNode;

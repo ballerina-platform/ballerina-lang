@@ -19,15 +19,15 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractSimpleVariableRefNode extends ExpressionNode {
+class AbstractRestArgsExprNode extends ExpressionNode {
 
 
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
+        this.expression = newValue;
 
-        this.packageAlias.parent = this;
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractSimpleVariableRefNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'packageAlias',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -43,39 +43,12 @@ class AbstractSimpleVariableRefNode extends ExpressionNode {
         }
     }
 
-    getPackageAlias() {
-        return this.packageAlias;
-    }
-
-
-
-    setVariableName(newValue, silent, title) {
-        const oldValue = this.variableName;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variableName = newValue;
-
-        this.variableName.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'variableName',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getVariableName() {
-        return this.variableName;
+    getExpression() {
+        return this.expression;
     }
 
 
 
 }
 
-export default AbstractSimpleVariableRefNode;
+export default AbstractRestArgsExprNode;

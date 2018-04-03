@@ -19,13 +19,13 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractEnumeratorNode extends Node {
+class AbstractObjectNode extends Node {
 
 
-    setEnumerators(newValue, silent, title) {
-        const oldValue = this.enumerators;
+    setFunctions(newValue, silent, title) {
+        const oldValue = this.functions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.enumerators = newValue;
+        this.functions = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractEnumeratorNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'enumerators',
+                    attributeName: 'functions',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class AbstractEnumeratorNode extends Node {
         }
     }
 
-    getEnumerators() {
-        return this.enumerators;
+    getFunctions() {
+        return this.functions;
     }
 
 
-    addEnumerators(node, i = -1, silent) {
+    addFunctions(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.enumerators.push(node);
-            index = this.enumerators.length;
+            this.functions.push(node);
+            index = this.functions.length;
         } else {
-            this.enumerators.splice(i, 0, node);
+            this.functions.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class AbstractEnumeratorNode extends Node {
         }
     }
 
-    removeEnumerators(node, silent) {
-        const index = this.getIndexOfEnumerators(node);
-        this.removeEnumeratorsByIndex(index, silent);
+    removeFunctions(node, silent) {
+        const index = this.getIndexOfFunctions(node);
+        this.removeFunctionsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class AbstractEnumeratorNode extends Node {
         }
     }
 
-    removeEnumeratorsByIndex(index, silent) {
-        this.enumerators.splice(index, 1);
+    removeFunctionsByIndex(index, silent) {
+        this.functions.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +99,9 @@ class AbstractEnumeratorNode extends Node {
         }
     }
 
-    replaceEnumerators(oldChild, newChild, silent) {
-        const index = this.getIndexOfEnumerators(oldChild);
-        this.enumerators[index] = newChild;
+    replaceFunctions(oldChild, newChild, silent) {
+        const index = this.getIndexOfFunctions(oldChild);
+        this.functions[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +116,8 @@ class AbstractEnumeratorNode extends Node {
         }
     }
 
-    replaceEnumeratorsByIndex(index, newChild, silent) {
-        this.enumerators[index] = newChild;
+    replaceFunctionsByIndex(index, newChild, silent) {
+        this.functions[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,12 +132,12 @@ class AbstractEnumeratorNode extends Node {
         }
     }
 
-    getIndexOfEnumerators(child) {
-        return _.findIndex(this.enumerators, ['id', child.id]);
+    getIndexOfFunctions(child) {
+        return _.findIndex(this.functions, ['id', child.id]);
     }
 
-    filterEnumerators(predicateFunction) {
-        return _.filter(this.enumerators, predicateFunction);
+    filterFunctions(predicateFunction) {
+        return _.filter(this.functions, predicateFunction);
     }
 
 
@@ -168,10 +168,10 @@ class AbstractEnumeratorNode extends Node {
 
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
+    setFields(newValue, silent, title) {
+        const oldValue = this.fields;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.fields = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -179,7 +179,7 @@ class AbstractEnumeratorNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'fields',
                     newValue,
                     oldValue,
                 },
@@ -187,10 +187,104 @@ class AbstractEnumeratorNode extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
+    getFields() {
+        return this.fields;
     }
 
+
+    addFields(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.fields.push(node);
+            index = this.fields.length;
+        } else {
+            this.fields.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeFields(node, silent) {
+        const index = this.getIndexOfFields(node);
+        this.removeFieldsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeFieldsByIndex(index, silent) {
+        this.fields.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceFields(oldChild, newChild, silent) {
+        const index = this.getIndexOfFields(oldChild);
+        this.fields[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceFieldsByIndex(index, newChild, silent) {
+        this.fields[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfFields(child) {
+        return _.findIndex(this.fields, ['id', child.id]);
+    }
+
+    filterFields(predicateFunction) {
+        return _.filter(this.fields, predicateFunction);
+    }
 
 
     setAnnotationAttachments(newValue, silent, title) {
@@ -310,6 +404,31 @@ class AbstractEnumeratorNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
     setDocumentationAttachments(newValue, silent, title) {
@@ -552,4 +671,4 @@ class AbstractEnumeratorNode extends Node {
 
 }
 
-export default AbstractEnumeratorNode;
+export default AbstractObjectNode;
