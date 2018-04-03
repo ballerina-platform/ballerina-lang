@@ -911,15 +911,15 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createInvocationForForeverBlock(BLangForever forever) {
         List<BLangExpression> args = new ArrayList<>();
-        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType, forever
-                .getSiddhiQuery());
+        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType,
+                forever.getSiddhiQuery());
         args.add(streamingQueryLiteral);
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
         addFunctionPointersToArgs(args, forever.getStreamingQueryStatements());
-        return createInvocationNode(CREATE_FOREVER, args, retTypes);
+        return createInvocationNode(CREATE_FOREVER, args, symTable.noType);
     }
 
     private void addReferenceVariablesToArgs(List<BLangExpression> args, List<BLangExpression> varRefs) {

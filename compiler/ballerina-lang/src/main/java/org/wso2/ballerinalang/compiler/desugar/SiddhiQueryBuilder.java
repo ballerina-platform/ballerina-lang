@@ -57,9 +57,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -367,7 +367,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             String op = " == ";
             if (expr.rhsExpr instanceof BLangLiteral) {
                 BLangLiteral literal = (BLangLiteral) expr.rhsExpr;
-                if (literal.typeTag == TypeTags.NULL && literal.value == null) {
+                if (literal.typeTag == TypeTags.NIL && literal.value == null) {
                     op = " is "; // siddhi equivalent of '==' with null on rhs ( e.g. where e2 is null)
                 }
             }
@@ -420,7 +420,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             } else {
                 op = " or ";
             }
-            BuildPatternWithAndOr(patternStreamingEdgeInputs, op);
+            buildPatternWithAndOr(patternStreamingEdgeInputs, op);
             return;
         }
         if (forWithNotAvailable) {
@@ -451,7 +451,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         addExprToClause((BLangExpression) patternStreamingInput.getTimeExpr(), patternStreamingClause, null);
     }
 
-    private void BuildPatternWithAndOr(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs, String op) {
+    private void buildPatternWithAndOr(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs, String op) {
         BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);

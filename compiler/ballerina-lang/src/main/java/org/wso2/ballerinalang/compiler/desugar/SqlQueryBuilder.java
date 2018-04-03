@@ -37,6 +37,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * Base class for both In memory H2 table sql query builder and the Siddhi query builder.
+ */
 public abstract class SqlQueryBuilder extends BLangNodeVisitor {
 
     StringBuilder orderByClause;
