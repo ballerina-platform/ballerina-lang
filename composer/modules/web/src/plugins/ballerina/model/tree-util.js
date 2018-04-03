@@ -182,8 +182,7 @@ class TreeUtil extends AbstractTreeUtil {
      * @return {*}
      */
     isEndpointTypeVariableDef(node) {
-        const typeNode = _.get(node, 'variable.typeNode');
-        return typeNode && this.isEndpointType(typeNode);
+        return this.isEndpointType(node);
     }
 
     /**
@@ -752,7 +751,7 @@ class TreeUtil extends AbstractTreeUtil {
                 return true;
             }
         });
-        node.getVariableName()
+        node.getName()
         .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 
