@@ -43,6 +43,7 @@ public enum NodeKind {
     RESOURCE,
     SERVICE,
     STRUCT,
+    TYPE_DEFINITION,
     OBJECT,
     VARIABLE,
     WORKER,

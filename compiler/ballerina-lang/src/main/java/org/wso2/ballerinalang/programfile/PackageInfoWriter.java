@@ -147,6 +147,13 @@ public class PackageInfoWriter {
             writeEnumInfo(dataOutStream, enumInfo);
         }
 
+        // Write Type Definition entries
+        TypeDefinitionInfo[] typeDefEntries = packageInfo.getTypeDefinitionInfoEntries();
+        dataOutStream.writeShort(typeDefEntries.length);
+        for (TypeDefinitionInfo typeDefInfo : typeDefEntries) {
+            writeTypeDefinitionInfo(dataOutStream, typeDefInfo);
+        }
+
         // Emit Connector info entries
         ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
         dataOutStream.writeShort(connectorInfoEntries.length);
@@ -296,6 +303,25 @@ public class PackageInfoWriter {
         writeAttributeInfoEntries(dataOutStream, enumInfo.getAttributeInfoEntries());
     }
 
+    private static void writeTypeDefinitionInfo(DataOutputStream dataOutStream,
+                                                TypeDefinitionInfo typeDefinitionInfo) throws IOException {
+        dataOutStream.writeInt(typeDefinitionInfo.nameCPIndex);
+        dataOutStream.writeInt(typeDefinitionInfo.flags);
+        ValueSpaceItemInfo[] valueSpaceItemInfos = typeDefinitionInfo.
+                valueSpaceItemInfos.toArray(new ValueSpaceItemInfo[0]);
+        dataOutStream.writeShort(typeDefinitionInfo.typeDescCPIndexes.size());
+        for (int typeDescCPindex : typeDefinitionInfo.typeDescCPIndexes) {
+            dataOutStream.writeInt(typeDescCPindex);
+        }
+
+        dataOutStream.writeShort(valueSpaceItemInfos.length);
+        for (ValueSpaceItemInfo valueSpaceItem : valueSpaceItemInfos) {
+            writeDefaultValue(dataOutStream, valueSpaceItem.value);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, typeDefinitionInfo.getAttributeInfoEntries());
+    }
 
     private static void writeConnectorInfo(DataOutputStream dataOutStream,
                                            ConnectorInfo connectorInfo) throws IOException {

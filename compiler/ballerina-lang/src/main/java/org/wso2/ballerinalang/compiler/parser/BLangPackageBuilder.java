@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -1361,6 +1362,37 @@ public class BLangPackageBuilder {
             objectNode.functions.forEach(f -> f.setReceiver(receiver));
 
             this.compUnit.addTopLevelNode(objectNode);
+        } else {
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+            typeDefinition.setName(this.createIdentifier(identifier));
+
+            BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+            while (!typeNodeStack.isEmpty()) {
+                BLangType memberType = (BLangType) typeNodeStack.pop();
+                if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
+                    members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
+                } else {
+                    members.memberTypeNodes.add(memberType);
+                }
+            }
+
+            if (members.memberTypeNodes.isEmpty()) {
+                typeDefinition.typeNode = null;
+            } else if (members.memberTypeNodes.size() == 1) {
+                BLangType[] memberArray = new BLangType[1];
+                members.memberTypeNodes.toArray(memberArray);
+                typeDefinition.typeNode = memberArray[0];
+            } else {
+                typeDefinition.typeNode = members;
+            }
+
+            while (!exprNodeStack.isEmpty()) {
+                typeDefinition.valueSpace.add((BLangExpression) exprNodeStack.pop());
+            }
+
+            typeDefinition.pos = pos;
+            typeDefinition.addWS(ws);
+            this.compUnit.addTopLevelNode(typeDefinition);
         }
     }
 

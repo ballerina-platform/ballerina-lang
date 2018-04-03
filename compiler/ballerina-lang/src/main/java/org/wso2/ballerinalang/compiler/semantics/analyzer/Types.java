@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -254,8 +255,33 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
+        if (target.tag == TypeTags.FINITE) {
+            return isFiniteTypeAssignable(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
+    }
+
+    public boolean isFiniteTypeAssignable(BType source, BType target) {
+        BFiniteType finiteType = (BFiniteType) target;
+
+        //TODO Current we allow only value types.
+        if (!isValueType(source)) {
+            return false;
+        }
+
+        boolean foundMemberType = finiteType.memberTypes
+                .stream()
+                .map(memberType -> isAssignable(source, memberType))
+                .anyMatch(foundType -> foundType);
+
+        boolean foundValueSpaceType = finiteType.valueSpaceTypes
+                .stream()
+                .map(memberType -> isAssignable(source, memberType))
+                .anyMatch(foundType -> foundType);
+
+        return (foundMemberType || foundValueSpaceType);
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -473,6 +499,12 @@ public class Types {
         BSymbol symbol = symResolver.resolveImplicitConversionOp(actualType, expType);
         if (expType.tag == TypeTags.UNION && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitConversionOp(actualType, symTable.anyType);
+        }
+
+        //TODO Fix properly Added as implicit conversion.
+        if (expType.tag == TypeTags.FINITE && isValueType(actualType)) {
+            setImplicitCastExpr(expr, actualType, symTable.anyType);
+            symbol = createConversionOperatorSymbol(symTable.anyType, expType, true, InstructionCodes.FTVALUELOAD);
         }
 
         if (symbol == symTable.notFoundSymbol) {

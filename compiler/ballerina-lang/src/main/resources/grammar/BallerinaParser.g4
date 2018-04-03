@@ -101,7 +101,7 @@ privateStructBody
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE_TYPE Identifier typeName
+    :   (PUBLIC)? TYPE_TYPE Identifier (typeName | finiteType)
     ;
 
 objectBody
@@ -220,6 +220,11 @@ endpointType
 endpointInitlization
     :   recordLiteral
     |   ASSIGN variableReference
+    ;
+
+finiteType
+    :   simpleLiteral (PIPE (typeName | simpleLiteral))*
+    |   typeName (PIPE (typeName | simpleLiteral))*
     ;
 
 typeName

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,37 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+
+package org.wso2.ballerinalang.programfile;
 
 /**
- * @since 0.94
+ * Represent serializable unit of Finite Type value space item.
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    OBJECT,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
-    TRANSFORMER,
-    TYPE_DEF,
+public class ValueSpaceItemInfo {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+    //TODO Generalize this properly across struct/annotation etc.
+    public DefaultValue value;
 
-    CAST_OPERATOR,
-    CONVERSION_OPERATOR,
-
-    XMLNS,
-    OTHER
+    public ValueSpaceItemInfo(DefaultValue value) {
+        this.value = value;
+    }
 }
+

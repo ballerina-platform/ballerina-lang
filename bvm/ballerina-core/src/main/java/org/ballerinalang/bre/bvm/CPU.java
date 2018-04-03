@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -112,6 +113,7 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -530,6 +532,7 @@ public class CPU {
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.CHECK_CONVERSION:
+                case InstructionCodes.FTVALUELOAD:
                     execTypeCastOpcodes(ctx, sf, opcode, operands);
                     break;
 
@@ -1899,6 +1902,44 @@ public class CPU {
                 break;
             case InstructionCodes.ANY2STM:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeStream);
+                break;
+            case InstructionCodes.FTVALUELOAD:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                BFiniteType fType = (BFiniteType) typeRefCPEntry.getType();
+                bRefTypeValue = sf.refRegs[i];
+                boolean isLoadSuccessful = false;
+                if (bRefTypeValue == null) {
+                    if (fType.memberTypes.contains(BTypes.typeNull)) {
+                        sf.refRegs[j] = sf.refRegs[i];
+                        break;
+                    }
+                } else {
+                    BType valueType = bRefTypeValue.getType();
+                    if (fType.memberTypes.contains(valueType)) {
+                        sf.refRegs[j] = sf.refRegs[i];
+                        break;
+                    }
+                    Iterator<BValue> valueSpaceItr = fType.valueSpace.iterator();
+                    while (valueSpaceItr.hasNext()) {
+                        BValue valueSpaceItem = valueSpaceItr.next();
+                        if (valueSpaceItem.getType().getTag() == bRefTypeValue.getType().getTag()) {
+                            if (valueSpaceItem.equals(bRefTypeValue)) {
+                                sf.refRegs[j] = sf.refRegs[i];
+                                isLoadSuccessful = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!isLoadSuccessful) {
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_VALUE_LOAD,
+                                    bRefTypeValue, fType)));
+                    handleError(ctx);
+                }
                 break;
             case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:

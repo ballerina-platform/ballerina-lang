@@ -34,6 +34,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.repository.PackageRepository;
@@ -61,6 +62,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
     public List<BLangObject> objects;
+    public List<BLangTypeDefinition> typeDefinitions;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction, startFunction, stopFunction;
@@ -88,6 +90,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.objects = new ArrayList<>();
+        this.typeDefinitions = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
@@ -149,6 +152,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<? extends ObjectNode> getObjects() {
         return objects;
+    }
+
+    @Override
+    public List<? extends TypeDefinition> getTypeDefinitions() {
+        return typeDefinitions;
     }
 
     @Override
@@ -234,6 +242,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addTransformer(TransformerNode transformer) {
         this.transformers.add((BLangTransformer) transformer);
         this.topLevelNodes.add(transformer);
+    }
+
+    @Override
+    public void addTypeDefinition(TypeDefinition typeDefinition) {
+        this.typeDefinitions.add((BLangTypeDefinition) typeDefinition);
+        this.topLevelNodes.add(typeDefinition);
     }
 
     @Override

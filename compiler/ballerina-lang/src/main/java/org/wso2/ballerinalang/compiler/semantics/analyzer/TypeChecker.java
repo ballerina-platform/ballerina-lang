@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -104,6 +105,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -211,6 +213,33 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+        if (expTypes.get(0).tag == TypeTags.FINITE) {
+            BFiniteType expType = (BFiniteType) expTypes.get(0);
+            boolean foundMember = expType.valueSpace
+                    .stream()
+                    .map(memberLiteral -> {
+                        if (((BLangLiteral) memberLiteral).value == null) {
+                            return literalExpr.value == null;
+                        } else {
+                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                        }
+                    })
+                    .anyMatch(found -> found);
+
+            boolean foundMemberType = expType.memberTypes
+                    .stream()
+                    .map(memberType -> types.isAssignable(literalType, memberType))
+                    .anyMatch(foundType -> foundType);
+
+            if (foundMember || foundMemberType) {
+                types.setImplicitCastExpr(literalExpr, literalType, expTypes.get(0));
+                resultTypes = Lists.of(literalType);
+            } else {
+                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                resultTypes = Lists.of(symTable.errType);
+            }
+            return;
+        }
         resultTypes = types.checkTypes(literalExpr, Lists.of(literalType), expTypes);
     }
 
@@ -642,6 +671,9 @@ public class TypeChecker extends BLangNodeVisitor {
         // Look up operator symbol if both rhs and lhs types are error types
         if (lhsType != symTable.errType && rhsType != symTable.errType) {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = resolveBinaryOperatorForFiniteType(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
+            }
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
                         binaryExpr.opKind, lhsType, rhsType);
@@ -1697,5 +1729,30 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!samePkg && Symbols.isPrivate(bStructSymbol.initializerFunc.symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER);
         }
+    }
+
+    private BSymbol resolveBinaryOperatorForFiniteType(OperatorKind opKind,
+                                                       BType lhsType,
+                                                       BType rhsType,
+                                                       BLangBinaryExpr binaryExpr) {
+        if (lhsType.tag == TypeTags.FINITE && types.isValueType(rhsType) ||
+                rhsType.tag == TypeTags.FINITE && types.isValueType(lhsType)) {
+            types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
+            types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
+            int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
+            List<BType> paramTypes = Lists.of(symTable.anyType, symTable.anyType);
+            List<BType> retTypes = Lists.of(symTable.booleanType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+        } else if (lhsType.tag == TypeTags.FINITE
+                && rhsType.tag == TypeTags.FINITE && lhsType == rhsType) {
+            int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
+            List<BType> paramTypes = Lists.of(lhsType, rhsType);
+            List<BType> retTypes = Lists.of(symTable.booleanType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+        }
+
+        return symTable.notFoundSymbol;
     }
 }

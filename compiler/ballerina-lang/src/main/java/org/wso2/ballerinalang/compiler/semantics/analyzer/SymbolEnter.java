@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -76,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -101,6 +103,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -201,6 +204,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
+
+        pkgNode.typeDefinitions.forEach(typeDefinition -> defineNode(typeDefinition, pkgEnv));
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
@@ -377,6 +382,33 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create struct type
         objectNode.symbol.type = new BStructType((BTypeSymbol) objectNode.symbol);
         defineSymbol(objectNode.pos, objectSymbol);
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
+                names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        typeDefinition.symbol = typeDefSymbol;
+
+        HashSet<BType> memberTypes = new HashSet<>();
+        HashSet<BType> valueSpaceTypes = new HashSet<>();
+        HashSet<BLangExpression> resultSet = new HashSet<>();
+
+        for (BLangExpression literal : typeDefinition.valueSpace) {
+            BType literalType = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
+            ((BLangLiteral) literal).type = literalType;
+            valueSpaceTypes.add(literalType);
+            resultSet.add(literal);
+        }
+
+        if (typeDefinition.typeNode != null) {
+            BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
+            memberTypes.add(definedType);
+        }
+
+        typeDefinition.symbol.type = new BFiniteType((BTypeSymbol) typeDefSymbol, memberTypes,
+                valueSpaceTypes, resultSet);
+        defineSymbol(typeDefinition.pos, typeDefSymbol);
     }
 
     @Override
@@ -658,6 +690,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case ENUM:
                 pkgNode.enums.add((BLangEnum) node);
+                break;
+            case TYPE_DEFINITION:
+                pkgNode.typeDefinitions.add((BLangTypeDefinition) node);
                 break;
             case CONNECTOR:
                 pkgNode.connectors.add((BLangConnector) node);
