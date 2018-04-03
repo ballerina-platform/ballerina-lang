@@ -13,7 +13,7 @@
     }
 
     .appname {
-        color: #f17b31;
+        color: $brand-primary;
         margin-left: 5px;
         font-size: 43px;
         vertical-align: 27px;
@@ -39,6 +39,7 @@
             &.welcome-page-tab-title {
                 background-color:#f9f9f9;
                 color: #7D7D7D;
+                height: 30px;
                 .close-tab {
                     background: #f9f9f9 !important;
                     &:hover{

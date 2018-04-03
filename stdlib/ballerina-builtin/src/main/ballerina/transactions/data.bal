@@ -81,7 +81,7 @@ public struct RegistrationRequest {
 }
 
 public function regRequestToJson (RegistrationRequest req) returns json {
-    json j;
+    json j = {};
     j.transactionId = req.transactionId;
     j.participantId = req.participantId;
     json[] protocols = [];
@@ -100,7 +100,7 @@ public struct RegistrationResponse {
 }
 
 public function regResponseToJson (RegistrationResponse res) returns json {
-    json j;
+    json j = {};
     j.transactionId = res.transactionId;
     json[] protocols;
     foreach proto in res.coordinatorProtocols {

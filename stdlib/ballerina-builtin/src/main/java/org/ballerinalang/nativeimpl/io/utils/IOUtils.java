@@ -22,9 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.csv.Format;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
@@ -40,6 +42,16 @@ import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -51,7 +63,6 @@ import static org.ballerinalang.nativeimpl.io.IOConstants.IO_PACKAGE;
  * Represents the util functions of IO operations.
  */
 public class IOUtils {
-
     /**
      * Returns the error struct for the corresponding message.
      *
@@ -295,6 +306,54 @@ public class IOUtils {
         CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(charChannel, eventContext);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
         future.thenApply(function);
+    }
+
+    /**
+     * Creates a delimited record channel to read from CSV file.
+     *
+     * @param filePath path to the CSV file.
+     * @param encoding the encoding of CSV file.
+     * @param format   format of the CSV file.
+     * @return delimited record channel to read from CSV.
+     * @throws IOException during I/O error.
+     */
+    public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, Format format)
+            throws IOException {
+        Path path = Paths.get(filePath);
+        Set<OpenOption> opts = new HashSet<>();
+        if (Files.exists(path)) {
+            opts.add(StandardOpenOption.READ);
+        } else {
+            opts.add(StandardOpenOption.CREATE);
+            opts.add(StandardOpenOption.WRITE);
+        }
+        FileChannel sourceChannel = FileChannel.open(path, opts);
+        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
+        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
+        return new DelimitedRecordChannel(characterChannel, format);
+    }
+
+    /**
+     * Creates a delimited record channel to read from CSV file.
+     *
+     * @param filePath path to the CSV file.
+     * @param encoding the encoding of CSV file.
+     * @param rs       record separator.
+     * @param fs       field separator.
+     * @return delimited record channel to read from CSV.
+     * @throws IOException during I/O error.
+     */
+    public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, String rs,
+                                                                      String fs) throws IOException {
+        Path path = Paths.get(filePath);
+        if (Files.notExists(path)) {
+            String msg = "Unable to find a file in given path: " + filePath;
+            throw new IOException(msg);
+        }
+        FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ);
+        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
+        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
+        return new DelimitedRecordChannel(characterChannel, rs, fs);
     }
 
 }
