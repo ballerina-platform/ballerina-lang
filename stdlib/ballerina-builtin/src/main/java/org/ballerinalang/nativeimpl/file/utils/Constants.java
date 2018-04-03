@@ -36,5 +36,13 @@ public class Constants {
      * IO Error name.
      */
     public static final String IO_ERROR = "IOError";
+    /**
+     * Specifies the struct definition of th path.
+     */
+    public static final String PATH_STRUCT = "Path";
+    /**
+     * Defines the path value.
+     */
+    public static final String PATH_DEFINITION_NAME = "PathDef";
 
 }

@@ -18,10 +18,17 @@
 
 package org.ballerinalang.nativeimpl.file;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.nio.file.Path;
 
 /**
  * Creates the file at the path specified in the File struct.
@@ -30,11 +37,23 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
-        functionName = "get",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT),
-                @ReturnType(type = TypeKind.STRUCT)},
+        functionName = "Path.getPathValue",
+        args = {@Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
+                structPackage = "ballerina.file")
+        },
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Get {
+public class GetPathValue extends BlockingNativeCallableUnit {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void execute(Context context) {
+        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        Path path = (Path) pathStruct.getNativeData(Constants.PATH_STRUCT);
+        String pathValue = path.toString();
+        context.setReturnValues(new BString(pathValue));
+    }
 }
