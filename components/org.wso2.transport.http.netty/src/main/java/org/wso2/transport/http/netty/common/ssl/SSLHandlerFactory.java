@@ -22,6 +22,7 @@ import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
@@ -126,6 +127,15 @@ public class SSLHandlerFactory {
         return addCommonConfigs(engine);
     }
 
+    public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext(boolean enableOcsp)
+            throws SSLException {
+        ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder
+                .forServer(kmf).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
+                .keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols()).enableOcsp(enableOcsp)
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+        return context;
+    }
+
     /**
      * Build ssl engine for client side.
      *
@@ -156,6 +166,13 @@ public class SSLHandlerFactory {
         return engine;
     }
 
+    public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
+        ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
+                .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(kmf)
+                .trustManager(tmf).protocols(sslConfig.getEnableProtocols()).build();
+        return context;
+    }
+
     /**
      * This method will provide netty ssl context which supports HTTP2 over TLS using
      * Application Layer Protocol Negotiation (ALPN)
@@ -163,14 +180,14 @@ public class SSLHandlerFactory {
      * @return instance of {@link SslContext}
      * @throws SSLException if any error occurred during building SSL context.
      */
-    public SslContext createHttp2TLSContextForServer() throws SSLException {
+    public SslContext createHttp2TLSContextForServer(boolean enableOcsp) throws SSLException {
 
         // If listener configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
 
         return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
                 .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
@@ -178,14 +195,15 @@ public class SSLHandlerFactory {
                         new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
                                 ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
                                 ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                                ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).build();
+                                ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
+                .enableOcsp(enableOcsp).build();
     }
 
-    public SslContext createHttp2TLSContextForClient() throws SSLException {
+    public SslContext createHttp2TLSContextForClient(boolean enableOcsp) throws SSLException {
 
         // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
@@ -197,7 +215,8 @@ public class SSLHandlerFactory {
                         ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
                         // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
                         ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                        ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).build();
+                        ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).enableOcsp(enableOcsp).
+                        build();
     }
 
     private KeyManagerFactory getKeyManagerFactory() {

@@ -133,6 +133,11 @@
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>${bcpkix-jdk15on.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <version>${netty-tcnative-boringssl-static.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
