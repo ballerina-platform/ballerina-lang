@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 
 endpoint http:ServiceEndpoint initiatorEP {
@@ -22,7 +22,7 @@ endpoint http:ServiceEndpoint initiatorEP {
 };
 
 endpoint http:ClientEndpoint participant1EP {
-    targets: [{uri: "http://localhost:8889"}]
+    targets:[{url: "http://localhost:8889"}]
 };
 
 State state = new();

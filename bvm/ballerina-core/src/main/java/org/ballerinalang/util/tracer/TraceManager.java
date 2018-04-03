@@ -36,14 +36,13 @@ public interface TraceManager {
     /**
      * Starts a new spans for each loaded tracer.
      *
-     * @param invocationId   to denote resource invocation.
      * @param spanName       to denote the name of the span.
      * @param spanContextMap of the parent span.
      * @param tags           to be included in the span.
      * @param serviceName    of the invoked resource.
      * @return {@link Map} of spans per tracer.
      */
-    Map<String, Object> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
+    Map<String, Object> startSpan(String spanName, Map<String, ?> spanContextMap,
                                   Map<String, String> tags, String serviceName);
 
     /**

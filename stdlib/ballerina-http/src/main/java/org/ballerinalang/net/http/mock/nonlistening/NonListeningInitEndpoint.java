@@ -31,10 +31,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http.mock",
+        orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
-                structPackage = "ballerina.net.http.mock"),
+                structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )

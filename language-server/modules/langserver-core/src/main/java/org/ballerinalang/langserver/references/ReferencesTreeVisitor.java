@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.references;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -80,11 +80,11 @@ import java.util.List;
  */
 public class ReferencesTreeVisitor extends LSNodeVisitor {
     private boolean terminateVisitor = false;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private List<Location> locations;
 
 
-    public ReferencesTreeVisitor(TextDocumentServiceContext context) {
+    public ReferencesTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.locations = context.get(NodeContextKeys.REFERENCE_NODES_KEY);
     }
@@ -120,10 +120,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (!funcNode.requiredParams.isEmpty()) {
             funcNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (!funcNode.retParams.isEmpty()) {
-            funcNode.retParams.forEach(this::acceptNode);
         }
 
         if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
@@ -192,10 +188,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             resourceNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!resourceNode.retParams.isEmpty()) {
-            resourceNode.retParams.forEach(this::acceptNode);
-        }
-
         if (resourceNode.body != null) {
             this.acceptNode(resourceNode.body);
         }
@@ -235,10 +227,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (!actionNode.requiredParams.isEmpty()) {
             actionNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (!actionNode.retParams.isEmpty()) {
-            actionNode.retParams.forEach(this::acceptNode);
         }
 
         if (actionNode.body != null) {
@@ -298,10 +286,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
-
         if (assignNode.expr != null) {
             this.acceptNode(assignNode.expr);
         }
@@ -453,9 +437,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        if (!returnNode.exprs.isEmpty()) {
-            returnNode.exprs.forEach(this::acceptNode);
-        }
     }
 
     @Override

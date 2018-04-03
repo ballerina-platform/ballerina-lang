@@ -29,12 +29,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 /**
- * Native function ballerina.transactions.coordinator:getAvailablePort.
+ * Native function ballerina.transactions:getAvailablePort.
  *
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "transactions.coordinator",
+        orgName = "ballerina", packageName = "transactions",
         functionName = "getAvailablePort",
         returnType = {@ReturnType(type = TypeKind.INT)}
 )

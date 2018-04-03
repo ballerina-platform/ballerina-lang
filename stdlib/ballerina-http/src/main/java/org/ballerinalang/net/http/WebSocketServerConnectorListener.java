@@ -32,9 +32,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.tracer.TraceConstants;
-import org.ballerinalang.util.tracer.TraceManagerWrapper;
-import org.ballerinalang.util.tracer.Tracer;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -56,6 +55,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ENDPOINT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -122,10 +123,11 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             bValues[1] = inRequest;
             WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
-            Tracer tracer = TraceManagerWrapper.newTracer(null, false);
-            upgradeHeaders.entrySet().stream()
-                    .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
-                    .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+            ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
+                    onUpgradeResource.getServiceName(), onUpgradeResource.getName(), null);
+            Map<String, String> httpHeaders = new HashMap<>();
+            upgradeHeaders.entrySet().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
@@ -139,7 +141,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     semaphore.release();
                 }
-            }, null, tracer, bValues);
+            }, null, ctx, bValues);
 
             try {
                 semaphore.acquire();

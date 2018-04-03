@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
@@ -46,7 +46,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
      */
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
-                                      TextDocumentServiceContext completionContext) {
+                                      LSServiceOperationContext completionContext) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatch)) {
             // In the ideal case, this will not get triggered
             return false;

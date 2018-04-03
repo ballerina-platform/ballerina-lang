@@ -227,7 +227,7 @@ public class TextDocumentServiceUtil {
      * @param compileFullProject  compile full project from the source root
      * @return {@link BLangPackage} BLang Package
      */
-    public static List<BLangPackage> getBLangPackage(LanguageServerContext context, WorkspaceDocumentManager docManager,
+    public static List<BLangPackage> getBLangPackage(LSContext context, WorkspaceDocumentManager docManager,
                                                      boolean preserveWhitespace, Class customErrorStrategy,
                                                      boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
@@ -286,7 +286,7 @@ public class TextDocumentServiceUtil {
      * @param customErrorStrategy custom error strategy class
      * @return {@link Compiler} ballerina compiler
      */
-    private static Compiler getCompiler(LanguageServerContext context, String fileName,
+    private static Compiler getCompiler(LSContext context, String fileName,
                                         PackageRepository packageRepository, LSDocument sourceRoot,
                                         boolean preserveWhitespace, Class customErrorStrategy,
                                         WorkspaceDocumentManager documentManager) {
@@ -295,7 +295,7 @@ public class TextDocumentServiceUtil {
                         preserveWhitespace, documentManager);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new TextDocumentServiceContext());
+        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
         compilerContext.put(DiagnosticListener.class, diagnosticListener);

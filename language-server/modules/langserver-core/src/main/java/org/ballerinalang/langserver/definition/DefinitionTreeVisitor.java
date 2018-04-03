@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.definition;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -60,10 +60,10 @@ import java.util.stream.Collectors;
 public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     private boolean terminateVisitor = false;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private String fileName;
 
-    public DefinitionTreeVisitor(TextDocumentServiceContext context) {
+    public DefinitionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
         this.context.put(NodeContextKeys.NODE_KEY, null);
@@ -100,10 +100,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
             if (!funcNode.requiredParams.isEmpty()) {
                 funcNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (!funcNode.retParams.isEmpty()) {
-                funcNode.retParams.forEach(this::acceptNode);
             }
 
             if (funcNode.body != null) {
@@ -163,10 +159,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 resourceNode.requiredParams.forEach(this::acceptNode);
             }
 
-            if (!resourceNode.retParams.isEmpty()) {
-                resourceNode.retParams.forEach(this::acceptNode);
-            }
-
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
             }
@@ -197,10 +189,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
             if (!actionNode.requiredParams.isEmpty()) {
                 actionNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (!actionNode.retParams.isEmpty()) {
-                actionNode.retParams.forEach(this::acceptNode);
             }
 
             if (actionNode.body != null) {
@@ -249,9 +237,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
     }
 
     @Override

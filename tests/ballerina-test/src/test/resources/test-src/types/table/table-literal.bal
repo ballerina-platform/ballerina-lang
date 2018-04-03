@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/data.sql;
+import ballerina/sql;
 
 struct Person {
     int id;
