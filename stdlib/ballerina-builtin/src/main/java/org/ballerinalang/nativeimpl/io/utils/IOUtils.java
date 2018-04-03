@@ -321,9 +321,9 @@ public class IOUtils {
             throws IOException {
         Path path = Paths.get(filePath);
         Set<OpenOption> opts = new HashSet<>();
-        if(Files.exists(path)){
+        if (Files.exists(path)) {
             opts.add(StandardOpenOption.READ);
-        }else {
+        } else {
             opts.add(StandardOpenOption.CREATE);
             opts.add(StandardOpenOption.WRITE);
         }
