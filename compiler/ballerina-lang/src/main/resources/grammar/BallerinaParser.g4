@@ -53,6 +53,7 @@ serviceDefinition
 
 serviceEndpointAttachments
     :   BIND nameReference (COMMA nameReference)*
+    |   BIND recordLiteral
     ;
 
 serviceBody

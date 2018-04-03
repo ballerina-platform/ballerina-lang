@@ -1007,7 +1007,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
         checkExpr(bLangMatchExpression.expr, matchExprEnv);
-        Set<BType> matchExprTypes = new HashSet<>();
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
         bLangMatchExpression.patternClauses.forEach(pattern -> {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
