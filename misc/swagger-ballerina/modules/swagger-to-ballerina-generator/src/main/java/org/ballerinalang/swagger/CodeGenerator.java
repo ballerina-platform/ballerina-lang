@@ -41,6 +41,7 @@ import java.io.PrintWriter;
  */
 public class CodeGenerator {
     private String apiPackage;
+    private String modelPackage;
 
     /**
      * Generates ballerina source for provided Open API Definition in <code>definitionPath</code>
@@ -60,11 +61,11 @@ public class CodeGenerator {
             BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
         BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).apiPackage(apiPackage)
-                .modelPackage(apiPackage);
+                .modelPackage(modelPackage);
         String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
         outPath = outPath == null || outPath.isEmpty() ? "." : outPath;
         String destination =  outPath + File.separator + fileName;
-        String modelDestination = outPath + File.separator + GeneratorConstants.MODELS_FILE_NAME;
+        String schemaDestination = outPath + File.separator + GeneratorConstants.SCHEMA_FILE_NAME;
 
         switch (type) {
             case CONNECTOR:
@@ -72,16 +73,16 @@ public class CodeGenerator {
                         GeneratorConstants.CONNECTOR_TEMPLATE_NAME, destination);
 
                 // Write ballerina structs
-                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
-                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_MODEL_DIR,
+                        GeneratorConstants.SCHEMA_TEMPLATE_NAME, schemaDestination);
                 break;
             case MOCK:
                 writeBallerina(definitionContext, GeneratorConstants.DEFAULT_MOCK_DIR,
                         GeneratorConstants.MOCK_TEMPLATE_NAME, destination);
 
                 // Write ballerina structs
-                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_TEMPLATE_DIR,
-                        GeneratorConstants.MODELS_TEMPLATE_NAME, modelDestination);
+                writeBallerina(definitionContext, GeneratorConstants.DEFAULT_MODEL_DIR,
+                        GeneratorConstants.SCHEMA_TEMPLATE_NAME, schemaDestination);
                 break;
             default:
                 return;
@@ -150,5 +151,13 @@ public class CodeGenerator {
 
     public void setApiPackage(String apiPackage) {
         this.apiPackage = apiPackage;
+    }
+
+    public String getModelPackage() {
+        return modelPackage;
+    }
+
+    public void setModelPackage(String modelPackage) {
+        this.modelPackage = modelPackage;
     }
 }

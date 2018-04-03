@@ -45,6 +45,7 @@ public class CodeGeneratorTest {
         String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setApiPackage("org.ballerina.api");
+        generator.setModelPackage("org.ballerina.api.model");
 
         try {
             generator.generate(GenType.MOCK, definitionPath, testResourceRoot);
