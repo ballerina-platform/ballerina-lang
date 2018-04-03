@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 endpoint http:ClientEndpoint clientEndpoint {
     targets: [{
@@ -17,11 +17,11 @@ function main (string[] args) {
             io:println("GET request:");
             var msg = resp.getJsonPayload();
             match msg {
-                json jsonPayload1 => {
-                    io:println(jsonPayload1);
+                json jsonPayload => {
+                    io:println(jsonPayload);
                 }
-                mime:EntityError payloadError1 => {
-                    io:println(payloadError1.message);
+                http:PayloadError payloadError => {
+                    io:println(payloadError.message);
                 }
             }
         }
@@ -35,11 +35,11 @@ function main (string[] args) {
             io:println("\nPOST request:");
             var msg = resp.getJsonPayload();
             match msg {
-                json jsonPayload1 => {
-                    io:println(jsonPayload1);
+                json jsonPayload => {
+                    io:println(jsonPayload);
                 }
-                mime:EntityError payloadError1 => {
-                    io:println(payloadError1.message);
+                http:PayloadError payloadError => {
+                    io:println(payloadError.message);
                 }
             }
         }
@@ -56,11 +56,11 @@ function main (string[] args) {
             io:println("\nPUT request:");
             var msg = resp.getJsonPayload();
             match msg {
-                json jsonPayload1 => {
-                    io:println(jsonPayload1);
+                json jsonPayload => {
+                    io:println(jsonPayload);
                 }
-                mime:EntityError payloadError1 => {
-                    io:println(payloadError1.message);
+                http:PayloadError payloadError => {
+                    io:println(payloadError.message);
                 }
             }
         }
@@ -79,11 +79,11 @@ function main (string[] args) {
             io:println("\nPATCH request:");
             var msg = resp.getJsonPayload();
             match msg {
-                json jsonPayload1 => {
-                    io:println(jsonPayload1);
+                json jsonPayload => {
+                    io:println(jsonPayload);
                 }
-                mime:EntityError payloadError1 => {
-                    io:println(payloadError1.message);
+                http:PayloadError payloadError => {
+                    io:println(payloadError.message);
                 }
             }
         }
@@ -97,11 +97,11 @@ function main (string[] args) {
             io:println("\nDELETE request:");
             var msg = resp.getJsonPayload();
             match msg {
-                json jsonPayload1 => {
-                    io:println(jsonPayload1);
+                json jsonPayload => {
+                    io:println(jsonPayload);
                 }
-                mime:EntityError payloadError1 => {
-                    io:println(payloadError1.message);
+                http:PayloadError payloadError => {
+                    io:println(payloadError.message);
                 }
             }
         }

@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 endpoint http:ServiceEndpoint servicEp {
@@ -23,16 +23,12 @@ service<http:Service> httpService bind servicEp {
         http:Response resp = {};
         var payload = req.getStringPayload();
         match payload {
-            string val => {
-                io:println(payload);
-                resp.setStringPayload("I received");
-            }
-            mime:EntityError payloadError => {
+            http:PayloadError payloadError => {
                 io:println(payloadError.message);
                 resp.setStringPayload(payloadError.message);
                 resp.statusCode = 500;
             }
-            any => {
+            string val => {
                 io:println(payload);
                 resp.setStringPayload("I received");
             }
@@ -51,16 +47,16 @@ service<http:WebSocketService> wsService {
 
     onOpen (endpoint ep) {
         var conn = ep.getClient();
-        io:println("New WebSocket connection: " + conn.id);
+        io:println("New WebSocket connection: " + ep.id);
     }
 
     onTextMessage (endpoint ep, http:TextFrame frame) {
         io:println(frame.text);
-        ep -> pushText(frame.text);
+        _ = ep -> pushText(frame.text);
     }
 
     onIdleTimeout (endpoint ep) {
         var conn = ep.getClient();
-        io:println("Idle timeout: " + conn.id);
+        io:println("Idle timeout: " + ep.id);
     }
 }
