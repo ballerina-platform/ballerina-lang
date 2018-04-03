@@ -21,19 +21,11 @@ package org.ballerinalang.composer.service.ballerina.launcher.service.util;
  *
  */
 public class LogDTO {
-    private String timestamp;
     private String id;
     private String direction;
-    private String stream;
     private String headers;
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
+    private String httpMethod;
+    private String path;
 
     public void setId(String id) {
         this.id = id;
@@ -51,19 +43,27 @@ public class LogDTO {
         return direction;
     }
 
-    public void setStream(String stream) {
-        this.stream = stream;
-    }
-
-    public String getStream() {
-        return stream;
-    }
-
     public String getHeaders() {
         return headers;
     }
 
     public void setHeaders(String headers) {
         this.headers = headers;
+    }
+
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

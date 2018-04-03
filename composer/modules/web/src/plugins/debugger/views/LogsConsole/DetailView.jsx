@@ -37,7 +37,7 @@ class DetailView extends React.Component {
     }
 
     render() {
-        const { details } = this.props;
+        const { details, rawLog } = this.props;
         const { activeIndex } = this.state;
 
         return (
@@ -50,6 +50,13 @@ class DetailView extends React.Component {
                     </Accordion.Title>
                     <Accordion.Content active={activeIndex === 0}>
                         <code>{details}</code>
+                    </Accordion.Content>
+                    <Accordion.Title index={1} onClick={this.handleClick} active={activeIndex === 1}>
+                        <Icon name='dropdown' />
+                        Raw Log
+                    </Accordion.Title>
+                    <Accordion.Content active={activeIndex === 1}>
+                        <code>{JSON.stringify(rawLog)}</code>
                     </Accordion.Content>
                 </Accordion>
             </Segment>

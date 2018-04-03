@@ -23,6 +23,7 @@ import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.CommandDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.MessageDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
+import org.ballerinalang.composer.service.ballerina.launcher.service.util.LogParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,22 +78,7 @@ public class LaunchManager {
         return launchManagerInstance;
     }
 
-    public void readTraceLogs() {
-        try {
-            ServerSocket listenSocket = new ServerSocket(5010);
-            Socket dataSocket = listenSocket.accept();
-            BufferedReader in = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
-            String line = "";
-            StringBuilder logLineBuilder = new StringBuilder("");
-            while ((line = in.readLine()) != null) {
-                processLogLine(line);
-            }
-        } catch (Exception e) {
-            e.getMessage();
-        }
-    }
-
-    public void processLogLine(String logLine) {
+    public void pushLogToClient(String logLine) {
         pushMessageToClient(launchSession, LauncherConstants.OUTPUT,
                 LauncherConstants.TRACE, logLine);
     }
@@ -150,6 +136,12 @@ public class LaunchManager {
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
         }
+        new Thread(new Runnable() {
+            public void run() {
+                LogParser.getLogParserInstance().startListner(launchManagerInstance);
+            }
+        }).start();
+
     }
 
     public void streamOutput() {
@@ -236,6 +228,7 @@ public class LaunchManager {
             }
 
             terminator.terminate();
+            LogParser.getLogParserInstance().stopListner();
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }

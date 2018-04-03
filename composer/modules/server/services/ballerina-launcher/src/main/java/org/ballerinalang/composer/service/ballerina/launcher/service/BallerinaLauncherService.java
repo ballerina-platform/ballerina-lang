@@ -50,24 +50,8 @@ public class BallerinaLauncherService implements ComposerService {
 
     }
 
-    public void readTraceLogs() {
-        try {
-            ServerSocket listenSocket = new ServerSocket(5010);
-            Socket dataSocket = listenSocket.accept();
-            BufferedReader in = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
-            String line = "";
-            StringBuilder logLineBuilder = new StringBuilder("");
-            while ((line = in.readLine()) != null) {
-                LaunchManager.getInstance(serverConfig).processLogLine(line);
-            }
-        } catch (Exception e) {
-            e.getMessage();
-        }
-    }
-
     public BallerinaLauncherService(ServerConfig serverConfig) {
         this.serverConfig = serverConfig;
-//        readTraceLogs();
     }
 
     @OnOpen
