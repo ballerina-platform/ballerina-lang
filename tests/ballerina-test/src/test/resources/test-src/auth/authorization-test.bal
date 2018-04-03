@@ -30,7 +30,7 @@ function testAuthorizationForNonExistingUser () returns (boolean) {
     permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope1"];
-    return checker.check("ayoma", scopes);
+    return checker.authorize("ayoma", scopes);
 }
 
 function testAuthorizationForNonExistingScope () returns (boolean) {
@@ -38,7 +38,7 @@ function testAuthorizationForNonExistingScope () returns (boolean) {
     permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope-y"];
-    return checker.check("ishara", scopes);
+    return checker.authorize("ishara", scopes);
 }
 
 function testAuthorizationSuccess () returns (boolean) {
@@ -46,7 +46,7 @@ function testAuthorizationSuccess () returns (boolean) {
     permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope2"];
-    return checker.check("isuru", scopes);
+    return checker.authorize("isuru", scopes);
 }
 
 function testAuthorizationSuccessWithMultipleScopes () returns (boolean) {
@@ -54,5 +54,5 @@ function testAuthorizationSuccessWithMultipleScopes () returns (boolean) {
     permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope2", "scope1"];
-    return checker.check("isuru", scopes);
+    return checker.authorize("isuru", scopes);
 }

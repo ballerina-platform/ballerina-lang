@@ -195,7 +195,6 @@
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
 
                 <!-- Observability Dependencies -->
-                <include>org.ballerinalang:ballerina-observe:jar</include>
                 <include>org.ballerinalang:ballerina-trace:jar</include>
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
                 <include>io.opentracing:opentracing-api</include>

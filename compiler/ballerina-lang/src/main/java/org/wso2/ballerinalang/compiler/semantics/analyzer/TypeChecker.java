@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -71,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -78,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -93,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -107,6 +112,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,6 +126,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
+
+    private static final String TABLE_CONFIG = "TableConfig";
 
     private Names names;
     private SymbolTable symTable;
@@ -138,7 +146,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-    private List<BType> resultTypes;
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -209,6 +216,12 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
         resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    public void visit(BLangTableLiteral tableLiteral) {
+        BType actualType = symTable.rootScope.lookup(new Name(TABLE_CONFIG)).symbol.type;
+        checkExpr(tableLiteral.configurationExpr, env, actualType);
+        resultType = types.checkType(tableLiteral, expType, symTable.noType);
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
@@ -292,7 +305,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.STRUCT ||
-                        type.tag == TypeTags.TABLE ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
@@ -678,7 +690,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        BType exprType = null;
+        BType exprType;
         BType actualType = symTable.errType;
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
             // Handle typeof operator separately
@@ -999,6 +1011,67 @@ public class TypeChecker extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
+        checkExpr(bLangMatchExpression.expr, matchExprEnv);
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
+        bLangMatchExpression.patternClauses.forEach(pattern -> {
+            if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
+                symbolEnter.defineNode(pattern.variable, matchExprEnv);
+            }
+            checkExpr(pattern.expr, matchExprEnv);
+            pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
+            matchExprTypes.add(pattern.expr.type);
+        });
+
+        if (matchExprTypes.size() == 1) {
+            bLangMatchExpression.type = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
+        } else {
+            bLangMatchExpression.type =
+                    new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nilType));
+        }
+
+        types.checkTypes(bLangMatchExpression, Lists.of(bLangMatchExpression.type), Lists.of(expType));
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        BType exprType = checkExpr(checkedExpr.expr, env, symTable.noType);
+        if (exprType.tag != TypeTags.UNION) {
+            if (types.isAssignable(exprType, symTable.errStructType)) {
+                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            } else {
+                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            }
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        BUnionType unionType = (BUnionType) exprType;
+        // Get the list of types which are not equivalent with the error type.
+        List<BType> resultTypeList = unionType.memberTypes.stream()
+                .filter(memberType -> !types.isAssignable(memberType, symTable.errStructType))
+                .collect(Collectors.toList());
+        if (resultTypeList.size() == 0) {
+            // All member types in the union are equivalent to the error type.
+            // Checked expression requires at least one type which is not equivalent to the error type.
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        BType actualType;
+        if (resultTypeList.size() == 1) {
+            actualType = resultTypeList.get(0);
+        } else {
+            actualType = new BUnionType(null, new LinkedHashSet<>(resultTypeList),
+                    resultTypeList.contains(symTable.nilType));
+        }
+
+        resultType = types.checkType(checkedExpr, actualType, expType);
+    }
+
     // Private methods
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
@@ -1019,7 +1092,23 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-        BSymbol funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+
+        BSymbol funcSymbol = symTable.notFoundSymbol;
+        // if no package alias, check for same object attached function
+        if (pkgAlias == Names.EMPTY && env.enclObject != null) {
+            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                    env.enclObject.name.value, iExpr.name.value));
+            funcSymbol = symResolver.lookupSymbol(env, objFuncName, SymTag.VARIABLE);
+            if (funcSymbol != symTable.notFoundSymbol) {
+                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
+            }
+        }
+
+        // if no such function found, then try resolving in package
+        if (funcSymbol == symTable.notFoundSymbol) {
+            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        }
+
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             resultType = symTable.errType;
@@ -1190,7 +1279,13 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkNamedArgs(List<BLangExpression> namedArgExprs, List<BVarSymbol> defaultableParams) {
         for (BLangExpression expr : namedArgExprs) {
             BLangIdentifier argName = ((NamedArgNode) expr).getName();
-            BVarSymbol varSym = defaultableParams.stream().filter(param -> param.getName().value.equals(argName.value))
+            BVarSymbol varSym = defaultableParams.stream().filter(param -> {
+                // identifying field param from the symbol TODO any alternative?
+                if (param.field) {
+                    return param.originalName.value.equals(argName.value);
+                }
+                return param.getName().value.equals(argName.value);
+            })
                     .findAny().orElse(null);
             if (varSym == null) {
                 dlog.error(expr.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);
@@ -1237,7 +1332,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (conSymbol == null
                 || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
-                || conSymbol.tag != SymTag.STRUCT) {
+                || !(conSymbol.tag == SymTag.OBJECT || conSymbol.tag == SymTag.STRUCT)) {
+            // TODO : Remove struct dependency.
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
@@ -1249,6 +1345,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BPackageSymbol packageSymbol = (BPackageSymbol) conSymbol.owner;
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 uniqueFuncName, SymTag.FUNCTION);
+        if (actionSym == symTable.notFoundSymbol) {
+            actionSym = symResolver.resolveStructField(iExpr.pos, env, uniqueFuncName, (BTypeSymbol) conSymbol);
+        }
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.name, conSymbol.type);
             resultType = actualType;

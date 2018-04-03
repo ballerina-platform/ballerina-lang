@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -463,5 +464,13 @@ public class ASTBuilderUtil {
             node.setValue(value);
         }
         return node;
+    }
+
+    public static BLangStatementExpression creatStatementExpression(BLangStatement stmt, BLangExpression expr) {
+        BLangStatementExpression stmtExpr = (BLangStatementExpression) TreeBuilder.creatStatementExpression();
+        stmtExpr.stmt = stmt;
+        stmtExpr.expr = expr;
+        stmtExpr.pos = stmt.pos;
+        return stmtExpr;
     }
 }

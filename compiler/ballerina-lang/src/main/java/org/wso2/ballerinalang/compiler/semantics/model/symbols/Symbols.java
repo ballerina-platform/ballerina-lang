@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -128,8 +128,10 @@ public class Symbols {
                                                         Name name,
                                                         PackageID pkgID,
                                                         BType type,
-                                                        BSymbol owner) {
+                                                        BSymbol owner,
+                                                        boolean bodyExist) {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner);
+        symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
     }
@@ -196,7 +198,7 @@ public class Symbols {
             unionType.memberTypes.add(errorType);
             retType = unionType;
         } else {
-            Set<BType> memberTypes = new HashSet<>(2);
+            Set<BType> memberTypes = new LinkedHashSet<>(2);
             memberTypes.add(targetType);
             memberTypes.add(errorType);
             retType = new BUnionType(null, memberTypes, false);

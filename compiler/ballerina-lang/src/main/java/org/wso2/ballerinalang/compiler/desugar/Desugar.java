@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -90,20 +91,23 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTra
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -242,12 +246,12 @@ public class Desugar extends BLangNodeVisitor {
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         //Adding object functions to package level.
-        pkgNode.objects.forEach(o -> {
-            o.functions.forEach(f -> {
+        pkgNode.objects.forEach(o -> o.functions.forEach(f -> {
+            if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
                 pkgNode.functions.add(f);
                 pkgNode.topLevelNodes.add(f);
-            });
-        });
+            }
+        }));
         //Rewriting Object to struct
         pkgNode.objects.forEach(o -> pkgNode.structs.add(rewriteObjectToStruct(o, env)));
 
@@ -261,6 +265,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
         pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
         pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
         annotationDesugar.rewritePackageAnnotations(pkgNode);
@@ -365,7 +370,7 @@ public class Desugar extends BLangNodeVisitor {
         bLangStruct.fields = objectNode.fields;
 //        bLangStruct.functions = rewrite(objectNode.functions, env);
         bLangStruct.initFunction = objectNode.initFunction;
-        bLangStruct.annAttachments = rewrite(objectNode.annAttachments, env);
+        bLangStruct.annAttachments = objectNode.annAttachments;
         bLangStruct.docAttachments = rewrite(objectNode.docAttachments, env);
         bLangStruct.deprecatedAttachments = rewrite(objectNode.deprecatedAttachments, env);
         bLangStruct.isAnonymous = objectNode.isAnonymous;
@@ -889,8 +894,6 @@ public class Desugar extends BLangNodeVisitor {
             expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
             expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
-        } else if (recordLiteral.type.tag == TypeTags.TABLE) {
-            expr = new BLangTableLiteral(recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
             expr = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
         } else {
@@ -902,6 +905,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        tableLiteral.configurationExpr = rewriteExpr(tableLiteral.configurationExpr);
         result = tableLiteral;
     }
 
@@ -1060,7 +1064,11 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
-            return;
+            if (iExpr.exprSymbol == null) {
+                return;
+            }
+            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, (BVarSymbol) iExpr.exprSymbol);
+            iExpr.expr = rewriteExpr(iExpr.expr);
         }
 
         switch (iExpr.expr.type.tag) {
@@ -1411,6 +1419,105 @@ public class Desugar extends BLangNodeVisitor {
         result = createInvocationFromTableExpr(tableQueryExpression);
     }
 
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        // Add the implicit default pattern, that returns the original expression's value.
+        addMatchExprDefaultCase(bLangMatchExpression);
+
+        // Create a temp local var to hold the temp result of the match expression
+        // eg: T a;
+        String matchTempResultVarName = GEN_VAR_PREFIX.value + "temp_result";
+        BLangVariable tempResultVar = ASTBuilderUtil.createVariable(bLangMatchExpression.pos, matchTempResultVarName,
+                bLangMatchExpression.type, null, new BVarSymbol(0, names.fromString(matchTempResultVarName),
+                        this.env.scope.owner.pkgID, bLangMatchExpression.type, this.env.scope.owner));
+
+        BLangVariableDef tempResultVarDef = ASTBuilderUtil.createVariableDef(bLangMatchExpression.pos, tempResultVar);
+        BLangBlockStmt stmts = ASTBuilderUtil.createBlockStmt(bLangMatchExpression.pos, Lists.of(tempResultVarDef));
+        List<BLangMatchStmtPatternClause> patternClauses = new ArrayList<>();
+
+        // Create var ref for the temp result variable
+        BLangVariableReference tempResultVarRef =
+                ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, tempResultVar.symbol);
+
+        for (int i = 0; i < bLangMatchExpression.patternClauses.size(); i++) {
+            BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
+            BLangAssignment assignmentStmt =
+                    ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr, false);
+            BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(pattern.pos, Lists.of(assignmentStmt));
+
+            // Create the pattern
+            // R b => a = b;
+            patternClauses.add(ASTBuilderUtil.createMatchStatementPattern(pattern.pos, pattern.variable, patternBody));
+        }
+
+        stmts.addStatement(ASTBuilderUtil.createMatchStatement(bLangMatchExpression.pos, bLangMatchExpression.expr,
+                patternClauses));
+        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(stmts, tempResultVarRef);
+        statementExpr.type = bLangMatchExpression.type;
+        result = rewriteExpr(statementExpr);
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+
+        //
+        //  person p = bar(check foo()); // foo(): person | error
+        //
+        //    ==>
+        //
+        //  person _$$_;
+        //  switch foo() {
+        //      person p1 => _$$_ = p1;
+        //      error e1 => return e1 or throw e1
+        //  }
+        //  person p = bar(_$$_);
+
+        // Create a temporary variable to hold the checked expression result value e.g. _$$_
+        String checkedExprVarName = GEN_VAR_PREFIX.value;
+        BLangVariable checkedExprVar = ASTBuilderUtil.createVariable(checkedExpr.pos,
+                checkedExprVarName, checkedExpr.type, null, new BVarSymbol(0,
+                        names.fromString(checkedExprVarName),
+                        this.env.scope.owner.pkgID, checkedExpr.type, this.env.scope.owner));
+        BLangVariableDef checkedExprVarDef = ASTBuilderUtil.createVariableDef(checkedExpr.pos, checkedExprVar);
+
+        // Create the pattern to match the success case
+        BLangMatchStmtPatternClause patternSuccessCase = getSafeAssignSuccessPattern(checkedExprVar.pos,
+                checkedExprVar.symbol.type, true, checkedExprVar.symbol, null);
+        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner);
+
+        // Create the match statement
+        BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos,
+                checkedExpr.expr, new ArrayList<BLangMatchStmtPatternClause>() {{
+                    add(patternSuccessCase);
+                    add(patternErrorCase);
+                }});
+
+        // Create the block statement
+        BLangBlockStmt generatedStmtBlock = ASTBuilderUtil.createBlockStmt(checkedExpr.pos,
+                new ArrayList<BLangStatement>() {{
+                    add(checkedExprVarDef);
+                    add(matchStmt);
+                }});
+
+        // Create the variable ref expression for the checkedExprVar
+        BLangSimpleVarRef tempCheckedExprVarRef = ASTBuilderUtil.createVariableRef(
+                checkedExpr.pos, checkedExprVar.symbol);
+
+        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(
+                generatedStmtBlock, tempCheckedExprVarRef);
+        statementExpr.type = checkedExpr.type;
+        result = rewriteExpr(statementExpr);
+    }
+
+    @Override
+    public void visit(BLangStatementExpression bLangStatementExpression) {
+        bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
+        bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
+        result = bLangStatementExpression;
+    }
+
+    // private functions
+
     private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
         List<BLangExpression> args = new ArrayList<>();
         String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
@@ -1511,8 +1618,6 @@ public class Desugar extends BLangNodeVisitor {
                 .getStreamReference();
         return rewrite(fromTable, env);
     }
-
-    // private functions
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
         BLangVariableReference expr;
@@ -2030,15 +2135,13 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
-            case TypeTags.TABLE:
-                return new BLangTableLiteral(type);
             case TypeTags.STREAM:
                 return new BLangStreamLiteral(type, null);
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.STRUCT:
                 if (((BStructSymbol) type.tsymbol).isObject) {
-                    return new BLangTypeInit();
+                    return createTypeInitNode(type);
                 }
                 return new BLangStructLiteral(new ArrayList<>(), type);
             case TypeTags.ARRAY:
@@ -2050,6 +2153,26 @@ public class Desugar extends BLangNodeVisitor {
                 break;
         }
         return null;
+    }
+
+    private BLangTypeInit createTypeInitNode(BType type) {
+        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        objectInitNode.type = type;
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.symbol = ((BStructSymbol) type.tsymbol).initializerFunc.symbol;
+        invocationNode.type = type;
+
+        BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
+
+        nameNode.setLiteral(false);
+        nameNode.setValue(Names.OBJECT_INIT_SUFFIX.getValue());
+        invocationNode.name = nameNode;
+        invocationNode.pkgAlias = pkgNameNode;
+
+        objectInitNode.objectInitInvocation = invocationNode;
+        return objectInitNode;
     }
 
     // TODO: Same function is used in symbol enter. Refactor this to reuse the same function.
@@ -2069,4 +2192,24 @@ public class Desugar extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
+    private void addMatchExprDefaultCase(BLangMatchExpression bLangMatchExpression) {
+        boolean defaultCaseExists = bLangMatchExpression.getPatternClauses()
+                .stream()
+                .anyMatch(pattern -> bLangMatchExpression.type == pattern.variable.type);
+        if (defaultCaseExists) {
+            return;
+        }
+
+        String patternCaseVarName = GEN_VAR_PREFIX.value + "t_match_default";
+        BLangVariable patternMatchCaseVar = ASTBuilderUtil.createVariable(bLangMatchExpression.pos, patternCaseVarName,
+                bLangMatchExpression.type, null, new BVarSymbol(0, names.fromString(patternCaseVarName),
+                        this.env.scope.owner.pkgID, bLangMatchExpression.type, this.env.scope.owner));
+
+        BLangMatchExprPatternClause defaultPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        defaultPattern.variable = patternMatchCaseVar;
+        defaultPattern.expr = ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, patternMatchCaseVar.symbol);
+        defaultPattern.pos = bLangMatchExpression.pos;
+        bLangMatchExpression.patternClauses.add(defaultPattern);
+    }
 }
