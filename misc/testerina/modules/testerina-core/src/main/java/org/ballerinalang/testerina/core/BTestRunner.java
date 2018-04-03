@@ -187,6 +187,7 @@ public class BTestRunner {
             outStream.println("---------------------------------------------------------------------------");
             outStream.println("Running Tests of Package: " + packageName);
             outStream.println("---------------------------------------------------------------------------");
+            shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
             if (suite.getInitFunction() != null) {
