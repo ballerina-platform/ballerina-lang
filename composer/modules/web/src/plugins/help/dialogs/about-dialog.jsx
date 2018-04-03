@@ -57,12 +57,7 @@ class AboutDialog extends React.Component {
                 title={
                     <div>
                         <div className='brand'>
-                            <img
-                                src='images/BallerinaLogo.svg'
-                                alt='Ballerina Composer'
-                                className='logo'
-                            />
-                            <span className='appname'>Composer</span>
+                            <i className='fw fw-composer fw-lg'/>
                         </div>
                         <div className='version'>v0.963.1.SNAPSHOT</div>
                     </div>
