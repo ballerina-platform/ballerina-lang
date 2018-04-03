@@ -1047,8 +1047,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // This list will be used in the desugar phase
         checkedExpr.equivalentErrorTypeList = resultTypeMap.get(true);
+        if (checkedExpr.equivalentErrorTypeList == null ||
+                checkedExpr.equivalentErrorTypeList.size() == 0) {
+            // No member types in this union is equivalent to the error type
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
         List<BType> nonErrorTypeList = resultTypeMap.get(false);
-        if (nonErrorTypeList.size() == 0) {
+        if (nonErrorTypeList == null || nonErrorTypeList.size() == 0) {
             // All member types in the union are equivalent to the error type.
             // Checked expression requires at least one type which is not equivalent to the error type.
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);

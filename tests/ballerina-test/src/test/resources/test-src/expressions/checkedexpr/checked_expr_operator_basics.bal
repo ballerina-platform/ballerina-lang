@@ -148,3 +148,26 @@ function testCheckExprInBinaryExpr7() returns string | customError {
     string str = "hello, " + check readLineError();
     return str;
 }
+
+function readLineProper() returns string | myerror | customError {
+    return "Hello, World!!!";
+}
+
+function testCheckExprInBinaryExpr8() returns string {
+    string str = "hello, " + check readLineProper();
+    return str;
+}
+
+function foo(string s) returns string | customError {
+    return "(" + s + "|" + s + ")";
+}
+
+function bar(string s1, string s2) returns string | customError  {
+    return s1 + " " + s2;
+}
+
+function testCheckedExprAsFuncParam1() returns string | error  {
+    return check bar(check bar(check foo(check foo(check foo(check foo("S")))),
+                check foo(check foo("A"))) ,
+                    check bar(check foo(check foo(check foo("M"))), "done"));
+}
