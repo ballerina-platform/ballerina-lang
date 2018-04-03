@@ -130,7 +130,7 @@ objectFunctions
 
 // TODO merge with fieldDefinition later
 objectFieldDefinition
-    :   typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -173,7 +173,7 @@ enumerator
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
+    :   annotationAttachment* (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
 attachmentPoint
