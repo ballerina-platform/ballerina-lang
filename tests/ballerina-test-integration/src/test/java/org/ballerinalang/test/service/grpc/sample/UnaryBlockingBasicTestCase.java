@@ -32,7 +32,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.grpc.client.helloworld.HelloClient;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.testng.Assert;
@@ -56,17 +55,6 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "unary-server1.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
-    }
-    
-    @Test
-    public void testBlockingJavaClient() throws Exception {
-        HelloClient client = new HelloClient("localhost", 9090);
-        try {
-            String response = client.greet("WSO2");
-            Assert.assertEquals(response, "Hello WSO2");
-        } finally {
-            client.shutdown();
-        }
     }
 
     @Test
