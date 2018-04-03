@@ -39,6 +39,10 @@ public class TableConstants {
     static final String SQL_WHERE = " WHERE ";
     static final String SQL_AND = " AND ";
     static final String SQL_AS = "AS ";
+    static final String SQL_ON = " ON ";
+    static final String PRIMARY_KEY = ",PRIMARY KEY (";
+    static final String INDEX = "IDX_";
+    static final String SQL_CREATE_INDEX = "CREATE INDEX ";
 
     static final String SQL_TYPE_BIGINT = "BIGINT";
     static final String SQL_TYPE_DOUBLE = "DOUBLE";

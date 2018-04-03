@@ -714,6 +714,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordKey(BallerinaParser.RecordKeyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableLiteral(BallerinaParser.TableLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableLiteral(BallerinaParser.TableLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableInitlization}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableInitlization(BallerinaParser.TableInitlizationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableInitlization}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableInitlization(BallerinaParser.TableInitlizationContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#arrayLiteral}.
 	 * @param ctx the parse tree
 	 */
@@ -1541,6 +1561,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitValueTypeTypeExpression(BallerinaParser.ValueTypeTypeExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code tableLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableLiteralExpression(BallerinaParser.TableLiteralExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code tableLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableLiteralExpression(BallerinaParser.TableLiteralExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code lambdaFunctionExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

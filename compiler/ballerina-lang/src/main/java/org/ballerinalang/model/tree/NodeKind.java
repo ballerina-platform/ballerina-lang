@@ -45,6 +45,7 @@ public enum NodeKind {
     STRUCT,
     RECORD,
     OBJECT,
+    TABLE,
     VARIABLE,
     WORKER,
     XMLNS,

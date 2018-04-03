@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -786,6 +787,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeExpr(kv.valueExpr);
         });
         checkAccess(recordLiteral);
+    }
+
+    public void visit(BLangTableLiteral tableLiteral) {
+        /* ignore */
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
