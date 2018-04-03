@@ -47,7 +47,6 @@ class Header extends React.Component {
                 <div id='header-container'>
                     <div className='pull-left brand'>
                         <i className='fw fw-composer composer-logo'/>
-                        {/* <span>Ballerina</span><span className='appname'>Composer </span> */}
                     </div>
                     <div className='pull-left'>
                         {this.props.views.map((viewDef) => {
