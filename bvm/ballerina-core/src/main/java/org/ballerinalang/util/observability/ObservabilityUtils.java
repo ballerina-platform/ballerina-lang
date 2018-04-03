@@ -18,9 +18,13 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.util.tracer.BSpan;
+import org.ballerinalang.util.tracer.TraceManager;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -190,6 +194,18 @@ public class ObservabilityUtils {
             }
             return context;
         });
+    }
+
+    /**
+     * Get the get the trace context of the parent span.
+     * @return {@link Map} of trace context.
+     */
+    public static Map<String, String> getTraceContext() {
+        BSpan bSpan = TraceManager.getInstance().getParentBSpan();
+        if (bSpan != null) {
+            return bSpan.getTraceContext();
+        }
+        return Collections.emptyMap();
     }
 
     /**

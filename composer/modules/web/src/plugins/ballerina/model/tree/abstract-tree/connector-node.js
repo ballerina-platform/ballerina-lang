@@ -22,33 +22,6 @@ import Node from '../node';
 class AbstractConnectorNode extends Node {
 
 
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
-
-
     setEndpointNodes(newValue, silent, title) {
         const oldValue = this.endpointNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -285,6 +258,33 @@ class AbstractConnectorNode extends Node {
     filterVariableDefs(predicateFunction) {
         return _.filter(this.variableDefs, predicateFunction);
     }
+
+
+    setInitFunction(newValue, silent, title) {
+        const oldValue = this.initFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
 
 
     setInitAction(newValue, silent, title) {
@@ -579,31 +579,6 @@ class AbstractConnectorNode extends Node {
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
     setAnnotationAttachments(newValue, silent, title) {
         const oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -721,6 +696,31 @@ class AbstractConnectorNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
     setDocumentationAttachments(newValue, silent, title) {

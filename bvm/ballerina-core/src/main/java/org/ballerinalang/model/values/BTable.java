@@ -76,14 +76,23 @@ public class BTable implements BRefType<Object>, BCollection {
         this.isInMemoryTable = true;
     }
 
-    public BTable(BType type) {
-        if (((BTableType) type).getConstrainedType() != null) {
-            //TODO: temporoly commented out until vm code generation on sql connector action call is fixed.
-            //throw  new BallerinaException("table cannot be created without a constraint");
-            this.tableProvider = TableProvider.getInstance();
-            this.tableName = tableProvider.createTable(type);
-            this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
-            this.isInMemoryTable = true;
+    public BTable(BType type, BStruct configStruct) {
+        BStringArray primaryKeys = null;
+        BStringArray indexColumns = null;
+        BRefValueArray data = null;
+        if (configStruct != null) {
+            primaryKeys = (BStringArray) configStruct.getRefField(0);
+            indexColumns = (BStringArray) configStruct.getRefField(1);
+            data = (BRefValueArray) configStruct.getRefField(2);
+        }
+        //Create table with given contraints.
+        this.tableProvider = TableProvider.getInstance();
+        this.tableName = tableProvider.createTable(((BTableType) type).getConstrainedType(), primaryKeys, indexColumns);
+        this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
+        this.isInMemoryTable = true;
+        //Insert initial data
+        if (data != null) {
+            insertInitialData(data);
         }
     }
 
@@ -217,6 +226,16 @@ public class BTable implements BRefType<Object>, BCollection {
     @Override
     public BIterator newIterator() {
         return new BTable.BTableIterator(this);
+    }
+
+    private void insertInitialData(BRefValueArray data) {
+        int count = (int) data.size();
+        for (int i = 0; i < count; i++) {
+            if (!(data.get(i) instanceof BStruct)) {
+                throw new BallerinaException("initial data should be in struct type");
+            }
+            addData((BStruct) data.get(i));
+        }
     }
 
     private void generateIterator() {

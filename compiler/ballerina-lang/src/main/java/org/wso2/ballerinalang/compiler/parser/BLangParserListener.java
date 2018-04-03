@@ -1048,6 +1048,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTableLiteral(BallerinaParser.TableLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addTableLiteral(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) {
         if (ctx.exception != null) {
             return;

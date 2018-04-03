@@ -266,6 +266,26 @@ public class ConfigRegistry {
     }
 
     /**
+     * Retrieve the table of configurations specified by the table header.
+     *
+     * @param tableHeader The table name to retrieve
+     * @return The config entries in the specified table
+     */
+    public Map<String, String> getConfigTable(String tableHeader) {
+        Map<String, String> table = new HashMap<>();
+        int subStringIndex = tableHeader.length() + 1;
+
+        // TODO: handle tables properly at the config parsing level
+        configEntries.entrySet().forEach(entry -> {
+            if (entry.getKey().startsWith(tableHeader)) {
+                table.put(entry.getKey().substring(subStringIndex), entry.getValue());
+            }
+        });
+
+        return table;
+    }
+
+    /**
      * Removes the specified key from the Config Registry.
      *
      * @param key The key for the configuration value to be removed
