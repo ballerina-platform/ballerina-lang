@@ -67,7 +67,7 @@ public class ToAbsolutePath extends BlockingNativeCallableUnit {
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         BStruct absolutePath = BLangConnectorSPIUtil.createBStruct(context, Constants.FILE_PACKAGE, Constants
                 .PATH_STRUCT);
-        absolutePath.addNativeData(Constants.PATH_STRUCT, getAbsolutePath(path));
+        absolutePath.addNativeData(Constants.PATH_DEFINITION_NAME, getAbsolutePath(path));
         context.setReturnValues(absolutePath);
     }
 }

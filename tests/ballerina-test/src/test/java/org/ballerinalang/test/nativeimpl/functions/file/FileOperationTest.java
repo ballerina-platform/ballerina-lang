@@ -111,12 +111,12 @@ public class FileOperationTest {
 
         boolean directoryNameCondition = result.get(0).endsWith("child1") || result.get(0).endsWith("child2");
         Assert.assertTrue(directoryNameCondition);
-        Assert.assertEquals(result.size(),2);
+        Assert.assertEquals(result.size(), 2);
     }
 
     @Test(description = "Test 'createFile' function in ballerina.file package",
             dependsOnMethods = {"testListDirectory"})
-    public void testCreateFile(){
+    public void testCreateFile() {
         String path = currentDirectoryPath + "/parent/child1/";
         BString result;
         //Will initialize the channel
@@ -128,21 +128,21 @@ public class FileOperationTest {
     }
 
     @Test(description = "Test 'newByteChannel' function in ballerina.file package",
-            dependsOnMethods = {"testCreateFile","testListDirectory"})
-    public void testWriteBytesToFile(){
+            dependsOnMethods = {"testCreateFile", "testListDirectory"})
+    public void testWriteBytesToFile() {
         String path = currentDirectoryPath + "/parent/child1/test.txt";
-        byte [] content = "This is a sample Text".getBytes();
+        byte[] content = "This is a sample Text".getBytes();
         BBlob result;
         //Will initialize the channel
-        BValue[] args = {new BString(path),new BString("w"),new BBlob(content)};
+        BValue[] args = {new BString(path), new BString("w"), new BBlob(content)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testWriteFile", args);
         result = (BBlob) returns[0];
-        Assert.assertEquals(content,result.blobValue());
+        Assert.assertEquals(content, result.blobValue());
     }
 
     @Test(description = "Test 'newByteChannel' function in ballerina.file package",
-            dependsOnMethods = {"testCreateFile","testListDirectory","testWriteBytesToFile"})
-    public void testDirectoryExistanceAndDeletion(){
+            dependsOnMethods = {"testCreateFile", "testListDirectory", "testWriteBytesToFile"})
+    public void testDirectoryExistanceAndDeletion() {
         BBoolean result;
         String path = currentDirectoryPath + "/parent/child1/test.txt";
         BValue[] args = {new BString(path)};
