@@ -1,9 +1,9 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 endpoint http:ClientEndpoint clientEP {
-    targets:[{uri:"http://www.mocky.io"}],
+    targets:[{url:"http://www.mocky.io"}],
     followRedirects : { enabled : true, maxCount : 5 }
 };
 
@@ -16,9 +16,8 @@ function main (string[] args) {
         http:HttpConnectorError connectorErr => {io:println("Connector error!");}
         http:Response resp => {
             match resp.getStringPayload() {
-                mime:EntityError payloadError => {io:println(payloadError.message);}
+                http:PayloadError payloadError => {io:println(payloadError.message);}
                 string payload => io:println("Response received for the GET request is : " + payload);
-                any | null => io:println("null payload");
             }
         }
     }

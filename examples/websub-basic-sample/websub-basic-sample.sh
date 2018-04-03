@@ -6,7 +6,7 @@ ballerina: Default Ballerina WebSub Hub started up at http://localhost:9999/webs
 ballerina: started HTTP/WS server connector localhost:9999
 
 $ ballerina run subscriber.bal
-ballerina: deploying service(s) in 'subscriber.bal'
+ballerina: initiating service(s) in 'subscriber.bal'
 2018-03-23 05:32:30,451 INFO  [ballerina.net.websub] - Initializing WebSub signature validation filter
 ballerina: started HTTP/WS server connector localhost:8181
 
