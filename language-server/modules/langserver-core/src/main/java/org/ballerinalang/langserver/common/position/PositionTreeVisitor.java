@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.common.position;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -92,11 +95,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     private Position position;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private Object previousNode;
     private Stack<BLangNode> nodeStack;
 
-    public PositionTreeVisitor(TextDocumentServiceContext context) {
+    public PositionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
@@ -146,10 +149,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!funcNode.retParams.isEmpty()) {
-            funcNode.retParams.forEach(this::acceptNode);
-        }
-
         if (funcNode.body != null) {
             this.acceptNode(funcNode.body);
         }
@@ -175,7 +174,31 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 : 0);
         CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
                 userDefinedType.pkgAlias.value);
-        if (HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+        if (userDefinedType.type instanceof BUnionType &&
+                HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+            try {
+                BUnionType bUnionType = (BUnionType) userDefinedType.type;
+                for (BType type : bUnionType.memberTypes) {
+                    if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
+                            .typeName.getValue())) {
+                        this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
+                        this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+                        this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                        this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, type.tsymbol.pkgID);
+                        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, type.tsymbol.kind.name());
+                        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, type.tsymbol.kind.name());
+                        this.context.put(NodeContextKeys.NODE_OWNER_KEY, type.tsymbol.owner.name.getValue());
+                        this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, type.tsymbol.owner.pkgID);
+                        this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                        setTerminateVisitor(true);
+                        break;
+                    }
+                }
+            } catch (ClassCastException e) {
+                // Ignores
+            }
+        } else if (userDefinedType.type.tsymbol != null &&
+                HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
             this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
             this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
@@ -307,10 +330,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 && assignNode.getPosition().eLine >= this.position.getLine()) {
             this.acceptNode(assignNode.expr);
         }
-
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
     }
 
     @Override
@@ -421,10 +440,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             actionNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!actionNode.retParams.isEmpty()) {
-            actionNode.retParams.forEach(this::acceptNode);
-        }
-
         if (actionNode.body != null) {
             acceptNode(actionNode.body);
         }
@@ -477,10 +492,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (!resourceNode.requiredParams.isEmpty()) {
             resourceNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (!resourceNode.retParams.isEmpty()) {
-            resourceNode.retParams.forEach(this::acceptNode);
         }
 
         if (resourceNode.body != null) {
@@ -576,10 +587,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             workerNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!workerNode.retParams.isEmpty()) {
-            workerNode.retParams.forEach(this::acceptNode);
-        }
-
         if (workerNode.body != null) {
             acceptNode(workerNode.body);
         }
@@ -608,9 +615,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         setPreviousNode(returnNode);
-        if (!returnNode.exprs.isEmpty()) {
-            returnNode.exprs.forEach(this::acceptNode);
-        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -804,6 +808,30 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (objectNode.receiver != null) {
             this.acceptNode(objectNode.receiver);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        setPreviousNode(matchNode);
+        if (matchNode.expr != null) {
+            this.acceptNode(matchNode.expr);
+        }
+
+        if (!matchNode.patternClauses.isEmpty()) {
+            matchNode.patternClauses.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
+        setPreviousNode(patternClauseNode);
+        if (patternClauseNode.variable != null) {
+            this.acceptNode(patternClauseNode.variable);
+        }
+
+        if (patternClauseNode.body != null) {
+            this.acceptNode(patternClauseNode.body);
         }
     }
 

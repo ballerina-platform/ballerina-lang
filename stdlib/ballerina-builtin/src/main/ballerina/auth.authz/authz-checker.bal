@@ -38,11 +38,11 @@ public function createChecker (permissionstore:PermissionStore permissionstore, 
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
 @Param {value:"username: user name"}
-@Param {value:"scopeName: name of the scope"}
+@Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <AuthzChecker authzChecker> check (string username, string scopeName) returns (boolean) {
+public function <AuthzChecker authzChecker> checkAuth (string username, string[] scopes) returns (boolean) {
     // TODO: check if there are any groups set in the SecurityContext and if so, match against those.
-    return authzChecker.permissionstore.isAuthorized(username, scopeName);
+    return authzChecker.permissionstore.isAuthorized(username, scopes);
 }
 
 @Description {value:"Retrieves the cached authorization result if any, for the given basic auth header value"}

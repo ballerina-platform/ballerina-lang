@@ -14,149 +14,193 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/net.http;
-import ballerina/net.http.resiliency;
+import ballerina/http;
 
-http:Retry retryConfiguration = {count:0};
+int counter = 0;
 
-http:HttpClient endPoint1 = (http:HttpClient) create MockHttpFailOverClient("http://invalidEP", {});
-http:HttpClient endPoint2 = (http:HttpClient) create MockHttpFailOverClient("http://localhost:8080",
-                                                   {endpointTimeout:5000,
-                                                       keepAlive:true,
-                                                       retry:retryConfiguration});
+function testSuccessScenario () returns (http:Response | http:HttpConnectorError) {
 
-http:HttpClient[] failoverGroup = [endPoint1, endPoint2];
-int[] errorCodes = [404, 502];
-
-resiliency:FailoverConfig errorCode = {failoverCodes:errorCodes};
-
-function testSuccessScenario () (http:Response, http:HttpConnectorError) {
-    endpoint<http:HttpClient> ep {
-        create resiliency:Failover(failoverGroup, errorCode);
-    }
+    endpoint http:ClientEndpoint backendClientEP {
+    lbMode: {
+        failoverCodes : [400, 404, 502],
+        interval : 0
+    },
+    targets: [
+             {uri: "http://invalidEP"},
+             {uri: "http://localhost:8080"}],
+    endpointTimeout:5000
+    };
 
     http:Response clientResponse = {};
-    http:HttpConnectorError err;
-    http:Request outReq = {};
-
-    int counter = 0;
+    http:HttpConnectorError err = {};
+    http:Request request = {};
+    http:Failover foClient =? <http:Failover>backendClientEP.httpClient;
+    MockClient mockClient1 = {serviceUri: "http://invalidEP"};
+    MockClient mockClient2 = {serviceUri: "http://localhost:8080", config:{endpointTimeout:1000}};
+    http:HttpClient[] httpClients = [mockClient1, mockClient2];
+    foClient.failoverInferredConfig.failoverClientsArray = httpClients;
 
     while (counter < 2) {
-        clientResponse, err = ep.post("/", outReq);
+       request = {};
+       match foClient.get("/hello", request) {
+            http:Response res => {
+                clientResponse = res;
+            }
+            http:HttpConnectorError httpConnectorError => {
+                err = httpConnectorError;
+            }
+        }
         counter = counter + 1;
     }
-
-    return clientResponse, err;
+    return clientResponse;
 }
 
-function testFailureScenario () (http:Response, http:HttpConnectorError) {
-    endpoint<http:HttpClient> ep {
-        create resiliency:Failover(failoverGroup, errorCode);
-    }
-
+function testFailureScenario () returns (http:Response | http:HttpConnectorError) {
+    endpoint http:ClientEndpoint backendClientEP {
+    lbMode: {
+        failoverCodes : [400, 404, 502],
+        interval : 0
+    },
+    targets: [
+             {uri: "http://invalidEP"},
+             {uri: "http://localhost:50000000"}],
+    endpointTimeout:5000
+    };
     http:Response clientResponse = {};
-    http:HttpConnectorError err;
-    http:Request outReq = {};
-
-    int counter = 0;
+    http:HttpConnectorError err = {};
+    http:Request request = {};
+    http:Failover foClient =? <http:Failover>backendClientEP.httpClient;
+    MockClient mockClient1 = {serviceUri: "http://invalidEP"};
+    MockClient mockClient2 = {serviceUri: "http://localhost:50000000", config:{endpointTimeout:1000}};
+    http:HttpClient[] httpClients = [mockClient1, mockClient2];
+    foClient.failoverInferredConfig.failoverClientsArray = httpClients;
 
     while (counter < 1) {
-        clientResponse, err = ep.post("/", outReq);
+       request = {};
+       match foClient.get("/hello", request) {
+            http:Response res => {
+                clientResponse = res;
+            }
+            http:HttpConnectorError httpConnectorError => {
+                err = httpConnectorError;
+            }
+        }
         counter = counter + 1;
     }
-
-    return clientResponse, err;
+    return err;
 }
 
-connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptions) {
-
-    endpoint<http:HttpClient> endPoint {
-    }
-
-    int actualRequestNumber = 0;
-
-    action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
-        http:Response response;
-        http:HttpConnectorError err;
-        response, err = generateResponse(actualRequestNumber);
-        actualRequestNumber = actualRequestNumber + 1;
-        return response, err;
-    }
-
-    action head (string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action put (string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action execute (string httpVerb, string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action patch (string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action delete (string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action get (string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action options (string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action forward (string path, http:Request req) (http:Response, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action submit (string httpVerb, string path, http:OutRequest req) (http:HttpHandle, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action getResponse (http:HttpHandle handle) (http:InResponse, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action hasPromise (http:HttpHandle handle) (boolean) {
-        return false;
-    }
-
-    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action getPromisedResponse (http:PushPromise promise) (http:InResponse, http:HttpConnectorError) {
-        return null, null;
-    }
-
-    action rejectPromise (http:PushPromise promise) (boolean) {
-        return false;
-    }
+public struct MockClient {
+    string serviceUri;
+    http:ClientEndpointConfiguration config;
 }
 
-function generateErrorResponse () (http:Response, http:HttpConnectorError) {
+public function <MockClient client> post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> head (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> put (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> execute (string httpVerb, string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> patch (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> delete (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> get (string path, http:Request req) returns (http:Response | http:HttpConnectorError){
+    http:Response response = {};
     http:HttpConnectorError err = {};
-    err.message = "Connection refused";
-    err.statusCode = 502;
-    return null, err;
+
+    match  handleFailoverScenario(counter) {
+        http:Response res => {
+            response = res;
+        }
+        http:HttpConnectorError httpConnectorError => {
+            string message = httpConnectorError.message;
+            response.statusCode = httpConnectorError.statusCode;
+            response.setStringPayload(message);
+        }
+    }
+    return response;
 }
 
-function generateResponse (int count) (http:Response, http:HttpConnectorError) {
+public function <MockClient client> options (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
 
+public function <MockClient client> forward (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> submit (string httpVerb, string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> getResponse (http:HttpHandle handle)  returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> hasPromise (http:HttpHandle handle) returns (boolean) {
+    return false;
+}
+
+public function <MockClient client> getNextPromise (http:HttpHandle handle) returns (http:PushPromise | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> getPromisedResponse (http:PushPromise promise) returns (http:Response | http:HttpConnectorError) {
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Unsupported fuction for MockClient";
+    return httpConnectorError;
+}
+
+public function <MockClient client> rejectPromise (http:PushPromise promise) returns (boolean) {
+    return false;
+}
+
+function handleFailoverScenario (int count) returns (http:Response | http:HttpConnectorError) {
     http:Response inResponse = {};
     http:HttpConnectorError err = {};
     if (count == 0) {
         err.message = "Connection refused";
         err.statusCode = 502;
-        return null, err;
+        return err;
     } else {
         inResponse.statusCode = 200;
-        return inResponse, null;
+        return inResponse;
     }
 }

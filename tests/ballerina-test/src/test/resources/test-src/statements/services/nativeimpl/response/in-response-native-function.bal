@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 import ballerina/mime;
 
 function testGetContentLength (http:Response res) returns (string) {
@@ -20,19 +20,19 @@ function testGetHeaders (http:Response res, string key) returns (string[]) {
     return res.getHeaders(key);
 }
 
-function testGetJsonPayload (http:Response res) returns (json | mime:EntityError) {
+function testGetJsonPayload (http:Response res) returns (json | http:PayloadError) {
     return res.getJsonPayload();
 }
 
-function testGetStringPayload (http:Response res) returns (string | null | mime:EntityError) {
+function testGetStringPayload (http:Response res) returns (string | http:PayloadError) {
     return res.getStringPayload();
 }
 
-function testGetBinaryPayload (http:Response res) returns (blob | mime:EntityError) {
+function testGetBinaryPayload (http:Response res) returns (blob | http:PayloadError) {
     return res.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:Response res) returns (xml | mime:EntityError) {
+function testGetXmlPayload (http:Response res) returns (xml | http:PayloadError) {
     return res.getXmlPayload();
 }
 
@@ -70,7 +70,7 @@ function testSetXmlPayload (xml value) returns (http:Response) {
     return res;
 }
 
-endpoint mock:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListeningServiceEndpoint mockEP {
     port:9090
 };
 
@@ -134,7 +134,7 @@ service<http:Service> hello bind mockEP {
         res.setJsonPayload(jsonStr);
         var returnResult = res.getJsonPayload();
         match returnResult {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode = 500;
             }
@@ -152,9 +152,8 @@ service<http:Service> hello bind mockEP {
         http:Response res = {};
         res.setStringPayload(valueStr);
         match res.getStringPayload() {
-            mime:EntityError err => {res.setStringPayload("Error occurred"); res.statusCode =500;}
+            http:PayloadError err => {res.setStringPayload("Error occurred"); res.statusCode =500;}
             string payload =>  res.setStringPayload(payload);
-            any | null => res.setStringPayload("Null payload");
         }
         _ = conn -> respond(res);
     }
@@ -167,7 +166,7 @@ service<http:Service> hello bind mockEP {
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
         match res.getXmlPayload() {
-           mime:EntityError err => {
+           http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
            }

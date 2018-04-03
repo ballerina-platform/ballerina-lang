@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
@@ -37,6 +39,7 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.websocket.Session;
 
 
@@ -89,8 +92,8 @@ public abstract class WebSocketUtil {
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                populateWebSocketConnector(session, wsConnection);
                 BStruct serviceEndpoint = (BStruct) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_ENDPOINT);
+                populateEndpoint(session, serviceEndpoint);
                 wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              serviceEndpoint);
@@ -115,10 +118,27 @@ public abstract class WebSocketUtil {
         });
     }
 
-    public static void populateWebSocketConnector(Session session, BStruct endpoint) {
+    public static void populateEndpoint(Session session, BStruct endpoint) {
         endpoint.setStringField(0, session.getId());
         endpoint.setStringField(1, session.getNegotiatedSubprotocol());
         endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
         endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
+    }
+
+    public static BValue[] getWebSocketError(Context context, ChannelFuture webSocketChannelFuture, String message)
+            throws InterruptedException {
+        AtomicReference<BValue[]> error = new AtomicReference<>();
+        webSocketChannelFuture.addListener((ChannelFutureListener) future1 -> {
+            Throwable cause = future1.cause();
+            if (!future1.isSuccess() && cause != null) {
+                error.set(new BValue[]{BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                           WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
+                                                                           message, new BValue[]{})});
+            } else {
+                error.set(new BValue[0]);
+            }
+        });
+        webSocketChannelFuture.sync();
+        return error.get();
     }
 }

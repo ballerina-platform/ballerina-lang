@@ -19,6 +19,7 @@ package org.ballerinalang.util.transactions;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -39,10 +40,10 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
  */
 public class TransactionUtils {
 
-    public static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
-            int transactionBlockId, String protocol, boolean isInitiator) {
+    public static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String globalTransactionId, String url,
+            int transactionBlockId, String protocol) {
         BValue[] args = {
-                (glbalTransactionId == null ? null : new BString(glbalTransactionId)),
+                (globalTransactionId == null ? null : new BString(globalTransactionId)),
                 new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)
         };
@@ -62,6 +63,13 @@ public class TransactionUtils {
             int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
+    }
+
+    public static boolean isInitiator(WorkerExecutionContext ctx, String globalTransactionId,
+            int transactionBlockId) {
+        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
+        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_IS_INITIATOR, args);
+        return ((BBoolean) returns[0]).booleanValue();
     }
 
     private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {

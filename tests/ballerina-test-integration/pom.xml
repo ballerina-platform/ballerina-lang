@@ -71,6 +71,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty</artifactId>
         </dependency>
@@ -97,6 +102,31 @@
             </extension>
         </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.hsqldb</groupId>
+                                    <artifactId>hsqldb</artifactId>
+                                    <version>${hyperSQL.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
@@ -127,6 +157,9 @@
                         <observability-test-natives.jar>
                             ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar
                         </observability-test-natives.jar>
+                        <hsqldb.jar>
+                            ${project.build.directory}/hsqldb-${hyperSQL.version}.jar
+                        </hsqldb.jar>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
                     </systemPropertyVariables>
@@ -141,6 +174,7 @@
         <!-- Path to the generated natives ballerina files temp directory -->
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>
+            **/grpc-java/**,
             **/protobuf/java/org/ballerinalang/test/util/grpc/**,
             **/protobuf/grpc-java/org/ballerinalang/test/util/grpc/**,
             **/generated/**,

@@ -58,7 +58,7 @@ public class SecureClientSocketTest {
     @BeforeClass
     public void setup() {
         port = ThreadLocalRandom.current().nextInt(47000, 55000);
-        socketClient = BCompileUtil.compile("test-src/io/secureclientsocketio.bal");
+        socketClient = BCompileUtil.compile("test-src/io/secure_client_socket_io.bal");
         boolean connectionStatus;
         int numberOfRetryAttempts = 10;
         try {

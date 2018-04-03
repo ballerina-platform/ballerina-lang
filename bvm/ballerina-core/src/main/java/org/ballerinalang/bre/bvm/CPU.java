@@ -157,7 +157,7 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void tryExec(WorkerExecutionContext ctx) {
-        ctx.state = WorkerState.RUNNING;
+        BLangScheduler.workerRunning(ctx);
 
         int i;
         int j;
@@ -361,8 +361,7 @@ public class CPU {
                 case InstructionCodes.TYPEOF:
                     i = operands[0];
                     j = operands[1];
-                    BValue val = sf.refRegs[i];
-                    if (val == null || (val instanceof BString && ((BString) val).value() == null)) {
+                    if (sf.refRegs[i] == null) {
                         sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
                         break;
                     }
@@ -716,8 +715,10 @@ public class CPU {
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.NEWXMLPI:
-                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLSEQSTORE:
+                case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.XMLLOAD:
+                case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.NEWXMLSEQ:
                     execXMLOpcodes(ctx, sf, opcode, operands);
                     break;
@@ -1767,7 +1768,7 @@ public class CPU {
 
                 sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
                 break;
-            case InstructionCodes.XMLLOAD:
+            case InstructionCodes.XMLSEQLOAD:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
@@ -1781,11 +1782,37 @@ public class CPU {
                 long index = sf.longRegs[j];
                 sf.refRegs[k] = xmlVal.getItem(index);
                 break;
+            case InstructionCodes.XMLLOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError(ctx);
+                    break;
+                }
+
+                String qname = sf.stringRegs[j];
+                sf.refRegs[k] = xmlVal.children(qname);
+                break;
+            case InstructionCodes.XMLLOADALL:
+                i = operands[0];
+                j = operands[1];
+
+                xmlVal = (BXML<?>) sf.refRegs[i];
+                if (xmlVal == null) {
+                    handleNullRefError(ctx);
+                    break;
+                }
+
+                sf.refRegs[j] = xmlVal.children();
+                break;
             case InstructionCodes.NEWXMLELEMENT:
             case InstructionCodes.NEWXMLCOMMENT:
             case InstructionCodes.NEWXMLTEXT:
             case InstructionCodes.NEWXMLPI:
-            case InstructionCodes.XMLSTORE:
+            case InstructionCodes.XMLSEQSTORE:
             case InstructionCodes.NEWXMLSEQ:
                 execXMLCreationOpcodes(ctx, sf, opcode, operands);
                 break;
@@ -1883,12 +1910,11 @@ public class CPU {
 
                 bRefTypeValue = sf.refRegs[i];
 
-                if (bRefTypeValue == null) {
-                    sf.refRegs[j] = null;
-                } else if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
+                if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
-                    handleTypeCastError(ctx, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
+                            typeRefCPEntry.getType());
                 }
                 break;
             case InstructionCodes.IS_ASSIGNABLE:
@@ -2283,7 +2309,7 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
-            case InstructionCodes.XMLSTORE:
+            case InstructionCodes.XMLSEQSTORE:
                 i = operands[0];
                 j = operands[1];
 
@@ -2535,14 +2561,13 @@ public class CPU {
         }
 
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        boolean isInitiator = true;
         if (localTransactionInfo == null) {
             String globalTransactionId;
             String protocol = null;
             String url = null;
             if (isGlobalTransactionEnabled) {
                 BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
-                        TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
+                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
                 BStruct txDataStruct = (BStruct) returns[0];
                 globalTransactionId = txDataStruct.getStringField(1);
                 protocol = txDataStruct.getStringField(2);
@@ -2554,10 +2579,8 @@ public class CPU {
             ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
             if (isGlobalTransactionEnabled) {
-                isInitiator = false;
                 TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
-                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol(),
-                        isInitiator);
+                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
             }
         }
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
@@ -2566,7 +2589,7 @@ public class CPU {
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
                                          int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
+        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
             if (ctx.getError() == null) {
                 ctx.ip = startOfNoThrowEndIP;
             } else {
@@ -2587,7 +2610,7 @@ public class CPU {
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionFailed(transactionBlockId);
+                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
                 if (notifyCoordinator) {
                     if (isGlobalTransactionEnabled) {
                         TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
@@ -2862,7 +2885,10 @@ public class CPU {
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType) {
-        BType rhsType = rhsValue.getType();
+        BType rhsType = BTypes.typeNull;
+        if (rhsValue != null) {
+            rhsType = rhsValue.getType();
+        }
 
         if (rhsType.equals(lhsType)) {
             return true;

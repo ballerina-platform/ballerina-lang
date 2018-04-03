@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
@@ -7,7 +7,7 @@ struct Data {
     string name;
 }
 
-endpoint mock:NonListeningServiceEndpoint sessionEP {
+endpoint http:NonListeningServiceEndpoint sessionEP {
     port:9090
 };
 
@@ -129,7 +129,7 @@ service<http:Service> sample bind sessionEP {
         http:Response res = {};
         string result;
         match req.getStringPayload() {
-            mime:EntityError err => res.setStringPayload("Error");
+            http:PayloadError err => res.setStringPayload("Error");
             string textPayload => {
                 result = textPayload;
                 http:Session session = req.createSessionIfAbsent();
@@ -141,7 +141,6 @@ service<http:Service> sample bind sessionEP {
                 }
                 res.setStringPayload(result);
             }
-            any | null => res.setStringPayload("null payload");
         }
         _ = conn -> respond(res);
     }
@@ -225,7 +224,7 @@ service<http:Service> sample2 bind sessionEP {
     myStruct (endpoint conn, http:Request req) {
         http:Response res = {};
         match req.getStringPayload() {
-            mime:EntityError err => res.setStringPayload("Error");
+            http:PayloadError err => res.setStringPayload("Error");
             string payload => {
                 Data d = {name:payload};
                 http:Session Session = req.createSessionIfAbsent();
@@ -241,7 +240,6 @@ service<http:Service> sample2 bind sessionEP {
                 }
                 res.setStringPayload(d.name);
             }
-            any | null => res.setStringPayload("Null Payload");
         }
         _ = conn -> respond(res);
     }

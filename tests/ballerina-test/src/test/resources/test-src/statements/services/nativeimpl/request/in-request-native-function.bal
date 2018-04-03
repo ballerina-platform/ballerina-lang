@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
@@ -25,12 +25,6 @@ function testSetHeader (string key, string value) returns (http:Request) {
 function testSetJsonPayload (json value) returns (http:Request) {
     http:Request req = {};
     req.setJsonPayload(value);
-    return req;
-}
-
-function testSetProperty (string name, string value) returns (http:Request) {
-    http:Request req = {};
-    req.setProperty(name, value);
     return req;
 }
 
@@ -66,7 +60,7 @@ function testGetHeaders (http:Request req, string key) returns (string[]) {
     return req.getHeaders(key);
 }
 
-function testGetJsonPayload (http:Request req) returns (json | mime:EntityError) {
+function testGetJsonPayload (http:Request req) returns (json | http:PayloadError) {
     return req.getJsonPayload();
 }
 
@@ -75,19 +69,19 @@ function testGetMethod (http:Request req) returns (string) {
     return method;
 }
 
-function testGetStringPayload (http:Request req) returns (string | null | mime:EntityError) {
+function testGetStringPayload (http:Request req) returns (string | http:PayloadError) {
     return req.getStringPayload();
 }
 
-function testGetBinaryPayload (http:Request req) returns (blob | mime:EntityError) {
+function testGetBinaryPayload (http:Request req) returns (blob | http:PayloadError) {
     return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:Request req) returns (xml | mime:EntityError) {
+function testGetXmlPayload (http:Request req) returns (xml | http:PayloadError) {
     return req.getXmlPayload();
 }
 
-endpoint mock:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListeningServiceEndpoint mockEP {
     port:9090
 };
 
@@ -164,7 +158,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = {};
         var returnResult = req.getJsonPayload();
         match returnResult {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode = 500;
             }
@@ -181,12 +175,11 @@ service<http:Service> hello bind mockEP {
     GetStringPayload (endpoint conn, http:Request req) {
         http:Response res = {};
         match req.getStringPayload() {
-             mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
-             }
+            }
              string payload =>  res.setStringPayload(payload);
-             any | null => res.setStringPayload("Null payload");
         }
         _ = conn -> respond(res);
     }
@@ -197,14 +190,14 @@ service<http:Service> hello bind mockEP {
     GetXmlPayload (endpoint conn, http:Request req) {
         http:Response res = {};
         match req.getXmlPayload() {
-             mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
-             }
-             xml xmlPayload => {
+            }
+            xml xmlPayload => {
                 var name = xmlPayload.getTextValue();
                 res.setStringPayload(name);
-             }
+            }
         }
         _ = conn -> respond(res);
     }
@@ -215,7 +208,7 @@ service<http:Service> hello bind mockEP {
     GetBinaryPayload (endpoint conn, http:Request req) {
         http:Response res = {};
         match req.getBinaryPayload() {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -233,7 +226,7 @@ service<http:Service> hello bind mockEP {
     GetByteChannel (endpoint conn, http:Request req) {
         http:Response res = {};
         match req.getByteChannel() {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -302,7 +295,7 @@ service<http:Service> hello bind mockEP {
         var returnResult = req.getJsonPayload();
         http:Response res = {};
         match returnResult {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode = 500;
             }
@@ -321,12 +314,11 @@ service<http:Service> hello bind mockEP {
         req.setStringPayload(value);
         http:Response res = {};
         match req.getStringPayload() {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
             }
             string payload =>  res.setJsonPayload({lang:payload});
-            any | null => res.setStringPayload("Null payload");
         }
         _ = conn -> respond(res);
     }
@@ -340,7 +332,7 @@ service<http:Service> hello bind mockEP {
         req.setXmlPayload(xmlStr);
         http:Response res = {};
         match req.getXmlPayload() {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
             }
@@ -362,14 +354,14 @@ service<http:Service> hello bind mockEP {
         req.setBinaryPayload(payload);
         http:Response res = {};
         match req.getBinaryPayload() {
-            mime:EntityError err => {
+            http:PayloadError err => {
                 res.setStringPayload("Error occurred");
                 res.statusCode =500;
             }
             blob blobPayload => {
-                string name = blobPayload.toString("UTF-8");
+            string name = blobPayload.toString("UTF-8");
                 res.setJsonPayload({lang:name});
-             }
+            }
         }
         _ = conn -> respond(res);
     }

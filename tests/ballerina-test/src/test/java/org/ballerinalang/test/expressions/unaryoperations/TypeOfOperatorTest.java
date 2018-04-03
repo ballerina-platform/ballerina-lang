@@ -551,7 +551,7 @@ public class TypeOfOperatorTest {
         Assert.assertEquals(returns[5].stringValue(), "boolean");
     }
 
-    @Test(description = "Test type of json")
+    @Test(description = "Test type of json", enabled = false)
     public void testCheckTypeOfJson() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckTypeOfJson");
         Assert.assertSame(returns[0].getClass(), BJSON.class);
@@ -592,13 +592,5 @@ public class TypeOfOperatorTest {
         int actual = (int) ((BInteger) returns[0]).intValue();
         int expected = 1;
         Assert.assertEquals(actual, expected);
-    }
-
-    @Test
-    public void testTypeOfNullString() {
-        BValue[] args = { new BString(null) };
-        BValue[] returns = BRunUtil.invoke(result, "testTypeOfNullString", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].stringValue(), "null");
     }
 }

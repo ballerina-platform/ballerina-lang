@@ -189,6 +189,6 @@ public class VariableDefinitionTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0, "mismatched input '['. expecting Identifier", 1, 10);
         BAssertUtil.validateError(resultNegative, 1,
-                "mismatched input '='. expecting {'[', '|', Identifier}", 1, 15);
+                "mismatched input '='. expecting {'[', '?', '|', Identifier}", 1, 15);
     }
 }

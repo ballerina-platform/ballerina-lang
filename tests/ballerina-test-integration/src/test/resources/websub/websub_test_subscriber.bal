@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.websub;
 
 endpoint websub:SubscriberServiceEndpoint websubEP {
@@ -40,7 +40,7 @@ service<websub:SubscriberService> websubSubscriber bind websubEP {
         var reqPayload = request.getJsonPayload();
         match (reqPayload) {
             json jsonPayload => { io:println("WebSub Notification Received: " + jsonPayload.toString()); }
-            mime:EntityError => { io:println("Error occurred processing WebSub Notification"); }
+            http:PayloadError => { io:println("Error occurred processing WebSub Notification"); }
         }
     }
 

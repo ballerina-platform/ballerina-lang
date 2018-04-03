@@ -22,12 +22,13 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
@@ -52,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -89,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -120,10 +122,10 @@ public class TreeVisitor extends LSNodeVisitor {
     private Stack<BLangBlockStmt> blockStmtStack;
     private Stack<Boolean> isCurrentNodeTransactionStack;
     private Class cursorPositionResolver;
-    private TextDocumentServiceContext documentServiceContext;
+    private LSServiceOperationContext documentServiceContext;
     private BLangNode previousNode = null;
 
-    public TreeVisitor(TextDocumentServiceContext documentServiceContext) {
+    public TreeVisitor(LSServiceOperationContext documentServiceContext) {
         this.documentServiceContext = documentServiceContext;
         init(this.documentServiceContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
     }
@@ -614,16 +616,6 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
-        // No Implementation
-    }
-
-    @Override
-    public void visit(BLangIdentifier identifierNode) {
-        // No Implementation
-    }
-
-    @Override
     public void visit(BLangBind bindNode) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(bindNode.getPosition(),
                 bindNode, this, this.documentServiceContext);
@@ -685,6 +677,38 @@ public class TreeVisitor extends LSNodeVisitor {
         objectNode.functions.forEach(f -> acceptNode(f, objectEnv));
         blockOwnerStack.pop();
         this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(matchNode.getPosition(), matchNode, this, this.documentServiceContext)) {
+            this.blockOwnerStack.push(matchNode);
+            matchNode.getPatternClauses().forEach(patternClause -> {
+                cursorPositionResolver = MatchStatementScopeResolver.class;
+                acceptNode(patternClause, symbolEnv);
+            });
+            this.blockOwnerStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClause) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.documentServiceContext)) {
+            blockOwnerStack.push(patternClause);
+            // If the variable is not equal to '_', then define the variable in the block scope
+            if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
+                SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, symbolEnv);
+                cursorPositionResolver = BlockStatementScopeResolver.class;
+                acceptNode(patternClause.body, blockEnv);
+                blockOwnerStack.pop();
+                return;
+            }
+            // TODO: Check with the semantic analyzer implementation as well.
+            acceptNode(patternClause.body, symbolEnv);
+            blockOwnerStack.pop();
+        }
     }
 
     /**

@@ -18,17 +18,16 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSPackageCache;
+import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -36,81 +35,27 @@ import java.util.Arrays;
  */
 public class PackageNameContextResolver extends AbstractItemResolver {
     
-    private static final ArrayList<String> TERMINAL_TOKENS = new ArrayList<>(Arrays.asList("\n", "\r", ";", "{",
-            "<EOF>", "const", "function", "struct", "service", "connector", "enum", "transform", "import",
-            "streamlet"));
-    
-    private static final String IMPORT_KEYWORD = "import";
-    
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int currentTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        StringBuilder importPkgName = new StringBuilder();
-        Token evalToken = tokenStream.get(currentTokenIndex);
-        
-        while (true) {
-            if (evalToken.getText().equals(IMPORT_KEYWORD)) {
-                break;
-            }
-            currentTokenIndex--;
-            if (currentTokenIndex < 0) {
-                break;
-            }
-            evalToken = tokenStream.get(currentTokenIndex);
-        }
-        
-        if (currentTokenIndex >= 0) {
-            currentTokenIndex++;
-            String tokenText;
-            while (true) {
-                if (currentTokenIndex > tokenStream.size()) {
-                    break;
-                }
-                evalToken = tokenStream.get(currentTokenIndex);
-                tokenText = evalToken.getText();
-                if (evalToken.getChannel() == Token.DEFAULT_CHANNEL) {
-                    if (TERMINAL_TOKENS.contains(tokenText)) {
-                        break;
-                    }
-                    importPkgName.append(tokenText);
-                }
-                currentTokenIndex++;
-            }
-        }
+        LSPackageCache lsPackageCache = completionContext.get(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY);
 
-        BLangPackageContext bLangPkgContext = completionContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY);
-        ArrayList<PackageID> sdkPackages = bLangPkgContext
-                .getSDKPackages(completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
-
-        ArrayList<String> currentLabelList = new ArrayList<>();
-        sdkPackages.forEach(packageID -> {
-            String packageName = packageID.getName().getValue();
-            String comparingPkgName = importPkgName.toString().substring(0, importPkgName.toString().lastIndexOf("."))
-                    + ".";
-            
-            if (packageName.startsWith(comparingPkgName)) {
-                String trimmedPkgName = packageName.replaceFirst(comparingPkgName, "");
-                String label = trimmedPkgName;
-                String insertText = label;
-                
-                if (trimmedPkgName.contains(".")) {
-                    label = trimmedPkgName.substring(0, trimmedPkgName.indexOf("."));
-                    insertText = label + ".";
-                }
-                
-                if (!currentLabelList.contains(label)) {
-                    currentLabelList.add(label);
-                    CompletionItem item = new CompletionItem();
-                    item.setLabel(label);
-                    item.setInsertText(insertText);
-                    item.setKind(CompletionItemKind.File);
-                    completionItems.add(item);
-                }
-            }
+        lsPackageCache.getPackageMap().entrySet().forEach(pkgEntry -> {
+            PackageID packageID = pkgEntry.getValue().packageID;
+            String label = packageID.getOrgName().getValue() + "/" + packageID.getName().getValue();
+            String insertText = label + ";";
+            fillImportCompletion(label, insertText, completionItems);
         });
         
         return completionItems;
+    }
+    
+    private static void fillImportCompletion(String label, String insertText, List<CompletionItem> completionItems) {
+        CompletionItem item = new CompletionItem();
+        item.setLabel(label);
+        item.setInsertText(insertText);
+        item.setKind(CompletionItemKind.File);
+        item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+        completionItems.add(item);
     }
 }

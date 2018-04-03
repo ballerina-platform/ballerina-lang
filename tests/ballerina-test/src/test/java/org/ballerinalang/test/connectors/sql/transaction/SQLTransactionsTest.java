@@ -150,8 +150,14 @@ public class SQLTransactionsTest {
     public void testNestedThreeLevelTransactonFailedWithRetrySuccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailedWithRetrySuccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed txL3 txL3_If");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
+    }
+
+    @Test(groups = "TransactionTest", enabled = false)
+    public void testTransactionWithWorkers() {
+        BValue[] returns = BRunUtil.invoke(result, "testTransactionWithWorkers");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @Test(dependsOnGroups = "TransactionTest")

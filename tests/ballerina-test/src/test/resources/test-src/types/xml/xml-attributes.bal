@@ -200,8 +200,8 @@ function testGetAttributesAsMap() returns (map, map, string, string) {
     map m1 = <map> x1@;
     map m2 = <map> x2@;
     
-    var s1 =? <string> m1["{http://sample.com/wso2/a1}foo1"];
-    var s2 =? <string> m1[ns0:foo1];
+    var s1 = <string> m1["{http://sample.com/wso2/a1}foo1"];
+    var s2 = <string> m1[ns0:foo1];
     return (m1, m2, s1, s2);
 }
 
@@ -261,7 +261,7 @@ function testSetAttributes() returns (xml) {
 
 function testGetAttributeFromSingletonSeq() returns (string) {
     var x1 = xml `<root><child xmlns:p1="http://wso2.com/" xmlns:p2="http://sample.com/wso2/a1/" p1:foo="bar"/></root>`;
-    xml x2 = x1.children();
+    xml x2 = x1.*;
     return x2@["{http://wso2.com/}foo"];
 }
 

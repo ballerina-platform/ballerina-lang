@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.definition;
 
 import org.ballerinalang.langserver.common.util.CommonUtil;
@@ -49,6 +49,8 @@ public class DefinitionTest {
         File source = new File(DEFINITION_TESTS_SAMPLES);
         File destination = new File(SAMPLES_COPY_DIR);
         org.apache.commons.io.FileUtils.copyDirectory(source, destination);
+        File dotBallerinaDir = new File(ROOT_DIR + "samples" + File.separator + ".ballerina");
+        dotBallerinaDir.mkdir();
         byte[] encoded1 = Files.readAllBytes(Paths.get(balPath1));
         balFile1Content = new String(encoded1);
         byte[] encoded2 = Files.readAllBytes(Paths.get(balPath2));
@@ -85,7 +87,8 @@ public class DefinitionTest {
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
+    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions",
+            enabled = false)
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,

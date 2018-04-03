@@ -1,7 +1,7 @@
 //Ballerina Websub Subscriber service which subscribes to notifications at a Hub.
 import ballerina/log;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.websub;
 
 //The endpoint to which the subscriber service is bound
@@ -46,7 +46,7 @@ service<websub:SubscriberService> websubSubscriber bind websubEP {
         var reqPayload = request.getJsonPayload();
         match (reqPayload) {
             json jsonPayload => { log:printInfo("WebSub Notification Received: " + jsonPayload.toString()); }
-            mime:EntityError => { log:printInfo("Error occurred processing WebSub Notification"); }
+            http:PayloadError error => { log:printInfo("Error occurred processing WebSub Notification"); }
         }
     }
 

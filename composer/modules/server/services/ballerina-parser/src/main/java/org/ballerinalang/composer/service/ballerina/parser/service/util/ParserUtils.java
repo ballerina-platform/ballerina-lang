@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
+import com.google.common.io.Files;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BuiltInType;
@@ -30,6 +31,13 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Mo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
+import org.ballerinalang.langserver.CollectDiagnosticListener;
+import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.common.LSDocument;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
@@ -54,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -71,6 +80,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,8 +89,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -92,10 +101,31 @@ public class ParserUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ParserUtils.class);
 
+    private static final WorkspaceDocumentManagerImpl documentManager =
+            WorkspaceDocumentManagerImpl.getInstance();
+
+    private static Path untitledProject;
+
+    private static final String UNTITLED_BAL = "untitled.bal";
+
+    static {
+        // Here we will create a tmp directory as the untitled project repo.
+        File untitledDir = Files.createTempDir();
+        untitledProject = untitledDir.toPath();
+        // Now lets create a empty untitled.bal to fool compiler.
+        File untitledBal = new File(Paths.get(untitledProject.toString(),
+                UNTITLED_BAL).toString());
+        try {
+            untitledBal.createNewFile();
+        } catch (IOException e) {
+            logger.error("Unable to create untitled project directory, " +
+                    "unsaved files might not work properly.");
+        }
+    }
+
     /**
-     *
      * @param directoryCount - packagePath
-     * @param filePath - file path to parent directory of the .bal file
+     * @param filePath       - file path to parent directory of the .bal file
      * @return parent dir
      */
     public static java.nio.file.Path getProgramDirectory(int directoryCount, java.nio.file.Path filePath) {
@@ -111,8 +141,7 @@ public class ParserUtils {
      * This method is designed to generate the Ballerina model and Diagnostic information for a given Ballerina file.
      * saved in the file-system.
      *
-     *
-     * @param programDir - Path of the program directory.
+     * @param programDir          - Path of the program directory.
      * @param compilationUnitName - compilationUnitName name.
      * @return BallerinaFile - Object which contains Ballerina model and Diagnostic information
      */
@@ -203,49 +232,29 @@ public class ParserUtils {
      */
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
-
-        CompilerContext context = prepareCompilerContext("", "");
-        // load builtin packages - ballerina.builtin and ballerina.builtin.core explicitly
+        // TODO: remove once the packerina api for package listing is available
+        final String[] packageNames = {"http", "swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
+                "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
+                "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
+                "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
+                "security.crypto", "task", "time", "transactions", "user", "util"};
         try {
-            BLangPackage builtInPackage = loadBuiltInPackage(context);
-            String builtInPackageName = builtInPackage.getPackageDeclaration().getPackageName().stream()
-                    .map(name -> name.getValue()).collect(Collectors.joining("."));
-            loadPackageMap(builtInPackageName, builtInPackage, modelPackage);
+            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
+            for (BLangPackage bLangPackage : builtInPackages) {
+                loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+            }
+
+            CompilerContext context = CommonUtil.prepareTempCompilerContext();
+            for (String packageName : packageNames) {
+                PackageID packageID = new PackageID(new Name("ballerina"),
+                        new Name(packageName), new Name("0.0.0"));
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
+                loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
+            }
         } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
-            logger.warn("Error while loading package ballerina.builtin");
+            logger.warn("Error while loading packages");
         }
-        PackageLoader packageLoader = PackageLoader.getInstance(context);
-        // max depth for the recursive function which search for child directories
-        int maxDepth = 15;
-        Set<PackageID> packages = packageLoader.listPackages(maxDepth);
-        packages.stream().forEach(pkg -> {
-            Name version = pkg.getPackageVersion();
-            BLangIdentifier bLangIdentifier = new BLangIdentifier();
-            bLangIdentifier.setValue(version.getValue());
-
-            BLangIdentifier orgNameNode = new BLangIdentifier();
-            orgNameNode.setValue(pkg.getOrgName().getValue());
-
-            List<BLangIdentifier> pkgNameComps = pkg.getNameComps().stream().map(nameToBLangIdentifier)
-                    .collect(Collectors.<BLangIdentifier>toList());
-            try {
-                // we have already loaded ballerina.builtin and ballerina.builtin.core. hence skipping loading those
-                // packages.
-                if (!"ballerina.builtin".equals(pkg.getName().getValue())
-                        && !"ballerina.builtin.core".equals(pkg.getName().getValue())) {
-                    org.wso2.ballerinalang.compiler.tree.BLangPackage bLangPackage = packageLoader
-                            .loadAndDefinePackage(orgNameNode, pkgNameComps, bLangIdentifier);
-                    loadPackageMap(pkg.getName().getValue(), bLangPackage, modelPackage);
-                }
-            } catch (Exception e) {
-                // Its wrong to catch java.lang.Exception. But this is temporary thing and ideally there shouldn't be
-                // any error while loading packages.
-                String pkgName = pkg.getNameComps().stream().map(name -> name.getValue())
-                        .collect(Collectors.joining("."));
-                logger.warn("Error while loading package " + pkgName);
-            }
-        });
         return modelPackage;
     }
 
@@ -336,8 +345,8 @@ public class ParserUtils {
     /**
      * Remove constructs from given file in given package from given package map.
      *
-     * @param pkgName Name of the package
-     * @param fileName Name of the File
+     * @param pkgName    Name of the package
+     * @param fileName   Name of the File
      * @param packageMap Package constructs map
      */
     public static void removeConstructsOfFile(String pkgName, String fileName,
@@ -438,7 +447,7 @@ public class ParserUtils {
      *
      * @param packages    packages to send.
      * @param packagePath packagePath.
-     * @param bLangEnum      enum.
+     * @param bLangEnum   enum.
      */
     private static void extractEnums(Map<String, ModelPackage> packages, String packagePath,
                                      EnumNode bLangEnum) {
@@ -472,7 +481,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -491,7 +500,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -602,7 +611,7 @@ public class ParserUtils {
         addAnnotations(annotations, action.getAnnotationAttachments());
 
         List<Parameter> returnParameters = new ArrayList<>();
-        addParameters(returnParameters, action.getReturnParameters());
+        //addParameters(returnParameters, action.getReturnParameters());
 
         String fileName = action.getPosition().getSource().getCompilationUnitName();
         return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations, fileName);
@@ -707,7 +716,7 @@ public class ParserUtils {
     /**
      * Create new enum.
      *
-     * @param name   name of the enum
+     * @param name        name of the enum
      * @param enumerators
      * @return {Enum} enum
      */
@@ -771,5 +780,87 @@ public class ParserUtils {
                 pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(), Names.BUILTIN_PACKAGE.getValue()))));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
+    }
+
+    /**
+     * Return a compilation unit for a given text.
+     *
+     * @param content
+     * @return
+     */
+    public static BLangCompilationUnit compileFragment(String content) {
+        Path unsaved = Paths.get(untitledProject.toString(), UNTITLED_BAL);
+        synchronized (ParserUtils.class) {
+            // Since we use the same file name for all the fragment passes we need to make sure following -
+            // does not run parallelly.
+            documentManager.openFile(unsaved, content);
+            BallerinaFile model = compile(content, unsaved, CompilerPhase.DEFINE);
+            documentManager.closeFile(unsaved);
+            if (model.getBLangPackage() != null) {
+                return model.getBLangPackage().getCompilationUnits().stream().
+                        filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Compile a Ballerina file.
+     *
+     * @param content file content
+     * @param path    file path
+     * @return
+     */
+    public static BallerinaFile compile(String content, Path path) {
+        return compile(content, path, CompilerPhase.CODE_ANALYZE);
+    }
+
+    /**
+     * Compile a Ballerina file.
+     *
+     * @param content       file content
+     * @param path          file path
+     * @param compilerPhase {CompilerPhase} set phase for the compiler.
+     * @return
+     */
+    public static BallerinaFile compile(String content, Path path, CompilerPhase compilerPhase) {
+        if (documentManager.isFileOpen(path)) {
+            documentManager.updateFile(path, content);
+        } else {
+            documentManager.openFile(path, content);
+        }
+
+        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
+        String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
+        LSDocument sourceDocument = new LSDocument();
+        sourceDocument.setUri(path.toUri().toString());
+        sourceDocument.setSourceRoot(sourceRoot);
+
+        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
+                true, documentManager, CompilerPhase.DEFINE);
+
+        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
+        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
+        context.put(DiagnosticListener.class, diagnosticListener);
+
+        BLangPackage bLangPackage = null;
+        try {
+            Compiler compiler = Compiler.getInstance(context);
+            if ("".equals(pkgName)) {
+                Path filePath = path.getFileName();
+                if (filePath != null) {
+                    bLangPackage = compiler.compile(filePath.toString());
+                }
+            } else {
+                bLangPackage = compiler.compile(pkgName);
+            }
+        } catch (Exception e) {
+            // Ignore.
+        }
+        BallerinaFile bfile = new BallerinaFile();
+        bfile.setBLangPackage(bLangPackage);
+        bfile.setDiagnostics(balDiagnostics);
+        return bfile;
     }
 }

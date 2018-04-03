@@ -91,11 +91,27 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
+        orderByClause = null;
+        whereClause = null;
+        joinStreamingInputClause = null;
+        streamingInputClause = null;
+        selectExprClause = null;
+        selectExpr = null;
+        groupByClause = null;
+        havingClause = null;
+
+        selectExprParams = new ArrayList<>();
+        havingExprParams = new ArrayList<>();
+        joinOnExprParams = new ArrayList<>();
+
+        exprParams = new ArrayList<>();
+        whereExprParams = new ArrayList<>();
+        exprStack = new Stack<>();
+
         BLangTableQuery tableQuery = ((BLangTableQuery) tableQueryExpression.getTableQuery());
         tableQuery.accept(this);
         tableQueryExpression.setSqlQuery(tableQuery.getSqlQuery());
         tableQueryExpression.addParams(tableQuery.getParams());
-
     }
 
     @Override
@@ -318,8 +334,8 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         BLangSimpleVarRef expr = (BLangSimpleVarRef) fieldAccessExpr.expr;
-        String sqlQueryBuilder = expr.variableName.value + "." + fieldAccessExpr.field.value;
-        exprStack.push(sqlQueryBuilder);
+        String sqlExpr = expr.variableName.value + "." + fieldAccessExpr.field.value;
+        exprStack.push(sqlExpr);
     }
 
     private void createSQLSelectExpressionClause(BLangSelectClause select) {

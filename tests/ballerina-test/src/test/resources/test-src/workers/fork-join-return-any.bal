@@ -19,9 +19,9 @@ function testForkJoinReturnAnyType() returns (int, string) {
         any[] t1;
         t1 =? <any[]> results["W1"];
         p =? <int> t1[0];
-        q =? <string> t1[1];
+        q = <string> t1[1];
         t1 =? <any[]> results["W2"];
-        r =? <string> t1[0];
+        r = <string> t1[0];
         t =? <float> t1[1];
     }
     return (p, q);

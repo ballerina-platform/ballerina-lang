@@ -20,6 +20,7 @@ package org.ballerinalang.model.types;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -77,5 +78,29 @@ public class BUnionType extends BType {
     @Override
     public int getTag() {
         return TypeTags.UNION_TAG;
+    }
+
+    @Override
+    public String toString() {
+        List<String> list = memberTypes.stream().map(BType::toString).collect(Collectors.toList());
+        return String.join("|", list);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BUnionType)) {
+            return false;
+        }
+        BUnionType that = (BUnionType) o;
+        return Objects.equals(memberTypes, that.memberTypes);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), memberTypes);
     }
 }

@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.definition;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -59,10 +60,10 @@ import java.util.stream.Collectors;
 public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     private boolean terminateVisitor = false;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private String fileName;
 
-    public DefinitionTreeVisitor(TextDocumentServiceContext context) {
+    public DefinitionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
         this.context.put(NodeContextKeys.NODE_KEY, null);
@@ -99,10 +100,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
             if (!funcNode.requiredParams.isEmpty()) {
                 funcNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (!funcNode.retParams.isEmpty()) {
-                funcNode.retParams.forEach(this::acceptNode);
             }
 
             if (funcNode.body != null) {
@@ -162,10 +159,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 resourceNode.requiredParams.forEach(this::acceptNode);
             }
 
-            if (!resourceNode.retParams.isEmpty()) {
-                resourceNode.retParams.forEach(this::acceptNode);
-            }
-
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
             }
@@ -196,10 +189,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
             if (!actionNode.requiredParams.isEmpty()) {
                 actionNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (!actionNode.retParams.isEmpty()) {
-                actionNode.retParams.forEach(this::acceptNode);
             }
 
             if (actionNode.body != null) {
@@ -248,9 +237,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (!assignNode.varRefs.isEmpty()) {
-            assignNode.varRefs.forEach(this::acceptNode);
-        }
     }
 
     @Override
@@ -429,6 +415,36 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         }
         if (!connectorInitExpr.argsExpr.isEmpty()) {
             connectorInitExpr.argsExpr.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch matchNode) {
+        if (matchNode.expr != null) {
+            this.acceptNode(matchNode.expr);
+        }
+
+        if (!matchNode.patternClauses.isEmpty()) {
+            matchNode.patternClauses.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
+        if (patternClauseNode.getVariableNode() != null &&
+                patternClauseNode.getVariableNode().getName() != null &&
+                patternClauseNode.getVariableNode().getName().getValue()
+                        .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, patternClauseNode.getVariableNode());
+            terminateVisitor = true;
+        }
+
+        if (patternClauseNode.variable != null) {
+            this.acceptNode(patternClauseNode.variable);
+        }
+
+        if (patternClauseNode.body != null) {
+            this.acceptNode(patternClauseNode.body);
         }
     }
 

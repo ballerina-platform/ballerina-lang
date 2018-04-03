@@ -74,8 +74,8 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
     //    }
 
     //    public void testPackageInvocationAutoCompletion() {
-    //        doCheckResult("test.bal", "import ballerina.net.http; function test() {ht<caret>}",
-    //                "import ballerina.net.http; function test() {http:}", null);
+    //        doCheckResult("test.bal", "import ballerina/http; function test() {ht<caret>}",
+    //                "import ballerina/http; function test() {http:}", null);
     //    }
     //
     //    public void testFunctionInvocationFromAPackage() {

@@ -1,15 +1,14 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
-endpoint mock:NonListeningServiceEndpoint testEP {
+endpoint http:NonListeningServiceEndpoint testEP {
     port:9090
 };
 
 @http:ServiceConfig {
-    basePath:"/hello",
-    endpoints:[testEP]
+    basePath:"/hello"
 }
-service<http:Service> echo11 {
+service<http:Service> echo11 bind testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -18,28 +17,6 @@ service<http:Service> echo11 {
     echo1 (endpoint conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"echo5":"echo5"};
-        res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/echo2/{abc}-{xyz}"
-    }
-    echo2 (endpoint conn, http:Request req, string abc, string xyz) {
-        http:Response res = {};
-        json responseJson = {"first":abc, "second":xyz};
-        res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/echo2/{abc}+{xyz}"
-    }
-    echo3 (endpoint conn, http:Request req, string abc, string xyz) {
-        http:Response res = {};
-        json responseJson = {"first":xyz, "second":abc};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
@@ -57,25 +34,15 @@ service<http:Service> echo11 {
 
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/echo2/{abc}+{xyz}/bar"
+        path:"/echo2/{abc}/bar"
     }
-    echo5 (endpoint conn, http:Request req, string abc, string xyz) {
+    echo5 (endpoint conn, http:Request req, string abc) {
         http:Response res = {};
-        json responseJson = {"first":abc, "second":xyz, "echo4":"echo4"};
+        json responseJson = {"first":abc, "echo4":"echo4"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
 
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/echo2/{abc}+{xyz}/{bar}"
-    }
-    echo6 (endpoint conn, http:Request req, string abc, string xyz, string bar) {
-        http:Response res = {};
-        json responseJson = {"first":abc, "second":xyz, "echo4":bar};
-        res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
-    }
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -89,25 +56,14 @@ service<http:Service> echo11 {
     }
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/echo2/{abc}+{xyz}/bar"
-    }
-    echo8 (endpoint conn, http:Request req, string abc, string xyz) {
-        http:Response res = {};
-        json responseJson = {"first":abc, "second":xyz, "echo8":"echo8"};
-        res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
-    }
-
-    @http:ResourceConfig {
         methods:["GET"],
-        path:"/echo3/{abc}+{xyz}"
+        path:"/echo3/{abc}"
     }
-    echo9 (endpoint conn, http:Request req, string abc, string xyz) {
+    echo9 (endpoint conn, http:Request req, string abc) {
         map params = req.getQueryParams();
         string foo;
         foo = <string>params.foo;
-        json responseJson = {"first":abc, "second":xyz, "third":foo, "echo9":"echo9"};
+        json responseJson = {"first":abc, "second":foo, "echo9":"echo9"};
 
         http:Response res = {};
         res.setJsonPayload(responseJson);
@@ -168,6 +124,20 @@ service<http:Service> echo11 {
 
     @http:ResourceConfig {
         methods:["GET"],
+        path:"/paramNeg"
+    }
+    paramNeg (endpoint conn, http:Request req) {
+        map params = req.getQueryParams();
+        string bar = <string>params.foo;
+        json responseJson = {"echo125":bar};
+
+        http:Response res = {};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
         path:"/echo13"
     }
     echo13 (endpoint conn, http:Request req) {
@@ -175,7 +145,11 @@ service<http:Service> echo11 {
         string barStr;
         int bar;
         barStr = <string>params.foo;
-        bar =? <int>barStr;
+        error conversionError = {};
+        match <int>barStr {
+            int val => bar = val;
+            error e=> conversionError = e;
+        }
         json responseJson = {"echo13":bar};
 
         http:Response res = {};
@@ -192,7 +166,11 @@ service<http:Service> echo11 {
         string barStr;
         float bar;
         barStr = <string>params.foo;
-        bar =? <float>barStr;
+        error conversionError = {};
+        match <float>barStr {
+            float flo => bar = flo;
+            error e=> conversionError = e;
+        }
         json responseJson = {"echo14":bar};
 
         http:Response res = {};
@@ -226,10 +204,9 @@ service<http:Service> echo11 {
 }
 
 @http:ServiceConfig {
-    basePath:"/hello/world",
-    endpoints:[testEP]
+    basePath:"/hello/world"
 }
-service<http:Service> echo22 {
+service<http:Service> echo22 bind testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -266,10 +243,9 @@ service<http:Service> echo22 {
 }
 
 @http:ServiceConfig {
-    basePath:"/",
-    endpoints:[testEP]
+    basePath:"/"
 }
-service<http:Service> echo33 {
+service<http:Service> echo33 bind testEP {
     echo1 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
@@ -282,10 +258,7 @@ service<http:Service> echo33 {
     }
 }
 
-@http:ServiceConfig {
-    endpoints:[testEP]
-}
-service<http:Service> echo44 {
+service<http:Service> echo44 bind testEP {
 
     @http:ResourceConfig {
         path:"echo2"
@@ -299,7 +272,8 @@ service<http:Service> echo44 {
 
     echo1 (endpoint conn, http:Request req) {
         map params = req.getQueryParams();
-        var foo =? <string>params.foo;
+        //string foo;
+        string foo = <string>params.foo;
         json responseJson = {"first":foo, "echo44":"echo1"};
 
         http:Response res = {};
@@ -319,10 +293,8 @@ service<http:Service> echo44 {
     }
 }
 
-@http:ServiceConfig {
-    endpoints:[testEP]
-}
-service<http:Service> echo55 {
+
+service<http:Service> echo55 bind testEP {
     @http:ResourceConfig {
         path:"/foo/bar"
     }
@@ -362,10 +334,7 @@ service<http:Service> echo55 {
     }
 }
 
-@http:ServiceConfig {
-    endpoints:[testEP]
-}
-service<http:Service> echo66 {
+service<http:Service> echo66 bind testEP {
     @http:ResourceConfig {
         path:"/a/*"
     }
@@ -391,10 +360,9 @@ service<http:Service> echo66 {
 }
 
 @http:ServiceConfig {
-    basePath:"/uri",
-    endpoints:[testEP]
+    basePath:"/uri"
 }
-service<http:Service> WildcardService {
+service<http:Service> WildcardService bind testEP {
 
     @http:ResourceConfig {
         path:"/{id}",
@@ -413,6 +381,36 @@ service<http:Service> WildcardService {
     wildcardResource (endpoint conn, http:Request req) {
         http:Response res = {};
         json responseJson = {message:"Wildcard Params Resource is invoked."};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        path:"/go/{aaa}/{bbb}/{ccc}"
+    }
+    threePathParams (endpoint conn, http:Request req, string aaa, string bbb, string ccc) {
+        http:Response res = {};
+        json responseJson = {aaa:aaa, bbb:bbb, ccc:ccc};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        path:"/go/{xxx}/{yyy}"
+    }
+    twoPathParams (endpoint conn, http:Request req, string xxx, string yyy) {
+        http:Response res = {};
+        json responseJson = {xxx:xxx, yyy:yyy};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
+    }
+
+    @http:ResourceConfig {
+        path:"/Go"
+    }
+    CapitalizedPathParams (endpoint conn, http:Request req) {
+        http:Response res = {};
+        json responseJson = {value:"capitalized"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
