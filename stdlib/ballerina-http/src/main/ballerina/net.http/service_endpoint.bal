@@ -110,6 +110,7 @@ public struct ServiceSecureSocket {
     string ciphers;
     string sslVerifyClient;
     boolean sessionCreation;
+    ServiceOcspStapling|null ocspStapling;
 }
 
 @Description {value:"Initializes the ServiceSecureSocket struct with default values."}

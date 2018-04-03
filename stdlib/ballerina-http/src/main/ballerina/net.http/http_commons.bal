@@ -46,6 +46,16 @@ public struct ValidateCert {
     int cacheValidityPeriod;
 }
 
+@Description { value:"OcspStapling struct represents options related to check whether a certificate is revoked or not"}
+@Field {value:"enable: The status of OcspStapling"}
+@Field {value:"cacheSize: Maximum size of the cache"}
+@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
+public struct ServiceOcspStapling {
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
+}
+
 @Description {value:"Represent all http payload related errors"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The error which caused the entity error"}

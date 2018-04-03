@@ -137,6 +137,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 Struct keyStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
                 Struct protocols = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
                 Struct validateCert = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+                Struct ocspStapling = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
                 List<Parameter> clientParams = new ArrayList<>();
                 if (trustStore != null) {
                     String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
@@ -186,6 +187,10 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 }
                 boolean hostNameVerificationEnabled = secureSocket
                         .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
+                if (ocspStapling != null) {
+                    boolean ocspStaplingEnabled = ocspStapling.getBooleanField(HttpConstants.ENABLE);
+                    senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
+                }
                 senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
                 String ciphers = secureSocket.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);

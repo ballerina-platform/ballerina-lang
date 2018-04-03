@@ -202,6 +202,7 @@ public struct SecureSocket {
     string ciphers;
     boolean hostNameVerification;
     boolean sessionCreation;
+    ClientOcspStapling|null ocspStapling;
 }
 
 @Description {value:"Initializes the SecureSocket struct with default values."}
@@ -209,6 +210,12 @@ public struct SecureSocket {
 public function <SecureSocket config> SecureSocket() {
     config.hostNameVerification = true;
     config.sessionCreation = true;
+}
+
+@Description { value:"OcspStapling struct represents options related to check whether a certificate is revoked or not"}
+@Field {value:"enable: The status of OcspStapling"}
+public struct ClientOcspStapling {
+    boolean enable;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }

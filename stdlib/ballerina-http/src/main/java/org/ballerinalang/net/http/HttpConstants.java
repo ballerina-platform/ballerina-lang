@@ -283,6 +283,7 @@ public class HttpConstants {
     public static final String PROTOCOL_VERSION = "protocolName";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
+    public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
     public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
     public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "validateCert";
