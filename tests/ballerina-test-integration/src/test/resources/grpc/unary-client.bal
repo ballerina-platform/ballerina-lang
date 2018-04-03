@@ -14,18 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
-import ballerina/net.grpc;
+import ballerina/grpc;
 
 function main (string[] args) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {
-        host: "localhost",
-        port: 9098
+        host:"localhost",
+        port:9098
     };
 
     error|string unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
         string payload => {
-            io:println("Client Got Response : ");
+            io:println("Client got response : ");
             io:println(payload);
         }
         error err => {
@@ -39,7 +39,7 @@ struct helloWorldBlockingStub {
     grpc:ServiceStub serviceStub;
 }
 
-function <helloWorldBlockingStub stub> initStub(grpc:Client clientEndpoint) {
+function <helloWorldBlockingStub stub> initStub (grpc:Client clientEndpoint) {
     grpc:ServiceStub navStub = {};
     navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
     stub.serviceStub = navStub;
@@ -50,27 +50,27 @@ struct helloWorldStub {
     grpc:ServiceStub serviceStub;
 }
 
-function <helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
+function <helloWorldStub stub> initStub (grpc:Client clientEndpoint) {
     grpc:ServiceStub navStub = {};
     navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
     stub.serviceStub = navStub;
 }
 
-function <helloWorldBlockingStub stub> hello (string req) returns (string| error) {
-    any | grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
+function <helloWorldBlockingStub stub> hello (string req) returns (string|error) {
+    any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
     match unionResp {
         grpc:ConnectorError payloadError => {
             error e = {message:payloadError.message};
             return e;
         }
-        //Below code snippet will change after the pending match fix.
-        any | string payload => {
+    //Below code snippet will change after the pending match fix.
+        any|string payload => {
             match payload {
                 string s => {
                     return s;
                 }
-                any nonOccurance => {
-                    error e = {message:"Unexpeted type."};
+                any nonOccurrence => {
+                    error e = {message:"Unexpected type."};
                     return e;
                 }
             }
@@ -92,7 +92,7 @@ public struct helloWorldBlockingClient {
     helloWorldBlockingStub stub;
 }
 
-public function <helloWorldBlockingClient ep> init(grpc:ClientEndpointConfiguration config) {
+public function <helloWorldBlockingClient ep> init (grpc:ClientEndpointConfiguration config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);
@@ -103,7 +103,7 @@ public function <helloWorldBlockingClient ep> init(grpc:ClientEndpointConfigurat
     ep.stub = stub;
 }
 
-public function <helloWorldBlockingClient ep> getClient() returns (helloWorldBlockingStub) {
+public function <helloWorldBlockingClient ep> getClient () returns (helloWorldBlockingStub) {
     return ep.stub;
 }
 
@@ -112,7 +112,7 @@ public struct helloWorldClient {
     helloWorldStub stub;
 }
 
-public function <helloWorldClient ep> init(grpc:ClientEndpointConfiguration config) {
+public function <helloWorldClient ep> init (grpc:ClientEndpointConfiguration config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);
@@ -123,7 +123,7 @@ public function <helloWorldClient ep> init(grpc:ClientEndpointConfiguration conf
     ep.stub = stub;
 }
 
-public function <helloWorldClient ep> getClient() returns (helloWorldStub) {
+public function <helloWorldClient ep> getClient () returns (helloWorldStub) {
     return ep.stub;
 }
 
