@@ -192,8 +192,9 @@ public struct Retry {
 @Field {value: "protocols: SSL/TLS protocol related options"}
 @Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-@Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
+@Field {value:"hostNameVerification: Enable/disable host name verification"}
+@Field {value:"sessionCreation: Enable/disable new ssl session creation"}
+@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public struct SecureSocket {
     TrustStore|null trustStore;
     KeyStore|null keyStore;
@@ -202,6 +203,7 @@ public struct SecureSocket {
     string ciphers;
     boolean hostNameVerification;
     boolean sessionCreation;
+    boolean ocspStapling;
 }
 
 @Description {value:"Initializes the SecureSocket struct with default values."}
