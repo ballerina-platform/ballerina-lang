@@ -3,7 +3,7 @@ package client;
 import ballerina/io;
 import ballerina/grpc;
 
-function main (string[] args) {
+function testUnarySecuredBlocking() returns (string) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
         port:9090,
@@ -18,9 +18,11 @@ function main (string[] args) {
         string payload => {
             io:println("Client Got Response : ");
             io:println(payload);
+            return payload;
         }
         error err => {
             io:println("Error from Connector: " + err.message);
+            return "Error from Connector: " + err.message;
         }
     }
 }
