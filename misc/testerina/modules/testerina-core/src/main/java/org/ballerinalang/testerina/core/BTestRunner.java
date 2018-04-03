@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * BTestRunner entity class.
@@ -82,9 +81,38 @@ public class BTestRunner {
         TesterinaRegistry.getInstance().setGroups(groups);
         TesterinaRegistry.getInstance().setShouldIncludeGroups(shouldIncludeGroups);
 
-        //Build the test suites
-        buildSuites(sourceRoot, sourceFilePaths);
+        Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
+            // compile
+            CompileResult compileResult = BCompileUtil.compile(sourceRoot == null ? programDirPath.toString() :
+                    sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
+            // print errors
+            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
+                errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
+                        .getMessage());
+            }
+            if (compileResult.getDiagnostics().length > 0) {
+                throw new BallerinaException("[ERROR] Compilation failed.");
+            }
+            // set the debugger
+            ProgramFile programFile = compileResult.getProgFile();
+            Debugger debugger = new Debugger(programFile);
+            programFile.setDebugger(debugger);
 
+            TesterinaRegistry.getInstance().addProgramFile(programFile);
+
+            // process the compiled files
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            processorServiceLoader.forEach(plugin -> {
+                if (plugin instanceof TestAnnotationProcessor) {
+                    try {
+                        ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
+                    } catch (Exception e) {
+                        errStream.println("[ERROR] Validation failed. Cause: " + e.getMessage());
+                        throw new BallerinaException(e);
+                    }
+                }
+            });
+        });
         // execute the test programs
         execute();
         // print the report
@@ -241,82 +269,6 @@ public class BTestRunner {
     }
 
     /**
-     * lists the groups available in tests.
-     * @param sourceRoot source root of the project
-     * @param sourceFilePaths package or program file paths
-     * @return
-     */
-    public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
-        //Build the test suites
-        buildSuites(sourceRoot, sourceFilePaths);
-        List groupList = getGroupList();
-        outStream.println("Following groups are available : ");
-        outStream.println(groupList);
-    }
-
-    /**
-     * Returns a distinct list of groups in test functions.
-     * @return a list of groups
-     */
-    public List getGroupList() {
-
-        Map<String, TestSuite> testSuites = TesterinaRegistry.getInstance().getTestSuites();
-        if (testSuites.isEmpty()) {
-            throw new BallerinaException("No test functions found in the provided ballerina files.");
-        }
-        List<String> groupList = new ArrayList<>();
-        testSuites.forEach((packageName, suite) -> {
-            suite.getTests().forEach(test -> {
-                if (test.getGroups().size() > 0) {
-                    groupList.addAll(test.getGroups());
-                }
-            });
-        });
-        return groupList.stream().distinct().collect(Collectors.toList());
-    }
-
-    /**
-     * Process the packages and builds the test suites.
-     * @param sourceRoot
-     * @param sourceFilePaths
-     */
-    private void buildSuites(String sourceRoot, Path[] sourceFilePaths) {
-
-        Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
-            // compile
-            CompileResult compileResult = BCompileUtil.compile(sourceRoot == null ? programDirPath.toString() :
-                sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
-            // print errors
-            for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
-                    .getMessage());
-            }
-            if (compileResult.getDiagnostics().length > 0) {
-                throw new BallerinaException("[ERROR] Compilation failed.");
-            }
-            // set the debugger
-            ProgramFile programFile = compileResult.getProgFile();
-            Debugger debugger = new Debugger(programFile);
-            programFile.setDebugger(debugger);
-
-            TesterinaRegistry.getInstance().addProgramFile(programFile);
-
-            // process the compiled files
-            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-            processorServiceLoader.forEach(plugin -> {
-                if (plugin instanceof TestAnnotationProcessor) {
-                    try {
-                        ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
-                    } catch (Exception e) {
-                        errStream.println("[ERROR] Validation failed. Cause: " + e.getMessage());
-                        throw new BallerinaException(e);
-                    }
-                }
-            });
-        });
-    }
-
-    /**
      * Extract function arguments from the values sets.
      * @param valueSets user provided value sets
      * @return a list of function arguments
@@ -371,6 +323,7 @@ public class BTestRunner {
     public TesterinaReport getTesterinaReport() {
         return tReport;
     }
+
 }
 
 

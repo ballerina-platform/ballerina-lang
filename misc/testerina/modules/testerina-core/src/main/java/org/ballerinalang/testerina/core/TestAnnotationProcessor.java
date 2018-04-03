@@ -155,16 +155,14 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             shouldSkip.set(true);
                             return;
                         }
-
-                        // check if groups attribute is present in the annotation
-                        if (GROUP_ANNOTATION_NAME.equals(name)) {
-                            if (attributeNode.getValue() instanceof BLangArrayLiteral) {
-                                BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
-                                test.setGroups(values.exprs.stream().map(node
-                                    -> node.toString()).collect(Collectors.toList()));
-                                // Check whether user has provided a group list
-                                if (groups != null && !groups.isEmpty()) {
-                                    boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());
+                        // Check whether user has provided a group list
+                        if (groups != null && !groups.isEmpty()) {
+                            // check if groups attribute is present in the annotation
+                            if (GROUP_ANNOTATION_NAME.equals(name)) {
+                                if (attributeNode.getValue() instanceof BLangArrayLiteral) {
+                                    BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                                    boolean isGroupPresent = isGroupAvailable(groups, values.exprs.stream().map(node
+                                            -> node.toString()).collect(Collectors.toList()));
                                     if (shouldIncludeGroups) {
                                         // include only if the test belong to one of these groups
                                         if (!isGroupPresent) {

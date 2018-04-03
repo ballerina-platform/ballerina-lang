@@ -35,7 +35,6 @@ public class Test {
     String dataProvider;
     TesterinaFunction dataProviderFunction;
     List<String> dependsOnTestFunctions = new ArrayList<>();
-    List<String> groups = new ArrayList<>();
     List<TesterinaFunction> dependsOnTestFunctionObjs = new ArrayList<>();
 
     public String getTestName() {
@@ -119,13 +118,5 @@ public class Test {
 
     public void addDependsOnTestFunction(TesterinaFunction function) {
         this.dependsOnTestFunctionObjs.add(function);
-    }
-
-    public void setGroups(List<String> groups) {
-        this.groups = groups;
-    }
-
-    public List getGroups() {
-        return groups;
     }
 }
