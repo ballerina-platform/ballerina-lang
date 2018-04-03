@@ -37,7 +37,7 @@ class SwaggerParser {
      * @param {string|object} swaggerDefintiion - The swagger definition as a string. This can be YAML or JSON.
      * @param {boolean} [isYaml=false] is the swagger definition a YAML content or not.
      * @param {string} httpPackageAlias The alias used for the ballerina.net.http package.
-     * @param {string} swaggerPackageAlias The alias used for the ballerina.net.http.swagger package.
+     * @param {string} swaggerPackageAlias The alias used for the ballerina.swagger package.
      */
     constructor(swaggerDefintiion, isYaml = false, httpPackageAlias = 'http', swaggerPackageAlias = 'swagger') {
         if (isYaml) {

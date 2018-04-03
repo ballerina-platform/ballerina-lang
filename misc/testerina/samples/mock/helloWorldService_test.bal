@@ -3,7 +3,7 @@ package mock;
 import ballerina/lang.messages;
 import ballerina/mock;
 import ballerina/test;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/lang.system;
 
 function testMain () {

@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 service<http> myService {
     int a = 20;

@@ -161,12 +161,13 @@ public class CommandUtil {
         }
         bLangFunction.getParameters().forEach(bLangVariable ->
                         attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset)));
-        bLangFunction.getReturnParameters()
-                .forEach(bLangVariable -> {
-                    if (!bLangVariable.getName().getValue().isEmpty()) {
-                        attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset));
-                    }
-                });
+        // TODO: Fix with the latest changes properly
+//        bLangFunction.getReturnParameters()
+//                .forEach(bLangVariable -> {
+//                    if (!bLangVariable.getName().getValue().isEmpty()) {
+//                        attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset));
+//                    }
+//                });
 
         return new DocAttachmentInfo(getDocumentationAttachment(attributes, functionPos.getStartColumn()), replaceFrom);
     }

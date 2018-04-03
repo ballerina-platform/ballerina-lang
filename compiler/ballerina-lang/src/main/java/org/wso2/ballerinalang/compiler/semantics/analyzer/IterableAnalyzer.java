@@ -125,8 +125,8 @@ public class IterableAnalyzer {
         }
 
         // Given param should be an invokable type (lambda type).
-        final List<BType> operationParams = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), context.env);
-        if (operationParams.size() != 1 || operationParams.get(0).tag != TypeTags.INVOKABLE) {
+        final BType operationParams = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), context.env);
+        if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
             operation.outputType = operation.resultType = symTable.errType;
             return;
@@ -140,10 +140,11 @@ public class IterableAnalyzer {
 
         // Operation's inputType and OutputType is defined by this lambda function.
         operation.iExpr.requiredArgs = operation.iExpr.argExprs;
-        operation.lambdaType = (BInvokableType) operationParams.get(0);
+        operation.lambdaType = (BInvokableType) operationParams;
 
         // Process given/expected input and output types.
-        if (operation.lambdaType.getParameterTypes().isEmpty() || operation.lambdaType.getParameterTypes().size() > 1) {
+        if (operation.lambdaType.getParameterTypes().isEmpty() ||
+                operation.lambdaType.getParameterTypes().size() > 1) {
             // Lambda should have a single arg.
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
             operation.outputType = operation.resultType = symTable.errType;
@@ -185,15 +186,16 @@ public class IterableAnalyzer {
 
     private List<BType> calculatedGivenOutputArgs(Operation operation) {
         final List<BType> givenRetTypes;
-        if (operation.lambdaType.getReturnTypes().isEmpty()) {
+        final BType lamdaReturnType = operation.lambdaType.getReturnType();
+        if (lamdaReturnType == null || lamdaReturnType == symTable.nilType) {
             givenRetTypes = Collections.emptyList();
-            operation.outputType = symTable.voidType;
+            operation.outputType = symTable.nilType;
         } else {
-            final BType returnType = operation.outputType = operation.lambdaType.getReturnTypes().get(0);
+            final BType returnType = operation.outputType = operation.lambdaType.getReturnType();
             if (returnType.tag == TypeTags.TUPLE) {
                 givenRetTypes = ((BTupleType) returnType).tupleTypes;
             } else {
-                givenRetTypes = operation.lambdaType.getReturnTypes();
+                givenRetTypes = Lists.of(operation.lambdaType.getReturnType());
             }
         }
         return givenRetTypes;
@@ -268,7 +270,7 @@ public class IterableAnalyzer {
 
     private void assignOutputAndResultType(Operation op, List<BType> argTypes, List<BType> supportedRetTypes) {
         if (supportedRetTypes.isEmpty()) {
-            op.outputType = op.resultType = symTable.voidType;
+            op.outputType = op.resultType = symTable.nilType;
             return;
         }
         if (op.kind.isTerminal()) {
@@ -531,6 +533,9 @@ public class IterableAnalyzer {
                     context.resultType = types.checkType(lastOperation.pos, outputType,
                             ((BTableType) expectedType).constraint, DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
+                return;
+            } else if (expectedType.tag == TypeTags.TUPLE) {
+                context.resultType = symTable.errType;
                 return;
             } else if (expectedType.tag == TypeTags.ANY) {
                 context.resultType = symTable.errType;

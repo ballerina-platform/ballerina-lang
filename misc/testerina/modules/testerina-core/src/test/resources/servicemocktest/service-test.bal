@@ -1,6 +1,6 @@
 package servicemocktest;
 
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 import ballerina/test;
 import ballerina/config;
@@ -42,7 +42,7 @@ function init() {
 function testService () {
     endpoint http:ClientEndpoint httpEndpoint {
         targets:[{
-            uri:url2
+            url:url2
         }]
     };
 
@@ -52,7 +52,6 @@ function testService () {
 
     http:Request req = {};
     // Send a GET request to the specified endpoint
-    io:println("GET request:");
     var response = httpEndpoint -> get("/events", req);
     match response {
                http:Response resp => {

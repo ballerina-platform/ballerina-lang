@@ -68,7 +68,7 @@ public enum TypeKind {
     ARRAY("[]"),
     UNION("|"),
     VOID(""),
-    NULL("null"),
+    NIL("null"),
     NONE(""),
     OTHER("other"),
     MESSAGE("message"),

@@ -1,7 +1,7 @@
 package lang.globalvar.pkg.main;
 
 import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
 import lang.globalvar.pkg.var;
 
 

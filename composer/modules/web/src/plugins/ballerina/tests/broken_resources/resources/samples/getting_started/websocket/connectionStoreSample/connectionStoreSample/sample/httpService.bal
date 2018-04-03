@@ -1,7 +1,7 @@
 package connectionStoreSample.sample;
 
 import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.ws;
 
 @http:configuration {basePath:"/storeInfo"}
