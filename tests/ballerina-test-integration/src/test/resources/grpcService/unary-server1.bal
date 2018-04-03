@@ -33,4 +33,58 @@ service<grpc:Endpoint> helloWorld bind ep {
         }
         _ = client -> complete();
     }
+
+    testInt (endpoint client, int age) {
+        io:println("age: " + age);
+        int displayAge = age - 2;
+        grpc:ConnectorError err = client -> send(displayAge);
+        io:println("display age : " + displayAge);
+        if (err != null) {
+            io:println("Error at test : " + err.message);
+        }
+        _ = client -> complete();
+    }
+
+    testFloat (endpoint client, float salary) {
+        io:println("gross salary: " + salary);
+        float netSalary = salary * 0.88;
+        grpc:ConnectorError err = client -> send(netSalary);
+        io:println("net salary : " + netSalary);
+        if (err != null) {
+            io:println("Error at test : " + err.message);
+        }
+        _ = client -> complete();
+    }
+
+    testBoolean (endpoint client, boolean available) {
+        io:println("is available: " + available);
+        boolean aval = available || true;
+        grpc:ConnectorError err = client -> send(aval);
+        io:println("avaliability : " + aval);
+        if (err != null) {
+            io:println("Error at test : " + err.message);
+        }
+        _ = client -> complete();
+    }
+
+    testStruct (endpoint client, Request msg) {
+        io:println(msg.name + " : " + msg.message);
+        Response response = {resp:"Acknowledge " + msg.name};
+        grpc:ConnectorError err = client -> send(response);
+        io:println("msg : " + response.resp);
+        if (err != null) {
+            io:println("Error at test : " + err.message);
+        }
+        _ = client -> complete();
+    }
+}
+
+struct Request {
+    string name;
+    string message;
+    int age;
+}
+
+struct Response {
+    string resp;
 }
