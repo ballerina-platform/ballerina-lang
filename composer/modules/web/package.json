@@ -3,7 +3,7 @@
   "version": "0.970.0",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rm -rf dist",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "build-electron": "cross-env NODE_ENV=electron webpack --config webpack.config.js",
     "dev": "npm run clean && webpack-dev-server --hot --inline --progress",

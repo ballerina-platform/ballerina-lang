@@ -36,7 +36,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Map;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 
 /**
  * {@code Options} is the OPTIONS action implementation of the HTTP Connector.
@@ -78,8 +77,8 @@ public class Options extends AbstractHTTPAction {
 
         ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                 getParentWorkerExecutionContext());
-        HttpUtil.injectHeaders(outboundRequestMsg, (Map<String, String>) observerContext.
-                getProperty(PROPERTY_TRACE_PROPERTIES));
+        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
+        HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;
