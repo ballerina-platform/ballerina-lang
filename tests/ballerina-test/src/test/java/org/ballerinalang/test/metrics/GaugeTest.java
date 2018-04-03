@@ -26,6 +26,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -45,24 +46,41 @@ public class GaugeTest {
     @Test
     public void testCounterIncrementByOne() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIncrementGaugeByOne");
-        Assert.assertEquals(returns[0], new BFloat(1.0));
+        Assert.assertEquals(returns[0], new BFloat(1));
     }
 
     @Test
     public void testCounterIncrement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIncrementGauge");
-        Assert.assertEquals(returns[0], new BFloat(5.0));
+        Assert.assertEquals(returns[0], new BFloat(5));
     }
 
     @Test
     public void testDecrementGaugeByOne() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGaugeByOne");
-        Assert.assertEquals(returns[0], new BFloat(9.0));
+        Assert.assertEquals(returns[0], new BFloat(9));
     }
 
     @Test
     public void testDecrementGauge() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGauge");
-        Assert.assertEquals(returns[0], new BFloat(8.0));
+        Assert.assertEquals(returns[0], new BFloat(8));
+    }
+
+    @Test
+    public void testGaugeWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGaugeWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(6));
+    }
+
+    @Test
+    public void testGaugeWithoutDescription() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGaugeWithoutDescription");
+        Assert.assertEquals(returns[0], new BFloat(7));
+    }
+
+    @Test (expectedExceptions = BLangRuntimeException.class)
+    public void testGaugeWithEmptyStruct() {
+        BRunUtil.invoke(compileResult, "testGaugeWithEmptyStruct");
     }
 }

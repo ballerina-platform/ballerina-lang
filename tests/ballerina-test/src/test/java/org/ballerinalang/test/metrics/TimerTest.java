@@ -25,6 +25,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -63,5 +64,22 @@ public class TimerTest {
     public void testPercentileTimer() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileTimer");
         Assert.assertNotEquals(returns[0], new BFloat(0));
+    }
+
+    @Test
+    public void testTimerWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTimerWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(2500));
+    }
+
+    @Test
+    public void testTimerWithoutDescription() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTimerWithoutDescription");
+        Assert.assertEquals(returns[0], new BFloat(200));
+    }
+
+    @Test (expectedExceptions = BLangRuntimeException.class)
+    public void testTimerWithEmptyStruct() {
+        BRunUtil.invoke(compileResult, "testTimerWithEmptyStruct");
     }
 }

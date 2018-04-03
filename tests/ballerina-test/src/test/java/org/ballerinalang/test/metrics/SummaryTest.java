@@ -25,6 +25,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -63,5 +64,22 @@ public class SummaryTest {
     public void testPercentileSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileSummary");
         Assert.assertNotEquals(returns[0], new BFloat(0));
+    }
+
+    @Test
+    public void testSummaryWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSummaryWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(3));
+    }
+
+    @Test
+    public void testSummaryWithoutDescription() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSummaryWithoutDescription");
+        Assert.assertEquals(returns[0], new BFloat(2.5));
+    }
+
+    @Test (expectedExceptions = BLangRuntimeException.class)
+    public void testSummaryWithEmptyStruct() {
+        BRunUtil.invoke(compileResult, "testSummaryWithEmptyStruct");
     }
 }
