@@ -460,6 +460,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code recordTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code recordTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code unionTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
@@ -531,6 +543,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#fieldDefinitionList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#fieldDefinitionList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#simpleTypeName}.
 	 * @param ctx the parse tree
