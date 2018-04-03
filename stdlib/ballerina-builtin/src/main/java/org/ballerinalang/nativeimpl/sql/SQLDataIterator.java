@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql;
+package org.ballerinalang.nativeimpl.sql;
 
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BStructType;
@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.nativeimpl.actions.data.sql.actions.SQLDatasourceUtils;
+import org.ballerinalang.nativeimpl.sql.actions.SQLDatasourceUtils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.StructInfo;
