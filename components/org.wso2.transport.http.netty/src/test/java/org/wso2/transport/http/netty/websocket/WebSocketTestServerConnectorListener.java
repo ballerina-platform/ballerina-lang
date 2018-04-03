@@ -62,12 +62,8 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
             public void onSuccess(Session session) {
                 sessionList.forEach(
                         currentSession -> {
-                            try {
-                                currentSession.getBasicRemote().
-                                        sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-                            } catch (IOException e) {
-                                log.error("IO exception when sending data : " + e.getMessage(), e);
-                            }
+                            currentSession.getAsyncRemote().
+                                    sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
                         }
                 );
                 sessionList.add(session);
@@ -88,10 +84,10 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         log.debug("text: " + receivedTextToClient);
         try {
             if (PING.equals(receivedTextToClient)) {
-                session.getBasicRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+                session.getAsyncRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
                 return;
             }
-            session.getBasicRemote().sendText(receivedTextToClient);
+            session.getAsyncRemote().sendText(receivedTextToClient);
         } catch (IOException e) {
             handleError(e);
         }
@@ -102,11 +98,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         Session session = binaryMessage.getChannelSession();
         ByteBuffer receivedByteBufferToClient = binaryMessage.getByteBuffer();
         log.debug("ByteBuffer: " + receivedByteBufferToClient);
-        try {
-            session.getBasicRemote().sendBinary(receivedByteBufferToClient);
-        } catch (IOException e) {
-            handleError(e);
-        }
+        session.getAsyncRemote().sendBinary(receivedByteBufferToClient);
     }
 
     @Override
@@ -119,7 +111,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
             Session session = controlMessage.getChannelSession();
             try {
-                session.getBasicRemote().sendPong(controlMessage.getPayload());
+                session.getAsyncRemote().sendPong(controlMessage.getPayload());
             } catch (IOException e) {
                 Assert.assertTrue(false, "Could not send the message.");
             }
@@ -130,12 +122,8 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketCloseMessage closeMessage) {
         sessionList.forEach(
                 currentSession -> {
-                    try {
-                        currentSession.getBasicRemote().
-                                sendText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
-                    } catch (IOException e) {
-                        log.error("IO exception when sending data : " + e.getMessage(), e);
-                    }
+                    currentSession.getAsyncRemote().
+                            sendText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
                 }
         );
     }

@@ -28,6 +28,7 @@
     <test name="Transport test">
         <classes>
             <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpTestCase" />
+            <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpsTestCase"/>
             <class name="org.wso2.transport.http.netty.contentaware.ContentAwareMessageProcessorTestCase" />
 
             <class name="org.wso2.transport.http.netty.https.HTTPSClientTestCase" />
@@ -44,6 +45,7 @@
             <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
 
             <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest" />
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPStaplingTest" />
             <class name="org.wso2.transport.http.netty.redirect.HttpClientRedirectTestCase" />
 
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />

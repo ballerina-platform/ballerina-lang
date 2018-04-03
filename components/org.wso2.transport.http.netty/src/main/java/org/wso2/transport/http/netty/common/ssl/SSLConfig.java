@@ -43,7 +43,7 @@ public class SSLConfig {
 
     private String[] cipherSuites;
     private String[] enableProtocols;
-    private boolean enableSessionCreation;
+    private boolean enableSessionCreation = true;
     private boolean needClientAuth;
     private boolean wantClientAuth;
     private String[] serverNames;

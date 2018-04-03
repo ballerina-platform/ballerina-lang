@@ -58,7 +58,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private HTTPCarbonMessage inboundRequestMsg;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
-    private boolean isHeaderWritten = false;
+    private boolean headerWritten = false;
     private int contentLength = 0;
     private String serverName;
     private List<HttpContent> contentList = new ArrayList<>();
@@ -116,7 +116,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             HttpContent httpContent) {
         ChannelFuture outboundChannelFuture;
         if (Util.isLastHttpContent(httpContent)) {
-            if (!isHeaderWritten) {
+            if (!headerWritten) {
                 if (chunkConfig == ChunkConfig.ALWAYS
                         && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
                     Util.setupChunkedRequest(outboundResponseMsg);
@@ -142,7 +142,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
                     && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
-                if (!isHeaderWritten) {
+                if (!headerWritten) {
                     Util.setupChunkedRequest(outboundResponseMsg);
                     writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
                 }
@@ -171,7 +171,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 Util.createFullHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
                 serverName, keepAlive, allContent);
 
-        isHeaderWritten = true;
+        headerWritten = true;
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
         Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
@@ -188,6 +188,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         outboundResponseMsg.removeHttpContentAsyncFuture();
         contentList.clear();
         contentLength = 0;
+        headerWritten = false;
     }
 
     // Decides whether to close the connection after sending the response
@@ -209,7 +210,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
         HttpResponse response = Util.createHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
                 serverName, keepAlive);
-        isHeaderWritten = true;
+        headerWritten = true;
         sourceContext.write(response);
     }
 

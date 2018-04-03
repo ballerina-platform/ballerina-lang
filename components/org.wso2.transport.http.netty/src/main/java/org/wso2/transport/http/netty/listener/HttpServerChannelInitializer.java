@@ -30,14 +30,19 @@ import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
+import io.netty.handler.ssl.OpenSsl;
+import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
+import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AsciiString;
+import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -46,7 +51,12 @@ import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -71,6 +81,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private int cacheDelay;
     private int cacheSize;
     private ChannelGroup allChannels;
+    private boolean ocspStaplingEnabled = false;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -82,27 +93,66 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (http2Enabled) {
             if (sslConfig != null) {
-                SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForServer();
-                serverPipeline.addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
+                SslContext sslCtx = new SSLHandlerFactory(sslConfig)
+                        .createHttp2TLSContextForServer(ocspStaplingEnabled);
+                if (ocspStaplingEnabled) {
+                    OCSPResp response = getOcspResponse();
+
+                    ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) sslCtx;
+                    SslHandler sslHandler = context.newHandler(ch.alloc());
+
+                    ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+                    engine.setOcspResponse(response.getEncoded());
+                    ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer());
+                } else {
+                    serverPipeline.addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
+                }
             } else {
                 configureH2cPipeline(serverPipeline);
             }
         } else {
             if (sslConfig != null) {
-                configureSslForHttp(serverPipeline);
+                configureSslForHttp(serverPipeline, ch);
             } else {
                 configureHTTPPipeline(serverPipeline, Constants.HTTP_SCHEME);
             }
         }
     }
 
-    private void configureSslForHttp(ChannelPipeline serverPipeline) {
+    private OCSPResp getOcspResponse()
+            throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
+            CertificateVerificationException {
+        OCSPResp response = OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
+        if (!OpenSsl.isAvailable()) {
+            throw new IllegalStateException("OpenSSL is not available!");
+        }
+        if (!OpenSsl.isOcspSupported()) {
+            throw new IllegalStateException("OCSP is not supported!");
+        }
+        return response;
+    }
 
-        SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
-        serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-        if (validateCertEnabled) {
-            serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                    new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
+    private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
+            throws NoSuchAlgorithmException, CertificateVerificationException, UnrecoverableEntryException,
+            KeyStoreException, IOException {
+
+        if (ocspStaplingEnabled) {
+            OCSPResp response = getOcspResponse();
+
+            ReferenceCountedOpenSslContext context = new SSLHandlerFactory(sslConfig)
+                    .getServerReferenceCountedOpenSslContext(ocspStaplingEnabled);
+            SslHandler sslHandler = context.newHandler(ch.alloc());
+
+            ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+            engine.setOcspResponse(response.getEncoded());
+            ch.pipeline().addLast(sslHandler);
+        } else {
+            SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
+            serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+            if (validateCertEnabled) {
+                serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
+                        new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
+            }
         }
         serverPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
                 new SslHandshakeCompletionHandlerForServer(this, serverPipeline));
@@ -224,6 +274,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
     }
 
     /**
