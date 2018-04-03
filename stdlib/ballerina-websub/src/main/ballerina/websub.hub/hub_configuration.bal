@@ -38,6 +38,7 @@ const int hubLeaseSeconds = getIntConfig("hub.lease_seconds", DEFAULT_LEASE_SECO
 const string hubSignatureMethod = getStringConfig("hub.signature_method", DEFAULT_SIGNATURE_METHOD);
 const boolean hubRemotePublishingEnabled = getBooleanConfig("hub.remote_publishing.enabled", false);
 const boolean hubTopicRegistrationRequired = getBooleanConfig("hub.topic_registration.required", true);
+const string hubPublicUrl = getStringConfig("hub.url", getHubUrl());
 
 const boolean hubPersistenceEnabled = getBooleanConfig("hub.persistence.enabled", false);
 const string hubDatabaseHost = getStringConfig("hub.db.host", DEFAULT_HOST);

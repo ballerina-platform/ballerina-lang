@@ -496,7 +496,7 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
 
         request.setHeader(websub:X_HUB_UUID, util:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
-        request.setHeader("Link", buildWebSubLinkHeader(getHubUrl(), subscriptionDetails.topic));
+        request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         var contentDistributionRequest = callbackEp -> post("", request);
         match (contentDistributionRequest) {
             http:Response response => { return; }
