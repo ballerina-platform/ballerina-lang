@@ -192,6 +192,10 @@ public enum DiagnosticCode {
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
 
+    // Checked expression related errors
+    CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
+    CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
+
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),
     MISSING_TOKEN("missing.token"),

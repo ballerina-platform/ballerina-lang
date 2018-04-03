@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -1453,6 +1454,58 @@ public class Desugar extends BLangNodeVisitor {
                 patternClauses));
         BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(stmts, tempResultVarRef);
         statementExpr.type = bLangMatchExpression.type;
+        result = rewriteExpr(statementExpr);
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+
+        //
+        //  person p = bar(check foo()); // foo(): person | error
+        //
+        //    ==>
+        //
+        //  person _$$_;
+        //  switch foo() {
+        //      person p1 => _$$_ = p1;
+        //      error e1 => return e1 or throw e1
+        //  }
+        //  person p = bar(_$$_);
+
+        // Create a temporary variable to hold the checked expression result value e.g. _$$_
+        String checkedExprVarName = GEN_VAR_PREFIX.value;
+        BLangVariable checkedExprVar = ASTBuilderUtil.createVariable(checkedExpr.pos,
+                checkedExprVarName, checkedExpr.type, null, new BVarSymbol(0,
+                        names.fromString(checkedExprVarName),
+                        this.env.scope.owner.pkgID, checkedExpr.type, this.env.scope.owner));
+        BLangVariableDef checkedExprVarDef = ASTBuilderUtil.createVariableDef(checkedExpr.pos, checkedExprVar);
+
+        // Create the pattern to match the success case
+        BLangMatchStmtPatternClause patternSuccessCase = getSafeAssignSuccessPattern(checkedExprVar.pos,
+                checkedExprVar.symbol.type, true, checkedExprVar.symbol, null);
+        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner);
+
+        // Create the match statement
+        BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos,
+                checkedExpr.expr, new ArrayList<BLangMatchStmtPatternClause>() {{
+                    add(patternSuccessCase);
+                    add(patternErrorCase);
+                }});
+
+        // Create the block statement
+        BLangBlockStmt generatedStmtBlock = ASTBuilderUtil.createBlockStmt(checkedExpr.pos,
+                new ArrayList<BLangStatement>() {{
+                    add(checkedExprVarDef);
+                    add(matchStmt);
+                }});
+
+        // Create the variable ref expression for the checkedExprVar
+        BLangSimpleVarRef tempCheckedExprVarRef = ASTBuilderUtil.createVariableRef(
+                checkedExpr.pos, checkedExprVar.symbol);
+
+        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(
+                generatedStmtBlock, tempCheckedExprVarRef);
+        statementExpr.type = checkedExpr.type;
         result = rewriteExpr(statementExpr);
     }
 

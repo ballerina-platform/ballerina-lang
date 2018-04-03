@@ -1,4 +1,3 @@
-import ballerina/io;
 
 function openFileSuccess(string path) returns (boolean | error) {
     return true;
@@ -10,27 +9,22 @@ function openFileFailure(string path) returns (boolean | error) {
 }
 
 function testSafeAssignmentBasics1 () returns (boolean | error) {
-    boolean statusSuccess =? openFileSuccess("/home/sameera/foo.txt");
-    io:println("there...success..");
-
+    boolean statusSuccess = check openFileSuccess("/home/sameera/foo.txt");
     return statusSuccess;
 }
 
 function testSafeAssignmentBasics2 () returns (boolean | error) {
-      boolean statusFailure =? openFileFailure("/home/sameera/bar.txt");
-       io:println("there....failure.");
+      boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
       return statusFailure;
 }
 
 
 function testSafeAssignmentBasics3 () {
-    io:println("there....failure3. 0");
-    boolean statusFailure =? openFileFailure("/home/sameera/bar.txt");
-    io:println("there....failure3. 1");
+    boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
 }
 
 function testSafeAssignmentBasics4 () returns (boolean){
-    boolean statusFailure =? openFileFailure("/home/sameera/bar.txt");
+    boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
     return statusFailure;
 }
 
@@ -44,13 +38,13 @@ function testSafeAssignOpInAssignmentStatement1 () returns (boolean) {
 function testSafeAssignOpInAssignmentStatement2 () returns (boolean|error) {
     boolean b = false;
     int a = 0;
-    b =? openFileFailure("/home/sameera/foo.txt");
+    b = check openFileFailure("/home/sameera/foo.txt");
     return b;
 }
 
 function testSafeAssignOpInAssignmentStatement3 () returns (boolean|error) {
     FileOpenStatus fos = {};
-    fos.status =? openFileSuccess("/home/sameera/foo.txt");
+    fos.status = check openFileSuccess("/home/sameera/foo.txt");
     return fos.status;
 }
 
@@ -60,24 +54,20 @@ struct FileOpenStatus {
 
 function testSafeAssignOpInAssignmentStatement4 () returns (boolean|error) {
     boolean[] ba = [];
-    ba[0] =? openFileSuccess("/home/sameera/foo.txt");
+    ba[0] = check openFileSuccess("/home/sameera/foo.txt");
     ba[1] = false;
     return ba[0];
 }
 
 function testSafeAssignOpInAssignmentStatement5 () {
-    io:println("there....failure3. 0");
     boolean statusFailure;
     int a = 10;
-    statusFailure =? openFileFailure("/home/sameera/bar.txt");
-    io:println("there....failure3. 1");
+    statusFailure = check openFileFailure("/home/sameera/bar.txt");
 }
 
 function testSafeAssignOpInAssignmentStatement6 () returns boolean {
-    io:println("there....failure3. 0");
     int a = 10;
-    var statusFailure =? openFileSuccess("/home/sameera/bar.txt");
-    io:println("there....failure3. 1");
+    var statusFailure = check openFileSuccess("/home/sameera/bar.txt");
     return statusFailure;
 }
 
@@ -91,6 +81,13 @@ public struct myerror {
     int code;
 }
 
+public struct customError {
+    string message;
+    error[] cause;
+    int code;
+    string data;
+}
+
 function getPerson() returns person | myerror {
    //myerror e = {message:"ddd"};
     //return e;
@@ -99,6 +96,39 @@ function getPerson() returns person | myerror {
 }
 
 function testSafeAssignOpInAssignmentStatement7 () returns string {
-    var p =? getPerson();
+    var p = check getPerson();
     return p.name;
+}
+
+
+function readLineError() returns string | myerror {
+    myerror e = { message: "io error" };
+    return e;
+}
+
+function readLineSuccess() returns string | myerror {
+    return "Ballerina";
+}
+
+function testCheckExprInBinaryExpr1() returns error? {
+    string str = "hello, " + check readLineError();
+    return ();
+}
+
+function testCheckExprInBinaryExpr2() returns customError? {
+    string str = "hello, " + check readLineError();
+    return ();
+}
+
+function testCheckExprInBinaryExpr3() returns string | customError {
+    string str = "hello, " + check readLineSuccess();
+    return str;
+}
+
+function testCheckExprInBinaryExpr4() {
+    string str = "hello, " + check readLineError();
+}
+
+function testCheckExprInBinaryExpr5() {
+    string str = "hello, " + check readLineError();
 }

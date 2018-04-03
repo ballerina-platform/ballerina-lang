@@ -125,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1095,6 +1096,14 @@ public class BLangPackageBuilder {
             ternaryExpr = root;
         }
         addExpressionNode(ternaryExpr);
+    }
+
+    public void createCheckedExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangCheckedExpr checkedExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
+        checkedExpr.pos = pos;
+        checkedExpr.addWS(ws);
+        checkedExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(checkedExpr);
     }
 
     public void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {

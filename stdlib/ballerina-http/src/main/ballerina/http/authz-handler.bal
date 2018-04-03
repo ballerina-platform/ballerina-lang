@@ -80,7 +80,7 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (Request req,
         }
         any|null => {
             log:printDebug("Authz cache miss for request URL: " + resourceName);
-            boolean isAuthorized = authzChecker.check(username, scopes);
+            boolean isAuthorized = authzChecker.checkAuth(username, scopes);
             if (isAuthorized) {
                 log:printDebug("Successfully authorized to access resource: " + resourceName);
             } else {

@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -109,6 +110,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -141,7 +143,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-    private List<BType> resultTypes;
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -681,7 +682,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        BType exprType = null;
+        BType exprType;
         BType actualType = symTable.errType;
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
             // Handle typeof operator separately
@@ -1024,6 +1025,43 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         types.checkTypes(bLangMatchExpression, Lists.of(bLangMatchExpression.type), Lists.of(expType));
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        BType exprType = checkExpr(checkedExpr.expr, env, symTable.noType);
+        if (exprType.tag != TypeTags.UNION) {
+            if (types.isAssignable(exprType, symTable.errStructType)) {
+                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            } else {
+                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            }
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        BUnionType unionType = (BUnionType) exprType;
+        // Get the list of types which are not equivalent with the error type.
+        List<BType> resultTypeList = unionType.memberTypes.stream()
+                .filter(memberType -> !types.isAssignable(memberType, symTable.errStructType))
+                .collect(Collectors.toList());
+        if (resultTypeList.size() == 0) {
+            // All member types in the union are equivalent to the error type.
+            // Checked expression requires at least one type which is not equivalent to the error type.
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        BType actualType;
+        if (resultTypeList.size() == 1) {
+            actualType = resultTypeList.get(0);
+        } else {
+            actualType = new BUnionType(null, new LinkedHashSet<>(resultTypeList),
+                    resultTypeList.contains(symTable.nilType));
+        }
+
+        resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
     // Private methods
