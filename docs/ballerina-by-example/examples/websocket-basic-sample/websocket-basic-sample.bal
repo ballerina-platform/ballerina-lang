@@ -46,7 +46,7 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
             io:println("Pinging...");
             conn -> ping(pingData);
         } else if (text == "closeMe") {
-            var val = conn -> closeConnection(1001, "You asked me to close connection");
+            var val = conn -> closeConnection(1001, "You asked me to close the connection");
             handleError(val);
         } else {
             var val = conn -> pushText("You said: " + frame.text);

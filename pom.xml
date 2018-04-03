@@ -206,11 +206,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-observe</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-jaeger-extension</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1004,7 +999,6 @@
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
-                <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>cli/ballerina-cli-utils</module>
@@ -1055,7 +1049,6 @@
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
-                <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>cli/ballerina-cli-utils</module>
@@ -1098,7 +1091,6 @@
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
-                <module>bvm/ballerina-observe</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>cli/ballerina-cli-utils</module>
@@ -1219,6 +1211,10 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude sources-->
+                                <sourceDirectories>
+                                    <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                                    <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                                </sourceDirectories>
                                 <excludes>${maven.checkstyleplugin.excludes}</excludes>
                             </configuration>
                             <goals>

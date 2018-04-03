@@ -18,8 +18,8 @@
 package org.ballerinalang.observe.trace.extension.jaeger;
 
 import io.opentracing.Tracer;
-import org.ballerinalang.observe.trace.OpenTracer;
-import org.ballerinalang.observe.trace.exception.InvalidConfigurationException;
+import org.ballerinalang.util.tracer.OpenTracer;
+import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

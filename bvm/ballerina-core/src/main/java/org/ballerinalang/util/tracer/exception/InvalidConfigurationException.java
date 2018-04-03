@@ -15,33 +15,19 @@
 * under the License.
 *
 */
-
-package org.ballerinalang.observe.trace;
-
-import io.opentracing.propagation.TextMap;
-
-import java.util.Iterator;
-import java.util.Map;
+package org.ballerinalang.util.tracer.exception;
 
 /**
- * Extractor that goes through the carrier map.
+ * This is the exception class which is thrown for any unexpected/wrong
+ * configuration in the open tracer configs.
  */
-public class RequestExtractor implements TextMap {
+public class InvalidConfigurationException extends Exception {
 
-    private Map<String, String> headers;
-
-    public RequestExtractor(Map<String, String> headers) {
-        this.headers = headers;
+    public InvalidConfigurationException(String msg) {
+        super(msg);
     }
 
-    @Override
-    public Iterator<Map.Entry<String, String>> iterator() {
-        return this.headers.entrySet().iterator();
+    public InvalidConfigurationException(String msg, Exception ex) {
+        super(msg, ex);
     }
-
-    @Override
-    public void put(String s, String s1) {
-        throw new UnsupportedOperationException("This class should be used only with Tracer.extract()!");
-    }
-
 }

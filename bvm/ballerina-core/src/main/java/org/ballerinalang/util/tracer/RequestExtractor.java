@@ -16,11 +16,32 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.util.tracer;
+
+import io.opentracing.propagation.TextMap;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
- * Enum for reference types between spans.
+ * Extractor that goes through the carrier map.
  */
-public enum ReferenceType {
-    CHILDOF, FOLLOWSFROM, ROOT
+public class RequestExtractor implements TextMap {
+
+    private Map<String, String> headers;
+
+    public RequestExtractor(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, String>> iterator() {
+        return this.headers.entrySet().iterator();
+    }
+
+    @Override
+    public void put(String s, String s1) {
+        throw new UnsupportedOperationException("This class should be used only with Tracer.extract()!");
+    }
+
 }
