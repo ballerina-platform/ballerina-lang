@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,37 +24,42 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
- * This function creates the directory structure denoted by the given File struct.
+ * Creates a new directory.
  *
- * @since 0.94.1
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
-        functionName = "mkdirs",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT),
-                @ReturnType(type = TypeKind.STRUCT)},
+        functionName = "createDirectory",
+        args = {
+                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.BOOLEAN),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
+        },
         isPublic = true
 )
-public class Mkdirs extends BlockingNativeCallableUnit {
+public class CreateDirectory extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(Mkdirs.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateDirectory.class);
 
     @Override
     public void execute(Context context) {
-        BStruct fileStruct = (BStruct) context.getRefArgument(0);
-        String path = fileStruct.getStringField(0);
-        File dir = Paths.get(path).toFile();
+        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
+        File dir = path.toFile();
 
         try {
             if (dir.mkdirs()) {

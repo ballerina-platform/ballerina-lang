@@ -38,7 +38,7 @@ import java.nio.file.Paths;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
-        functionName = "Paths.getPath",
+        functionName = "getPath",
         args = {@Argument(name = "basePath", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Path",
                 structPackage = "ballerina.file")},

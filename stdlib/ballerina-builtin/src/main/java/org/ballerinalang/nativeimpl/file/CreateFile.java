@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,8 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,26 +38,30 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Creates the file at the path specified in the File struct.
+ * Used to check existence of file.
  *
- * @since 0.94.1
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
-        functionName = "createNewFile",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT),
-                @ReturnType(type = TypeKind.STRUCT)},
+        functionName = "createFile",
+        args = {
+                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.BOOLEAN),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
+        },
         isPublic = true
 )
-public class CreateNewFile extends BlockingNativeCallableUnit {
+public class CreateFile extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(CreateNewFile.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateFile.class);
 
     @Override
     public void execute(Context context) {
-        BStruct fileStruct = (BStruct) context.getRefArgument(0);
-        Path filePath = Paths.get(fileStruct.getStringField(0));
+        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        Path filePath = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         Path newFile;
         try {
             newFile = Files.createFile(filePath);

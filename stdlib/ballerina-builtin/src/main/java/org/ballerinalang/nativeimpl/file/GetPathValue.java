@@ -38,8 +38,8 @@ import java.nio.file.Path;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
         functionName = "Path.getPathValue",
-        args = {@Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
-                structPackage = "ballerina.file")
+        args = {
+                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
@@ -52,7 +52,7 @@ public class GetPathValue extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
-        Path path = (Path) pathStruct.getNativeData(Constants.PATH_STRUCT);
+        Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         String pathValue = path.toString();
         context.setReturnValues(new BString(pathValue));
     }
