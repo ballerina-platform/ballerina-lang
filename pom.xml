@@ -1224,10 +1224,6 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude sources-->
-                                <sourceDirectories>
-                                    <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                                    <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-                                </sourceDirectories>
                                 <excludes>${maven.checkstyleplugin.excludes}</excludes>
                             </configuration>
                             <goals>
