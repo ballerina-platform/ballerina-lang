@@ -19,6 +19,7 @@ package org.ballerinalang.util.metrics;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.LaunchListener;
+import org.ballerinalang.util.observability.ObservabilityConfig;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 
 import java.lang.management.ManagementFactory;
@@ -32,7 +33,9 @@ public class MetricsLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+        if (ObservabilityConfig.getInstance().isMetricsEnabled()) {
+            ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+        }
     }
 
     @Override

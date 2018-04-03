@@ -74,7 +74,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-observe</artifactId>
+            <artifactId>ballerina-cli-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-packerina</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -241,7 +245,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging,ballerina-observe
+                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

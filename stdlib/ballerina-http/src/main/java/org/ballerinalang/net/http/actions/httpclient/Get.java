@@ -34,26 +34,25 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Map;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "get",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                        structPackage = "ballerina.http"),
         }
 )
 public class Get extends AbstractHTTPAction {
@@ -77,8 +76,8 @@ public class Get extends AbstractHTTPAction {
 
         ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                 getParentWorkerExecutionContext());
-        HttpUtil.injectHeaders(outboundReqMsg, (Map<String, String>) observerContext.
-                getProperty(PROPERTY_TRACE_PROPERTIES));
+        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
+        HttpUtil.injectHeaders(outboundReqMsg, traceContext);
         observerContext.addTags(HttpUtil.extractTags(outboundReqMsg));
 
         return outboundReqMsg;

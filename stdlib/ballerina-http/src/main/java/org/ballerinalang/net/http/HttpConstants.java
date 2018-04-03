@@ -39,8 +39,8 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:ServiceEndpoint";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:ServiceEndpoint";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -60,8 +60,9 @@ public class HttpConstants {
     public static final String FORWARDED_ENABLE = "enable";
     public static final String FORWARDED_TRANSITION = "transition";
     public static final String FORWARDED_DISABLE = "disable";
+    public static final String DISABLE = "disable";
 
-    public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
+    public static final String HTTP_PACKAGE_PATH = "ballerina.http";
 
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
@@ -159,6 +160,8 @@ public class HttpConstants {
     public static final String HTTP_HANDLE = "HttpHandle";
     public static final String PUSH_PROMISE = "PushPromise";
     public static final String ENTITY = "Entity";
+    public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
+    public static final String REQUEST_CACHE_CONTROL = "RequestCacheControl";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
@@ -189,11 +192,14 @@ public class HttpConstants {
     public static final int REQUEST_VERSION_INDEX = 2;
     public static final int REQUEST_USER_AGENT_INDEX = 3;
     public static final int REQUEST_EXTRA_PATH_INFO_INDEX = 4;
+    public static final int REQUEST_CACHE_CONTROL_INDEX = 0;
 
     //Response struct indexes
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
+    public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
+    public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
     //PushPromise struct indexes
     public static final int PUSH_PROMISE_PATH_INDEX = 0;
@@ -215,6 +221,27 @@ public class HttpConstants {
     public static final int RETRY_STRUCT_INDEX = 4;
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
+
+    // ResponseCacheControl struct indices
+    public static final int RES_CACHE_CONTROL_MUST_REVALIDATE_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_NO_CACHE_INDEX = 1;
+    public static final int RES_CACHE_CONTROL_NO_STORE_INDEX = 2;
+    public static final int RES_CACHE_CONTROL_NO_TRANSFORM_INDEX = 3;
+    public static final int RES_CACHE_CONTROL_IS_PRIVATE_INDEX = 4;
+    public static final int RES_CACHE_CONTROL_PROXY_REVALIDATE_INDEX = 5;
+    public static final int RES_CACHE_CONTROL_MAX_AGE_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_S_MAXAGE_INDEX = 1;
+    public static final int RES_CACHE_CONTROL_NO_CACHE_FIELDS_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_PRIVATE_FIELDS_INDEX = 1;
+
+    // RequestCacheControl struct indices
+    public static final int REQ_CACHE_CONTROL_NO_CACHE_INDEX = 0;
+    public static final int REQ_CACHE_CONTROL_NO_STORE_INDEX = 1;
+    public static final int REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX = 2;
+    public static final int REQ_CACHE_CONTROL_ONLY_IF_CACHED_INDEX = 3;
+    public static final int REQ_CACHE_CONTROL_MAX_AGE_INDEX = 0;
+    public static final int REQ_CACHE_CONTROL_MAX_STALE_INDEX = 1;
+    public static final int REQ_CACHE_CONTROL_MIN_FRESH_INDEX = 2;
 
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
@@ -280,6 +307,7 @@ public class HttpConstants {
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     public static final String CLIENT_EP_FORWARDED = "forwarded";
     public static final String TARGET_SERVICES = "targets";
+    public static final String CLIENT_EP_ACCEPT_ENCODING = "acceptEncoding";
 
     //Connection Throttling Indexes
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";

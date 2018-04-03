@@ -84,6 +84,7 @@ public class BallerinaDocGenerator {
     public static void generateApiDocs(String output, String packageFilter, boolean isNative, String... sources) {
         out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
         for (String source : sources) {
+            source = source.trim();
             try {
                 Map<String, BLangPackage> docsMap;
 
@@ -139,7 +140,7 @@ public class BallerinaDocGenerator {
                 List<String> packageNames = new ArrayList<>(docsMap.keySet());
                 // Sort the package names
                 Collections.sort(packageNames);
-    
+
                 List<Link> packageNameList = PackageName.convertList(packageNames);
                 if (packageNames.contains("ballerina.builtin")) {
                     StaticCaption primitivesLinkName =
@@ -147,7 +148,7 @@ public class BallerinaDocGenerator {
                     packageNameList.add(0, new Link(primitivesLinkName, BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF,
                                                                                                                 false));
                 }
-    
+
                 //Generate pages for the packages
                 String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
                         "page");
@@ -167,13 +168,13 @@ public class BallerinaDocGenerator {
                                 .sort(Comparator
                                     .comparing(a -> a.getName().getValue())));
                     }
-    
+
                     String packagePath = refinePackagePath(bLangPackage);
-                    
+
                     Page page = Generator.generatePage(bLangPackage, packageNameList);
                     String filePath = output + File.separator + packagePath + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
-    
+
                     if ("ballerina.builtin".equals(packagePath)) {
                         Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList);
                         String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
@@ -194,6 +195,16 @@ public class BallerinaDocGenerator {
                         e.getMessage()));
                 log.error(String.format("API documentation generation failed for %s", source), e);
             }
+        }
+        try {
+            String zipPath = System.getProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
+            if (zipPath != null) {
+                BallerinaDocUtils.packageToZipFile(output, zipPath);
+            }
+        } catch (IOException e) {
+            out.println(String.format("docerina: API documentation zip packaging failed for %s: %s", output,
+                    e.getMessage()));
+            log.error(String.format("API documentation zip packaging failed for %s", output), e);
         }
     }
 

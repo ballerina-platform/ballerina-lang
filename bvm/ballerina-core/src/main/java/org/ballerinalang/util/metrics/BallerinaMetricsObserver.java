@@ -33,7 +33,6 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     private static final String PROPERTY_START_TIME = "_observation_start_time_";
     private static final String TAG_KEY_SERVICE = "service";
     private static final String TAG_KEY_RESOURCE = "resource";
-    private static final String TAG_KEY_CONNECTOR = "connector";
     private static final String TAG_KEY_ACTION = "action";
 
     private static final PrintStream consoleError = System.err;
@@ -69,8 +68,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] additionalTags = {TAG_KEY_CONNECTOR, observerContext.getConnectorName(), TAG_KEY_ACTION,
-                observerContext.getActionName()};
+        String[] additionalTags = {TAG_KEY_ACTION, observerContext.getActionName()};
         stopObservation(observerContext, additionalTags);
     }
 
@@ -78,6 +76,8 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
+            // Connector name must be a part of the metric name to make sure that every metric is unique with
+            // the combination of name and tags.
             String namePrefix = observerContext.getConnectorName();
             Map<String, String> tags = observerContext.getTags();
             Timer responseTimer = Timer.builder(namePrefix + "_response_time").description("Response Time")

@@ -89,6 +89,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
+import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
@@ -426,6 +427,7 @@ public class ProgramFileReader {
             }
 
             String defaultInit = structName + INIT_FUNCTION_SUFFIX;
+            String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
 
             // Read attached function info entries
             int attachedFuncCount = dataInStream.readShort();
@@ -444,10 +446,17 @@ public class ProgramFileReader {
                         typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
                 structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
 
+                // TODO remove when removing struct
                 // Setting the initializer function info, if any.
                 if (structName.equals(attachedFuncName)) {
                     structInfo.initializer = functionInfo;
                 }
+                // Setting the object initializer
+                if (objectInit.equals(attachedFuncName)) {
+                    structInfo.initializer = functionInfo;
+                }
+
+                // TODO remove when removing struct
                 // Setting the default initializer function info
                 if (defaultInit.equals(attachedFuncName)) {
                     structInfo.defaultsValuesInitFunc = functionInfo;
@@ -1421,14 +1430,13 @@ public class ProgramFileReader {
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
-                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLSEQSTORE:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
@@ -1479,6 +1487,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.CHECK_CONVERSION:
+                case InstructionCodes.XMLLOADALL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1563,6 +1572,8 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
+                case InstructionCodes.XMLSEQLOAD:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

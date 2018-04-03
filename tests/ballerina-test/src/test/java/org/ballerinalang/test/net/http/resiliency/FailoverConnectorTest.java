@@ -69,7 +69,8 @@ public class FailoverConnectorTest {
     @Test(description = "Test case for failover connector when all endpoints return error response.")
     public void testFailureScenario() {
         long expectedHttpSC = 500;
-        String expectedErrprMessageContent = "All the failover endpoints failed. Last endpoint returned response is: 502 ";
+        String expectedErrprMessageContent =
+                "All the failover endpoints failed. Last endpoint returned response is: 502 ";
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testFailureScenario");
 
         Assert.assertNotNull(returnVals);

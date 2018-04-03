@@ -21,37 +21,22 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @since 0.94
  */
 public class BLangReturn extends BLangStatement implements ReturnNode {
-    public List<BLangExpression> exprs;
+    public BLangExpression expr;
 
-    // Hold variable for Desuger phase, if this a named return.
-    public List<BLangVariable> namedReturnVariables;
-
-    public BLangReturn() {
-        this.exprs = new ArrayList<>();
-    }
-
-    public BLangReturn(List<BLangExpression> exprs) {
-        this.exprs = exprs;
+    @Override
+    public BLangExpression getExpression() {
+        return expr;
     }
 
     @Override
-    public List<BLangExpression> getExpressions() {
-        return exprs;
-    }
-
-    @Override
-    public void addExpression(ExpressionNode expressionNode) {
-        this.exprs.add((BLangExpression) expressionNode);
+    public void setExpression(ExpressionNode expressionNode) {
+        this.expr = (BLangExpression) expressionNode;
     }
 
     @Override
@@ -66,7 +51,7 @@ public class BLangReturn extends BLangStatement implements ReturnNode {
 
     @Override
     public String toString() {
-        return "Return: " +  (this.exprs != null ? this.exprs : "");
+        return "Return: " + (this.expr != null ? this.expr : "");
     }
 
 }

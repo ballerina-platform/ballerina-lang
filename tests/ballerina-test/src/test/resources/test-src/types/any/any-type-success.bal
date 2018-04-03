@@ -26,7 +26,7 @@ function anyToTableCastFunction (any aTable) returns (table) | error {
 }
 
 function tableReturnFunction () returns (table) {
-    table <Employee> tb = {};
+    table <Employee> tb = table{};
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
     tb.add(e1);

@@ -382,7 +382,7 @@ public class TypeCastExprTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
     public void testNullJsonToString() {
-        BRunUtil.invoke(result, "testNullJsonToString" );
+        BRunUtil.invoke(result, "testNullJsonToString");
     }
 
     @Test(description = "Test casting a null JSON to int",
@@ -456,7 +456,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a json as any type to json")
     public void testAnyJsonToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyJsonToJson" );
+        BValue[] returns = BRunUtil.invoke(result, "testAnyJsonToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(((BJSON) returns[0]).value().toString(), "{\"home\":\"SriLanka\"}");
     }
@@ -517,7 +517,7 @@ public class TypeCastExprTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map' cannot be cast to 'Person'.*")
     public void testAnyToStruct() {
-        BRunUtil.invoke(result, "testAnyToStruct" );
+        BRunUtil.invoke(result, "testAnyToStruct");
     }
 
     @Test(description = "Test casting a null stored as any to struct",

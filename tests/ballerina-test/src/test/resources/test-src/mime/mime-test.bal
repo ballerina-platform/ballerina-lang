@@ -2,8 +2,8 @@ import ballerina/mime;
 import ballerina/log;
 import ballerina/file;
 import ballerina/io;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
 function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
@@ -217,7 +217,7 @@ function testSetJsonAndGetByteChannel (json jsonContent) returns io:ByteChannel 
     return entity.getByteChannel();
 }
 
-function testGetTextDataSource (io:ByteChannel byteChannel) returns string | null | mime:EntityError {
+function testGetTextDataSource (io:ByteChannel byteChannel) returns string | mime:EntityError {
     mime:Entity entity = {};
     entity.setByteChannel(byteChannel);
     //Consume byte channel externally
@@ -246,7 +246,7 @@ function consumeChannel (io:ByteChannel channel) {
     var result = channel.read(1000000);
 }
 
-endpoint mock:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListeningServiceEndpoint mockEP {
     port:9090
 };
 
@@ -260,8 +260,8 @@ service<http:Service> echo bind mockEP {
         http:Response response = {};
         mime:Entity responseEntity = {};
         match request.getByteChannel() {
+            http:PayloadError err => log:printInfo("invalid value");
             io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
-            mime:EntityError err => log:printInfo("invalid value");
         }
         response.setEntity(responseEntity);
         _ = client -> respond(response);

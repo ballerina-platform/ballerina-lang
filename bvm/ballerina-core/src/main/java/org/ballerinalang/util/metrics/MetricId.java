@@ -80,4 +80,14 @@ public class MetricId {
     public int hashCode() {
         return Objects.hash(name, tags);
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("MetricId{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", tags=").append(tags);
+        sb.append('}');
+        return sb.toString();
+    }
 }

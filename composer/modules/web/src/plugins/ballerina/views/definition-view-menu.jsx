@@ -63,33 +63,32 @@ class DefinitionViewMenu extends React.Component {
 
     render() {
         let structs = [];
-        let transformers = [];
         let endpoints = [];
 
         if (this.props.model) {
             structs = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isStruct(node); });
-            transformers = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isTransformer(node); });
             endpoints = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isEndpoint(node); });
         }
         return (
             <Popup 
                 trigger={ 
                     <Button as='div' labelPosition='right' className='top-bar'>
-                        <Button icon divided>
-                            <Icon name={'fw fw-struct'} />
-                        </Button>
-                        <Label>Structs</Label>
-                        <Label as='a' basic pointing='left'>{structs.length}</Label>
-                        <Button icon>
-                            <Icon name={'fw fw-type-converter'} />
-                        </Button>
-                        <Label>Transformers</Label>
-                        <Label as='a' basic pointing='left'>{transformers.length}</Label>
-                        <Button icon>
-                            <Icon name={'fw fw-endpoint'} />
-                        </Button>
-                        <Label>Endpoints</Label>
-                        <Label as='a' basic pointing='left'>{endpoints.length}</Label>
+                        <Grid divided columns={2}>
+                            <Grid.Column>
+                                <Button icon>
+                                    <Icon name={'fw fw-struct'} />
+                                </Button>
+                                <Label>Structs</Label>
+                                <Label as='a' basic pointing='left'>{structs.length}</Label>
+                            </Grid.Column>
+                            <Grid.Column>
+                                <Button icon>
+                                    <Icon name={'fw fw-endpoint'} />
+                                </Button>
+                                <Label>Endpoints</Label>
+                                <Label as='a' basic pointing='left'>{endpoints.length}</Label>
+                            </Grid.Column>
+                        </Grid>
                     </Button>
                     }
                 flowing
@@ -101,7 +100,7 @@ class DefinitionViewMenu extends React.Component {
                 onOpen={this.handleOpen}
             >
                 {
-                    <Grid divided columns={3}>
+                    <Grid divided columns={2} className='menu-pop-content'>
                         <Grid.Row>
                             <Grid.Column>
                                 <Header as='h5'>
@@ -112,19 +111,6 @@ class DefinitionViewMenu extends React.Component {
                                     structs.map((element) => {
                                         return this.getItem(element.getName().getValue(),
                                                             () => { this.onDelete(element); });
-                                    })
-                                }
-                            </Grid.Column>
-                            <Grid.Column stretched>
-                                <Header as='h5'>
-                                    <Icon size='mini' name={'fw fw-type-converter'} />
-                                    <Header.Content>Transformers</Header.Content>
-                                </Header>
-                                {
-                                    transformers.map((element) => {
-                                        return this.getItem(element.getHeader() + ' ' + element.getName().getValue(),
-                                                        () => { this.onDelete(element); },
-                                                        () => { this.onView(element.getSignature()); });
                                     })
                                 }
                             </Grid.Column>

@@ -36,26 +36,25 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Map;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 
 /**
  * {@code Options} is the OPTIONS action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "options",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                        structPackage = "ballerina.http"),
         }
 )
 public class Options extends AbstractHTTPAction {
@@ -78,8 +77,8 @@ public class Options extends AbstractHTTPAction {
 
         ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                 getParentWorkerExecutionContext());
-        HttpUtil.injectHeaders(outboundRequestMsg, (Map<String, String>) observerContext.
-                getProperty(PROPERTY_TRACE_PROPERTIES));
+        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
+        HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;

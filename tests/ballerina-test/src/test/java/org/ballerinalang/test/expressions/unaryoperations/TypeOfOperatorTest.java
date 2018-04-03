@@ -593,12 +593,4 @@ public class TypeOfOperatorTest {
         int expected = 1;
         Assert.assertEquals(actual, expected);
     }
-
-    @Test
-    public void testTypeOfNullString() {
-        BValue[] args = { new BString(null) };
-        BValue[] returns = BRunUtil.invoke(result, "testTypeOfNullString", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].stringValue(), "null");
-    }
 }

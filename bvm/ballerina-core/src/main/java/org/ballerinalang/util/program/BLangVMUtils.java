@@ -39,7 +39,6 @@ import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.io.PrintStream;
-import java.util.Arrays;
 
 /**
  * Utilities related to the Ballerina VM.
@@ -132,17 +131,7 @@ public class BLangVMUtils {
     }
 
     private static WorkerData createWorkerData(WorkerInfo workerInfo) {
-        WorkerData wd = new WorkerData();
-        CodeAttributeInfo ci = workerInfo.getCodeAttributeInfo();
-        wd.longRegs = new long[ci.getMaxLongRegs()];
-        wd.doubleRegs = new double[ci.getMaxDoubleRegs()];
-        wd.stringRegs = new String[ci.getMaxStringRegs()];
-        wd.intRegs = new int[ci.getMaxIntRegs()];
-        wd.byteRegs = new byte[ci.getMaxByteRegs()][];
-        wd.refRegs = new BRefType[ci.getMaxRefRegs()];
-
-        Arrays.fill(wd.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
-        return wd;
+        return new WorkerData(workerInfo.getCodeAttributeInfo());
     }
 
     @SuppressWarnings("rawtypes")
@@ -366,29 +355,11 @@ public class BLangVMUtils {
     }
     
     public static WorkerData createWorkerData(WorkerDataIndex wdi) {
-        WorkerData wd = new WorkerData();
-        wd.longRegs = new long[wdi.longRegCount];
-        wd.doubleRegs = new double[wdi.doubleRegCount];
-        wd.stringRegs = new String[wdi.stringRegCount];
-        wd.intRegs = new int[wdi.intRegCount];
-        wd.byteRegs = new byte[wdi.byteRegCount][];
-        wd.refRegs = new BRefType[wdi.refRegCount];
-
-        Arrays.fill(wd.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
-        return wd;
+        return new WorkerData(wdi);
     }
     
     private static WorkerData createWorkerData(WorkerDataIndex wdi1, WorkerDataIndex wdi2) {
-        WorkerData wd = new WorkerData();
-        wd.longRegs = new long[wdi1.longRegCount + wdi2.longRegCount];
-        wd.doubleRegs = new double[wdi1.doubleRegCount + wdi2.doubleRegCount];
-        wd.stringRegs = new String[wdi1.stringRegCount + wdi2.stringRegCount];
-        wd.intRegs = new int[wdi1.intRegCount + wdi2.intRegCount];
-        wd.byteRegs = new byte[wdi1.byteRegCount + wdi2.byteRegCount][];
-        wd.refRegs = new BRefType[wdi1.refRegCount + wdi2.refRegCount];
-
-        Arrays.fill(wd.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
-        return wd;
+        return new WorkerData(wdi1, wdi2);
     }
     
     public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types,

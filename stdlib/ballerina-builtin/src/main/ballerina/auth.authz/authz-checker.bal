@@ -40,7 +40,7 @@ public function createChecker (permissionstore:PermissionStore permissionstore, 
 @Param {value:"username: user name"}
 @Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <AuthzChecker authzChecker> check (string username, string[] scopes) returns (boolean) {
+public function <AuthzChecker authzChecker> authorize (string username, string[] scopes) returns (boolean) {
     // TODO: check if there are any groups set in the SecurityContext and if so, match against those.
     return authzChecker.permissionstore.isAuthorized(username, scopes);
 }

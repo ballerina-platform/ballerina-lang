@@ -265,23 +265,6 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testTransformer() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/transformer.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
-    }
-
-    @Test
-    public void testTransformerNegative() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/transformer-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 24, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 25, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 26, 20);
-    }
-
-    @Test
     public void testIterable() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/iterable.bal");
@@ -294,7 +277,7 @@ public class TaintedStatusPropagationTest {
                 .compile("test-src/taintchecking/propagation/iterable-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 58);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 53);
     }
 
     @Test

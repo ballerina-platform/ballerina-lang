@@ -27,11 +27,10 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.TraceConstants;
 
 import java.util.Iterator;
 import java.util.Map;
-
-import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
 
 /**
  * This function injects a span context and returns the spans Id.
@@ -54,7 +53,8 @@ public class ExtractTraceContext extends BlockingNativeCallableUnit {
     public void execute(Context context) {
 
         BMap header = (BMap) context.getRefArgument(0);
-        String group = context.getStringArgument(0) == null ? DEFAULT_USER_API_GROUP : context.getStringArgument(0);
+        String group = context.getStringArgument(0) == null ? TraceConstants.DEFAULT_USER_API_GROUP
+                : context.getStringArgument(0);
         Iterator<Map.Entry<String, String>> headerMap = Utils.toStringMap(header).entrySet().iterator();
 
         BMap<String, BString> spanHeaders = new BMap<>();

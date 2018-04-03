@@ -42,6 +42,8 @@ public interface CallbackGauge extends Metric {
 
     /**
      * Builder for {@link CallbackGauge}s.
+     *
+     * @param <T> The type of the state object from which the gauge value is extracted.
      */
     class Builder<T> extends Metric.Builder<Builder<T>, CallbackGauge> {
 

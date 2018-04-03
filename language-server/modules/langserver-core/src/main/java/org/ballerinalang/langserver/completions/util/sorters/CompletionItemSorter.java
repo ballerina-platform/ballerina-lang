@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -37,7 +37,7 @@ public abstract class CompletionItemSorter {
      * @param ctx               Completion context
      * @param completionItems   List of initial completion items
      */
-    public abstract void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems);
+    public abstract void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems);
 
     /**
      * Assign the Priorities to the completion items.

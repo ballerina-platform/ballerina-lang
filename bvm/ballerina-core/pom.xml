@@ -144,8 +144,25 @@
             <artifactId>siddhi-annotations</artifactId>
         </dependency>
 
+        <!-- Observability dependencies -->
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-util</artifactId>
+        </dependency>
+        <!-- TODO Remove snakeyaml once TOML configs are working -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.19</version>
+        </dependency>
     </dependencies>
-
+    <properties>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+    </properties>
     <build>
         <plugins>
             <!-- For ballerina annotation processing -->
@@ -157,10 +174,6 @@
                     <processors>
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
-                    <options>
-                        <nativeEntityProviderPackage>org.ballerinalang.generated.providers</nativeEntityProviderPackage>
-                        <nativeEntityProviderClass>EmbeddedExecutor</nativeEntityProviderClass>
-                    </options>
                 </configuration>
                 <executions>
                     <execution>
@@ -174,10 +187,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
-        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
-    </properties>
-
 </project>

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Utility methods to get a list of {@link Tag Tags}
+ * Utility methods to get a list of {@link Tag Tags}.
  */
 public class Tags {
 
