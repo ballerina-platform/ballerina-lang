@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -1393,6 +1394,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLiteral literalExpr) {
+        //ignore
+    }
+
+    @Override
+    public void visit(BLangTernaryExpr ternaryExpr) {
         //ignore
     }
 

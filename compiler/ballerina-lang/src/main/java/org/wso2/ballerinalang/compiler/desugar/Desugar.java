@@ -190,7 +190,7 @@ public class Desugar extends BLangNodeVisitor {
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
     private EndpointDesugar endpointDesugar;
-    private SqlQueryBuilder sqlQueryBuilder;
+    private InMemoryTableQueryBuilder inMemoryTableQueryBuilder;
     private Types types;
     private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
@@ -220,7 +220,7 @@ public class Desugar extends BLangNodeVisitor {
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.endpointDesugar = EndpointDesugar.getInstance(context);
-        this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
+        this.inMemoryTableQueryBuilder = InMemoryTableQueryBuilder.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
@@ -1407,7 +1407,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableQueryExpression tableQueryExpression) {
-        sqlQueryBuilder.visit(tableQueryExpression);
+        inMemoryTableQueryBuilder.visit(tableQueryExpression);
 
         /*replace the table expression with a function invocation,
          so that we manually call a native function "queryTable". */
