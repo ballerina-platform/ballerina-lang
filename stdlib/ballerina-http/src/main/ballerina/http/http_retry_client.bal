@@ -201,13 +201,17 @@ function performRetryClientExecuteAction (string path, Request request, string h
 function performRetryAction (string path, Request request, HttpOperation requestAction,
                                 RetryClient retryClient) returns (Response | HttpConnectorError) {
     int currentRetryCount = 0;
-	int retryCount = retryClient.retry.count;
-	int interval = retryClient.retry.interval;
-	HttpClient httpClient = retryClient.httpClient;
-	Response response = {};
+    int retryCount = retryClient.retry.count;
+    int interval = retryClient.retry.interval;
+    int backOffFactor = retryClient.retry.backOffFactor;
+    if (backOffFactor == 0) {
+        backOffFactor = 1;
+    }
+    HttpClient httpClient = retryClient.httpClient;
+    Response response = {};
     HttpConnectorError httpConnectorError = {};
-	Request inRequest = request;
-	// When performing passthrough scenarios using retry client, message needs to be built before sending out the
+    Request inRequest = request;
+    // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.
     var binaryPayload =? inRequest.getBinaryPayload();
 
@@ -218,19 +222,21 @@ function performRetryAction (string path, Request request, HttpOperation request
         mime:EntityError => io:println("mimeEntity null");
     }
 
-	while(currentRetryCount < retryCount) {
-		var invokedEndpoint = invokeEndpoint(path, inRequest, requestAction, httpClient);
-		match invokedEndpoint {
+    while(currentRetryCount < (retryCount + 1)) {
+        var invokedEndpoint = invokeEndpoint(path, inRequest, requestAction, httpClient);
+        match invokedEndpoint {
             Response backendResponse => {
                 return backendResponse;
             }
             HttpConnectorError errorResponse => {
-				httpConnectorError = errorResponse;
+                httpConnectorError = errorResponse;
             }
-
         }
-		runtime:sleepCurrentWorker(interval);
-		currentRetryCount = currentRetryCount + 1;
-	}
+        if (currentRetryCount != 0) {
+           interval = interval * backOffFactor;
+        }
+        runtime:sleepCurrentWorker(interval);
+        currentRetryCount = currentRetryCount + 1;
+    }
     return httpConnectorError;
 }

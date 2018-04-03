@@ -189,9 +189,11 @@ public native function createHttpClient(string uri, ClientEndpointConfiguration 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
 @Field {value:"interval: Retry interval in milliseconds"}
+@Field {value:"backOffFactor: multiplier of the retry interval to exponentailly increase retry interval"}
 public struct Retry {
     int count;
     int interval;
+    int backOffFactor;
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
