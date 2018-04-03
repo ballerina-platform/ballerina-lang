@@ -124,10 +124,10 @@ public class BLangFunctions {
         return BLangVMUtils.populateReturnData(parentCtx, callableUnitInfo, regs[1]);
     }
     
-    public static void invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
+    public static void invokeServiceCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
             BValue[] args, CallableUnitCallback responseCallback) {
         int[][] regs = BLangVMUtils.populateArgAndReturnData(parentCtx, callableUnitInfo, args);
-        invokeCallable(callableUnitInfo, parentCtx, regs[0], regs[1], responseCallback);
+        invokeServiceCallable(callableUnitInfo, parentCtx, regs[0], regs[1], responseCallback);
     }
 
     /**
@@ -136,7 +136,7 @@ public class BLangFunctions {
      * This is specifically useful in executing service resources, where the calling transport
      * threads shouldn't be blocked, but rather the worker threads should be used.
      */
-    public static void invokeCallable(CallableUnitInfo callableUnitInfo,
+    public static void invokeServiceCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
             CallableUnitCallback responseCallback) {
         WorkerSet workerSet = callableUnitInfo.getWorkerSet();
