@@ -824,7 +824,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (serviceNode.anonymousEndpointBind == null) {
             return;
         }
-        if (serviceNode.endpoints == null) {
+        if (serviceNode.endpointType == null) {
             dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS, serviceNode.name);
             return;
         }
