@@ -4,7 +4,7 @@ import ballerina/mime;
 
 endpoint http:ClientEndpoint clientEP {
     targets: [{
-        uri: "https://localhost:9095",
+        url: "https://localhost:9095",
         secureSocket: {
             keyStore: {
                 filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

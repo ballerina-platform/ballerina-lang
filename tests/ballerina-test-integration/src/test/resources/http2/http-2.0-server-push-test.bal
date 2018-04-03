@@ -8,7 +8,7 @@ endpoint http:ServiceEndpoint frontendEP {
 endpoint http:ClientEndpoint backendClientEP {
     targets: [
         {
-            uri: "http://localhost:7090"
+            url: "http://localhost:7090"
         }
     ],
     // HTTP version is set to 2.0.

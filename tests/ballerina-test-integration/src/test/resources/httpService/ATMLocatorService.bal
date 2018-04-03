@@ -7,12 +7,12 @@ endpoint http:ServiceEndpoint serviceEnpoint {
 };
 
 endpoint http:ClientEndpoint bankInfoService {
-    targets: [{uri: "http://localhost:9090/bankinfo/product"}]
+    targets:[{url: "http://localhost:9090/bankinfo/product"}]
 
 };
 
 endpoint http:ClientEndpoint branchLocatorService {
-    targets: [{uri: "http://localhost:9090/branchlocator/product"}]
+    targets:[{url: "http://localhost:9090/branchlocator/product"}]
 };
 
 @http:ServiceConfig {

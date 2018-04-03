@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.test.util.grpc.builder.helloworld;
 
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -25,30 +24,35 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class ClientRunnable implements Runnable {
+public class ClientRunnable extends Thread {
     private static final Logger log = LoggerFactory.getLogger(ClientRunnable.class);
     private ServerInstance ballerinaClient;
+    private File clientBalFile;
     
-    public ClientRunnable(ServerInstance ballerinaClient) {
+    public ClientRunnable(ServerInstance ballerinaClient, File clientBalFile) {
         this.ballerinaClient = ballerinaClient;
+        this.clientBalFile = clientBalFile;
     }
     
     @Override
     public void run() {
-        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "grpcService" + File.separator + "helloWorldClient.bal").getAbsolutePath()};
-        try {
-            ballerinaClient.runMain(clientArgs);
-        } catch (BallerinaTestException e) {
-            log.error("Error in running grpc client connector main function.", e);
+        if (clientBalFile != null && clientBalFile.exists()) {
+            String[] clientArgs = {clientBalFile.getAbsolutePath()};
+            try {
+                ballerinaClient.runMain(clientArgs);
+            } catch (BallerinaTestException e) {
+                log.error("Error in running grpc client connector main function.", e);
+            }
         }
     }
     
-    public void stop() {
-        try {
-            ballerinaClient.stopServer();
-        } catch (BallerinaTestException e) {
-            log.error("Error in stopping grpc client connector main function.", e);
+    public void stopServer() {
+        if (ballerinaClient != null && ballerinaClient.isRunning()) {
+            try {
+                ballerinaClient.stopServer();
+            } catch (BallerinaTestException e) {
+                log.error("Error in stopping grpc client connector main function.", e);
+            }
         }
     }
 }

@@ -37,10 +37,10 @@ public enum Algorithm {
 }
 
 @Description {value:"Represents the configurations applied to a particular service."}
-@Field {value:"uri: Target service URI"}
+@Field {value:"url: Target service URI"}
 @Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
-    string uri;
+    string url;
     SecureSocket|null secureSocket;
 }
 
@@ -99,7 +99,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     boolean httpClientRequired = false;
-    string uri = config.targets[0].uri;
+    string uri = config.targets[0].url;
     match config.lbMode {
         FailoverConfig failoverConfig => {
             if (lengthof config.targets > 1) {
@@ -192,8 +192,9 @@ public struct Retry {
 @Field {value: "protocols: SSL/TLS protocol related options"}
 @Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-@Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
+@Field {value:"hostNameVerification: Enable/disable host name verification"}
+@Field {value:"sessionCreation: Enable/disable new ssl session creation"}
+@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public struct SecureSocket {
     TrustStore|null trustStore;
     KeyStore|null keyStore;
@@ -202,6 +203,7 @@ public struct SecureSocket {
     string ciphers;
     boolean hostNameVerification;
     boolean sessionCreation;
+    boolean ocspStapling;
 }
 
 @Description {value:"Initializes the SecureSocket struct with default values."}
@@ -310,7 +312,7 @@ function createLoadBalancerClient(ClientEndpointConfiguration config, string lbA
     HttpClient[] lbClients = createHttpClientArray(config);
 
     LoadBalancer lb = {
-                        serviceUri: config.targets[0].uri,
+                        serviceUri: config.targets[0].url,
                         config: config,
                         loadBalanceClientsArray: lbClients,
                         algorithm: lbAlgorithm
@@ -327,7 +329,7 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                                             failoverCodesIndex : failoverCodes,
                                                             failoverInterval : foConfig.interval};
 
-        Failover failover = {serviceUri:config.targets[0].uri, config:config,
+        Failover failover = {serviceUri:config.targets[0].url, config:config,
                                 failoverInferredConfig:failoverInferredConfig};
         HttpClient foClient = failover;
         return foClient;

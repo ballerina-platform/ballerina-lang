@@ -46,15 +46,15 @@ struct Employee {
     any ageAny;
 }
 
-documentation {
- Transformer Foo Person -> Employee
- T{{p}} input struct Person source used for transformation
- T{{e}} output struct Employee struct which Person transformed to
- P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
-}
-transformer <Person p, Employee e> Foo(any defaultAddress) {
-    e.name = p.firstName;
-}
+//documentation {
+// Transformer Foo Person -> Employee
+// T{{p}} input struct Person source used for transformation
+// T{{e}} output struct Employee struct which Person transformed to
+// P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
+//}
+//transformer <Person p, Employee e> Foo(any defaultAddress) {
+//    e.name = p.firstName;
+//}
 
 documentation {PizzaService HTTP Service}
 service<http:Service> PizzaService {

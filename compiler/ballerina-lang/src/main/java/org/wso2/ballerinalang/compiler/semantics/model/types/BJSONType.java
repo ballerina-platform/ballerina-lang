@@ -53,6 +53,10 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
         return super.toString() + "<" + constraint + ">";
     }
 
+    public boolean isNullable() {
+        return true;
+    }
+
     @Override
     public String getDesc() {
         if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {

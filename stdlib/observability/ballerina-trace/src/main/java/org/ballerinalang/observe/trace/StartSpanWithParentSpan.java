@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
+import org.ballerinalang.util.tracer.ReferenceType;
 
 import java.io.PrintStream;
 import java.util.Collections;

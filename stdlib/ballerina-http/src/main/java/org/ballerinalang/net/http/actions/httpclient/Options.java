@@ -29,10 +29,13 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.tracer.TraceUtil;
-import org.ballerinalang.util.tracer.Tracer;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.util.Map;
+
 
 /**
  * {@code Options} is the OPTIONS action implementation of the HTTP Connector.
@@ -72,9 +75,11 @@ public class Options extends AbstractHTTPAction {
         HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_OPTIONS);
 
-        Tracer tracer = TraceUtil.getParentTracer(context.getParentWorkerExecutionContext());
-        HttpUtil.injectHeaders(outboundRequestMsg, tracer.getProperties());
-        tracer.addTags(HttpUtil.extractTraceTags(outboundRequestMsg));
+        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
+                getParentWorkerExecutionContext());
+        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
+        HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
+        observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;
     }

@@ -25,30 +25,35 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class ServerRunnable implements Runnable {
+public class ServerRunnable extends Thread {
     private static final Logger log = LoggerFactory.getLogger(ServerRunnable.class);
     private ServerInstance ballerinaServer;
+    private File serverBalFile;
 
-    public ServerRunnable(ServerInstance ballerinaServer) {
+    public ServerRunnable(ServerInstance ballerinaServer, File serverBalFile) {
         this.ballerinaServer = ballerinaServer;
+        this.serverBalFile = serverBalFile;
     }
 
     @Override
     public void run() {
-        String balFile = new File("src/test/resources/grpcService/helloWorld-server-connector.bal")
-                .getAbsolutePath();
-        try {
-            ballerinaServer.startBallerinaServer(balFile);
-        } catch (BallerinaTestException e) {
-            log.error("Error in running grpc server connector main function.", e);
+        if (serverBalFile != null && serverBalFile.exists()) {
+            String balFile = serverBalFile.getAbsolutePath();
+            try {
+                ballerinaServer.startBallerinaServer(balFile);
+            } catch (BallerinaTestException e) {
+                log.error("Error in running grpc server connector main function.", e);
+            }
         }
     }
 
-    public void stop() {
-        try {
-            ballerinaServer.stopServer();
-        } catch (BallerinaTestException e) {
-            log.error("Error in stopping grpc server connector main function.", e);
+    public void stopServer() {
+        if (ballerinaServer != null && ballerinaServer.isRunning()) {
+            try {
+                ballerinaServer.stopServer();
+            } catch (BallerinaTestException e) {
+                log.error("Error in stopping grpc server connector main function.", e);
+            }
         }
     }
 }

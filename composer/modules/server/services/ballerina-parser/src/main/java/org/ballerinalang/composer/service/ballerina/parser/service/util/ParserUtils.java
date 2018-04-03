@@ -449,7 +449,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -468,7 +468,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -620,7 +620,7 @@ public class ParserUtils {
         addAnnotations(annotations, action.getAnnotationAttachments());
 
         List<Parameter> returnParameters = new ArrayList<>();
-        addParameters(returnParameters, action.getReturnParameters());
+        //addParameters(returnParameters, action.getReturnParameters());
 
         String fileName = action.getPosition().getSource().getCompilationUnitName();
         return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations, fileName);

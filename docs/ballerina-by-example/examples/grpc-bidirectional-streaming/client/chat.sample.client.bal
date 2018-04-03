@@ -1,7 +1,7 @@
 // This is client implementation for bidirectional streaming scenario
 package client;
 
-import ballerina/net.grpc;
+import ballerina/grpc;
 import ballerina/io;
 import ballerina/log;
 import ballerina.runtime;
