@@ -218,14 +218,53 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Visit all the imported packages
         pkgNode.imports.forEach(importNode -> analyzeDef(importNode, pkgEnv));
 
-        // Then visit each top-level element sorted using the compilation unit
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        // Analyze enum nodes.
+        pkgNode.enums.forEach(enumNode -> analyzeDef(enumNode, pkgEnv));
+
+        // Analyze struct nodes.
+        pkgNode.structs.forEach(struct -> analyzeDef(struct, pkgEnv));
+
+        // Analyze object nodes
+        pkgNode.objects.forEach(object -> analyzeDef(object, pkgEnv));
+
+        // Analyze connector nodes.
+        pkgNode.connectors.forEach(con -> analyzeDef(con, pkgEnv));
+
+        // Analyze transformer nodes.
+        pkgNode.transformers.forEach(tansformer -> analyzeDef(tansformer, pkgEnv));
+
+        // Analyze service and resource nodes.
+        pkgNode.services.forEach(service -> analyzeDef(service, pkgEnv));
+
+        // Analyze function nodes.
+        analyzeFunctions(pkgNode.functions, pkgEnv);
+
+        // Analyze annotation nodes.
+        pkgNode.annotations.forEach(annot -> analyzeDef(annot, pkgEnv));
+
+        // Analyze global var nodes.
+        pkgNode.globalVars.forEach(var -> analyzeDef(var, pkgEnv));
+
+        // Analyze global endpoint nodes.
+        pkgNode.globalEndpoints.forEach(ep -> analyzeDef(ep, pkgEnv));
 
         analyzeDef(pkgNode.initFunction, pkgEnv);
         analyzeDef(pkgNode.startFunction, pkgEnv);
         analyzeDef(pkgNode.stopFunction, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
+    }
+
+    private void analyzeFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
+        functions.forEach(func -> {
+            SymbolEnv symbolEnv;
+            if (func.enclBlockStmt != null) {
+                symbolEnv = symTable.blockStmtEnvMap.get(func.enclBlockStmt);
+            } else {
+                symbolEnv = pkgEnv;
+            }
+            analyzeDef(func, symbolEnv);
+        });
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -488,6 +527,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
+        symTable.blockStmtEnvMap.put(blockNode, blockEnv);
         blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 

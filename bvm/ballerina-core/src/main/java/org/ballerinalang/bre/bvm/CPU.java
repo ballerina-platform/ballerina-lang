@@ -112,10 +112,13 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import static org.ballerinalang.model.types.TypeTags.ANY_TAG;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -489,8 +492,7 @@ public class CPU {
                     funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
-                    ctx = BLangFunctions.invokeCallable(functionInfo, ctx, funcCallCPEntry.getArgRegs(),
-                            funcCallCPEntry.getRetRegs(), false);
+                    ctx = invokeCallable(ctx, (BFunctionPointer) sf.refRegs[i], funcCallCPEntry, functionInfo, sf);
                     if (ctx == null) {
                         return;
                     }
@@ -499,7 +501,9 @@ public class CPU {
                     i = operands[0];
                     j = operands[1];
                     funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
-                    sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
+                    BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry);
+                    sf.refRegs[j] = functionPointer;
+                    findAndAddClosureVarRegIndexes(ctx, operands, functionPointer);
                     break;
 
                 case InstructionCodes.I2ANY:
@@ -744,6 +748,125 @@ public class CPU {
                     break;
                 default:
                     throw new UnsupportedOperationException();
+            }
+        }
+    }
+
+    private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,
+                                                         FunctionCallCPEntry funcCallCPEntry,
+                                                         FunctionInfo functionInfo, WorkerData sf) {
+        List<BFunctionPointer.BClosure> closureVars = fp.getClosureVars();
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        if (closureVars.isEmpty()) {
+            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
+        }
+
+        int[] newArgRegs = new int[argRegs.length + closureVars.size()];
+        System.arraycopy(argRegs, 0, newArgRegs, closureVars.size(), argRegs.length);
+        int argRegIndex = 0;
+
+        long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
+        double[] newDoubleRegs = new double[sf.doubleRegs.length + fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
+        int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag())];
+        String[] newStringRegs = new String[sf.stringRegs.length +
+                fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
+        byte[][] newByteRegs = new byte[sf.byteRegs.length + fp.getAdditionalIndexCount(BTypes.typeBlob.getTag())][];
+        BRefType<?>[] newRefRegs = new BRefType[sf.refRegs.length + fp.getAdditionalIndexCount(BTypes.typeAny.getTag())];
+
+        System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
+        System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
+        System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
+        System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
+        System.arraycopy(sf.byteRegs, 0, newByteRegs, 0, sf.byteRegs.length);
+        System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
+
+        int longIndex = sf.longRegs.length;
+        int doubleIndex = sf.doubleRegs.length;
+        int intIndex = sf.intRegs.length;
+        int stringIndex = sf.stringRegs.length;
+        int byteIndex = sf.byteRegs.length;
+        int refIndex = sf.refRegs.length;
+
+        for (BFunctionPointer.BClosure closure : closureVars) {
+            switch (closure.getType()) {
+                case TypeTags.INT_TAG: {
+                    newLongRegs[longIndex] = ((long) closure.value());
+                    newArgRegs[argRegIndex++] = longIndex++;
+                    break;
+                }
+                case TypeTags.FLOAT_TAG: {
+                    newDoubleRegs[doubleIndex] = ((double) closure.value());
+                    newArgRegs[argRegIndex++] = doubleIndex++;
+                    break;
+                }
+                case TypeTags.BOOLEAN_TAG: {
+                    newIntRegs[intIndex] = ((int) closure.value());
+                    newArgRegs[argRegIndex++] = intIndex++;
+                    break;
+                }
+                case TypeTags.STRING_TAG: {
+                    newStringRegs[stringIndex] = ((String) closure.value());
+                    newArgRegs[argRegIndex++] = stringIndex++;
+                    break;
+                }
+                case TypeTags.BLOB_TAG: {
+                    newByteRegs[byteIndex] = ((byte[]) closure.value());
+                    newArgRegs[argRegIndex++] = byteIndex++;
+                    break;
+                }
+                default:
+                    newRefRegs[refIndex] = ((BRefType) closure.value());
+                    newArgRegs[argRegIndex++] = refIndex++;
+            }
+        }
+
+        argRegs = newArgRegs;
+
+        sf.longRegs = newLongRegs;
+        sf.doubleRegs = newDoubleRegs;
+        sf.intRegs = newIntRegs;
+        sf.stringRegs = newStringRegs;
+        sf.byteRegs = newByteRegs;
+        sf.refRegs = newRefRegs;
+
+        return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
+    }
+
+    private static void findAndAddClosureVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
+                                                       BFunctionPointer fp) {
+
+        int h = operands[2];
+
+        if (h == 0) {
+            return;
+        }
+
+        for (int i = 0; i < h ; i++) {
+            int operandIndex = (i * 2) + 3;
+            int type = operands[operandIndex];
+            int index = operands[++operandIndex];
+            switch (type) {
+                case TypeTags.INT_TAG: {
+                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.longRegs[index], type));
+                    break;
+                }
+                case TypeTags.FLOAT_TAG: {
+                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.doubleRegs[index], type));
+                    break;
+                }
+                case TypeTags.BOOLEAN_TAG: {
+                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.intRegs[index], type));
+                    break;
+                }
+                case TypeTags.STRING_TAG: {
+                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.stringRegs[index], type));
+                    break;
+                }
+                case TypeTags.BLOB_TAG:
+                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.byteRegs[index], type));
+                    break;
+                default:
+                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.refRegs[index], ANY_TAG));
             }
         }
     }
@@ -2824,7 +2947,7 @@ public class CPU {
             return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
         }
 
-        if (lhsType.getTag() == TypeTags.ANY_TAG) {
+        if (lhsType.getTag() == ANY_TAG) {
             return true;
         }
 
@@ -2871,7 +2994,7 @@ public class CPU {
             return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
         }
 
-        if (lhsType.getTag() == TypeTags.ANY_TAG) {
+        if (lhsType.getTag() == ANY_TAG) {
             return true;
         }
 
@@ -2921,7 +3044,7 @@ public class CPU {
 
             return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType());
         } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            return targetType.getTag() == TypeTags.ANY_TAG;
+            return targetType.getTag() == ANY_TAG;
         }
 
         return sourceType.equals(targetType);
@@ -3571,7 +3694,7 @@ public class CPU {
         BFuture future = (BFuture) ctx.workerLocal.refRegs[futureReg];
         WorkerResponseContext respCtx = future.value();
         if (retValReg != -1) {
-            return respCtx.joinTargetContextInfo(ctx, new int[] { retValReg });
+            return respCtx.joinTargetContextInfo(ctx, new int[]{retValReg});
         } else {
             return respCtx.joinTargetContextInfo(ctx, new int[0]);
         }

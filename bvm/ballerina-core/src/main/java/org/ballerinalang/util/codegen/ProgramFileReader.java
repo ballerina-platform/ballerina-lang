@@ -1362,6 +1362,20 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
 
+                case InstructionCodes.FPLOAD: {
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    int[] operands = new int[3 + (k * 2)];
+                    operands[0] = i;
+                    operands[1] = j;
+                    operands[2] = k;
+                    for (int x = 0; x < (k * 2); x++) {
+                        operands[x + 3] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+                    break;
+                }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
@@ -1391,7 +1405,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
-                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:

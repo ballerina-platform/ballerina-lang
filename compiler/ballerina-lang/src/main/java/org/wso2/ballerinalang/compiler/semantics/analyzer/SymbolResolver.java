@@ -44,7 +44,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -70,6 +76,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -356,6 +363,44 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    /**
+     * Recursively analyse the symbol env to find the closure variable that is being resolved.
+     *
+     * @param env symbol env to analyse and find the closure variable.
+     * @param bSymbol symbol to resolve and find the associated closure variable.
+     * @return resolved closure variable for the given symbol.
+     */
+    public BLangVariable findClosureVar(SymbolEnv env, BSymbol bSymbol) {
+        BLangNode enclEnvNode = env.enclEnv.node;
+        if (enclEnvNode instanceof BLangBlockStmt) {
+            Optional<BLangStatement> statement = ((BLangBlockStmt) enclEnvNode).stmts.stream()
+                    .filter(stmt -> (stmt instanceof BLangVariableDef) &&
+                            ((BLangVariableDef) stmt).getVariable().name.getValue().equals(bSymbol.name.getValue()))
+                    .findFirst();
+            if (statement.isPresent()) {
+                ((BLangFunction) env.enclInvokable).closureVarList.add(((BLangVariableDef) statement.get()).
+                        getVariable());
+                return  ((BLangVariableDef) statement.get()).getVariable();
+            }
+        } else if (enclEnvNode instanceof BLangFunction) {
+            Optional<BLangVariable> var = ((BLangFunction) enclEnvNode).requiredParams.stream()
+                    .filter(param -> param.name.getValue().equals(bSymbol.name.getValue()) &&
+                            param.typeNode.type.equals(bSymbol.type))
+                    .findFirst();
+            if (var.isPresent()) {
+                return var.get();
+            }
+        }
+
+        if (env.enclEnv != null && env.enclInvokable != null) {
+            BLangVariable closureVar = findClosureVar(env.enclEnv, bSymbol);
+            if (closureVar != null) {
+                ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+            }
+            return closureVar;
+        }
+        return null;
+    }
 
     /**
      * Return the symbol associated with the given name in the give package.
