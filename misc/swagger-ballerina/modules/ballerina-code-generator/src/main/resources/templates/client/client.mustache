@@ -19,7 +19,7 @@ struct {{name}}ClientEp {
 
 function <{{name}}ClientEp ep> init({{name}}ClientConfig config) {
     endpoint http:ClientEndpoint httpEp {
-        targets: [{uri: config.serviceUrl}]
+        targets:[{url: config.serviceUrl}]
     };
 
     ep.client = httpEp;

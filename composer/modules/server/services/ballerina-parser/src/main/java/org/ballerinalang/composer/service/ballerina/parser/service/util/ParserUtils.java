@@ -237,7 +237,7 @@ public class ParserUtils {
                 "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
                 "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
                 "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
-                "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
+                "security.crypto", "task", "time", "transactions", "user", "util"};
         try {
             List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
             for (BLangPackage bLangPackage : builtInPackages) {
@@ -481,7 +481,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -500,7 +500,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -611,7 +611,7 @@ public class ParserUtils {
         addAnnotations(annotations, action.getAnnotationAttachments());
 
         List<Parameter> returnParameters = new ArrayList<>();
-        addParameters(returnParameters, action.getReturnParameters());
+        //addParameters(returnParameters, action.getReturnParameters());
 
         String fileName = action.getPosition().getSource().getCompilationUnitName();
         return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations, fileName);

@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.spi;
 
-import java.net.URI;
-
 /**
  * This represents the Java SPI interface for the resource runner.
  *
@@ -26,6 +24,6 @@ import java.net.URI;
  */
 public interface EmbeddedExecutor {
 
-    void execute(URI balxResource, String... args);
+    void execute(String cmdType, String... args);
 
 }
