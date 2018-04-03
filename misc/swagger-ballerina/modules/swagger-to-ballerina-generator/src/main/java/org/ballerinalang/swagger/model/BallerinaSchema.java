@@ -26,7 +26,6 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * This class wraps the {@link Schema} from swagger models inorder to overcome complications
@@ -147,7 +146,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
      */
     private String toPropertyName(String origName) {
         String escapedName = origName;
-        boolean isKeyword = Stream.of(GeneratorConstants.RESERVED_KEYWORDS).anyMatch(key -> key.equals(origName));
+        boolean isKeyword = GeneratorConstants.RESERVED_KEYWORDS.stream().anyMatch(key -> key.equals(origName));
         if (isKeyword) {
             escapedName = '_' + origName;
         }
