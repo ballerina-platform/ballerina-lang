@@ -22,7 +22,7 @@ endpoint http:ServiceEndpoint initiatorEP {
 };
 
 endpoint http:ClientEndpoint participant1EP {
-    targets: [{uri: "http://localhost:8889"}]
+    targets:[{url: "http://localhost:8889"}]
 };
 
 State state = new();

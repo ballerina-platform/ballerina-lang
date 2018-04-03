@@ -86,7 +86,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
             });
         } else if (identifierSymbol.getScopeEntry().symbol.type instanceof BJSONType) {
             ArrayList<Integer> typeTagsList = new ArrayList<>(Arrays.asList(TypeTags.INT, TypeTags.FLOAT,
-                    TypeTags.BOOLEAN, TypeTags.STRING, TypeTags.NULL, TypeTags.JSON));
+                    TypeTags.BOOLEAN, TypeTags.STRING, TypeTags.NIL, TypeTags.JSON));
             List<SymbolInfo> filteredBasicTypes = visibleSymbols.stream().filter(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 return bSymbol instanceof BTypeSymbol
