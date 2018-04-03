@@ -1,8 +1,5 @@
 package client;
 
-import ballerina/io;
-import ballerina/grpc;
-
 function testUnarySecuredBlocking() returns (string) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",

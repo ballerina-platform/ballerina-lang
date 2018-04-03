@@ -1,8 +1,5 @@
 package client;
 
-import ballerina/grpc;
-import ballerina/io;
-
 // This is an auto generated client stub which is used to communicate between gRPC client.
 struct helloWorldBlockingStub {
     grpc:Client clientEndpoint;

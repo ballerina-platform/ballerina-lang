@@ -1,6 +1,3 @@
-import ballerina/io;
-import ballerina/grpc;
-
 endpoint grpc:Service ep {
     host:"localhost",
     port:9090,
