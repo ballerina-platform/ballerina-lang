@@ -1,6 +1,6 @@
 function test1 () returns (string) {
 
-    function (string,int) returns (string) fp = function (string a, int b) returns (string){
+    function (string,int) returns (string) fp = (string a, int b) => (string){
                                                      return a + b;
                                                  };
     any aValue = fp;

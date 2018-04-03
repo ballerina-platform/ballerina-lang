@@ -32,10 +32,10 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code RemoveHeader} is the ballerina native function to remove a header of a Push Promise.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "removeHeader",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "PushPromise",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = @Argument(name = "headerName", type = TypeKind.STRING),
         isPublic = true
 )
