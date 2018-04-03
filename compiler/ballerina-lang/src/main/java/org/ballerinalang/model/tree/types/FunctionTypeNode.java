@@ -26,9 +26,9 @@ import java.util.List;
  */
 public interface FunctionTypeNode extends ReferenceTypeNode {
 
-    List<TypeNode> getParamTypeNode();
+    List<? extends TypeNode> getParamTypeNode();
 
-    List<TypeNode> getReturnParamTypeNode();
+    TypeNode getReturnTypeNode();
 
     boolean isReturnKeywordExists();
 

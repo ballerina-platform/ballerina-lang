@@ -29,7 +29,7 @@ public class TransactionConstants {
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
     public static final String COORDINATOR_IS_INITIATOR = "isInitiator";
 
-    public static final String COORDINATOR_PACKAGE = "ballerina.transactions.coordinator";
+    public static final String COORDINATOR_PACKAGE = "ballerina.transactions";
 
     public static final int DEFAULT_RETRY_COUNT = 3;
 
