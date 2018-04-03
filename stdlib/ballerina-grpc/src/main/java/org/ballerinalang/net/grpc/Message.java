@@ -509,15 +509,12 @@ public class Message extends GeneratedMessageV3 {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
                         if (MessageUtils.isArray(msgObject)) {
-                            Object[] messages = (Object[]) msgObject;
-                            for (Object message : messages) {
-                                // TODO: 3/28/18  fix
+                            Descriptors.EnumValueDescriptor[] messages = (Descriptors.EnumValueDescriptor[]) msgObject;
+                            for (Descriptors.EnumValueDescriptor message : messages) {
                                 size += com.google.protobuf.CodedOutputStream.computeEnumSize(fieldDescriptor
-                                        .getNumber(), fieldDescriptor
-                                        .getNumber());
+                                        .getNumber(), message.getNumber());
                             }
                         } else {
-                            // TODO: 3/28/18  fix
                             size += com.google.protobuf.CodedOutputStream.computeEnumSize(fieldDescriptor
                                     .getNumber(), fieldDescriptor
                                     .getNumber());

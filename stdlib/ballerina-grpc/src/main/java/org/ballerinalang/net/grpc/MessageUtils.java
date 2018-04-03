@@ -65,8 +65,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.STRING;
 public class MessageUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
-    private static final int MAX_ENUM_ATTRIBUTES_COUNT = 50;
-    
+
     public static BValue getHeader(Context context) {
         String headerName = context.getStringArgument(0);
         String headerValue = getHeaderValue(headerName);
@@ -321,7 +320,7 @@ public class MessageUtils {
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-        //
+
         if (structType instanceof BStructType) {
             BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(programFile,
                     structType.getPackagePath(), structType.getName());
