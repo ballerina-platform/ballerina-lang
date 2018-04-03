@@ -170,8 +170,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         if (GROUP_ANNOTATION_NAME.equals(name)) {
                             if (attributeNode.getValue() instanceof BLangArrayLiteral) {
                                 BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
-                                test.setGroups(values.exprs.stream().map(node
-                                    -> node.toString()).collect(Collectors.toList()));
+                                test.setGroups(values.exprs.stream().map(node -> node.toString())
+                                                           .collect(Collectors.toList()));
                                 // Check whether user has provided a group list
                                 if (groups != null && !groups.isEmpty()) {
                                     boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());

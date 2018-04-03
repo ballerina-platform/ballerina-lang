@@ -100,9 +100,13 @@ public class BTestRunner {
     public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
         //Build the test suites
         compileAndBuildSuites(sourceRoot, sourceFilePaths);
-        List groupList = getGroupList();
-        outStream.println("Following groups are available : ");
-        outStream.println(groupList);
+        List<String> groupList = getGroupList();
+        if (groupList.size() == 0) {
+            outStream.println("There are no groups available!");
+        } else {
+            outStream.println("Following groups are available : ");
+            outStream.println(groupList);
+        }
     }
 
     /**
@@ -110,7 +114,7 @@ public class BTestRunner {
      *
      * @return a list of groups
      */
-    public List getGroupList() {
+    public List<String> getGroupList() {
 
         Map<String, TestSuite> testSuites = TesterinaRegistry.getInstance().getTestSuites();
         if (testSuites.isEmpty()) {

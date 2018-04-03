@@ -63,7 +63,7 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
     private String ballerinaDebugPort;
 
-    @Parameter(names = { "--list-groups", "-lg" }, hidden = true)
+    @Parameter(names = { "--list-groups", "-lg" }, description = "list the groups available in the tests")
     private boolean listGroups;
 
     @Parameter(names = "--groups", description = "test groups to be executed")

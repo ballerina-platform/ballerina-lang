@@ -125,7 +125,7 @@ public class Test {
         this.groups = groups;
     }
 
-    public List getGroups() {
+    public List<String> getGroups() {
         return groups;
     }
 }
