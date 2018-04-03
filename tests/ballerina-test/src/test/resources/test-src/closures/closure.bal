@@ -5,7 +5,7 @@ int globalA = 5;
 function basicTest() returns (function (int) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = function (int funcInt) returns (int) {
+    var addFunc = (int funcInt) => (int) {
         return funcInt + methodInt + anotherMethodInt;
     };
     return addFunc;
@@ -18,9 +18,9 @@ function test1() returns int {
 
 function twoLevelTest() returns (function (int) returns (int)) {
     int methodInt1 = 2;
-    var addFunc1 = function (int funcInt1) returns (int) {
+    var addFunc1 = (int funcInt1) => (int) {
         int methodInt2 = 23;
-        var addFunc2 = function (int funcInt2) returns (int) {
+        var addFunc2 = (int funcInt2) => (int) {
             return funcInt2 + methodInt1 + methodInt2;
         };
         return addFunc2(5) + funcInt1;
@@ -35,11 +35,11 @@ function test2() returns int {
 
 function threeLevelTest() returns (function (int) returns (int)) {
     int methodInt1 = 2;
-    var addFunc1 = function (int funcInt1) returns (int) {
+    var addFunc1 = (int funcInt1) => (int) {
         int methodInt2 = 23;
-        var addFunc2 = function (int funcInt2) returns (int) {
+        var addFunc2 = (int funcInt2) => (int) {
             int methodInt3 = 7;
-            var addFunc3 = function (int funcInt3) returns (int) {
+            var addFunc3 = (int funcInt3) => (int) {
                 return funcInt3 + methodInt1 + methodInt2 + methodInt3;
             };
             return addFunc3(8) + funcInt2;
@@ -56,7 +56,7 @@ function test3() returns int {
 
 function closureWithIfBlock() returns (function (int) returns (int)) {
     int a = 3;
-    var addFunc = function (int b) returns (int) {
+    var addFunc =  (int b) => (int) {
         int c = 34;
         if (b == 3) {
             int e = 34;
@@ -74,8 +74,8 @@ function test4() returns int {
 
 
 function getFunc1(int functionIntX) returns (function (int) returns (function (int) returns (int))) {
-    return function (int functionIntY) returns (function (int) returns (int)) {
-        return function (int functionIntZ) returns (int) {
+    return (int functionIntY) => (function (int) returns (int)) {
+        return (int functionIntZ) => (int) {
             return functionIntX + functionIntY + functionIntZ;
         };
     };
@@ -88,7 +88,7 @@ function test5() returns (int){
 }
 
 function getIncFunc(int x) returns (function (int) returns (int)) {
-    return function(int y) returns (int) {
+    return (int y) => (int) {
         return x + y;
     };
 }
@@ -106,10 +106,10 @@ function out2ndFunc(int out2ndParam) returns (function (int) returns int) {
     int e = 45;
     int out2ndFuncLocal = 8;
     int f = 45;
-    var out1stFunc = function (int out1stParam) returns (int) {
+    var out1stFunc = (int out1stParam) => (int) {
         int e = 45;
         int f = 45;
-        var inner1Func = function (int inner1Param) returns (int) {
+        var inner1Func = (int inner1Param) => (int) {
                 int g = out2ndFuncLocal + out2ndParam;
                 int h = out1stParam + inner1Param;
                 return g + h;
@@ -125,9 +125,9 @@ function test7() returns int {
 }
 
 function testMultiLevelFunction() returns (int) {
-    var addFunc1 = function (int funcInt1) returns (int) {
-        var addFunc2 = function (int funcInt2) returns (int) {
-            var addFunc3 = function (int methodInt3, int methodInt2, int methodInt1, int funcInt3) returns (int) {
+    var addFunc1 = (int funcInt1) => (int) {
+        var addFunc2 = (int funcInt2) => (int) {
+            var addFunc3 =  (int methodInt3, int methodInt2, int methodInt1, int funcInt3) => (int) {
                 return funcInt3 + methodInt1 + methodInt2 + methodInt3;
             };
             return addFunc3(7, 23, 2, 8) + funcInt2;
@@ -144,7 +144,7 @@ function test8() returns int {
 function globalVarAccessTest() returns (function (int) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = function (int funcInt) returns (int) {
+    var addFunc = (int funcInt) => (int) {
         return funcInt + methodInt + globalA + anotherMethodInt;
     };
     return addFunc;
@@ -158,7 +158,7 @@ function test9() returns int {
 function testDifferentTypeArgs1() returns (function (int, float) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = function (int funcInt, float funcFloat) returns (int) {
+    var addFunc = (int funcInt, float funcFloat) => (int) {
         int f2i = <int>funcFloat;
         return funcInt + methodInt + anotherMethodInt + f2i;
     };
@@ -171,8 +171,8 @@ function test10() returns int {
 }
 
 function testDifferentTypeArgs2(int functionIntX) returns (function (float) returns (function (boolean) returns (int))) {
-    return function (float functionFloatY) returns (function (boolean) returns (int)) {
-        return function (boolean functionBoolZ) returns (int) {
+    return (float functionFloatY) => (function (boolean) returns (int)) {
+        return (boolean functionBoolZ) => (int) {
             if (functionBoolZ) {
                 return functionIntX + <int>functionFloatY;
             }
@@ -189,8 +189,8 @@ function test11() returns int {
 
 
 function testDifferentTypeArgs3(int a1, float a2) returns (function (boolean, float) returns (function () returns (int))) {
-    return function (boolean b1, float b2) returns (function () returns (int)) {
-        var foo = function () returns (int) {
+    return (boolean b1, float b2) => (function () returns (int)) {
+        var foo = () => (int) {
             if (b1) {
                 return a1 + <int>a2;
             }
@@ -213,8 +213,8 @@ function test13() returns int {
 }
 
 function getStringFunc1(string functionX) returns (function (string) returns (function (string) returns (string))) {
-    return function (string functionY) returns (function (string) returns (string)) {
-        return function (string functionZ) returns (string) {
+    return (string functionY) => (function (string) returns (string)) {
+        return  (string functionZ) => (string) {
             return functionX + functionY + functionZ;
         };
     };
@@ -229,7 +229,7 @@ function test14() returns (string){
 function testWithVarArgs() returns (function (int) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = function (int funcInt) returns (int) {
+    var addFunc = (int funcInt) => (int) {
         return funcInt + methodInt + anotherMethodInt;
     };
     return addFunc;
@@ -241,7 +241,7 @@ function test15() returns int {
 }
 
 function testClosureWithTupleTypes((string, float, string) g) returns (function (string, (string, float, string)) returns (string)){
-    return function (string x, (string, float, string) y) returns (string) {
+    return (string x, (string, float, string) y) => (string) {
        var (i, j, k) = y;
        var (l, m, n) = g;
        return x + i + j + k + l + m + n;
