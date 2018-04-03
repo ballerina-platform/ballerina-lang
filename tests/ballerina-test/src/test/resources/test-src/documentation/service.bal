@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint echoEP { // TODO: Need to replace with http mock endpoint once it's fixed
     port:9090

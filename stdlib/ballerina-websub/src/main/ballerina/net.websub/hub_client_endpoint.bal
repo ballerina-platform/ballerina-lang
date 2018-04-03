@@ -1,6 +1,6 @@
 package ballerina.net.websub;
 
-import ballerina/net.http;
+import ballerina/http;
 
 //////////////////////////////////////////
 /////// WebSub Hub Client Endpoint ///////
@@ -25,7 +25,7 @@ public struct HubClientEndpointConfiguration {
 @Param {value:"ep: The endpoint to be initialized"}
 @Param {value:"config: The configuration for the endpoint"}
 public function <HubClientEndpoint ep> init (HubClientEndpointConfiguration config) {
-    endpoint http:ClientEndpoint httpClientEndpoint {targets:[{uri:config.uri, secureSocket:config.secureSocket}]};
+    endpoint http:ClientEndpoint httpClientEndpoint {targets:[{url:config.uri, secureSocket:config.secureSocket}]};
     ep.httpClientEndpoint = httpClientEndpoint;
     ep.config = config;
 }

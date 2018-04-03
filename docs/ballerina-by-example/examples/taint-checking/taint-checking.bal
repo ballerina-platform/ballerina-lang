@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 
 //It is possible to use @sensitive annotation with parameters
 //of user defined functions and actions. This will allow, users

@@ -1,4 +1,5 @@
-import ballerina/net.http;
+import ballerina/http;
+import ballerina/io;
 
 endpoint http:ServiceEndpoint echoEP {
     port:9099
@@ -17,12 +18,10 @@ service<http:Service> echo bind echoEP{
         http:Response resp = {};
         var result = req.getStringPayload();
         match result {
+            http:PayloadError payloadError => io:println(payloadError.message);
             string payload => {
                 resp.setStringPayload(payload);
                 _ = outboundEP -> respond(resp);
-            }
-            any | null => {
-                return;
             }
         }
     }

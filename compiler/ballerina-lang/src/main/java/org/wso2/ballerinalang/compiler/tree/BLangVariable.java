@@ -148,6 +148,6 @@ public class BLangVariable extends BLangNode implements VariableNode {
 
     @Override
     public String toString() {
-        return String.valueOf(type) + " " + name.value + (expr != null ? " = " + String.valueOf(expr) : "");
+        return String.valueOf(type) + " " + symbol.name.value + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

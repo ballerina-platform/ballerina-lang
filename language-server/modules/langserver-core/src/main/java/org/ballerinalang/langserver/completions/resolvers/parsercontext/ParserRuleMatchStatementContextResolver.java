@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleMatchStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         int currentTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         List<SymbolInfo> visibleSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
@@ -86,7 +86,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
             });
         } else if (identifierSymbol.getScopeEntry().symbol.type instanceof BJSONType) {
             ArrayList<Integer> typeTagsList = new ArrayList<>(Arrays.asList(TypeTags.INT, TypeTags.FLOAT,
-                    TypeTags.BOOLEAN, TypeTags.STRING, TypeTags.NULL, TypeTags.JSON));
+                    TypeTags.BOOLEAN, TypeTags.STRING, TypeTags.NIL, TypeTags.JSON));
             List<SymbolInfo> filteredBasicTypes = visibleSymbols.stream().filter(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 return bSymbol instanceof BTypeSymbol

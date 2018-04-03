@@ -29,6 +29,7 @@ public class BLangConstants {
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
+    public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "new";
     public static final String START_FUNCTION_SUFFIX = ".<start>";
     public static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
