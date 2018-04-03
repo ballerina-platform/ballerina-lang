@@ -196,6 +196,10 @@ public class ObservabilityUtils {
         });
     }
 
+    /**
+     * Get the get the trace context of the parent span.
+     * @return {@link Map} of trace context.
+     */
     public static Map<String, String> getTraceContext() {
         BSpan bSpan = TraceManager.getInstance().getParentBSpan();
         if (bSpan != null) {
