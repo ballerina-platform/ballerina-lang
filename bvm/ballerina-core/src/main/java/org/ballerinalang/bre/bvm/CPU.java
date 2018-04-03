@@ -806,9 +806,7 @@ public class CPU {
             }
         }
 
-        argRegs = newArgRegs;
-
-        return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
+        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
     }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
@@ -890,7 +888,7 @@ public class CPU {
             return;
         }
 
-        for (int i = 0; i < h ; i++) {
+        for (int i = 0; i < h; i++) {
             int operandIndex = (i * 2) + 3;
             int type = operands[operandIndex];
             int index = operands[++operandIndex];

@@ -24,7 +24,6 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,8 +56,8 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
     }
 
     public void addClosureVar(BClosure closure) {
-        if (closureVars.contains(closure)){
-           return;
+        if (closureVars.contains(closure)) {
+            return;
         }
         closureVars.add(closure);
         additionalIndexes.merge(closure.type, 1, Integer::sum);
