@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
-import static org.ballerinalang.nativeimpl.file.utils.Constants.ACCESS_DENIED_ERROR;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_STRUCT;
 import static org.ballerinalang.nativeimpl.file.utils.Constants.IO_ERROR;
@@ -40,12 +39,6 @@ public class FileUtils {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(FILE_PACKAGE);
         StructInfo fileInfo = filePkg.getStructInfo(FILE_STRUCT);
         return BLangVMStructs.createBStruct(fileInfo, path);
-    }
-
-    public static BStruct createAccessDeniedError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(FILE_PACKAGE);
-        StructInfo accessErrInfo = filePkg.getStructInfo(ACCESS_DENIED_ERROR);
-        return BLangVMStructs.createBStruct(accessErrInfo, msg);
     }
 
     public static BStruct createIOError(Context context, String msg) {

@@ -24,13 +24,17 @@ package org.ballerinalang.nativeimpl.file.utils;
  * @since 0.94.1
  */
 public class Constants {
-
+    /**
+     * package path of the file.
+     */
     public static final String FILE_PACKAGE = "ballerina.file";
+    /**
+     * Name of the file struct.
+     */
     public static final String FILE_STRUCT = "File";
-
-    /* Error struct names */
-    public static final String ACCESS_DENIED_ERROR = "AccessDeniedError";
-    public static final String FILE_NOT_FOUND_ERROR = "FileNotFoundError";
-    public static final String FILE_NOT_OPENED_ERROR = "FileNotOpenedError";
+    /**
+     * IO Error name.
+     */
     public static final String IO_ERROR = "IOError";
+
 }
