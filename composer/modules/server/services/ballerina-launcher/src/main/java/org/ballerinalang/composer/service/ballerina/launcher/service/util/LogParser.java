@@ -39,11 +39,12 @@ public class LogParser {
     static ServerSocket listenSocket;
     static BufferedReader logReader;
 
-    final static Pattern ID_PATTERN = Pattern.compile("id: ([a-z0-9]*)");
-    final static Pattern DIRECTION = Pattern.compile("(INBOUND|OUTBOUND)");
-    final static Pattern HEADER = Pattern.compile("(?:INBOUND|OUTBOUND): ([\\s\\S]*)");
-    final static Pattern HTTP_METHOD = Pattern.compile("(GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)");
-    final static Pattern PATH = Pattern.compile("(?:GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)"+" ([^\\s]+)");
+    static final Pattern ID_PATTERN = Pattern.compile("id: ([a-z0-9]*)");
+    static final Pattern DIRECTION = Pattern.compile("(INBOUND|OUTBOUND)");
+    static final Pattern HEADER = Pattern.compile("(?:INBOUND|OUTBOUND): ([\\s\\S]*)");
+    static final Pattern HTTP_METHOD = Pattern.compile("(GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)");
+    static final Pattern PATH = Pattern.compile("(?:GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)"
+            + " ([^\\s]+)");
 
     public static LogParser getLogParserInstance() {
         if (logParserInstance == null) {

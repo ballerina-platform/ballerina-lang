@@ -1,3 +1,5 @@
+import ballerina/io;
+
 struct Person {
     string firstName;
     string lastName;
