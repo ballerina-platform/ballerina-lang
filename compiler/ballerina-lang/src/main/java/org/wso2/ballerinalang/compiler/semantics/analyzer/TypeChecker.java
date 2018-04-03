@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -125,6 +126,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
+
+    private static final String TABLE_CONFIG = "TableConfig";
 
     private Names names;
     private SymbolTable symTable;
@@ -215,6 +218,12 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(literalExpr, literalType, expType);
     }
 
+    public void visit(BLangTableLiteral tableLiteral) {
+        BType actualType = symTable.rootScope.lookup(new Name(TABLE_CONFIG)).symbol.type;
+        checkExpr(tableLiteral.configurationExpr, env, actualType);
+        resultType = types.checkType(tableLiteral, expType, symTable.noType);
+    }
+
     public void visit(BLangArrayLiteral arrayLiteral) {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
@@ -296,7 +305,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.STRUCT ||
-                        type.tag == TypeTags.TABLE ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
