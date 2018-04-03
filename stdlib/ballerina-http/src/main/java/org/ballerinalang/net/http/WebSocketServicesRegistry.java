@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
@@ -46,12 +44,11 @@ public class WebSocketServicesRegistry {
     }
 
     public void registerService(WebSocketService service) {
-        String basePath = findFullWebSocketUpgradePath(service);
+        String basePath = service.getBasePath();
         if (basePath == null) {
             basePath = "/";
         }
         basePath = urlDecode(basePath);
-        service.setBasePath(basePath);
         // TODO: Add websocket services to the service registry when service creation get available.
         try {
             getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
@@ -76,60 +73,6 @@ public class WebSocketServicesRegistry {
             throw new BallerinaConnectorException(e.getMessage());
         }
         return basePath;
-    }
-
-    /**
-     * Find the Full path for WebSocket upgrade.
-     *
-     * @param service {@link WebSocketService} which the full path should be found.
-     * @return the full path of the WebSocket upgrade.
-     */
-    private String findFullWebSocketUpgradePath(WebSocketService service) {
-        // Find Base path for WebSocket
-        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service,
-                                                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
-        String basePath = null;
-        if (configAnnotation != null) {
-            Struct annStruct = configAnnotation.getValue();
-            String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
-            if (annotationValue != null && !annotationValue.trim().isEmpty()) {
-                basePath = refactorUri(annotationValue);
-            }
-        }
-        return basePath;
-    }
-
-    /**
-     * Refactor the given URI.
-     *
-     * @param uri URI to refactor.
-     * @return refactored URI.
-     */
-    public String refactorUri(String uri) {
-        if (uri.startsWith("\"")) {
-            uri = uri.substring(1, uri.length() - 1);
-        }
-
-        if (!uri.startsWith("/")) {
-            uri = "/".concat(uri);
-        }
-
-        if (uri.endsWith("/")) {
-            uri = uri.substring(0, uri.length() - 1);
-        }
-        return uri;
-    }
-
-
-    public void addUpgradableServiceByName(WebSocketService service, String basePath) {
-        basePath = urlDecode(basePath);
-        service.setBasePath(basePath);
-        try {
-            getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
-        } catch (URITemplateException | UnsupportedEncodingException e) {
-            throw new BallerinaConnectorException(e.getMessage());
-        }
-        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
 }

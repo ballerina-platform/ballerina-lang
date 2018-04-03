@@ -121,4 +121,25 @@ public abstract class WebSocketUtil {
         endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
         endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
     }
+
+    /**
+     * Refactor the given URI.
+     *
+     * @param uri URI to refactor.
+     * @return refactored URI.
+     */
+    public static String refactorUri(String uri) {
+        if (uri.startsWith("\"")) {
+            uri = uri.substring(1, uri.length() - 1);
+        }
+
+        if (!uri.startsWith("/")) {
+            uri = "/".concat(uri);
+        }
+
+        if (uri.endsWith("/")) {
+            uri = uri.substring(0, uri.length() - 1);
+        }
+        return uri;
+    }
 }

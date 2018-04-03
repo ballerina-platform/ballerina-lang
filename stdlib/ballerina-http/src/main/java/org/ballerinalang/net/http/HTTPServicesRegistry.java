@@ -19,6 +19,7 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
@@ -26,6 +27,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,15 +101,26 @@ public class HTTPServicesRegistry {
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+        registerUpgradableWebSocketService(httpService);
+    }
 
-        // If WebSocket upgrade path is available, then register the name of the WebSocket service.
-        Struct websocketConfig = httpService.getWebSocketUpgradeConfig();
-        if (websocketConfig != null) {
-            registerWebSocketUpgradePath(
-                    WebSocketUtil.getProgramFile(httpService.getBallerinaService().getResources()[0]),
-                    websocketConfig, httpService.getBasePath());
-        }
-
+    private void registerUpgradableWebSocketService(HttpService httpService) {
+        httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
+            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource);
+            Annotation resourceConfigAnnotation =
+                    HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource, HttpConstants.HTTP_PACKAGE_PATH);
+            if (resourceConfigAnnotation == null) {
+                throw new BallerinaException("Cannot register WebSocket service without resource config " +
+                                                     "annotation in resource " + upgradeToWebSocketResource.getName());
+            }
+            Struct webSocketConfig =
+                    resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
+            Value serviceType = webSocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
+            Service webSocketTypeService = BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType);
+            WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
+                                                                     upgradeToWebSocketResource, webSocketTypeService);
+            webSocketServicesRegistry.registerService(webSocketService);
+        });
     }
 
     private String sanitizeBasePath(String basePath) {
@@ -119,16 +132,6 @@ public class HTTPServicesRegistry {
             basePath = basePath.substring(0, basePath.length() - 1);
         }
         return basePath;
-    }
-
-    private void registerWebSocketUpgradePath(ProgramFile programFile, Struct websocketConfig, String basePath) {
-        String upgradePath = sanitizeBasePath(
-                websocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH));
-        Value serviceType = websocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
-        String uri = basePath.concat(upgradePath);
-        WebSocketService service = new WebSocketService(
-                BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType));
-        webSocketServicesRegistry.addUpgradableServiceByName(service, uri);
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
