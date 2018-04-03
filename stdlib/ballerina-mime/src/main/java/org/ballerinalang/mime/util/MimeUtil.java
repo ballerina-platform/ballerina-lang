@@ -40,7 +40,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Set;
-
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
@@ -170,6 +169,23 @@ public class MimeUtil {
             throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
         }
         return mediaType;
+    }
+
+    /**
+     * Get parameter value from the content-type header
+     *
+     * @param contentType   Content-Type value as a string
+     * @param parameterName Name of the parameter
+     * @return Parameter value as a string
+     */
+    static String getContentTypeParamValue(String contentType, String parameterName) {
+        try {
+            MimeType mimeType = new MimeType(contentType);
+            MimeTypeParameterList parameterList = mimeType.getParameters();
+            return parameterList.get(parameterName);
+        } catch (MimeTypeParseException e) {
+            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+        }
     }
 
     /**

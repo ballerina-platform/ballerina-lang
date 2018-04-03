@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -128,6 +127,32 @@ public class XMLUtils {
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(xmlStream).getDocument();
+            Iterator<OMNode> docChildItr = doc.getChildren();
+            int i = 0;
+            while (docChildItr.hasNext()) {
+                elementsSeq.add(i++, new BXMLItem(docChildItr.next()));
+            }
+        } catch (DeferredParsingException e) {
+            throw new BallerinaException(e.getCause().getMessage());
+        } catch (Throwable e) {
+            throw new BallerinaException("failed to create xml: " + e.getMessage());
+        }
+        return new BXMLSequence(elementsSeq);
+    }
+
+    /**
+     * Create a XML sequence from string inputstream with a given charset.
+     *
+     * @param xmlStream XML imput stream
+     * @param charset   Charset to be used for parsing
+     * @return XML Sequence
+     */
+    @SuppressWarnings("unchecked")
+    public static BXML<?> parse(InputStream xmlStream, String charset) {
+        BRefValueArray elementsSeq = new BRefValueArray();
+        OMDocument doc;
+        try {
+            doc = OMXMLBuilderFactory.createOMBuilder(xmlStream, charset).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int i = 0;
             while (docChildItr.hasNext()) {

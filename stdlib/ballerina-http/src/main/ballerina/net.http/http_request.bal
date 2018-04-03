@@ -263,33 +263,30 @@ public function <Request request> getMultiparts () returns (mime:Entity[] | mime
 @Description {value:"Sets a JSON as the request payload"}
 @Param {value:"request: The request message"}
 @Param {value:"payload: The JSON payload to be set to the request"}
-public function <Request request> setJsonPayload (json payload, string charset = "utf-8") {
+public function <Request request> setJsonPayload (json payload, string contentType = "application/json") {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setJson(payload);
-    string defaultContentType = mime:APPLICATION_JSON + mime:CHARSET_PARAM + charset.trim();
-    entity.contentType = getMediaTypeFromRequestWithCharset(request, defaultContentType);
+    entity.contentType = getMediaTypeFromRequest(request, contentType);
     request.setEntity(entity);
 }
 
 @Description {value:"Sets an XML as the payload"}
 @Param {value:"request: The request message"}
 @Param {value:"payload: The XML payload object"}
-public function <Request request> setXmlPayload (xml payload, string charset = "utf-8") {
+public function <Request request> setXmlPayload (xml payload, string contentType = "application/xml") {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setXml(payload);
-    string defaultContentType = mime:APPLICATION_XML + mime:CHARSET_PARAM + charset.trim();
-    entity.contentType = getMediaTypeFromRequestWithCharset(request, defaultContentType);
+    entity.contentType = getMediaTypeFromRequest(request, contentType);
     request.setEntity(entity);
 }
 
 @Description {value:"Sets a string as the request payload"}
 @Param {value:"request: The request message"}
 @Param {value:"payload: The payload to be set to the request as a string"}
-public function <Request request> setStringPayload (string payload, string charset = "utf-8") {
+public function <Request request> setStringPayload (string payload, string contentType = "text/plain") {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setText(payload);
-    string defaultContentType = mime:TEXT_PLAIN + mime:CHARSET_PARAM + charset.trim();
-    entity.contentType = getMediaTypeFromRequestWithCharset(request, defaultContentType);
+    entity.contentType = getMediaTypeFromRequest(request, contentType);
     request.setEntity(entity);
 }
 

@@ -206,33 +206,30 @@ public function <Response response> getMultiparts () returns mime:Entity[] | mim
 @Description {value:"Sets a JSON as the outbound response payload"}
 @Param {value:"response: The response message"}
 @Param {value:"payload: The JSON payload object"}
-public function <Response response> setJsonPayload (json payload, string charset = "utf-8") {
+public function <Response response> setJsonPayload (json payload, string contentType = "application/json") {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setJson(payload);
-    string defaultContentType = mime:APPLICATION_JSON + mime:CHARSET_PARAM + charset.trim();
-    entity.contentType = getMediaTypeFromResponseWithCharset(response, defaultContentType);
+    entity.contentType = getMediaTypeFromResponse(response, contentType);
     response.setEntity(entity);
 }
 
 @Description {value:"Sets an XML as the outbound response payload"}
 @Param {value:"response: The response message"}
 @Param {value:"payload: The XML payload object"}
-public function <Response response> setXmlPayload (xml payload, string charset = "utf-8") {
+public function <Response response> setXmlPayload (xml payload, string contentType = "application/xml") {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setXml(payload);
-    string defaultContentType = mime:APPLICATION_XML + mime:CHARSET_PARAM + charset.trim();
-    entity.contentType = getMediaTypeFromResponseWithCharset(response, defaultContentType);
+    entity.contentType = getMediaTypeFromResponse(response, contentType);
     response.setEntity(entity);
 }
 
 @Description { value:"Sets a string as the outbound response payload"}
 @Param { value:"response: The response message" }
 @Param { value:"payload: The payload to be set to the response as a string" }
-public function <Response response> setStringPayload (string payload, string charset = "utf-8") {
+public function <Response response> setStringPayload (string payload, string contentType = "text/plain") {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setText(payload);
-    string defaultContentType = mime:TEXT_PLAIN + mime:CHARSET_PARAM + charset.trim();
-    entity.contentType = getMediaTypeFromResponseWithCharset(response, defaultContentType);
+    entity.contentType = getMediaTypeFromResponse(response, contentType);
     response.setEntity(entity);
 }
 

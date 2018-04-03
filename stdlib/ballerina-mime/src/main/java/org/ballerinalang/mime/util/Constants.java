@@ -77,6 +77,8 @@ public class Constants {
     public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart/";
     public static final String BOUNDARY = "boundary";
 
+    public static final String CHARSET = "charset";
+
     public static final String DEFAULT_PRIMARY_TYPE = "application";
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
     public static final String SUFFIX_ATTACHMENT = "+";
