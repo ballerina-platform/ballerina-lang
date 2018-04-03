@@ -70,6 +70,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -306,7 +307,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<BType>(2) {{
+            Set<BType> memberTypes = new LinkedHashSet<BType>(2) {{
                 add(resultType);
                 add(symTable.nilType);
             }};
@@ -469,7 +470,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
+        Set<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
                         memBType.tag == TypeTags.UNION ?

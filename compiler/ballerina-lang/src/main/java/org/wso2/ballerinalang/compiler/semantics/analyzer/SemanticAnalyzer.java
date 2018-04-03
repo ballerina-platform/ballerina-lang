@@ -1538,7 +1538,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
         // Collect all the lhs types
-        LinkedHashSet<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
+        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
                 ((BUnionType) lhsType).memberTypes :
                 new LinkedHashSet<BType>() {{
                     add(lhsType);
@@ -1581,7 +1581,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Collect all the rhs types from the union type
         boolean isErrorFound = false;
         BUnionType unionType = (BUnionType) rhsType;
-        LinkedHashSet<BType> rhsTypeSet = new LinkedHashSet(unionType.memberTypes);
+        Set<BType> rhsTypeSet = new LinkedHashSet(unionType.memberTypes);
         for (BType type : unionType.memberTypes) {
             if (types.isAssignable(type, symTable.errStructType)) {
                 rhsTypeSet.remove(type);

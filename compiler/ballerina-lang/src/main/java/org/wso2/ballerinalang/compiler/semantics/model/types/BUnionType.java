@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -35,16 +35,16 @@ import java.util.StringJoiner;
 public class BUnionType extends BType implements UnionType {
     private boolean nullable;
 
-    public LinkedHashSet<BType> memberTypes;
+    public Set<BType> memberTypes;
 
-    public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
+    public BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable) {
         super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
         this.nullable = nullable;
     }
 
     @Override
-    public LinkedHashSet<BType> getMemberTypes() {
+    public Set<BType> getMemberTypes() {
         return memberTypes;
     }
 
