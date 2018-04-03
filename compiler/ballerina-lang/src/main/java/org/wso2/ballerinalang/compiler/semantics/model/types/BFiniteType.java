@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -32,7 +33,7 @@ import java.util.StringJoiner;
  * {@code BFiniteType} represents the finite type in Ballerina.
  *
  */
-public class BFiniteType extends BType implements UnionType {
+public class BFiniteType extends BType implements FiniteType {
 
     public Set<BType> memberTypes;
     public Set<BType> valueSpaceTypes;
@@ -51,6 +52,11 @@ public class BFiniteType extends BType implements UnionType {
     @Override
     public Set<BType> getMemberTypes() {
         return memberTypes;
+    }
+
+    @Override
+    public Set<BLangExpression> getValueSpace() {
+        return valueSpace;
     }
 
     @Override

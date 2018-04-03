@@ -29,5 +29,5 @@ public interface FiniteType extends ReferenceType {
 
     Set<? extends Type> getMemberTypes();
 
-    Set<? extends ExpressionNode> getResultSet();
+    Set<? extends ExpressionNode> getValueSpace();
 }
