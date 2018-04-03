@@ -16,10 +16,12 @@
  * under the License.
  */
 
-import TypeNodeAbstract from './abstract-tree/type-node';
+import _ from 'lodash';
+import StatementNode from '../statement-node';
 
-class TypeNode extends TypeNodeAbstract {
+class AbstractFailNode extends StatementNode {
+
 
 }
 
-export default TypeNode;
+export default AbstractFailNode;

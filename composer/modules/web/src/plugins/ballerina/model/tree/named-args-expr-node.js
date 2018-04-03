@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractBuiltInRefTypeNode from './abstract-tree/built-in-ref-type-node';
+import AbstractNamedArgsExprNode from './abstract-tree/named-args-expr-node';
 
-class BuiltInRefTypeNode extends AbstractBuiltInRefTypeNode {
+class NamedArgsExprNode extends AbstractNamedArgsExprNode {
 
 }
 
-export default BuiltInRefTypeNode;
+export default NamedArgsExprNode;

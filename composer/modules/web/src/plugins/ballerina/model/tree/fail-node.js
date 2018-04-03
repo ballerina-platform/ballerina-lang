@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractRecordLiteralExprNode from './abstract-tree/record-literal-expr-node';
+import AbstractFailNode from './abstract-tree/fail-node';
 
-class RecordLiteralExprNode extends AbstractRecordLiteralExprNode {
+class FailNode extends AbstractFailNode {
 
 }
 
-export default RecordLiteralExprNode;
+export default FailNode;

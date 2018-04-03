@@ -17,15 +17,15 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractRecordLiteralExprNode extends ExpressionNode {
+class AbstractTupleTypeNodeNode extends Node {
 
 
-    setKeyValuePairs(newValue, silent, title) {
-        const oldValue = this.keyValuePairs;
+    setMemberTypeNodes(newValue, silent, title) {
+        const oldValue = this.memberTypeNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.keyValuePairs = newValue;
+        this.memberTypeNodes = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'keyValuePairs',
+                    attributeName: 'memberTypeNodes',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
         }
     }
 
-    getKeyValuePairs() {
-        return this.keyValuePairs;
+    getMemberTypeNodes() {
+        return this.memberTypeNodes;
     }
 
 
-    addKeyValuePairs(node, i = -1, silent) {
+    addMemberTypeNodes(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.keyValuePairs.push(node);
-            index = this.keyValuePairs.length;
+            this.memberTypeNodes.push(node);
+            index = this.memberTypeNodes.length;
         } else {
-            this.keyValuePairs.splice(i, 0, node);
+            this.memberTypeNodes.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
         }
     }
 
-    removeKeyValuePairs(node, silent) {
-        const index = this.getIndexOfKeyValuePairs(node);
-        this.removeKeyValuePairsByIndex(index, silent);
+    removeMemberTypeNodes(node, silent) {
+        const index = this.getIndexOfMemberTypeNodes(node);
+        this.removeMemberTypeNodesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
         }
     }
 
-    removeKeyValuePairsByIndex(index, silent) {
-        this.keyValuePairs.splice(index, 1);
+    removeMemberTypeNodesByIndex(index, silent) {
+        this.memberTypeNodes.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +99,9 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
         }
     }
 
-    replaceKeyValuePairs(oldChild, newChild, silent) {
-        const index = this.getIndexOfKeyValuePairs(oldChild);
-        this.keyValuePairs[index] = newChild;
+    replaceMemberTypeNodes(oldChild, newChild, silent) {
+        const index = this.getIndexOfMemberTypeNodes(oldChild);
+        this.memberTypeNodes[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +116,8 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
         }
     }
 
-    replaceKeyValuePairsByIndex(index, newChild, silent) {
-        this.keyValuePairs[index] = newChild;
+    replaceMemberTypeNodesByIndex(index, newChild, silent) {
+        this.memberTypeNodes[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,15 +132,15 @@ class AbstractRecordLiteralExprNode extends ExpressionNode {
         }
     }
 
-    getIndexOfKeyValuePairs(child) {
-        return _.findIndex(this.keyValuePairs, ['id', child.id]);
+    getIndexOfMemberTypeNodes(child) {
+        return _.findIndex(this.memberTypeNodes, ['id', child.id]);
     }
 
-    filterKeyValuePairs(predicateFunction) {
-        return _.filter(this.keyValuePairs, predicateFunction);
+    filterMemberTypeNodes(predicateFunction) {
+        return _.filter(this.memberTypeNodes, predicateFunction);
     }
 
 
 }
 
-export default AbstractRecordLiteralExprNode;
+export default AbstractTupleTypeNodeNode;

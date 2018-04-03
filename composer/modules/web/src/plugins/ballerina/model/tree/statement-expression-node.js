@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlAttributeNode from './abstract-tree/xml-attribute-node';
+import AbstractStatementExpressionNode from './abstract-tree/statement-expression-node';
 
-class XmlAttributeNode extends AbstractXmlAttributeNode {
+class StatementExpressionNode extends AbstractStatementExpressionNode {
 
 }
 
-export default XmlAttributeNode;
+export default StatementExpressionNode;

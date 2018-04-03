@@ -19,61 +19,7 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractStreamletNode extends Node {
-
-
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
-
-
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'body',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getBody() {
-        return this.body;
-    }
-
+class AbstractForeverNode extends Node {
 
 
     setGlobalVariables(newValue, silent, title) {
@@ -195,12 +141,10 @@ class AbstractStreamletNode extends Node {
     }
 
 
-    setName(newValue, silent, title) {
-        const oldValue = this.name;
+    settreamingQueryStatements(newValue, silent, title) {
+        const oldValue = this.treamingQueryStatements;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.name = newValue;
-
-        this.name.parent = this;
+        this.treamingQueryStatements = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -208,7 +152,7 @@ class AbstractStreamletNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'name',
+                    attributeName: 'treamingQueryStatements',
                     newValue,
                     oldValue,
                 },
@@ -216,10 +160,223 @@ class AbstractStreamletNode extends Node {
         }
     }
 
-    getName() {
-        return this.name;
+    gettreamingQueryStatements() {
+        return this.treamingQueryStatements;
     }
 
+
+    addtreamingQueryStatements(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.treamingQueryStatements.push(node);
+            index = this.treamingQueryStatements.length;
+        } else {
+            this.treamingQueryStatements.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removetreamingQueryStatements(node, silent) {
+        const index = this.getIndexOftreamingQueryStatements(node);
+        this.removetreamingQueryStatementsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removetreamingQueryStatementsByIndex(index, silent) {
+        this.treamingQueryStatements.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replacetreamingQueryStatements(oldChild, newChild, silent) {
+        const index = this.getIndexOftreamingQueryStatements(oldChild);
+        this.treamingQueryStatements[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replacetreamingQueryStatementsByIndex(index, newChild, silent) {
+        this.treamingQueryStatements[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOftreamingQueryStatements(child) {
+        return _.findIndex(this.treamingQueryStatements, ['id', child.id]);
+    }
+
+    filtertreamingQueryStatements(predicateFunction) {
+        return _.filter(this.treamingQueryStatements, predicateFunction);
+    }
+
+
+    setFunctionVariables(newValue, silent, title) {
+        const oldValue = this.functionVariables;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.functionVariables = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'functionVariables',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFunctionVariables() {
+        return this.functionVariables;
+    }
+
+
+    addFunctionVariables(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.functionVariables.push(node);
+            index = this.functionVariables.length;
+        } else {
+            this.functionVariables.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeFunctionVariables(node, silent) {
+        const index = this.getIndexOfFunctionVariables(node);
+        this.removeFunctionVariablesByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeFunctionVariablesByIndex(index, silent) {
+        this.functionVariables.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceFunctionVariables(oldChild, newChild, silent) {
+        const index = this.getIndexOfFunctionVariables(oldChild);
+        this.functionVariables[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceFunctionVariablesByIndex(index, newChild, silent) {
+        this.functionVariables[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfFunctionVariables(child) {
+        return _.findIndex(this.functionVariables, ['id', child.id]);
+    }
+
+    filterFunctionVariables(predicateFunction) {
+        return _.filter(this.functionVariables, predicateFunction);
+    }
 
 
     setParameters(newValue, silent, title) {
@@ -341,10 +498,12 @@ class AbstractStreamletNode extends Node {
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -352,7 +511,7 @@ class AbstractStreamletNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -360,131 +519,12 @@ class AbstractStreamletNode extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
+    getExpression() {
+        return this.expression;
     }
 
-
-
-    setAnnotationAttachments(newValue, silent, title) {
-        const oldValue = this.annotationAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.annotationAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'annotationAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getAnnotationAttachments() {
-        return this.annotationAttachments;
-    }
-
-
-    addAnnotationAttachments(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.annotationAttachments.push(node);
-            index = this.annotationAttachments.length;
-        } else {
-            this.annotationAttachments.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeAnnotationAttachments(node, silent) {
-        const index = this.getIndexOfAnnotationAttachments(node);
-        this.removeAnnotationAttachmentsByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeAnnotationAttachmentsByIndex(index, silent) {
-        this.annotationAttachments.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceAnnotationAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfAnnotationAttachments(oldChild);
-        this.annotationAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
-        this.annotationAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfAnnotationAttachments(child) {
-        return _.findIndex(this.annotationAttachments, ['id', child.id]);
-    }
-
-    filterAnnotationAttachments(predicateFunction) {
-        return _.filter(this.annotationAttachments, predicateFunction);
-    }
 
 
 }
 
-export default AbstractStreamletNode;
+export default AbstractForeverNode;

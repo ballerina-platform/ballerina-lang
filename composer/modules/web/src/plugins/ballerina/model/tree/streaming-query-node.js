@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlQnameNode from './abstract-tree/xml-qname-node';
+import AbstractStreamingQueryNode from './abstract-tree/streaming-query-node';
 
-class XmlQnameNode extends AbstractXmlQnameNode {
+class StreamingQueryNode extends AbstractStreamingQueryNode {
 
 }
 
-export default XmlQnameNode;
+export default StreamingQueryNode;

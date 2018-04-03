@@ -19,15 +19,15 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
+class AbstractRestArgsExprNode extends ExpressionNode {
 
 
-    setValue(newValue, silent, title) {
-        const oldValue = this.value;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.value = newValue;
+        this.expression = newValue;
 
-        this.value.parent = this;
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'value',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -43,39 +43,12 @@ class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
         }
     }
 
-    getValue() {
-        return this.value;
-    }
-
-
-
-    setKey(newValue, silent, title) {
-        const oldValue = this.key;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.key = newValue;
-
-        this.key.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'key',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getKey() {
-        return this.key;
+    getExpression() {
+        return this.expression;
     }
 
 
 
 }
 
-export default AbstractRecordLiteralKeyValueNode;
+export default AbstractRestArgsExprNode;

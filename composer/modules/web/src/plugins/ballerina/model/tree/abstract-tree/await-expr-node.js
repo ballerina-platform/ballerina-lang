@@ -17,15 +17,17 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractBuiltInRefTypeNode extends Node {
+class AbstractAwaitExprNode extends ExpressionNode {
 
 
-    setTypeKind(newValue, silent, title) {
-        const oldValue = this.typeKind;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.typeKind = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractBuiltInRefTypeNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'typeKind',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -41,12 +43,12 @@ class AbstractBuiltInRefTypeNode extends Node {
         }
     }
 
-    getTypeKind() {
-        return this.typeKind;
+    getExpression() {
+        return this.expression;
     }
 
 
 
 }
 
-export default AbstractBuiltInRefTypeNode;
+export default AbstractAwaitExprNode;

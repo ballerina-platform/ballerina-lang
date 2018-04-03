@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractStreamActionNode extends Node {
+class AbstractStatementExpressionNode extends ExpressionNode {
 
 
-    setInvokableBody(newValue, silent, title) {
-        const oldValue = this.invokableBody;
+    setStatement(newValue, silent, title) {
+        const oldValue = this.statement;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.invokableBody = newValue;
+        this.statement = newValue;
 
-        this.invokableBody.parent = this;
+        this.statement.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractStreamActionNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'invokableBody',
+                    attributeName: 'statement',
                     newValue,
                     oldValue,
                 },
@@ -43,12 +43,12 @@ class AbstractStreamActionNode extends Node {
         }
     }
 
-    getInvokableBody() {
-        return this.invokableBody;
+    getStatement() {
+        return this.statement;
     }
 
 
 
 }
 
-export default AbstractStreamActionNode;
+export default AbstractStatementExpressionNode;
