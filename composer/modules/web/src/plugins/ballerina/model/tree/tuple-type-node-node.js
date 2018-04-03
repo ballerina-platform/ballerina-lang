@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlnsNode from './abstract-tree/xmlns-node';
+import AbstractTupleTypeNodeNode from './abstract-tree/tuple-type-node-node';
 
-class XmlnsNode extends AbstractXmlnsNode {
+class TupleTypeNodeNode extends AbstractTupleTypeNodeNode {
 
 }
 
-export default XmlnsNode;
+export default TupleTypeNodeNode;

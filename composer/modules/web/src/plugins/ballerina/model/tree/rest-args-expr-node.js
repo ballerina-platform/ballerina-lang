@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlTextLiteralNode from './abstract-tree/xml-text-literal-node';
+import AbstractRestArgsExprNode from './abstract-tree/rest-args-expr-node';
 
-class XmlTextLiteralNode extends AbstractXmlTextLiteralNode {
+class RestArgsExprNode extends AbstractRestArgsExprNode {
 
 }
 
-export default XmlTextLiteralNode;
+export default RestArgsExprNode;

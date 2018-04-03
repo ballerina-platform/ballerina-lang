@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractRecordLiteralExprNode from './abstract-tree/record-literal-expr-node';
+import AbstractPatternClauseNode from './abstract-tree/pattern-clause-node';
 
-class RecordLiteralExprNode extends AbstractRecordLiteralExprNode {
+class PatternClauseNode extends AbstractPatternClauseNode {
 
 }
 
-export default RecordLiteralExprNode;
+export default PatternClauseNode;

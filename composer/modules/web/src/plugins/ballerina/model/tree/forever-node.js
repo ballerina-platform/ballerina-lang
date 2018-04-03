@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractStreamletNode from './abstract-tree/streamlet-node';
+import AbstractForeverNode from './abstract-tree/forever-node';
 
-class StreamletNode extends AbstractStreamletNode {
+class ForeverNode extends AbstractForeverNode {
 
 }
 
-export default StreamletNode;
+export default ForeverNode;

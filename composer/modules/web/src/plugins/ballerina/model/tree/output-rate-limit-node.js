@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlPiLiteralNode from './abstract-tree/xml-pi-literal-node';
+import AbstractOutputRateLimitNode from './abstract-tree/output-rate-limit-node';
 
-class XmlPiLiteralNode extends AbstractXmlPiLiteralNode {
+class OutputRateLimitNode extends AbstractOutputRateLimitNode {
 
 }
 
-export default XmlPiLiteralNode;
+export default OutputRateLimitNode;

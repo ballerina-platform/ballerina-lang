@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlQuotedStringNode from './abstract-tree/xml-quoted-string-node';
+import AbstractTupleDestructureNode from './abstract-tree/tuple-destructure-node';
 
-class XmlQuotedStringNode extends AbstractXmlQuotedStringNode {
+class TupleDestructureNode extends AbstractTupleDestructureNode {
 
 }
 
-export default XmlQuotedStringNode;
+export default TupleDestructureNode;

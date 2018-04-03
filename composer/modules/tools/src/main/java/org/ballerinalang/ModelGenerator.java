@@ -91,7 +91,7 @@ public class ModelGenerator {
         //alias.put("ActionInvocationNode", "");
         alias.put("LambdaNode", "LambdaFunctionNode");
         alias.put("RecordLiteralExprNode", "");
-        alias.put("SimpleVariableRefNode", "");
+        alias.put("SimpleVariableRefNode", "SimpleVariableReferenceNode");
         alias.put("TernaryExprNode", "TernaryExpressionNode");
         alias.put("AwaitExprNode", "AwaitExpressionNode");
         alias.put("TypeCastExprNode", "TypeCastNode");

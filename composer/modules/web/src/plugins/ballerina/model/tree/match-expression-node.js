@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlAttributeAccessExprNode from './abstract-tree/xml-attribute-access-expr-node';
+import AbstractMatchExpressionNode from './abstract-tree/match-expression-node';
 
-class XmlAttributeAccessExprNode extends AbstractXmlAttributeAccessExprNode {
+class MatchExpressionNode extends AbstractMatchExpressionNode {
 
 }
 
-export default XmlAttributeAccessExprNode;
+export default MatchExpressionNode;
