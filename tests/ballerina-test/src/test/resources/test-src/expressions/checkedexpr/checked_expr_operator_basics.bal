@@ -106,6 +106,11 @@ function readLineError() returns string | myerror {
     return e;
 }
 
+function readLineCustomError() returns string | customError {
+    customError e = { message: "custom io error", data: "foo.txt"};
+    return e;
+}
+
 function readLineSuccess() returns string | myerror {
     return "Ballerina";
 }
@@ -115,7 +120,7 @@ function testCheckExprInBinaryExpr1() returns error? {
     return ();
 }
 
-function testCheckExprInBinaryExpr2() returns customError? {
+function testCheckExprInBinaryExpr2() returns myerror? {
     string str = "hello, " + check readLineError();
     return ();
 }
@@ -131,4 +136,15 @@ function testCheckExprInBinaryExpr4() {
 
 function testCheckExprInBinaryExpr5() {
     string str = "hello, " + check readLineError();
+}
+
+function testCheckExprInBinaryExpr6() returns string | customError {
+    string str = "hello, " + check readLineCustomError();
+    return str;
+}
+
+// This test case should throw an error since customError is not assignable to the myerror
+function testCheckExprInBinaryExpr7() returns string | customError {
+    string str = "hello, " + check readLineError();
+    return str;
 }
