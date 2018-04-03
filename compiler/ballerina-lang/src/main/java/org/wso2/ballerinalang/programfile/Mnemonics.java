@@ -251,8 +251,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWXMLCOMMENT] = "newxmlcomment";
         mnemonics[InstructionCodes.NEWXMLTEXT] = "newxmltext";
         mnemonics[InstructionCodes.NEWXMLPI] = "newxmlpi";
-        mnemonics[InstructionCodes.XMLSTORE] = "xmlstore";
+        mnemonics[InstructionCodes.XMLSEQSTORE] = "xmlseqstore";
+        mnemonics[InstructionCodes.XMLSEQLOAD] = "xmlseqload";
         mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
+        mnemonics[InstructionCodes.XMLLOADALL] = "xmlloadall";
         mnemonics[InstructionCodes.NEWXMLSEQ] = "newxmlseq";
         mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";

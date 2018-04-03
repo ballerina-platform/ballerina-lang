@@ -1,9 +1,8 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
-import ballerina/net.http.endpoints;
 import ballerina/auth;
 
-endpoint endpoints:ApiEndpoint ep {
+endpoint http:ApiEndpoint ep {
     port:9090
 };
 
@@ -13,7 +12,7 @@ endpoint endpoints:ApiEndpoint ep {
 
 @auth:Config {
     authentication:{enabled:true},
-    scope:"xxx"
+    scopes:["xxx"]
 }
 service<http:Service> echo bind ep {
     @http:ResourceConfig {
@@ -21,7 +20,7 @@ service<http:Service> echo bind ep {
         path:"/test"
     }
     @auth:Config {
-        scope:"scope2"
+        scopes:["scope2", "scope4"]
     }
     echo (endpoint client, http:Request req) {
         http:Response res = {};

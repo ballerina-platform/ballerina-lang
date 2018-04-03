@@ -50,8 +50,8 @@ class PositioningUtil {
                 variableRefName = node.expression.expression.variableName.value;
             }
             const allVisibleEndpoints = TreeUtil.getAllVisibleEndpoints(node.parent);
-            const endpoint = _.find(allVisibleEndpoints, (varDef) => {
-                return varDef.variable.name.value === variableRefName;
+            const endpoint = _.find(allVisibleEndpoints, (endpoint) => {
+                return endpoint.name.value === variableRefName;
             });
 
             // Move the x cordinates to centre align the action invocation statement
@@ -199,9 +199,7 @@ class PositioningUtil {
         let height = this.config.canvas.padding.top;
         // filter out visible children from top level nodes.
         const children = node.filterTopLevelNodes((child) => {
-            return TreeUtil.isFunction(child) || TreeUtil.isService(child)
-                || TreeUtil.isConnector(child)
-                || TreeUtil.isTransformer(child);
+            return TreeUtil.isFunction(child) || TreeUtil.isService(child);
         });
 
         children.forEach((child) => {
@@ -321,16 +319,14 @@ class PositioningUtil {
             });
         }
 
-        // Position Connectors
-        const statements = node.body.statements;
-        statements.forEach((statement) => {
-            if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                statement.viewState.bBox.x = xindex;
-                statement.viewState.bBox.y = cmp.defaultWorker.y;
-                xindex += statement.viewState.bBox.w + this.config.lifeLine.gutter.h;
-                if (statement.viewState.showOverlayContainer) {
-                    OverlayComponentsRenderingUtil.showConnectorPropertyWindow(statement);
-                }
+        // Position Endpoints
+        const endpoints = node.endpointNodes;
+        endpoints.forEach((endpointNode) => {
+            endpointNode.viewState.bBox.x = xindex;
+            endpointNode.viewState.bBox.y = cmp.defaultWorker.y;
+            xindex += endpointNode.viewState.bBox.w + this.config.lifeLine.gutter.h;
+            if (endpointNode.viewState.showOverlayContainer) {
+                OverlayComponentsRenderingUtil.showConnectorPropertyWindow(endpointNode);
             }
         });
     }
@@ -1090,7 +1086,7 @@ class PositioningUtil {
      * @param {object} node Transaction object
      */
     positionTransactionNode(node) {
-        const failedBody = node.failedBody;
+        const onRetryBody = node.onRetryBody;
         const transactionBody = node.transactionBody;
         const viewState = node.viewState;
         const bBox = viewState.bBox;
@@ -1108,13 +1104,13 @@ class PositioningUtil {
             nextComponentY += transactionBody.viewState.components['statement-box'].h;
         }
 
-        // Set the position of the failed body
-        if (failedBody) {
-            failedBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
+        // Set the position of the retry body
+        if (onRetryBody) {
+            onRetryBody.viewState.bBox.x = bBox.x + this.config.compoundStatement.gap.left +
                 transactionBody.viewState.bBox.w;
-            failedBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
+            onRetryBody.viewState.bBox.y = transactionBody.viewState.bBox.y +
                 transactionBody.viewState.components['statement-box'].h - this.config.compoundStatement.padding.top;
-            this.positionCompoundStatementComponents(failedBody);
+            this.positionCompoundStatementComponents(onRetryBody);
         }
     }
 
@@ -1130,7 +1126,7 @@ class PositioningUtil {
      *
      * @param {object} node Transaction Failed object
      */
-    positionFailedNode(node) {
+    positionNode(node) {
         // Not implemented.
     }
 

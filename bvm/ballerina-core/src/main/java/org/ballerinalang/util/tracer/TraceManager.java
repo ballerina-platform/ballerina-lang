@@ -36,16 +36,14 @@ public interface TraceManager {
     /**
      * Starts a new spans for each loaded tracer.
      *
-     * @param invocationId   to denote resource invocation.
      * @param spanName       to denote the name of the span.
      * @param spanContextMap of the parent span.
      * @param tags           to be included in the span.
-     * @param makeActive     to mark the span as active.
      * @param serviceName    of the invoked resource.
      * @return {@link Map} of spans per tracer.
      */
-    Map<String, Object> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
-                                  Map<String, String> tags, boolean makeActive, String serviceName);
+    Map<String, Object> startSpan(String spanName, Map<String, ?> spanContextMap,
+                                  Map<String, String> tags, String serviceName);
 
     /**
      * Finishes the given list of spans.
@@ -73,21 +71,19 @@ public interface TraceManager {
     /**
      * Extract span context from transport.
      *
-     * @param format      of the headers.
      * @param headers     map.
      * @param serviceName of the invoked resource.
      * @return the {@link Map} of extracted context.
      */
-    Map<String, Object> extract(Object format, Map<String, String> headers, String serviceName);
+    Map<String, Object> extract(Map<String, String> headers, String serviceName);
 
     /**
      * Returns the map of context to be injected into the transport.
      *
      * @param activeSpanMap of current spans per tracer (zipkin, jaeger, etc..)
-     * @param format        of the headers.
      * @param serviceName   of the invoked resource.
      * @return the map of context to be injected into the transport.
      */
-    Map<String, String> inject(Map<String, ?> activeSpanMap, Object format, String serviceName);
+    Map<String, String> inject(Map<String, ?> activeSpanMap, String serviceName);
 
 }

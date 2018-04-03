@@ -66,7 +66,7 @@ Now, let's look at running the same Hello World program you created earlier as a
 Let's change the Hello World program to a service. Open the `hello-world.bal` file you created and replace the existing code with the following.
 
 ```Ballerina
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 
 // A service endpoint listens to HTTP request on port 9090

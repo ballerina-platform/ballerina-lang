@@ -26,33 +26,29 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @since 0.94
  */
 public class BLangAssignment extends BLangStatement implements AssignmentNode {
-    public List<BLangExpression> varRefs;
+    public BLangExpression varRef;
     public BLangExpression expr;
     public boolean declaredWithVar;
     public boolean safeAssignment;
 
     public BLangAssignment() {
-        this.varRefs = new ArrayList<>();
     }
 
-    public BLangAssignment(DiagnosticPos pos, List<BLangExpression> varRefs,
+    public BLangAssignment(DiagnosticPos pos, BLangExpression varRef,
                            BLangExpression expr, boolean declaredWithVar) {
         this.pos = pos;
-        this.varRefs = varRefs;
+        this.varRef = varRef;
         this.expr = expr;
         this.declaredWithVar = declaredWithVar;
     }
 
     @Override
-    public List<BLangExpression> getVariables() {
-        return varRefs;
+    public ExpressionNode getVariable() {
+        return varRef;
     }
 
     @Override
@@ -76,8 +72,8 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     }
 
     @Override
-    public void addVariable(VariableReferenceNode variableReferenceNode) {
-        this.varRefs.add((BLangVariableReference) variableReferenceNode);
+    public void setVariable(VariableReferenceNode variableReferenceNode) {
+        this.varRef = (BLangVariableReference) variableReferenceNode;
     }
 
     @Override
@@ -93,7 +89,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     @Override
     public String toString() {
         return "BLangAssignment: " + (this.declaredWithVar ? "var " : "") +
-                (this.varRefs != null ? this.varRefs : "") +
+                (this.varRef != null ? this.varRef : "") +
                 (this.expr != null ? " = " + this.expr : "");
     }
 }

@@ -158,7 +158,7 @@ class HttpResourceHeader extends React.Component {
                 })}
                 <text
                     style={{ dominantBaseline: 'central' }}
-                    x={x + offset}
+                    x={x + offset - 50}
                     y={basePathY}
                     fill='white'
                     className='editable-text-label resource-path'
@@ -166,7 +166,7 @@ class HttpResourceHeader extends React.Component {
 
                 <text
                     style={{ dominantBaseline: 'central' }}
-                    x={x + resourceNameOffset}
+                    x={x + resourceNameOffset + 50}
                     y={basePathY}
                     fill='white'
                     className='editable-text-label resource-name'

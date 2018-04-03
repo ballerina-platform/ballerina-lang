@@ -16,11 +16,13 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.iterable;
 
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,20 +35,26 @@ import java.util.List;
 public class IterableContext {
 
     public LinkedList<Operation> operations;
-    public BType resultType;
+    public BType resultType = null;
+    public SymbolEnv env;
 
     /* Filed used for code generation */
-    public BLangVariable countVar, skipVar, resultVar;
-    public List<BLangVariable> streamRetVars;
+    // Variables used in iterator function.
+    public BLangVariable collectionVar = null;
+    public BLangVariable resultVar = null;
+    public BLangVariable countVar = null;
+    public List<BLangVariable> iteratorResultVariables = new ArrayList<>();
+    public List<BType> foreachTypes = new ArrayList<>();
+
     public BLangExpression collectionExpr;
-    public BLangExpression iteratorCaller;
+    public BLangExpression iteratorCaller = null;
 
-    public BInvokableSymbol streamFuncSymbol, iteratorFuncSymbol;
+    public BInvokableSymbol iteratorFuncSymbol = null;
 
-    public IterableContext(BLangExpression collectionExpr) {
+    public IterableContext(BLangExpression collectionExpr, SymbolEnv env) {
         this.operations = new LinkedList<>();
         this.collectionExpr = collectionExpr;
-        this.resultType = collectionExpr.type;
+        this.env = env;
     }
 
     public void addOperation(Operation operation) {

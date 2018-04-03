@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 import ballerina/io;
 
 endpoint sql:Client testDB {

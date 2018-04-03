@@ -1,6 +1,6 @@
 import ballerina/mime;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 
 const string constPath = getConstPath();
 
@@ -8,7 +8,7 @@ struct Person {
     string name;
     int age;
 }
-endpoint mock:NonListeningServiceEndpoint echoEP {
+endpoint http:NonListeningServiceEndpoint echoEP {
     port:9090
 };
 
@@ -52,14 +52,11 @@ service<http:Service> echo bind echoEP {
         string payloadData;
         var payload = req.getStringPayload();
         match payload {
+            http:PayloadError err => {
+                return;
+            }
             string s => {
                 payloadData = s;
-            }
-            mime:EntityError err => {
-                return;
-            }
-            null => {
-                return;
             }
         }
         serviceLevelStr = untaint payloadData;
@@ -129,7 +126,7 @@ service<http:Service> echo bind echoEP {
                 name = <string>p.firstName;
                 team = <string>p.team;
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 return;
             }
         }

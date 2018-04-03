@@ -19,10 +19,12 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.toml.parser.SettingsProcessor;
+import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -30,7 +32,6 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.ExecutorUtils;
 import org.wso2.ballerinalang.util.HomeRepoUtils;
 
 import java.io.IOException;
@@ -59,16 +60,10 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String installToRepo) {
         String accessToken = getAccessTokenOfCLI();
-        if (accessToken == null) {
-            throw new BLangCompilerException("You have not specified an access-token for the central in your" +
-                    " Settings.toml\n. Please login to central if you are already registered using" +
-                    " 'central.ballerina.io/login' to get a valid access-token. \nIf you are new to the site please" +
-                    "register using 'central.ballerina.io/register'");
-        }
         Manifest manifest = readManifestConfigurations();
         if (manifest.getName() == null && manifest.getVersion() == null) {
             throw new BLangCompilerException("An org-name and package version is required when pushing. " +
-                    "This is not specified in Ballerina.toml inside the project");
+                                                     "This is not specified in Ballerina.toml inside the project");
         }
         String orgName = manifest.getName();
         String version = manifest.getVersion();
@@ -81,28 +76,33 @@ public class PushUtils {
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
                                             packageName, Names.DEFAULT_VERSION.getValue(), packageName + ".zip");
         if (installToRepo == null) {
+            if (accessToken == null) {
+                // TODO: get bal home location dynamically
+                throw new BLangCompilerException("Access token is missing in ~/ballerina_home/Settings.toml file.\n" +
+                                                         "Please visit https://central.ballerina.io/cli-token");
+            }
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
-            URI balxPath = URI.create(String.valueOf(PushUtils.class.getClassLoader().getResource
-                    ("ballerina.push.balx")));
-            String msg = orgName + "/" + packageName + ":" + version + "[project repo -> central]";
-            ExecutorUtils.execute(balxPath, accessToken, resourcePath, pkgPathFromPrjtDir.toString(), msg);
+            String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
+            EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
+            executor.execute("packaging.push/ballerina.push.balx", accessToken, resourcePath,
+                             pkgPathFromPrjtDir.toString(), msg);
         } else {
             if (!installToRepo.equals("home")) {
                 throw new BLangCompilerException("Unknown repository provided to push the package");
             }
             Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
             Path targetDirectoryPath = Paths.get(balHomeDir.toString(), "repo", orgName, packageName, version,
-                    packageName + ".zip");
+                                                 packageName + ".zip");
             if (Files.exists(targetDirectoryPath)) {
                 throw new BLangCompilerException("Ballerina package exists in the home repository");
             } else {
                 try {
                     Files.createDirectories(targetDirectoryPath);
                     Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-                    outStream.println(orgName + "/" + packageName + ":" + version + "[project repo -> home repo]");
+                    outStream.println(orgName + "/" + packageName + ":" + version + " [project repo -> home repo]");
                 } catch (IOException e) {
-                    throw new BLangCompilerException("Error occured when creating directories in the home repository");
+                    throw new BLangCompilerException("Error occurred when creating directories in the home repository");
                 }
             }
         }

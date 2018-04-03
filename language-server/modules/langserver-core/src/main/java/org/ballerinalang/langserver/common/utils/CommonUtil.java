@@ -25,11 +25,13 @@ import org.antlr.v4.runtime.TokenStream;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.workspace.repository.NullSourceDirectory;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -40,6 +42,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -47,6 +50,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.lang.reflect.InvocationTargetException;
@@ -61,6 +66,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -410,9 +419,7 @@ public class CommonUtil {
             BType type = ((BLangNode) node).type;
             if (node instanceof BLangInvocation) {
                 JsonArray jsonElements = new JsonArray();
-                for (BType returnType : ((BLangInvocation) node).types) {
-                    jsonElements.add(returnType.getKind().typeName());
-                }
+                jsonElements.add(((BLangInvocation) node).type.getKind().typeName());
                 return jsonElements;
             } else if (type != null) {
                 JsonArray jsonElements = new JsonArray();
@@ -431,7 +438,7 @@ public class CommonUtil {
      * @param terminalTokens List of terminal tokens
      * @return {@link Boolean}  Whether the cursor is within the brackets or not
      */
-    public static boolean isWithinBrackets(TextDocumentServiceContext context, List<String> terminalTokens) {
+    public static boolean isWithinBrackets(LSServiceOperationContext context, List<String> terminalTokens) {
         int currentTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         Token previousToken = tokenStream.get(currentTokenIndex);
@@ -524,5 +531,20 @@ public class CommonUtil {
             currentPackage = packages.get(0);
         }
         return currentPackage;
+    }
+
+    /**
+     * Prepare a new compiler context.
+     * @return {@link CompilerContext} Prepared compiler context
+     */
+    public static CompilerContext prepareTempCompilerContext() {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, "");
+        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        context.put(SourceDirectory.class, new NullSourceDirectory());
+
+        return context;
     }
 }
