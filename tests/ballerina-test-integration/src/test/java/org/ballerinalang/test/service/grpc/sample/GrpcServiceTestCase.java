@@ -24,7 +24,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 
 /**
  * Test class for WebSocket client connector.
@@ -40,11 +39,11 @@ public class GrpcServiceTestCase extends IntegrationTestCase {
     }
 
     @Test
-    public void testBlockingServer() throws Exception {
-        String balFile = new File("src/test/resources/grpcService/helloWorld-server-connector.bal")
+    public void testBlockingServer() {
+/*         String balFile = new File("src/test/resources/grpcService/helloWorld-server-connector.bal")
                 .getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
-/*        HelloClient client = new HelloClient("localhost", 9090);
+       ballerinaServer.startBallerinaServer(balFile);
+        HelloClient client = new HelloClient("localhost", 9090);
         try {
             String response = client.greet("WSO2");
             Assert.assertEquals(response, "Hello WSO2");
