@@ -114,7 +114,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             if (sslConfig != null) {
                 configureSslForHttp(serverPipeline, ch);
             } else {
-                configureHTTPPipeline(serverPipeline);
+                configureHTTPPipeline(serverPipeline, Constants.HTTP_SCHEME);
             }
         }
     }
@@ -163,9 +163,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      *
      * @param serverPipeline Channel
      */
-    void configureHTTPPipeline(ChannelPipeline serverPipeline) {
+    void configureHTTPPipeline(ChannelPipeline serverPipeline, String httpScheme) {
 
-        if (!http2Enabled) {
+        if (httpScheme.equals(Constants.HTTP_SCHEME)) {
             serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
         }
         serverPipeline.addLast("decoder",
@@ -221,7 +221,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
         /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle
            large upgrade requests. Requests will be propagated to next handlers if no upgrade has been attempted */
-        configureHTTPPipeline(pipeline);
+        configureHTTPPipeline(pipeline, ApplicationProtocolNames.HTTP_2);
     }
 
     public void setServerConnectorFuture(ServerConnectorFuture serverConnectorFuture) {
@@ -310,7 +310,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                                 new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture, serverName).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
-                configureHTTPPipeline(ctx.pipeline());
+                configureHTTPPipeline(ctx.pipeline(), Constants.HTTP_SCHEME);
             } else {
                 throw new IllegalStateException("unknown protocol: " + protocol);
             }
