@@ -139,7 +139,7 @@ public class LoadToTable implements NativeCallableUnit {
 
     private static BTable getbTable(Context context, List records) throws BallerinaIOException {
         BTypeDescValue type = (BTypeDescValue) context.getRefArgument(0);
-        BTable table = new BTable(new BTableType(type.value()));
+        BTable table = new BTable(new BTableType(type.value()), null);
         BStructType structType = (BStructType) type.value();
         boolean skipHeaderLine = context.getBooleanArgument(0);
         if (skipHeaderLine && !records.isEmpty()) {
