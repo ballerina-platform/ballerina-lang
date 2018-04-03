@@ -357,7 +357,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 Set<BType> varRefMemberTypes = ((BUnionType) varRefType).memberTypes;
                 List<BType> lhsTypes;
 
-                if (!fieldAccessExpr.safeNavigate) {
+                if (fieldAccessExpr.safeNavigate) {
                     lhsTypes = varRefMemberTypes.stream().filter(type -> {
                         return type != symTable.errStructType && type != symTable.nilType;
                     }).collect(Collectors.toList());
@@ -377,7 +377,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
         BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+        actualType = getFieldAccessExprFinalType(fieldAccessExpr, actualType);
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
+    }
+
+    private BType getFieldAccessExprFinalType(BLangFieldBasedAccess fieldAccessExpr, BType actualType) {
+        BUnionType unionType = new BUnionType(null, new HashSet<>(), false);
+        if (actualType.tag == TypeTags.UNION) {
+            unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
+        } else {
+            unionType.memberTypes.add(actualType);
+        }
+
+        BType parentType = fieldAccessExpr.expr.type;
+        if (parentType.isNullable()) {
+            unionType.memberTypes.add(symTable.nilType);
+        }
+
+        if (fieldAccessExpr.safeNavigate && (parentType.tag == TypeTags.ERROR || (parentType.tag == TypeTags.UNION &&
+                ((BUnionType) parentType).memberTypes.contains(symTable.errStructType)))) {
+            unionType.memberTypes.add(symTable.errStructType);
+        }
+
+        return unionType;
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {

@@ -18,19 +18,24 @@
 package org.ballerinalang.test.expressions.fieldaccess;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class FieldAccessExprTest {
 
     @Test
     public void testFieldAccess() {
-        CompileResult compile = BCompileUtil.compile("test-src/expressions/fieldaccess/field-access.bal");
+        CompileResult result = BCompileUtil.compile("test-src/expressions/fieldaccess/field-access.bal");
         // Assert.assertEquals(compile.getErrorCount(), 1);
-        for (Diagnostic diag : compile.getDiagnostics()) {
+        for (Diagnostic diag : result.getDiagnostics()) {
             System.out.println(diag.getPosition() + diag.getMessage());
         }
+        BValue[] returns = BRunUtil.invoke(result, "foo");
+        Assert.assertEquals(returns[0].stringValue(), "");
     }
 
 }

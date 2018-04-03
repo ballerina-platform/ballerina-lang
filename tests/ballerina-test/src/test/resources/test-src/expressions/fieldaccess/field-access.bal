@@ -1,13 +1,17 @@
-function foo () {
-	Person|() p = {};
-	string|error|() x = p!.address.city;
+function foo () returns any {
+    Address adrs = {city:"Colombo"};
+    error e = {message:"custom error"};
+    Person prsn = {address : adrs};
+	Person|error p = prsn;
+	string|error|() x = p!.address!.city;
+	return x;
 }
 
 struct Person {
 	int a;
 	string fname = "John";
 	string lname;
-	Address|() address;
+	Address|error address;
 }
 
 struct Address {
