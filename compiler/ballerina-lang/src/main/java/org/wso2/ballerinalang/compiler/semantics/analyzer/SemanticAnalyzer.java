@@ -588,6 +588,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check each LHS expression.
         BType expType = getTypeOfVarReferenceInAssignment(assignNode.varRef);
+        if (((BLangVariableReference) assignNode.varRef).symbol != null) {
+            if (((BLangVariableReference) assignNode.varRef).lhsVar
+                    && ((BLangVariableReference) assignNode.varRef).symbol.isReadonly) {
+                dlog.error(assignNode.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_READONLY, assignNode.varRef);
+                return;
+            }
+        }
         if (!assignNode.safeAssignment) {
             typeChecker.checkExpr(assignNode.expr, this.env, expType);
             return;
