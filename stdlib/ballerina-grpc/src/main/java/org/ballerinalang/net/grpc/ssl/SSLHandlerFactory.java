@@ -127,7 +127,7 @@ public class SSLHandlerFactory {
         
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
                 .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
         KeyStore keyStore;
         File keyfile = new File(SSL_SERVER_KEY_FILE);
         File certfile = new File(SSL_SERVER_CERT_FILE);
