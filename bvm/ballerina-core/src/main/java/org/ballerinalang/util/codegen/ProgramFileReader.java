@@ -1437,7 +1437,6 @@ public class ProgramFileReader {
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
@@ -1574,6 +1573,7 @@ public class ProgramFileReader {
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
