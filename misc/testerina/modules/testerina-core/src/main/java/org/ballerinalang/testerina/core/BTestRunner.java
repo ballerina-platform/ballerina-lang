@@ -206,6 +206,7 @@ public class BTestRunner {
                 }
             });
             suite.getTests().forEach(test -> {
+                List<String> failedOrSkippedTests = new ArrayList<>();
                 if (!shouldSkip.get()) {
                     // run the beforeEach tests
                     suite.getBeforeEachFunctions().forEach(beforeEachTest -> {
@@ -241,6 +242,10 @@ public class BTestRunner {
                 // run the test
                 TesterinaResult functionResult = null;
                 try {
+                    // Check whether the this test depends on any failed or skipped functions
+                    if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
+                        shouldSkip.set(true);
+                    }
                     if (!shouldSkip.get()) {
                         BValue[] valueSets = null;
                         if (test.getDataProviderFunction() != null) {
@@ -262,12 +267,16 @@ public class BTestRunner {
                             });
                         }
                     } else {
+                        // If the test function is skipped lets add it to the failed test list
+                        failedOrSkippedTests.add(test.getTestFunction().getName());
                         // report the test result
                         functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get
                                 (), null);
                         tReport.addFunctionResult(packageName, functionResult);
                     }
                 } catch (Throwable e) {
+                    // If the test function is skipped lets add it to the failed test list
+                    failedOrSkippedTests.add(test.getTestFunction().getName());
                     String errorMsg = String.format("Failed to execute the test function [%s] of test suite package "
                             + "[%s]. Cause: %s", test.getTestFunction().getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
@@ -319,6 +328,17 @@ public class BTestRunner {
             // print package test results
             tReport.printTestSuiteSummary(packageName);
         });
+    }
+
+    private boolean isTestDependsOnFailedFunctions(List<String> list1, List<String> list2) {
+        for (String group : list1) {
+            for (String funcGroup : list2) {
+                if (group.equals(funcGroup)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
