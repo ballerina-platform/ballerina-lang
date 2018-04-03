@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.statements.safeassign;
+package org.ballerinalang.test.expressions.checkedexpr;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -32,14 +32,14 @@ import org.testng.annotations.Test;
 /**
  * This class contain safe assignment operator '=?' related test scenarios.
  */
-public class SafeAssignmentOperatorTest {
+public class CheckedExpressionOperatorTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile(
-                "test-src/statements/safeassign/safe_assign_basics.bal");
+                "test-src/expressions/checkedexpr/checked_expr_operator_basics.bal");
     }
 
     @Test(description = "Test basics of safe assignment statement")
@@ -126,7 +126,47 @@ public class SafeAssignmentOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement7", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Diayasena", "Invalid boolean value returned.");
+        Assert.assertEquals(returns[0].stringValue(), "Diayasena", "Invalid string value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testCheckExprInBinaryExpr1() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        BStruct errorStruct = (BStruct) returns[0];
+        Assert.assertEquals(errorStruct.getStringField(0),
+                "io error", "Invalid error message value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testCheckExprInBinaryExpr2() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        BStruct errorStruct = (BStruct) returns[0];
+        Assert.assertEquals(errorStruct.getStringField(0),
+                "io error", "Invalid error message value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testCheckExprInBinaryExpr3() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr3", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello, Ballerina", "Invalid string value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: myerror, message: io error.*")
+    public void testCheckExprInBinaryExpr4() {
+        BRunUtil.invoke(result, "testCheckExprInBinaryExpr4", new BValue[]{});
+    }
+
+    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: myerror, message: io error.*")
+    public void testCheckExprInBinaryExpr5() {
+        BRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new BValue[]{});
     }
 }
 

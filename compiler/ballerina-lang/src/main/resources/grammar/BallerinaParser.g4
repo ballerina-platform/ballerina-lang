@@ -617,7 +617,8 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
-    |	expression matchExpression										  # matchExprExpression
+    |	expression matchExpression										    # matchExprExpression
+    |	CHECK expression										            # checkedExpression
     ;
 
 awaitExpression

@@ -1460,6 +1460,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code checkedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCheckedExpression(BallerinaParser.CheckedExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code checkedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCheckedExpression(BallerinaParser.CheckedExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code unaryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
