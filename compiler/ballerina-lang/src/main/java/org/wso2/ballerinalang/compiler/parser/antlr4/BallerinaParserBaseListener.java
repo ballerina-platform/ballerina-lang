@@ -875,13 +875,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTableInitlization(BallerinaParser.TableInitlizationContext ctx) { }
+	@Override public void enterTableInitialization(BallerinaParser.TableInitializationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTableInitlization(BallerinaParser.TableInitlizationContext ctx) { }
+	@Override public void exitTableInitialization(BallerinaParser.TableInitializationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

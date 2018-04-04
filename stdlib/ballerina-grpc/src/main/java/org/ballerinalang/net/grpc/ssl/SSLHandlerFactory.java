@@ -126,7 +126,7 @@ public class SSLHandlerFactory {
         
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
                 .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
         KeyStore keyStore;
         File keyFile = new File(SSL_SERVER_KEY_FILE);
         File certFile = new File(SSL_SERVER_CERT_FILE);
@@ -168,7 +168,7 @@ public class SSLHandlerFactory {
     public SslContext createHttp2TLSContextForClient() throws SSLException {
         // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
                 .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
         return GrpcSslContexts.forClient().sslProvider(provider).trustManager(tmf)
