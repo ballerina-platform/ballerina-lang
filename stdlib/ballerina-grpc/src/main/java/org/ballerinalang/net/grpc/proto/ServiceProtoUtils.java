@@ -39,11 +39,13 @@ import org.ballerinalang.net.grpc.proto.definition.MessageKind;
 import org.ballerinalang.net.grpc.proto.definition.Method;
 import org.ballerinalang.net.grpc.proto.definition.Service;
 import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
+import org.ballerinalang.net.grpc.proto.definition.StructMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedEnumMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -398,6 +400,10 @@ public class ServiceProtoUtils {
                 message = EmptyMessage.newBuilder().build();
                 break;
             }
+            case ARRAY: {
+                message = StructMessage.newBuilder(ServiceProtoConstants.STRUCT_LIST_MESSAGE).build();
+                break;
+            }
             default: {
                 throw new GrpcServerException("Unsupported field type, field type " + messageType.getKind()
                         .typeName() + " currently not supported.");
@@ -414,6 +420,7 @@ public class ServiceProtoUtils {
             Field messageField;
             String fieldName = structField.getName().getValue();
             String fieldType = structField.getType().toString();
+            String fieldLabel = null;
             BType type = structField.getType();
             if (type instanceof BEnumType) {
                 BEnumType enumType = (BEnumType) type;
@@ -421,10 +428,19 @@ public class ServiceProtoUtils {
             } else if (type instanceof BStructType) {
                 BStructType structType = (BStructType) type;
                 messageBuilder.addMessageDefinition(getStructMessage(structType));
+            } else if (type instanceof BArrayType) {
+                BArrayType arrayType = (BArrayType) type;
+                BType elementType = arrayType.getElementType();
+                if (elementType instanceof BStructType) {
+                    messageBuilder.addMessageDefinition(getStructMessage((BStructType) elementType));
+                }
+                fieldType = elementType.toString();
+                fieldLabel = "repeated";
             }
 
             messageField = Field.newBuilder(fieldName)
                     .setIndex(++fieldIndex)
+                    .setLabel(fieldLabel)
                     .setType(fieldType).build();
             messageBuilder.addFieldDefinition(messageField);
         }

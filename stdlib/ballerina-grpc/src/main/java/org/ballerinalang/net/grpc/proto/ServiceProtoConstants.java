@@ -67,6 +67,8 @@ public class ServiceProtoConstants {
     public static final String WRAPPER_STRING_MESSAGE = "StringValue";
     public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
 
+    public static final String STRUCT_LIST_MESSAGE = "ListValue";
+
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {
         Map<Integer, String> sTypeMap = new HashMap<>();

@@ -469,54 +469,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+    public void exitObjectBody(BallerinaParser.ObjectBodyContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
+        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
         }
-
-        this.pkgBuilder.endObjectFieldList(true);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void enterPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endObjectFieldList(false);
     }
 
     /**
@@ -581,11 +541,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
         if (ctx.parent instanceof BallerinaParser.PublicObjectFieldsContext) {
-            this.pkgBuilder.addFieldToObject(currentPos, ws, name, exprAvailable, 0, false);
+            this.pkgBuilder
+                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
-            this.pkgBuilder.addFieldToObject(currentPos, ws, name, exprAvailable, 0, true);
+            this.pkgBuilder
+                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), true);
         } else if (ctx.parent instanceof BallerinaParser.FieldDefinitionListContext) {
-            this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, 0);
+            this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size());
         }
     }
 
@@ -715,40 +677,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startEnumDef(getCurrentPos(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean publicEnum = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.endEnumDef(ctx.Identifier().getText(), publicEnum);
-    }
-
-    @Override
-    public void exitEnumerator(BallerinaParser.EnumeratorContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addEnumerator(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -767,18 +695,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         this.pkgBuilder.addAttachPoint(
                 BLangAnnotationAttachmentPoint.AttachmentPoint.getAttachmentPoint(ctx.getText()));
-    }
-
-    @Override
-    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
-        boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.addConstVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), publicVar, safeAssignment);
     }
 
     @Override

@@ -20,9 +20,10 @@ import ballerina/auth.utils;
 import ballerina/auth.authz;
 import ballerina/auth.authz.permissionstore;
 import ballerina/log;
+import ballerina/runtime;
 
 @Description {value:"Authorization cache name"}
-const string AUTHZ_CACHE = "authz_cache";
+@final string AUTHZ_CACHE = "authz_cache";
 
 permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
 permissionstore:PermissionStore permissionStore =? <permissionstore:PermissionStore> fileBasedPermissionstore;
@@ -43,34 +44,8 @@ public struct HttpAuthzHandler {
 public function <HttpAuthzHandler httpAuthzHandler> handle (Request req,
                                                             string[] scopes, string resourceName) returns (boolean) {
 
-    // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
-    // extract the header value
-    var basicAuthHeader = extractBasicAuthHeaderValue(req);
-    string basicAuthHeaderValue;
-    match basicAuthHeader {
-        string basicAuthHeaderStr => {
-            basicAuthHeaderValue = basicAuthHeaderStr;
-        }
-        any|null => {
-            log:printError("Error in extracting basic authentication header");
-            return false;
-        }
-    }
-
-    var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
-    string username;
-    match credentials {
-        (string, string) creds => {
-            var (user, _) = creds;
-            username = user;
-        }
-        error err => {
-            log:printErrorCause("Error in decoding basic authentication header", err);
-            return false;
-        }
-    }
-
-    // check in the cache. cache key is <username>-<resource>-<http method>,
+    string username = runtime:getInvocationContext().authenticationContext.username;
+    // first, check in the cache. cache key is <username>-<resource>-<http method>,
     // since different resources can have different scopes
     string authzCacheKey = username + "-" + resourceName + "-" + req.method;
     match getCachedAuthzValue(authzCacheKey) {
@@ -103,18 +78,13 @@ function getCachedAuthzValue (string cacheKey) returns (boolean | null) {
     }
 }
 
-@Description {value:"Checks if the provided request can be authorized"}
+@Description {value:"Checks if the provided request can be authorized. This method will validate if the username is
+already set in the authentication context. If not, the flow cannot continue."}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
 public function <HttpAuthzHandler httpAuthzHandler> canHandle (Request req) returns (boolean) {
-    string basicAuthHeader;
-    try {
-        basicAuthHeader = req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
-        return false;
-    }
-    if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
+    if (runtime:getInvocationContext().authenticationContext.username.length() > 0) {
+        log:printError("Username not set in auth context. Unable to authorize");
         return true;
     }
     return false;

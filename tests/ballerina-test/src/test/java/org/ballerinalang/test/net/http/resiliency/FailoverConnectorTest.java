@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -34,7 +34,7 @@ public class FailoverConnectorTest {
 
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/net/http/resiliency/failover-connector-test.bal");
     }

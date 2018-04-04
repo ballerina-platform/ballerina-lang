@@ -32,11 +32,11 @@ import java.net.URLDecoder;
 
 /**
  * Native function to decode URLs.
- * ballerina.net.uri:decode
+ * ballerina.http:decode
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.uri",
+        orgName = "ballerina", packageName = "http",
         functionName = "decode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),

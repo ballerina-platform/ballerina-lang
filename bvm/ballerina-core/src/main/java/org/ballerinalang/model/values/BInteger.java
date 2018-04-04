@@ -64,8 +64,23 @@ public final class BInteger extends BValueType implements BRefType<Long> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return ((BInteger) obj).intValue() == value;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BInteger bInteger = (BInteger) o;
+
+        return value == bInteger.value;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (value ^ (value >>> 32));
     }
 
     @Override

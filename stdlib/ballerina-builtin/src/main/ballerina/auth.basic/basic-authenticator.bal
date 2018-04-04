@@ -18,6 +18,8 @@ package ballerina.auth.basic;
 
 import ballerina/auth.userstore;
 import ballerina/caching;
+import ballerina/runtime;
+import ballerina/log;
 
 @Description {value:"Represents a Basic Authenticator"}
 @Field {value:"userStore: UserStore object; ex.: in basic authenticator, the user store"}
@@ -50,7 +52,18 @@ public function createAuthenticator (userstore:UserStore userStore,
 @Param {value:"password: password"}
 @Return {value:"boolean: true if authentication is successful, else false"}
 public function <BasicAuthenticator authenticator> authenticate (string username, string password) returns (boolean) {
-    return authenticator.userStore.authenticate(username, password);
+    boolean authenticated = authenticator.userStore.authenticate(username, password);
+    if (authenticated) {
+        // populate AuthenticationContext for this request
+        // set the username
+        runtime:getInvocationContext().authenticationContext.username = username;
+        // set the groups if available in userstore
+        string[] groupsOfUser = authenticator.userStore.readGroupsOfUser(username);
+        if (lengthof groupsOfUser > 0) {
+            runtime:getInvocationContext().authenticationContext.groups = groupsOfUser;
+        }
+    }
+    return authenticated;
 }
 
 @Description {value:"Retrieves the cached authentication result if any, for the given basic auth header value"}
@@ -60,7 +73,10 @@ public function <BasicAuthenticator authenticator> getCachedAuthResult (string b
     try {
         match authenticator.authCache {
             caching:Cache cache => {
-                return cache.get(basicAuthCacheKey);
+                AuthenticationInfo authInfo =? <AuthenticationInfo> cache.get(basicAuthCacheKey);
+                // TODO: fix properly by setting from handler level
+                runtime:getInvocationContext().authenticationContext.username = authInfo.username;
+                return authInfo;
             }
             null => {
                 return null;

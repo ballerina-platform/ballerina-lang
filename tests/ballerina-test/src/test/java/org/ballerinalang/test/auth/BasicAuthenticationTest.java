@@ -25,6 +25,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -89,10 +90,24 @@ public class BasicAuthenticationTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test username in authcontext with authentication failure")
+    public void testUsernameInAuthContextWithAuthenticationFailure() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUsernameInAuthContextWithAuthenticationFailure");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue((returns[0]).stringValue().isEmpty());
+    }
+
     @Test(description = "Test authentication success")
     public void testAuthenticationSuccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test username in authcontext with successful authentication")
+    public void testUsernameInAuthContextWithAuthenticationSuccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUsernameInAuthContextWithAuthenticationSuccess");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals((returns[0]).stringValue(), "isuru");
     }
 }

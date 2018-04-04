@@ -40,8 +40,6 @@ definition
     |   functionDefinition
     |   structDefinition
     |   typeDefinition
-    |   enumDefinition
-    |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
@@ -101,7 +99,8 @@ privateStructBody
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE_TYPE Identifier typeName
+    :   (PUBLIC)? TYPE Identifier typeName
+    |   (PUBLIC)? TYPE Identifier finiteType
     ;
 
 objectBody
@@ -130,7 +129,7 @@ objectFunctions
 
 // TODO merge with fieldDefinition later
 objectFieldDefinition
-    :   typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -164,14 +163,6 @@ annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
-enumDefinition
-    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumerator (COMMA enumerator)* RIGHT_BRACE
-    ;
-
-enumerator
-    : Identifier
-    ;
-
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
@@ -180,17 +171,12 @@ attachmentPoint
      : SERVICE
      | RESOURCE
      | FUNCTION
-     | STRUCT
-     | ENUM
+     | OBJECT
+     | TYPE
      | ENDPOINT
-     | CONST
      | PARAMETER
      | ANNOTATION
      ;
-
-constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
-    ;
 
 workerDeclaration
     :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
@@ -215,6 +201,15 @@ endpointType
 endpointInitlization
     :   recordLiteral
     |   ASSIGN variableReference
+    ;
+
+finiteType
+    :  finiteTypeUnit (PIPE finiteTypeUnit)*
+    ;
+
+finiteTypeUnit
+    :   simpleLiteral
+    |   typeName
     ;
 
 typeName

@@ -32,15 +32,15 @@ public struct JWTAuthenticator {
     caching:Cache authCache;
 }
 
-const string AUTHENTICATOR_JWT = "authenticator_jwt";
-const string ISSUER = "issuer";
-const string AUDIENCE = "audience";
-const string CERTIFICATE_ALIAS = "certificateAlias";
-const string JWT_AUTH_CACHE = "jwt_auth_cache";
-const string SCOPES = "scope";
-const string GROUPS = "groups";
-const string USERNAME = "name";
-const string AUTH_TYPE_JWT = "jwt";
+@final string AUTHENTICATOR_JWT = "authenticator_jwt";
+@final string ISSUER = "issuer";
+@final string AUDIENCE = "audience";
+@final string CERTIFICATE_ALIAS = "certificateAlias";
+@final string JWT_AUTH_CACHE = "jwt_auth_cache";
+@final string SCOPES = "scope";
+@final string GROUPS = "groups";
+@final string USERNAME = "name";
+@final string AUTH_TYPE_JWT = "jwt";
 
 struct CachedJWTAuthContext {
     jwt:Payload jwtPayload;

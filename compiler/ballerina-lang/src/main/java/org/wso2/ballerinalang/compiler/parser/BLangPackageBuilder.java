@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -758,6 +759,10 @@ public class BLangPackageBuilder {
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
         endFunctionDef(pos, null, false, false, true, false);
+        //this is added for analysing closures
+        if (!(blockNodeStack.empty())) {
+            lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
+        }
     }
 
     private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {
@@ -1372,6 +1377,7 @@ public class BLangPackageBuilder {
                                   boolean publicVar,
                                   boolean safeAssignment) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+        attachAnnotations(var);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
@@ -1415,67 +1421,95 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(structNode);
     }
 
-    public void startObjectDef() {
+    void startObjectDef() {
         ObjectNode objectNode = TreeBuilder.createObjectNode();
         attachAnnotations(objectNode);
         attachDocumentations(objectNode);
         attachDeprecatedNode(objectNode);
         this.objectStack.add(objectNode);
+        startVarList();
     }
 
-    public void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws) {
-        // Generate a name for the anonymous struct
-        String genName = anonymousModelHelper.getNextAnonymousStructKey(pos.src.pkgID);
-        IdentifierNode anonStructGenName = createIdentifier(genName);
+    private void endObjectDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicRecord) {
+        BLangObject objectNode = populateObjectNode(pos, ws, createIdentifier(identifier), false);
+        objectNode.setName(this.createIdentifier(identifier));
+        if (publicRecord) {
+            objectNode.flagSet.add(Flag.PUBLIC);
+        }
 
-        // Create an anonymous struct and add it to the list of structs in the current package.
-        BLangStruct structNode = populateStructNode(pos, ws, anonStructGenName, true);
-        this.compUnit.addTopLevelNode(structNode);
+        this.compUnit.addTopLevelNode(objectNode);
+    }
 
-        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), structNode.name));
+    void addAnonObjectType(DiagnosticPos pos, Set<Whitespace> ws) {
+        // Generate a name for the anonymous object
+        String genName = anonymousModelHelper.getNextAnonymousObjectKey(pos.src.pkgID);
+        IdentifierNode anonObjectGenName = createIdentifier(genName);
+
+        // Create an anonymous object and add it to the list of objects in the current package.
+        BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
+        this.compUnit.addTopLevelNode(objectNode);
+
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
 
     }
 
-    public void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
+    private BLangObject populateObjectNode(DiagnosticPos pos, Set<Whitespace> ws,
+                                           IdentifierNode name, boolean isAnonymous) {
+        BLangObject objectNode = (BLangObject) this.objectStack.pop();
+        objectNode.pos = pos;
+        objectNode.addWS(ws);
+        objectNode.name = (BLangIdentifier) name;
+        objectNode.isAnonymous = isAnonymous;
+        this.varListStack.pop().forEach(variableNode -> {
+            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
+            objectNode.addField(variableNode);
+        });
+        return objectNode;
+    }
+
+    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
         //TODO only adding object type for now
         if (!this.objectStack.isEmpty()) {
-            BLangObject objectNode = (BLangObject) this.objectStack.pop();
-            objectNode.pos = pos;
-
-            objectNode.setName(this.createIdentifier(identifier));
-            if (publicStruct) {
-                objectNode.flagSet.add(Flag.PUBLIC);
-            }
-            objectNode.isAnonymous = false;
-
-            // Create an user defined type with object type
-            TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
-                    objectNode.name);
-
-            //Cache receiver to add to init function in symbolEnter
-            objectNode.receiver = createVariableNode(pos, ws, objectType);
-
-            objectNode.functions.forEach(f -> f.setReceiver(createVariableNode(pos, ws, objectType)));
-
-            this.compUnit.addTopLevelNode(objectNode);
+            endObjectDef(pos, ws, identifier, publicStruct);
         } else if (!this.recordStack.isEmpty()) {
             endRecordDef(pos, ws, identifier, publicStruct);
+        } else {
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+            typeDefinition.setName(this.createIdentifier(identifier));
+
+            if (publicStruct) {
+                typeDefinition.flagSet.add(Flag.PUBLIC);
+            }
+
+            BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+            while (!typeNodeStack.isEmpty()) {
+                BLangType memberType = (BLangType) typeNodeStack.pop();
+                if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
+                    members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
+                } else {
+                    members.memberTypeNodes.add(memberType);
+                }
+            }
+
+            if (members.memberTypeNodes.isEmpty()) {
+                typeDefinition.typeNode = null;
+            } else if (members.memberTypeNodes.size() == 1) {
+                BLangType[] memberArray = new BLangType[1];
+                members.memberTypeNodes.toArray(memberArray);
+                typeDefinition.typeNode = memberArray[0];
+            } else {
+                typeDefinition.typeNode = members;
+            }
+
+            while (!exprNodeStack.isEmpty()) {
+                typeDefinition.valueSpace.add((BLangExpression) exprNodeStack.pop());
+            }
+
+            typeDefinition.pos = pos;
+            typeDefinition.addWS(ws);
+            this.compUnit.addTopLevelNode(typeDefinition);
         }
     }
-
-    private BLangVariable createVariableNode(DiagnosticPos pos, Set<Whitespace> ws, TypeNode objectType) {
-        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-        receiver.pos = pos;
-
-        IdentifierNode name = createIdentifier(Names.SELF.getValue());
-        receiver.setName(name);
-        receiver.addWS(ws);
-
-        receiver.docTag = DocTag.RECEIVER;
-        receiver.setTypeNode(objectType);
-        return receiver;
-    }
-
 
     void endObjectInitParamList(Set<Whitespace> ws, boolean paramsAvail, boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
@@ -1637,19 +1671,6 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
-    }
-
-    void endObjectFieldList(boolean isPublic) {
-        BLangObject objectNode = (BLangObject) this.objectStack.peek();
-
-        this.varListStack.pop().forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
-            if (isPublic) {
-                ((BLangVariable) variableNode).flagSet.add(Flag.PUBLIC);
-            }
-            objectNode.addField(variableNode);
-        });
-        this.varListStack.push(new ArrayList<>());
     }
 
     void addFieldToObject(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
@@ -2093,7 +2114,7 @@ public class BLangPackageBuilder {
         abortNode.addWS(ws);
         addStmtToCurrentBlock(abortNode);
     }
-    
+
     public void addDoneStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangDone doneNode = (BLangDone) TreeBuilder.createDoneNode();
         doneNode.pos = pos;

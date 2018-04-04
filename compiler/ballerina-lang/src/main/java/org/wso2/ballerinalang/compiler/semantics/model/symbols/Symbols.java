@@ -85,6 +85,16 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BTypeSymbol createTypeDefinitionSymbol(int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.TYPE_DEF;
+        return typeSymbol;
+    }
+
     @Deprecated
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
                                                                              PackageID pkgID,

@@ -51,4 +51,5 @@ public class TypeTags {
     public static final int FUTURE_TAG = 26;
     public static final int UNION_TAG = 27;
     public static final int TUPLE_TAG = 28;
+    public static final int FINITE_TYPE_TAG = 29;
 }

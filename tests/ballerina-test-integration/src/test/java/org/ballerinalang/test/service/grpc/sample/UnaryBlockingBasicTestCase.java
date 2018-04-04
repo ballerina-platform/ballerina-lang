@@ -43,8 +43,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Test class for WebSocket client connector.
- * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
+ * Test class for gRPC unary service with blocking and non-blocking client.
+ *
  */
 public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
 

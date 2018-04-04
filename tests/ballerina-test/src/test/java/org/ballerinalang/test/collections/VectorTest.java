@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -39,7 +39,7 @@ public class VectorTest {
 
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/collections/vector-test.bal");
     }

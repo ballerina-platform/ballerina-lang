@@ -34,7 +34,8 @@ under the License.
             <class name="org.ballerinalang.testerina.test.TesterinaSamplesTest"/>
             <class name="org.ballerinalang.testerina.test.ServiceSkeletonTest"/>
             <class name="org.ballerinalang.testerina.test.ListGroupsTest"/>
+            <class name="org.ballerinalang.testerina.test.DependsOnTest"/>
+            <class name="org.ballerinalang.testerina.test.SkipTest"/>
         </classes>
     </test>
-
 </suite>
