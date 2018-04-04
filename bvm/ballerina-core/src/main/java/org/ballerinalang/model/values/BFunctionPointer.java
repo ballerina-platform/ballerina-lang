@@ -60,7 +60,7 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
             return;
         }
         closureVars.add(closure);
-        additionalIndexes.merge(closure.type, 1, Integer::sum);
+        additionalIndexes.merge(closure.getType().getTag(), 1, Integer::sum);
     }
 
     public Integer getAdditionalIndexCount(int type) {
@@ -80,45 +80,5 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
     @Override
     public BValue copy() {
         return new BFunctionPointer(funcRefCPEntry);
-    }
-
-
-    /**
-     * The {@code BClosure} holds closure of any BValue in Ballerina.
-     *
-     * @since 0.97
-     */
-    public static final class BClosure {
-
-        private Object value;
-
-        private int type;
-
-        public BClosure(Object value, int type) {
-            this.value = value;
-            this.type = type;
-        }
-
-        public String stringValue() {
-            return (String) value;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof BClosure)) {
-                return false;
-            }
-
-            BClosure other = (BClosure) obj;
-            return this.value.equals(other.value) && this.type == other.type;
-        }
-
-        public Object value() {
-            return value;
-        }
     }
 }

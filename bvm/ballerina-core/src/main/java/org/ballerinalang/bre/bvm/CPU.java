@@ -38,6 +38,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
@@ -756,7 +757,7 @@ public class CPU {
     private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,
                                                          FunctionCallCPEntry funcCallCPEntry,
                                                          FunctionInfo functionInfo, WorkerData sf) {
-        List<BFunctionPointer.BClosure> closureVars = fp.getClosureVars();
+        List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
             return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
@@ -773,30 +774,30 @@ public class CPU {
         int byteIndex = expandByteRegs(sf, fp);
         int refIndex = expandRefRegs(sf, fp);
 
-        for (BFunctionPointer.BClosure closure : closureVars) {
-            switch (closure.getType()) {
+        for (BClosure closure : closureVars) {
+            switch (closure.getType().getTag()) {
                 case TypeTags.INT_TAG: {
-                    sf.longRegs[longIndex] = ((long) closure.value());
+                    sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
                     newArgRegs[argRegIndex++] = longIndex++;
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
-                    sf.doubleRegs[doubleIndex] = ((double) closure.value());
+                    sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
                     newArgRegs[argRegIndex++] = doubleIndex++;
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
-                    sf.intRegs[intIndex] = ((int) closure.value());
+                    sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
                     newArgRegs[argRegIndex++] = intIndex++;
                     break;
                 }
                 case TypeTags.STRING_TAG: {
-                    sf.stringRegs[stringIndex] = ((String) closure.value());
+                    sf.stringRegs[stringIndex] = (closure.value()).stringValue();
                     newArgRegs[argRegIndex++] = stringIndex++;
                     break;
                 }
                 case TypeTags.BLOB_TAG: {
-                    sf.byteRegs[byteIndex] = ((byte[]) closure.value());
+                    sf.byteRegs[byteIndex] = ((BBlob) closure.value()).blobValue();
                     newArgRegs[argRegIndex++] = byteIndex++;
                     break;
                 }
@@ -894,26 +895,26 @@ public class CPU {
             int index = operands[++operandIndex];
             switch (type) {
                 case TypeTags.INT_TAG: {
-                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.longRegs[index], type));
+                    fp.addClosureVar(new BClosure(new BInteger(ctx.workerLocal.longRegs[index])));
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
-                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.doubleRegs[index], type));
+                    fp.addClosureVar(new BClosure(new BFloat(ctx.workerLocal.doubleRegs[index])));
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
-                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.intRegs[index], type));
+                    fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1)));
                     break;
                 }
                 case TypeTags.STRING_TAG: {
-                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.stringRegs[index], type));
+                    fp.addClosureVar(new BClosure(new BString(ctx.workerLocal.stringRegs[index])));
                     break;
                 }
                 case TypeTags.BLOB_TAG:
-                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.byteRegs[index], type));
+                    fp.addClosureVar(new BClosure(new BBlob(ctx.workerLocal.byteRegs[index])));
                     break;
                 default:
-                    fp.addClosureVar(new BFunctionPointer.BClosure(ctx.workerLocal.refRegs[index], TypeTags.ANY_TAG));
+                    fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]));
             }
         }
     }
