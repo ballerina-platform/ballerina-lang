@@ -17,19 +17,21 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Package context to keep the builtin and the current package.
  */
 public class LSPackageCache {
 
-    private Map<String, BLangPackage> packageMap = new HashMap<>();
+    private final ExtendedPackageCache packageCache;
 
     private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
             "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
@@ -37,9 +39,11 @@ public class LSPackageCache {
             "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
 
     public LSPackageCache() {
+        CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
+        packageCache = new ExtendedPackageCache(tempCompilerContext);
         List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
         builtInPackages.forEach(this::addPackage);
-//        this.loadPackagesMap();
+        this.loadPackagesMap(tempCompilerContext);
     }
 
     /**
@@ -49,23 +53,14 @@ public class LSPackageCache {
      * @return {@link BLangPackage} BLang Package resolved
      */
     public BLangPackage findPackage(CompilerContext compilerContext, PackageID pkgId) {
-        if (containsPackage(pkgId.getName().getValue())) {
-            return packageMap.get(pkgId.getName().getValue());
+        BLangPackage bLangPackage = packageCache.get(pkgId);
+        if (bLangPackage != null) {
+            return bLangPackage;
         } else {
-            BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
+            bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
             addPackage(bLangPackage);
             return bLangPackage;
         }
-    }
-
-    /**
-     * get the package name by composing from given identifier list.
-     *
-     * @param pkgID             package ID
-     * @return {@link String}   Full package name with orgName
-     */
-    private String getPackageName(PackageID pkgID) {
-        return pkgID.getOrgName().getValue() + "/" + pkgID.getName().getValue();
     }
 
     /**
@@ -75,34 +70,36 @@ public class LSPackageCache {
      */
     void addPackage(BLangPackage bLangPackage) {
         if (bLangPackage.getPackageDeclaration() == null) {
-            this.packageMap.put(".", bLangPackage);
+            //TODO check whether getPackageDeclaration() is needed
+            this.packageCache.put(new PackageID(Names.DOT.value), bLangPackage);
         } else {
-            this.packageMap.put(getPackageName(bLangPackage.packageID), bLangPackage);
+            this.packageCache.put(bLangPackage.packageID, bLangPackage);
         }
     }
-
-    /**
-     * Check whether the package exist in the current package context.
-     * @param packageName       package name
-     * @return {@link Boolean}  package exist or not
-     */
-    private boolean containsPackage(String packageName) {
-        return this.packageMap.containsKey(packageName);
-    }
     
-    public void loadPackagesMap() {
-        CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
+    private void loadPackagesMap(CompilerContext tempCompilerContext) {
         for (String staticPkgName : staticPkgNames) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
                     new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
             
-            this.packageMap.put(getPackageName(packageID),
-                    LSPackageLoader.getPackageById(tempCompilerContext, packageID));
+            this.packageCache.put(packageID, LSPackageLoader.getPackageById(tempCompilerContext, packageID));
         }
     }
 
     public Map<String, BLangPackage> getPackageMap() {
-        return packageMap;
+        return packageCache.getMap();
+    }
+
+    static class ExtendedPackageCache extends PackageCache {
+
+        private ExtendedPackageCache(CompilerContext context) {
+            super(context);
+            this.packageMap = new ConcurrentHashMap<>();
+        }
+
+        public Map<String, BLangPackage> getMap() {
+            return this.packageMap;
+        }
     }
 }

@@ -452,22 +452,21 @@ class BallerinaTextDocumentService implements TextDocumentService {
         sourceDocument.setSourceRoot(sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
-                false, documentManager);
+        if ("".equals(pkgName)) {
+            Path filePath = path.getFileName();
+            if (filePath != null) {
+                pkgName = filePath.toString();
+            }
+        }
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
+                                                             sourceDocument, false, documentManager);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
         context.put(DiagnosticListener.class, diagnosticListener);
 
         Compiler compiler = Compiler.getInstance(context);
-        if ("".equals(pkgName)) {
-            Path filePath = path.getFileName();
-            if (filePath != null) {
-                compiler.compile(filePath.toString());
-            }
-        } else {
-            compiler.compile(pkgName);
-        }
+        compiler.compile(pkgName);
 
         publishDiagnostics(balDiagnostics, path);
     }
