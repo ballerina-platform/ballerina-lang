@@ -32,7 +32,8 @@ struct RegulatorInfo {
 
 struct TempDiffInfo {
     int roomNo;
-    float tempDifference;
+    float temp1;
+    float temp2;
 }
 
 TempDiffInfo [] tempDiffInfoArray = [];
@@ -42,8 +43,7 @@ stream<RoomTempInfo> tempStream = {};
 stream<RegulatorInfo> regulatorStream = {};
 stream<TempDiffInfo> tempDiffStream = {};
 
-function testPatternQuery () {
-
+function testPatternQueryEveryWithFollowedBy () {
     forever{
         from  every regulatorStream as e1 followed by tempStream where e1.roomNo==roomNo [1..2) as e2
         followed by regulatorStream where e1.roomNo==roomNo as e3
@@ -54,9 +54,21 @@ function testPatternQuery () {
     }
 }
 
-function runtPatternQuery () returns (TempDiffInfo []) {
+function printTempDifference (TempDiffInfo tempDiff) {
+    io:println("printTemoDifference function invoked for Room:" + tempDiff.roomNo +" and temp difference :" +
+               tempDiff.temp1 + ",,," + tempDiff.temp2);
+    addToGlobalTempDiffArray(tempDiff);
+}
 
-    testPatternQuery();
+function addToGlobalTempDiffArray (TempDiffInfo s) {
+    tempDiffInfoArray[index] = s;
+    index = index + 1;
+}
+
+
+function runPatternQuery1 () returns (TempDiffInfo []) {
+
+    testPatternQueryEveryWithFollowedBy();
 
     RoomTempInfo t1 = {deviceID: 1, roomNo: 23, temp: 23.0};
     RoomTempInfo t2 = {deviceID: 8, roomNo: 23, temp: 30.0};
@@ -80,13 +92,117 @@ function runtPatternQuery () returns (TempDiffInfo []) {
     return tempDiffInfoArray;
 }
 
-function printTempDifference (TempDiffInfo tempDiff) {
-    io:println("printTemoDifference function invoked for Room:" + tempDiff.roomNo +" and temp difference :" +
-               tempDiff.tempDifference + ",,," );
-    addToGlobalTempDiffArray(tempDiff);
+struct RegulatorState {
+    int deviceId;
+    int roomNo;
+    float tempSet;
+    string userAction;
 }
 
-function addToGlobalTempDiffArray (TempDiffInfo s) {
-    tempDiffInfoArray[index] = s;
+struct RoomKeyAction {
+    int roomNo;
+    string userAction;
+}
+
+stream<RegulatorState> regulatorStateChangeStream = {};
+stream<RoomKeyAction> roomKeyStream = {};
+stream<RoomKeyAction> regulatorActionStream = {};
+
+RoomKeyAction [] roomActions = [];
+RoomKeyAction [] roomActions2 = [];
+
+function testPatternQueryWithOr() {
+    forever{
+        from  every regulatorStateChangeStream where userAction == "on" as e1
+        followed by roomKeyStream where e1.roomNo==roomNo && userAction == "removed" as e2
+        || regulatorStateChangeStream where e1.roomNo == roomNo && userAction == "off" as e3
+        select e1.roomNo as roomNo, e2 == null ? "none" : "stop" as userAction having userAction != "none"
+        => (RoomKeyAction [] keyAction) {
+            regulatorActionStream.publish(keyAction);
+        }
+    }
+}
+
+function runPatternQuery2() returns (RoomKeyAction []) {
+    index = 0;
+    testPatternQueryWithOr();
+
+    RegulatorState regulatorState1 = {deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "on"};
+    RegulatorState regulatorState2 = {deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "off"};
+
+    RoomKeyAction roomKeyAction1 = {roomNo: 2, userAction: "removed"};
+
+    regulatorActionStream.subscribe(alertRoomAction1);
+    regulatorStateChangeStream.publish(regulatorState1);
+    runtime:sleepCurrentWorker(200);
+    roomKeyStream.publish(roomKeyAction1);
+    runtime:sleepCurrentWorker(500);
+
+    regulatorStateChangeStream.publish(regulatorState1);
+    runtime:sleepCurrentWorker(200);
+    regulatorStateChangeStream.publish(regulatorState2);
+    runtime:sleepCurrentWorker(500);
+
+    return roomActions;
+}
+
+function alertRoomAction1 (RoomKeyAction action) {
+    io:println("alertRoomAction function invoked for Room:" + action.roomNo +" and the action :" +
+               action.userAction);
+    addToGlobalRoomActions(action);
+
+}
+
+function addToGlobalRoomActions (RoomKeyAction s) {
+    roomActions[index] = s;
+    index = index + 1;
+}
+
+stream<RegulatorState> regulatorStateChangeStream2 = {};
+stream<RoomKeyAction> roomKeyStream2 = {};
+stream<RoomKeyAction> regulatorActionStream2 = {};
+
+function testPatternQueryWithAnd() {
+    forever{
+        from  every regulatorStateChangeStream2 where userAction == "on" as e1
+        followed by roomKeyStream2 where e1.roomNo==roomNo && userAction == "removed" as e2
+        && regulatorStateChangeStream2 where e1.roomNo == roomNo && userAction == "off" as e3
+        select e1.roomNo as roomNo, e2 != null ? "RoomClosedWithRegulatorOff" : "other" as userAction having userAction
+        != "other"
+        => (RoomKeyAction [] keyAction) {
+            regulatorActionStream2.publish(keyAction);
+        }
+    }
+}
+
+function runPatternQuery3() returns (RoomKeyAction []) {
+    index = 0;
+    testPatternQueryWithAnd();
+
+    RegulatorState regulatorState1 = {deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "on"};
+    RegulatorState regulatorState2 = {deviceId: 1, roomNo: 2, tempSet: 23.56, userAction: "off"};
+
+    RoomKeyAction roomKeyAction1 = {roomNo: 2, userAction: "removed"};
+
+    regulatorActionStream2.subscribe(alertRoomAction2);
+    regulatorStateChangeStream2.publish(regulatorState1);
+    runtime:sleepCurrentWorker(200);
+    roomKeyStream2.publish(roomKeyAction1);
+    regulatorStateChangeStream2.publish(regulatorState2);
+    runtime:sleepCurrentWorker(500);
+
+    return roomActions2;
+}
+
+
+function alertRoomAction2 (RoomKeyAction action) {
+    io:println("alertRoomAction function invoked for Room:" + action.roomNo +" and the action :" +
+        action.userAction);
+    addToGlobalRoomActions2(action);
+
+}
+
+function addToGlobalRoomActions2 (RoomKeyAction s) {
+    roomActions2[index] = s;
     index = index + 1;
 }

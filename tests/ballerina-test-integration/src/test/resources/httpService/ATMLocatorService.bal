@@ -7,12 +7,12 @@ endpoint http:ServiceEndpoint serviceEnpoint {
 };
 
 endpoint http:ClientEndpoint bankInfoService {
-    targets: [{uri: "http://localhost:9090/bankinfo/product"}]
+    targets:[{url: "http://localhost:9090/bankinfo/product"}]
 
 };
 
 endpoint http:ClientEndpoint branchLocatorService {
-    targets: [{uri: "http://localhost:9090/branchlocator/product"}]
+    targets:[{url: "http://localhost:9090/branchlocator/product"}]
 };
 
 @http:ServiceConfig {
@@ -38,7 +38,6 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             }
             http:PayloadError err => {
                 io:println("Error occurred while reading ATM locator request");
-                return;
             }
         }
 
@@ -50,7 +49,6 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             }
             http:HttpConnectorError err => {
                 io:println("Error occurred while reading locator response");
-                return;
             }
         }
 
@@ -66,7 +64,6 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             }
             http:PayloadError err => {
                 io:println("Error occurred while reading branch locator response");
-                return;
             }
         }
 
@@ -78,7 +75,6 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             }
             http:HttpConnectorError err => {
                 io:println("Error occurred while writing info response");
-                return;
             }
         }
         _ = outboundEP -> forward(infomationResponse);
@@ -112,7 +108,6 @@ service<http:Service> Bankinfo bind serviceEnpoint {
             }
             http:PayloadError err => {
                 io:println("Error occurred while reading bank info request");
-                return;
             }
         }
 
@@ -146,7 +141,6 @@ service<http:Service> Banklocator bind serviceEnpoint {
             }
             http:PayloadError err => {
                 io:println("Error occurred while reading bank locator request");
-                return;
             }
         }
 

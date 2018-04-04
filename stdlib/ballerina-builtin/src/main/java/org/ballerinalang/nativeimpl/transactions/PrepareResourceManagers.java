@@ -28,12 +28,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
- * Native function ballerina.transactions.coordinator:prepareResourceManagers.
+ * Native function ballerina.transactions:prepareResourceManagers.
  *
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "transactions.coordinator",
+        orgName = "ballerina", packageName = "transactions",
         functionName = "prepareResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING),
                 @Argument(name = "transactionBlockId", type = TypeKind.INT)},

@@ -39,6 +39,7 @@ import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -63,9 +64,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangObject> objects;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
+    public List<BLangRecord> records;
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
+    public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
 
     public PackageID packageID;
@@ -88,10 +91,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.objects = new ArrayList<>();
+        this.records = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
 
+        this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
     }

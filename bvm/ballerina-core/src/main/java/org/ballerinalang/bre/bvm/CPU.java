@@ -361,8 +361,7 @@ public class CPU {
                 case InstructionCodes.TYPEOF:
                     i = operands[0];
                     j = operands[1];
-                    BValue val = sf.refRegs[i];
-                    if (val == null || (val instanceof BString && ((BString) val).value() == null)) {
+                    if (sf.refRegs[i] == null) {
                         sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
                         break;
                     }
@@ -639,8 +638,10 @@ public class CPU {
                 case InstructionCodes.NEWTABLE:
                     i = operands[0];
                     cpIndex = operands[1];
+                    j = operands[2];
+                    BStruct configStruct = (BStruct) sf.refRegs[j];
                     typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
                     break;
                 case InstructionCodes.NEWSTREAM:
                     i = operands[0];

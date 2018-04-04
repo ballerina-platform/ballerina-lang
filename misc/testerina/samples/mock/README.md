@@ -1,5 +1,8 @@
 #### Running mock sample
-- Download ```ballerina-tools-0.8.0.zip``` distribution and unzip.  
-- Copy ```samples/mock directory``` to ```ballerina-tools-0.8.0```.  
-- Run tests as follows.  
-```> ./bin/ballerina test mock/```
+- Download ```ballerina-tools-<VERSION>.zip``` distribution and unzip.  
+- Set ballerina to executable path.  
+- Navigate to sample directory. 
+- Now execute ballerina init command 
+```> ballerina init```
+- Now execute the test
+```> ballerina test```

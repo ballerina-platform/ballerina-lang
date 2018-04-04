@@ -1,7 +1,6 @@
 {{#apiPackage}}package {{apiPackage}};
 
-{{/apiPackage}}{{#modelPackage}}import {{modelPackage}};{{/modelPackage}}
-import ballerina/http;
+{{/apiPackage}}import ballerina/http;
 import ballerina/http.swagger;
 
 {{#servers}}endpoint http:ServiceEndpoint ep{{@index}} {

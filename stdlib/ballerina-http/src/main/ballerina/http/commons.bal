@@ -91,7 +91,7 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
     HttpClient[] httpClients = [];
     int i=0;
     boolean httpClientRequired = false;
-    string uri = config.targets[0].uri;
+    string uri = config.targets[0].url;
     var cbConfig = config.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
@@ -107,7 +107,7 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
     }
 
     foreach target in config.targets {
-        uri = target.uri;
+        uri = target.url;
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
             uri = uri.subString(0, lastIndex);
@@ -115,10 +115,18 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, config);
         } else {
-            if (config.cacheConfig.enabled) {
-                httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
-            } else {
-                httpClients[i] = createHttpClient(uri, config);
+            var retryConfig = config.retry;
+            match retryConfig {
+                Retry retry => {
+                    httpClients[i] = createRetryClient(uri, config);
+                }
+                int | null => {
+                    if (config.cacheConfig.enabled) {
+                        httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+                    } else {
+                        httpClients[i] = createHttpClient(uri, config);
+                    }
+                }
             }
         }
         httpClients[i].config = config;
