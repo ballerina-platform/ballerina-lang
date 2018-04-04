@@ -25,8 +25,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.mime.util.Constants;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
@@ -48,12 +46,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**

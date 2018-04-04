@@ -44,7 +44,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.websocket.Session;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 
 
 /**
@@ -96,12 +95,13 @@ public abstract class WebSocketUtil {
             @Override
             public void onSuccess(Session session) {
                 // TODO: Need to create new struct
-                BStruct webSocketEndpoint = BLangConnectorSPIUtil.createBStruct(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                        PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
+                BStruct webSocketEndpoint =
+                    BLangConnectorSPIUtil.createBStruct(
+                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                    PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
                 BStruct webSocketConnector = BLangConnectorSPIUtil.createBStruct(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                        PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                    PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 populateEndpoint(session, webSocketEndpoint);
                 webSocketEndpoint.setRefField(0, webSocketConnector);
