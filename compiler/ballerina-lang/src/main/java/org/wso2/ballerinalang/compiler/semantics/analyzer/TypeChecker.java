@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -116,7 +117,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -1015,7 +1015,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
         checkExpr(bLangMatchExpression.expr, matchExprEnv);
-        Set<BType> matchExprTypes = new HashSet<>();
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
         bLangMatchExpression.patternClauses.forEach(pattern -> {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
@@ -1049,11 +1049,22 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BUnionType unionType = (BUnionType) exprType;
-        // Get the list of types which are not equivalent with the error type.
-        List<BType> resultTypeList = unionType.memberTypes.stream()
-                .filter(memberType -> !types.isAssignable(memberType, symTable.errStructType))
-                .collect(Collectors.toList());
-        if (resultTypeList.size() == 0) {
+        // Filter out the list of types which are not equivalent with the error type.
+        Map<Boolean, List<BType>> resultTypeMap = unionType.memberTypes.stream()
+                .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errStructType)));
+
+        // This list will be used in the desugar phase
+        checkedExpr.equivalentErrorTypeList = resultTypeMap.get(true);
+        if (checkedExpr.equivalentErrorTypeList == null ||
+                checkedExpr.equivalentErrorTypeList.size() == 0) {
+            // No member types in this union is equivalent to the error type
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        List<BType> nonErrorTypeList = resultTypeMap.get(false);
+        if (nonErrorTypeList == null || nonErrorTypeList.size() == 0) {
             // All member types in the union are equivalent to the error type.
             // Checked expression requires at least one type which is not equivalent to the error type.
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
@@ -1062,11 +1073,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType actualType;
-        if (resultTypeList.size() == 1) {
-            actualType = resultTypeList.get(0);
+        if (nonErrorTypeList.size() == 1) {
+            actualType = nonErrorTypeList.get(0);
         } else {
-            actualType = new BUnionType(null, new LinkedHashSet<>(resultTypeList),
-                    resultTypeList.contains(symTable.nilType));
+            actualType = new BUnionType(null, new LinkedHashSet<>(nonErrorTypeList),
+                    nonErrorTypeList.contains(symTable.nilType));
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
@@ -1332,7 +1343,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (conSymbol == null
                 || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
-                || conSymbol.tag != SymTag.STRUCT) {
+                || !(conSymbol.tag == SymTag.OBJECT || conSymbol.tag == SymTag.STRUCT)) {
+            // TODO : Remove struct dependency.
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
@@ -1344,6 +1356,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BPackageSymbol packageSymbol = (BPackageSymbol) conSymbol.owner;
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 uniqueFuncName, SymTag.FUNCTION);
+        if (actionSym == symTable.notFoundSymbol) {
+            actionSym = symResolver.resolveStructField(iExpr.pos, env, uniqueFuncName, (BTypeSymbol) conSymbol);
+        }
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.name, conSymbol.type);
             resultType = actualType;

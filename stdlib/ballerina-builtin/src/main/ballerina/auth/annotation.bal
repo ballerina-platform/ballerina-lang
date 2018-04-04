@@ -21,7 +21,7 @@ package ballerina.auth;
 @Field {value:"scopes: scope names"}
 public struct AuthConfig {
     Authentication|null authentication;
-    string[] scopes;
+    string[]|null scopes;
 }
 
 @Description {value:"Representation of Authentation Config"}
@@ -32,7 +32,7 @@ public struct Authentication {
 
 public function <AuthConfig authConfig> AuthConfig() {
     authConfig.authentication = null;
-    authConfig.scopes = [];
+    authConfig.scopes = null;
 }
 
 @Description {value:"Authentication config annotation for a Service"}

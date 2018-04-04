@@ -109,7 +109,7 @@ public class GrpcServicesBuilder {
     }
     
     private static ServerServiceDefinition getServiceDefinition(Service service, Descriptors.ServiceDescriptor
-            serviceDescriptor) throws GrpcServerException {
+            serviceDescriptor) {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName;
         if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage())) {
@@ -184,7 +184,7 @@ public class GrpcServicesBuilder {
             GrpcServerException {
 
         if (serverBuilder == null) {
-            throw new GrpcServerException("Error while starting gRPC server, clientresponder builder is null");
+            throw new GrpcServerException("Error while starting gRPC server, client responder builder is null");
         }
         Server server = serverBuilder.build();
         if (server != null) {

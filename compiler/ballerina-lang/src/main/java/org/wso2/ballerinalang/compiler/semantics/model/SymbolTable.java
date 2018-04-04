@@ -56,7 +56,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -443,7 +443,7 @@ public class SymbolTable {
                 retType = targetType;
             } else {
                 BUnionType unionType = new BUnionType(null,
-                        new HashSet<BType>(2) {{
+                        new LinkedHashSet<BType>(2) {{
                             add(targetType);
                             add(errStructType);
                         }}, false);

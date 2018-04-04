@@ -17,63 +17,9 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractInvocationNode extends ExpressionNode {
-
-
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
-
-        this.packageAlias.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'packageAlias',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPackageAlias() {
-        return this.packageAlias;
-    }
-
-
-
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
+class AbstractInvocationNode extends Node {
 
 
     setArgumentExpressions(newValue, silent, title) {
@@ -193,6 +139,60 @@ class AbstractInvocationNode extends ExpressionNode {
     filterArgumentExpressions(predicateFunction) {
         return _.filter(this.argumentExpressions, predicateFunction);
     }
+
+
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'packageAlias',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getPackageAlias() {
+        return this.packageAlias;
+    }
+
+
+
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
 
 
     setName(newValue, silent, title) {

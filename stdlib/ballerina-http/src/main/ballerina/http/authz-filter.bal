@@ -64,7 +64,7 @@ public function authzRequestFilterFunc (Request request, FilterContext context) 
         }
         null => {
             // scopes are not defined, no need to authorize
-            return createAuthzResult(true);
+            authorized = true;
         }
     }
     return createAuthzResult(authorized);
