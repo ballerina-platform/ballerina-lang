@@ -92,3 +92,12 @@ public struct TableOperationError {
     error[] cause;
 }
 
+@Description { value:"TableConfig represents properties used during table initialization" }
+@Field {value:"primaryKey:  An array of primary key columns"}
+@Field {value:"index: An array of index columns"}
+@Field {value:"data: An array of struct data"}
+public struct TableConfig {
+    string[] primaryKey;
+    string[] index;
+    any[] data;
+}

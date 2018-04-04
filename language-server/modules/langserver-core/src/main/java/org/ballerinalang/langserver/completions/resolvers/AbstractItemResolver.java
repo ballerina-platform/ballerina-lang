@@ -198,19 +198,13 @@ public abstract class AbstractItemResolver {
         signature.append(")");
         insertText.append(")");
         String initString = "(";
-        String endString = "";
+        String endString = ")";
 
-        List<BType> returnTypes = bInvokableSymbol.type.getReturnTypes();
-        List<BVarSymbol> returnParams = bInvokableSymbol.getReturnParameters();
-        for (int itr = 0; itr < returnTypes.size(); itr++) {
-            signature.append(initString).append(returnTypes.get(itr).toString());
-            if (returnParams.size() > itr) {
-                signature.append(" ").append(returnParams.get(itr).getName());
-            }
-            initString = ", ";
-            endString = ")";
+        BType returnType = bInvokableSymbol.type.getReturnType();
+        if (returnType != null) {
+            signature.append(initString).append(returnType.toString());
+            signature.append(endString);
         }
-        signature.append(endString);
         return new FunctionSignature(insertText.toString(), signature.toString());
     }
 

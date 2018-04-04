@@ -42,7 +42,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "data.sql",
+        orgName = "ballerina", packageName = "sql",
         functionName = "updateWithGeneratedKeys",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
         args = {
@@ -55,7 +55,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
                 @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.data.sql")
+                            structPackage = "ballerina.sql")
         }
 )
 public class UpdateWithGeneratedKeys extends AbstractSQLAction {

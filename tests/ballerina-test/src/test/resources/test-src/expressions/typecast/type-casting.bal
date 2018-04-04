@@ -519,7 +519,7 @@ function testErrorOnCasting() returns (string | error, int | error, float | erro
 }
 
 function testAnyToTable() returns (table | error) {
-    table < Employee> tb = {};
+    table < Employee> tb = table{};
 
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};

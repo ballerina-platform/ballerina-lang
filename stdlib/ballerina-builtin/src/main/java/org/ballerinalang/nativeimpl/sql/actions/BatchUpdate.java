@@ -41,11 +41,11 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.6
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "data.sql",
+        orgName = "ballerina", packageName = "sql",
         functionName = "batchUpdate",
         receiver = @Receiver(type = TypeKind.STRUCT,
                              structType = "ClientConnector",
-                             structPackage = "ballerina.data.sql"),
+                             structPackage = "ballerina.sql"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
@@ -58,7 +58,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.data.sql")
+                            structPackage = "ballerina.sql")
         }
 )
 public class BatchUpdate extends AbstractSQLAction {

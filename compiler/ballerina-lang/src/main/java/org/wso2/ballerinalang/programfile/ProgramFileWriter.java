@@ -64,6 +64,7 @@ public class ProgramFileWriter {
             for (PackageInfo packageInfo : packageInfoEntries) {
                 PackageInfoWriter.writeCP(dataOutStream, packageInfo.getConstPoolEntries());
                 dataOutStream.writeInt(packageInfo.nameCPIndex);
+                dataOutStream.writeInt(packageInfo.versionCPIndex);
                 PackageInfoWriter.writePackageInfo(dataOutStream, packageInfo);
             }
 

@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/data.sql;
+import ballerina/sql;
 
 struct Person {
     int id;
@@ -42,13 +42,13 @@ struct ResultCount {
     int COUNTVAL;
 }
 
-table<Person> dt1 = {};
-table<Company> dt2 = {};
+table<Person> dt1 = table{};
+table<Company> dt2 = table{};
 
 function testEmptyTableCreate () returns (int, int) {
-    table<Person> dt3 = {};
-    table<Person> dt4 = {};
-    table<Company> dt5 = {};
+    table<Person> dt3 = table{};
+    table<Person> dt4 = table{};
+    table<Company> dt5 = table{};
     table < Person > dt6;
     table < Company > dt7;
     table dt8;
@@ -86,7 +86,7 @@ function checkTableCount(string tablePrefix) returns (int) {
 }
 
 function testEmptyTableCreateInvalid () {
-    table t1 = {};
+    table t1 = table{};
 }
 
 function testAddData () returns (int, int, int, int[], int[], int[]) {
@@ -96,9 +96,9 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
 
     Company c1 = {id:100, name:"ABC"};
 
-    table<Person> dt1 = {};
-    table<Person> dt2 = {};
-    table<Company> ct1 = {};
+    table<Person> dt1 = table{};
+    table<Person> dt2 = table{};
+    table<Company> ct1 = table{};
 
     _ = dt1.add(p1);
     _ = dt1.add(p2);
@@ -138,7 +138,8 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
 
 function testTableAddInvalid () {
     Company c1 = {id:100, name:"ABC"};
-    table<Person> dt1 = {};
+
+    table<Person> dt1 = table{};
     _ = dt1.add(c1);
 }
 
@@ -147,7 +148,7 @@ function testMultipleAccess () returns (int, int, int[], int[]) {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt1 = {};
+    table<Person> dt1 = table{};
     _ = dt1.add(p1);
     _ = dt1.add(p2);
     _ = dt1.add(p3);
@@ -177,7 +178,7 @@ function testLoopingTable () returns (string) {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -196,7 +197,7 @@ function testToJson () returns (json) {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -210,7 +211,7 @@ function testToXML () returns (xml) {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -224,7 +225,7 @@ function testPrintData () {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -235,7 +236,7 @@ function testPrintData () {
 function testTableDrop () {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
 
-    table<Person> dt = {};
+    table<Person> dt = table{};
     _ = dt.add(p1);
 }
 
@@ -245,7 +246,7 @@ function testTableWithAllDataToJson () returns (json) {
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
     TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
 
-    table<TypeTest> dt1 = {};
+    table<TypeTest> dt1 = table{};
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
@@ -259,7 +260,7 @@ function testTableWithAllDataToXml () returns (xml) {
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
     TypeTest t2 = {id:2, jsonData:j1, xmlData:x1};
 
-    table<TypeTest> dt1 = {};
+    table<TypeTest> dt1 = table{};
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
@@ -273,7 +274,7 @@ function testTableWithAllDataToStruct () returns (json, xml) {
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
 
-    table<TypeTest> dt1 = {};
+    table<TypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
     json jData;
@@ -291,7 +292,7 @@ function testTableWithBlobDataToJson () returns (json) {
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
 
-    table<BlobTypeTest> dt1 = {};
+    table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
     var j =? <json>dt1;
@@ -303,7 +304,7 @@ function testTableWithBlobDataToXml () returns (xml) {
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
 
-    table<BlobTypeTest> dt1 = {};
+    table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
     var x =? <xml>dt1;
@@ -315,8 +316,9 @@ function testTableWithBlobDataToStruct () returns (blob) {
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
 
-    table<BlobTypeTest> dt1 = {};
+    table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
+
     blob bData;
     while (dt1.hasNext()) {
         var x =? <BlobTypeTest>dt1.getNext();
@@ -328,7 +330,7 @@ function testTableWithBlobDataToStruct () returns (blob) {
 function testTableWithAnyDataToJson () returns (json) {
     AnyTypeTest t1 = {id:1, anyData:"Sample Text"};
 
-    table<AnyTypeTest> dt1 = {};
+    table<AnyTypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
     var j =? <json>dt1;
@@ -337,7 +339,8 @@ function testTableWithAnyDataToJson () returns (json) {
 
 function testStructWithDefaultDataToJson () returns (json) {
     Person p1 = {id:1};
-    table<Person> dt1 = {};
+
+    table<Person> dt1 = table{};
     _ = dt1.add(p1);
 
     var j =? <json>dt1;
@@ -346,7 +349,8 @@ function testStructWithDefaultDataToJson () returns (json) {
 
 function testStructWithDefaultDataToXml () returns (xml) {
     Person p1 = {id:1};
-    table<Person> dt1 = {};
+
+    table<Person> dt1 = table{};
     _ = dt1.add(p1);
 
     var x =? <xml>dt1;
@@ -356,7 +360,8 @@ function testStructWithDefaultDataToXml () returns (xml) {
 
 function testStructWithDefaultDataToStruct () returns (int, float, string, boolean) {
     Person p1 = {id:1};
-    table<Person> dt1 = {};
+
+    table<Person> dt1 = table{};
     _ = dt1.add(p1);
 
     int iData;
@@ -389,7 +394,7 @@ function testTableWithArrayDataToJson () returns (json) {
     ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
                           booleanArrData:boolArray2};
 
-    table<ArraTypeTest> dt1 = {};
+    table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
@@ -412,7 +417,7 @@ function testTableWithArrayDataToXml () returns (xml) {
     ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
                           booleanArrData:boolArray2};
 
-    table<ArraTypeTest> dt1 = {};
+    table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
@@ -428,7 +433,7 @@ function testTableWithArrayDataToStruct () returns (int[], float[], string[], bo
     ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
                           booleanArrData:boolArray};
 
-    table<ArraTypeTest> dt1 = {};
+    table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
     int[] intArr;
@@ -451,7 +456,7 @@ function testTableRemoveSuccess () returns (int, json) {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -466,7 +471,7 @@ function testTableRemoveSuccessMultipleMatch () returns (int, json) {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -481,7 +486,8 @@ function testTableRemoveFailed () returns (int, json) {
     Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -496,7 +502,8 @@ function testTableAddAndAccess () returns (string, string) {
     Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = {};
+
+    table<Person> dt = table{};
     _ = dt.add(p1);
     _ = dt.add(p2);
 

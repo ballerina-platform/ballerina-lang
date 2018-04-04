@@ -42,7 +42,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "data.sql",
+        orgName = "ballerina", packageName = "sql",
         functionName = "call",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
         args = {
@@ -53,7 +53,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.data.sql")
+                            structPackage = "ballerina.sql")
         }
 )
 public class Call extends AbstractSQLAction {

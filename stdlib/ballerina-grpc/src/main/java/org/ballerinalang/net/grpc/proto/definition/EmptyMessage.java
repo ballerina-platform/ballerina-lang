@@ -33,8 +33,7 @@ public class EmptyMessage extends Message {
 
     private EmptyMessage(Descriptors.Descriptor descriptor) {
         this.descriptor = descriptor;
-        this.messageName = descriptor.getName();
-        this.messageType = descriptor.getFullName();
+        this.messageName = descriptor.getFullName();
     }
 
     @Override
@@ -45,7 +44,7 @@ public class EmptyMessage extends Message {
         return null;
     }
 
-    public static EmptyMessage.Builder newBuilder() throws GrpcServerException {
+    public static EmptyMessage.Builder newBuilder() {
         return new EmptyMessage.Builder();
     }
 
@@ -59,10 +58,6 @@ public class EmptyMessage extends Message {
         return "google/protobuf/empty.proto";
     }
 
-    private EmptyMessage(String messageName) {
-        this.messageName = messageName;
-    }
-
     /**
      * MessageDefinition.Builder
      */
@@ -73,8 +68,7 @@ public class EmptyMessage extends Message {
             return new EmptyMessage(descriptor);
         }
 
-        private Builder() throws GrpcServerException {
-        }
+        private Builder() { }
 
         public Descriptors.Descriptor getDescriptor() throws GrpcServerException {
             List<Descriptors.Descriptor> descriptors = com.google.protobuf.EmptyProto.getDescriptor()

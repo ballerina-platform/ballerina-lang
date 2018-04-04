@@ -18,7 +18,6 @@
 package org.ballerinalang.util;
 
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BRefType;
@@ -43,9 +42,11 @@ public class TableProvider {
 
     private static TableProvider tableProvider = null;
     private int tableID;
+    private int indexID;
 
     private TableProvider() {
         tableID = 0;
+        indexID = 0;
     }
 
     public static TableProvider getInstance() {
@@ -64,11 +65,20 @@ public class TableProvider {
         return this.tableID++;
     }
 
-    public String createTable(BType constrainedType) {
-        String tableName = TableConstants.TABLE_PREFIX + ((BTableType) constrainedType).getConstrainedType().getName()
+    private synchronized int getIndexID() {
+        return this.indexID++;
+    }
+
+    public String createTable(BType constrainedType, BStringArray primaryKeys, BStringArray indexeColumns) {
+        String tableName = TableConstants.TABLE_PREFIX + (constrainedType).getName()
                 .toUpperCase() + "_" + getTableID();
-        String sqlStmt = generateCreateTableStatment(tableName, constrainedType);
+        String sqlStmt = generateCreateTableStatment(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);
+
+        //Add Index Data
+        if (indexeColumns != null) {
+            generateIndexesForTable(tableName, indexeColumns);
+        }
         return tableName;
     }
 
@@ -135,11 +145,10 @@ public class TableProvider {
         return conn;
     }
 
-    private String generateCreateTableStatment(String tableName, BType constrainedType) {
+    private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
-        BStructType.StructField[] structFields = ((BStructType) ((BTableType) constrainedType).getConstrainedType())
-                .getStructFields();
+        BStructType.StructField[] structFields = ((BStructType) constrainedType).getStructFields();
         String seperator = "";
         for (BStructType.StructField sf : structFields) {
             int type = sf.getFieldType().getTag();
@@ -173,6 +182,19 @@ public class TableProvider {
             }
             seperator = ",";
         }
+        //Add primary key information
+        if (primaryKeys != null) {
+            seperator = "";
+            int primaryKeyCount = (int) primaryKeys.size();
+            if (primaryKeyCount > 0) {
+                sb.append(TableConstants.PRIMARY_KEY);
+                for (int i = 0; i < primaryKeyCount; i++) {
+                    sb.append(seperator).append(primaryKeys.get(i));
+                    seperator = ",";
+                }
+                sb.append(")");
+            }
+        }
         sb.append(")");
         return sb.toString();
     }
@@ -182,6 +204,49 @@ public class TableProvider {
         sb.append(TableConstants.SQL_CREATE).append(newTableName).append(" ").append(TableConstants.SQL_AS);
         sb.append(query);
         return sb.toString();
+    }
+
+    private void generateIndexesForTable(String tableName, BStringArray indexColumns) {
+        int indexCount = (int) indexColumns.size();
+        if (indexCount > 0) {
+            for (int i = 0; i < indexCount; i++) {
+                StringBuilder sb = new StringBuilder();
+                String columnName = indexColumns.get(i);
+                sb.append(TableConstants.SQL_CREATE_INDEX).append(TableConstants.INDEX).append(columnName)
+                        .append(getIndexID()).append(TableConstants.SQL_ON).append(tableName).append("(")
+                        .append(columnName).append(")");
+                executeStatement(sb.toString());
+            }
+        }
+    }
+
+    private String generateInsertDataStatment(String tableName, BStruct constrainedType) {
+        StringBuilder sbSql = new StringBuilder();
+        StringBuilder sbValues = new StringBuilder();
+        sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
+        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+        String sep = "";
+        for (BStructType.StructField sf : structFields) {
+            String name = sf.getFieldName();
+            sbSql.append(sep).append(name).append(" ");
+            sbValues.append(sep).append("?");
+            sep = ",";
+        }
+        sbSql.append(") values (").append(sbValues).append(")");
+        return sbSql.toString();
+    }
+
+    private String generateDeteleDataStatment(String tableName, BStruct constrainedType) {
+        StringBuilder sbSql = new StringBuilder();
+        sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
+        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+        String sep = "";
+        for (BStructType.StructField sf : structFields) {
+            String name = sf.getFieldName();
+            sbSql.append(sep).append(name).append(" = ? ");
+            sep = TableConstants.SQL_AND;
+        }
+        return sbSql.toString();
     }
 
     private void executeStatement(String queryStatement) {
