@@ -165,6 +165,12 @@ public class Message extends GeneratedMessageV3 {
                             this.fields.put(name, value);
                             break;
                         }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
+                            Message message = input.readMessage(new MessageParser(fieldDescriptor.getMessageType()
+                                            .getName()), extensionRegistry);
+                            this.fields.put(name, message);
+                            break;
+                        }
                         default: {
                             throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
                                     "type is not supported : " + fieldDescriptor.getType());
