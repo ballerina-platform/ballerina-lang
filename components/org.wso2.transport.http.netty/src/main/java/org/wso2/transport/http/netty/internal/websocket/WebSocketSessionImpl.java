@@ -57,9 +57,8 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     }
 
     @Override
-    public RemoteEndpoint.Basic getBasicRemote() {
-        RemoteEndpoint.Basic basicRemoteEndpoint = new WebSocketBasicRemoteEndpoint(ctx);
-        return basicRemoteEndpoint;
+    public RemoteEndpoint.Async getAsyncRemote() {
+        return new WebSocketAsyncRemoteEndpoint(ctx);
     }
 
     @Override

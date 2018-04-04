@@ -64,6 +64,8 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
         executor.execute(() -> {
             httpRequestMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
             httpRequestMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
+            httpRequestMessage
+                    .setProperty(Constants.SRC_HANDLER, httpRequestMessage.getProperty(Constants.SRC_HANDLER));
             try {
                 clientConnector =
                         httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);

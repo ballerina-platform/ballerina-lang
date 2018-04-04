@@ -64,7 +64,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketTextMessage textMessage) {
         if (PING.equals(textMessage.getText())) {
             try {
-                textMessage.getChannelSession().getBasicRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+                textMessage.getChannelSession().getAsyncRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
             } catch (IOException e) {
                 errorsQueue.add(e);
             }

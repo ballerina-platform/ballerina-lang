@@ -108,6 +108,7 @@ public class SenderConfiguration {
     private int cacheValidityPeriod = 15;
     private boolean hostNameVerificationEnabled = true;
     private ForwardedExtensionConfig forwardedExtensionConfig;
+    private boolean ocspStaplingEnabled = false;
 
     public SenderConfiguration() {
         this.poolConfiguration = new PoolConfiguration();
@@ -323,6 +324,14 @@ public class SenderConfiguration {
 
     public int getCacheValidityPeriod() {
         return cacheValidityPeriod;
+    }
+
+    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
+    }
+
+    public boolean isOcspStaplingEnabled() {
+        return ocspStaplingEnabled;
     }
 
     public PoolConfiguration getPoolConfiguration() {

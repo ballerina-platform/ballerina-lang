@@ -76,6 +76,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static org.testng.AssertJUnit.fail;
 
 /**
@@ -171,6 +173,23 @@ public class TestUtil {
             throws IOException {
         URL url = baseURI.resolve(path).toURL();
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+        if (method.equals(HttpMethod.POST.name()) || method.equals(HttpMethod.PUT.name())) {
+            urlConn.setDoOutput(true);
+        }
+        urlConn.setRequestMethod(method);
+        if (keepAlive) {
+            urlConn.setRequestProperty("Connection", "Keep-Alive");
+        } else {
+            urlConn.setRequestProperty("Connection", "Close");
+        }
+
+        return urlConn;
+    }
+
+    public static HttpsURLConnection httpsRequest(URI baseURI, String path, String method, boolean keepAlive)
+            throws IOException {
+        URL url = baseURI.resolve(path).toURL();
+        HttpsURLConnection urlConn = (HttpsURLConnection) url.openConnection();
         if (method.equals(HttpMethod.POST.name()) || method.equals(HttpMethod.PUT.name())) {
             urlConn.setDoOutput(true);
         }
