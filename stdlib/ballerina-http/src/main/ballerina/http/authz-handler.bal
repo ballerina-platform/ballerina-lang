@@ -23,7 +23,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 @Description {value:"Authorization cache name"}
-const string AUTHZ_CACHE = "authz_cache";
+@final string AUTHZ_CACHE = "authz_cache";
 
 permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
 permissionstore:PermissionStore permissionStore =? <permissionstore:PermissionStore> fileBasedPermissionstore;

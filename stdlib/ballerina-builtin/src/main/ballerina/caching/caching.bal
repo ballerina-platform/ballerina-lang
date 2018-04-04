@@ -21,9 +21,9 @@ import ballerina/time;
 import ballerina/util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
-const int CACHE_CLEANUP_START_DELAY = 0;
+@final int CACHE_CLEANUP_START_DELAY = 0;
 @Description {value:"Cache cleanup task invoking interval in ms."}
-const int CACHE_CLEANUP_INTERVAL = 5000;
+@final int CACHE_CLEANUP_INTERVAL = 5000;
 
 @Description {value:"Map which stores all of the caches."}
 map cacheMap = {};

@@ -17,9 +17,9 @@
 package ballerina.transactions;
 import ballerina/io;
 
-const string PROTOCOL_COMPLETION = "completion";
-const string PROTOCOL_VOLATILE = "volatile";
-const string PROTOCOL_DURABLE = "durable";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
 enum Protocols {
     COMPLETION, DURABLE, VOLATILE
@@ -29,20 +29,20 @@ public enum TransactionState {
     ACTIVE, PREPARED, COMMITTED, ABORTED
 }
 
-const string TRANSACTION_CONTEXT_VERSION = "1.0";
+@final string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-public const string COMMAND_PREPARE = "prepare";
-public const string COMMAND_COMMIT = "commit";
-public const string COMMAND_ABORT = "abort";
+@final public string COMMAND_PREPARE = "prepare";
+@final public string COMMAND_COMMIT = "commit";
+@final public string COMMAND_ABORT = "abort";
 
-public const string OUTCOME_PREPARED = "prepared";
-public const string OUTCOME_NOT_PREPARED = "Not-Prepared";
-public const string OUTCOME_MIXED = "mixed";
-public const string OUTCOME_ABORTED = "aborted";
-public const string OUTCOME_COMMITTED = "committed";
-public const string OUTCOME_HAZARD = "Hazard-Outcome";
-public const string OUTCOME_FAILED_EOT = "Failed-EOT";
-public const string OUTCOME_READ_ONLY = "read-only";
+@final public string OUTCOME_PREPARED = "prepared";
+@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
+@final public string OUTCOME_MIXED = "mixed";
+@final public string OUTCOME_ABORTED = "aborted";
+@final public string OUTCOME_COMMITTED = "committed";
+@final public string OUTCOME_HAZARD = "Hazard-Outcome";
+@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
+@final public string OUTCOME_READ_ONLY = "read-only";
 
 public type TransactionContext {
     string contextVersion = "1.0";
