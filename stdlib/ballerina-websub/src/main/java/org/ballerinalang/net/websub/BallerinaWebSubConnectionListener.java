@@ -36,11 +36,12 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.net.uri.URIUtil;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -89,18 +90,21 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         }
     }
 
+
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
-        BValue[] httpSignatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
-        // invoke the request path filters
-        invokeRequestFilters(httpCarbonMessage, httpSignatureParams[1], getRequestFilterContext(httpResource));
+        BValue subscriberServiceEndpoint = getSubscriberServiceEndpoint(httpResource, httpCarbonMessage);
+        BValue httpRequest = getHttpRequest(httpResource, httpCarbonMessage);
+
+        // invoke request path filters
+        invokeRequestFilters(httpCarbonMessage, httpRequest, getRequestFilterContext(httpResource));
 
         Resource balResource = httpResource.getBalResource();
         List<ParamDetail> paramDetails = balResource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         String resourceName = httpResource.getName();
         if (WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
-            signatureParams[0] = httpSignatureParams[0];
+            signatureParams[0] = subscriberServiceEndpoint;
             BStruct intentVerificationRequestStruct = createIntentVerificationRequestStruct(balResource);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
@@ -120,7 +124,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                                                          + e.getMessage());
                 }
             }
-            intentVerificationRequestStruct.setRefField(0, (BRefType) httpSignatureParams[1]);
+            intentVerificationRequestStruct.setRefField(0, (BRefType) httpRequest);
             signatureParams[1] = intentVerificationRequestStruct;
         } else { //Notification Resource
             HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
@@ -129,7 +133,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             response.addHttpContent(new DefaultLastHttpContent());
             HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
             BStruct notificationRequestStruct = createNotificationRequestStruct(balResource);
-            BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpSignatureParams[1]);
+            BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpRequest);
             if (entityStruct != null) {
                 if (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
                     BJSON jsonBody = (BJSON) (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
@@ -138,7 +142,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     console.println("ballerina: Non-JSON payload received as WebSub Notification");
                 }
             }
-            notificationRequestStruct.setRefField(1, (BRefType) httpSignatureParams[1]);
+            notificationRequestStruct.setRefField(1, (BRefType) httpRequest);
             signatureParams[0] = notificationRequestStruct;
         }
 
@@ -147,17 +151,91 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         Executor.submit(balResource, callback, null, null, signatureParams);
     }
 
+    /**
+     * Method to retrieve the struct representing the WebSub subscriber service endpoint.
+     *
+     * @param httpResource      the resource of the service receiving the request
+     * @param httpCarbonMessage the HTTP message representing the request received
+     * @return the struct representing the subscriber service endpoint
+     */
+    private BStruct getSubscriberServiceEndpoint(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
+        BStruct subscriberServiceEndpoint = createSubscriberServiceEndpointStruct(httpResource.getBalResource());
+        BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
+
+        BStruct connection = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
+
+        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource);
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
+        serviceEndpoint.setRefField(HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
+
+        subscriberServiceEndpoint.setRefField(1, serviceEndpoint);
+        return subscriberServiceEndpoint;
+    }
+
+    /**
+     * Method to retrieve the struct representing the HTTP request received.
+     *
+     * @param httpResource      the resource receiving the request
+     * @param httpCarbonMessage the HTTP message representing the request received
+     * @return the struct representing the HTTP request received
+     */
+    private BStruct getHttpRequest(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
+        BStruct httpRequest = createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
+
+        BStruct inRequestEntity = createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
+
+        BStruct mediaType = createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
+
+        BStruct cacheControlStruct = createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST_CACHE_CONTROL);
+        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+
+        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
+                                        requestCacheControl);
+        return httpRequest;
+    }
+
+    /**
+     * Method to create the struct representing the WebSub subscriber service endpoint.
+     */
+    private BStruct createSubscriberServiceEndpointStruct(Resource resource) {
+        return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                                                    WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                                                    WebSubSubscriberConstants.SERVICE_ENDPOINT);
+    }
+
+    /**
+     * Method to create the intent verification request struct representing a subscription/unsubscription intent
+     * verification request received.
+     */
     private BStruct createIntentVerificationRequestStruct(Resource resource) {
-        return BLangConnectorSPIUtil.createBStruct(
-                resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+        return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                                                    WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
                                                    WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
+
+    /**
+     * Method to create the notification request struct representing WebSub notifications received.
+     */
     private BStruct createNotificationRequestStruct(Resource resource) {
-        return BLangConnectorSPIUtil.createBStruct(
-                resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
-                WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+        return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                                                    WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                                                    WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+    }
+
+    private BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {
+        return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
     }
 
     /**

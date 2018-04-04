@@ -33,7 +33,6 @@ class WebSubHttpResource extends HttpResource {
         }
 
         httpResource.setPath("/");
-        httpResource.prepareSignatureParams();
         return httpResource;
     }
 

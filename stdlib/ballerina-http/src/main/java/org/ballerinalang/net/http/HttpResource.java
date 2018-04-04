@@ -245,15 +245,8 @@ public class HttpResource {
     }
 
     private void prepareAndValidateSignatureParams() {
-        prepareSignatureParams();
-        validateSignatureParams();
-    }
-
-    protected void prepareSignatureParams() {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
-    }
-
-    private void validateSignatureParams() {
         signatureParams.validate();
     }
+
 }
