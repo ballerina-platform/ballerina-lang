@@ -23,21 +23,20 @@ service<http:WebSocketService> ChatApp bind ep {
             conn.attributes[AGE] = age;
             msg = string `{{untaint name}} with age {{age}} connected to chat`;
         }
-
+        io:println(msg);
     }
     onOpen (endpoint conn) {
-        io:println(msg);
         consMap[conn.id] = conn;
         broadcast(consMap, msg);
     }
 
-    onTextMessage (endpoint conn, http:TextFrame frame) {
-        msg = untaint string `{{untaint <string>conn.attributes[NAME]}}: {{frame.text}}`;
+    onText (endpoint conn, string text) {
+        msg = untaint string `{{untaint <string>conn.attributes[NAME]}}: {{text}}`;
         io:println(msg);
         broadcast(consMap, msg);
     }
 
-    onClose (endpoint conn, http:CloseFrame frame) {
+    onClose (endpoint conn, int statusCode, string reason) {
         msg = string `{{untaint <string>conn.attributes[NAME]}} left the chat`;
         _ = consMap.remove(conn.id);
         broadcast(consMap, msg);
