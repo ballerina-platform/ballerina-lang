@@ -675,40 +675,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startEnumDef(getCurrentPos(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean publicEnum = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.endEnumDef(ctx.Identifier().getText(), publicEnum);
-    }
-
-    @Override
-    public void exitEnumerator(BallerinaParser.EnumeratorContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addEnumerator(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -727,18 +693,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         this.pkgBuilder.addAttachPoint(
                 BLangAnnotationAttachmentPoint.AttachmentPoint.getAttachmentPoint(ctx.getText()));
-    }
-
-    @Override
-    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
-        boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.addConstVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), publicVar, safeAssignment);
     }
 
     @Override

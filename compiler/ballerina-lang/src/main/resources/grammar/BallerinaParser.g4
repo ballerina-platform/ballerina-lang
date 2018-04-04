@@ -40,8 +40,6 @@ definition
     |   functionDefinition
     |   structDefinition
     |   typeDefinition
-    |   enumDefinition
-    |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
@@ -164,14 +162,6 @@ annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
-enumDefinition
-    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumerator (COMMA enumerator)* RIGHT_BRACE
-    ;
-
-enumerator
-    : Identifier
-    ;
-
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
@@ -181,16 +171,10 @@ attachmentPoint
      | RESOURCE
      | FUNCTION
      | STRUCT
-     | ENUM
      | ENDPOINT
-     | CONST
      | PARAMETER
      | ANNOTATION
      ;
-
-constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
-    ;
 
 workerDeclaration
     :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
