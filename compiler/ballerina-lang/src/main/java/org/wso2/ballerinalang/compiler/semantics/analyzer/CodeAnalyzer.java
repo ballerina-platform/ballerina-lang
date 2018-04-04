@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -75,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -97,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -349,6 +352,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.lastStatement = true;
     }
+    
+    @Override
+    public void visit(BLangDone doneNode) {
+        this.lastStatement = true;
+    }
 
     @Override
     public void visit(BLangFail failNode) {
@@ -589,6 +597,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangRecord record) {
+        /* ignore */
+    }
+
     public void visit(BLangEnum enumNode) {
         /* ignore */
     }
@@ -781,6 +793,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeExpr(kv.valueExpr);
         });
         checkAccess(recordLiteral);
+    }
+
+    public void visit(BLangTableLiteral tableLiteral) {
+        /* ignore */
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {

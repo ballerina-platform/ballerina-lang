@@ -95,7 +95,6 @@ public class BTestRunner {
      *
      * @param sourceRoot      source root of the project
      * @param sourceFilePaths package or program file paths
-     * @return
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
         //Build the test suites

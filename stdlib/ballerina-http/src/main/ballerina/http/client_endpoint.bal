@@ -143,10 +143,18 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
                     }
                 }   
                 if (httpClientRequired) {
-                    if (config.cacheConfig.enabled) {
-                        ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
-                    } else{
-                        ep.httpClient = createHttpClient(uri, config);
+                    var retryConfig = config.retry;
+                    match retryConfig {
+                        Retry retry => {
+                            ep.httpClient = createRetryClient(uri, config);
+                        }
+                        int | null => {
+                            if (config.cacheConfig.enabled) {
+                                ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
+                            } else{
+                                ep.httpClient = createHttpClient(uri, config);
+                            }
+                        }
                     }
                 } else {
                     ep.httpClient = createCircuitBreakerClient(uri, config);                    
@@ -181,9 +189,13 @@ public native function createHttpClient(string uri, ClientEndpointConfiguration 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
 @Field {value:"interval: Retry interval in milliseconds"}
+@Field {value:"backOffFactor: Multiplier of the retry interval to exponentailly increase retry interval"}
+@Field {value:"maxWaitInterval: Maximum time of the retry interval in milliseconds"}
 public struct Retry {
     int count;
     int interval;
+    float backOffFactor;
+    int maxWaitInterval;
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
@@ -192,8 +204,9 @@ public struct Retry {
 @Field {value: "protocols: SSL/TLS protocol related options"}
 @Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-@Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
+@Field {value:"hostNameVerification: Enable/disable host name verification"}
+@Field {value:"sessionCreation: Enable/disable new ssl session creation"}
+@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public struct SecureSocket {
     TrustStore|null trustStore;
     KeyStore|null keyStore;
@@ -202,6 +215,7 @@ public struct SecureSocket {
     string ciphers;
     boolean hostNameVerification;
     boolean sessionCreation;
+    boolean ocspStapling;
 }
 
 @Description {value:"Initializes the SecureSocket struct with default values."}
@@ -259,12 +273,19 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-
             HttpClient cbHttpClient = {};
-            if (configuration.cacheConfig.enabled) {
-                cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
-            } else{
-                cbHttpClient = createHttpClient(uri, configuration);
+            var retryConfig = configuration.retry;
+            match retryConfig {
+                Retry retry => {
+                    cbHttpClient = createRetryClient(uri, configuration);
+                }
+                int | null => {
+                    if (configuration.cacheConfig.enabled) {
+                        cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                    } else{
+                        cbHttpClient = createHttpClient(uri, configuration);
+                    }
+                }
             }
 
             time:Time circuitStartTime = time:currentTime();
@@ -331,4 +352,34 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                 failoverInferredConfig:failoverInferredConfig};
         HttpClient foClient = failover;
         return foClient;
+}
+
+function createRetryClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+    var retryConfig = configuration.retry;
+    match retryConfig {
+        Retry retry => {
+            HttpClient retryHttpClient = {};
+            if (configuration.cacheConfig.enabled) {
+                retryHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else{
+                retryHttpClient = createHttpClient(uri, configuration);
+            }
+            RetryClient retryClient = {
+                serviceUri:uri,
+                config:configuration,
+                retry: retry,
+                httpClient: retryHttpClient
+            };
+            HttpClient httpClient =  retryClient;
+            return httpClient;
+        }
+        int | null => {
+            //remove following once we can ignore
+            if (configuration.cacheConfig.enabled) {
+                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            } else {
+                return createHttpClient(uri, configuration);
+            }
+        }
+    }
 }
