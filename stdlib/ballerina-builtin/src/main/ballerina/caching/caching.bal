@@ -21,12 +21,12 @@ import ballerina/time;
 import ballerina/util;
 
 @Description {value:"Cache cleanup task starting delay in ms."}
-const int CACHE_CLEANUP_START_DELAY = 0;
+@final int CACHE_CLEANUP_START_DELAY = 0;
 @Description {value:"Cache cleanup task invoking interval in ms."}
-const int CACHE_CLEANUP_INTERVAL = 5000;
+@final int CACHE_CLEANUP_INTERVAL = 5000;
 
 @Description {value:"Map which stores all of the caches."}
-map cacheMap = {};
+map cacheMap;
 
 @Description {value:"Cleanup task ID."}
 string cacheCleanupTaskID = createCacheCleanupTask();
@@ -37,20 +37,110 @@ string cacheCleanupTaskID = createCacheCleanupTask();
 @Field {value:"capacity: capacity of the cache"}
 @Field {value:"evictionFactor: eviction factor to be used for cache eviction"}
 @Field {value:"entries: map which contains the cache entries"}
-public struct Cache {
-    string name;
-    int expiryTimeMillis;
-    int capacity;
-    float evictionFactor;
-    map entries;
+public type Cache object {
+    public {
+        string name;
+        int expiryTimeMillis;
+        int capacity;
+        float evictionFactor;
+        map entries;
+    }
+
+    new(name, expiryTimeMillis, capacity, evictionFactor, entries) {}
+
+    public function hasKey (string key) returns (boolean) {
+        return self.entries.hasKey(key);
+    }
+
+    @Description {value:"Returns the size of the cache."}
+    @Return {value:"int: The size of the cache"}
+    public function size () returns (int) {
+        return lengthof self.entries;
+    }
+
+    @Description {value:"Adds the given key, value pair to the provided cache."}
+    @Param {value:"key: value which should be used as the key"}
+    @Param {value:"value: value to be cached"}
+    public function put (string key, any value) {
+        int cacheCapacity = self.capacity;
+        int cacheSize = lengthof self.entries;
+        // if the current cache is full,
+        if (cacheCapacity <= cacheSize) {
+            self.evictCache();
+        }
+        // Add the new entry.
+        int time = time:currentTime().time;
+        CacheEntry entry = {value:value, lastAccessedTime:time};
+        self.entries[key] = entry;
+    }
+
+    @Description {value:"Evicts the cache when cache is full."}
+    function evictCache () {
+        int maxCapacity = self.capacity;
+        float evictionFactor = self.evictionFactor;
+        int numberOfKeysToEvict = <int>(maxCapacity * evictionFactor);
+        // Get the above number of least recently used cache entry keys from the cache
+        string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
+        // Iterate through the map and remove entries.
+        foreach c in cacheKeys {
+            _ = self.entries.remove(c);
+        }
+    }
+
+    @Description {value:"Returns the cached value associated with the given key. If the provided cache key is not found,
+    an error will be thrown. So use the hasKey function to check for the existance of a particular key."}
+    @Param {value:"key: key which is used to retrieve the cached value"}
+    @Return {value:"The cached value associated with the given key"}
+    public function get (string key) returns (any) {
+        // If the key is not found, an error will be thrown from here.
+        any value = self.entries[key];
+        // So the value will be always not null here.
+        var entry = <CacheEntry>value;
+        match (entry) {
+            CacheEntry ce => {
+                ce.lastAccessedTime = time:currentTime().time;
+                return ce.value;
+            }
+            error e => throw e;
+        }
+    }
+
+    @Description {value:"Removes a cached value from a cache."}
+    @Param {value:"key: key of the cache entry which needs to be removed"}
+    public function remove (string key) {
+        _ = self.entries.remove(key);
+    }
+
+    @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
+    @Return {value:"numberOfKeysToEvict - number of keys to be evicted"}
+    function getLRUCacheKeys (int numberOfKeysToEvict) returns (string[]) {
+        // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
+        string[] cacheKeysToBeRemoved = [];
+        int[] timestamps = [];
+        map entries = self.entries;
+        string[] keys = entries.keys();
+        // Iterate through each key.
+        foreach key in keys {
+            var entry = <CacheEntry>entries[key];
+            match (entry) {
+                CacheEntry ce => checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, ce.lastAccessedTime);
+                error => next;
+            }
+            // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
+        }
+        // Return the array.
+        return cacheKeysToBeRemoved;
+    }
 }
 
 @Description {value:"Represents a cache entry"}
 @Field {value:"value: cache value"}
 @Field {value:"lastAccessedTime: last accessed time in ms of this value which is used to remove LRU cached values"}
-struct CacheEntry {
-    any value;
-    int lastAccessedTime;
+type CacheEntry object {
+    public {
+        any value;
+        int lastAccessedTime;
+    }
 }
 
 @Description {value:"Creates a new cache."}
@@ -77,74 +167,12 @@ public function createCache (string name, int expiryTimeMillis, int capacity, fl
     }
 
     // Create a new cache.
-    Cache cache = {name:name, expiryTimeMillis:expiryTimeMillis, capacity:capacity, evictionFactor:evictionFactor, entries:{}};
-    // Add the new cache to the map.
+    map entries;
+    Cache cache = new(name, expiryTimeMillis, capacity, evictionFactor, entries);
+    // Add the new cache to the map.entries
     cacheMap[util:uuid()] = cache;
     // Return the new cache.
     return cache;
-}
-
-public function <Cache cache> hasKey (string key) returns (boolean) {
-    return cache.entries.hasKey(key);
-}
-
-@Description {value:"Returns the size of the cache."}
-@Return {value:"int: The size of the cache"}
-public function <Cache cache> size () returns (int) {
-    return lengthof cache.entries;
-}
-
-@Description {value:"Adds the given key, value pair to the provided cache."}
-@Param {value:"key: value which should be used as the key"}
-@Param {value:"value: value to be cached"}
-public function <Cache cache> put (string key, any value) {
-    int cacheCapacity = cache.capacity;
-    int cacheSize = lengthof cache.entries;
-    // if the current cache is full,
-    if (cacheCapacity <= cacheSize) {
-        cache.evictCache();
-    }
-    // Add the new entry.
-    int time = time:currentTime().time;
-    CacheEntry entry = {value:value, lastAccessedTime:time};
-    cache.entries[key] = entry;
-}
-
-@Description {value:"Evicts the cache when cache is full."}
-function <Cache cache> evictCache () {
-    int maxCapacity = cache.capacity;
-    float evictionFactor = cache.evictionFactor;
-    int numberOfKeysToEvict = <int>(maxCapacity * evictionFactor);
-    // Get the above number of least recently used cache entry keys from the cache.
-    string[] cacheKeys = cache.getLRUCacheKeys(numberOfKeysToEvict);
-    // Iterate through the map and remove entries.
-    foreach c in cacheKeys {
-        _ = cache.entries.remove(c);
-    }
-}
-
-@Description {value:"Returns the cached value associated with the given key. If the provided cache key is not found,
-an error will be thrown. So use the hasKey function to check for the existance of a particular key."}
-@Param {value:"key: key which is used to retrieve the cached value"}
-@Return {value:"The cached value associated with the given key"}
-public function <Cache cache> get (string key) returns (any) {
-    // If the key is not found, an error will be thrown from here.
-    any value = cache.entries[key];
-    // So the value will be always not null here.
-    var entry = <CacheEntry>value;
-    match (entry) {
-        CacheEntry ce => {
-            ce.lastAccessedTime = time:currentTime().time;
-            return ce.value;
-        }
-        error e => throw e;
-    }
-}
-
-@Description {value:"Removes a cached value from a cache."}
-@Param {value:"key: key of the cache entry which needs to be removed"}
-public function <Cache cache> remove (string key) {
-    _ = cache.entries.remove(key);
 }
 
 @Description {value:"Removes expired cache entries from all caches."}
@@ -195,27 +223,6 @@ function runCacheExpiry () returns (error|null) {
         }
     }
     return null;
-}
-
-@Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
-@Return {value:"numberOfKeysToEvict - number of keys to be evicted"}
-function <Cache cache> getLRUCacheKeys (int numberOfKeysToEvict) returns (string[]) {
-    // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
-    string[] cacheKeysToBeRemoved = [];
-    int[] timestamps = [];
-    map entries = cache.entries;
-    string[] keys = entries.keys();
-    // Iterate through each key.
-    foreach key in keys {
-        var entry = <CacheEntry>entries[key];
-        match (entry) {
-            CacheEntry ce => checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, ce.lastAccessedTime);
-            error => next;
-        }
-        // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
-    }
-    // Return the array.
-    return cacheKeysToBeRemoved;
 }
 
 function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
