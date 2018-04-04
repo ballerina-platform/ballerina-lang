@@ -363,7 +363,6 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         if (expr.opKind == OperatorKind.EQUAL) {
             //remove the string expression created by the base class as siddhi represents "equal" in a different way.
             exprStack.pop();
-
             String op = " == ";
             if (expr.rhsExpr instanceof BLangLiteral) {
                 BLangLiteral literal = (BLangLiteral) expr.rhsExpr;
@@ -377,6 +376,20 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             String lhsExpr = exprStack.pop();
             String sqlExpr = lhsExpr + op + rhsExpr;
             exprStack.push(sqlExpr);
+
+        } else if (expr.opKind == OperatorKind.NOT_EQUAL) {
+            if (expr.rhsExpr instanceof BLangLiteral) {
+                BLangLiteral literal = (BLangLiteral) expr.rhsExpr;
+                if (literal.typeTag == TypeTags.NIL && literal.value == null) {
+                    exprStack.pop();
+                    expr.lhsExpr.accept(this);
+                    expr.rhsExpr.accept(this);
+                    String rhsExpr = exprStack.pop();
+                    String lhsExpr = exprStack.pop();
+                    String sqlExpr = " not(" + lhsExpr + " is " + rhsExpr + ")";
+                    exprStack.push(sqlExpr);
+                }
+            }
         }
     }
 
@@ -484,6 +497,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         addInRefs(streamRef);
 
         String alias = patternStreamingEdgeInput.getAliasIdentifier();
+
         patternStreamingClause.append(alias).append(" = ").append(patternStreamingEdgeInput.getStreamReference());
         WhereNode whereNode = patternStreamingEdgeInput.getWhereClause();
         if (whereNode != null) {

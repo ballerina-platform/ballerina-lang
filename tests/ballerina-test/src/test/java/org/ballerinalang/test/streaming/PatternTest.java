@@ -60,4 +60,14 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.getStringField(0), "stop");
     }
 
+    @Test(description = "Test pattern streaming query with And")
+    public void testPatternQuery3() {
+        BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery3");
+
+        Assert.assertNotNull(roomActions);
+
+        BStruct tempDifference = (BStruct) roomActions[0];
+        Assert.assertEquals(tempDifference.getStringField(0), "RoomClosedWithRegulatorOff");
+    }
+
 }

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -107,6 +108,18 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
                 break;
         }
         exprStack.push(sqlExpr.toString());
+    }
+
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        unaryExpr.expr.accept(this);
+        String expr = exprStack.pop();
+        switch (unaryExpr.operator) {
+            case NOT:
+                expr = "not(" + expr + ")";
+                break;
+        }
+        exprStack.push(expr);
     }
 
     @Override
