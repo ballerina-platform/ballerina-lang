@@ -352,7 +352,7 @@ class AbstractTreeUtil {
     }
 
     isEndpointType(node) {
-        return node.kind === 'EndpointType';
+        return node.kind === 'Endpoint';
     }
 
     isValueType(node) {

@@ -42,8 +42,9 @@ class Struct {
     constructor(args) {
         this._name = _.get(args, 'name', '');
         this._id = _.get(args, 'id', '');
-        this._fullPackageName = _.get(args, 'fullPackageName', '.');
+        this._fullPackageName = _.get(args, 'packageName', '.');
         this._fields = _.get(args, 'fields', []);
+        this._fields = _.get(args, 'functions', []);
     }
 
    /**
