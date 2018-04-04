@@ -29,7 +29,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Store all the WebSocket serviceEndpointsTemplate here.
@@ -37,7 +36,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
-    private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
     private URITemplate<WebSocketService, WebSocketMessage> uriTemplate;
 
     public WebSocketServicesRegistry() {

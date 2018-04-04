@@ -59,11 +59,6 @@ public function <CorsConfig config> CorsConfig() {
     config.maxAge = -1;
 }
 
-public struct WebSocketUpgradeConfig {
-    string upgradePath;
-    typedesc upgradeService;
-}
-
 
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value: "endpoints: An array of endpoints the service would be attached to"}
@@ -116,6 +111,11 @@ public struct HttpResourceConfig {
     CorsConfig cors;
     boolean transactionInfectable;
     WebSocketUpgradeConfig|null webSocketUpgrade;
+}
+
+public struct WebSocketUpgradeConfig {
+    string upgradePath;
+    typedesc upgradeService;
 }
 
 public function <HttpResourceConfig config> HttpResourceConfig() {

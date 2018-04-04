@@ -27,18 +27,18 @@ import org.ballerinalang.model.values.BStruct;
 public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
-    private final BStruct wsConnection;
+    private final BStruct webSocketEndpoint;
 
-    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct wsConnection) {
+    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct webSocketEndpoint) {
         this.webSocketService = webSocketService;
-        this.wsConnection = wsConnection;
+        this.webSocketEndpoint = webSocketEndpoint;
     }
 
     public WebSocketService getService() {
         return webSocketService;
     }
 
-    public BStruct getWsConnection() {
-        return wsConnection;
+    public BStruct getWebSocketEndpoint() {
+        return webSocketEndpoint;
     }
 }

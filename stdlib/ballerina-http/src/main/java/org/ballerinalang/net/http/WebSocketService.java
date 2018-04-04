@@ -71,7 +71,7 @@ public class WebSocketService implements Service {
             throw new BallerinaException("Cannot find a resource config for resource " + upgradeResource.getName());
         }
         Struct webSocketConfig =
-                resourceConfigAnnotation.getValue().getStructField(HttpService.WEBSOCKET_UPGRADE_FIELD);
+                resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
         String upgradePath = webSocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
         this.basePath = httpBasePath.concat(upgradePath);
         this.upgradeResource = upgradeResource;

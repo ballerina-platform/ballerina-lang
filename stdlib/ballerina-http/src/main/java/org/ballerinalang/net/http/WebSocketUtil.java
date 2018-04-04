@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.websocket.Session;
 
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
+
 
 /**
  * Utility class for websockets.
@@ -57,7 +60,7 @@ public abstract class WebSocketUtil {
         return new BMap<>();
     }
 
-    public static BStruct createAndGetBStruct(Resource resource) {
+    public static BStruct createWebSocketConnectorBStruct(Resource resource) {
         return BLangConnectorSPIUtil.createBStruct(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
                                                    WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
     }
@@ -84,24 +87,29 @@ public abstract class WebSocketUtil {
     }
 
     public static void handleHandshake(WebSocketService wsService,
-                                       HttpHeaders headers, BStruct wsConnection, Context context,
+                                       HttpHeaders headers, WebSocketInitMessage initMessage, Context context,
                                        CallableUnitCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
-        WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct serviceEndpoint = (BStruct) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_ENDPOINT);
-                populateEndpoint(session, serviceEndpoint);
-                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+                // TODO: Need to create new struct
+                BStruct webSocketEndpoint = BLangConnectorSPIUtil.createBStruct(
+                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                        PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
+                BStruct webSocketConnector = BLangConnectorSPIUtil.createBStruct(
+                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                        PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+
+                populateEndpoint(session, webSocketEndpoint);
+                webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
-                                                                                             serviceEndpoint);
+                                                                                             webSocketEndpoint);
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
                 if (context != null && callback != null) {
-                    context.setReturnValues(serviceEndpoint);
+                    context.setReturnValues(webSocketEndpoint);
                     callback.notifySuccess();
                 } else {
                     Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
@@ -109,7 +117,7 @@ public abstract class WebSocketUtil {
                         List<ParamDetail> paramDetails =
                                 onOpenResource.getParamDetails();
                         BValue[] bValues = new BValue[paramDetails.size()];
-                        bValues[0] = serviceEndpoint;
+                        bValues[0] = webSocketEndpoint;
                         //TODO handle BallerinaConnectorException
                         Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
                     }
@@ -133,11 +141,11 @@ public abstract class WebSocketUtil {
         });
     }
 
-    public static void populateEndpoint(Session session, BStruct endpoint) {
-        endpoint.setStringField(0, session.getId());
-        endpoint.setStringField(1, session.getNegotiatedSubprotocol());
-        endpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
-        endpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
+    public static void populateEndpoint(Session session, BStruct webSocketEndpoint) {
+        webSocketEndpoint.setStringField(0, session.getId());
+        webSocketEndpoint.setStringField(1, session.getNegotiatedSubprotocol());
+        webSocketEndpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
+        webSocketEndpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
     }
 
     public static BValue[] getWebSocketError(Context context, ChannelFuture webSocketChannelFuture, String message)
@@ -164,10 +172,6 @@ public abstract class WebSocketUtil {
      * @return refactored URI.
      */
     public static String refactorUri(String uri) {
-        if (uri.startsWith("\"")) {
-            uri = uri.substring(1, uri.length() - 1);
-        }
-
         if (!uri.startsWith("/")) {
             uri = "/".concat(uri);
         }

@@ -114,7 +114,7 @@ public class HTTPServicesRegistry {
                                                      "annotation in resource " + upgradeToWebSocketResource.getName());
             }
             Struct webSocketConfig =
-                    resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
+                    resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
             Value serviceType = webSocketConfig.getTypeField(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
             Service webSocketTypeService = BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType);
             WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
