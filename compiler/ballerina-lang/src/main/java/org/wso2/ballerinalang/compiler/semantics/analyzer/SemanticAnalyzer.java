@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -341,6 +342,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectNode.initFunction.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
 
         objectNode.functions.forEach(f -> analyzeDef(f, objectEnv));
+    }
+
+    @Override
+    public void visit(BLangRecord record) {
+        BSymbol structSymbol = record.symbol;
+        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(record, structSymbol.scope, env);
+        record.fields.forEach(field -> analyzeDef(field, structEnv));
+
+        record.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
+            annotationAttachment.accept(this);
+        });
+
+        analyzeDef(record.initFunction, structEnv);
+        record.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 
     @Override

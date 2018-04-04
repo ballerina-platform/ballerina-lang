@@ -48,6 +48,7 @@ class AbstractPackageDeclarationNode extends Node {
     }
 
 
+
     setPackageName(newValue, silent, title) {
         const oldValue = this.packageName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -69,14 +70,6 @@ class AbstractPackageDeclarationNode extends Node {
 
     getPackageName() {
         return this.packageName;
-    }
-
-    getPackageNameString() {
-        const packageName = this.packageName || [];
-        const packageNameString = packageName.map((pkgName) => {
-            return pkgName.value;
-        }).join('.');
-        return packageNameString;
     }
 
 

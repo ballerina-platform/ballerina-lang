@@ -22,6 +22,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
@@ -83,7 +84,8 @@ public abstract class WebSocketUtil {
     }
 
     public static void handleHandshake(WebSocketService wsService,
-                                       HttpHeaders headers, BStruct wsConnection) {
+                                       HttpHeaders headers, BStruct wsConnection, Context context,
+                                       CallableUnitCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         WebSocketInitMessage initMessage =
                 (WebSocketInitMessage) wsConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
@@ -98,21 +100,34 @@ public abstract class WebSocketUtil {
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              serviceEndpoint);
                 WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
-
-                Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
-                if (onOpenResource == null) {
-                    return;
+                if (context != null && callback != null) {
+                    context.setReturnValues(serviceEndpoint);
+                    callback.notifySuccess();
+                } else {
+                    Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                    if (onOpenResource != null) {
+                        List<ParamDetail> paramDetails =
+                                onOpenResource.getParamDetails();
+                        BValue[] bValues = new BValue[paramDetails.size()];
+                        bValues[0] = serviceEndpoint;
+                        //TODO handle BallerinaConnectorException
+                        Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
+                    }
                 }
-                List<ParamDetail> paramDetails =
-                        onOpenResource.getParamDetails();
-                BValue[] bValues = new BValue[paramDetails.size()];
-                bValues[0] = serviceEndpoint;
-                //TODO handle BallerinaConnectorException
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
             }
 
             @Override
             public void onError(Throwable throwable) {
+                if (context != null) {
+                    context.setReturnValues();
+                }
+                if (callback != null) {
+                    callback.notifyFailure(BLangConnectorSPIUtil
+                                                   .createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                  WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
+                                                                  "Unable to complete handshake: " +
+                                                                          throwable.getMessage()));
+                }
                 ErrorHandlerUtils.printError(throwable);
             }
         });
