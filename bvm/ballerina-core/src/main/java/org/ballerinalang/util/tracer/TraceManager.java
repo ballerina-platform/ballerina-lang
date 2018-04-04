@@ -32,7 +32,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX_LENGTH;
 
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
@@ -71,7 +70,7 @@ public class TraceManager {
                         .entrySet().stream().collect(
                                 Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))
                         );
-                spanList = startSpan(resource, extractSpanContext(removeTracePrefix(spanHeaders), service),
+                spanList = startSpan(resource, extractSpanContext(spanHeaders, service),
                         activeBSpan.getTags(), service, true);
             }
 
@@ -151,13 +150,6 @@ public class TraceManager {
                     .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(headers)));
         }
         return spanContext;
-    }
-
-    private static Map<String, String> removeTracePrefix(Map<String, String> map) {
-        return map.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey().substring(TRACE_PREFIX_LENGTH),
-                        Map.Entry::getValue));
     }
 
 }

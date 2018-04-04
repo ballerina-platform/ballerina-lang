@@ -57,7 +57,7 @@ class TracersStore {
             }
         } else {
             this.tracers = Collections.emptyList();
-            this.tracerStore = Collections.emptyMap();
+            this.tracerStore = new HashMap<>();
         }
     }
 

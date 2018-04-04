@@ -64,6 +64,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangObject> objects;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
+    public List<BLangRecord> records;
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
@@ -90,6 +91,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.objects = new ArrayList<>();
+        this.records = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();

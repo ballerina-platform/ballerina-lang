@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -285,6 +286,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
 
+    // Disable register index reset behaviour.
+    // By default register indexes get reset for every statement.
+    // We need to disable this behaviour for desugared expressions.
+    private boolean regIndexResetDisabled = false;
+
     private int transactionIndex = 0;
 
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
@@ -294,6 +300,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
+
 
     private static final String MAIN_FUNCTION_NAME = "main";
 
@@ -500,6 +507,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
 
             genNode(stmt, blockEnv);
+            if (regIndexResetDisabled) {
+                // This block node is possibly be part of a desugered expression
+                continue;
+            }
 
             // Update the maxRegIndexes structure
             setMaxRegIndexes(regIndexes, maxRegIndexes);
@@ -1276,7 +1287,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.regIndex = calcAndGetExprRegIndex(bLangStatementExpression);
+
+        boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+        this.regIndexResetDisabled = true;
         genNode(bLangStatementExpression.stmt, this.env);
+        this.regIndexResetDisabled = prevRegIndexResetDisabledState;
+
         genNode(bLangStatementExpression.expr, this.env);
         emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
@@ -2468,6 +2484,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
+        /* ignore */
+    }
+
+    public void visit(BLangRecord recordNode) {
+        /* ignore */
     }
 
     public void visit(BLangIdentifier identifierNode) {
