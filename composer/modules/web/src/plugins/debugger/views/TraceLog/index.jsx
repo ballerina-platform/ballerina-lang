@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import Proptypes from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
 import { Grid, Icon } from 'semantic-ui-react';
@@ -80,18 +81,18 @@ class LogsConsole extends React.Component {
         });
     }
 
-    toggleDetails(message) {
-        this.setState({
-            details: message,
-        });
-    }
-
     getLoggerIcon(logger) {
         return loggerToIcon[logger];
     }
 
     getDirectionIcon(direction) {
         return directionToIcon[direction];
+    }
+
+    toggleDetails(message) {
+        this.setState({
+            details: message,
+        });
     }
 
     /**
@@ -126,7 +127,7 @@ class LogsConsole extends React.Component {
                                 <div>
                                     <Grid style={{ margin: 0 }}>
                                         <Grid.Row className='table-heading'>
-                                            <Grid.Column width={details ? 16 : 3}>
+                                            <Grid.Column width={details ? 16 : 4}>
                                                 &nbsp;
                                             </Grid.Column>
                                             {!details && [
@@ -134,11 +135,14 @@ class LogsConsole extends React.Component {
                                                     Time
                                                 </Grid.Column>,
                                                 <Grid.Column width={3}>
+                                                    Method
+                                                </Grid.Column>,
+                                                <Grid.Column width={3}>
+                                                    Path
+                                                </Grid.Column>,
+                                                <Grid.Column width={3}>
                                                     Stream
                                                 </Grid.Column>,
-                                                <Grid.Column width={7}>
-                                                    Headers
-                                                </Grid.Column>
                                             ]}
 
                                         </Grid.Row>
@@ -152,7 +156,7 @@ class LogsConsole extends React.Component {
                                             return (
                                                 <Grid.Row className={(details && details.id === message.id) ? 'active' : ''}>
                                                     <Grid.Column
-                                                        width={details ? 16 : 3}
+                                                        width={details ? 16 : 4}
                                                         onClick={() => this.toggleDetails(message)}
                                                         className='wrap-text clickable'
                                                     >
@@ -175,10 +179,13 @@ class LogsConsole extends React.Component {
                                                             {timeString}
                                                         </Grid.Column>,
                                                         <Grid.Column width={3} className='wrap-text'>
-                                                            {message.message.record.logger}
+                                                            {message.message.meta.httpMethod}
                                                         </Grid.Column>,
-                                                        <Grid.Column width={7} className='wrap-text'>
-                                                            {message.message.meta.headers}
+                                                        <Grid.Column width={3} className='wrap-text'>
+                                                            {message.message.meta.path}
+                                                        </Grid.Column>,
+                                                        <Grid.Column width={3} className='wrap-text'>
+                                                            {message.message.record.logger}
                                                         </Grid.Column>,
                                                     ]}
 
@@ -207,7 +214,11 @@ class LogsConsole extends React.Component {
 }
 
 LogsConsole.propTypes = {
+    height: Proptypes.number,
+};
 
+LogsConsole.defaultProps = {
+    height: 0,
 };
 
 export default LogsConsole;
