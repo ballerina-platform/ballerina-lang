@@ -42,7 +42,7 @@ class TracersStore {
     private Map<String, Map<String, Tracer>> tracerStore;
 
     TracersStore(Map<String, String> tracingConfigs) {
-        if (Boolean.parseBoolean(tracingConfigs.getOrDefault(ENABLED_CONFIG, "false"))) {
+        if (Boolean.parseBoolean(tracingConfigs.get(ENABLED_CONFIG))) {
 
             this.tracers = new ArrayList<>();
             this.tracerStore = new HashMap<>();

@@ -24,12 +24,14 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.ballerinalang.util.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,6 +227,9 @@ public class Main {
         @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
         private String configFilePath;
 
+        @Parameter(names = "--observe", description = "enable observability")
+        private boolean observeFlag;
+
         @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
 
@@ -258,7 +263,7 @@ public class Main {
                 }
 
                 LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams, configFilePath,
-                                         new String[0], offline);
+                                         new String[0], offline, observeFlag);
                 return;
             }
 
@@ -273,7 +278,8 @@ public class Main {
             }
 
             LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams,
-                                     configFilePath, programArgs, offline);
+                                     configFilePath, programArgs, offline, observeFlag);
+
         }
 
         @Override
