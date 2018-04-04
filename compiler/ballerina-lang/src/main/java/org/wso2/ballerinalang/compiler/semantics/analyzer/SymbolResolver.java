@@ -387,12 +387,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (env.enclEnv != null && env.enclInvokable != null) {
             BLangVariable closureVar = findClosureVar(env.enclEnv, bSymbol);
-            if (closureVar != null) {
+            if (closureVar != symTable.notFoundVariable) {
                 ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
             }
             return closureVar;
         }
-        return null;
+        return symTable.notFoundVariable;
     }
 
     /**

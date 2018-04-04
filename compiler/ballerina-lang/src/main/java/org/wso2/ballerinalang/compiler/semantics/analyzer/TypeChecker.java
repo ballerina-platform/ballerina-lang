@@ -346,7 +346,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA) &&
                         env.enclEnv.enclEnv != null) {
                     BLangVariable closureVar = symResolver.findClosureVar(env.enclEnv, symbol);
-                    if (closureVar != null) {
+                    if (closureVar != symTable.notFoundVariable) {
                         ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
                     }
                 }
