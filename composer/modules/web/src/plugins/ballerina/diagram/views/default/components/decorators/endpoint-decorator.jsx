@@ -23,9 +23,9 @@ import ImageUtil from '../../../../image-util';
 import TreeUtils from './../../../../../model/tree-util';
 
 /**
- * Endpoint Decorator.
+ * Endpoint Node Decorator.
  */
-class ConnectorDeclarationDecorator extends React.Component {
+class EndpointNodeDecorator extends React.Component {
 
     /**
      * Constructor for connector declaration
@@ -58,11 +58,11 @@ class ConnectorDeclarationDecorator extends React.Component {
      */
     getEndpointName() {
         const model = this.props.model;
-        let connectorName;
+        let endpointName;
         if (TreeUtils.isVariableDef(model)) {
-            connectorName = model.getVariableName().value;
+            endpointName = model.getName().value;
         }
-        return connectorName;
+        return endpointName;
     }
 
     /**
@@ -117,8 +117,8 @@ class ConnectorDeclarationDecorator extends React.Component {
     }
 }
 
-ConnectorDeclarationDecorator.propTypes = {
+EndpointNodeDecorator.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default ConnectorDeclarationDecorator;
+export default EndpointNodeDecorator;

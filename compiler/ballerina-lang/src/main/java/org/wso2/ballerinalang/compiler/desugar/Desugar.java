@@ -133,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -673,6 +674,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangAbort abortNode) {
         result = abortNode;
+    }
+    
+    @Override
+    public void visit(BLangDone doneNode) {
+        result = doneNode;
     }
 
     @Override
