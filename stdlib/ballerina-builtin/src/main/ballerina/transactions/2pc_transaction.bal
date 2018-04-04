@@ -34,9 +34,7 @@ type TwoPhaseCommitTransaction object {
         boolean possibleMixedOutcome;
     }
 
-    new(string transactionId = util:uuid(), transactionBlockId, string coordinationType = TWO_PHASE_COMMIT) {
-        //self.transactionId = util:uuid();
-        self.transactionId = transactionId;
+    new(transactionId, transactionBlockId, string coordinationType = "2pc") {
         self.createdTime = time:currentTime().time;
         self.coordinationType = coordinationType;
     }

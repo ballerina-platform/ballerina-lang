@@ -57,14 +57,14 @@ type Participant {
     Protocol[] participantProtocols;
 }
 
-//documentation {
-//    This represents the protocol associated with the coordination type.
-//
-//    F{{name}} - protocol name
-//    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
-//                the `protocolFn` will be called
-//    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
-//}
+documentation {
+    This represents the protocol associated with the coordination type.
+
+    F{{name}} - protocol name
+    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
+                the `protocolFn` will be called
+    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
+}
 public type Protocol {
     string name;
     string url;
