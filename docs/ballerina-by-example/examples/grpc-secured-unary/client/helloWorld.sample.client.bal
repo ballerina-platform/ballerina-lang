@@ -1,7 +1,5 @@
 package client;
 
-import ballerina/io;
-
 function main (string[] args) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
@@ -23,5 +21,4 @@ function main (string[] args) {
         }
     }
 }
-
 

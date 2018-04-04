@@ -1,5 +1,29 @@
 package client;
 
+function testUnarySecuredBlocking() returns (string) {
+    endpoint helloWorldBlockingClient helloWorldBlockingEp {
+        host:"localhost",
+        port:9090,
+        ssl:{
+                trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                trustStorePassword:"ballerina"
+            }
+    };
+
+    string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
+    match unionResp {
+        string payload => {
+            io:println("Client Got Response : ");
+            io:println(payload);
+            return payload;
+        }
+        error err => {
+            io:println("Error from Connector: " + err.message);
+            return "Error from Connector: " + err.message;
+        }
+    }
+}
+
 // This is an auto generated client stub which is used to communicate between gRPC client.
 struct helloWorldBlockingStub {
     grpc:Client clientEndpoint;
