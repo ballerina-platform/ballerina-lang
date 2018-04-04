@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -113,5 +114,23 @@ public class FiniteTypeTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
     }
+
+    @Test()
+    public void finiteAssignmentRefValueType() {
+        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BStruct);
+    }
+
+    @Test()
+    public void finiteAssignmentRefValueTypeCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueTypeCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 4);
+    }
+
 }
 

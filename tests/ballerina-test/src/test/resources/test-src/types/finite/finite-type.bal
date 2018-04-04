@@ -80,3 +80,21 @@ function finiteAssignmentStateSameTypeComparisonCaseTwo() returns State {
     }
     return b;
 }
+
+type POrInt Person|int
+
+struct Person {
+   string name;
+}
+
+function finiteAssignmentRefValueType() returns POrInt {
+    Person p = {name:"abc"};
+    POrInt pi = p;
+    return pi;
+}
+
+function finiteAssignmentRefValueTypeCaseTwo() returns POrInt {
+    Person p = {name:"abc"};
+    POrInt pi = 4;
+    return pi;
+}
