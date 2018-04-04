@@ -109,7 +109,7 @@ public class TestHttp2WithALPN {
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
                     .collect(Collectors.joining("\n"));
-            assertEquals(testValue, result);
+            assertEquals(result, testValue);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testHttp2Post", e);
         }

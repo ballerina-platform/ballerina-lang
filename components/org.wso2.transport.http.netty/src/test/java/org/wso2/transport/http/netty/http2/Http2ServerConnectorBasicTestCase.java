@@ -84,7 +84,7 @@ public class Http2ServerConnectorBasicTestCase {
         HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response, "Expected response not received");
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(testValue, result, "Expected response not received");
+        assertEquals(result, testValue, "Expected response not received");
     }
 
     @AfterClass
