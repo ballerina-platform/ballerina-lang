@@ -1,6 +1,6 @@
 import ballerina/grpc;
 import ballerina/io;
-import ballerina.runtime;
+import ballerina/runtime;
 
 string response = "";
 int total = 0;
@@ -38,7 +38,7 @@ function testClientStreaming (string[] args) returns (string) {
     while(total < 1) {
         runtime:sleepCurrentWorker(1000);
         io:println("msg count: " + total);
-        if (wait > 5) {
+        if (wait > 10) {
             break;
         }
         wait++;

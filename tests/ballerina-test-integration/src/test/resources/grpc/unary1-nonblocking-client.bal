@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/io;
 import ballerina/grpc;
-import ballerina.runtime;
+import ballerina/runtime;
 
 string[] responses = [];
 int total = 0;
