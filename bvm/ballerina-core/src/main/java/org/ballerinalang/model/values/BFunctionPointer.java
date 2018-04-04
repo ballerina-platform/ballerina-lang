@@ -22,6 +22,11 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * {@code {@link BFunctionPointer}} represents a function pointer reference value in Ballerina.
  *
@@ -31,6 +36,12 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
 
     FunctionRefCPEntry funcRefCPEntry;
 
+    //container which keeps the closure variables values
+    private List<BClosure> closureVars = new ArrayList<>();
+
+    //map which keeps tracks of additional index count needed for closure vars
+    private Map<Integer, Integer> additionalIndexes = new HashMap<>();
+
     public BFunctionPointer(FunctionRefCPEntry funcRefCPEntryIndex) {
         this.funcRefCPEntry = funcRefCPEntryIndex;
     }
@@ -38,6 +49,22 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
     @Override
     public FunctionRefCPEntry value() {
         return funcRefCPEntry;
+    }
+
+    public List<BClosure> getClosureVars() {
+        return closureVars;
+    }
+
+    public void addClosureVar(BClosure closure) {
+        if (closureVars.contains(closure)) {
+            return;
+        }
+        closureVars.add(closure);
+        additionalIndexes.merge(closure.type, 1, Integer::sum);
+    }
+
+    public Integer getAdditionalIndexCount(int type) {
+        return additionalIndexes.getOrDefault(type, 0);
     }
 
     @Override
@@ -53,5 +80,45 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
     @Override
     public BValue copy() {
         return new BFunctionPointer(funcRefCPEntry);
+    }
+
+
+    /**
+     * The {@code BClosure} holds closure of any BValue in Ballerina.
+     *
+     * @since 0.97
+     */
+    public static final class BClosure {
+
+        private Object value;
+
+        private int type;
+
+        public BClosure(Object value, int type) {
+            this.value = value;
+            this.type = type;
+        }
+
+        public String stringValue() {
+            return (String) value;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof BClosure)) {
+                return false;
+            }
+
+            BClosure other = (BClosure) obj;
+            return this.value.equals(other.value) && this.type == other.type;
+        }
+
+        public Object value() {
+            return value;
+        }
     }
 }

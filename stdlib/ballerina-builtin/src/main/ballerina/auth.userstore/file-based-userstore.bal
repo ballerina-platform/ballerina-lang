@@ -50,11 +50,11 @@ public function readUserId (string username) returns (string) {
 
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
-@Return {value:"string: comma separeted groups list, as specified in the userstore file or null if not found"}
-public function <FilebasedUserstore userstore> readGroupsOfUser (string username) returns (string) {
+@Return {value:"string[]: array of groups for the user denoted by the username"}
+public function <FilebasedUserstore userstore> readGroupsOfUser (string username) returns (string[]) {
     // first read the user id from user->id mapping
     // reads the groups for the userid
-    return getUserstoreConfigValue(readUserId(username), "groups");
+    return getGroupsArray(getUserstoreConfigValue(readUserId(username), "groups"));
 }
 
 function getUserstoreConfigValue (string instanceId, string property) returns (string) {
@@ -64,4 +64,15 @@ function getUserstoreConfigValue (string instanceId, string property) returns (s
         }
         any|null => return "";
     }
+}
+
+@Description {value:"Construct an array of groups from the comma separed group string passed"}
+@Param {value:"groupString: comma separated string of groups"}
+@Return {value:"string[]: array of groups, null if the groups string is empty/null"}
+function getGroupsArray (string groupString) returns (string[]) {
+    string[] groupsArr = [];
+    if (lengthof groupString == 0) {
+        return groupsArr;
+    }
+    return groupString.split(",");
 }

@@ -3095,7 +3095,40 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
-        emit(InstructionCodes.FPLOAD, getOperand(funcRefCPIndex), nextIndex);
+        Operand[] operands;
+        if (!(fpExpr instanceof BLangLambdaFunction)) {
+            operands = new Operand[3];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = new Operand(0);
+        } else {
+            Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
+            operands = new Operand[2 + closureIndexes.length];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            System.arraycopy(closureIndexes, 0, operands, 2, closureIndexes.length);
+        }
+        emit(InstructionCodes.FPLOAD, operands);
+    }
+
+    private Operand[] calcAndGetClosureIndexes(BLangFunction function) {
+        List<Operand> operands = new ArrayList<>();
+
+        int closureOperandPairs = 0;
+
+        for (BVarSymbol symbol : function.symbol.params) {
+            if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
+                continue;
+            }
+            Operand type = new Operand(symbol.type.tag);
+            Operand index = new Operand(symbol.varIndex.value);
+            operands.add(type);
+            operands.add(index);
+            closureOperandPairs++;
+        }
+
+        operands.add(0, new Operand(closureOperandPairs));
+        return operands.toArray(new Operand[]{});
     }
 
     private void generateFinallyInstructions(BLangStatement statement) {

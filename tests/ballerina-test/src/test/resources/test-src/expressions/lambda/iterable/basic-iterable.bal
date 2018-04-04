@@ -137,7 +137,7 @@ function jsonTest () returns (string, string[], int, int, string[]) {
                               return s == "bob";
                           });
 
-    int i = j1.count();
+    int i1 = j1.count();
 
     var ja =? <json[]>j1.subjects;
     string[] result = ja.map(((int, json) tuple) => (string) {
@@ -145,7 +145,7 @@ function jsonTest () returns (string, string[], int, int, string[]) {
                                  return i + "->" + j.toString();
                              });
 
-    return (output, sa, i, j1.count(), result);
+    return (output, sa, i1, j1.count(), result);
 }
 
 xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
