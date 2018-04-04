@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -758,6 +759,10 @@ public class BLangPackageBuilder {
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
         endFunctionDef(pos, null, false, false, true, false);
+        //this is added for analysing closures
+        if (!(blockNodeStack.empty())) {
+            lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
+        }
     }
 
     private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {
@@ -1467,6 +1472,41 @@ public class BLangPackageBuilder {
             endObjectDef(pos, ws, identifier, publicStruct);
         } else if (!this.recordStack.isEmpty()) {
             endRecordDef(pos, ws, identifier, publicStruct);
+        } else {
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+            typeDefinition.setName(this.createIdentifier(identifier));
+
+            if (publicStruct) {
+                typeDefinition.flagSet.add(Flag.PUBLIC);
+            }
+
+            BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+            while (!typeNodeStack.isEmpty()) {
+                BLangType memberType = (BLangType) typeNodeStack.pop();
+                if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
+                    members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
+                } else {
+                    members.memberTypeNodes.add(memberType);
+                }
+            }
+
+            if (members.memberTypeNodes.isEmpty()) {
+                typeDefinition.typeNode = null;
+            } else if (members.memberTypeNodes.size() == 1) {
+                BLangType[] memberArray = new BLangType[1];
+                members.memberTypeNodes.toArray(memberArray);
+                typeDefinition.typeNode = memberArray[0];
+            } else {
+                typeDefinition.typeNode = members;
+            }
+
+            while (!exprNodeStack.isEmpty()) {
+                typeDefinition.valueSpace.add((BLangExpression) exprNodeStack.pop());
+            }
+
+            typeDefinition.pos = pos;
+            typeDefinition.addWS(ws);
+            this.compUnit.addTopLevelNode(typeDefinition);
         }
     }
 
@@ -2073,7 +2113,7 @@ public class BLangPackageBuilder {
         abortNode.addWS(ws);
         addStmtToCurrentBlock(abortNode);
     }
-    
+
     public void addDoneStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangDone doneNode = (BLangDone) TreeBuilder.createDoneNode();
         doneNode.pos = pos;

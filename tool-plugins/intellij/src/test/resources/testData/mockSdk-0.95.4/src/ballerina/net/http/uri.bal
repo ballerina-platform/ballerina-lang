@@ -1,4 +1,4 @@
-package ballerina.net.uri;
+package ballerina.http;
 
 @Description { value:"Encodes the given URL"}
 @Param { value:"url: URL to be encoded" }

@@ -42,7 +42,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    prepare (endpoint conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
+    prepare(endpoint conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
         http:Response res = {};
         string transactionId = prepareReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -101,7 +101,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    notify (endpoint conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
+    notify(endpoint conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
         http:Response res = {};
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
