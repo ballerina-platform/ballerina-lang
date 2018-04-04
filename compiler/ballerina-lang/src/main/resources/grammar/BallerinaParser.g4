@@ -45,7 +45,6 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
-    |   transformerDefinition
     ;
 
 serviceDefinition
@@ -54,6 +53,7 @@ serviceDefinition
 
 serviceEndpointAttachments
     :   BIND nameReference (COMMA nameReference)*
+    |   BIND recordLiteral
     ;
 
 serviceBody
@@ -81,7 +81,7 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
+    :  LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS EQUAL_GT lambdaReturnParameter? callableUnitBody
     ;
 
 callableUnitSignature
@@ -125,12 +125,12 @@ objectInitializerParameterList
     ;
 
 objectFunctions
-    : (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
+    :   (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
     ;
 
 // TODO merge with fieldDefinition later
 objectFieldDefinition
-    :   typeName Identifier (COLON expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -146,7 +146,7 @@ objectParameter
 
 // TODO try to merge with defaultableParameter later
 objectDefaultableParameter
-    :   objectParameter COLON expression
+    :   objectParameter ASSIGN expression
     ;
 
 // TODO merge with functionDefinition later
@@ -176,10 +176,6 @@ globalVariableDefinition
     :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
-transformerDefinition
-    :   (PUBLIC)? TRANSFORMER LT parameterList GT (Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS)? callableUnitBody
-    ;
-
 attachmentPoint
      : SERVICE
      | RESOURCE
@@ -190,7 +186,6 @@ attachmentPoint
      | CONST
      | PARAMETER
      | ANNOTATION
-     | TRANSFORMER
      ;
 
 constantDefinition
@@ -224,17 +219,17 @@ endpointInitlization
 
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   annotatedTypeName                                                   # annotatedTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
-    |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
+    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
+    |   LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
     ;
 
-annotatedTypeName
-    :   annotationAttachment+ simpleTypeName
+fieldDefinitionList
+    :   objectFieldDefinition*
     ;
 
 // Temporary production rule name
@@ -244,6 +239,7 @@ simpleTypeName
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
+    |   emptyTupleLiteral // nil type name ()
     ;
 
 builtInTypeName
@@ -330,6 +326,7 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
+    |   doneStatement
     ;
 
 variableDefinitionStatement
@@ -347,6 +344,14 @@ recordKeyValue
 recordKey
     :   Identifier
     |   expression
+    ;
+
+tableLiteral
+    :   TYPE_TABLE tableInitialization
+    ;
+
+tableInitialization
+    :   recordLiteral
     ;
 
 arrayLiteral
@@ -412,8 +417,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 foreachStatement
@@ -478,7 +483,7 @@ throwStatement
     ;
 
 returnStatement
-    :   RETURN expressionList? SEMICOLON
+    :   RETURN expression? SEMICOLON
     ;
 
 workerInteractionStatement
@@ -508,7 +513,7 @@ variableReference
     ;
 
 field
-    : DOT Identifier
+    : DOT (Identifier | MUL)
     ;
 
 index
@@ -607,6 +612,7 @@ expression
     |   arrayLiteral                                                        # arrayLiteralExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
+    |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
@@ -627,11 +633,21 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
+    |	expression matchExpression										    # matchExprExpression
+    |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
     ;
 
 awaitExpression
     :   AWAIT expression                                                    # awaitExpr
+    ;
+
+matchExpression
+    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
+    	;
+
+matchExpressionPatternClause
+    :   typeName Identifier? EQUAL_GT expression
     ;
 
 //reusable productions
@@ -641,7 +657,11 @@ nameReference
     ;
 
 returnParameter
-    : RETURNS typeName
+    : RETURNS annotationAttachment* typeName
+    ;
+
+lambdaReturnParameter
+    : annotationAttachment* typeName
     ;
 
 parameterTypeNameList
@@ -683,6 +703,7 @@ simpleLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
+    |   emptyTupleLiteral
     |   NullLiteral
     ;
 
@@ -692,6 +713,10 @@ integerLiteral
     |   HexIntegerLiteral
     |   OctalIntegerLiteral
     |   BinaryIntegerLiteral
+    ;
+
+emptyTupleLiteral
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;
 
 namedArgs
@@ -808,6 +833,10 @@ aggregationQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+    ;
+
+doneStatement
+    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

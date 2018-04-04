@@ -226,7 +226,7 @@ public class MatchStatementTest {
         BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics19", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 12345);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12345);
     }
 
     @Test(description = "Test basics of match statement with function pointers")
@@ -234,7 +234,7 @@ public class MatchStatementTest {
         BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics20", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertEquals(((BBoolean)returns[0]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
     }
 
     @Test(description = "Test basics of match statement with function pointers")
@@ -242,7 +242,7 @@ public class MatchStatementTest {
         BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics21", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat)returns[0]).floatValue(), 10.333);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 10.333);
     }
 
     @Test(description = "Test basics of match statement")
@@ -250,12 +250,11 @@ public class MatchStatementTest {
         CompileResult compile = BCompileUtil.compile("test-src/statements/matchstmt/match_stmt_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 4);
 
-        BAssertUtil.validateError(compile, 0, "A matching pattern cannot be guaranteed for types '[boolean]'", 9, 31);
-        BAssertUtil.validateError(compile, 1, "this function must return a result", 5, 1);
-        BAssertUtil.validateError(compile, 2, "unreachable pattern: preceding patterns are " +
+        BAssertUtil.validateError(compile, 0, "this function must return a result", 5, 1);
+        BAssertUtil.validateError(compile, 1, "A matching pattern cannot be guaranteed for types '[boolean]'", 9, 31);
+        BAssertUtil.validateError(compile, 2, "pattern will not be matched", 18, 9);
+        BAssertUtil.validateError(compile, 3, "unreachable pattern: preceding patterns are " +
                 "too general or the pattern ordering is not correct", 21, 9);
-        BAssertUtil.validateError(compile, 3, "pattern will not be matched",
-                18, 9);
     }
 }
 

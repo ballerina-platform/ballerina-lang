@@ -22,6 +22,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -32,7 +34,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 class WebSubResourceDispatcher {
 
     static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest)
-            throws BallerinaConnectorException {
+            throws BallerinaConnectorException, ServerConnectorException {
 
         String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
         HttpResource httpResource = null;
@@ -57,9 +59,20 @@ class WebSubResourceDispatcher {
         }
 
         if (httpResource == null) {
-            inboundRequest.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
-            throw new BallerinaConnectorException("no matching WebSub Subscriber service  resource " + resourceName
-                                                          + " found for method : " + method);
+            if (WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT.equals(resourceName)) {
+                //if the request is a GET request indicating an intent verification request, and the user has not
+                //specified an onVerifyIntent resource, assume auto intent verification and respond
+                String annotatedTopic = (service.getBalService())
+                        .getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                                           WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
+                        .get(0).getValue().getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC);
+                inboundRequest.setProperty(WebSubSubscriberConstants.ANNOTATED_TOPIC, annotatedTopic);
+                inboundRequest.setProperty(Constants.HTTP_RESOURCE, WebSubSubscriberConstants.ANNOTATED_TOPIC);
+            } else {
+                inboundRequest.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                throw new BallerinaConnectorException("no matching WebSub Subscriber service  resource " + resourceName
+                                                              + " found for method : " + method);
+            }
         }
         return httpResource;
     }

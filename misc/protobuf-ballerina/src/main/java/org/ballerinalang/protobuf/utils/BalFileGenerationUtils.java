@@ -106,7 +106,7 @@ public class BalFileGenerationUtils {
     }
     
     /**
-     * Resolve proto folder path from Proto file path
+     * Resolve proto folder path from Proto file path.
      *
      * @param protoPath Proto file path
      * @return

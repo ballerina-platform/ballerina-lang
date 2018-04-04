@@ -18,6 +18,8 @@ package ballerina.auth.authz;
 
 import ballerina/caching;
 import ballerina/auth.authz.permissionstore;
+import ballerina/runtime;
+import ballerina/log;
 
 @Description {value:"Representation of AuthzChecker"}
 @Field {value:"authzCache: authorization cache instance"}
@@ -38,11 +40,25 @@ public function createChecker (permissionstore:PermissionStore permissionstore, 
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
 @Param {value:"username: user name"}
-@Param {value:"scopeName: name of the scope"}
+@Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <AuthzChecker authzChecker> check (string username, string scopeName) returns (boolean) {
-    // TODO: check if there are any groups set in the SecurityContext and if so, match against those.
-    return authzChecker.permissionstore.isAuthorized(username, scopeName);
+public function <AuthzChecker authzChecker> authorize (string username, string[] scopes) returns (boolean) {
+    // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
+    // match against those.
+    string[] authCtxtScopes = runtime:getInvocationContext().authenticationContext.scopes;
+    if (lengthof authCtxtScopes > 0) {
+        return matchScopes(scopes, authCtxtScopes);
+    }
+    // if there are groups set in the AuthenticationContext which are relevant to a user, can use the groups in
+    // authncontext and check if there is a match between those and the groups relevant to the scopes specified for
+    // the resource.
+    string[] groupsOfUser = runtime:getInvocationContext().authenticationContext.groups;
+    if (lengthof groupsOfUser > 0) {
+        return authzChecker.permissionstore.isAuthorizedByGroups(groupsOfUser, scopes);
+    }
+    // if unable to get either scopes or groups from AuthenticationContext, use the permissionstore to lookup the
+    // groups of the user and the groups of the scopes, and check for a match.
+    return authzChecker.permissionstore.isAuthorized(username, scopes);
 }
 
 @Description {value:"Retrieves the cached authorization result if any, for the given basic auth header value"}
@@ -89,4 +105,20 @@ public function <AuthzChecker authzChecker> clearCachedAuthzResult (string authz
             return;
         }
     }
+}
+
+@Description {value:"Matches the scopes"}
+@Param {value:"scopesOfResource: array of scopes for the resource"}
+@Param {value:"scopesForRequest: array of scopes relevant to this request"}
+@Return {value:"boolean: true if two arrays have at least one match"}
+function matchScopes (string[] scopesOfResource, string[] scopesForRequest) returns (boolean) {
+    foreach scopeForRequest in scopesForRequest {
+        foreach scopeOfResource in scopesOfResource {
+            if (scopeForRequest == scopeOfResource) {
+                // if  that is equal to a group of a scope, authorization passes
+                return true;
+            }
+        }
+    }
+    return false;
 }

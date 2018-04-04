@@ -1,5 +1,3 @@
-import ballerina/io;
-
 struct Person {
     int id;
     int age = -1;
@@ -30,7 +28,7 @@ struct Student {
 
 function testSimpleSelectAll () returns (int) {
 
-    table<Person> personTable = {};
+    table<Person> personTable = table{};
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:26, salary:400.50, name:"kane", married:false};
@@ -54,7 +52,7 @@ function testSimpleSelectAll () returns (int) {
 
 function testSimpleSelectFewFields () returns (int) {
 
-    table<Person> personTable = {};
+    table<Person> personTable = table{};
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:26, salary:400.50, name:"kane", married:false};
@@ -78,8 +76,8 @@ function testSimpleSelectFewFields () returns (int) {
 
 function testSimpleSelectWithJoin () returns (int) {
 
-    table<Person> personTable = {};
-    table<Order> orderTable = {};
+    table<Person> personTable = table{};
+    table<Order> orderTable = table{};
 
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
@@ -116,8 +114,8 @@ function testSimpleSelectWithJoin () returns (int) {
 
 function testSelectWithJoinAndWhere () returns (int) {
 
-    table<Person> personTable = {};
-    table<Order> orderTable = {};
+    table<Person> personTable = table{};
+    table<Order> orderTable = table{};
 
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
@@ -155,8 +153,8 @@ function testSelectWithJoinAndWhere () returns (int) {
 
 function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
 
-    table<Person> personTable = {};
-    table<Order> orderTable = {};
+    table<Person> personTable = table{};
+    table<Order> orderTable = table{};
 
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
@@ -189,6 +187,5 @@ function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
         var rs = orderDetailsTable.getNext();
         recordCount = recordCount +1;
     }
-    io:println(orderDetailsTable);
     return recordCount;
 }

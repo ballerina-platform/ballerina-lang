@@ -8,51 +8,54 @@ function main (string[] args) {
     exFlow = exFlow + result;
 }
 
-public struct DummyEndpoint {
-    string prop1;
-    int prop2;
-}
-public function <DummyEndpoint ep> init (DummyEndpointConfig conf) {
-    exFlow = exFlow + "init:DummyEndpoint;";
-    ep.prop1 = conf.conf1;
-    ep.prop2 = conf.conf3;
+type DummyEndpoint object {
+    public {
+        string prop1;
+        int prop2;
+    }
+
+    public function init (DummyEndpointConfig conf) {
+        exFlow = exFlow + "init:DummyEndpoint;";
+        prop1 = conf.conf1;
+        prop2 = conf.conf3;
+    }
+
+    public function start () {
+        exFlow = exFlow + "start:DummyEndpoint;";
+    }
+
+    public function stop () {
+        exFlow = exFlow + "stop:DummyEndpoint;";
+    }
+
+    public function register (typedesc ser) {
+        exFlow = exFlow + "register:DummyEndpoint;";
+    }
+
+    public function getClient () returns (DummyClient) {
+        exFlow = exFlow + "getClient:DummyEndpoint;";
+        return {};
+    }
 }
 
-public function <DummyEndpoint ep> start () {
-    exFlow = exFlow + "start:DummyEndpoint;";
-}
-
-public function <DummyEndpoint ep> stop () {
-    exFlow = exFlow + "stop:DummyEndpoint;";
-}
-
-public function <DummyEndpoint ep> register (typedesc ser) {
-    exFlow = exFlow + "register:DummyEndpoint;";
-}
-
-public function <DummyEndpoint ep> getClient () returns (DummyClient) {
-    exFlow = exFlow + "getClient:DummyEndpoint;";
-    return {};
-}
-
-public struct DummyEndpointConfig {
+public type DummyEndpointConfig {
     string conf1;
     boolean conf2;
     int conf3;
 }
 
-public struct DummyClient {
-    string conf1;
-}
+type DummyClient object {
+    public {string conf1; }
 
-public function <DummyClient c> invoke1 (string a, int b) {
-    exFlow = exFlow + "invoke1:DummyClient;";
-}
+    public function invoke1 (string a, int b) {
+        exFlow = exFlow + "invoke1:DummyClient;";
+    }
 
-public function <DummyClient c> invoke2 (string a, int b) returns (string) {
-    exFlow = exFlow + "invoke2:DummyClient;";
-    string result = a + b;
-    return result;
+    public function invoke2 (string a, int b) returns (string) {
+        exFlow = exFlow + "invoke2:DummyClient;";
+        string result = a + b;
+        return result;
+    }
 }
 
 function test1 () returns (string) {

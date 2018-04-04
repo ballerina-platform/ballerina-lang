@@ -182,8 +182,7 @@ class TreeUtil extends AbstractTreeUtil {
      * @return {*}
      */
     isEndpointTypeVariableDef(node) {
-        const typeNode = _.get(node, 'variable.typeNode');
-        return typeNode && this.isEndpointType(typeNode);
+        return this.isEndpointType(node);
     }
 
     /**
@@ -241,8 +240,8 @@ class TreeUtil extends AbstractTreeUtil {
         } else if (this.isVariableDef(node)) {
             invocationExpression = _.get(node, 'variable.initialExpression');
         }
-        return (invocationExpression && this.isInvocation(invocationExpression)
-        && invocationExpression.invocationType === 'ACTION');
+        return (invocationExpression && this.isInvocation(invocationExpression) 
+        && invocationExpression.actionInvocation);
     }
 
     /**
@@ -263,7 +262,7 @@ class TreeUtil extends AbstractTreeUtil {
                 if (param === undefined) return false;
                 const c = param.name.value;
                 const action = node.find((e) => { return this.isInvocation(e); });
-                if (action && c === action.expression.variableName.value) {
+                if (action && c === _.get(action, 'expression.variableName.value', '++')) {
                     return true;
                 }
                 break;
@@ -331,25 +330,12 @@ class TreeUtil extends AbstractTreeUtil {
         if (!parent) {
             return [];
         }
-        let statements;
-        if (this.isConnector(parent)) {
-            statements = _.get(parent, 'variableDefs');
-        } else if (this.isService(parent)) {
-            statements = _.get(parent, 'variables');
-        } else if (this.isBlock(parent)) {
-            statements = _.get(parent, 'statements');
-        } else {
-            statements = _.get(parent.body, 'statements');
+        let visibleEndpoints = [];
+        if (this.isFunction(parent) || this.isResource(parent) || this.isService(parent)) {
+            return visibleEndpoints.concat(_.get(parent, 'endpointNodes'));
         }
-
-        let filteredItems = [];
-        if (statements) {
-            filteredItems = _.filter(statements, (stmt) => {
-                const typeNode = _.get(stmt, 'variable.typeNode');
-                return typeNode && this.isEndpointType(typeNode);
-            });
-        }
-        return filteredItems.concat(this.getAllVisibleEndpoints(parent.parent));
+        
+        return visibleEndpoints.concat(this.getAllVisibleEndpoints(parent.parent));
     }
 
     /**
@@ -619,19 +605,7 @@ class TreeUtil extends AbstractTreeUtil {
      */
     getCurrentEndpoints(model) {
         if (this.isResource(model) || this.isFunction(model)) {
-            return model.getBody().getStatements()
-            .filter(stmt => this.isVariableDef(stmt) && this.isEndpointType(stmt.getVariable().getTypeNode()));
-        } else if (this.isConnector(model)) {
-            const statements = [];
-            model.getActions().forEach((action) => {
-                action.getBody().getStatements().forEach((stmt) => {
-                    if (this.isVariableDef(stmt)
-                        && this.isEndpointType(stmt.getVariable().getTypeNode())) {
-                        statements.push(stmt);
-                    }
-                });
-            });
-            return statements;
+            return model.getEndpointNodes();
         } else if (model.parent) {
             return this.getCurrentEndpoints(model.parent);
         } else {
@@ -752,10 +726,10 @@ class TreeUtil extends AbstractTreeUtil {
      * @param {Node} node - current node.
      * */
     generateEndpointName(parent, node) {
-        const defaultName = 'endpoint';
+        const defaultName = 'ep';
         let defaultIndex = 0;
         const names = this.getCurrentEndpoints(parent)
-                        .map((endpoint) => { return endpoint.getVariableName().getValue(); })
+                        .map((endpoint) => { return endpoint.getName().getValue(); })
                         .sort();
         names.every((endpoint, i) => {
             if (names[i] !== defaultName + (i + 1)) {
@@ -765,7 +739,7 @@ class TreeUtil extends AbstractTreeUtil {
                 return true;
             }
         });
-        node.getVariableName()
+        node.getName()
         .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 
@@ -802,6 +776,21 @@ class TreeUtil extends AbstractTreeUtil {
         });
         return `${defaultName
             + (defaultIndex === 0 ? names.length + 1 + indexIncreament : defaultIndex + indexIncreament)}`;
+    }
+    
+    getAllEndpoints(node) {
+        let endpoints = [];
+        if (node.kind === 'CompilationUnit') {
+            endpoints = endpoints.concat(_.filter(node.topLevelNodes, function (topLevelNode) {
+                return topLevelNode.kind === 'Endpoint';
+            }));
+        } else if (node.endpointNodes) {
+            endpoints = endpoints.concat(node.endpointNodes);
+        }
+        if (node.parent) {
+            endpoints = endpoints.concat(this.getAllEndpoints(node.parent));
+        }
+        return endpoints;
     }
 }
 

@@ -54,6 +54,11 @@ public class BStringArray extends BNewArray {
         return values[(int) index];
     }
 
+    @SuppressWarnings("unchecked")
+    public String[] getStringArray() {
+        return values;
+    }
+
     @Override
     public BType getType() {
         return arrayType;

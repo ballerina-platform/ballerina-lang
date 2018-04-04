@@ -18,32 +18,45 @@
 
 package org.ballerinalang.packerina.init.models;
 
-import java.util.Locale;
-
 /**
  * Model class for a source file.
  */
 public class SrcFile {
-    private static final String SERVICE_CONTENT = "package %s;%n" +
-                                                  "import ballerina/net.http;%n" +
-                                                  "%n" +
-                                                  "%n" +
-                                                  "endpoint http:ServiceEndpoint serviceEndpoint {%n" +
-                                                  "   port:9090%n" +
-                                                  "};%n" +
-                                                  "%n" +
-                                                  "service<http:Service> service1 bind serviceEndpoint {%n" +
-                                                  "    @http:ResourceConfig {%n" +
-                                                  "        methods: [\"GET\"],%n" +
-                                                  "        path: \"/\"%n" +
-                                                  "    }%n" +
-                                                  "    echo1 (endpoint outboundEP, http:Request req) {%n" +
-                                                  "         http:Response response = {};%n" +
-                                                  "         response.setStringPayload(\"Hello World!\");%n" +
-                                                  "         _ = outboundEP -> respond(response);%n" +
-                                                  "    }%n" +
-                                                  "}%n";
-    
+
+    private static final String PACKAGE_TEMPLATE = "package %s;%n%n";
+
+    private static final String SERVICE_CONTENT = "// A system package containing protocol access constructs\n" +
+                                                  "// Package objects referenced with 'http:' in code\n" +
+                                                  "import ballerina/http;\n" +
+                                                  "import ballerina/io;\n" +
+                                                  "\n" +
+                                                  "// A service endpoint represents a listener\n" +
+                                                  "endpoint http:ServiceEndpoint listener {\n" +
+                                                  "    port:9090\n" +
+                                                  "};\n" +
+                                                  "\n" +
+                                                  "// A service is a network-accessible API\n" +
+                                                  "// Advertised on '/hello', port comes from listener endpoint\n" +
+                                                  "service<http:Service> hello bind listener {\n" +
+                                                  "\n" +
+                                                  "    // A resource is an invokable API method\n" +
+                                                  "    // Accessible at '/hello/sayHello\n" +
+                                                  "    // 'caller' is the client invoking this resource \n" +
+                                                  "    sayHello (endpoint caller, http:Request request) {\n" +
+                                                  "\n" +
+                                                  "        // Create object to carry data back to caller\n" +
+                                                  "        http:Response response = {};\n" +
+                                                  "\n" +
+                                                  "        // Objects and structs can have function calls\n" +
+                                                  "        response.setStringPayload(\"Hello Ballerina!\\n\");\n" +
+                                                  "\n" +
+                                                  "        // Send a response back to caller\n" +
+                                                  "        // Errors are ignored with '_'\n" +
+                                                  "        // -> indicates a synchronous network-bound call\n" +
+                                                  "        _ = caller -> respond(response);\n" +
+                                                  "    }\n" +
+                                                  "}";
+
     private static final String MAIN_FUNCTION_CONTENT = "import ballerina/io;\n" +
                                                         "function main(string[] args) {\n" +
                                                         "    io:println(\"Hello World!\");\n" +
@@ -54,16 +67,14 @@ public class SrcFile {
     public SrcFile(String name, SrcFileType fileType) {
         this.srcFileType = fileType;
         this.name = name;
+        content = this.name.isEmpty() ? "" : String.format(PACKAGE_TEMPLATE, this.name);
         switch (fileType) {
             case SERVICE:
-                content = String.format(SERVICE_CONTENT, this.name);
+                content += SERVICE_CONTENT;
                 break;
             case MAIN:
             default:
-                if (!this.name.toLowerCase(Locale.getDefault()).endsWith(".bal")) {
-                    this.name = this.name + ".bal";
-                }
-                content = MAIN_FUNCTION_CONTENT;
+                content += MAIN_FUNCTION_CONTENT;
                 break;
         }
     }
@@ -84,8 +95,18 @@ public class SrcFile {
      * Enum for the source file type.
      */
     public enum SrcFileType {
-        SERVICE,
-        MAIN
+        SERVICE("hello_service.bal"),
+        MAIN("main.bal");
+
+        private final String fileName;
+
+        SrcFileType(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
     }
 }
 

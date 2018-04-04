@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BStruct;
  */
 public class GrpcCallableUnitCallBack implements CallableUnitCallback {
 
-    private StreamObserver<Message> requestSender = null;
+    private StreamObserver<Message> requestSender;
     private boolean emptyResponse;
     
     public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender, boolean isEmptyResponse) {

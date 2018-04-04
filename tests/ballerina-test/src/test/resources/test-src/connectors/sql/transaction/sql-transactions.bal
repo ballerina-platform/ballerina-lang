@@ -1,5 +1,6 @@
-import ballerina/data.sql;
+import ballerina/sql;
 import ballerina/io;
+import ballerina/runtime;
 
 struct ResultCount {
     int COUNTVAL;
@@ -595,6 +596,49 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     return (returnVal, count, a);
 }
 
+function testTransactionWithWorkers () returns (int) {
+    endpoint sql:Client testDB {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:2}
+    };
+
+    transaction {
+        invokeWorkers(testDB);
+    }
+
+    //check whether update action is performed
+    int count;
+    table dt =? testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 834", null,
+                                 typeof ResultCount);
+    while (dt.hasNext()) {
+        var rs =? <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    _ = testDB -> close();
+    return count;
+}
+
+function invokeWorkers(sql:Client testDBClient) {
+    endpoint sql:Client testDB =  testDBClient;
+
+
+    worker w1 {
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                            values ('Anne', 'Clerk', 834, 5000.75, 'USA')", null);
+    }
+
+    worker w2 {
+        runtime:sleepCurrentWorker(5000);
+        _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                            values ('James', 'Clerk', 834, 5000.75, 'USA')", null);
+    }
+
+}
 
 function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {

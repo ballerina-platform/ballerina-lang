@@ -1,5 +1,5 @@
-const int PI = 3.14989;
+@final int PI = 3.14989;
 
-const float floatVariableEx = "not a float";
+@final float floatVariableEx = "not a float";
 
-const int intVariableEx = "not an int";
+@final int intVariableEx = "not an int";

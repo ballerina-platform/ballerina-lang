@@ -39,6 +39,10 @@ public class BAnyType extends BBuiltInRefType {
         return visitor.visit(this, t);
     }
 
+    public boolean isNullable() {
+        return true;
+    }
+
     @Override
     public TypeKind getKind() {
         return TypeKind.ANY;

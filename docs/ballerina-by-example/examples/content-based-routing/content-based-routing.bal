@@ -1,5 +1,5 @@
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
 endpoint http:ServiceEndpoint cbrEP {
@@ -8,7 +8,7 @@ endpoint http:ServiceEndpoint cbrEP {
 
 @Description {value:"Attributes associated with the client endpoint is defined here."}
 endpoint http:ClientEndpoint locationEP {
-    targets: [{uri: "http://www.mocky.io"}]
+    targets:[{url: "http://www.mocky.io"}]
 };
 
 
@@ -54,7 +54,7 @@ service<http:Service> contentBasedRouting bind cbrEP {
                     }
                 }
             }
-            mime:EntityError err => {
+            http:PayloadError err => {
                 http:Response res = {};
                 res.statusCode = 500;
                 res.setStringPayload(err.message);

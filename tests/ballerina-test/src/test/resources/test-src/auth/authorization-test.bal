@@ -29,19 +29,30 @@ function testAuthorizationForNonExistingUser () returns (boolean) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
     permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
-    return checker.check("ayoma", "scope1");
+    string[] scopes = ["scope1"];
+    return checker.authorize("ayoma", scopes);
 }
 
 function testAuthorizationForNonExistingScope () returns (boolean) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
     permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
-    return checker.check("ishara", "scope-y");
+    string[] scopes = ["scope-y"];
+    return checker.authorize("ishara", scopes);
 }
 
 function testAuthorizationSuccess () returns (boolean) {
     permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
     permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
-    return checker.check("isuru", "scope2");
+    string[] scopes = ["scope2"];
+    return checker.authorize("isuru", scopes);
+}
+
+function testAuthorizationSuccessWithMultipleScopes () returns (boolean) {
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
+    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
+    string[] scopes = ["scope2", "scope1"];
+    return checker.authorize("isuru", scopes);
 }

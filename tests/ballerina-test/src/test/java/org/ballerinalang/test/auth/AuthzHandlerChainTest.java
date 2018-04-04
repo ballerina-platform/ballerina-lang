@@ -84,6 +84,13 @@ public class AuthzHandlerChainTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test case for authorization success for multiple scopes")
+    public void testAuthzSucessWithMultipleScopes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthzSucessWithMultipleScopes");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(ballerinaConfCopyPath);

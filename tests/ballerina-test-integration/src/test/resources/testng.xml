@@ -27,7 +27,7 @@
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
-            <!--<package name="org.ballerinalang.test.service.http2"/>-->
+            <package name="org.ballerinalang.test.service.http2"/>
             <package name="org.ballerinalang.test.transaction"/>
             <package name="org.ballerinalang.test.filter"/>
             <package name="org.ballerinalang.test.auth"/>
@@ -48,8 +48,8 @@
     </test>
     <test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcClientTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcServiceTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
         </classes>
     </test>
 

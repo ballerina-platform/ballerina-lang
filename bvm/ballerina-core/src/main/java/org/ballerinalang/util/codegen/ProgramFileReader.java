@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -88,6 +89,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
+import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
@@ -205,7 +207,10 @@ public class ProgramFileReader {
             case CP_ENTRY_PACKAGE:
                 cpIndex = dataInStream.readInt();
                 utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
-                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue());
+                int versionCPIndex = dataInStream.readInt();
+                UTF8CPEntry utf8VersionCPEntry = (UTF8CPEntry) constantPool.getCPEntry(versionCPIndex);
+                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue(), versionCPIndex,
+                        utf8VersionCPEntry.getValue());
 
             case CP_ENTRY_FUNCTION_REF:
                 pkgCPIndex = dataInStream.readInt();
@@ -335,6 +340,12 @@ public class ProgramFileReader {
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
         packageInfo.nameCPIndex = pkgNameCPIndex;
         packageInfo.pkgPath = pkgNameCPEntry.getValue();
+
+        int pkgVersionCPIndex = dataInStream.readInt();
+        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
+        packageInfo.versionCPIndex = pkgVersionCPIndex;
+        packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
+
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
@@ -425,6 +436,7 @@ public class ProgramFileReader {
             }
 
             String defaultInit = structName + INIT_FUNCTION_SUFFIX;
+            String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
 
             // Read attached function info entries
             int attachedFuncCount = dataInStream.readShort();
@@ -443,10 +455,17 @@ public class ProgramFileReader {
                         typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
                 structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
 
+                // TODO remove when removing struct
                 // Setting the initializer function info, if any.
                 if (structName.equals(attachedFuncName)) {
                     structInfo.initializer = functionInfo;
                 }
+                // Setting the object initializer
+                if (objectInit.equals(attachedFuncName)) {
+                    structInfo.initializer = functionInfo;
+                }
+
+                // TODO remove when removing struct
                 // Setting the default initializer function info
                 if (defaultInit.equals(attachedFuncName)) {
                     structInfo.defaultsValuesInitFunc = functionInfo;
@@ -962,6 +981,8 @@ public class ProgramFileReader {
                 typeStack.push(new BFunctionType());
                 return index + 1;
             case 'O':
+            case 'P':
+                typeChar = chars[index];
                 index++;
                 nameIndex = index;
                 while (chars[nameIndex] != ';') {
@@ -974,7 +995,11 @@ public class ProgramFileReader {
                     index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo) - 1;
                     memberTypes.add(typeStack.pop());
                 }
-                typeStack.push(new BUnionType(memberTypes));
+                if (typeChar == 'O') {
+                    typeStack.push(new BUnionType(memberTypes));
+                } else if (typeChar == 'P') {
+                    typeStack.push(new BTupleType(memberTypes));
+                }
                 return index + 1;
             case 'N':
                 typeStack.push(BTypes.typeNull);
@@ -1056,6 +1081,7 @@ public class ProgramFileReader {
                 // TODO : Fix this for type casting.
                 return new BFunctionType();
             case 'O':
+            case 'P':
                 Stack<BType> typeStack = new Stack<BType>();
                 createBTypeFromSig(desc.toCharArray(), 0, typeStack, null);
                 return typeStack.pop();
@@ -1362,6 +1388,20 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
 
+                case InstructionCodes.FPLOAD: {
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    int[] operands = new int[3 + (k * 2)];
+                    operands[0] = i;
+                    operands[1] = j;
+                    operands[2] = k;
+                    for (int x = 0; x < (k * 2); x++) {
+                        operands[x + 3] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+                    break;
+                }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
@@ -1391,7 +1431,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
-                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:
@@ -1413,14 +1452,13 @@ public class ProgramFileReader {
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
-                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLSEQSTORE:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
@@ -1471,6 +1509,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.CHECK_CONVERSION:
+                case InstructionCodes.XMLLOADALL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1555,6 +1594,8 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
+                case InstructionCodes.XMLSEQLOAD:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

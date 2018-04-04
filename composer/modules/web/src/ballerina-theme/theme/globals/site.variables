@@ -24,7 +24,7 @@ html:focus, body:focus, input[readonly]:focus{
       Colors
 --------------------*/
 
-@primaryColor               : @orange;
+@primaryColor               : #2fb8b0;
 @secondaryColor             : @gray-100;
 @defaultColor               : #626262;
 
@@ -42,19 +42,19 @@ html:focus, body:focus, input[readonly]:focus{
 @grey                       : #607D8B;
 @black                      : #000000;
 @off-white                  : #f1f1f1;
-@linkColor                  : #f17b31;
+@linkColor                  : @primaryColor;
 
 /*---- Shades of Gray ----*/
 
-@gray-100   : #f8f9fa;
-@gray-200   : #e9ecef;
-@gray-300   : #dee2e6;
-@gray-400   : #ced4da;
-@gray-500   : #adb5bd;
-@gray-600   : #868e96;
-@gray-700   : #495057;
-@gray-800   : #343a40;
-@gray-900   : #212529;
+@gray-100                   : #f8f9fa;
+@gray-200                   : #e9ecef;
+@gray-300                   : #dee2e6;
+@gray-400                   : #ced4da;
+@gray-500                   : #adb5bd;
+@gray-600                   : #868e96;
+@gray-700                   : #495057;
+@gray-800                   : #343a40;
+@gray-900                   : #212529;
 
 /*---- Inverted Colors  ----*/
 
@@ -64,7 +64,10 @@ html:focus, body:focus, input[readonly]:focus{
 @selectionInvertedTextColor     : @off-white;
 @selectionInvertItemDivider     : @defaultColor;
 
+@background                     : #e7eaeb;
 @pageBackground                 : @off-white;
+
+
 
 @placeholderBackgroundOpacity   : 0.7;
 

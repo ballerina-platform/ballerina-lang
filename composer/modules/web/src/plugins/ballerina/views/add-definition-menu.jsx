@@ -43,7 +43,13 @@ class AddDefinitionMenu extends React.Component {
                                     }
                                     // Handle struct / transformer addition.
                                     const newNode = item.data.nodeFactoryMethod();
-                                    item.model.acceptDrop(newNode);
+                                    if (newNode instanceof Array) {
+                                        newNode.forEach((element) => {
+                                            item.model.acceptDrop(element);
+                                        });
+                                    } else {
+                                        item.model.acceptDrop(newNode);
+                                    }
                                 }
                                 }
                                 data={element}
