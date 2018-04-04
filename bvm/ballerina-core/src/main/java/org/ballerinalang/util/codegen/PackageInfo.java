@@ -39,6 +39,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public int nameCPIndex;
     public String pkgPath;
+    public int versionCPIndex;
+    public String pkgVersion;
     private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
@@ -78,7 +80,13 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return pkgPath;
     }
 
-    // CP
+    public int getPackageVersionCPIndex() {
+        return versionCPIndex;
+    }
+
+    public String getPackageVersion() {
+        return pkgVersion;
+    }
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {
