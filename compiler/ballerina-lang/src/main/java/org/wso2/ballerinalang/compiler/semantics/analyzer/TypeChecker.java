@@ -1719,8 +1719,8 @@ public class TypeChecker extends BLangNodeVisitor {
                                                        BType lhsType,
                                                        BType rhsType,
                                                        BLangBinaryExpr binaryExpr) {
-        if (lhsType.tag == TypeTags.FINITE && types.isValueType(rhsType) ||
-                rhsType.tag == TypeTags.FINITE && types.isValueType(lhsType)) {
+        if (lhsType.tag == TypeTags.FINITE && types.isFiniteTypeAssignable(rhsType, lhsType) ||
+                rhsType.tag == TypeTags.FINITE && types.isFiniteTypeAssignable(lhsType, rhsType)) {
             types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
             types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
             int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
