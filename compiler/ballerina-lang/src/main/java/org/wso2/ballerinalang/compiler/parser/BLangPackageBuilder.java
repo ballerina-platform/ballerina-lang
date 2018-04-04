@@ -1631,19 +1631,6 @@ public class BLangPackageBuilder {
         return var;
     }
 
-//    void endObjectFieldList(boolean isPublic) {
-//        BLangObject objectNode = (BLangObject) this.objectStack.peek();
-//
-//        this.varListStack.pop().forEach(variableNode -> {
-//            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
-//            if (isPublic) {
-//                ((BLangVariable) variableNode).flagSet.add(Flag.PUBLIC);
-//            }
-//            objectNode.addField(variableNode);
-//        });
-//        this.varListStack.push(new ArrayList<>());
-//    }
-
     void addFieldToObject(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                           boolean exprAvailable, int annotCount, boolean isPrivate) {
 
