@@ -43,3 +43,12 @@ public native function <WebSocketConnector conn> upgradeToWebSocket (map headers
 @Param {value:"statusCode: Status code for closing the connection"}
 @Param {value:"reason: Reason for closing the connection"}
 public native function <WebSocketConnector conn> cancelUpgradeToWebSocket (int status, string reason);
+
+@Description {value:"WebSocketConnectorError struct represents an error occured during WebSocket message transfers"}
+@Field {value:"message:  An error message explaining about the error"}
+@Field {value:"cause: The error(s) that caused HttpConnectorError to get thrown"}
+@Field {value:"code: An error code that differenciates different errors"}
+public struct WebSocketConnectorError {
+    string message;
+    error[] cause;
+}

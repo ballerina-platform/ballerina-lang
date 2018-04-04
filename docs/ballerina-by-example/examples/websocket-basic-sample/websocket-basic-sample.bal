@@ -38,9 +38,8 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     }
 
     @Description {value:"This resource is triggered when a new text frame is received from a client."}
-    onTextMessage (endpoint conn, http:TextFrame frame) {
-        io:println("\ntext message: " + frame.text + " & is final fragment: " + frame.isFinalFragment);
-        string text = frame.text;
+    onTextMessage (endpoint conn, string text, boolean moreFragments) {
+        io:println("\ntext message: " + text + " & more fragments: " + moreFragments);
 
         if (text == "ping") {
             io:println("Pinging...");
@@ -49,27 +48,26 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
             var val = conn -> closeConnection(1001, "You asked me to close the connection");
             handleError(val);
         } else {
-            var val = conn -> pushText("You said: " + frame.text);
+            var val = conn -> pushText("You said: " + text);
             handleError(val);
         }
     }
 
     @Description {value:"This resource is triggered when a new binary frame is received from a client."}
-    onBinaryMessage (endpoint conn, http:BinaryFrame frame) {
+    onBinaryMessage (endpoint conn, blob b) {
         io:println("\nNew binary message received");
-        blob b = frame.data;
         io:println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
         var val = conn -> pushBinary(b);
         handleError(val);
     }
 
     @Description {value:"This resource is triggered when a ping message is received from the client. If this resource is not implemented then pong message will be sent automatically to the connected endpoint when a ping is received."}
-    onPing (endpoint conn, http:PingFrame frame) {
-        conn -> pong(frame.data);
+    onPing (endpoint conn, blob data) {
+        conn -> pong(data);
     }
 
     @Description {value:"This resource is triggered when a pong message is received"}
-    onPong (endpoint conn, http:PongFrame frame) {
+    onPong (endpoint conn, blob data) {
         io:println("Pong received");
     }
 
@@ -83,8 +81,8 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     }
 
     @Description {value:"This resource is triggered when a client connection is closed from the client side."}
-    onClose (endpoint conn, http:CloseFrame closeFrame) {
-        io:println("\nClient left with status code " + closeFrame.statusCode + " because " + closeFrame.reason);
+    onClose (endpoint conn, int statusCode, string reason) {
+        io:println("\nClient left with status code " + statusCode + " because " + reason);
     }
 }
 
@@ -100,7 +98,7 @@ function printHeaders (map<string> headers) {
     }
 }
 
-function handleError(http:WebSocketConnectorError|null val){
+function handleError (http:WebSocketConnectorError|null val) {
     match val {
         http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
         any|null err => {//ignore x
