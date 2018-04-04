@@ -21,6 +21,7 @@ import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,6 +31,8 @@ import java.util.List;
  */
 public class UserDefinedMessage extends Message {
     List<Field> fieldList = new ArrayList<>();
+    private List<UserDefinedMessage> nestedMsgList = new ArrayList<>();
+    private List<UserDefinedEnumMessage> nestedEnumList = new ArrayList<>();
     private DescriptorProtos.DescriptorProto descriptorProto;
 
     @Override
@@ -45,7 +48,6 @@ public class UserDefinedMessage extends Message {
     private UserDefinedMessage(DescriptorProtos.DescriptorProto descriptorProto) {
         this.descriptorProto = descriptorProto;
         this.messageName = descriptorProto.getName();
-        this.messageType = descriptorProto.getDescriptorForType().getFullName();
     }
 
     public static UserDefinedMessage.Builder newBuilder(String messageType) throws
@@ -54,15 +56,13 @@ public class UserDefinedMessage extends Message {
             throw new GrpcServerException("Error while initializing the builder, message type cannot be null");
         }
         // message type is coming as <package_name>:<name>.
-        String fullName;
         String name;
         if (messageType.contains(":")) {
-            name = messageType.split(":")[1];
-            fullName = messageType.replace(':', '.');
+            name = messageType.replace(':', '.');
         } else {
-            fullName = name = messageType;
+            name = messageType;
         }
-        return new UserDefinedMessage.Builder(fullName, name);
+        return new UserDefinedMessage.Builder(name);
     }
 
     public String getMessageDefinition() {
@@ -76,36 +76,53 @@ public class UserDefinedMessage extends Message {
         return msgDefinition.toString();
     }
 
+    @Override
+    public List<UserDefinedMessage> getNestedMessageList() {
+        return Collections.unmodifiableList(nestedMsgList);
+    }
+
+    @Override
+    public List<UserDefinedEnumMessage> getNestedEnumList() {
+        return Collections.unmodifiableList(nestedEnumList);
+    }
+
     /**
      * MessageDefinition.Builder
      */
     public static class Builder {
         private DescriptorProtos.DescriptorProto.Builder messageDescriptorBuilder;
         private List<Field> fieldList = new ArrayList<>();
-        private String msgFullName;
+        private List<UserDefinedMessage> nestedMsgList = new ArrayList<>();
+        private List<UserDefinedEnumMessage> nestedEnumList = new ArrayList<>();
 
         public Message build() {
             UserDefinedMessage message = new UserDefinedMessage(messageDescriptorBuilder.build());
             message.fieldList = fieldList;
-            message.messageType = msgFullName;
+            message.nestedEnumList = nestedEnumList;
+            message.nestedMsgList = nestedMsgList;
             return message;
         }
 
-        private Builder(String fullName, String messageName) {
+        private Builder(String messageName) {
             messageDescriptorBuilder = DescriptorProtos.DescriptorProto.newBuilder();
             messageDescriptorBuilder.setName(messageName);
-            this.msgFullName = fullName;
         }
 
-        public Builder addMessageDefinition(Message messageDefinition) {
-            messageDescriptorBuilder.addNestedType(messageDefinition.getDescriptorProto());
-            return this;
+        public void addMessageDefinition(Message messageDefinition) {
+            if (messageDefinition instanceof UserDefinedEnumMessage) {
+                UserDefinedEnumMessage enumMessage = (UserDefinedEnumMessage) messageDefinition;
+                messageDescriptorBuilder.addEnumType(enumMessage.getDescriptorProto());
+                nestedEnumList.add(enumMessage);
+            } else if (messageDefinition instanceof UserDefinedMessage) {
+                UserDefinedMessage message = (UserDefinedMessage) messageDefinition;
+                messageDescriptorBuilder.addNestedType(message.getDescriptorProto());
+                nestedMsgList.add(message);
+            }
         }
 
-        public Builder addFieldDefinition(Field fieldDefinition) {
+        public void addFieldDefinition(Field fieldDefinition) {
             fieldList.add(fieldDefinition);
             messageDescriptorBuilder.addField(fieldDefinition.getFieldDescriptorProto());
-            return this;
         }
     }
 }

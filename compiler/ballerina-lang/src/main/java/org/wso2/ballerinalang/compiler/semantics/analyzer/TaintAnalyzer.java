@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -320,6 +321,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         objectNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         analyzeNode(objectNode.initFunction, objectEnv);
         objectNode.functions.forEach(f -> analyzeNode(f, objectEnv));
+    }
+
+    public void visit(BLangRecord recordNode) {
+        BSymbol objectSymbol = recordNode.symbol;
+        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
+        recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        analyzeNode(recordNode.initFunction, objectEnv);
     }
 
     public void visit(BLangEnum enumNode) {

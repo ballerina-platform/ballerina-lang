@@ -11,3 +11,7 @@ function testSetConfig(string key, string value) {
 function testContains(string key) returns (boolean) {
     return config:contains(key);
 }
+
+function testGetTable(string tableHeader) returns map {
+    return config:getTable(tableHeader);
+}

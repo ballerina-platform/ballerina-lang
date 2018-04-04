@@ -33,11 +33,14 @@ import java.util.Optional;
 public class BLangAnonymousModelHelper {
 
     private Map<PackageID, Integer> anonStructCount;
+    private Map<PackageID, Integer> anonRecordCount;
     private Map<PackageID, Integer> anonFunctionCount;
 
     private static final String ANON_STRUCT = "$anonStruct$";
+    private static final String ANON_RECORD = "$anonRecord$";
     private static final String LAMBDA = "$lambda$";
     private static final String BUILTIN_ANON_STRUCT = "$anonStruct$builtin$";
+    private static final String BUILTIN_ANON_RECORD = "$anonRecord$builtin$";
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
@@ -46,6 +49,7 @@ public class BLangAnonymousModelHelper {
     private BLangAnonymousModelHelper(CompilerContext context) {
         context.put(ANONYMOUS_MODEL_HELPER_KEY, this);
         anonStructCount = new HashMap<>();
+        anonRecordCount = new HashMap<>();
         anonFunctionCount = new HashMap<>();
     }
 
@@ -64,6 +68,15 @@ public class BLangAnonymousModelHelper {
             return BUILTIN_ANON_STRUCT + nextValue;
         }
         return ANON_STRUCT + nextValue;
+    }
+
+    String getNextAnonymousRecordKey(PackageID packageID) {
+        Integer nextValue = Optional.ofNullable(anonRecordCount.get(packageID)).orElse(0);
+        anonRecordCount.put(packageID, nextValue + 1);
+        if (Names.BUILTIN_PACKAGE.equals(packageID.name)) {
+            return BUILTIN_ANON_RECORD + nextValue;
+        }
+        return ANON_RECORD + nextValue;
     }
 
     public String getNextAnonymousFunctionKey(PackageID packageID) {
