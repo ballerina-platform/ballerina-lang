@@ -83,7 +83,7 @@ public class BallerinaParser extends Parser {
 		RULE_xmlNamespaceName = 54, RULE_xmlLocalName = 55, RULE_annotationAttachment = 56, 
 		RULE_statement = 57, RULE_variableDefinitionStatement = 58, RULE_recordLiteral = 59, 
 		RULE_recordKeyValue = 60, RULE_recordKey = 61, RULE_tableLiteral = 62, 
-		RULE_tableInitlization = 63, RULE_arrayLiteral = 64, RULE_typeInitExpr = 65, 
+		RULE_tableInitialization = 63, RULE_arrayLiteral = 64, RULE_typeInitExpr = 65, 
 		RULE_assignmentStatement = 66, RULE_tupleDestructuringStatement = 67, 
 		RULE_compoundAssignmentStatement = 68, RULE_compoundOperator = 69, RULE_postIncrementStatement = 70, 
 		RULE_postArithmeticOperator = 71, RULE_variableReferenceList = 72, RULE_ifElseStatement = 73, 
@@ -146,8 +146,8 @@ public class BallerinaParser extends Parser {
 		"referenceTypeName", "userDefineTypeName", "anonStructTypeName", "valueTypeName", 
 		"builtInReferenceTypeName", "functionTypeName", "xmlNamespaceName", "xmlLocalName", 
 		"annotationAttachment", "statement", "variableDefinitionStatement", "recordLiteral", 
-		"recordKeyValue", "recordKey", "tableLiteral", "tableInitlization", "arrayLiteral", 
-		"typeInitExpr", "assignmentStatement", "tupleDestructuringStatement", 
+		"recordKeyValue", "recordKey", "tableLiteral", "tableInitialization", 
+		"arrayLiteral", "typeInitExpr", "assignmentStatement", "tupleDestructuringStatement", 
 		"compoundAssignmentStatement", "compoundOperator", "postIncrementStatement", 
 		"postArithmeticOperator", "variableReferenceList", "ifElseStatement", 
 		"ifClause", "elseIfClause", "elseClause", "matchStatement", "matchPatternClause", 
@@ -5463,8 +5463,8 @@ public class BallerinaParser extends Parser {
 
 	public static class TableLiteralContext extends ParserRuleContext {
 		public TerminalNode TYPE_TABLE() { return getToken(BallerinaParser.TYPE_TABLE, 0); }
-		public TableInitlizationContext tableInitlization() {
-			return getRuleContext(TableInitlizationContext.class,0);
+		public TableInitializationContext tableInitialization() {
+			return getRuleContext(TableInitializationContext.class,0);
 		}
 		public TableLiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5489,7 +5489,7 @@ public class BallerinaParser extends Parser {
 			setState(1124);
 			match(TYPE_TABLE);
 			setState(1125);
-			tableInitlization();
+			tableInitialization();
 			}
 		}
 		catch (RecognitionException re) {
@@ -5503,27 +5503,27 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TableInitlizationContext extends ParserRuleContext {
+	public static class TableInitializationContext extends ParserRuleContext {
 		public RecordLiteralContext recordLiteral() {
 			return getRuleContext(RecordLiteralContext.class,0);
 		}
-		public TableInitlizationContext(ParserRuleContext parent, int invokingState) {
+		public TableInitializationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_tableInitlization; }
+		@Override public int getRuleIndex() { return RULE_tableInitialization; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTableInitlization(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterTableInitialization(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTableInitlization(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTableInitialization(this);
 		}
 	}
 
-	public final TableInitlizationContext tableInitlization() throws RecognitionException {
-		TableInitlizationContext _localctx = new TableInitlizationContext(_ctx, getState());
-		enterRule(_localctx, 126, RULE_tableInitlization);
+	public final TableInitializationContext tableInitialization() throws RecognitionException {
+		TableInitializationContext _localctx = new TableInitializationContext(_ctx, getState());
+		enterRule(_localctx, 126, RULE_tableInitialization);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
