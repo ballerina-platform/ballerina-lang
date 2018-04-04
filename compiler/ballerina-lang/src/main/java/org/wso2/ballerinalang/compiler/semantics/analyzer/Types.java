@@ -1110,8 +1110,4 @@ public class Types {
         }
         return true;
     }
-
-    public boolean isAnyType(BType type) {
-        return type.tag == TypeTags.ANY;
-    }
 }

@@ -232,6 +232,12 @@ public class TypeChecker extends BLangNodeVisitor {
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.errType;
 
+        if (expType.tag == TypeTags.ANY) {
+            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+            resultType = symTable.errType;
+            return;
+        }
+
         int expTypeTag = expType.tag;
         if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
             checkExprs(arrayLiteral.exprs, this.env, expType);
@@ -271,14 +277,16 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         BType actualType = symTable.errType;
         int expTypeTag = expType.tag;
+        BType originalExpType = expType;
         if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.ANY) {
             // Change the expected type to map,
             expType = symTable.mapType;
         }
-        if ((recordLiteral.keyValuePairs.isEmpty() && expTypeTag == TypeTags.MAP)
-                || (expTypeTag == TypeTags.STRUCT && ((BStructSymbol) expType.tsymbol).isObject)) {
-            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, expType);
-            expType = symTable.errType;
+        if (expTypeTag == TypeTags.ANY
+                || (expTypeTag == TypeTags.MAP && recordLiteral.keyValuePairs.isEmpty())
+                || (expTypeTag == TypeTags.STRUCT && ((BStructSymbol) originalExpType.tsymbol).isObject)) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
+            resultType = symTable.errType;
             return;
         }
 
@@ -586,6 +594,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
+        if ((expType.tag == TypeTags.ANY && cIExpr.userDefinedType == null)
+                || (expType.tag == TypeTags.STRUCT && !((BStructSymbol) expType.tsymbol).isObject)) {
+            dlog.error(cIExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
+            resultType = symTable.errType;
+            return;
+        }
         BType actualType;
         if (cIExpr.userDefinedType != null) {
             actualType = symResolver.resolveTypeNode(cIExpr.userDefinedType, env);

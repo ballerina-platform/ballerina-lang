@@ -553,9 +553,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
         }
-        if (varDefNode.var.expr != null && types.isAnyType(varDefNode.var.type)) {
-            validateVariableDefinition(varDefNode.var.expr);
-        }
     }
 
     public void visit(BLangPostIncrement postIncrement) {
@@ -1621,9 +1618,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void validateVariableDefinition(BLangExpression expr) {
         // following cases are invalid.
-        // any/var a = [ x, y, ... ];
-        // any/var a = { x : y };
-        // any/var a = new ;
+        // var a = [ x, y, ... ];
+        // var a = { x : y };
+        // var a = new ;
         final NodeKind kind = expr.getKind();
         if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
                 || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {

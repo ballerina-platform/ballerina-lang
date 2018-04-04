@@ -155,6 +155,8 @@ public enum DiagnosticCode {
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
+    INVALID_ARRAY_LITERAL("invalid.array.literal"),
+    INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
