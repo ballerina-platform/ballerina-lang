@@ -20,7 +20,10 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.List;
 
 /**
  * {@code BLangCheckedExpr} represents a unary expression which forces return-on-error behaviour.
@@ -36,6 +39,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangCheckedExpr extends BLangExpression implements CheckedExpressionNode {
 
     public BLangExpression expr;
+
+    // This list caches types that are equivalent to the error type which are returned by the rhs expression.
+    public List<BType> equivalentErrorTypeList;
 
     @Override
     public BLangExpression getExpression() {
