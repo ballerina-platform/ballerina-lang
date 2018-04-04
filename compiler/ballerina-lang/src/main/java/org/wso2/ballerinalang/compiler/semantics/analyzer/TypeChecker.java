@@ -661,7 +661,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
-        BType lhsType = checkExpr(elvisExpr.lhsExpr, env).get(0);
+        BType lhsType = checkExpr(elvisExpr.lhsExpr, env);
         BType actualType = symTable.errType;
         if (lhsType != symTable.errType) {
             if (lhsType.tag == TypeTags.UNION && lhsType.isNullable()) {
@@ -670,7 +670,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 Iterator<BType> iterator = unionType.getMemberTypes().iterator();
                 while (iterator.hasNext()) {
                     BType memberType = iterator.next();
-                    if (memberType != symTable.nullType) {
+                    if (memberType != symTable.nilType) {
                         memberTypes.add(memberType);
                     }
                 }
@@ -686,20 +686,20 @@ public class TypeChecker extends BLangNodeVisitor {
                         OperatorKind.ELVIS, lhsType);
             }
         }
-        BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, env, expTypes).get(0);
-        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, actualType, expTypes.get(0),
+        BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, env, expType);
+        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, actualType, expType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
         if (rhsReturnType == symTable.errType || lhsReturnType == symTable.errType) {
-            resultTypes = Lists.of(symTable.errType);
-        } else if (expTypes.get(0) == symTable.noType) {
+            resultType = symTable.errType;
+        } else if (expType == symTable.noType) {
             if (types.isSameType(rhsReturnType, lhsReturnType)) {
-                resultTypes = Lists.of(lhsReturnType);
+                resultType = lhsReturnType;
             } else {
                 dlog.error(elvisExpr.rhsExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsReturnType, rhsReturnType);
-                resultTypes = Lists.of(symTable.errType);
+                resultType = symTable.errType;
             }
         } else {
-            resultTypes = expTypes;
+            resultType = expType;
         }
     }
 
