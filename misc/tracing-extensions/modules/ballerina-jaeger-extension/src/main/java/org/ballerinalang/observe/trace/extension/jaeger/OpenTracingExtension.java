@@ -18,6 +18,7 @@
 package org.ballerinalang.observe.trace.extension.jaeger;
 
 import io.opentracing.Tracer;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
@@ -43,6 +44,7 @@ import static org.ballerinalang.observe.trace.extension.jaeger.Constants.TRACER_
 /**
  * This is the open tracing extension class for {@link OpenTracer}.
  */
+@JavaSPIService("org.ballerinalang.util.tracer.OpenTracer")
 public class OpenTracingExtension implements OpenTracer {
 
     private static final PrintStream consoleError = System.err;
@@ -50,11 +52,7 @@ public class OpenTracingExtension implements OpenTracer {
     @Override
     public Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
             throws InvalidConfigurationException {
-        if (!tracerName.equalsIgnoreCase(TRACER_NAME)) {
-            throw new InvalidConfigurationException("Unexpected tracer name! " +
-                    "The tracer name supported by this extension is : " + TRACER_NAME + " but found : "
-                    + tracerName);
-        }
+
         return new com.uber.jaeger.Configuration(serviceName,
                 new com.uber.jaeger.Configuration.SamplerConfiguration(
                         getValidStringConfig(configProperties.get(SAMPLER_TYPE_CONFIG), DEFAULT_SAMPLER_TYPE),
@@ -72,6 +70,11 @@ public class OpenTracingExtension implements OpenTracer {
                         getValidIntegerConfig(configProperties.get(REPORTER_MAX_BUFFER_SPANS_CONFIG),
                                 DEFAULT_REPORTER_MAX_BUFFER_SPANS, REPORTER_MAX_BUFFER_SPANS_CONFIG))
         ).getTracerBuilder().withScopeManager(NoOpScopeManager.INSTANCE).build();
+    }
+
+    @Override
+    public String getName() {
+        return TRACER_NAME;
     }
 
     private String getValidStringConfig(String config, String defaultValue) {

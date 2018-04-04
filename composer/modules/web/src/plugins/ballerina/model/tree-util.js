@@ -182,8 +182,7 @@ class TreeUtil extends AbstractTreeUtil {
      * @return {*}
      */
     isEndpointTypeVariableDef(node) {
-        const typeNode = _.get(node, 'variable.typeNode');
-        return typeNode && this.isEndpointType(typeNode);
+        return this.isEndpointType(node);
     }
 
     /**
@@ -606,19 +605,7 @@ class TreeUtil extends AbstractTreeUtil {
      */
     getCurrentEndpoints(model) {
         if (this.isResource(model) || this.isFunction(model)) {
-            return model.getBody().getStatements()
-            .filter(stmt => this.isVariableDef(stmt) && this.isEndpointType(stmt.getVariable().getTypeNode()));
-        } else if (this.isConnector(model)) {
-            const statements = [];
-            model.getActions().forEach((action) => {
-                action.getBody().getStatements().forEach((stmt) => {
-                    if (this.isVariableDef(stmt)
-                        && this.isEndpointType(stmt.getVariable().getTypeNode())) {
-                        statements.push(stmt);
-                    }
-                });
-            });
-            return statements;
+            return model.getEndpointNodes();
         } else if (model.parent) {
             return this.getCurrentEndpoints(model.parent);
         } else {
@@ -739,10 +726,10 @@ class TreeUtil extends AbstractTreeUtil {
      * @param {Node} node - current node.
      * */
     generateEndpointName(parent, node) {
-        const defaultName = 'endpoint';
+        const defaultName = 'ep';
         let defaultIndex = 0;
         const names = this.getCurrentEndpoints(parent)
-                        .map((endpoint) => { return endpoint.getVariableName().getValue(); })
+                        .map((endpoint) => { return endpoint.getName().getValue(); })
                         .sort();
         names.every((endpoint, i) => {
             if (names[i] !== defaultName + (i + 1)) {
@@ -752,7 +739,7 @@ class TreeUtil extends AbstractTreeUtil {
                 return true;
             }
         });
-        node.getVariableName()
+        node.getName()
         .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 

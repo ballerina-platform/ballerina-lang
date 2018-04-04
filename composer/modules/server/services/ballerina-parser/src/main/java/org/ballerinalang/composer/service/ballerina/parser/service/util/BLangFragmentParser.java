@@ -90,12 +90,15 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
-            case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
                 // For Expression - 0th child is the var ref expression of var def stmt
                 // For Statement - 0 & 1 are function args and return types, 2 is the statement came from source
                 // fragment
                 fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
                         .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.ENDPOINT_NODES)
+                        .get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
                 JsonObject bodyJsonObj = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY);

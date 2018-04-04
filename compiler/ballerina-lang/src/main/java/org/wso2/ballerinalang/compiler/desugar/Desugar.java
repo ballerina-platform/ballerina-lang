@@ -133,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -377,8 +378,8 @@ public class Desugar extends BLangNodeVisitor {
 //        bLangStruct.functions = rewrite(objectNode.functions, env);
         bLangStruct.initFunction = objectNode.initFunction;
         bLangStruct.annAttachments = objectNode.annAttachments;
-        bLangStruct.docAttachments = rewrite(objectNode.docAttachments, env);
-        bLangStruct.deprecatedAttachments = rewrite(objectNode.deprecatedAttachments, env);
+        bLangStruct.docAttachments = objectNode.docAttachments;
+        bLangStruct.deprecatedAttachments = objectNode.deprecatedAttachments;
         bLangStruct.isAnonymous = objectNode.isAnonymous;
         bLangStruct.symbol = objectNode.symbol;
 
@@ -391,8 +392,8 @@ public class Desugar extends BLangNodeVisitor {
         bLangStruct.fields = recordNode.fields;
         bLangStruct.initFunction = recordNode.initFunction;
         bLangStruct.annAttachments = recordNode.annAttachments;
-        bLangStruct.docAttachments = rewrite(recordNode.docAttachments, env);
-        bLangStruct.deprecatedAttachments = rewrite(recordNode.deprecatedAttachments, env);
+        bLangStruct.docAttachments = recordNode.docAttachments;
+        bLangStruct.deprecatedAttachments = recordNode.deprecatedAttachments;
         bLangStruct.isAnonymous = recordNode.isAnonymous;
         bLangStruct.symbol = recordNode.symbol;
 
@@ -673,6 +674,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangAbort abortNode) {
         result = abortNode;
+    }
+    
+    @Override
+    public void visit(BLangDone doneNode) {
+        result = doneNode;
     }
 
     @Override

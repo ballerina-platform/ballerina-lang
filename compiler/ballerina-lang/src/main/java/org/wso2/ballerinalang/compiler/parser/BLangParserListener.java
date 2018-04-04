@@ -469,54 +469,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+    public void exitObjectBody(BallerinaParser.ObjectBodyContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
+        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
         }
-
-        this.pkgBuilder.endObjectFieldList(true);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void enterPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endObjectFieldList(false);
     }
 
     /**
@@ -581,11 +541,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
         if (ctx.parent instanceof BallerinaParser.PublicObjectFieldsContext) {
-            this.pkgBuilder.addFieldToObject(currentPos, ws, name, exprAvailable, 0, false);
+            this.pkgBuilder
+                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
-            this.pkgBuilder.addFieldToObject(currentPos, ws, name, exprAvailable, 0, true);
+            this.pkgBuilder
+                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), true);
         } else if (ctx.parent instanceof BallerinaParser.FieldDefinitionListContext) {
-            this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, 0);
+            this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size());
         }
     }
 
@@ -1818,6 +1780,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitDoneStatement(BallerinaParser.DoneStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addDoneStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

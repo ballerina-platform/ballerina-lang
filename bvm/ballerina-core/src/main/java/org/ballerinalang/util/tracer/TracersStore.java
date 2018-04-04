@@ -26,11 +26,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import static org.ballerinalang.util.tracer.TraceConstants.ENABLED_CONFIG;
 import static org.ballerinalang.util.tracer.TraceConstants.JAEGER;
-import static org.ballerinalang.util.tracer.TraceConstants.JAEGER_EXTENSION_CLASS_NAME;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACER_CLASS_NAME_CONFIG;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACER_NAME_CONFIG;
 
 /**
@@ -46,14 +45,16 @@ class TracersStore {
 
             this.tracers = new ArrayList<>();
             this.tracerStore = new HashMap<>();
-            String name = tracingConfigs.getOrDefault(TRACER_NAME_CONFIG, JAEGER);
-            String className = tracingConfigs.getOrDefault(TRACER_CLASS_NAME_CONFIG, JAEGER_EXTENSION_CLASS_NAME);
-            try {
-                Class<?> openTracerClass = Class.forName(className).asSubclass(OpenTracer.class);
-                this.tracers.add(new TracerGenerator(name, (OpenTracer) openTracerClass.newInstance(), tracingConfigs));
-            } catch (Throwable ignored) {
-                //Tracers will get added only of there's no errors.
-                //If tracers contains errors, empty map will return.
+
+            ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
+            HashMap<String, OpenTracer> tracerMap = new HashMap<>();
+            openTracers.forEach(t -> tracerMap.put(t.getName(), t));
+
+            String tracerName = tracingConfigs.getOrDefault(TRACER_NAME_CONFIG, JAEGER);
+
+            OpenTracer tracer = tracerMap.get(tracerName);
+            if (tracer != null) {
+                this.tracers.add(new TracerGenerator(tracer.getName(), tracer, tracingConfigs));
             }
         } else {
             this.tracers = Collections.emptyList();
