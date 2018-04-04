@@ -779,6 +779,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 unaryExpr.opSymbol = Symbols.createTypeofOperatorSymbol(exprType, types, symTable, names);
                 actualType = unaryExpr.opSymbol.type.getReturnType();
             }
+        } else if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
+            exprType = checkExpr(unaryExpr.expr, env);
+            if (exprType != symTable.errType) {
+                actualType = exprType;
+            }
         } else {
             exprType = checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.errType) {
