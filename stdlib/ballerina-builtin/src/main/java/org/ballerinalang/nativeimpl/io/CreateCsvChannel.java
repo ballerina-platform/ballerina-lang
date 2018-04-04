@@ -62,15 +62,15 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
     /**
      * The index of the access mode.
      */
-    private static final int MODE_INDEX = 0;
+    private static final int MODE_INDEX = 1;
     /**
      * Specifies the index of the format enum.
      */
-    private static final int FORMAT_INDEX = 1;
+    private static final int FORMAT_INDEX = 2;
     /**
      * Specifies the index in which the charset is defined.
      */
-    private static final int CHARSET_INDEX = 2;
+    private static final int CHARSET_INDEX = 3;
     /**
      * The package path of the delimited record channel.
      */

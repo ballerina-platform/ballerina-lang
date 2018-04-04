@@ -32,7 +32,7 @@ returns (boolean|io:IOError){
     }
 }
 
-function initDefaultCsv(string filePath) returns (boolean|io:IOError){
+function initDefaultCsvForReading(string filePath) returns (boolean|io:IOError){
     var csvDefaultChannel = io:createCsvChannel(filePath);
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
@@ -45,8 +45,21 @@ function initDefaultCsv(string filePath) returns (boolean|io:IOError){
     }
 }
 
-function initRfc(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,file:RW, io:RFC4180_FORMAT);
+function initDefaultCsvForWriting(string filePath) returns (boolean|io:IOError){
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode="w");
+    match csvDefaultChannel {
+        io:DelimitedRecordChannel delimChannel =>{
+            txtChannel = delimChannel;
+            return true;
+        }
+        io:IOError err =>{
+            return err;
+        }
+    }
+}
+
+function initRfcForReading(string filePath) returns (boolean|io:IOError){
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode="r", rf="RFC4180");
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
           txtChannel = delimChannel;
@@ -58,8 +71,21 @@ function initRfc(string filePath) returns (boolean|io:IOError){
     }
 }
 
-function initTdf(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,file:RW, io:TDF_FORMAT);
+function initRfcForWriting(string filePath) returns (boolean|io:IOError){
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode="w", rf="RFC4180");
+    match csvDefaultChannel {
+        io:DelimitedRecordChannel delimChannel =>{
+            txtChannel = delimChannel;
+            return true;
+        }
+        io:IOError err =>{
+            return err;
+        }
+    }
+}
+
+function initTdfForReading(string filePath) returns (boolean|io:IOError){
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode="r", rf="TDF");
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
          txtChannel = delimChannel;
@@ -68,6 +94,19 @@ function initTdf(string filePath) returns (boolean|io:IOError){
        io:IOError err =>{
          return err;
        }
+    }
+}
+
+function initTdfForWriting(string filePath) returns (boolean|io:IOError){
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode="w", rf="TDF");
+    match csvDefaultChannel {
+        io:DelimitedRecordChannel delimChannel =>{
+            txtChannel = delimChannel;
+            return true;
+        }
+        io:IOError err =>{
+            return err;
+        }
     }
 }
 
