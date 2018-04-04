@@ -19,7 +19,7 @@ import ballerina/grpc;
 function testUnarySecuredBlocking() returns (string) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
-        port:9090,
+        port:8085,
         ssl:{
                 trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 trustStorePassword:"ballerina"

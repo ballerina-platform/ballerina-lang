@@ -18,7 +18,7 @@ import ballerina/grpc;
 
 endpoint grpc:Service ep {
     host:"localhost",
-    port:9090,
+    port:8085,
     ssl:{
             keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
             keyStorePassword:"ballerina",
