@@ -44,7 +44,7 @@ public const string OUTCOME_HAZARD = "Hazard-Outcome";
 public const string OUTCOME_FAILED_EOT = "Failed-EOT";
 public const string OUTCOME_READ_ONLY = "read-only";
 
-public struct TransactionContext {
+public type TransactionContext {
     string contextVersion = "1.0";
     string transactionId;
     int transactionBlockId;
@@ -52,7 +52,7 @@ public struct TransactionContext {
     string registerAtURL;
 }
 
-struct Participant {
+type Participant {
     string participantId;
     Protocol[] participantProtocols;
 }
@@ -65,7 +65,7 @@ documentation {
                 the `protocolFn` will be called
     F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
-public struct Protocol {
+public type Protocol {
     string name;
     string url;
     int transactionBlockId;
@@ -74,7 +74,7 @@ public struct Protocol {
                string protocolAction) returns boolean)|null protocolFn;
 }
 
-public struct RegistrationRequest {
+public type RegistrationRequest {
     string transactionId;
     string participantId;
     Protocol[] participantProtocols;
@@ -93,7 +93,7 @@ public function regRequestToJson (RegistrationRequest req) returns json {
     return j;
 }
 
-public struct RegistrationResponse {
+public type RegistrationResponse {
     string transactionId;
     Protocol[] coordinatorProtocols;
 }
@@ -138,23 +138,23 @@ function jsonToAny(json j) returns any {
     }
 }
 
-public struct RequestError {
+public type RequestError {
     string errorMessage;
 }
 
-public struct PrepareRequest {
+public type PrepareRequest {
     string transactionId;
 }
 
-public struct PrepareResponse {
+public type PrepareResponse {
     string message;
 }
 
-public struct NotifyRequest {
+public type NotifyRequest {
     string transactionId;
     string message;
 }
 
-public struct NotifyResponse {
+public type NotifyResponse {
     string message;
 }
