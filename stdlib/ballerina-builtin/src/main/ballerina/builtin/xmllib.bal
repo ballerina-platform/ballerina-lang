@@ -82,8 +82,7 @@ public native function <xml x> setAttributes(map attributes);
 @Param { value:"x: A XML object" }
 @Param { value:"options: xmlOptions struct for XML to JSON conversion properties" }
 @Return { value:"JSON representation of the given XML" }
-public native function <xml x> toJSON (struct {
-                                           string attributePrefix = "@";
+public native function <xml x> toJSON ({ string attributePrefix = "@";
                                            boolean preserveNamespaces = true;
                                        } options) returns (json);
 

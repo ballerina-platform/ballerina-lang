@@ -643,7 +643,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true, if given symbol is handled
      */
     private boolean handleSpecialBuiltinStructTypes(BSymbol symbol) {
-        if (symbol.kind != SymbolKind.STRUCT) {
+        if (symbol.kind != SymbolKind.RECORD) {
             return false;
         }
         if (Names.ERROR.equals(symbol.name)) {
