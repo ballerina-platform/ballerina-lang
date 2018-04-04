@@ -20,9 +20,20 @@ package org.ballerinalang.net.websub;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.ParamDetail;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.mime.util.Constants;
+import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
@@ -37,6 +48,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
@@ -44,6 +56,7 @@ import java.util.HashSet;
 public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorListener {
 
     private WebSubServicesRegistry webSubServicesRegistry;
+    private PrintStream console = System.out;
 
     public BallerinaWebSubConnectionListener(WebSubServicesRegistry webSubServicesRegistry,
                                              HashSet<FilterHolder> filterHolders) {
@@ -66,8 +79,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 return;
             }
             httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
-            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null
-                    && HttpDispatcher.shouldDiffer(httpResource, hasFilters())) {
+            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null) { //differ for all
                 httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
             }
@@ -77,15 +89,85 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         }
     }
 
+    protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
+                                                              HttpResource httpResource) {
+        BValue[] httpSignatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
+        // invoke the request path filters
+        invokeRequestFilters(httpCarbonMessage, httpSignatureParams[1], getRequestFilterContext(httpResource));
+
+        Resource balResource = httpResource.getBalResource();
+        List<ParamDetail> paramDetails = balResource.getParamDetails();
+        BValue[] signatureParams = new BValue[paramDetails.size()];
+        String resourceName = httpResource.getName();
+        if (WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
+            signatureParams[0] = httpSignatureParams[0];
+            BStruct intentVerificationRequestStruct = createIntentVerificationRequestStruct(balResource);
+            if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
+                String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
+                BMap<String, BString> params = new BMap<>();
+                try {
+                    URIUtil.populateQueryParamMap(queryString, params);
+                    intentVerificationRequestStruct.setStringField(0,
+                                               params.get(WebSubSubscriberConstants.PARAM_HUB_MODE).stringValue());
+                    intentVerificationRequestStruct.setStringField(1,
+                                               params.get(WebSubSubscriberConstants.PARAM_HUB_TOPIC).stringValue());
+                    intentVerificationRequestStruct.setStringField(2,
+                                               params.get(WebSubSubscriberConstants.PARAM_HUB_CHALLENGE).stringValue());
+                    intentVerificationRequestStruct.setIntField(0, Integer.parseInt(
+                                       params.get(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS).stringValue()));
+                } catch (UnsupportedEncodingException e) {
+                    throw new BallerinaException("Error populating query map for intent verification request received: "
+                                                         + e.getMessage());
+                }
+            }
+            intentVerificationRequestStruct.setRefField(0, (BRefType) httpSignatureParams[1]);
+            signatureParams[1] = intentVerificationRequestStruct;
+        } else { //Notification Resource
+            HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
+            response.waitAndReleaseAllEntities();
+            response.setProperty(HttpConstants.HTTP_STATUS_CODE, 202);
+            response.addHttpContent(new DefaultLastHttpContent());
+            HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
+            BStruct notificationRequestStruct = createNotificationRequestStruct(balResource);
+            BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpSignatureParams[1]);
+            if (entityStruct != null) {
+                if (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
+                    BJSON jsonBody = (BJSON) (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
+                    notificationRequestStruct.setRefField(0, jsonBody);
+                } else {
+                    console.println("ballerina: Non-JSON payload received as WebSub Notification");
+                }
+            }
+            notificationRequestStruct.setRefField(1, (BRefType) httpSignatureParams[1]);
+            signatureParams[0] = notificationRequestStruct;
+        }
+
+        CallableUnitCallback callback = new WebSubEmptyCallableUnitCallback();
+        //TODO handle BallerinaConnectorException
+        Executor.submit(balResource, callback, null, null, signatureParams);
+    }
+
+    private BStruct createIntentVerificationRequestStruct(Resource resource) {
+        return BLangConnectorSPIUtil.createBStruct(
+                resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                                                   WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                                                   WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
+    }
+    private BStruct createNotificationRequestStruct(Resource resource) {
+        return BLangConnectorSPIUtil.createBStruct(
+                resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+    }
+
     /**
      * Method to automatically respond to intent verification requests for subscriptions/unsubscriptions if a resource
-     * named {@link WebSubSubscriberConstants#RESOURCE_NAME_VERIFY_INTENT} is not specified.
+     * named {@link WebSubSubscriberConstants#RESOURCE_NAME_ON_INTENT_VERIFICATION} is not specified.
      *
      * @param httpCarbonMessage the message/request received
      */
     private void autoRespondToIntentVerification(HTTPCarbonMessage httpCarbonMessage) {
         String annotatedTopic = httpCarbonMessage.getProperty(WebSubSubscriberConstants.ANNOTATED_TOPIC).toString();
-        PrintStream console = System.out;
         if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
             String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
             BMap<String, BString> params = new BMap<>();
@@ -106,7 +188,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                                             + annotatedTopic + "], Lease Seconds ["
                                             + params.get(WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS) + "]");
                 } else {
-                    console.println("ballerina: Intent Verification denied - Mode [" + mode + "] for Incorrect Topic ["
+                    console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
                                             + annotatedTopic + "]");
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                 }

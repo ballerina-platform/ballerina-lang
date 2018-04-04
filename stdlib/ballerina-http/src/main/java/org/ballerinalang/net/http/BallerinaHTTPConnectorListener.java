@@ -117,7 +117,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Executor.submit(balResource, callback, properties, ctx, signatureParams);
     }
 
-    private BValue getRequestFilterContext(HttpResource httpResource) {
+    protected BValue getRequestFilterContext(HttpResource httpResource) {
         BStruct filterCtxtStruct = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, "FilterContext");
@@ -161,7 +161,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      * @param requestObject     Representation of ballerina.net.Request struct
      * @param filterCtxt        filtering criteria
      */
-    private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt) {
+    protected void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt) {
 
         if (!hasFilters()) {
             // no filters, return

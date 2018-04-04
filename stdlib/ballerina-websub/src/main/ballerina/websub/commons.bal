@@ -59,36 +59,36 @@ public struct WebSubError {
 @Description {value:"Function to build intent verification response for subscription requests sent"}
 @Param {value:"request: The intent verification request from the hub"}
 @Return {value:"The response to the hub verifying/denying intent to subscribe"}
-public function buildSubscriptionVerificationResponse(http:Request request, string topic = "")
-                                                                                        returns (http:Response|null) {
+public function <IntentVerificationRequest intentVerificationRequest> buildSubscriptionVerificationResponse
+(string topic = "") returns (http:Response|null) {
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
     if (topic == "") {
         subscriberServiceConfiguration = retrieveAnnotations();
     } else {
         subscriberServiceConfiguration = { topic:topic };
     }
-    return buildIntentVerificationResponse(request, MODE_SUBSCRIBE, subscriberServiceConfiguration);
+    return buildIntentVerificationResponse(intentVerificationRequest, MODE_SUBSCRIBE, subscriberServiceConfiguration);
 }
 
 @Description {value:"Function to build intent verification response for unsubscription requests sent"}
 @Param {value:"request: The intent verification request from the hub"}
 @Return {value:"The response to the hub verifying/denying intent to subscribe"}
-public function buildUnsubscriptionVerificationResponse(http:Request request, string topic = "") returns
-                                                                                                 (http:Response|null) {
+public function <IntentVerificationRequest intentVerificationRequest> buildUnsubscriptionVerificationResponse
+(string topic = "") returns (http:Response|null) {
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
     if (topic == "") {
         subscriberServiceConfiguration = retrieveAnnotations();
     } else {
         subscriberServiceConfiguration = { topic:topic };
     }
-    return buildIntentVerificationResponse(request, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
+    return buildIntentVerificationResponse(intentVerificationRequest, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
 }
 
 @Description { value : "Function to build intent verification response for subscription/unsubscription requests sent" }
 @Param { value : "request: The intent verification request from the hub" }
 @Param { value : "mode: The mode (subscription/unsubscription) for which a request was sent" }
 @Return { value : "The response to the hub verifying/denying intent to subscripe/unsubscribe" }
-function buildIntentVerificationResponse(http:Request request, string mode,
+function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
                         SubscriberServiceConfiguration webSubSubscriberAnnotations) returns (http:Response|null) {
     http:Response response = {};
     string topic = webSubSubscriberAnnotations.topic;
@@ -97,13 +97,12 @@ function buildIntentVerificationResponse(http:Request request, string mode,
         return null;
     }
 
-    map params = request.getQueryParams();
-    string reqMode = <string> params[HUB_MODE];
-    string challenge = <string> params[HUB_CHALLENGE];
-    string reqTopic = <string> params[HUB_TOPIC];
+    string reqMode = intentVerificationRequest.mode;
+    string challenge = intentVerificationRequest.challenge;
+    string reqTopic = intentVerificationRequest.topic;
     reqTopic =? uri:decode(reqTopic, "UTF-8");
 
-    string reqLeaseSeconds = <string> params[HUB_LEASE_SECONDS];
+    string reqLeaseSeconds = <string> intentVerificationRequest.leaseSeconds;
 
     if (reqMode == mode && reqTopic == topic) {
         response = { statusCode:202 };
@@ -183,6 +182,29 @@ public function validateSignature (string xHubSignature, string stringPayload, s
         return webSubError;
     }
     return null;
+}
+
+@Description {value:"Struct representing the WebSubSubscriber notification received"}
+@Field {value:"payload: The payload of the notification received"}
+@Field {value:"request: The HTTP POST request received as the notification"}
+public struct NotificationRequest {
+    json payload;
+    http:Request request;
+}
+
+@Description {value:"Struct representing and intent verification request received"}
+@Field {value:"mode: The mode specified whether intent is being verified for subscription or unsubscription"}
+@Field {value:"topic: The for which intent is being verified for subscription or unsubscription"}
+@Field {value:"challenge: The challenge to be echoed to verify intent to subscribe/unsubscribe"}
+@Field {value:"leaseSeconds: The lease seconds period for which a subscription will be active if intent verification
+is being done for subscription"}
+@Field {value:"request: The HTTP request received for intent verification"}
+public struct IntentVerificationRequest {
+    string mode;
+    string topic;
+    string challenge;
+    int leaseSeconds;
+    http:Request request;
 }
 
 @Description {value:"Struct to represent a WebSub subscription request"}

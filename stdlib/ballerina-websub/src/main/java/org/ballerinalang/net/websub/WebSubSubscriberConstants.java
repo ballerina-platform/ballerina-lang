@@ -28,10 +28,11 @@ public class WebSubSubscriberConstants {
     public static final String WEBSUB_SERVICE_REGISTRY = "WEBSUB_SERVICE_REGISTRY";
     public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME =
                                                         "ballerina.websub:SubscriberServiceEndpoint";
+    public static final String SERVICE_ENDPOINT = "SubscriberServiceEndpoint";
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
     public static final String WEBSUB_PACKAGE_PATH = "ballerina.websub";
 
-    static final String RESOURCE_NAME_VERIFY_INTENT = "onVerifyIntent";
+    static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
     static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
 
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
@@ -51,5 +52,8 @@ public class WebSubSubscriberConstants {
     static final String UNSUBSCRIBE = "unsubscribe";
 
     static final String ANNOTATED_TOPIC = "annotatedTopic";
+
+    static final String STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
+    static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "NotificationRequest";
 
 }

@@ -244,8 +244,16 @@ public class HttpResource {
         corsHeaders.setAllowMethods(DispatcherUtil.addAllMethods());
     }
 
-    protected void prepareAndValidateSignatureParams() {
+    private void prepareAndValidateSignatureParams() {
+        prepareSignatureParams();
+        validateSignatureParams();
+    }
+
+    protected void prepareSignatureParams() {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
+    }
+
+    private void validateSignatureParams() {
         signatureParams.validate();
     }
 }

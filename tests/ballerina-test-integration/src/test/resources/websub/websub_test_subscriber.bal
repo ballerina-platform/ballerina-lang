@@ -18,15 +18,14 @@ endpoint websub:SubscriberServiceEndpoint websubEP {
 }
 service<websub:SubscriberService> websubSubscriber bind websubEP {
 
-    onVerifyIntent (endpoint client, http:Request request) {
-        var subscriptionVerificationResponse = websub:buildSubscriptionVerificationResponse(request);
+    onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
         http:Response response = {};
-        match (subscriptionVerificationResponse) {
+        match (request.buildSubscriptionVerificationResponse()) {
             http:Response httpResponse => {
                 io:println("Intent verified for subscription request");
                 response = httpResponse;
             }
-            (any | null) => {
+            null => {
                 io:println("Intent verification for subscription request denied");
                 response = { statusCode:404 };
             }
@@ -34,14 +33,9 @@ service<websub:SubscriberService> websubSubscriber bind websubEP {
         _ = client -> respond(response);
     }
 
-    onNotification (endpoint client, http:Request request) {
-        http:Response response = { statusCode:202 };
-        _ = client -> respond(response);
-        var reqPayload = request.getJsonPayload();
-        match (reqPayload) {
-            json jsonPayload => { io:println("WebSub Notification Received: " + jsonPayload.toString()); }
-            http:PayloadError => { io:println("Error occurred processing WebSub Notification"); }
-        }
+    onNotification (websub:NotificationRequest notification) {
+        json notificationPayload = notification.payload;
+        io:println("WebSub Notification Received: " + notificationPayload.toString());
     }
 
 }
