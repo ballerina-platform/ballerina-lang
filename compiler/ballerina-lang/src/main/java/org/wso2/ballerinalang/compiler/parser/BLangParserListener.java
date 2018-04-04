@@ -469,54 +469,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+    public void exitObjectBody(BallerinaParser.ObjectBodyContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
+        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+            this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
         }
-
-        this.pkgBuilder.endObjectFieldList(true);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void enterPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endObjectFieldList(false);
     }
 
     /**
