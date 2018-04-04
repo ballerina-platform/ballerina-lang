@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 
 struct ResultCount {
     int COUNTVAL;

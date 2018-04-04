@@ -52,9 +52,6 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
-        /*result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
-        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql-mirror-table-test.bal");*/
         result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
         resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql-mirror-table-test.bal");
