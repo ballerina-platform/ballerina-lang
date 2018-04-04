@@ -103,7 +103,6 @@ public abstract class WebSocketUtil {
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
-                populateEndpoint(session, webSocketEndpoint);
                 webSocketEndpoint.setRefField(0, webSocketConnector);
                 populateEndpoint(session, webSocketEndpoint);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
