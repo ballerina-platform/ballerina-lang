@@ -34,18 +34,18 @@ int employeeIndex = 0;
 stream<Employee> employeeStream3 = {};
 stream<Teacher> teacherStream6 = {};
 
-function testPassthroughQuery () {
+function testPassthroughQuery() {
 
-    forever{
+    forever {
         from teacherStream6
         select *
-        => (Employee [] emp) {
-                employeeStream3.publish(emp);
+        => (Employee[] emp) {
+            employeeStream3.publish(emp);
         }
     }
 }
 
-function startPassthroughQuery( ) returns (Employee []) {
+function startPassthroughQuery() returns (Employee[]) {
 
     testPassthroughQuery();
 
@@ -64,12 +64,12 @@ function startPassthroughQuery( ) returns (Employee []) {
     return globalEmployeeArray;
 }
 
-function printEmployeeNumber (Employee e) {
+function printEmployeeNumber(Employee e) {
     io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray (Employee e) {
+function addToGlobalEmployeeArray(Employee e) {
     globalEmployeeArray[employeeIndex] = e;
     employeeIndex = employeeIndex + 1;
 }
