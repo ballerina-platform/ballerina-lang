@@ -25,14 +25,14 @@ package ballerina.http;
 @Field {value:"basePath: Service base path"}
 @Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
-@Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
+@Field {value:"versioning: The versioning configurations for the service"}
 public struct HttpServiceConfig {
     ServiceEndpoint[] endpoints;
     HttpServiceLifeTime lifetime;
     string basePath;
     Compression compression;
     CorsConfig cors;
-    WebSocketUpgradeConfig|null webSocketUpgrade;
+    Versioning versioning;
 }
 
 public function <HttpServiceConfig config> HttpServiceConfig() {
@@ -61,11 +61,15 @@ public function <CorsConfig config> CorsConfig() {
     config.maxAge = -1;
 }
 
-public struct WebSocketUpgradeConfig {
-    string upgradePath;
-    typedesc upgradeService;
+@Description {value:"Configurations for service versioning"}
+@Field {value:"pattern: Expecting version pattern in the request url"}
+@Field {value:"allowNoVersion: Allow to dispatch requests which does not hold version path segment in url"}
+@Field {value:"matchMajorVersion: Allow to dispatch requests which specify only the major version in url"}
+public struct Versioning {
+    string pattern = "v{major}.{minor}";
+    boolean allowNoVersion;
+    boolean matchMajorVersion;
 }
-
 
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value: "endpoints: An array of endpoints the service would be attached to"}
@@ -108,6 +112,7 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 @Field {value:"consumes: The media types which are accepted by resource"}
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
+@Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpResourceConfig {
     string[] methods;
     string path;
@@ -116,6 +121,12 @@ public struct HttpResourceConfig {
     string[] produces;
     CorsConfig cors;
     boolean transactionInfectable;
+    WebSocketUpgradeConfig|null webSocketUpgrade;
+}
+
+public struct WebSocketUpgradeConfig {
+    string upgradePath;
+    typedesc upgradeService;
 }
 
 public function <HttpResourceConfig config> HttpResourceConfig() {

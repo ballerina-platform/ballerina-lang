@@ -43,6 +43,7 @@ public enum NodeKind {
     RESOURCE,
     SERVICE,
     STRUCT,
+    TYPE_DEFINITION,
     RECORD,
     OBJECT,
     TABLE,
@@ -98,6 +99,7 @@ public enum NodeKind {
 
     /* Statements */
     ABORT,
+    DONE,
     FAIL,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,

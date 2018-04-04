@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -75,6 +76,7 @@ public class SymbolTable {
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
+    public final BLangVariable notFoundVariable;
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
@@ -127,6 +129,7 @@ public class SymbolTable {
         this.rootPkgSymbol.scope = this.rootScope;
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
+        this.notFoundVariable = new BLangVariable();
 
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
@@ -324,20 +327,6 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.LENGTHOF, mapType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, stringType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, blobType, intType, InstructionCodes.LENGTHOF);
-
-        defineUnaryOperator(OperatorKind.UNTAINT, intType, intType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, floatType, floatType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, booleanType, booleanType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, stringType, stringType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, typeDesc, typeDesc, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, jsonType, jsonType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, xmlType, xmlType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, tableType, tableType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, anyType, anyType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, mapType, mapType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, connectorType, connectorType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, arrayType, arrayType, InstructionCodes.NOP);
-        defineUnaryOperator(OperatorKind.UNTAINT, nilType, nilType, InstructionCodes.NOP);
 
         defineConversionOperators();
     }

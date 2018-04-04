@@ -127,7 +127,13 @@ public class GrpcServicesBuilder {
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getOutputType();
             MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
+            for (Descriptors.Descriptor nestedType : requestDescriptor.getNestedTypes()) {
+                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
+            }
             MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
+            for (Descriptors.Descriptor nestedType : responseDescriptor.getNestedTypes()) {
+                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
+            }
 
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (requestDescriptor.getName()).build());

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -254,8 +255,23 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
+        if (target.tag == TypeTags.FINITE) {
+            return isFiniteTypeAssignable(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
+    }
+
+    public boolean isFiniteTypeAssignable(BType source, BType target) {
+        BFiniteType finiteType = (BFiniteType) target;
+
+        boolean foundMemberType = finiteType.memberTypes
+                .stream()
+                .map(memberType -> isAssignable(source, memberType))
+                .anyMatch(foundType -> foundType);
+
+        return foundMemberType;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -1097,7 +1113,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE) {
+        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
             return false;
         }
 

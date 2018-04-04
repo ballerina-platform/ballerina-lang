@@ -20,12 +20,12 @@ function testAuthentication () returns (boolean) {
     return fileBasedUserstore.authenticate("isuru", "xxx");
 }
 
-function testReadGroupsOfNonExistingUser () returns (string) {
+function testReadGroupsOfNonExistingUser () returns (string[]) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.readGroupsOfUser("amila");
 }
 
-function testReadGroupsOfUser () returns (string) {
+function testReadGroupsOfUser () returns (string[]) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     return fileBasedUserstore.readGroupsOfUser("ishara");
 }

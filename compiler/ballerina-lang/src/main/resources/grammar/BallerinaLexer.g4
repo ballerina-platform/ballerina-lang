@@ -25,9 +25,7 @@ FUNCTION    : 'function' ;
 STRUCT      : 'struct' ;
 OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
-ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
-CONST       : 'const' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
@@ -130,6 +128,7 @@ ASYNC       : 'async' ;
 AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
+DONE        : 'done' ;
 
 // Separators
 

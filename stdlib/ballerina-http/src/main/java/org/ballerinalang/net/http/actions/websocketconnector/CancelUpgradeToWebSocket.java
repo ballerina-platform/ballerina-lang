@@ -18,11 +18,13 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
@@ -32,7 +34,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "cancelUpgradeToWebSocket",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType =  WebSocketConstants.WEBSOCKET_CONNECTOR,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CONNECTION,
                              structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "status", type = TypeKind.INT),
@@ -43,11 +45,14 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 public class CancelUpgradeToWebSocket extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct serverConnector = (BStruct) context.getRefArgument(0);
+        BStruct httpConnection = (BStruct) context.getRefArgument(0);
         int statusCode = (int) context.getIntArgument(0);
         String reason = context.getStringArgument(0);
         WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) serverConnector.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+                (WebSocketInitMessage) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+        if (initMessage == null) {
+            throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot cancel the request");
+        }
         initMessage.cancelHandShake(statusCode, reason);
         context.setReturnValues();
     }
