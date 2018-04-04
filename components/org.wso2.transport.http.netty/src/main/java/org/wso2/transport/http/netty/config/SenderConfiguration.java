@@ -97,7 +97,7 @@ public class SenderConfiguration {
     private int http2MaxActiveStreams = Integer.MAX_VALUE;
 
     @XmlAttribute
-    private boolean forceHttp2 = true;
+    private boolean forceHttp2 = false;
 
     private String tlsStoreType;
     private String httpVersion = "1.1";
