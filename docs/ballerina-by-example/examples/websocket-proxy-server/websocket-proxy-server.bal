@@ -18,7 +18,7 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
             url:remoteUrl,
             callbackService:typeof ClientService
         };
-        ep -> upgradeToWebSocket({"custom":"header"});
+        ep = ep -> upgradeToWebSocket({"custom":"header"});
         ep.attributes[ASSOCIATED_CONNECTION] = wsEndpoint;
         wsEndpoint.attributes[ASSOCIATED_CONNECTION] = ep;
     }

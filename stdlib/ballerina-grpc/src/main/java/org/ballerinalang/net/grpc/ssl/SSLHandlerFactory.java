@@ -117,22 +117,21 @@ public class SSLHandlerFactory {
     }
     
     /**
-     * This method will provide netty ssl context which supports HTTP2 over TLS using
+     * This method will provide netty ssl context which supports HTTP2 over TLS using ALPN.
      * Application Layer Protocol Negotiation (ALPN)
      *
      * @return instance of {@link SslContext}
-     * @throws SSLException if any error occurred during building SSL context.
      */
-    public SslContext createHttp2TLSContextForServer() throws SSLException {
+    public SslContext createHttp2TLSContextForServer() {
         
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
                 .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
         KeyStore keyStore;
-        File keyfile = new File(SSL_SERVER_KEY_FILE);
-        File certfile = new File(SSL_SERVER_CERT_FILE);
+        File keyFile = new File(SSL_SERVER_KEY_FILE);
+        File certFile = new File(SSL_SERVER_CERT_FILE);
         try {
-            if (keyfile.createNewFile() && certfile.createNewFile()) {
+            if (keyFile.createNewFile() && certFile.createNewFile()) {
                 LOG.debug("Successfully created meta cert and key files. ");
             }
             keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
@@ -144,9 +143,9 @@ public class SSLHandlerFactory {
         } catch (KeyStoreException e) {
             throw new GrpcSSLValidationException("Error writing intermediate cert temporary files.", e);
         }
-        SslContext grpcSslContexts = null;
+        SslContext grpcSslContexts;
         try {
-            grpcSslContexts = GrpcSslContexts.forServer(certfile, keyfile)
+            grpcSslContexts = GrpcSslContexts.forServer(certFile, keyFile)
                     .keyManager(kmf)
                     .sslProvider(provider)
                     .ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
@@ -160,7 +159,7 @@ public class SSLHandlerFactory {
         } catch (SSLException e) {
             throw new GrpcSSLValidationException("Error generating SSL context.", e);
         }
-        if (keyfile.delete() && certfile.delete()) {
+        if (keyFile.delete() && certFile.delete()) {
             LOG.debug("Successfully deleted meta cert and key files. ");
         }
         return grpcSslContexts;
@@ -169,7 +168,7 @@ public class SSLHandlerFactory {
     public SslContext createHttp2TLSContextForClient() throws SSLException {
         // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
-        SslProvider provider = SslProvider.JDK;
+        SslProvider provider = SslProvider.OPENSSL;
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
                 .asList(sslConfig.getCipherSuites()) : preferredTestCiphers();
         return GrpcSslContexts.forClient().sslProvider(provider).trustManager(tmf)

@@ -106,6 +106,11 @@ function readLineError() returns string | myerror {
     return e;
 }
 
+function readLineCustomError() returns string | customError {
+    customError e = { message: "custom io error", data: "foo.txt"};
+    return e;
+}
+
 function readLineSuccess() returns string | myerror {
     return "Ballerina";
 }
@@ -115,7 +120,7 @@ function testCheckExprInBinaryExpr1() returns error? {
     return ();
 }
 
-function testCheckExprInBinaryExpr2() returns customError? {
+function testCheckExprInBinaryExpr2() returns myerror? {
     string str = "hello, " + check readLineError();
     return ();
 }
@@ -131,4 +136,38 @@ function testCheckExprInBinaryExpr4() {
 
 function testCheckExprInBinaryExpr5() {
     string str = "hello, " + check readLineError();
+}
+
+function testCheckExprInBinaryExpr6() returns string | customError {
+    string str = "hello, " + check readLineCustomError();
+    return str;
+}
+
+// This test case should throw an error since customError is not assignable to the myerror
+function testCheckExprInBinaryExpr7() returns string | customError {
+    string str = "hello, " + check readLineError();
+    return str;
+}
+
+function readLineProper() returns string | myerror | customError {
+    return "Hello, World!!!";
+}
+
+function testCheckExprInBinaryExpr8() returns string {
+    string str = "hello, " + check readLineProper();
+    return str;
+}
+
+function foo(string s) returns string | customError {
+    return "(" + s + "|" + s + ")";
+}
+
+function bar(string s1, string s2) returns string | customError  {
+    return s1 + " " + s2;
+}
+
+function testCheckedExprAsFuncParam1() returns string | error  {
+    return check bar(check bar(check foo(check foo(check foo(check foo("S")))),
+                check foo(check foo("A"))) ,
+                    check bar(check foo(check foo(check foo("M"))), "done"));
 }
