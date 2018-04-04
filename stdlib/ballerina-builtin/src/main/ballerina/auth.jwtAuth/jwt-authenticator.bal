@@ -16,6 +16,7 @@
 
 package ballerina.auth.jwtAuth;
 
+import ballerina/runtime;
 import ballerina/jwt;
 import ballerina/time;
 import ballerina/config;
@@ -31,28 +32,18 @@ public struct JWTAuthenticator {
     caching:Cache authCache;
 }
 
-@Description {value:"Represents authenticated user information"}
-@Field {value:"userName: User name of the authenticated user"}
-@Field {value:"roles: Roles of the user."}
-@Field {value:"scopes: Scopes permited in authenticated session"}
-@Field {value:"claims: User claims"}
-struct JWTAuthContext {
-    string userName;
-    string[] roles;
-    string[] scopes;
-    map claims;
-}
-
 const string AUTHENTICATOR_JWT = "authenticator_jwt";
 const string ISSUER = "issuer";
 const string AUDIENCE = "audience";
 const string CERTIFICATE_ALIAS = "certificateAlias";
 const string JWT_AUTH_CACHE = "jwt_auth_cache";
 const string SCOPES = "scope";
-const string ROLES = "roles";
+const string GROUPS = "groups";
+const string USERNAME = "name";
+const string AUTH_TYPE_JWT = "jwt";
 
 struct CachedJWTAuthContext {
-    JWTAuthContext jwtAuthContext;
+    jwt:Payload jwtPayload;
     int expiryTime;
 }
 
@@ -75,7 +66,6 @@ public function createAuthenticator () returns (JWTAuthenticator) {
 public function <JWTAuthenticator authenticator> authenticate (string jwtToken) returns boolean|error {
     boolean isCacheHit;
     boolean isAuthenticated;
-    JWTAuthContext authContext = {};
     if (authenticator.authCache.capacity > 0) {
         match authenticator.authenticateFromCache(jwtToken) {
             (boolean, boolean) cacheHit => {
@@ -84,9 +74,9 @@ public function <JWTAuthenticator authenticator> authenticate (string jwtToken) 
                     return isAuthenticated;
                 }
             }
-            (boolean, boolean, JWTAuthContext) authResult => {
-                (_, isAuthenticated, authContext) = authResult;
-                //Todo set the security context from authContext.
+            (boolean, boolean, jwt:Payload) authResult => {
+                var (_, isAuthenticated, jwtPayload) = authResult;
+                setAuthContext(jwtPayload, jwtToken);
                 return isAuthenticated;
             }
         }
@@ -94,11 +84,10 @@ public function <JWTAuthenticator authenticator> authenticate (string jwtToken) 
     match jwt:validate(jwtToken, authenticator.jwtValidatorConfig) {
         jwt:Payload authResult => {
             isAuthenticated = true;
-            authContext = setAuthContext(authResult);
+            setAuthContext(authResult, jwtToken);
             if (authenticator.authCache.capacity > 0) {
-                authenticator.addToAuthenticationCache(jwtToken, authResult.exp, authContext);
+                authenticator.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
             }
-            //Todo set the security context from authContext.
             return isAuthenticated;
         }
         boolean isInvalid => return isInvalid;
@@ -115,10 +104,9 @@ function getAuthenticatorConfig () returns (jwt:JWTValidatorConfig) {
 }
 
 function <JWTAuthenticator authenticator> authenticateFromCache (string jwtToken)
-returns (boolean, boolean)|(boolean, boolean, JWTAuthContext) {
+returns (boolean, boolean)|(boolean, boolean, jwt:Payload) {
     boolean isCacheHit;
     boolean isAuthenticated;
-    JWTAuthContext authContext = {};
     CachedJWTAuthContext cachedAuthContext = {};
     try {
         match <CachedJWTAuthContext>authenticator.authCache.get(jwtToken) {
@@ -135,39 +123,50 @@ returns (boolean, boolean)|(boolean, boolean, JWTAuthContext) {
     if (isCacheHit) {
         if (cachedAuthContext.expiryTime > time:currentTime().time) {
             isAuthenticated = true;
-            authContext = cachedAuthContext.jwtAuthContext;
-            log:printDebug("Authenticate user :" + authContext.userName + " from cache");
-            return (isCacheHit, isAuthenticated, authContext);
+            jwt:Payload payload = cachedAuthContext.jwtPayload;
+            log:printDebug("Authenticate user :" + payload.sub + " from cache");
+            return (isCacheHit, isAuthenticated, payload);
         }
     }
     return (isCacheHit, isAuthenticated);
 }
 
 function <JWTAuthenticator authenticator> addToAuthenticationCache (string jwtToken, int exp,
-                                                                    JWTAuthContext authContext) {
+                                                                    jwt:Payload payload) {
     CachedJWTAuthContext cachedContext = {};
-    cachedContext.jwtAuthContext = authContext;
+    cachedContext.jwtPayload = payload;
     cachedContext.expiryTime = exp;
     authenticator.authCache.put(jwtToken, cachedContext);
-    log:printDebug("Add authenticated user :" + authContext.userName + " to the cache");
+    log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
 }
 
-function setAuthContext (jwt:Payload jwtPayload) returns (JWTAuthContext) {
-    JWTAuthContext authContext = {};
-    authContext.userName = jwtPayload.sub;
+function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
+    runtime:AuthenticationContext authContext = runtime:getInvocationContext().authenticationContext;
+    authContext.userId = jwtPayload.sub;
+    // By default set sub as username.
+    authContext.username = jwtPayload.sub;
     if (jwtPayload.customClaims[SCOPES] != null) {
         var scopeString = <string>jwtPayload.customClaims[SCOPES];
         if (scopeString != null) {
             authContext.scopes = scopeString.split(" ");
         }
+        _ = jwtPayload.customClaims.remove(SCOPES);
     }
-    if (jwtPayload.customClaims[ROLES] != null) {
-        string[] roleList =? <string[]>jwtPayload.customClaims[ROLES];
-        if (lengthof roleList > 0) {
-            authContext.roles = roleList;
+    if (jwtPayload.customClaims[GROUPS] != null) {
+        string[] userGroups =? <string[]>jwtPayload.customClaims[GROUPS];
+        if (lengthof userGroups > 0) {
+            authContext.groups = userGroups;
         }
+        _ = jwtPayload.customClaims.remove(GROUPS);
     }
-    return authContext;
+    if (jwtPayload.customClaims[USERNAME] != null) {
+        string name = <string>jwtPayload.customClaims[USERNAME];
+        authContext.username = name;
+        _ = jwtPayload.customClaims.remove(USERNAME);
+    }
+
+    authContext.authType = AUTH_TYPE_JWT;
+    authContext.authToken = jwtToken;
 }
 
 function getAuthenticatorConfigValue (string instanceId, string property) returns (string) {

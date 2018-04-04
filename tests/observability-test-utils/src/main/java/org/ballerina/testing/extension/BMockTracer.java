@@ -20,8 +20,8 @@ package org.ballerina.testing.extension;
 
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
-import org.ballerinalang.observe.trace.OpenTracer;
-import org.ballerinalang.observe.trace.exception.InvalidConfigurationException;
+import org.ballerinalang.util.tracer.OpenTracer;
+import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.util.ArrayList;
 import java.util.List;

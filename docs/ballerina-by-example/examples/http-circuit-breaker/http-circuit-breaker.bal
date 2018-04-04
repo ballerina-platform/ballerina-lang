@@ -22,7 +22,7 @@ endpoint http:ClientEndpoint backendClientEP {
     },
     targets: [
                  {
-                     uri: "http://localhost:8080"
+                     url: "http://localhost:8080"
                  }
              ],
     endpointTimeout:2000

@@ -17,7 +17,11 @@
  */
 package org.ballerinalang.net.grpc.proto.definition;
 
-import com.google.protobuf.DescriptorProtos.DescriptorProto;
+import com.google.protobuf.GeneratedMessageV3;
+
+import java.util.List;
+
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.CLASSPATH_SYMBOL;
 
 /**
  * Message Definition Builder.
@@ -26,17 +30,20 @@ import com.google.protobuf.DescriptorProtos.DescriptorProto;
  */
 public abstract class Message {
     String messageName;
-    String messageType;
 
-    public String getName() {
+    public String getSimpleName() {
+        if (messageName.contains(CLASSPATH_SYMBOL)) {
+            return messageName.substring(messageName.lastIndexOf(CLASSPATH_SYMBOL), messageName.length());
+        } else {
+            return messageName;
+        }
+    }
+
+    public String getCanonicalName() {
         return messageName;
     }
 
-    public String getMessageType() {
-        return messageType;
-    }
-
-    public abstract DescriptorProto getDescriptorProto();
+    public abstract GeneratedMessageV3 getDescriptorProto();
 
     public abstract MessageKind getMessageKind();
 
@@ -45,6 +52,14 @@ public abstract class Message {
     }
 
     public String getDependency() {
+        return null;
+    }
+
+    public List<UserDefinedMessage> getNestedMessageList() {
+        return null;
+    }
+
+    public List<UserDefinedEnumMessage> getNestedEnumList() {
         return null;
     }
 }

@@ -43,7 +43,9 @@ public enum NodeKind {
     RESOURCE,
     SERVICE,
     STRUCT,
+    RECORD,
     OBJECT,
+    TABLE,
     VARIABLE,
     WORKER,
     XMLNS,
@@ -88,6 +90,7 @@ public enum NodeKind {
     STATEMENT_EXPRESSION,
     MATCH_EXPRESSION,
     MATCH_EXPRESSION_PATTERN_CLAUSE,
+    CHECK_EXPR,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,

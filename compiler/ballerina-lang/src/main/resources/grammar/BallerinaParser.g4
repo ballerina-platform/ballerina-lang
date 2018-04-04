@@ -53,6 +53,7 @@ serviceDefinition
 
 serviceEndpointAttachments
     :   BIND nameReference (COMMA nameReference)*
+    |   BIND recordLiteral
     ;
 
 serviceBody
@@ -224,6 +225,11 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
+    |   LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
+    ;
+
+fieldDefinitionList
+    :   objectFieldDefinition*
     ;
 
 // Temporary production rule name
@@ -337,6 +343,14 @@ recordKeyValue
 recordKey
     :   Identifier
     |   expression
+    ;
+
+tableLiteral
+    :   TYPE_TABLE tableInitialization
+    ;
+
+tableInitialization
+    :   recordLiteral
     ;
 
 arrayLiteral
@@ -597,6 +611,7 @@ expression
     |   arrayLiteral                                                        # arrayLiteralExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
+    |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
@@ -617,7 +632,8 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
-    |	expression matchExpression										  # matchExprExpression
+    |	expression matchExpression										    # matchExprExpression
+    |	CHECK expression										            # checkedExpression
     ;
 
 awaitExpression

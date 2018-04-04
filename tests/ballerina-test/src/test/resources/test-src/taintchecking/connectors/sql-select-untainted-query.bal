@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 
 public function main (string[] args) {
     testSelectWithUntaintedQuery(args);

@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -62,6 +62,16 @@ public class Symbols {
         BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
         typeSymbol.isObject = true;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createRecordSymbol(int flags,
+                                                 Name name,
+                                                 PackageID pkgID,
+                                                 BType type,
+                                                 BSymbol owner) {
+        BStructSymbol typeSymbol = new BStructSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
     }
 
@@ -198,7 +208,7 @@ public class Symbols {
             unionType.memberTypes.add(errorType);
             retType = unionType;
         } else {
-            Set<BType> memberTypes = new HashSet<>(2);
+            Set<BType> memberTypes = new LinkedHashSet<>(2);
             memberTypes.add(targetType);
             memberTypes.add(errorType);
             retType = new BUnionType(null, memberTypes, false);

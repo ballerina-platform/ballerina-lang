@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -79,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -109,11 +112,11 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -123,6 +126,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
+
+    private static final String TABLE_CONFIG = "TableConfig";
 
     private Names names;
     private SymbolTable symTable;
@@ -141,7 +146,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-    private List<BType> resultTypes;
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -212,6 +216,12 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
         resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    public void visit(BLangTableLiteral tableLiteral) {
+        BType actualType = symTable.rootScope.lookup(new Name(TABLE_CONFIG)).symbol.type;
+        checkExpr(tableLiteral.configurationExpr, env, actualType);
+        resultType = types.checkType(tableLiteral, expType, symTable.noType);
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
@@ -295,7 +305,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.STRUCT ||
-                        type.tag == TypeTags.TABLE ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
@@ -681,7 +690,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        BType exprType = null;
+        BType exprType;
         BType actualType = symTable.errType;
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
             // Handle typeof operator separately
@@ -1006,7 +1015,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
         checkExpr(bLangMatchExpression.expr, matchExprEnv);
-        Set<BType> matchExprTypes = new HashSet<>();
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
         bLangMatchExpression.patternClauses.forEach(pattern -> {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
@@ -1024,6 +1033,54 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         types.checkTypes(bLangMatchExpression, Lists.of(bLangMatchExpression.type), Lists.of(expType));
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        BType exprType = checkExpr(checkedExpr.expr, env, symTable.noType);
+        if (exprType.tag != TypeTags.UNION) {
+            if (types.isAssignable(exprType, symTable.errStructType)) {
+                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            } else {
+                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            }
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        BUnionType unionType = (BUnionType) exprType;
+        // Filter out the list of types which are not equivalent with the error type.
+        Map<Boolean, List<BType>> resultTypeMap = unionType.memberTypes.stream()
+                .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errStructType)));
+
+        // This list will be used in the desugar phase
+        checkedExpr.equivalentErrorTypeList = resultTypeMap.get(true);
+        if (checkedExpr.equivalentErrorTypeList == null ||
+                checkedExpr.equivalentErrorTypeList.size() == 0) {
+            // No member types in this union is equivalent to the error type
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        List<BType> nonErrorTypeList = resultTypeMap.get(false);
+        if (nonErrorTypeList == null || nonErrorTypeList.size() == 0) {
+            // All member types in the union are equivalent to the error type.
+            // Checked expression requires at least one type which is not equivalent to the error type.
+            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            checkedExpr.type = symTable.errType;
+            return;
+        }
+
+        BType actualType;
+        if (nonErrorTypeList.size() == 1) {
+            actualType = nonErrorTypeList.get(0);
+        } else {
+            actualType = new BUnionType(null, new LinkedHashSet<>(nonErrorTypeList),
+                    nonErrorTypeList.contains(symTable.nilType));
+        }
+
+        resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
     // Private methods
@@ -1286,7 +1343,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (conSymbol == null
                 || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
-                || conSymbol.tag != SymTag.STRUCT) {
+                || !(conSymbol.tag == SymTag.OBJECT || conSymbol.tag == SymTag.STRUCT)) {
+            // TODO : Remove struct dependency.
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
@@ -1298,6 +1356,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BPackageSymbol packageSymbol = (BPackageSymbol) conSymbol.owner;
         BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 uniqueFuncName, SymTag.FUNCTION);
+        if (actionSym == symTable.notFoundSymbol) {
+            actionSym = symResolver.resolveStructField(iExpr.pos, env, uniqueFuncName, (BTypeSymbol) conSymbol);
+        }
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.name, conSymbol.type);
             resultType = actualType;

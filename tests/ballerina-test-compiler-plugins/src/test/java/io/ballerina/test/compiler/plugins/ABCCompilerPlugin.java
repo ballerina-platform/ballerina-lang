@@ -25,7 +25,9 @@ import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -85,6 +87,16 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(StructNode structNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.STRUCT_ANN, structNode.getName().getValue(), annotations.size());
+    }
+
+    @Override
+    public void process(ObjectNode objectNode, List<AnnotationAttachmentNode> annotations) {
+        addEvent(TestEvent.Kind.STRUCT_ANN, objectNode.getName().getValue(), annotations.size());
+    }
+
+    @Override
+    public void process(RecordNode recordNode, List<AnnotationAttachmentNode> annotations) {
+        addEvent(TestEvent.Kind.STRUCT_ANN, recordNode.getName().getValue(), annotations.size());
     }
 
     @Override
