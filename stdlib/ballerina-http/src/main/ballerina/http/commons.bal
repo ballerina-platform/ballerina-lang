@@ -115,10 +115,18 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, config);
         } else {
-            if (config.cacheConfig.enabled) {
-                httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
-            } else {
-                httpClients[i] = createHttpClient(uri, config);
+            var retryConfig = config.retry;
+            match retryConfig {
+                Retry retry => {
+                    httpClients[i] = createRetryClient(uri, config);
+                }
+                int | null => {
+                    if (config.cacheConfig.enabled) {
+                        httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+                    } else {
+                        httpClients[i] = createHttpClient(uri, config);
+                    }
+                }
             }
         }
         httpClients[i].config = config;

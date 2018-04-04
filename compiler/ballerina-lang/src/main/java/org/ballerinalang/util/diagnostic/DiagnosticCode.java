@@ -210,7 +210,6 @@ public enum DiagnosticCode {
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
-    PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS("partial.taint.checking.done.with.return.annotations"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
     ;
 

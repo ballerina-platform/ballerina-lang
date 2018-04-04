@@ -16,56 +16,40 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.logging.util.BLogLevel;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.log.AbstractLogFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * This function adds logs to a span.
+ * This function adds baggage items to a span.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "log",
+        functionName = "getBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = {
-                @Argument(name = "event", type = TypeKind.STRING),
-                @Argument(name = "message", type = TypeKind.STRING)
-        },
-        returnType = @ReturnType(type = TypeKind.VOID),
+        args = @Argument(name = "baggageKey", type = TypeKind.STRING),
+        returnType = @ReturnType(type = TypeKind.STRING),
         isPublic = true
 )
-public class Log extends AbstractLogFunction {
+public class GetBaggageItem extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
         String spanId = span.getStringField(0);
-        String event = context.getStringArgument(0);
-        String message = context.getStringArgument(1);
-
-        String pkg = getPackagePath(context);
-
-        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            String logMessage = String.format("[Tracing] Service: %s, Span: %s, Event: %s, Message: %s",
-                    span.getStringField(1), span.getStringField(2), event, message);
-            getLogger(pkg).info(logMessage);
+        String baggageKey = context.getStringArgument(0);
+        String baggageItem = OpenTracerBallerinaWrapper.getInstance().getBaggageItem(spanId, baggageKey);
+        if (baggageItem != null) {
+            context.setReturnValues(new BString(baggageItem));
         }
-
-        Map<String, String> logMap = new HashMap<>();
-        logMap.put("event", event);
-        logMap.put("message", message);
-        OpenTracerBallerinaWrapper.getInstance().log(spanId, logMap);
     }
 }
