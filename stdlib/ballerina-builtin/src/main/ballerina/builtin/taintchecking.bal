@@ -16,8 +16,8 @@
 
 package ballerina.builtin;
 
-public annotation <parameter, const> sensitive;
+public annotation <parameter> sensitive;
 
-public annotation <parameter, const> tainted;
+public annotation <parameter> tainted;
 
-public annotation <parameter, const> untainted;
+public annotation <parameter> untainted;
