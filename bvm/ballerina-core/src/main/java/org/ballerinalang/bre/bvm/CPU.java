@@ -158,604 +158,598 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void tryExec(WorkerExecutionContext ctx) {
-        try {
-            BLangScheduler.workerRunning(ctx);
-    
-            int i;
-            int j;
-            int cpIndex;
-            FunctionCallCPEntry funcCallCPEntry;
-            FunctionRefCPEntry funcRefCPEntry;
-            TypeRefCPEntry typeRefCPEntry;
-            FunctionInfo functionInfo;
-            InstructionCALL callIns;
-    
-            boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
-    
-            WorkerData currentSF, callersSF;
-            int callersRetRegIndex;
-    
-            while (ctx.ip >= 0) {
-                if (ctx.stop) {
-                    BLangScheduler.workerDone(ctx);
-                    return;
-                }
-                if (debugEnabled && debug(ctx)) {
-                    return;
-                }
-    
-                Instruction instruction = ctx.code[ctx.ip];
-                int opcode = instruction.getOpcode();
-                int[] operands = instruction.getOperands();
-                ctx.ip++;
-                WorkerData sf = ctx.workerLocal;
-                switch (opcode) {
-                    case InstructionCodes.ICONST:
-                        cpIndex = operands[0];
-                        i = operands[1];
-                        sf.longRegs[i] = ((IntegerCPEntry) ctx.constPool[cpIndex]).getValue();
-                        break;
-                    case InstructionCodes.FCONST:
-                        cpIndex = operands[0];
-                        i = operands[1];
-                        sf.doubleRegs[i] = ((FloatCPEntry) ctx.constPool[cpIndex]).getValue();
-                        break;
-                    case InstructionCodes.SCONST:
-                        cpIndex = operands[0];
-                        i = operands[1];
-                        sf.stringRegs[i] = ((StringCPEntry) ctx.constPool[cpIndex]).getValue();
-                        break;
-                    case InstructionCodes.ICONST_0:
-                        i = operands[0];
-                        sf.longRegs[i] = 0;
-                        break;
-                    case InstructionCodes.ICONST_1:
-                        i = operands[0];
-                        sf.longRegs[i] = 1;
-                        break;
-                    case InstructionCodes.ICONST_2:
-                        i = operands[0];
-                        sf.longRegs[i] = 2;
-                        break;
-                    case InstructionCodes.ICONST_3:
-                        i = operands[0];
-                        sf.longRegs[i] = 3;
-                        break;
-                    case InstructionCodes.ICONST_4:
-                        i = operands[0];
-                        sf.longRegs[i] = 4;
-                        break;
-                    case InstructionCodes.ICONST_5:
-                        i = operands[0];
-                        sf.longRegs[i] = 5;
-                        break;
-                    case InstructionCodes.FCONST_0:
-                        i = operands[0];
-                        sf.doubleRegs[i] = 0;
-                        break;
-                    case InstructionCodes.FCONST_1:
-                        i = operands[0];
-                        sf.doubleRegs[i] = 1;
-                        break;
-                    case InstructionCodes.FCONST_2:
-                        i = operands[0];
-                        sf.doubleRegs[i] = 2;
-                        break;
-                    case InstructionCodes.FCONST_3:
-                        i = operands[0];
-                        sf.doubleRegs[i] = 3;
-                        break;
-                    case InstructionCodes.FCONST_4:
-                        i = operands[0];
-                        sf.doubleRegs[i] = 4;
-                        break;
-                    case InstructionCodes.FCONST_5:
-                        i = operands[0];
-                        sf.doubleRegs[i] = 5;
-                        break;
-                    case InstructionCodes.BCONST_0:
-                        i = operands[0];
-                        sf.intRegs[i] = 0;
-                        break;
-                    case InstructionCodes.BCONST_1:
-                        i = operands[0];
-                        sf.intRegs[i] = 1;
-                        break;
-                    case InstructionCodes.RCONST_NULL:
-                        i = operands[0];
-                        sf.refRegs[i] = null;
-                        break;
-    
-                    case InstructionCodes.IMOVE:
-                    case InstructionCodes.FMOVE:
-                    case InstructionCodes.SMOVE:
-                    case InstructionCodes.BMOVE:
-                    case InstructionCodes.LMOVE:
-                    case InstructionCodes.RMOVE:
-                    case InstructionCodes.IALOAD:
-                    case InstructionCodes.FALOAD:
-                    case InstructionCodes.SALOAD:
-                    case InstructionCodes.BALOAD:
-                    case InstructionCodes.LALOAD:
-                    case InstructionCodes.RALOAD:
-                    case InstructionCodes.JSONALOAD:
-                    case InstructionCodes.IGLOAD:
-                    case InstructionCodes.FGLOAD:
-                    case InstructionCodes.SGLOAD:
-                    case InstructionCodes.BGLOAD:
-                    case InstructionCodes.LGLOAD:
-                    case InstructionCodes.RGLOAD:
-                    case InstructionCodes.IFIELDLOAD:
-                    case InstructionCodes.FFIELDLOAD:
-                    case InstructionCodes.SFIELDLOAD:
-                    case InstructionCodes.BFIELDLOAD:
-                    case InstructionCodes.LFIELDLOAD:
-                    case InstructionCodes.RFIELDLOAD:
-                    case InstructionCodes.MAPLOAD:
-                    case InstructionCodes.JSONLOAD:
-                    case InstructionCodes.ENUMERATORLOAD:
-                        execLoadOpcodes(ctx, sf, opcode, operands);
-                        break;
-    
-                    case InstructionCodes.IASTORE:
-                    case InstructionCodes.FASTORE:
-                    case InstructionCodes.SASTORE:
-                    case InstructionCodes.BASTORE:
-                    case InstructionCodes.LASTORE:
-                    case InstructionCodes.RASTORE:
-                    case InstructionCodes.JSONASTORE:
-                    case InstructionCodes.IGSTORE:
-                    case InstructionCodes.FGSTORE:
-                    case InstructionCodes.SGSTORE:
-                    case InstructionCodes.BGSTORE:
-                    case InstructionCodes.LGSTORE:
-                    case InstructionCodes.RGSTORE:
-                    case InstructionCodes.IFIELDSTORE:
-                    case InstructionCodes.FFIELDSTORE:
-                    case InstructionCodes.SFIELDSTORE:
-                    case InstructionCodes.BFIELDSTORE:
-                    case InstructionCodes.LFIELDSTORE:
-                    case InstructionCodes.RFIELDSTORE:
-                    case InstructionCodes.MAPSTORE:
-                    case InstructionCodes.JSONSTORE:
-                        execStoreOpcodes(ctx, sf, opcode, operands);
-                        break;
-    
-                    case InstructionCodes.IADD:
-                    case InstructionCodes.FADD:
-                    case InstructionCodes.SADD:
-                    case InstructionCodes.XMLADD:
-                    case InstructionCodes.ISUB:
-                    case InstructionCodes.FSUB:
-                    case InstructionCodes.IMUL:
-                    case InstructionCodes.FMUL:
-                    case InstructionCodes.IDIV:
-                    case InstructionCodes.FDIV:
-                    case InstructionCodes.IMOD:
-                    case InstructionCodes.FMOD:
-                    case InstructionCodes.INEG:
-                    case InstructionCodes.FNEG:
-                    case InstructionCodes.BNOT:
-                    case InstructionCodes.IEQ:
-                    case InstructionCodes.FEQ:
-                    case InstructionCodes.SEQ:
-                    case InstructionCodes.BEQ:
-                    case InstructionCodes.REQ:
-                    case InstructionCodes.TEQ:
-                    case InstructionCodes.INE:
-                    case InstructionCodes.FNE:
-                    case InstructionCodes.SNE:
-                    case InstructionCodes.BNE:
-                    case InstructionCodes.RNE:
-                    case InstructionCodes.TNE:
-                        execBinaryOpCodes(ctx, sf, opcode, operands);
-                        break;
-    
-                    case InstructionCodes.LENGTHOF:
-                        calculateLength(ctx, operands, sf);
-                        break;
-                    case InstructionCodes.TYPELOAD:
-                        cpIndex = operands[0];
-                        j = operands[1];
-                        TypeRefCPEntry typeEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[j] = new BTypeDescValue(typeEntry.getType());
-                        break;
-                    case InstructionCodes.TYPEOF:
-                        i = operands[0];
-                        j = operands[1];
-                        if (sf.refRegs[i] == null) {
-                            sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
-                            break;
-                        }
-                        sf.refRegs[j] = new BTypeDescValue(sf.refRegs[i].getType());
-                        break;
-                    case InstructionCodes.HALT:
-                        ctx = handleHalt(ctx);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.IGT:
-                    case InstructionCodes.FGT:
-                    case InstructionCodes.IGE:
-                    case InstructionCodes.FGE:
-                    case InstructionCodes.ILT:
-                    case InstructionCodes.FLT:
-                    case InstructionCodes.ILE:
-                    case InstructionCodes.FLE:
-                    case InstructionCodes.REQ_NULL:
-                    case InstructionCodes.RNE_NULL:
-                    case InstructionCodes.BR_TRUE:
-                    case InstructionCodes.BR_FALSE:
-                    case InstructionCodes.GOTO:
-                    case InstructionCodes.SEQ_NULL:
-                    case InstructionCodes.SNE_NULL:
-                        execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
-                        break;
-    
-                    case InstructionCodes.TR_RETRY:
-                        i = operands[0];
-                        j = operands[1];
-                        int l = operands[2];
-                        retryTransaction(ctx, i, j, l);
-                        break;
-                    case InstructionCodes.CALL:
-                        callIns = (InstructionCALL) instruction;
-                        ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
-                                callIns.retRegs, false, callIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.VCALL:
-                        InstructionVCALL vcallIns = (InstructionVCALL) instruction;
-                        ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
-                                vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.ACALL:
-                        InstructionACALL acallIns = (InstructionACALL) instruction;
-                        ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs,
-                                acallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.TCALL:
-                        InstructionTCALL tcallIns = (InstructionTCALL) instruction;
-                        ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                                tcallIns.retRegs, false, tcallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.TR_BEGIN:
-                        i = operands[0];
-                        j = operands[1];
-                        int k = operands[2];
-                        int h = operands[3];
-                        beginTransaction(ctx, i, j, k, h);
-                        break;
-                    case InstructionCodes.TR_END:
-                        i = operands[0];
-                        j = operands[1];
-                        endTransaction(ctx, i, j);
-                        break;
-                    case InstructionCodes.WRKSEND:
-                        InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
-                        handleWorkerSend(ctx, wrkSendIns.dataChannelInfo, wrkSendIns.types, wrkSendIns.regs);
-                        break;
-                    case InstructionCodes.WRKRECEIVE:
-                        InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-                        if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types,
-                                wrkReceiveIns.regs)) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.FORKJOIN:
-                        InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
-                        ctx = invokeForkJoin(ctx, forkJoinIns);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.THROW:
-                        i = operands[0];
-                        if (i >= 0) {
-                            BStruct error = (BStruct) sf.refRegs[i];
-                            if (error == null) {
-                                handleNullRefError(ctx);
-                                break;
-                            }
-    
-                            BLangVMErrors.attachStackFrame(error, ctx);
-                            ctx.setError(error);
-                        }
-                        handleError(ctx);
-                        break;
-                    case InstructionCodes.ERRSTORE:
-                        i = operands[0];
-                        sf.refRegs[i] = ctx.getError();
-                        // clear error
-                        ctx.setError(null);
-                        break;
-                    case InstructionCodes.FPCALL:
-                        i = operands[0];
-                        if (sf.refRegs[i] == null) {
-                            handleNullRefError(ctx);
-                            break;
-                        }
-                        cpIndex = operands[1];
-                        funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
-                        funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
-                        functionInfo = funcRefCPEntry.getFunctionInfo();
-                        ctx = BLangFunctions.invokeCallable(functionInfo, ctx, funcCallCPEntry.getArgRegs(),
-                                funcCallCPEntry.getRetRegs(), false);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.FPLOAD:
-                        i = operands[0];
-                        j = operands[1];
-                        funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
-                        sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
-                        break;
-    
-                    case InstructionCodes.I2ANY:
-                    case InstructionCodes.F2ANY:
-                    case InstructionCodes.S2ANY:
-                    case InstructionCodes.B2ANY:
-                    case InstructionCodes.L2ANY:
-                    case InstructionCodes.ANY2I:
-                    case InstructionCodes.ANY2F:
-                    case InstructionCodes.ANY2S:
-                    case InstructionCodes.ANY2B:
-                    case InstructionCodes.ANY2L:
-                    case InstructionCodes.ANY2JSON:
-                    case InstructionCodes.ANY2XML:
-                    case InstructionCodes.ANY2MAP:
-                    case InstructionCodes.ANY2TYPE:
-                    case InstructionCodes.ANY2E:
-                    case InstructionCodes.ANY2T:
-                    case InstructionCodes.ANY2C:
-                    case InstructionCodes.ANY2DT:
-                    case InstructionCodes.NULL2JSON:
-                    case InstructionCodes.CHECKCAST:
-                    case InstructionCodes.B2JSON:
-                    case InstructionCodes.JSON2I:
-                    case InstructionCodes.JSON2F:
-                    case InstructionCodes.JSON2S:
-                    case InstructionCodes.JSON2B:
-                    case InstructionCodes.NULL2S:
-                    case InstructionCodes.IS_ASSIGNABLE:
-                    case InstructionCodes.CHECK_CONVERSION:
-                        execTypeCastOpcodes(ctx, sf, opcode, operands);
-                        break;
-    
-                    case InstructionCodes.I2F:
-                    case InstructionCodes.I2S:
-                    case InstructionCodes.I2B:
-                    case InstructionCodes.I2JSON:
-                    case InstructionCodes.F2I:
-                    case InstructionCodes.F2S:
-                    case InstructionCodes.F2B:
-                    case InstructionCodes.F2JSON:
-                    case InstructionCodes.S2I:
-                    case InstructionCodes.S2F:
-                    case InstructionCodes.S2B:
-                    case InstructionCodes.S2JSON:
-                    case InstructionCodes.B2I:
-                    case InstructionCodes.B2F:
-                    case InstructionCodes.B2S:
-                    case InstructionCodes.DT2XML:
-                    case InstructionCodes.DT2JSON:
-                    case InstructionCodes.T2MAP:
-                    case InstructionCodes.T2JSON:
-                    case InstructionCodes.MAP2T:
-                    case InstructionCodes.JSON2T:
-                    case InstructionCodes.XMLATTRS2MAP:
-                    case InstructionCodes.S2XML:
-                    case InstructionCodes.S2JSONX:
-                    case InstructionCodes.XML2S:
-                    case InstructionCodes.ANY2SCONV:
-                        execTypeConversionOpcodes(ctx, sf, opcode, operands);
-                        break;
-    
-                    case InstructionCodes.INEWARRAY:
-                        i = operands[0];
-                        sf.refRegs[i] = new BIntArray();
-                        break;
-                    case InstructionCodes.ARRAYLEN:
-                        i = operands[0];
-                        j = operands[1];
-    
-                        BValue value = sf.refRegs[i];
-    
-                        if (value == null) {
-                            handleNullRefError(ctx);
-                            break;
-                        }
-    
-                        if (value.getType().getTag() == TypeTags.JSON_TAG) {
-                            sf.longRegs[j] = ((BJSON) value).value().size();
-                            break;
-                        }
-    
-                        sf.longRegs[j] = ((BNewArray) value).size();
-                        break;
-                    case InstructionCodes.FNEWARRAY:
-                        i = operands[0];
-                        sf.refRegs[i] = new BFloatArray();
-                        break;
-                    case InstructionCodes.SNEWARRAY:
-                        i = operands[0];
-                        sf.refRegs[i] = new BStringArray();
-                        break;
-                    case InstructionCodes.BNEWARRAY:
-                        i = operands[0];
-                        sf.refRegs[i] = new BBooleanArray();
-                        break;
-                    case InstructionCodes.LNEWARRAY:
-                        i = operands[0];
-                        sf.refRegs[i] = new BBlobArray();
-                        break;
-                    case InstructionCodes.RNEWARRAY:
-                        i = operands[0];
-                        cpIndex = operands[1];
-                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
-                        break;
-                    case InstructionCodes.JSONNEWARRAY:
-                        i = operands[0];
-                        j = operands[1];
-                        // This is a temporary solution to create n-valued JSON array
-                        StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
-                        for (int index = 0; index < sf.longRegs[j]; index++) {
-                            stringJoiner.add(null);
-                        }
-                        sf.refRegs[i] = new BJSON(stringJoiner.toString());
-                        break;
-    
-                    case InstructionCodes.NEWSTRUCT:
-                        createNewStruct(ctx, operands, sf);
-                        break;
-                    case InstructionCodes.NEWCONNECTOR:
-                        createNewConnector(ctx, operands, sf);
-                        break;
-                    case InstructionCodes.NEWMAP:
-                        i = operands[0];
-                        cpIndex = operands[1];
-                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        BMapType mapType = (BMapType) typeRefCPEntry.getType();
-                        sf.refRegs[i] = new BMap<String, BRefType>(mapType);
-                        break;
-                    case InstructionCodes.NEWJSON:
-                        i = operands[0];
-                        cpIndex = operands[1];
-                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BJSON("{}", typeRefCPEntry.getType());
-                        break;
-                    case InstructionCodes.NEWTABLE:
-                        i = operands[0];
-                        cpIndex = operands[1];
-                        j = operands[2];
-                        BStruct configStruct = (BStruct) sf.refRegs[j];
-                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
-                        break;
-                    case InstructionCodes.NEWSTREAM:
-                        i = operands[0];
-                        cpIndex = operands[1];
-                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        StringCPEntry name = (StringCPEntry) ctx.constPool[operands[2]];
-                        BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
-                        sf.refRegs[i] = stream;
-                        break;
-                    case InstructionCodes.NEW_INT_RANGE:
-                        createNewIntRange(operands, sf);
-                        break;
-                    case InstructionCodes.IRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
-                        break;
-                    case InstructionCodes.FRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[j];
-                        break;
-                    case InstructionCodes.SRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[j];
-                        break;
-                    case InstructionCodes.BRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
-                        break;
-                    case InstructionCodes.LRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
-                        break;
-                    case InstructionCodes.RRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
-                        break;
-                    case InstructionCodes.RET:
-                        ctx = handleReturn(ctx);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.XMLATTRSTORE:
-                    case InstructionCodes.XMLATTRLOAD:
-                    case InstructionCodes.XML2XMLATTRS:
-                    case InstructionCodes.S2QNAME:
-                    case InstructionCodes.NEWQNAME:
-                    case InstructionCodes.NEWXMLELEMENT:
-                    case InstructionCodes.NEWXMLCOMMENT:
-                    case InstructionCodes.NEWXMLTEXT:
-                    case InstructionCodes.NEWXMLPI:
-                    case InstructionCodes.XMLSEQSTORE:
-                    case InstructionCodes.XMLSEQLOAD:
-                    case InstructionCodes.XMLLOAD:
-                    case InstructionCodes.XMLLOADALL:
-                    case InstructionCodes.NEWXMLSEQ:
-                        execXMLOpcodes(ctx, sf, opcode, operands);
-                        break;
-                    case InstructionCodes.ITR_NEW:
-                    case InstructionCodes.ITR_NEXT:
-                    case InstructionCodes.ITR_HAS_NEXT:
-                        execIteratorOperation(ctx, sf, instruction);
-                        break;
-                    case InstructionCodes.LOCK:
-                        InstructionLock instructionLock = (InstructionLock) instruction;
-                        if (!handleVariableLock(ctx, instructionLock.types, instructionLock.varRegs)) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.UNLOCK:
-                        InstructionLock instructionUnLock = (InstructionLock) instruction;
-                        handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
-                        break;
-                    case InstructionCodes.AWAIT:
-                        ctx = execAwait(ctx, operands);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    default:
-                        throw new UnsupportedOperationException();
-                }
+        BLangScheduler.workerRunning(ctx);
+
+        int i;
+        int j;
+        int cpIndex;
+        FunctionCallCPEntry funcCallCPEntry;
+        FunctionRefCPEntry funcRefCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
+        FunctionInfo functionInfo;
+        InstructionCALL callIns;
+
+        boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
+
+        WorkerData currentSF, callersSF;
+        int callersRetRegIndex;
+
+        while (ctx.ip >= 0) {
+            if (ctx.stop) {
+                BLangScheduler.workerDone(ctx);
+                return;
             }
-        } catch (HandleErrorException e) { 
-            throw e;
-        } catch (Throwable e) {
-            throw new FatalCPUException(ctx, e);
+            if (debugEnabled && debug(ctx)) {
+                return;
+            }
+
+            Instruction instruction = ctx.code[ctx.ip];
+            int opcode = instruction.getOpcode();
+            int[] operands = instruction.getOperands();
+            ctx.ip++;
+            WorkerData sf = ctx.workerLocal;
+            switch (opcode) {
+                case InstructionCodes.ICONST:
+                    cpIndex = operands[0];
+                    i = operands[1];
+                    sf.longRegs[i] = ((IntegerCPEntry) ctx.constPool[cpIndex]).getValue();
+                    break;
+                case InstructionCodes.FCONST:
+                    cpIndex = operands[0];
+                    i = operands[1];
+                    sf.doubleRegs[i] = ((FloatCPEntry) ctx.constPool[cpIndex]).getValue();
+                    break;
+                case InstructionCodes.SCONST:
+                    cpIndex = operands[0];
+                    i = operands[1];
+                    sf.stringRegs[i] = ((StringCPEntry) ctx.constPool[cpIndex]).getValue();
+                    break;
+                case InstructionCodes.ICONST_0:
+                    i = operands[0];
+                    sf.longRegs[i] = 0;
+                    break;
+                case InstructionCodes.ICONST_1:
+                    i = operands[0];
+                    sf.longRegs[i] = 1;
+                    break;
+                case InstructionCodes.ICONST_2:
+                    i = operands[0];
+                    sf.longRegs[i] = 2;
+                    break;
+                case InstructionCodes.ICONST_3:
+                    i = operands[0];
+                    sf.longRegs[i] = 3;
+                    break;
+                case InstructionCodes.ICONST_4:
+                    i = operands[0];
+                    sf.longRegs[i] = 4;
+                    break;
+                case InstructionCodes.ICONST_5:
+                    i = operands[0];
+                    sf.longRegs[i] = 5;
+                    break;
+                case InstructionCodes.FCONST_0:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 0;
+                    break;
+                case InstructionCodes.FCONST_1:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 1;
+                    break;
+                case InstructionCodes.FCONST_2:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 2;
+                    break;
+                case InstructionCodes.FCONST_3:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 3;
+                    break;
+                case InstructionCodes.FCONST_4:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 4;
+                    break;
+                case InstructionCodes.FCONST_5:
+                    i = operands[0];
+                    sf.doubleRegs[i] = 5;
+                    break;
+                case InstructionCodes.BCONST_0:
+                    i = operands[0];
+                    sf.intRegs[i] = 0;
+                    break;
+                case InstructionCodes.BCONST_1:
+                    i = operands[0];
+                    sf.intRegs[i] = 1;
+                    break;
+                case InstructionCodes.RCONST_NULL:
+                    i = operands[0];
+                    sf.refRegs[i] = null;
+                    break;
+
+                case InstructionCodes.IMOVE:
+                case InstructionCodes.FMOVE:
+                case InstructionCodes.SMOVE:
+                case InstructionCodes.BMOVE:
+                case InstructionCodes.LMOVE:
+                case InstructionCodes.RMOVE:
+                case InstructionCodes.IALOAD:
+                case InstructionCodes.FALOAD:
+                case InstructionCodes.SALOAD:
+                case InstructionCodes.BALOAD:
+                case InstructionCodes.LALOAD:
+                case InstructionCodes.RALOAD:
+                case InstructionCodes.JSONALOAD:
+                case InstructionCodes.IGLOAD:
+                case InstructionCodes.FGLOAD:
+                case InstructionCodes.SGLOAD:
+                case InstructionCodes.BGLOAD:
+                case InstructionCodes.LGLOAD:
+                case InstructionCodes.RGLOAD:
+                case InstructionCodes.IFIELDLOAD:
+                case InstructionCodes.FFIELDLOAD:
+                case InstructionCodes.SFIELDLOAD:
+                case InstructionCodes.BFIELDLOAD:
+                case InstructionCodes.LFIELDLOAD:
+                case InstructionCodes.RFIELDLOAD:
+                case InstructionCodes.MAPLOAD:
+                case InstructionCodes.JSONLOAD:
+                case InstructionCodes.ENUMERATORLOAD:
+                    execLoadOpcodes(ctx, sf, opcode, operands);
+                    break;
+
+                case InstructionCodes.IASTORE:
+                case InstructionCodes.FASTORE:
+                case InstructionCodes.SASTORE:
+                case InstructionCodes.BASTORE:
+                case InstructionCodes.LASTORE:
+                case InstructionCodes.RASTORE:
+                case InstructionCodes.JSONASTORE:
+                case InstructionCodes.IGSTORE:
+                case InstructionCodes.FGSTORE:
+                case InstructionCodes.SGSTORE:
+                case InstructionCodes.BGSTORE:
+                case InstructionCodes.LGSTORE:
+                case InstructionCodes.RGSTORE:
+                case InstructionCodes.IFIELDSTORE:
+                case InstructionCodes.FFIELDSTORE:
+                case InstructionCodes.SFIELDSTORE:
+                case InstructionCodes.BFIELDSTORE:
+                case InstructionCodes.LFIELDSTORE:
+                case InstructionCodes.RFIELDSTORE:
+                case InstructionCodes.MAPSTORE:
+                case InstructionCodes.JSONSTORE:
+                    execStoreOpcodes(ctx, sf, opcode, operands);
+                    break;
+
+                case InstructionCodes.IADD:
+                case InstructionCodes.FADD:
+                case InstructionCodes.SADD:
+                case InstructionCodes.XMLADD:
+                case InstructionCodes.ISUB:
+                case InstructionCodes.FSUB:
+                case InstructionCodes.IMUL:
+                case InstructionCodes.FMUL:
+                case InstructionCodes.IDIV:
+                case InstructionCodes.FDIV:
+                case InstructionCodes.IMOD:
+                case InstructionCodes.FMOD:
+                case InstructionCodes.INEG:
+                case InstructionCodes.FNEG:
+                case InstructionCodes.BNOT:
+                case InstructionCodes.IEQ:
+                case InstructionCodes.FEQ:
+                case InstructionCodes.SEQ:
+                case InstructionCodes.BEQ:
+                case InstructionCodes.REQ:
+                case InstructionCodes.TEQ:
+                case InstructionCodes.INE:
+                case InstructionCodes.FNE:
+                case InstructionCodes.SNE:
+                case InstructionCodes.BNE:
+                case InstructionCodes.RNE:
+                case InstructionCodes.TNE:
+                    execBinaryOpCodes(ctx, sf, opcode, operands);
+                    break;
+
+                case InstructionCodes.LENGTHOF:
+                    calculateLength(ctx, operands, sf);
+                    break;
+                case InstructionCodes.TYPELOAD:
+                    cpIndex = operands[0];
+                    j = operands[1];
+                    TypeRefCPEntry typeEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    sf.refRegs[j] = new BTypeDescValue(typeEntry.getType());
+                    break;
+                case InstructionCodes.TYPEOF:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        sf.refRegs[j] = new BTypeDescValue(BTypes.typeNull);
+                        break;
+                    }
+                    sf.refRegs[j] = new BTypeDescValue(sf.refRegs[i].getType());
+                    break;
+                case InstructionCodes.HALT:
+                    ctx = handleHalt(ctx);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.IGT:
+                case InstructionCodes.FGT:
+                case InstructionCodes.IGE:
+                case InstructionCodes.FGE:
+                case InstructionCodes.ILT:
+                case InstructionCodes.FLT:
+                case InstructionCodes.ILE:
+                case InstructionCodes.FLE:
+                case InstructionCodes.REQ_NULL:
+                case InstructionCodes.RNE_NULL:
+                case InstructionCodes.BR_TRUE:
+                case InstructionCodes.BR_FALSE:
+                case InstructionCodes.GOTO:
+                case InstructionCodes.SEQ_NULL:
+                case InstructionCodes.SNE_NULL:
+                    execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
+                    break;
+
+                case InstructionCodes.TR_RETRY:
+                    i = operands[0];
+                    j = operands[1];
+                    int l = operands[2];
+                    retryTransaction(ctx, i, j, l);
+                    break;
+                case InstructionCodes.CALL:
+                    callIns = (InstructionCALL) instruction;
+                    ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
+                            callIns.retRegs, false, callIns.flags);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.VCALL:
+                    InstructionVCALL vcallIns = (InstructionVCALL) instruction;
+                    ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
+                            vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.ACALL:
+                    InstructionACALL acallIns = (InstructionACALL) instruction;
+                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs,
+                            acallIns.flags);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.TCALL:
+                    InstructionTCALL tcallIns = (InstructionTCALL) instruction;
+                    ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
+                            tcallIns.retRegs, false, tcallIns.flags);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.TR_BEGIN:
+                    i = operands[0];
+                    j = operands[1];
+                    int k = operands[2];
+                    int h = operands[3];
+                    beginTransaction(ctx, i, j, k, h);
+                    break;
+                case InstructionCodes.TR_END:
+                    i = operands[0];
+                    j = operands[1];
+                    endTransaction(ctx, i, j);
+                    break;
+                case InstructionCodes.WRKSEND:
+                    InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
+                    handleWorkerSend(ctx, wrkSendIns.dataChannelInfo, wrkSendIns.types, wrkSendIns.regs);
+                    break;
+                case InstructionCodes.WRKRECEIVE:
+                    InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
+                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types,
+                            wrkReceiveIns.regs)) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.FORKJOIN:
+                    InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
+                    ctx = invokeForkJoin(ctx, forkJoinIns);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.THROW:
+                    i = operands[0];
+                    if (i >= 0) {
+                        BStruct error = (BStruct) sf.refRegs[i];
+                        if (error == null) {
+                            handleNullRefError(ctx);
+                            break;
+                        }
+
+                        BLangVMErrors.attachStackFrame(error, ctx);
+                        ctx.setError(error);
+                    }
+                    handleError(ctx);
+                    break;
+                case InstructionCodes.ERRSTORE:
+                    i = operands[0];
+                    sf.refRegs[i] = ctx.getError();
+                    // clear error
+                    ctx.setError(null);
+                    break;
+                case InstructionCodes.FPCALL:
+                    i = operands[0];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError(ctx);
+                        break;
+                    }
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
+                    funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
+                    functionInfo = funcRefCPEntry.getFunctionInfo();
+                    ctx = BLangFunctions.invokeCallable(functionInfo, ctx, funcCallCPEntry.getArgRegs(),
+                            funcCallCPEntry.getRetRegs(), false);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.FPLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
+                    sf.refRegs[j] = new BFunctionPointer(funcRefCPEntry);
+                    break;
+
+                case InstructionCodes.I2ANY:
+                case InstructionCodes.F2ANY:
+                case InstructionCodes.S2ANY:
+                case InstructionCodes.B2ANY:
+                case InstructionCodes.L2ANY:
+                case InstructionCodes.ANY2I:
+                case InstructionCodes.ANY2F:
+                case InstructionCodes.ANY2S:
+                case InstructionCodes.ANY2B:
+                case InstructionCodes.ANY2L:
+                case InstructionCodes.ANY2JSON:
+                case InstructionCodes.ANY2XML:
+                case InstructionCodes.ANY2MAP:
+                case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2E:
+                case InstructionCodes.ANY2T:
+                case InstructionCodes.ANY2C:
+                case InstructionCodes.ANY2DT:
+                case InstructionCodes.NULL2JSON:
+                case InstructionCodes.CHECKCAST:
+                case InstructionCodes.B2JSON:
+                case InstructionCodes.JSON2I:
+                case InstructionCodes.JSON2F:
+                case InstructionCodes.JSON2S:
+                case InstructionCodes.JSON2B:
+                case InstructionCodes.NULL2S:
+                case InstructionCodes.IS_ASSIGNABLE:
+                case InstructionCodes.CHECK_CONVERSION:
+                    execTypeCastOpcodes(ctx, sf, opcode, operands);
+                    break;
+
+                case InstructionCodes.I2F:
+                case InstructionCodes.I2S:
+                case InstructionCodes.I2B:
+                case InstructionCodes.I2JSON:
+                case InstructionCodes.F2I:
+                case InstructionCodes.F2S:
+                case InstructionCodes.F2B:
+                case InstructionCodes.F2JSON:
+                case InstructionCodes.S2I:
+                case InstructionCodes.S2F:
+                case InstructionCodes.S2B:
+                case InstructionCodes.S2JSON:
+                case InstructionCodes.B2I:
+                case InstructionCodes.B2F:
+                case InstructionCodes.B2S:
+                case InstructionCodes.DT2XML:
+                case InstructionCodes.DT2JSON:
+                case InstructionCodes.T2MAP:
+                case InstructionCodes.T2JSON:
+                case InstructionCodes.MAP2T:
+                case InstructionCodes.JSON2T:
+                case InstructionCodes.XMLATTRS2MAP:
+                case InstructionCodes.S2XML:
+                case InstructionCodes.S2JSONX:
+                case InstructionCodes.XML2S:
+                case InstructionCodes.ANY2SCONV:
+                    execTypeConversionOpcodes(ctx, sf, opcode, operands);
+                    break;
+
+                case InstructionCodes.INEWARRAY:
+                    i = operands[0];
+                    sf.refRegs[i] = new BIntArray();
+                    break;
+                case InstructionCodes.ARRAYLEN:
+                    i = operands[0];
+                    j = operands[1];
+
+                    BValue value = sf.refRegs[i];
+
+                    if (value == null) {
+                        handleNullRefError(ctx);
+                        break;
+                    }
+
+                    if (value.getType().getTag() == TypeTags.JSON_TAG) {
+                        sf.longRegs[j] = ((BJSON) value).value().size();
+                        break;
+                    }
+
+                    sf.longRegs[j] = ((BNewArray) value).size();
+                    break;
+                case InstructionCodes.FNEWARRAY:
+                    i = operands[0];
+                    sf.refRegs[i] = new BFloatArray();
+                    break;
+                case InstructionCodes.SNEWARRAY:
+                    i = operands[0];
+                    sf.refRegs[i] = new BStringArray();
+                    break;
+                case InstructionCodes.BNEWARRAY:
+                    i = operands[0];
+                    sf.refRegs[i] = new BBooleanArray();
+                    break;
+                case InstructionCodes.LNEWARRAY:
+                    i = operands[0];
+                    sf.refRegs[i] = new BBlobArray();
+                    break;
+                case InstructionCodes.RNEWARRAY:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
+                    break;
+                case InstructionCodes.JSONNEWARRAY:
+                    i = operands[0];
+                    j = operands[1];
+                    // This is a temporary solution to create n-valued JSON array
+                    StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
+                    for (int index = 0; index < sf.longRegs[j]; index++) {
+                        stringJoiner.add(null);
+                    }
+                    sf.refRegs[i] = new BJSON(stringJoiner.toString());
+                    break;
+
+                case InstructionCodes.NEWSTRUCT:
+                    createNewStruct(ctx, operands, sf);
+                    break;
+                case InstructionCodes.NEWCONNECTOR:
+                    createNewConnector(ctx, operands, sf);
+                    break;
+                case InstructionCodes.NEWMAP:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    BMapType mapType = (BMapType) typeRefCPEntry.getType();
+                    sf.refRegs[i] = new BMap<String, BRefType>(mapType);
+                    break;
+                case InstructionCodes.NEWJSON:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    sf.refRegs[i] = new BJSON("{}", typeRefCPEntry.getType());
+                    break;
+                case InstructionCodes.NEWTABLE:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    j = operands[2];
+                    BStruct configStruct = (BStruct) sf.refRegs[j];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
+                    break;
+                case InstructionCodes.NEWSTREAM:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    StringCPEntry name = (StringCPEntry) ctx.constPool[operands[2]];
+                    BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
+                    sf.refRegs[i] = stream;
+                    break;
+                case InstructionCodes.NEW_INT_RANGE:
+                    createNewIntRange(operands, sf);
+                    break;
+                case InstructionCodes.IRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = ctx.workerLocal;
+                    callersSF = ctx.workerResult;
+                    callersRetRegIndex = ctx.retRegIndexes[i];
+                    callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
+                    break;
+                case InstructionCodes.FRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = ctx.workerLocal;
+                    callersSF = ctx.workerResult;
+                    callersRetRegIndex = ctx.retRegIndexes[i];
+                    callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[j];
+                    break;
+                case InstructionCodes.SRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = ctx.workerLocal;
+                    callersSF = ctx.workerResult;
+                    callersRetRegIndex = ctx.retRegIndexes[i];
+                    callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[j];
+                    break;
+                case InstructionCodes.BRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = ctx.workerLocal;
+                    callersSF = ctx.workerResult;
+                    callersRetRegIndex = ctx.retRegIndexes[i];
+                    callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
+                    break;
+                case InstructionCodes.LRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = ctx.workerLocal;
+                    callersSF = ctx.workerResult;
+                    callersRetRegIndex = ctx.retRegIndexes[i];
+                    callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
+                    break;
+                case InstructionCodes.RRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = ctx.workerLocal;
+                    callersSF = ctx.workerResult;
+                    callersRetRegIndex = ctx.retRegIndexes[i];
+                    callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
+                    break;
+                case InstructionCodes.RET:
+                    ctx = handleReturn(ctx);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.XMLATTRSTORE:
+                case InstructionCodes.XMLATTRLOAD:
+                case InstructionCodes.XML2XMLATTRS:
+                case InstructionCodes.S2QNAME:
+                case InstructionCodes.NEWQNAME:
+                case InstructionCodes.NEWXMLELEMENT:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.NEWXMLPI:
+                case InstructionCodes.XMLSEQSTORE:
+                case InstructionCodes.XMLSEQLOAD:
+                case InstructionCodes.XMLLOAD:
+                case InstructionCodes.XMLLOADALL:
+                case InstructionCodes.NEWXMLSEQ:
+                    execXMLOpcodes(ctx, sf, opcode, operands);
+                    break;
+                case InstructionCodes.ITR_NEW:
+                case InstructionCodes.ITR_NEXT:
+                case InstructionCodes.ITR_HAS_NEXT:
+                    execIteratorOperation(ctx, sf, instruction);
+                    break;
+                case InstructionCodes.LOCK:
+                    InstructionLock instructionLock = (InstructionLock) instruction;
+                    if (!handleVariableLock(ctx, instructionLock.types, instructionLock.varRegs)) {
+                        return;
+                    }
+                    break;
+                case InstructionCodes.UNLOCK:
+                    InstructionLock instructionUnLock = (InstructionLock) instruction;
+                    handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
+                    break;
+                case InstructionCodes.AWAIT:
+                    ctx = execAwait(ctx, operands);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+            }
         }
     }
 
