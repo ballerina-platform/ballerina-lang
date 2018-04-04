@@ -682,9 +682,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
+        if (!Names.IGNORE.equals(varName) && (simpleVarRef.symbol.flags & Flags.CONST) == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
-            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
         }
     }
 

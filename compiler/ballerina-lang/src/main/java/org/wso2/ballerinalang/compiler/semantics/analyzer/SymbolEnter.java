@@ -122,6 +122,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private static final String ANNOTATION_READONLY = "readonly";
+    private static final String ANNOTATION_FINAL = "final";
 
     private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
@@ -637,6 +638,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varNode.annAttachments.size() > 0) {
             if (hasAnnotation(varNode.annAttachments, ANNOTATION_READONLY)) {
                 varNode.flagSet.add(Flag.READONLY);
+            }
+            if (hasAnnotation(varNode.annAttachments, ANNOTATION_FINAL)) {
+                varNode.flagSet.add(Flag.CONST);
             }
         }
 
