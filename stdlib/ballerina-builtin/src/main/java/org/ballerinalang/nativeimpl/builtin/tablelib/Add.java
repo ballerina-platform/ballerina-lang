@@ -23,8 +23,10 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.nativeimpl.actions.data.sql.BMirrorTable;
+import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.TableUtils;
 
 /**
  * {@code Add} is the function to add data to a table.
@@ -46,10 +48,20 @@ public class Add extends BlockingNativeCallableUnit {
         BTable table = (BTable) context.getRefArgument(0);
         BStruct data = (BStruct) context.getRefArgument(1);
         if (table instanceof BMirrorTable) {
-            ((BMirrorTable) table).addData(data, context);
+            addDataToMirroredTable(data, (BMirrorTable) table, context);
         } else {
             table.addData(data);
+            context.setReturnValues();
         }
-        context.setReturnValues();
+    }
+
+    private void addDataToMirroredTable(BStruct data, BMirrorTable table, Context context) {
+        try {
+            table.addData(data, context);
+            context.setReturnValues();
+        } catch (Throwable e) {
+            context.setReturnValues(TableUtils.createTableOperationError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
     }
 }

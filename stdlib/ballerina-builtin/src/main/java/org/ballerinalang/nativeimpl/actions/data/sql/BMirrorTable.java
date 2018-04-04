@@ -31,9 +31,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
-
+/**
+ * Represent a reflection of a database table. Through a Mirrored table it is possible to add/remove data to/from a
+ * database.
+ */
 public class BMirrorTable extends BTable {
     private SQLDatasource datasource;
     private String tableName;

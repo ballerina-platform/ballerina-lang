@@ -825,12 +825,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)));
     }
 
-    private BMirrorTable constructTable(Context context, BStructType structType, SQLDatasource dataSource, String tableName)
-            throws SQLException {
+    private BMirrorTable constructTable(Context context, BStructType structType, SQLDatasource dataSource,
+            String tableName) throws SQLException {
         TableResourceManager rm = new TableResourceManager();
-        return new BMirrorTable(new SQLDataIterator(utcCalendar, structType,
-                Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context), rm), dataSource, tableName,
-                structType);
+        return new BMirrorTable(new SQLDataIterator(utcCalendar, structType, Utils.getTimeStructInfo(context),
+                Utils.getTimeZoneStructInfo(context), rm), dataSource, tableName, structType);
     }
 
     private String getSQLType(BStruct parameter) {

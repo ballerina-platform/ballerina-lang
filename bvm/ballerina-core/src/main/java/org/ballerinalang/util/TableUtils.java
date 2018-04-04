@@ -18,6 +18,7 @@
 
 package org.ballerinalang.util;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
@@ -28,6 +29,8 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +38,16 @@ import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Includes utility methods required for table related operations.
+ *
+ * @since 0.970.0
+ */
 public class TableUtils {
+    private static final String TABLE_OPERATION_ERROR = "TableOperationError";
+    private static final String TABLE_PACKAGE_PATH = "ballerina.builtin";
+    private static final String EXCEPTION_OCCURRED = "Exception occurred";
+
     public static String generateInsertDataStatment(String tableName, BStruct constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
@@ -165,6 +177,26 @@ public class TableUtils {
             throw new BallerinaException("unsupported data type for array parameter");
         }
         return arrayData;
+    }
+
+    /**
+     * Creates an instance of {@code {@link BStruct}} of the type TableOperationError.
+     *
+     * @param context The context
+     * @param throwable The Throwable object to be used
+     * @return {@code {@link BStruct}} of the type {@code TableOperationError}
+     */
+    public static BStruct createTableOperationError(Context context, Throwable throwable) {
+        PackageInfo tableLibPackage = context.getProgramFile()
+                .getPackageInfo(TABLE_PACKAGE_PATH);
+        StructInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
+        BStruct tableOperationError = new BStruct(errorStructInfo.getType());
+        if (throwable.getMessage() == null) {
+            tableOperationError.setStringField(0, EXCEPTION_OCCURRED);
+        } else {
+            tableOperationError.setStringField(0, throwable.getMessage());
+        }
+        return tableOperationError;
     }
 
 }

@@ -18,11 +18,13 @@
 package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.nativeimpl.actions.data.sql.BMirrorTable;
+import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -46,10 +48,20 @@ public class Delete extends BlockingNativeCallableUnit {
         BTable table = (BTable) context.getRefArgument(0);
         BStruct data = (BStruct) context.getRefArgument(1);
         if (table instanceof BMirrorTable) {
-            ((BMirrorTable) table).removeData(data, context);
+            deleteDataFromMirroredTable(data, (BMirrorTable) table, context);
         } else {
             table.removeData(data);
         }
         context.setReturnValues();
+    }
+
+    private void deleteDataFromMirroredTable(BStruct data, BMirrorTable table, Context context) {
+        try {
+            table.removeData(data, context);
+            context.setReturnValues();
+        } catch (Throwable e) {
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
     }
 }
