@@ -28,10 +28,13 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  *
  * @since 0.94
  */
-public class BLangIndexBasedAccess extends BLangVariableReference implements IndexBasedAccessNode {
+public class BLangIndexBasedAccess extends BLangAccessExpression implements IndexBasedAccessNode {
 
     public BLangExpression indexExpr;
-    public BLangVariableReference expr;
+
+    public BLangIndexBasedAccess() {
+        this.safeNavigate = false;
+    }
 
     @Override
     public BLangVariableReference getExpression() {

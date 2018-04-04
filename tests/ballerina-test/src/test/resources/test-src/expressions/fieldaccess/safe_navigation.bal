@@ -74,15 +74,48 @@ function testSafeNavigatingNilJSON_1 () returns any {
 
 function testSafeNavigatingNilJSON_2 () returns any {
     json j;
+    return j["foo"];
+}
+
+function testSafeNavigatingNilJSON_3 () returns any {
+    json j;
     return j.foo.bar;
 }
 
-function testSafeNavigatingJSONWithNilInMiddle () returns any {
+function testSafeNavigatingNilJSON_4 () returns any {
+    json j;
+    return j["foo"]["bar"];
+}
+
+function testSafeNavigatingJSONWithNilInMiddle_1 () returns any {
     json j = {name:"hello"};
-    return j.name.fname;
+    return j.info["name"].fname;
+}
+
+function testSafeNavigatingJSONWithNilInMiddle_2 () returns any {
+    json j = {name:"hello"};
+    return j["info"].name["fname"];
 }
 
 function testSafeNavigatingNilMap () returns any {
     map m;
     return m.foo;
+}
+
+function testSafeNavigatingWithFuncInovc_1 () returns any {
+    string|error|() x = getNullablePerson().info1!address1!city;
+    return x;
+}
+
+function testSafeNavigatingWithFuncInovc_2 () returns string|() {
+    json j;
+    string|() x = j.getKeys()[0];
+    return x;
+}
+
+function getNullablePerson() returns Person|() {
+    Info inf = {address2 : ()};
+    Person prsn = {info2 : inf};
+    Person|() p = prsn;
+    return p;
 }

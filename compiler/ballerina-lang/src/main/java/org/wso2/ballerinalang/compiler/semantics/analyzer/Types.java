@@ -879,10 +879,6 @@ public class Types {
 
         @Override
         public Boolean visit(BJSONType t, BType s) {
-            if (s.tag == TypeTags.NIL) {
-                return true;
-            }
-
             if (s.tag != TypeTags.JSON) {
                 return false;
             }

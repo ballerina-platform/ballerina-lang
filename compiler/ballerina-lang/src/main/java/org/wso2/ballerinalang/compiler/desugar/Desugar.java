@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
@@ -134,7 +135,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -680,11 +680,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         result = abortNode;
     }
-    
-    @Override
-    public void visit(BLangDone doneNode) {
-        result = doneNode;
-    }
 
     @Override
     public void visit(BLangFail failNode) {
@@ -1051,190 +1046,13 @@ public class Desugar extends BLangNodeVisitor {
         result = targetVarRef;
     }
 
-    private boolean safeNavigate1(BLangFieldBasedAccess fieldAccessExpr) {
-        while (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            // If the field access expression contains error lifting or if the varRef is nullable,
-            // then safe navigation is required
-            if (fieldAccessExpr.safeNavigate || isNullable(fieldAccessExpr.expr.type)) {
-                return true;
-            }
-            
-            fieldAccessExpr = (BLangFieldBasedAccess) fieldAccessExpr.expr;
-        }
-        return false;
-    }
-
-    private boolean safeNavigate(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.safeNavigate || isNullable(fieldAccessExpr.expr.type)) {
-            return true;
-        }
-
-        if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            return safeNavigate((BLangFieldBasedAccess) fieldAccessExpr.expr);
-        }
-
-        return false;
-    }
-
-    private boolean isNullable(BType type) {
-        if (type.isNullable()) {
-            return true;
-        }
-
-        if (type.tag != TypeTags.UNION) {
-            return false;
-        }
-
-        return ((BUnionType) type).memberTypes.contains(symTable.nilType);
-    }
-
-    private BLangMatchExpression getSafeNavigationMatchExpr(BLangFieldBasedAccess fieldAccessExpr) {
-        handleSafeNavigation(fieldAccessExpr, fieldAccessExpr.type);
-        BLangMatchExpression matcEXpr = this.matchExprStack.firstElement();
-        // Reset the stack
-        this.matchExprStack = new Stack<>();
-        return matcEXpr;
-    }
-
-    private BLangFieldBasedAccess handleSafeNavigation(BLangFieldBasedAccess fieldAccessExpr, BType type) {
-        // If the parent of current expr is the root, terminate
-        if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            fieldAccessExpr.expr = handleSafeNavigation((BLangFieldBasedAccess) fieldAccessExpr.expr, type);
-        }
-
-        if (!fieldAccessExpr.safeNavigate && !fieldAccessExpr.expr.type.isNullable()) {
-            if (this.successPattern != null) {
-                this.successPattern.expr = fieldAccessExpr;
-            }
-            return fieldAccessExpr;
-        }
-
-        /*
-         * If the field access is a safe navigation, create a match expression.
-         * Then chain the current expression as the success-pattern of the parent 
-         * match expr, if available.
-         * eg:
-         * x but {                  <--- parent match expr
-         *      error e => e,
-         *      T t => t.y but {    <--- current expr
-         *              error e => e,
-         *              R r => r.z
-         *      }
-         *  }
-         */
-
-        // Add pattern to lift nil
-        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(fieldAccessExpr.expr);
-        matchExpr.patternClauses.add(getMatchNullPattern(fieldAccessExpr.pos));
-        matchExpr.type = type;
-        matchExpr.pos = fieldAccessExpr.pos;
-
-        // Add pattern to lift error, only if the sfe navigation is used
-        if (fieldAccessExpr.safeNavigate) {
-            matchExpr.patternClauses.add(getMatchErrorPattern(fieldAccessExpr.pos));
-            matchExpr.type = type;
-            matchExpr.pos = fieldAccessExpr.pos;
-
-        }
-
-        // Create the pattern for success scenario. i.e: not null and not error (if applicable).
-        BLangMatchExprPatternClause successPattern = getSuccessPattern(fieldAccessExpr, fieldAccessExpr.safeNavigate);
-        matchExpr.patternClauses.add(successPattern);
-        this.matchExprStack.push(matchExpr);
-        if (this.successPattern != null) {
-            this.successPattern.expr = matchExpr;
-        }
-        this.successPattern = successPattern;
-        fieldAccessExpr = (BLangFieldBasedAccess) successPattern.expr;
-        return fieldAccessExpr;
-    }
-
-    private BLangMatchExprPatternClause getMatchErrorPattern(DiagnosticPos pos) {
-        String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_error";
-        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, errorPatternVarName, symTable.errStructType,
-                null, new BVarSymbol(0, names.fromString(errorPatternVarName), this.env.scope.owner.pkgID,
-                        symTable.errStructType, this.env.scope.owner));
-
-        BLangMatchExprPatternClause errorPattern =
-                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
-        errorPattern.variable = errorPatternVar;
-        errorPattern.expr = ASTBuilderUtil.createVariableRef(pos, errorPatternVar.symbol);
-        errorPattern.pos = pos;
-        return errorPattern;
-    }
-
-    private BLangMatchExprPatternClause getMatchNullPattern(DiagnosticPos pos) {
-        String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_null";
-        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, errorPatternVarName, symTable.nilType, null,
-                new BVarSymbol(0, names.fromString(errorPatternVarName), this.env.scope.owner.pkgID, symTable.nilType,
-                        this.env.scope.owner));
-
-        BLangMatchExprPatternClause errorPattern =
-                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
-        errorPattern.variable = errorPatternVar;
-        errorPattern.expr = ASTBuilderUtil.createVariableRef(pos, errorPatternVar.symbol);
-        errorPattern.pos = pos;
-        return errorPattern;
-    }
-
-    private BLangMatchExprPatternClause getSuccessPattern(BLangFieldBasedAccess fieldAccessExpr, boolean liftError) {
-        BType type = getSafeType(fieldAccessExpr.expr.type, liftError);
-        String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
-        BLangVariable successPatternVar = ASTBuilderUtil.createVariable(fieldAccessExpr.pos, successPatternVarName,
-                type, null, new BVarSymbol(0, names.fromString(successPatternVarName),
-                        this.env.scope.owner.pkgID, type, this.env.scope.owner));
-        BLangMatchExprPatternClause successPattern =
-                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
-        successPattern.variable = successPatternVar;
-
-        // Create x.foo
-        BLangFieldBasedAccess fieldAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
-        fieldAccess.expr = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, successPatternVar.symbol);
-        fieldAccess.field = fieldAccessExpr.field;
-        fieldAccess.fieldKind = fieldAccessExpr.fieldKind;
-        fieldAccess.safeNavigate = false;
-        fieldAccess.symbol = fieldAccessExpr.symbol;
-
-        // Type of the field access expression should be always taken from the field type.
-        // Because the type assigned to expression contains the inherited error/nil types,
-        // and may not reflect the actual type of the field.
-        fieldAccess.type = fieldAccessExpr.fieldType;
-
-        successPattern.expr = fieldAccess;
-        successPattern.pos = fieldAccessExpr.pos;
-        return successPattern;
-    }
-
-    private BType getSafeType(BType type, boolean liftError) {
-        // Since JSON is by default contains null, we need to create a new json type which
-        // is not-nullable.
-        if (type.tag == TypeTags.JSON) {
-            BJSONType jsonType = (BJSONType) type;
-            return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
-        }
-
-        if (type.tag != TypeTags.UNION) {
-            return type;
-        }
-
-        BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType =
-                new BUnionType(null, new HashSet<>(unionType.memberTypes), unionType.isNullable());
-
-        // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
-        if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errStructType);
-        }
-
-        if (errorLiftedType.memberTypes.size() == 1) {
-            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
-        }
-        return errorLiftedType;
-    }
-
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        if (safeNavigate(indexAccessExpr)) {
+            result = rewriteExpr(getSafeNavigationMatchExpr(indexAccessExpr));
+            return;
+        }
+
         BLangVariableReference targetVarRef = indexAccessExpr;
         indexAccessExpr.indexExpr = rewriteExpr(indexAccessExpr.indexExpr);
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
@@ -1270,6 +1088,11 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
         iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
+
+        if (safeNavigate(iExpr)) {
+            result = rewriteExpr(getSafeNavigationMatchExpr(iExpr));
+            return;
+        }
 
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
@@ -2315,6 +2138,10 @@ public class Desugar extends BLangNodeVisitor {
             return expr;
         }
 
+        if (lhsType.tag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
+            return expr;
+        }
+
         if (lhsType.tag == TypeTags.NIL && rhsType.isNullable()) {
             return expr;
         }
@@ -2489,5 +2316,184 @@ public class Desugar extends BLangNodeVisitor {
         defaultPattern.expr = ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, patternMatchCaseVar.symbol);
         defaultPattern.pos = bLangMatchExpression.pos;
         bLangMatchExpression.patternClauses.add(defaultPattern);
+    }
+
+    private boolean safeNavigate(BLangAccessExpression accessExpr) {
+        if (accessExpr.lhsVar || accessExpr.expr == null) {
+            return false;
+        }
+
+        if (accessExpr.safeNavigate || isNullable(accessExpr.expr.type)) {
+            return true;
+        }
+
+        NodeKind kind = accessExpr.expr.getKind();
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR ||
+                kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
+                kind == NodeKind.INVOCATION) {
+            return safeNavigate((BLangAccessExpression) accessExpr.expr);
+        }
+
+        return false;
+    }
+
+    private boolean isNullable(BType type) {
+        if (type.isNullable()) {
+            return true;
+        }
+
+        if (type.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        return ((BUnionType) type).memberTypes.contains(symTable.nilType);
+    }
+
+    private BLangMatchExpression getSafeNavigationMatchExpr(BLangAccessExpression indexBasedAccessExpr) {
+        handleSafeNavigation(indexBasedAccessExpr, indexBasedAccessExpr.type);
+        BLangMatchExpression matcEXpr = this.matchExprStack.firstElement();
+        // Reset the stack
+        this.matchExprStack = new Stack<>();
+        return matcEXpr;
+    }
+
+    private BLangAccessExpression handleSafeNavigation(BLangAccessExpression accessExpr, BType type) {
+        if (accessExpr.expr == null) {
+            return accessExpr;
+        }
+
+        // If the parent of current expr is the root, terminate
+        NodeKind kind = accessExpr.expr.getKind();
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR ||
+                kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
+                kind == NodeKind.INVOCATION) {
+            accessExpr.expr = handleSafeNavigation((BLangAccessExpression) accessExpr.expr, type);
+        }
+
+        if (!accessExpr.safeNavigate && !accessExpr.expr.type.isNullable()) {
+            if (this.successPattern != null) {
+                this.successPattern.expr = accessExpr;
+            }
+            return accessExpr;
+        }
+
+        /*
+         * If the field access is a safe navigation, create a match expression.
+         * Then chain the current expression as the success-pattern of the parent
+         * match expr, if available.
+         * eg:
+         * x but {              <--- parent match expr
+         *   error e => e,
+         *   T t => t.y but {   <--- current expr
+         *      error e => e,
+         *      R r => r.z
+         *   }
+         * }
+         */
+
+        // Add pattern to lift nil
+        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(accessExpr.expr);
+        matchExpr.patternClauses.add(getMatchNullPattern(accessExpr.pos));
+        matchExpr.type = type;
+        matchExpr.pos = accessExpr.pos;
+
+        // Add pattern to lift error, only if the sfe navigation is used
+        if (accessExpr.safeNavigate) {
+            matchExpr.patternClauses.add(getMatchErrorPattern(accessExpr.pos));
+            matchExpr.type = type;
+            matchExpr.pos = accessExpr.pos;
+
+        }
+
+        // Create the pattern for success scenario. i.e: not null and not error (if applicable).
+        BLangMatchExprPatternClause successPattern = getSuccessPattern(accessExpr, accessExpr.safeNavigate);
+        matchExpr.patternClauses.add(successPattern);
+        this.matchExprStack.push(matchExpr);
+        if (this.successPattern != null) {
+            this.successPattern.expr = matchExpr;
+        }
+        this.successPattern = successPattern;
+        accessExpr = (BLangAccessExpression) successPattern.expr;
+        return accessExpr;
+    }
+
+    private BLangMatchExprPatternClause getMatchErrorPattern(DiagnosticPos pos) {
+        String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_error";
+        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, errorPatternVarName, symTable.errStructType,
+                null, new BVarSymbol(0, names.fromString(errorPatternVarName), this.env.scope.owner.pkgID,
+                        symTable.errStructType, this.env.scope.owner));
+
+        BLangMatchExprPatternClause errorPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        errorPattern.variable = errorPatternVar;
+        errorPattern.expr = ASTBuilderUtil.createVariableRef(pos, errorPatternVar.symbol);
+        errorPattern.pos = pos;
+        return errorPattern;
+    }
+
+    private BLangMatchExprPatternClause getMatchNullPattern(DiagnosticPos pos) {
+        String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_null";
+        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, errorPatternVarName, symTable.nilType, null,
+                new BVarSymbol(0, names.fromString(errorPatternVarName), this.env.scope.owner.pkgID, symTable.nilType,
+                        this.env.scope.owner));
+
+        BLangMatchExprPatternClause errorPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        errorPattern.variable = errorPatternVar;
+        errorPattern.expr = ASTBuilderUtil.createVariableRef(pos, errorPatternVar.symbol);
+        errorPattern.pos = pos;
+        return errorPattern;
+    }
+
+    private BLangMatchExprPatternClause getSuccessPattern(BLangAccessExpression accessExpr, boolean liftError) {
+        BType type = getSafeType(accessExpr.expr.type, liftError);
+        String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
+        BLangVariable successPatternVar = ASTBuilderUtil.createVariable(accessExpr.pos, successPatternVarName,
+                type, null, new BVarSymbol(0, names.fromString(successPatternVarName), this.env.scope.owner.pkgID,
+                        type, this.env.scope.owner));
+
+        // Create x.foo, by replacing the varRef expr of the current expression, with the new temp var ref
+        accessExpr.expr = ASTBuilderUtil.createVariableRef(accessExpr.pos, successPatternVar.symbol);
+        accessExpr.safeNavigate = false;
+
+        // Type of the field access expression should be always taken from the child type.
+        // Because the type assigned to expression contains the inherited error/nil types,
+        // and may not reflect the actual type of the child/field expr.
+        accessExpr.type = accessExpr.childType;
+
+        BLangMatchExprPatternClause successPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        successPattern.variable = successPatternVar;
+        successPattern.expr = accessExpr;
+        successPattern.pos = accessExpr.pos;
+        return successPattern;
+    }
+
+    private BType getSafeType(BType type, boolean liftError) {
+        // Since JSON is by default contains null, we need to create a new json type which
+        // is not-nullable.
+        if (type.tag == TypeTags.JSON) {
+            BJSONType jsonType = (BJSONType) type;
+            return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+        }
+
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        BUnionType unionType = (BUnionType) type;
+        BUnionType errorLiftedType =
+                new BUnionType(null, new HashSet<>(unionType.memberTypes), unionType.isNullable());
+
+        // Lift nil always. Lift error only if safe navigation is used.
+        errorLiftedType.memberTypes.remove(symTable.nilType);
+        if (liftError) {
+            errorLiftedType.memberTypes.remove(symTable.errStructType);
+        }
+
+        if (errorLiftedType.memberTypes.size() == 1) {
+            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        }
+        return errorLiftedType;
     }
 }
