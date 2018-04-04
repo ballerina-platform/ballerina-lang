@@ -62,7 +62,7 @@ public type Participant2pcClient object {
         PrepareRequest prepareReq = {transactionId:transactionId};
         json j = check <json>prepareReq;
         req.setJsonPayload(j);
-        http:Response res =? httpClient -> post("/prepare", req);
+        http:Response res = httpClient -> post("/prepare", req) but {error};
         int statusCode = res.statusCode;
         if (statusCode == http:NOT_FOUND_404) {
             error err = {message:"Transaction-Unknown"};
@@ -83,7 +83,7 @@ public type Participant2pcClient object {
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         json j = check <json>notifyReq;
         req.setJsonPayload(j);
-        http:Response res =? httpClient -> post("/notify", req);
+        http:Response res = httpClient -> post("/notify", req) but {error};
         json payload = check res.getJsonPayload();
         NotifyResponse notifyRes = <NotifyResponse>payload;  //TODO: Change this this to use the safe assignment operator
         string msg = notifyRes.message;

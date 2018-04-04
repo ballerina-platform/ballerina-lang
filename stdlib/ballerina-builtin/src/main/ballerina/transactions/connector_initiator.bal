@@ -65,7 +65,7 @@ type InitiatorClient object {
         json reqPayload = regRequestToJson(regReq);
         http:Request req = {};
         req.setJsonPayload(reqPayload);
-        http:Response res =? httpClient -> post("", req);
+        http:Response res = httpClient -> post("", req) but {error};
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {
             error err = {message:"Registration for transaction: " + transactionId + " failed"};
