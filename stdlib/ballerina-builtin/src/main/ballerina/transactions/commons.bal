@@ -61,6 +61,7 @@ function cleanupTransactions () returns error|null {
                         boolean prepareSuccessful = prepareResourceManagers(twopcTxn.transactionId, twopcTxn.transactionBlockId);
                         if (prepareSuccessful) {
                             twopcTxn.state = TransactionState.PREPARED;
+                            log:printInfo("Auto-prepared participated  transaction: " + participatedTxnId);
                         } else {
                             log:printError("Auto-prepare of participated transaction: " + participatedTxnId + " failed");
                         }
@@ -69,6 +70,7 @@ function cleanupTransactions () returns error|null {
                         boolean commitSuccessful = commitResourceManagers(twopcTxn.transactionId, twopcTxn.transactionBlockId);
                         if (commitSuccessful) {
                             twopcTxn.state = TransactionState.COMMITTED;
+                            log:printInfo("Auto-committed participated  transaction: " + participatedTxnId);
                         } else {
                             log:printError("Auto-commit of participated transaction: " + participatedTxnId + " failed");
                         }
