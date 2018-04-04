@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
@@ -83,7 +84,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
                 }
                 OutboundMsgHolder msgHolder = http2ClientOutboundHandler.
-                        getHttp2ClientChannel().getInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID);
+                        getHttp2ClientChannel().getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID);
                 if (msgHolder != null) {
                     // Response received over HTTP/1.x connection, so mark no push promises available in the channel
                     msgHolder.markNoPromisesReceived();
@@ -214,9 +215,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         Http2ClientChannel http2ClientChannel = http2ClientOutboundHandler.getHttp2ClientChannel();
         http2ClientChannel.setUpgradedToHttp2(true);
         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-        http2ClientChannel.getInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID).setRequestWritten(true);
+        http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onStreamInit(Constants.HTTP2_INITIAL_STREAM_ID, ctx));
+                forEach(dataEventListener ->
+                                dataEventListener.onStreamInit(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, ctx));
         handoverChannelToHttp2ConnectionManager();
     }
 

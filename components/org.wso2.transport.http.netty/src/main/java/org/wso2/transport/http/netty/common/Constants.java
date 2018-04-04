@@ -197,8 +197,8 @@ public final class Constants {
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP_VERSION_2_0 = "HTTP/2.0";
     public static final String HTTP2_VERSION = "2.0";
-    public static final String STREAM_ID = "STREAM_ID";
-    public static final int HTTP2_INITIAL_STREAM_ID = 1;
+    public static final String HTTP2_CLEARTEXT_PROTOCOL = "h2c";
+    public static final String HTTP2_TLS_PROTOCOL = "h2";
     public static final String AUTHORITY = "AUTHORITY";
     public static final String HTTP2_METHOD = ":method";
     public static final String HTTP2_PATH = ":path";

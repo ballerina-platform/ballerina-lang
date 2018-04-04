@@ -22,7 +22,6 @@ package org.wso2.transport.http.netty.sender;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.ssl.ApplicationProtocolNames;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 
@@ -50,7 +49,7 @@ public class ConnectionAvailabilityFuture {
                     socketAvailable = true;
                     if (listener != null && !isSSLEnabled) {
                         if (forceHttp2) {
-                            notifySuccess(ApplicationProtocolNames.HTTP_2);
+                            notifySuccess(Constants.HTTP2_CLEARTEXT_PROTOCOL);
                         } else {
                             notifySuccess(Constants.HTTP_SCHEME);
                         }
@@ -77,7 +76,8 @@ public class ConnectionAvailabilityFuture {
     void notifySuccess(String protocol) {
         this.protocol = protocol;
         if (listener != null) {
-            if (forceHttp2 && !protocol.equals(ApplicationProtocolNames.HTTP_2)) {
+            if (forceHttp2 && !(protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
+                                protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL))) {
                 ClientConnectorException connectorException =
                         new ClientConnectorException("Protocol must be HTTP/2",
                                                      HttpResponseStatus.HTTP_VERSION_NOT_SUPPORTED.code());
@@ -102,7 +102,7 @@ public class ConnectionAvailabilityFuture {
             notifySuccess(protocol);
         } else if (!isSSLEnabled && socketAvailable) {
             if (forceHttp2) {
-                notifySuccess(ApplicationProtocolNames.HTTP_2);
+                notifySuccess(Constants.HTTP2_CLEARTEXT_PROTOCOL);
             } else {
                 notifySuccess(Constants.HTTP_SCHEME);
             }

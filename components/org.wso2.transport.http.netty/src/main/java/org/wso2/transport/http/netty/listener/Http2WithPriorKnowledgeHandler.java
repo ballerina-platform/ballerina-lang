@@ -51,12 +51,12 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof ByteBuf) {
-            ByteBuf in = (ByteBuf) msg;
+            ByteBuf inputData = (ByteBuf) msg;
             ByteBuf clientPrefaceString = Http2CodecUtil.connectionPrefaceBuf();
-            int bytesRead = min(in.readableBytes(), clientPrefaceString.readableBytes());
+            int bytesRead = min(inputData.readableBytes(), clientPrefaceString.readableBytes());
             ChannelPipeline pipeline = ctx.pipeline();
-            if (ByteBufUtil.equals(
-                    in, in.readerIndex(), clientPrefaceString, clientPrefaceString.readerIndex(), bytesRead)) {
+            if (ByteBufUtil.equals(inputData, inputData.readerIndex(),
+                                   clientPrefaceString, clientPrefaceString.readerIndex(), bytesRead)) {
                 // HTTP/2 request received without an upgrade
                 pipeline.remove(Constants.HTTP_SERVER_CODEC);
                 pipeline.addBefore(
