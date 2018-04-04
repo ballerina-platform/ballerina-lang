@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -54,6 +55,17 @@ public class DependsOnTest {
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
+    }
+
+    @Test(expectedExceptions = BallerinaException.class)
+    public void tesDependsOnFunctionsMissingFunction() {
+        cleanup();
+        BTestRunner runner = new BTestRunner();
+        runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
+            ArrayList<>());
+//        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
+//        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
+//        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
     }
 
     private void cleanup() {
