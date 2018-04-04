@@ -104,6 +104,8 @@ public abstract class WebSocketUtil {
                         PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 populateEndpoint(session, webSocketEndpoint);
+                webSocketEndpoint.setRefField(0, webSocketConnector);
+                populateEndpoint(session, webSocketEndpoint);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              webSocketEndpoint);

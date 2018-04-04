@@ -113,6 +113,10 @@ public class WebSocketService implements Service {
         return negotiableSubProtocols;
     }
 
+    public Resource getUpgradeResource() {
+        return upgradeResource;
+    }
+
     public int getIdleTimeoutInSeconds() {
         return idleTimeoutInSeconds;
     }
