@@ -141,16 +141,22 @@ public class Utils {
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
             case TypeTags.BLOB_TAG:
-                encodeBlob(context, (BBlob) input, isMimeSpecific);
+                if (input instanceof BBlob) {
+                    encodeBlob(context, (BBlob) input, isMimeSpecific);
+                }
                 break;
             case TypeTags.STRUCT_TAG:
-                BStruct byteChannel = (BStruct) input;
-                if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-                    encodeByteChannel(context, byteChannel, isMimeSpecific);
+                if (input instanceof BStruct) {
+                    BStruct byteChannel = (BStruct) input;
+                    if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
+                        encodeByteChannel(context, byteChannel, isMimeSpecific);
+                    }
                 }
                 break;
             case TypeTags.STRING_TAG:
                 encodeString(context, input.stringValue(), charset, isMimeSpecific);
+                break;
+            default:
                 break;
         }
     }
@@ -166,13 +172,19 @@ public class Utils {
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
             case TypeTags.BLOB_TAG:
-                decodeBlob(context, (BBlob) encodedInput, isMimeSpecific);
+                if (encodedInput instanceof BBlob) {
+                    decodeBlob(context, (BBlob) encodedInput, isMimeSpecific);
+                }
                 break;
             case TypeTags.STRUCT_TAG:
-                decodeByteChannel(context, (BStruct) encodedInput, isMimeSpecific);
+                if (encodedInput instanceof BStruct) {
+                    decodeByteChannel(context, (BStruct) encodedInput, isMimeSpecific);
+                }
                 break;
             case TypeTags.STRING_TAG:
                 decodeString(context, encodedInput, charset, isMimeSpecific);
+                break;
+            default:
                 break;
         }
     }
@@ -185,7 +197,8 @@ public class Utils {
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the encoder should be mime specific or not
      */
-    private static void encodeString(Context context, String stringToBeEncoded, String charset, boolean isMimeSpecific) {
+    private static void encodeString(Context context, String stringToBeEncoded, String charset,
+                                     boolean isMimeSpecific) {
         try {
             byte[] encodedValue;
             if (isMimeSpecific) {
@@ -207,7 +220,8 @@ public class Utils {
      * @param charset           Represent the charset value to be used with string
      * @param isMimeSpecific    A boolean indicating whether the decoder should be mime specific or not
      */
-    private static void decodeString(Context context, BValue stringToBeDecoded, String charset, boolean isMimeSpecific) {
+    private static void decodeString(Context context, BValue stringToBeDecoded, String charset,
+                                     boolean isMimeSpecific) {
         try {
             byte[] decodedValue;
             if (isMimeSpecific) {
