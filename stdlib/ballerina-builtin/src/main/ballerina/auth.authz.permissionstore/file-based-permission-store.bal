@@ -34,24 +34,37 @@ public struct FileBasedPermissionStore {
 @Return {value:"boolean: true if authorized, else false"}
 public function <FileBasedPermissionStore permissionStore> isAuthorized (string username,
                                                                          string[] scopes) returns (boolean) {
-    string[] groupsForUser = getGroupsArray(permissionStore.readGroupsOfUser(username));
+    string[] groupsForUser = permissionStore.readGroupsOfUser(username);
     if (lengthof groupsForUser == 0) {
         // no groups for user
         return false;
     }
-    
+    return permissionStore.isAuthorizedByGroups(groupsForUser, scopes);
+}
+
+@Description {value:"Checks whether the groups provided can access a resource with the specified scopes"}
+@Param {value:"groups: array of group names"}
+@Param {value:"scopes: array of scope names"}
+@Return {value:"boolean: true if authorized, else false"}
+public function <FileBasedPermissionStore permissionStore> isAuthorizedByGroups (string[] groups,
+                                                                                 string[] scopes) returns (boolean) {
+    if (lengthof groups == 0) {
+        // no groups for user
+        return false;
+    }
+
     string[] groupsForScope = [];
     foreach scopeName in scopes  {
         // read groups for each scope and see if there is a match between user's groups
         // and the groups of the scope. There is no need to read groups for all scopes
         // and do the comparison.
-        groupsForScope = getGroupsArray(permissionStore.readGroupsOfScope(scopeName));
+        groupsForScope = permissionStore.readGroupsOfScope(scopeName);
         if (lengthof groupsForScope > 0) {
             // check if there is a match
-            if (matchGroups(groupsForScope, groupsForUser)) {
+            if (matchGroups(groupsForScope, groups)) {
                 return true;
             }
-            
+
         }
     }
     return false;
@@ -59,9 +72,9 @@ public function <FileBasedPermissionStore permissionStore> isAuthorized (string 
 
 @Description {value:"Reads groups for the given scopes"}
 @Param {value:"scopeName: name of the scope"}
-@Return {value:"string: comma separated groups specified for the scopename"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string) {
-    return getPermissionStoreConfigValue(scopeName, PERMISSIONSTORE_GROUPS_ENTRY);
+@Return {value:"string[]: array of groups corresponding to the given scope name"}
+public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string[]) {
+    return getGroupsArray(getPermissionStoreConfigValue(scopeName, PERMISSIONSTORE_GROUPS_ENTRY));
 }
 
 @Description {value:"Matches the groups passed"}
@@ -93,20 +106,14 @@ function getGroupsArray (string groupString) returns (string[]) {
 
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
-@Return {value:"string: comma separeted groups list, as specified in the userstore file"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) returns (string) {
+@Return {value:"string[]: array of groups, for the user denoted by the username"}
+public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) returns (string[]) {
     string userId = getPermissionStoreConfigValue(username, "userid");
+    string[] groupsArr = [];
     if (userId == EMPTY_STRING) {
-        return EMPTY_STRING;
+        return groupsArr;
     }
-    return getPermissionStoreConfigValue(userId, PERMISSIONSTORE_GROUPS_ENTRY);
-}
-
-@Description {value:"Reads the user id for the given username"}
-@Param {value:"string: username"}
-@Return {value:"string: user id read from the userstore, or null if not found"}
-function readUserId (string username) returns (string|null) {
-    return config:getAsString(username + ".userid");
+    return getGroupsArray(getPermissionStoreConfigValue(userId, PERMISSIONSTORE_GROUPS_ENTRY));
 }
 
 function getPermissionStoreConfigValue (string instanceId, string property) returns (string) {

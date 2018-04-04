@@ -30,18 +30,28 @@ public function <PermissionStore permissionStore> isAuthorized (string username,
     throw e;
 }
 
+@Description {value:"Checks whether the groups provided can access a resource with the specified scopes"}
+@Param {value:"groups: array of group names"}
+@Param {value:"scopes: array of scope names"}
+@Return {value:"boolean: true if authorized, else false"}
+public function <PermissionStore permissionStore> isAuthorizedByGroups (string[] groups,
+                                                                                 string[] scopes) returns (boolean) {
+    error e = {message:"Not implemented"};
+    throw e;
+}
+
 @Description {value:"Reads groups for the given scopes"}
 @Param {value:"scopeName: name of the scope"}
 @Return {value:"string: comma separated groups specified for the scopename"}
-public function <PermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string) {
+public function <PermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string[]) {
     error e = {message:"Not implemented"};
     throw e;
 }
 
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
-@Return {value:"string: comma separeted groups list, as specified in the userstore file"}
-public function <PermissionStore permissionStore> readGroupsOfUser (string username) returns (string) {
+@Return {value:"string[]: array of groups for the user denoted by the username"}
+public function <PermissionStore permissionStore> readGroupsOfUser (string username) returns (string[]) {
     error e = {message:"Not implemented"};
     throw e;
 }
