@@ -64,7 +64,6 @@ public abstract class CompletionTest {
     public void test(String config, String configPath) {
         String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
         List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
         List<CompletionItem> expectedList = getExpectedList(configJsonObject);
         Assert.assertEquals(true, CompletionTestUtil.isSubList(expectedList, responseItemList));
