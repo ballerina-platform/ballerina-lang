@@ -83,7 +83,7 @@ public class LSPackageCache {
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
                     new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
             
-            this.packageCache.put(packageID, LSPackageLoader.getPackageById(tempCompilerContext, packageID));
+            LSPackageLoader.getPackageById(tempCompilerContext, packageID);
         }
     }
 
