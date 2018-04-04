@@ -25,21 +25,15 @@ import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
 
 /**
  * Returns a new byte channel from the path.
@@ -60,60 +54,26 @@ import java.util.Set;
         isPublic = true
 )
 public class NewByteChannel extends AbstractNativeChannel {
-    private static final int FILE_ACCESS_MODE_INDEX = 0;
-
     /**
-     * Creates a directory at the specified path.
-     *
-     * @param path the file location url
+     * Specifies the access mode to the file.
      */
-    private void createDirs(Path path) {
-        Path parent = path.getParent();
-        if (parent != null && !Files.exists(parent)) {
-            try {
-                Files.createDirectories(parent);
-            } catch (IOException e) {
-                throw new BallerinaException("Error in creating directory.", e);
-            }
-        }
-    }
+    private static final int FILE_ACCESS_MODE_INDEX = 0;
+    /**
+     * Specifies the index of the path.
+     */
+    private static final int PATH_INDEX = 0;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
-        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        BStruct pathStruct = (BStruct) context.getRefArgument(PATH_INDEX);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         String accessMode = context.getStringArgument(FILE_ACCESS_MODE_INDEX);
         Channel channel;
         try {
-            String accessLC = accessMode.toLowerCase(Locale.getDefault());
-            Set<OpenOption> opts = new HashSet<>();
-            if (accessLC.contains("r")) {
-                if (!Files.exists(path)) {
-                    throw new BallerinaException("file not found: " + path);
-                }
-                if (!Files.isReadable(path)) {
-                    throw new BallerinaException("file is not readable: " + path);
-                }
-                opts.add(StandardOpenOption.READ);
-            }
-            boolean write = accessLC.contains("w");
-            boolean append = accessLC.contains("a");
-            if (write || append) {
-                if (Files.exists(path) && !Files.isWritable(path)) {
-                    throw new BallerinaException("file is not writable: " + path);
-                }
-                createDirs(path);
-                opts.add(StandardOpenOption.CREATE);
-                if (append) {
-                    opts.add(StandardOpenOption.APPEND);
-                } else {
-                    opts.add(StandardOpenOption.WRITE);
-                }
-            }
-            FileChannel byteChannel = FileChannel.open(path, opts);
+            FileChannel byteChannel = IOUtils.openFileChannel(path, accessMode);
             channel = new FileIOChannel(byteChannel);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: " + path, e);

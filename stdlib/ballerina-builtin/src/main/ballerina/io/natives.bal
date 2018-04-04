@@ -16,12 +16,12 @@
 
 package ballerina.io;
 
-@Description {value:"Specifies the format for the csv files"}
-public enum RecordFormat{
-    DEFAULT,
-    RFC4180,
-    TDF
-}
+@Description { value:"Default record format"}
+public const string DEFAULT_FORMAT = "DEFAULT";
+@Description { value:"RFC4180 record format"}
+public const string RFC4180_FORMAT = "RFC4180";
+@Description { value:"TDF record format"}
+public const string TDF_FORMAT = "TDF";
 
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public type ByteChannel object {
@@ -182,11 +182,12 @@ public native function createDelimitedRecordChannel (CharacterChannel channel, s
 
 @Description {value:"Function to create CSV channel to read CSV input"}
 @Param {value:"path: Specfies the path to the CSV file"}
+@Param {value:"mode: Specfies the access mode"}
 @Param {value: "rf: Specifies the format of the CSV file"}
 @Return {value:"DelimitedRecordChannel converted from CSV Channel"}
 @Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
-public native function createCsvChannel (string path, RecordFormat rf,string charset="UTF-8")
-returns (DelimitedRecordChannel | IOError);
+public native function createCsvChannel (string path, string mode="rw", string rf="DEFAULT",
+string charset="UTF-8") returns (DelimitedRecordChannel | IOError);
 
 @Description {value:"Open a secure socket connection with a remote server"}
 @Param {value:"host: Remote server domain/IP"}

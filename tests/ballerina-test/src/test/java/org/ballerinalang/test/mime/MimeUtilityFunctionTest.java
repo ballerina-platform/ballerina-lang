@@ -59,11 +59,9 @@ import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 
-import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
@@ -248,10 +246,10 @@ public class MimeUtilityFunctionTest {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
-            BStruct fileStruct = BCompileUtil
+      /*      BStruct fileStruct = BCompileUtil
                     .createAndGetStruct(compileResult.getProgFile(), PROTOCOL_PACKAGE_FILE, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());
-            BValue[] args = {fileStruct};
+            fileStruct.setStringField(0, file.getAbsolutePath());*/
+            BValue[] args = {new BString(file.getAbsolutePath())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",

@@ -26,9 +26,7 @@ import ballerina/time;
 @Description { value:"The Read Write access mode"}
 @final public string RW = "RW";
 @Description { value:"The Append access mode"}
-@final public string A = "A";
-@Description { value:"The Read Append access mode"}
-@final public string RA = "RA";
+public const string A = "A";
 
 @Description { value: "Represents an I/O error which could occur when processing a file."}
 @Field { value : "message: The error message"}
@@ -87,4 +85,4 @@ public native function createFile(Path path) returns (boolean | IOError);
 @Param {value: "path : Refernce to the file path location"}
 @Param {value: "accessMode : whether the file should be opened for read, write or append"}
 @Return {value : "channel which will hold the reference to the file or io error"}
-public native function newByteChannel(Path path, string accessMode) returns (io:ByteChannel |IOError);
+public native function newByteChannel(Path path, @sensitive string accessMode) returns (io:ByteChannel |IOError);

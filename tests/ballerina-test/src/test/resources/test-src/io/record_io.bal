@@ -33,7 +33,7 @@ returns (boolean|io:IOError){
 }
 
 function initDefaultCsv(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath, io:RecordFormat.DEFAULT);
+    var csvDefaultChannel = io:createCsvChannel(filePath);
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
           txtChannel = delimChannel;
@@ -46,7 +46,7 @@ function initDefaultCsv(string filePath) returns (boolean|io:IOError){
 }
 
 function initRfc(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath, io:RecordFormat.RFC4180);
+    var csvDefaultChannel = io:createCsvChannel(filePath,file:RW, io:RFC4180_FORMAT);
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
           txtChannel = delimChannel;
@@ -59,7 +59,7 @@ function initRfc(string filePath) returns (boolean|io:IOError){
 }
 
 function initTdf(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath, io:RecordFormat.TDF);
+    var csvDefaultChannel = io:createCsvChannel(filePath,file:RW, io:TDF_FORMAT);
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
          txtChannel = delimChannel;

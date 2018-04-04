@@ -52,9 +52,9 @@ public struct EntityError {
 
 @Description {value:"Set the entity body with a given file handler"}
 @Param {value:"entity: Represent a MIME entity"}
-@Param {value:"fileHandler: Represent a file"}
-public function <Entity entity> setFileAsEntityBody (file:File fileHandler) {
-    io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
+@Param {value:"path: Represent a path to file"}
+public function <Entity entity> setFileAsEntityBody (file:Path path) {
+    io:ByteChannel byteChannel =? file:newByteChannel(path, READ_PERMISSION);
     entity.setByteChannel(byteChannel);
 }
 

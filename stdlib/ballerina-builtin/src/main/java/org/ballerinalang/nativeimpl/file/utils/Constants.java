@@ -29,14 +29,6 @@ public class Constants {
      */
     public static final String FILE_PACKAGE = "ballerina.file";
     /**
-     * Name of the file struct.
-     */
-    public static final String FILE_STRUCT = "File";
-    /**
-     * IO Error name.
-     */
-    public static final String IO_ERROR = "IOError";
-    /**
      * Specifies the struct definition of th path.
      */
     public static final String PATH_STRUCT = "Path";

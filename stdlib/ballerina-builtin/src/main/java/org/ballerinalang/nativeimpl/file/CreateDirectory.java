@@ -54,13 +54,16 @@ import java.nio.file.Path;
 public class CreateDirectory extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(CreateDirectory.class);
+    /**
+     * Index which holds the reference to the path.
+     */
+    private static final int INDEX = 0;
 
     @Override
     public void execute(Context context) {
-        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        BStruct pathStruct = (BStruct) context.getRefArgument(INDEX);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         File dir = path.toFile();
-
         try {
             if (dir.mkdirs()) {
                 context.setReturnValues(new BBoolean(true));
@@ -70,8 +73,8 @@ public class CreateDirectory extends BlockingNativeCallableUnit {
             }
         } catch (SecurityException e) {
             log.error("Could not create directory structure: " + path, e);
-            context.setReturnValues(
-                    BLangVMErrors.createError(context, "Could not create the requested directory structure: " + path));
+            context.setReturnValues(BLangVMErrors.createError(context,
+                    "Could not create the requested directory structure: " + path));
         }
     }
 }
