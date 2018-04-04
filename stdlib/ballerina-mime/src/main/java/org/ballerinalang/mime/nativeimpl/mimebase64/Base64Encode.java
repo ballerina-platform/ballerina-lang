@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.mime.nativeimpl.mimebase64;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -26,24 +26,24 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.util:base64Decode.
+ * Native function 'mime:base64Encode' that can encode a a given string, blob or a byte channel.
  *
- * @since 0.8.0
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "util",
-        functionName = "base64Decode",
-        args = {@Argument(name = "contentToBeDecoded", type = TypeKind.UNION), @Argument(name = "charset",
+        orgName = "ballerina", packageName = "mime",
+        functionName = "base64Encode",
+        args = {@Argument(name = "contentToBeEncoded", type = TypeKind.UNION), @Argument(name = "charset",
                 type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
-public class Base64Decode extends BlockingNativeCallableUnit {
+public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue result = context.getRefArgument(0);
+        BValue input = context.getRefArgument(0);
         String charset = context.getStringArgument(0);
-        Utils.decode(context, result, charset, false);
+        Utils.encode(context, input, charset, true);
     }
 }
