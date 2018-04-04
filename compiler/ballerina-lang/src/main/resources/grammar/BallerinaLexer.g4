@@ -89,7 +89,7 @@ TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
 TYPE_ANY        : 'any' ;
 TYPE_DESC       : 'typedesc' ;
-TYPE_TYPE       : 'type' ;
+TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;

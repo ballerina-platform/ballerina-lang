@@ -49,16 +49,12 @@ public class BLangAnnotationAttachmentPoint {
     public enum AttachmentPoint {
         SERVICE("service"),
         RESOURCE("resource"),
-        CONNECTOR("connector"),
-        ACTION("action"),
         FUNCTION("function"),
-        STRUCT("struct"),
-        ENUM("enum"),
+        OBJECT("object"),
+        TYPE("type"),
         ENDPOINT("endpoint"),
-        CONST("const"),
         PARAMETER("parameter"),
-        ANNOTATION("annotation"),
-        TRANSFORMER("transformer");
+        ANNOTATION("annotation");
 
         private String value;
 

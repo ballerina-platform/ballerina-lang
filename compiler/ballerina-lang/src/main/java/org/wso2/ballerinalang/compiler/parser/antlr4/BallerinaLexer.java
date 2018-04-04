@@ -1,13 +1,17 @@
 // Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
-import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.*;
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.RuntimeMetaData;
+import org.antlr.v4.runtime.Vocabulary;
+import org.antlr.v4.runtime.VocabularyImpl;
+import org.antlr.v4.runtime.atn.ATN;
+import org.antlr.v4.runtime.atn.ATNDeserializer;
+import org.antlr.v4.runtime.atn.LexerATNSimulator;
+import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.misc.Utils;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaLexer extends Lexer {
@@ -28,7 +32,7 @@ public class BallerinaLexer extends Lexer {
 		MINUTE=57, HOUR=58, DAY=59, MONTH=60, YEAR=61, FOREVER=62, TYPE_INT=63, 
 		TYPE_FLOAT=64, TYPE_BOOL=65, TYPE_STRING=66, TYPE_BLOB=67, TYPE_MAP=68, 
 		TYPE_JSON=69, TYPE_XML=70, TYPE_TABLE=71, TYPE_STREAM=72, TYPE_ANY=73, 
-		TYPE_DESC=74, TYPE_TYPE=75, TYPE_FUTURE=76, VAR=77, NEW=78, IF=79, MATCH=80, 
+		TYPE_DESC=74, TYPE=75, TYPE_FUTURE=76, VAR=77, NEW=78, IF=79, MATCH=80, 
 		ELSE=81, FOREACH=82, WHILE=83, NEXT=84, BREAK=85, FORK=86, JOIN=87, SOME=88, 
 		ALL=89, TIMEOUT=90, TRY=91, CATCH=92, FINALLY=93, THROW=94, RETURN=95, 
 		TRANSACTION=96, ABORT=97, FAIL=98, ONRETRY=99, RETRIES=100, ONABORT=101, 
@@ -91,18 +95,18 @@ public class BallerinaLexer extends Lexer {
 		"FULL", "UNIDIRECTIONAL", "REDUCE", "SECOND", "MINUTE", "HOUR", "DAY", 
 		"MONTH", "YEAR", "FOREVER", "TYPE_INT", "TYPE_FLOAT", "TYPE_BOOL", "TYPE_STRING", 
 		"TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", "TYPE_STREAM", 
-		"TYPE_ANY", "TYPE_DESC", "TYPE_TYPE", "TYPE_FUTURE", "VAR", "NEW", "IF", 
-		"MATCH", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", 
-		"SOME", "ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", "RETURN", 
-		"TRANSACTION", "ABORT", "FAIL", "ONRETRY", "RETRIES", "ONABORT", "ONCOMMIT", 
-		"LENGTHOF", "TYPEOF", "WITH", "IN", "LOCK", "UNTAINT", "ASYNC", "AWAIT", 
-		"BUT", "CHECK", "DONE", "SEMICOLON", "COLON", "DOUBLE_COLON", "DOT", "COMMA", 
-		"LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
-		"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "ASSIGN", "ADD", "SUB", 
-		"MUL", "DIV", "POW", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", 
-		"LT_EQUAL", "AND", "OR", "RARROW", "LARROW", "AT", "BACKTICK", "RANGE", 
-		"ELLIPSIS", "PIPE", "EQUAL_GT", "COMPOUND_ADD", "COMPOUND_SUB", "COMPOUND_MUL", 
-		"COMPOUND_DIV", "SAFE_ASSIGNMENT", "INCREMENT", "DECREMENT", "DecimalIntegerLiteral", 
+		"TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", "VAR", "NEW", "IF", "MATCH", 
+		"ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", "SOME", "ALL", 
+		"TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", "RETURN", "TRANSACTION", 
+		"ABORT", "FAIL", "ONRETRY", "RETRIES", "ONABORT", "ONCOMMIT", "LENGTHOF", 
+		"TYPEOF", "WITH", "IN", "LOCK", "UNTAINT", "ASYNC", "AWAIT", "BUT", "CHECK", 
+		"DONE", "SEMICOLON", "COLON", "DOUBLE_COLON", "DOT", "COMMA", "LEFT_BRACE", 
+		"RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", "LEFT_BRACKET", 
+		"RIGHT_BRACKET", "QUESTION_MARK", "ASSIGN", "ADD", "SUB", "MUL", "DIV", 
+		"POW", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", "LT_EQUAL", 
+		"AND", "OR", "RARROW", "LARROW", "AT", "BACKTICK", "RANGE", "ELLIPSIS", 
+		"PIPE", "EQUAL_GT", "COMPOUND_ADD", "COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", 
+		"SAFE_ASSIGNMENT", "INCREMENT", "DECREMENT", "DecimalIntegerLiteral", 
 		"HexIntegerLiteral", "OctalIntegerLiteral", "BinaryIntegerLiteral", "IntegerTypeSuffix", 
 		"DecimalNumeral", "Digits", "Digit", "NonZeroDigit", "DigitOrUnderscore", 
 		"Underscores", "HexNumeral", "HexDigits", "HexDigit", "HexDigitOrUnderscore", 
@@ -181,7 +185,7 @@ public class BallerinaLexer extends Lexer {
 		"LEFT", "FULL", "UNIDIRECTIONAL", "REDUCE", "SECOND", "MINUTE", "HOUR", 
 		"DAY", "MONTH", "YEAR", "FOREVER", "TYPE_INT", "TYPE_FLOAT", "TYPE_BOOL", 
 		"TYPE_STRING", "TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", 
-		"TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE_TYPE", "TYPE_FUTURE", "VAR", 
+		"TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", "VAR", 
 		"NEW", "IF", "MATCH", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", 
 		"JOIN", "SOME", "ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", 
 		"RETURN", "TRANSACTION", "ABORT", "FAIL", "ONRETRY", "RETRIES", "ONABORT", 
