@@ -1472,7 +1472,7 @@ public class BLangPackageBuilder {
             endObjectDef(pos, ws, identifier, publicStruct);
         } else if (!this.recordStack.isEmpty()) {
             endRecordDef(pos, ws, identifier, publicStruct);
-        }  else {
+        } else {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
             typeDefinition.setName(this.createIdentifier(identifier));
 
