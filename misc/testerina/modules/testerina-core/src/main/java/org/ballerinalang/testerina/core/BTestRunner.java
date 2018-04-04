@@ -187,6 +187,7 @@ public class BTestRunner {
             outStream.println("---------------------------------------------------------------------------");
             outStream.println("Running Tests of Package: " + packageName);
             outStream.println("---------------------------------------------------------------------------");
+            shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
             if (suite.getInitFunction() != null) {
@@ -204,15 +205,17 @@ public class BTestRunner {
                     errStream.println(errorMsg);
                 }
             });
+            List<String> failedOrSkippedTests = new ArrayList<>();
             suite.getTests().forEach(test -> {
-                if (!shouldSkip.get()) {
+                AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
+                if (!shouldSkip.get() && !shouldSkipTest.get()) {
                     // run the beforeEach tests
                     suite.getBeforeEachFunctions().forEach(beforeEachTest -> {
                         String errorMsg;
                         try {
                             beforeEachTest.invoke();
                         } catch (Throwable e) {
-                            shouldSkip.set(true);
+                            shouldSkipTest.set(true);
                             errorMsg = String.format("Failed to execute before each test function [%s] for the "
                                                      + "test [%s] of test suite package [%s]. Cause: %s",
                                     beforeEachTest.getName(),
@@ -221,7 +224,7 @@ public class BTestRunner {
                         }
                     });
                 }
-                if (!shouldSkip.get()) {
+                if (!shouldSkip.get() && !shouldSkipTest.get()) {
                     // run before tests
                     String errorMsg;
                     try {
@@ -229,7 +232,7 @@ public class BTestRunner {
                             test.getBeforeTestFunctionObj().invoke();
                         }
                     } catch (Throwable e) {
-                        shouldSkip.set(true);
+                        shouldSkipTest.set(true);
                         errorMsg = String.format("Failed to execute before test function" + " [%s] for the test " +
                                                  "[%s] of test suite package [%s]. Cause: %s",
                                 test.getBeforeTestFunctionObj().getName
@@ -240,7 +243,12 @@ public class BTestRunner {
                 // run the test
                 TesterinaResult functionResult = null;
                 try {
-                    if (!shouldSkip.get()) {
+                    if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
+                      shouldSkipTest.set(true);
+                    }
+
+                    // Check whether the this test depends on any failed or skipped functions
+                    if (!shouldSkip.get() && !shouldSkipTest.get()) {
                         BValue[] valueSets = null;
                         if (test.getDataProviderFunction() != null) {
                             valueSets = test.getDataProviderFunction().invoke();
@@ -249,7 +257,7 @@ public class BTestRunner {
                             test.getTestFunction().invoke();
                             // report the test result
                             functionResult = new TesterinaResult(test.getTestFunction().getName(), true, shouldSkip
-                                    .get(), null);
+                                .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
                             List<BValue[]> argList = extractArguments(valueSets);
@@ -261,12 +269,15 @@ public class BTestRunner {
                             });
                         }
                     } else {
+                        // If the test function is skipped lets add it to the failed test list
+                        failedOrSkippedTests.add(test.getTestFunction().getName());
                         // report the test result
-                        functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get
-                                (), null);
+                        functionResult = new TesterinaResult(test.getTestFunction().getName(), false, true, null);
                         tReport.addFunctionResult(packageName, functionResult);
                     }
                 } catch (Throwable e) {
+                    // If the test function is skipped lets add it to the failed test list
+                    failedOrSkippedTests.add(test.getTestFunction().getName());
                     String errorMsg = String.format("Failed to execute the test function [%s] of test suite package "
                             + "[%s]. Cause: %s", test.getTestFunction().getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
@@ -318,6 +329,10 @@ public class BTestRunner {
             // print package test results
             tReport.printTestSuiteSummary(packageName);
         });
+    }
+
+    private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {
+        return failedOrSkippedTests.stream().parallel().anyMatch(dependentTests::contains);
     }
 
     /**

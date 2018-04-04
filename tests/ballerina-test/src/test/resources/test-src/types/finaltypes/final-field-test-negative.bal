@@ -24,3 +24,17 @@ function bar(@final int a) returns (int) {
     a = 500;
     return a;
 }
+
+function foo(int a) returns (int) {
+    int i = a;
+    a = 500;
+    return a;
+}
+
+function baz(float f, string s, boolean b, json j) returns (float, string, boolean, json) {
+    f = 5.3;
+    s = "Hello";
+    b = true;
+    j = {"a":"b"};
+    return (f, s, b, j);
+}

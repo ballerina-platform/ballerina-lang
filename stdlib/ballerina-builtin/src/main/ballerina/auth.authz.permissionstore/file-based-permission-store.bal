@@ -20,9 +20,9 @@ import ballerina/config;
 import ballerina/log;
 
 @Description {value:"Configuration key for groups in userstore"}
-const string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
+@final string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
 
-const string EMPTY_STRING = "";
+@final string EMPTY_STRING = "";
 
 @Description {value:"Represents the permission store"}
 public struct FileBasedPermissionStore {

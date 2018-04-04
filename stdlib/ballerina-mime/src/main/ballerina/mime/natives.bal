@@ -214,60 +214,60 @@ function getEncoding (MediaType contentType) returns (string) {
 }
 
 @Description {value:"Represent 'application/x-www-form-urlencoded' media type value"}
-public const string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+@final public string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
 @Description {value:"Represent 'application/json' media type value"}
-public const string APPLICATION_JSON = "application/json";
+@final public string APPLICATION_JSON = "application/json";
 
 @Description {value:"Represent 'application/octet-stream' media type value"}
-public const string APPLICATION_OCTET_STREAM = "application/octet-stream";
+@final public string APPLICATION_OCTET_STREAM = "application/octet-stream";
 
 @Description {value:"Represent 'application/svg+xml' media type value"}
-public const string APPLICATION_SVG_XML = "application/svg+xml";
+@final public string APPLICATION_SVG_XML = "application/svg+xml";
 
 @Description {value:"Represent 'application/xhtml+xml' media type value"}
-public const string APPLICATION_XHTML_XML = "application/xhtml+xml";
+@final public string APPLICATION_XHTML_XML = "application/xhtml+xml";
 
 @Description {value:"Represent 'application/xml' media type value"}
-public const string APPLICATION_XML = "application/xml";
+@final public string APPLICATION_XML = "application/xml";
 
 @Description {value:"Represent 'multipart/form-data' media type value"}
-public const string MULTIPART_FORM_DATA = "multipart/form-data";
+@final public string MULTIPART_FORM_DATA = "multipart/form-data";
 
 @Description {value:"Represent 'multipart/mixed' media type value"}
-public const string MULTIPART_MIXED = "multipart/mixed";
+@final public string MULTIPART_MIXED = "multipart/mixed";
 
 @Description {value:"Represent 'text/html' media type value"}
-public const string TEXT_HTML = "text/html";
+@final public string TEXT_HTML = "text/html";
 
 @Description {value:"Represent 'text/plain' media type value"}
-public const string TEXT_PLAIN = "text/plain";
+@final public string TEXT_PLAIN = "text/plain";
 
 @Description {value:"Represent 'text/xml' media type value"}
-public const string TEXT_XML = "text/xml";
+@final public string TEXT_XML = "text/xml";
 
 @Description {value:"Key name for 'boundary' parameter in MediaType. This is needed for composite type media types"}
-public const string BOUNDARY = "boundary";
+@final public string BOUNDARY = "boundary";
 
 @Description {value:"Key name for 'start' parameter in MediaType. This determines which part in the multipart message
 contains the payload"}
-public const string START = "start";
+@final public string START = "start";
 
 @Description {value:"Key name for 'type' parameter in MediaType. This indicates the MIME media type of the 'root'
 body part"}
-public const string TYPE = "type";
+@final public string TYPE = "type";
 
 @Description {value:"Key name for 'charset' parameter in MediaType. Indicate the character set of the body text"}
-public const string CHARSET = "charset";
+@final public string CHARSET = "charset";
 
 @Description {value:"Default charset to be used with MIME encoding and decoding"}
-public const string DEFAULT_CHARSET = "UTF-8";
+@final public string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
-const string READ_PERMISSION = "r";
+@final string READ_PERMISSION = "r";
 
 @Description {value:"Represent 'content-type' header name"}
-public const string CONTENT_TYPE = "content-type";
+@final public string CONTENT_TYPE = "content-type";
 
 @Description {value:"Get the header value associated with the given header name"}
 @Param {value:"entity: Represent the MIME entity"}

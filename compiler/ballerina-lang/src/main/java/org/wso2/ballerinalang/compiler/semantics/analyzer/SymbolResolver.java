@@ -212,6 +212,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
+        if (lhsType.tag == TypeTags.FINITE
+                && rhsType.tag == TypeTags.FINITE && lhsType == rhsType) {
+            opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
+            List<BType> paramTypes = Lists.of(lhsType, rhsType);
+            BType retType = symTable.booleanType;
+            BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+        }
+
         return symTable.notFoundSymbol;
     }
 
@@ -387,12 +396,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (env.enclEnv != null && env.enclInvokable != null) {
             BLangVariable closureVar = findClosureVar(env.enclEnv, bSymbol);
-            if (closureVar != null) {
+            if (closureVar != symTable.notFoundVariable) {
                 ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
             }
             return closureVar;
         }
-        return null;
+        return symTable.notFoundVariable;
     }
 
     /**
@@ -634,7 +643,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true, if given symbol is handled
      */
     private boolean handleSpecialBuiltinStructTypes(BSymbol symbol) {
-        if (symbol.kind != SymbolKind.STRUCT) {
+        if (symbol.kind != SymbolKind.RECORD) {
             return false;
         }
         if (Names.ERROR.equals(symbol.name)) {
