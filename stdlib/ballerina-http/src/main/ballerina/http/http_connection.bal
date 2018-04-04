@@ -59,6 +59,15 @@ public native function <Connection conn> promise(PushPromise promise) returns (H
 @Return {value:"Returns null if any error does not exist."}
 public native function <Connection conn> pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError | null);
 
+@Description {value:"Sends a upgrade request with custom headers"}
+@Param {value:"headers: a map of custom headers for handshake."}
+public native function <Connection conn> upgradeToWebSocket (map headers) returns WebSocketEndpoint;
+
+@Description {value:"Cancels the handshake"}
+@Param {value:"statusCode: Status code for closing the connection"}
+@Param {value:"reason: Reason for closing the connection"}
+public native function <Connection conn> cancelUpgradeToWebSocket (int status, string reason);
+
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////

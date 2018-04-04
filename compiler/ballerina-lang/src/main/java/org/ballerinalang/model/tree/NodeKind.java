@@ -98,6 +98,7 @@ public enum NodeKind {
 
     /* Statements */
     ABORT,
+    DONE,
     FAIL,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,

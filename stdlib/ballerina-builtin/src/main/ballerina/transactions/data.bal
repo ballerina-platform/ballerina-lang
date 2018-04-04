@@ -90,7 +90,6 @@ public function regRequestToJson (RegistrationRequest req) returns json {
         protocols[lengthof protocols] = j2;
     }
     j.participantProtocols = protocols;
-    //j.participantProtocols = [{name:req.participantProtocols[0].name, url:req.participantProtocols[0].url}];
     return j;
 }
 
@@ -112,7 +111,6 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 }
 
 public function jsonToRegResponse (json j) returns RegistrationResponse {
-    io:println(j.transactionId);
     //string transactionId =? <string>j.transactionId; //TODO: Fix
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};

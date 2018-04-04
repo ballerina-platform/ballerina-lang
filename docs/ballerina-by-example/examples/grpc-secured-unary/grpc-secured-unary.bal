@@ -4,15 +4,16 @@ import ballerina/log;
 import ballerina/grpc;
 
 endpoint grpc:Service ep {
-    host:"localhost",
-    port:9090,
+    host: "localhost",
+    port: 9090,
     ssl:{
-            keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            keyStorePassword:"ballerina",
-            certPassword:"ballerina"
+            keyStoreFile: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            keyStorePassword: "ballerina",
+            certPassword: "ballerina"
         }
+
 };
-@grpc:serviceConfig {generateClientConnector:false}
+@grpc:serviceConfig {generateClientConnector: false}
 service<grpc:Endpoint> helloWorld bind ep {
     hello (endpoint client, string name) {
         io:println("name: " + name);

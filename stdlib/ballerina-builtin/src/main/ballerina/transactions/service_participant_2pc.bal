@@ -76,7 +76,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                 }
             }
         }
-        json j =? <json>prepareRes;
+        json j = check <json>prepareRes;
         res.setJsonPayload(j);
         var resResult = conn -> respond(res);
         match resResult {
@@ -144,7 +144,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             }
             removeParticipatedTransaction(participatedTxnId);
         }
-        json j =? <json>notifyRes;
+        json j = check <json>notifyRes;
         res.setJsonPayload(j);
         var connErr = conn -> respond(res);
         match connErr {
