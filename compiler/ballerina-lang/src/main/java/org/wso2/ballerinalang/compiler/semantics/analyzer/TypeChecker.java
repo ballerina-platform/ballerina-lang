@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -218,6 +219,33 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+        if (this.expType.tag == TypeTags.FINITE) {
+            BFiniteType expType = (BFiniteType) this.expType;
+            boolean foundMember = expType.valueSpace
+                    .stream()
+                    .map(memberLiteral -> {
+                        if (((BLangLiteral) memberLiteral).value == null) {
+                            return literalExpr.value == null;
+                        } else {
+                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                        }
+                    })
+                    .anyMatch(found -> found);
+
+            boolean foundMemberType = expType.memberTypes
+                    .stream()
+                    .map(memberType -> types.isAssignable(literalType, memberType))
+                    .anyMatch(foundType -> foundType);
+
+            if (foundMember || foundMemberType) {
+                types.setImplicitCastExpr(literalExpr, literalType, symTable.anyType);
+                resultType = literalType;
+            } else {
+                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                resultType = symTable.errType;
+            }
+            return;
+        }
         resultType = types.checkType(literalExpr, literalType, expType);
     }
 
@@ -1727,4 +1755,5 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER);
         }
     }
+
 }

@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -344,6 +345,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(structNode.initFunction, structEnv);
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
+
+    public void visit(BLangTypeDefinition typeDefinition) {
+        BSymbol typeDefSymbol = typeDefinition.symbol;
+        SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(typeDefinition, typeDefSymbol.scope, env);
+
+        typeDefinition.docAttachments.forEach(doc -> analyzeDef(doc, typeDefEnv));
+
+    }
+
 
     public void visit(BLangObject objectNode) {
         BSymbol objectSymbol = objectNode.symbol;

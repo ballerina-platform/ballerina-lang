@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,38 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+package org.ballerinalang.model.types;
+
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+
+import java.util.Set;
 
 /**
- * @since 0.94
+ * {@code FiniteType} represents the finite type interface.
+ *
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    OBJECT,
-    RECORD,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
-    TRANSFORMER,
-    TYPE_DEF,
+public interface FiniteType extends ReferenceType {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+    Set<? extends Type> getMemberTypes();
 
-    CAST_OPERATOR,
-    CONVERSION_OPERATOR,
-
-    XMLNS,
-    OTHER
+    Set<? extends ExpressionNode> getValueSpace();
 }
