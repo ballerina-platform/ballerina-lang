@@ -54,7 +54,7 @@ public class ListenerConfiguration {
     private String host = "0.0.0.0";
 
     @XmlAttribute(required = true)
-    private int port = 8080;
+    private int port = 9090;
 
     private ChunkConfig chunkingConfig = ChunkConfig.AUTO;
 
