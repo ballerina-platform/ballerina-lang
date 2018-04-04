@@ -23,8 +23,8 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.nativeimpl.actions.data.sql.BMirrorTable;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasourceUtils;
+import org.ballerinalang.nativeimpl.sql.BMirrorTable;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 

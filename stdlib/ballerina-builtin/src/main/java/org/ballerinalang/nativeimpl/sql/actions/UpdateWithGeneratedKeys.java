@@ -15,15 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.actions;
+package org.ballerinalang.nativeimpl.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
-import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasourceUtils;
+import org.ballerinalang.nativeimpl.sql.Constants;
+import org.ballerinalang.nativeimpl.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -36,38 +37,36 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_TYPE;
 
 /**
- * {@code BatchUpdate} is the Batch update action implementation of the SQL Connector.
+ * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
  *
- * @since 0.8.6
+ * @since 0.8.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "data.sql",
-        functionName = "batchUpdate",
-        receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "ClientConnector",
-                             structPackage = "ballerina.data.sql"),
+        functionName = "updateWithGeneratedKeys",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters",
-                          type = TypeKind.ARRAY,
-                          elementType = TypeKind.STRUCT,
-                          arrayDimensions = 2,
-                          structType = "Parameter")
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
+                          structType = "Parameter"),
+                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)
         },
         returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
+                @ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
                             structPackage = "ballerina.data.sql")
         }
 )
-public class BatchUpdate extends AbstractSQLAction {
+public class UpdateWithGeneratedKeys extends AbstractSQLAction {
+
     @Override
     public void execute(Context context) {
         try {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
             String query = context.getStringArgument(0);
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+            BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
 
             ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
@@ -75,7 +74,7 @@ public class BatchUpdate extends AbstractSQLAction {
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 
-            executeBatchUpdate(context, datasource, query, parameters);
+            executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);

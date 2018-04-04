@@ -20,9 +20,9 @@
         <Package name="org.ballerinalang.builtin"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.nativeimpl.actions.data.sql.actions"/>
+        <Package name="org.ballerinalang.nativeimpl.sql.actions"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nativeimpl.actions.data.sql.BMirrorTable"/>
+        <Class name="org.ballerinalang.nativeimpl.sql.BMirrorTable"/>
     </Match>
 </FindBugsFilter>

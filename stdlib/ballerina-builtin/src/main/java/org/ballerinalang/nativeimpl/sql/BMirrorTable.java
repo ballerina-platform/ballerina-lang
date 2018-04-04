@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.actions.data.sql;
+package org.ballerinalang.nativeimpl.sql;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.DataIterator;
