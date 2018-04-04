@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -106,7 +105,6 @@ public class SymbolTable {
     public BPackageSymbol builtInPackageSymbol;
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
-    public Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);

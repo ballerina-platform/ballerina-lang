@@ -3070,9 +3070,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
         if (!(fpExpr instanceof BLangLambdaFunction)) {
-            operands = new Operand[2];
+            operands = new Operand[3];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
+            operands[2] = new Operand(0);
         } else {
             Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
             operands = new Operand[2 + closureIndexes.length];

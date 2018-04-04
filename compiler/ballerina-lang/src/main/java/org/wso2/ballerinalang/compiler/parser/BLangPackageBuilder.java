@@ -696,7 +696,10 @@ public class BLangPackageBuilder {
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
         endFunctionDef(pos, null, false, false, true, false);
-        lambdaFunction.enclBlockStmt = (BLangBlockStmt) this.blockNodeStack.peek();
+        //this is added for analysing closures
+        if (!(blockNodeStack.empty())) {
+            lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
+        }
     }
 
     private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {

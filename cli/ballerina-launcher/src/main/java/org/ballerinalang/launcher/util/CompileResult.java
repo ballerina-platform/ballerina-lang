@@ -22,6 +22,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -58,6 +59,7 @@ public class CompileResult {
     }
 
     public Diagnostic[] getDiagnostics() {
+        diagnostics.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()));
         return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
     }
 

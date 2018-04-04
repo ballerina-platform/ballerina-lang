@@ -103,7 +103,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -218,7 +217,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineObjectMembers(pkgNode.objects, pkgEnv);
 
         // Define function nodes.
-        defineFunctions(pkgNode.functions, pkgEnv);
+        pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
 
         // Define transformer params
         defineTransformerMembers(pkgNode.transformers, pkgEnv);
@@ -237,12 +236,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         definePackageInitFunctions(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
-    }
-
-    private void defineFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
-        //reversing the order here to process lambdas first - needed for analysing closures
-        Collections.reverse(functions);
-        functions.forEach(func -> defineNode(func, pkgEnv));
     }
 
     @Deprecated

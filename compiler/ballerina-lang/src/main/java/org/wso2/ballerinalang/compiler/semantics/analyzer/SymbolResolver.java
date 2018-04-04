@@ -369,7 +369,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (enclEnvNode instanceof BLangBlockStmt) {
             Optional<BLangStatement> statement = ((BLangBlockStmt) enclEnvNode).stmts.stream()
                     .filter(stmt -> (stmt instanceof BLangVariableDef) &&
-                            ((BLangVariableDef) stmt).getVariable().name.getValue().equals(bSymbol.name.getValue()))
+                            bSymbol.equals(((BLangVariableDef) stmt).getVariable().symbol))
                     .findFirst();
             if (statement.isPresent()) {
                 ((BLangFunction) env.enclInvokable).closureVarList.add(((BLangVariableDef) statement.get()).
@@ -378,8 +378,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         } else if (enclEnvNode instanceof BLangFunction) {
             Optional<BLangVariable> var = ((BLangFunction) enclEnvNode).requiredParams.stream()
-                    .filter(param -> param.name.getValue().equals(bSymbol.name.getValue()) &&
-                            param.typeNode.type.equals(bSymbol.type))
+                    .filter(param -> bSymbol.equals(param.symbol))
                     .findFirst();
             if (var.isPresent()) {
                 return var.get();
