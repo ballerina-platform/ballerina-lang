@@ -20,7 +20,7 @@ deprecated {}
 public annotation Description docData;
 
 deprecated {}
-struct docData {
+type docData {
     string value;
 }
 
