@@ -63,6 +63,8 @@ public class Names {
     public static final Name EP_SPI_GET_CLIENT = new Name("getClient");
     public static final Name EP_SPI_START = new Name("start");
     public static final Name EP_SPI_STOP = new Name("stop");
+    public static final Name ANNOTATION_FINAL = new Name("final");
+    public static final Name ANNOTATION_READONLY = new Name("readonly");
 
     public CompilerContext context;
 
