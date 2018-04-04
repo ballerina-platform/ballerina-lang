@@ -1008,12 +1008,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        /* ignore */
+        bLangMatchExpression.expr.accept(this);
     }
 
     @Override
-    public void visit(BLangCheckedExpr checkedExpr) {
-        /* ignore */
+    public void visit(BLangCheckedExpr match) {
+        match.expr.accept(this);
     }
 
     // Private
@@ -1563,9 +1563,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
                 if (retParamIsAnnotated) {
                     attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
-                    this.dlog.warning(blockedNode.invokableNode.pos,
-                            DiagnosticCode.PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS,
-                            blockedNode.invokableNode.name.value);
                     return true;
                 }
             }
