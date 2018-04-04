@@ -98,7 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -344,7 +344,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // First analyze the variable reference expression.
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
-        if (fieldAccessExpr.fieldType == FieldType.ALL && varRefType.tag != TypeTags.XML) {
+        if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
@@ -353,11 +353,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 // Extract the types without the error and null, and revisit access expression
                 // TODO: Improve this logic. This will fail if the varRef is of type: error|null
-                // TODO: Add null/error to the final set of actual values
                 Set<BType> varRefMemberTypes = ((BUnionType) varRefType).memberTypes;
                 List<BType> lhsTypes;
 
                 if (fieldAccessExpr.safeNavigate) {
+                    if (!varRefMemberTypes.contains(symTable.errStructType)) {
+                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
+                    }
                     lhsTypes = varRefMemberTypes.stream().filter(type -> {
                         return type != symTable.errStructType && type != symTable.nilType;
                     }).collect(Collectors.toList());
@@ -382,6 +384,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getFieldAccessExprFinalType(BLangFieldBasedAccess fieldAccessExpr, BType actualType) {
+        // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
+        fieldAccessExpr.fieldType = actualType;
+
         BUnionType unionType = new BUnionType(null, new HashSet<>(), false);
         if (actualType.tag == TypeTags.UNION) {
             unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
@@ -421,8 +426,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
                     }
-                } else if (fieldAccessExpr.safeNavigate) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
                 }
                 actualType = symTable.jsonType;
                 break;

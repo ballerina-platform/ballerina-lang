@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -114,17 +114,17 @@ public class BLangIndexBasedAccess extends BLangVariableReference implements Ind
      */
     public static class BLangXMLAccessExpr extends BLangIndexBasedAccess {
 
-        public FieldType fieldType;
+        public FieldKind fieldType;
         
         public BLangXMLAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = indexExpr;
-            this.fieldType = FieldType.SINGLE;
+            this.fieldType = FieldKind.SINGLE;
         }
 
         public BLangXMLAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr,
-                FieldType fieldType) {
+                FieldKind fieldType) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = indexExpr;

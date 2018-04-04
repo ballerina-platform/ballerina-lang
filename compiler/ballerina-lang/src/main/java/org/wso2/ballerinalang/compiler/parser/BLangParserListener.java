@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -1583,13 +1583,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         FieldContext field = ctx.field();
         String fieldName;
-        FieldType fieldType;
+        FieldKind fieldType;
         if (field.Identifier() != null) {
             fieldName = field.Identifier().getText();
-            fieldType = FieldType.SINGLE;
+            fieldType = FieldKind.SINGLE;
         } else {
             fieldName = field.MUL().getText();
-            fieldType = FieldType.ALL;
+            fieldType = FieldKind.ALL;
         }
 
         this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldType,

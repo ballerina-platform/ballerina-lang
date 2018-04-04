@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -149,7 +148,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -847,10 +846,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-    }
-
-    @Override
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
@@ -946,7 +941,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
 
         RegIndex elementRegIndex = calcAndGetExprRegIndex(xmlIndexAccessExpr);
-        if (xmlIndexAccessExpr.fieldType == FieldType.ALL) {
+        if (xmlIndexAccessExpr.fieldType == FieldKind.ALL) {
             emit(InstructionCodes.XMLLOADALL, varRefRegIndex, elementRegIndex);
         } else if (xmlIndexAccessExpr.indexExpr.type.tag == TypeTags.STRING) {
             emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);

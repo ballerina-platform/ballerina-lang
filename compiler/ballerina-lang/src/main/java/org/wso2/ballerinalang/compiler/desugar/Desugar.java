@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -1013,7 +1014,7 @@ public class Desugar extends BLangNodeVisitor {
             } else if (varRefType.tag == TypeTags.XML) {
                 BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                        fieldAccessExpr.fieldType);
+                        fieldAccessExpr.fieldKind);
             }
         }
 
@@ -1023,16 +1024,41 @@ public class Desugar extends BLangNodeVisitor {
         result = targetVarRef;
     }
 
-    private boolean safeNavigate(BLangFieldBasedAccess fieldAccessExpr) {
+    private boolean safeNavigate1(BLangFieldBasedAccess fieldAccessExpr) {
         while (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            // If the field access expression contains error listing or if the varRef is nullable,
+            // If the field access expression contains error lifting or if the varRef is nullable,
             // then safe navigation is required
-            if (fieldAccessExpr.safeNavigate || fieldAccessExpr.expr.type.isNullable()) {
+            if (fieldAccessExpr.safeNavigate || isNullable(fieldAccessExpr.expr.type)) {
                 return true;
             }
+            
             fieldAccessExpr = (BLangFieldBasedAccess) fieldAccessExpr.expr;
         }
         return false;
+    }
+
+    private boolean safeNavigate(BLangFieldBasedAccess fieldAccessExpr) {
+        if (fieldAccessExpr.safeNavigate || isNullable(fieldAccessExpr.expr.type)) {
+            return true;
+        }
+
+        if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return safeNavigate((BLangFieldBasedAccess) fieldAccessExpr.expr);
+        }
+
+        return false;
+    }
+
+    private boolean isNullable(BType type) {
+        if (type.isNullable()) {
+            return true;
+        }
+
+        if (type.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        return ((BUnionType) type).memberTypes.contains(symTable.nilType);
     }
 
     private BLangMatchExpression getSafeNavigationMatchExpr(BLangFieldBasedAccess fieldAccessExpr) {
@@ -1049,6 +1075,13 @@ public class Desugar extends BLangNodeVisitor {
             fieldAccessExpr.expr = handleSafeNavigation((BLangFieldBasedAccess) fieldAccessExpr.expr, type);
         }
 
+        if (!fieldAccessExpr.safeNavigate && !fieldAccessExpr.expr.type.isNullable()) {
+            if (this.successPattern != null) {
+                this.successPattern.expr = fieldAccessExpr;
+            }
+            return fieldAccessExpr;
+        }
+
         /*
          * If the field access is a safe navigation, create a match expression.
          * Then chain the current expression as the success-pattern of the parent 
@@ -1062,28 +1095,34 @@ public class Desugar extends BLangNodeVisitor {
          *      }
          *  }
          */
+
+        // Add pattern to lift nil
+        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(fieldAccessExpr.expr);
+        matchExpr.patternClauses.add(getMatchNullPattern(fieldAccessExpr.pos));
+        matchExpr.type = type;
+        matchExpr.pos = fieldAccessExpr.pos;
+
+        // Add pattern to lift error, only if the sfe navigation is used
         if (fieldAccessExpr.safeNavigate) {
-            BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(fieldAccessExpr.expr);
-            matchExpr.patternClauses.add(getErrorPattern(fieldAccessExpr.pos));
+            matchExpr.patternClauses.add(getMatchErrorPattern(fieldAccessExpr.pos));
             matchExpr.type = type;
             matchExpr.pos = fieldAccessExpr.pos;
 
-            BLangMatchExprPatternClause successPattern = getSuccessPattern(fieldAccessExpr);
-            matchExpr.patternClauses.add(successPattern);
-            this.matchExprStack.push(matchExpr);
-            if (this.successPattern != null) {
-                this.successPattern.expr = matchExpr;
-            }
-            this.successPattern = successPattern;
-            fieldAccessExpr = (BLangFieldBasedAccess) successPattern.expr;
-        } else if (this.successPattern != null) {
-            this.successPattern.expr = fieldAccessExpr;
         }
 
+        // Create the pattern for success scenario. i.e: not null and not error (if applicable).
+        BLangMatchExprPatternClause successPattern = getSuccessPattern(fieldAccessExpr, fieldAccessExpr.safeNavigate);
+        matchExpr.patternClauses.add(successPattern);
+        this.matchExprStack.push(matchExpr);
+        if (this.successPattern != null) {
+            this.successPattern.expr = matchExpr;
+        }
+        this.successPattern = successPattern;
+        fieldAccessExpr = (BLangFieldBasedAccess) successPattern.expr;
         return fieldAccessExpr;
     }
 
-    private BLangMatchExprPatternClause getErrorPattern(DiagnosticPos pos) {
+    private BLangMatchExprPatternClause getMatchErrorPattern(DiagnosticPos pos) {
         String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_error";
         BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, errorPatternVarName, symTable.errStructType,
                 null, new BVarSymbol(0, names.fromString(errorPatternVarName), this.env.scope.owner.pkgID,
@@ -1097,8 +1136,22 @@ public class Desugar extends BLangNodeVisitor {
         return errorPattern;
     }
 
-    private BLangMatchExprPatternClause getSuccessPattern(BLangFieldBasedAccess fieldAccessExpr) {
-        BType type = getErrorLiftedType(fieldAccessExpr.expr.type);
+    private BLangMatchExprPatternClause getMatchNullPattern(DiagnosticPos pos) {
+        String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_null";
+        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, errorPatternVarName, symTable.nilType, null,
+                new BVarSymbol(0, names.fromString(errorPatternVarName), this.env.scope.owner.pkgID, symTable.nilType,
+                        this.env.scope.owner));
+
+        BLangMatchExprPatternClause errorPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        errorPattern.variable = errorPatternVar;
+        errorPattern.expr = ASTBuilderUtil.createVariableRef(pos, errorPatternVar.symbol);
+        errorPattern.pos = pos;
+        return errorPattern;
+    }
+
+    private BLangMatchExprPatternClause getSuccessPattern(BLangFieldBasedAccess fieldAccessExpr, boolean liftError) {
+        BType type = getSafeType(fieldAccessExpr.expr.type, liftError);
         String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
         BLangVariable successPatternVar = ASTBuilderUtil.createVariable(fieldAccessExpr.pos, successPatternVarName,
                 type, null, new BVarSymbol(0, names.fromString(successPatternVarName),
@@ -1111,21 +1164,28 @@ public class Desugar extends BLangNodeVisitor {
         BLangFieldBasedAccess fieldAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldAccess.expr = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, successPatternVar.symbol);
         fieldAccess.field = fieldAccessExpr.field;
-        fieldAccess.fieldType = fieldAccessExpr.fieldType;
+        fieldAccess.fieldKind = fieldAccessExpr.fieldKind;
         fieldAccess.safeNavigate = false;
         fieldAccess.symbol = fieldAccessExpr.symbol;
 
-        // Type of the field access expression should be always taken from the field symbol.
+        // Type of the field access expression should be always taken from the field type.
         // Because the type assigned to expression contains the inherited error/nil types,
         // and may not reflect the actual type of the field.
-        fieldAccess.type = fieldAccessExpr.symbol.type;
+        fieldAccess.type = fieldAccessExpr.fieldType;
 
         successPattern.expr = fieldAccess;
         successPattern.pos = fieldAccessExpr.pos;
         return successPattern;
     }
 
-    private BType getErrorLiftedType(BType type) {
+    private BType getSafeType(BType type, boolean liftError) {
+        // Since JSON is by default contains null, we need to create a new json type which
+        // is not-nullable.
+        if (type.tag == TypeTags.JSON) {
+            BJSONType jsonType = (BJSONType) type;
+            return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+        }
+
         if (type.tag != TypeTags.UNION) {
             return type;
         }
@@ -1133,7 +1193,13 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType unionType = (BUnionType) type;
         BUnionType errorLiftedType =
                 new BUnionType(null, new HashSet<>(unionType.memberTypes), unionType.isNullable());
-        errorLiftedType.memberTypes.remove(symTable.errStructType);
+
+        // Lift nil always. Lift error only if safe navigation is used.
+        errorLiftedType.memberTypes.remove(symTable.nilType);
+        if (liftError) {
+            errorLiftedType.memberTypes.remove(symTable.errStructType);
+        }
+
         if (errorLiftedType.memberTypes.size() == 1) {
             return errorLiftedType.memberTypes.toArray(new BType[0])[0];
         }
@@ -2113,6 +2179,10 @@ public class Desugar extends BLangNodeVisitor {
 
         types.setImplicitCastExpr(expr, rhsType, lhsType);
         if (expr.impConversionExpr != null) {
+            return expr;
+        }
+
+        if (lhsType.tag == TypeTags.NIL && rhsType.isNullable()) {
             return expr;
         }
 

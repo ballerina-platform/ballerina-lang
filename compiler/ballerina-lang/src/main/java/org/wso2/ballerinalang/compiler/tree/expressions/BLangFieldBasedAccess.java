@@ -21,9 +21,10 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -39,7 +40,10 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
 
     public boolean safeNavigate;
 
-    public FieldType fieldType;
+    public FieldKind fieldKind;
+
+    // Type of the field. 
+    public BType fieldType;
 
     @Override
     public BLangVariableReference getExpression() {
