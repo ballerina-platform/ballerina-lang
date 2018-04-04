@@ -32,6 +32,7 @@ public struct HttpServiceConfig {
     string basePath;
     Compression compression;
     CorsConfig cors;
+    Versioning versioning;
     WebSocketUpgradeConfig|null webSocketUpgrade;
 }
 

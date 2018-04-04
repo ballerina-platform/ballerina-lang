@@ -47,7 +47,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
  *
  * @since 0.94
  */
-public class HttpService {
+public class HttpService implements Cloneable{
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
@@ -63,7 +63,6 @@ public class HttpService {
     private String basePath;
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
-    private Struct versioningConfig;
     private Struct webSocketUpgradeConfig;
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
@@ -75,6 +74,22 @@ public class HttpService {
     protected HttpService(Service service) {
         this.balService = service;
     }
+
+    protected HttpService(HttpService service) {
+        this.balService = service.balService;
+        this.resources = service.resources;
+        this.allAllowedMethods = service.allAllowedMethods;
+        this.uriTemplate = service.uriTemplate;
+        this.webSocketUpgradeConfig = service.webSocketUpgradeConfig;
+        this.keepAlive = service.keepAlive;
+        this.compression = service.compression;
+    }
+
+    public Object clone()throws CloneNotSupportedException{
+        return super.clone();
+    }
+
+
 
     public boolean isKeepAlive() {
         return keepAlive;
@@ -187,9 +202,6 @@ public class HttpService {
             } else {
                 basePathList.add(basePath);
             }
-//            httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
-
-
         }
 
         List<HttpResource> resources = new ArrayList<>();
@@ -203,19 +215,30 @@ public class HttpService {
             }
             resources.add(httpResource);
         }
-        httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
         httpService.setResources(resources);
+        httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
+
+        if (basePathList.size() == 1) {
+            httpService.setBasePath(basePathList.get(0));
+            serviceList.add(httpService);
+            return serviceList;
+        }
 
         for(String basePath : basePathList) {
-            httpService.setBasePath(basePath);
-            serviceList.add(httpService);
+            HttpService tempHttpService;
+            try {
+                tempHttpService = (HttpService) httpService.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new BallerinaConnectorException("Service registration failed");
+            }
+            tempHttpService.setBasePath(basePath);
+            serviceList.add(tempHttpService);
         }
         return serviceList;
     }
 
     private static void prepareBasePathList(Struct versioningConfig, String basePath, List<String> basePathList,
                                             String packageVersion) {
-        String basePathCopy = basePath;
         String patternAnnotValue = HttpConstants.DEFAULT_VERSION;
         Boolean allowNoVersionAnnotValue = false;
         Boolean matchMajorVersionAnnotValue = false;
@@ -226,21 +249,20 @@ public class HttpService {
             matchMajorVersionAnnotValue = versioningConfig.getBooleanField(
                     HttpConstants.ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION);
         }
-        basePathList.add(replaceServiceVersion(basePathCopy, packageVersion, patternAnnotValue));
+        basePathList.add(replaceServiceVersion(basePath, packageVersion, patternAnnotValue));
 
         if (allowNoVersionAnnotValue) {
-            String versionLessBasePath = basePath;
-            basePathList.add(versionLessBasePath.replace(HttpConstants.VERSION, "").replace("//", "/"));
+            basePathList.add(basePath.replace(HttpConstants.VERSION, "").replace("//", "/"));
         }
         if (matchMajorVersionAnnotValue) {
-            patternAnnotValue.replace("." + HttpConstants.MINOR_VERSION, "");
-            basePathList.add(replaceServiceVersion(basePath, packageVersion, patternAnnotValue));
+            String patternWithMajor = patternAnnotValue.replace("." + HttpConstants.MINOR_VERSION, "");
+            basePathList.add(replaceServiceVersion(basePath, packageVersion, patternWithMajor));
         }
     }
 
     private static String replaceServiceVersion(String basePath, String version, String pattern) {
         pattern = pattern.toLowerCase();
-        String[] versionElements = version.split(".");
+        String[] versionElements = version.split("\\.");
         String majorVersion = versionElements[0] != null ? versionElements[0] : "";
         String minorVersion = versionElements[1] != null ? versionElements[1] : "";
 
