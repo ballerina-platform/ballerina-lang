@@ -68,13 +68,14 @@ public enum TypeKind {
     ARRAY("[]"),
     UNION("|"),
     VOID(""),
-    NULL("null"),
+    NIL("null"),
     NONE(""),
     OTHER("other"),
     MESSAGE("message"),
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
+    RECORD("record"),
     ;
 
     private String name;

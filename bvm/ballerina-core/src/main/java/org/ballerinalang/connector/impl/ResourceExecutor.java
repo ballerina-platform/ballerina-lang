@@ -70,6 +70,6 @@ public class ResourceExecutor {
         ObservabilityUtils.continueServerObservation(observerContext, resource.getServiceName(), resource.getName(),
                 context);
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
-        BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);
+        BLangFunctions.invokeServiceCallable(resourceInfo, context, bValues, responseCallback);
     }
 }

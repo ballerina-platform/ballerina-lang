@@ -49,10 +49,12 @@ class AbstractPatternStreamingEdgeInputNode extends Node {
 
 
 
-    setIdentifier(newValue, silent, title) {
-        const oldValue = this.identifier;
+    setStreamReference(newValue, silent, title) {
+        const oldValue = this.streamReference;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.identifier = newValue;
+        this.streamReference = newValue;
+
+        this.streamReference.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -60,7 +62,7 @@ class AbstractPatternStreamingEdgeInputNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'identifier',
+                    attributeName: 'streamReference',
                     newValue,
                     oldValue,
                 },
@@ -68,8 +70,8 @@ class AbstractPatternStreamingEdgeInputNode extends Node {
         }
     }
 
-    getIdentifier() {
-        return this.identifier;
+    getStreamReference() {
+        return this.streamReference;
     }
 
 

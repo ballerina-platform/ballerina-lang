@@ -12,30 +12,33 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 
     string remoteUrl = "wss://echo.websocket.org";
 
-    @Description {value:"Create a client connection to remote server from ballerina when new client connects to this service endpoint."}
+    @Description {value:"Create a client connection to a remote server from Ballerina when a new client connects to this service endpoint."}
     onUpgrade (endpoint ep, http:Request req) {
         endpoint http:WebSocketClient wsEndpoint {
             url:remoteUrl,
             callbackService:typeof ClientService
         };
-        ep -> upgradeToWebSocket({"custom":"header"});
+        ep = ep -> upgradeToWebSocket({"custom":"header"});
         ep.attributes[ASSOCIATED_CONNECTION] = wsEndpoint;
         wsEndpoint.attributes[ASSOCIATED_CONNECTION] = ep;
     }
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
+    onText (endpoint ep, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        clientEp -> pushText(frame.text);
+        var val = clientEp -> pushText(text);
+        handleError(val);
     }
 
-    onBinaryMessage (endpoint ep, http:BinaryFrame frame) {
+    onBinary (endpoint ep, blob data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        clientEp -> pushBinary(frame.data);
+        var val = clientEp -> pushBinary(data);
+        handleError(val);
     }
 
-    onClose (endpoint ep, http:CloseFrame frame) {
+    onClose (endpoint ep, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        clientEp -> closeConnection(frame.statusCode, frame.reason);
+        var val = clientEp -> close(statusCode, reason);
+        handleError(val);
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
 }
@@ -44,19 +47,22 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 @http:WebSocketServiceConfig {}
 service<http:WebSocketClientService> ClientService {
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
+    onText (endpoint ep, string text) {
         endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        parentEp -> pushText(frame.text);
+        var val = parentEp -> pushText(text);
+        handleError(val);
     }
 
-    onBinaryMessage (endpoint ep, http:BinaryFrame frame) {
+    onBinary (endpoint ep, blob data) {
         endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        parentEp -> pushBinary(frame.data);
+        var val = parentEp -> pushBinary(data);
+        handleError(val);
     }
 
-    onClose (endpoint ep, http:CloseFrame frame) {
+    onClose (endpoint ep, int statusCode, string reason) {
         endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        parentEp -> closeConnection(frame.statusCode, frame.reason);
+        var val = parentEp -> close(statusCode, reason);
+        handleError(val);
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
 
@@ -82,6 +88,15 @@ function getAssociatedServerEndpoint (http:WebSocketClient ep) returns (http:Web
         any|null val => {
             error err = {message:"Associated connection is not set"};
             throw err;
+        }
+    }
+}
+
+function handleError (http:WebSocketConnectorError|null val) {
+    match val {
+        http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
+        any|null err => {//ignore x
+            var x = err;
         }
     }
 }

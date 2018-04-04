@@ -8,7 +8,7 @@ function search (string url, string querySearched) {
     endpoint http:ClientEndpoint httpEndpoint {
         targets: [
         {
-            uri: url,
+            url: url,
             secureSocket: {
                 trustStore: {
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

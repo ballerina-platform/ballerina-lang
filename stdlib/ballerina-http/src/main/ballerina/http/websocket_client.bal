@@ -31,17 +31,6 @@ public function <WebSocketClientEndpointConfig config> WebSocketClientEndpointCo
     config.idleTimeoutInSeconds = -1;
 }
 
-//TODO: This throws errors. Fix it.
-//@Description { value:"Gets called when the endpoint is being initialize during package init time"}
-//@Param { value:"epName: The endpoint name" }
-//@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-//@Return { value:"Error occured during initialization" }
-//public function <WebSocketClient ep> init (string epName, WebSocketClientEndpointConfig config){
-//    ep.epName = epName;
-//    ep.config = config;
-//    ep.initEndpoint();
-//}
-
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
@@ -84,5 +73,5 @@ public function <WebSocketClient h> getClient() returns (WebSocketConnector){
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
 public function <WebSocketClient h> stop (){
-    h.getClient().closeConnection(1001, "The connection has been stopped");
+    _ = h.getClient().close(1001, "The connection has been stopped");
 }

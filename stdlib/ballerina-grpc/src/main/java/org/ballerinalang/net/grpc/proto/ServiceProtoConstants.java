@@ -69,7 +69,7 @@ public class ServiceProtoConstants {
 
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {
-        Map<Integer, String> sTypeMap = new HashMap<>();;
+        Map<Integer, String> sTypeMap = new HashMap<>();
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE, "double");
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE, "float");
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE, "int64");

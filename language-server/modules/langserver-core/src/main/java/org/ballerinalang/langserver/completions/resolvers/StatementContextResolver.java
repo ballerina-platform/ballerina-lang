@@ -71,7 +71,7 @@ public class StatementContextResolver extends AbstractItemResolver {
             // We need to remove the functions having a receiver symbol and the bTypes of the following
             // ballerina.coordinator, ballerina.runtime, and anonStructs
             ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("ballerina.runtime",
-                    "ballerina.transactions.coordinator"));
+                    "ballerina.transactions"));
             completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).removeIf(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 String symbolName = bSymbol.getName().getValue();

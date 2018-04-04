@@ -181,6 +181,19 @@ class TreeBuilder {
                 node.withoutCurlies = true;
             }
         }
+
+        // Check if sorrounded by parantheses
+        if (node.kind === 'ValueType') {
+            if (node.ws && node.ws.length > 1) {
+                node.withParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Function') {
+            if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
+                node.hasReturns = true;
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {

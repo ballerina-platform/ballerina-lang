@@ -16,7 +16,7 @@
 package ballerina.websub.hub;
 
 import ballerina/collections;
-import ballerina/data.sql;
+import ballerina/sql;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
@@ -63,7 +63,7 @@ service<http:Service> hubService bind hubServiceEP {
             mime:EntityError => {
                 response = { statusCode:400 };
                 _ = client -> respond(response);
-                return;
+                done;
             }
         }
 
@@ -87,14 +87,14 @@ service<http:Service> hubService bind hubServiceEP {
                 callback =? uri:decode(callback, "UTF-8");
                 verifyIntent(callback, params);
             }
-            return;
+            done;
         } else if (mode == websub:MODE_REGISTER) {
             if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response = { statusCode:400 };
                 response.setStringPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
                 _ = client -> respond(response);
-                return;
+                done;
             }
 
             string topic = <string> params[websub:HUB_TOPIC];
@@ -118,7 +118,7 @@ service<http:Service> hubService bind hubServiceEP {
                 response.setStringPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
                 _ = client -> respond(response);
-                return;
+                done;
             }
 
             string topic = <string> params[websub:HUB_TOPIC];
@@ -159,7 +159,7 @@ service<http:Service> hubService bind hubServiceEP {
                                             websub:WebSubError err => {
                                                 log:printWarn("Signature validation failed for publish request for "
                                                               + "topic[" + topic + "]: " + err.errorMessage);
-                                                return;
+                                                done;
                                             }
                                             null => {
                                                 log:printInfo("Signature validation successful for publish request "
@@ -175,7 +175,7 @@ service<http:Service> hubService bind hubServiceEP {
                             } else {
                                 log:printError("Event notification failed for Topic [" + topic + "]: " + errorMessage);
                             }
-                            return;
+                            done;
                         }
                         http:PayloadError payloadError => {
                             log:printError("Error retreiving payload for WebSub publish request: "
@@ -185,7 +185,7 @@ service<http:Service> hubService bind hubServiceEP {
                 }
                 response = { statusCode:400 };
                 _ = client -> respond(response);
-                return;
+                done;
             } else {
                 response = { statusCode:400 };
                 _ = client -> respond(response);
@@ -392,7 +392,7 @@ function addTopicRegistrationsOnStartup() {
         options: {maximumPoolSize:5}
     };
     sql:Parameter[] sqlParams = [];
-    table dt = {};
+    table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", sqlParams, typeof TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
@@ -434,7 +434,7 @@ function addSubscriptionsOnStartup() {
     sql:Parameter[] sqlParams = [para1];
     _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", sqlParams);
     sqlParams = [];
-    table dt = {};
+    table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
                                                 + " FROM subscriptions", sqlParams, typeof websub:SubscriptionDetails);
     match (dbResult) {
