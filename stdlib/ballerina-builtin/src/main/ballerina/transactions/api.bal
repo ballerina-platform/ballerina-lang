@@ -33,7 +33,7 @@ documentation {
     P{{registerAtUrl}} - The URL of the initiator
     P{{coordinationType}} - Coordination type of this transaction
 }
-function beginTransaction (string|null transactionId, int transactionBlockId, string registerAtUrl,
+function beginTransaction (string? transactionId, int transactionBlockId, string registerAtUrl,
                            string coordinationType) returns TransactionContext|error {
     match transactionId {
         string txnId => {
@@ -43,13 +43,13 @@ function beginTransaction (string|null transactionId, int transactionBlockId, st
                 return registerParticipantWithLocalInitiator(txnId, transactionBlockId, registerAtUrl);
             } else {
                 //TODO: set the proper protocol
-                string protocol = "durable";
-                Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
+                ProtocolName protocolName = PROTOCOL_DURABLE;
+                Protocol[] protocols = [{name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)}];
                 return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
             }
         }
 
-        null => {
+        () => {
             return createTransactionContext(coordinationType, transactionBlockId);
         }
     }
@@ -95,7 +95,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
-        if (txn.state == TransactionState.ABORTED) {
+        if (txn.state == TXN_STATE_ABORTED) {
             return txn.abortInitiatorTransaction();
         } else {
             string|error ret = txn.twoPhaseCommit();
