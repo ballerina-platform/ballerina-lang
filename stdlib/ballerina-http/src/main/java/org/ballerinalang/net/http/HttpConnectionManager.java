@@ -78,16 +78,6 @@ public class HttpConnectionManager {
         return instance;
     }
 
-    public Set<ListenerConfiguration> getDefaultListenerConfiugrationSet() {
-        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
-        for (ListenerConfiguration listenerConfiguration : trpConfig.getListenerConfigurations()) {
-            listenerConfiguration.setId(listenerConfiguration.getHost() == null ?
-                    "0.0.0.0" : listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort());
-            listenerConfigurationSet.add(listenerConfiguration);
-        }
-        return listenerConfigurationSet;
-    }
-
     public ServerConnector createHttpServerConnector(ListenerConfiguration listenerConfig) {
         String listenerInterface = listenerConfig.getHost() + ":" + listenerConfig.getPort();
         HttpServerConnectorContext httpServerConnectorContext =
@@ -157,8 +147,7 @@ public class HttpConnectionManager {
         }
     }
 
-    private boolean checkForConflicts(ListenerConfiguration listenerConfiguration,
-            HttpServerConnectorContext context) {
+    private boolean checkForConflicts(ListenerConfiguration listenerConfiguration, HttpServerConnectorContext context) {
         if (context == null) {
             return false;
         }
@@ -197,7 +186,6 @@ public class HttpConnectionManager {
 
     private TransportsConfiguration buildDefaultTransportConfig() {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        ListenerConfiguration httpListener = new ListenerConfiguration("default", "0.0.0.0", 9090);
         SenderConfiguration httpSender = new SenderConfiguration("http-sender");
 
         SenderConfiguration httpsSender = new SenderConfiguration("https-sender");
@@ -217,10 +205,6 @@ public class HttpConnectionManager {
         TransportProperty clientSocketTimeout = new TransportProperty();
         clientSocketTimeout.setName("client.bootstrap.socket.timeout");
         clientSocketTimeout.setValue(60);
-
-        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
-        listenerConfigurationSet.add(httpListener);
-        transportsConfiguration.setListenerConfigurations(listenerConfigurationSet);
 
         Set<SenderConfiguration> senderConfigurationSet = new HashSet<>();
         senderConfigurationSet.add(httpSender);
