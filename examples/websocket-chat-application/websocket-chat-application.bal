@@ -30,7 +30,7 @@ service<http:WebSocketService> ChatApp bind ep {
         broadcast(consMap, msg);
     }
 
-    onTextMessage (endpoint conn, string text) {
+    onText (endpoint conn, string text) {
         msg = untaint string `{{untaint <string>conn.attributes[NAME]}}: {{text}}`;
         io:println(msg);
         broadcast(consMap, msg);

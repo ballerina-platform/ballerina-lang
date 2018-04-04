@@ -50,7 +50,7 @@ service<http:WebSocketService> wsService {
         io:println("New WebSocket connection: " + ep.id);
     }
 
-    onTextMessage (endpoint ep, string text) {
+    onText (endpoint ep, string text) {
         io:println(text);
         _ = ep -> pushText(text);
     }
