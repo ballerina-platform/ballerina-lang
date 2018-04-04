@@ -1334,7 +1334,7 @@ function testTableAddInvalid () {
     table dt =? testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
-        dt.add(row);
+        _ = dt.add(row);
     } finally {
         _ = testDB -> close();
     }
