@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,37 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+package org.ballerinalang.model.tree;
+
+import java.util.List;
 
 /**
- * @since 0.94
+ * @since 0.970.0
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    OBJECT,
-    RECORD,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
-    TRANSFORMER,
+public interface RecordNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
+    
+    IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+    List<? extends VariableNode> getFields();
 
-    CAST_OPERATOR,
-    CONVERSION_OPERATOR,
-
-    XMLNS,
-    OTHER
+    void addField(VariableNode field);
+    
 }

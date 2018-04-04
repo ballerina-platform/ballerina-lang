@@ -584,6 +584,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addFieldToObject(currentPos, ws, name, exprAvailable, 0, false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
             this.pkgBuilder.addFieldToObject(currentPos, ws, name, exprAvailable, 0, true);
+        } else if (ctx.parent instanceof BallerinaParser.FieldDefinitionListContext) {
+            this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, 0);
         }
     }
 
@@ -855,6 +857,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.markTypeNodeAsGrouped(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void enterFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startRecordDef();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+            this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx));
+        }
     }
 
     @Override
