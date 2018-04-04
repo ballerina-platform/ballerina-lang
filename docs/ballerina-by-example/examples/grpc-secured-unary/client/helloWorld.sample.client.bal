@@ -1,4 +1,7 @@
+// This is server implementation for secured connection (HTTPS) scenario
 package client;
+
+import ballerina/io;
 
 function main (string[] args) {
     endpoint helloWorldBlockingClient helloWorldBlockingEp {

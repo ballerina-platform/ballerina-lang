@@ -44,7 +44,7 @@ public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
     
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
+        ballerinaServer = ServerInstance.initBallerinaServer(8085);
         System.setProperty("ballerina.home", ballerinaServer.getServerHome());
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "grpc-secured-unary-service.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
