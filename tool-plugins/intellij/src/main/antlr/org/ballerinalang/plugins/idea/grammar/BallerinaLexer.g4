@@ -129,6 +129,7 @@ UNTAINT     : 'untaint' ;
 ASYNC       : 'async' ;
 AWAIT       : 'await' ;
 BUT         : 'but' ;
+DONE        : 'done' ;
 
 // Separators
 
