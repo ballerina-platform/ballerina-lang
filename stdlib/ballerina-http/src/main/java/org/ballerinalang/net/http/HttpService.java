@@ -47,7 +47,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
  *
  * @since 0.94
  */
-public class HttpService implements Cloneable{
+public class HttpService implements Cloneable {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
@@ -75,21 +75,9 @@ public class HttpService implements Cloneable{
         this.balService = service;
     }
 
-    protected HttpService(HttpService service) {
-        this.balService = service.balService;
-        this.resources = service.resources;
-        this.allAllowedMethods = service.allAllowedMethods;
-        this.uriTemplate = service.uriTemplate;
-        this.webSocketUpgradeConfig = service.webSocketUpgradeConfig;
-        this.keepAlive = service.keepAlive;
-        this.compression = service.compression;
-    }
-
-    public Object clone()throws CloneNotSupportedException{
+    public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-
-
 
     public boolean isKeepAlive() {
         return keepAlive;
@@ -224,7 +212,7 @@ public class HttpService implements Cloneable{
             return serviceList;
         }
 
-        for(String basePath : basePathList) {
+        for (String basePath : basePathList) {
             HttpService tempHttpService;
             try {
                 tempHttpService = (HttpService) httpService.clone();
@@ -243,7 +231,6 @@ public class HttpService implements Cloneable{
         Boolean allowNoVersionAnnotValue = false;
         Boolean matchMajorVersionAnnotValue = false;
         if (versioningConfig != null) {
-            //test this with/without field
             patternAnnotValue = versioningConfig.getStringField(HttpConstants.ANN_CONFIG_ATTR_PATTERN);
             allowNoVersionAnnotValue = versioningConfig.getBooleanField(HttpConstants.ANN_CONFIG_ATTR_ALLOW_NO_VERSION);
             matchMajorVersionAnnotValue = versioningConfig.getBooleanField(

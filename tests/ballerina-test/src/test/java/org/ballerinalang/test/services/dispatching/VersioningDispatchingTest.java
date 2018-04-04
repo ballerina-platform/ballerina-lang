@@ -42,7 +42,8 @@ public class VersioningDispatchingTest {
 
     @BeforeClass()
     public void setup() {
-        compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/dispatching/versioning/test/dispatching-test.bal");
+        compileResult = BServiceUtil.setupProgramFile(this,
+                            "test-src/services/dispatching/versioning/test/dispatching-test.bal");
     }
 
     @Test(description = "Test dispatching with version template, no version allow and match major configs",
@@ -54,7 +55,7 @@ public class VersioningDispatchingTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("hello").asText(), "common service"
-                , "FirstName variable not set properly.");
+                , "Incorrect resource invoked.");
     }
 
     @DataProvider(name = "defaultService")
@@ -75,7 +76,7 @@ public class VersioningDispatchingTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("hello").asText(), "Only template"
-                , "FirstName variable not set properly.");
+                , "Incorrect resource invoked.");
     }
 
     @Test(description = "Test dispatching with form param without annotation", dataProvider = "onlyTemplate")
@@ -110,7 +111,7 @@ public class VersioningDispatchingTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("hello").asText(), "only allow no version"
-                , "FirstName variable not set properly.");
+                , "Incorrect resource invoked.");
     }
 
     @DataProvider(name = "allowNoVersion")
@@ -146,7 +147,7 @@ public class VersioningDispatchingTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("hello").asText(), "only match major"
-                , "FirstName variable not set properly.");
+                , "Incorrect resource invoked.");
     }
 
     @DataProvider(name = "matchMajor")
@@ -190,6 +191,4 @@ public class VersioningDispatchingTest {
         Assert.assertTrue(errorMessage.contains("no matching service found for path"),
                           "Expected error not found.");
     }
-
-
 }
