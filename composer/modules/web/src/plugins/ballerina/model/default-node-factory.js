@@ -357,7 +357,7 @@ class DefaultNodeFactory {
         endpointPackageAlias = endpointPackageAlias !== '' ? endpointPackageAlias.split(/[.]+/).pop() : '';
 
         return getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
-            endpoint ${endpointPackageAlias + endpoint.getName()} endpoint1 {};
+            endpoint ${endpointPackageAlias + endpoint.getName()} ep {};
         `));
     }
 

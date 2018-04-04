@@ -60,6 +60,16 @@ class Package {
     }
 
     /**
+     * Set objects to the package.
+     *
+     * @param objects objects to be added to the package
+     */
+    setObjects(objects) {
+        this._objects = null;
+        this.addObjects(objects);
+    }
+
+    /**
      * Add the endpoints to the package.
      *
      * @param endpoints - endpoints to be added.
@@ -76,6 +86,16 @@ class Package {
      */
     getEndpoints() {
         return this._endpoints;
+    }
+
+    /**
+     * Set endpoint to the package.
+     *
+     * @param endpoints endpoints to be added to the package
+     */
+    setEndpoints(endpoints) {
+        this._endpoints = null;
+        this.addEndpoints(endpoints);
     }
 
     setName(name) {
