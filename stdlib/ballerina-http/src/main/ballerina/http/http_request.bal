@@ -170,6 +170,8 @@ public type Request object {
     @Param {value:"request: request message"}
     @Param {value:"payload: The byte channel representation of the message payload"}
     public function setByteChannel (io:ByteChannel payload);
+
+    function parseCacheControlHeader();
 }
 
 /////////////////////////////////
