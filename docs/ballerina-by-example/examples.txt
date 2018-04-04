@@ -102,6 +102,7 @@ Inbound Response with Multiparts
 Outbound Response with Multiparts
 gRPC Unary Non Blocking
 grpc Unary Blocking
+grpc Secured Unary Blocking
 gRPC Server Streaming
 gRPC Client Streaming
 gRPC Bidirectional Streaming

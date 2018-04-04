@@ -45,10 +45,10 @@ public class WebSocketServiceValidator {
                 case WebSocketConstants.RESOURCE_NAME_ON_OPEN:
                     validateOnOpenResource(serviceName, resource, isClientService);
                     break;
-                case WebSocketConstants.RESOURCE_NAME_ON_TEXT_MESSAGE:
+                case WebSocketConstants.RESOURCE_NAME_ON_TEXT:
                     validateOnTextMessageResource(serviceName, resource, isClientService);
                     break;
-                case WebSocketConstants.RESOURCE_NAME_ON_BINARY_MESSAGE:
+                case WebSocketConstants.RESOURCE_NAME_ON_BINARY:
                     validateOnBinaryMessageResource(serviceName, resource, isClientService);
                     break;
                 case WebSocketConstants.RESOURCE_NAME_ON_PING:

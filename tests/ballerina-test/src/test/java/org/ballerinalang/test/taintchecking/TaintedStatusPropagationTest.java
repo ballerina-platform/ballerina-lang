@@ -404,4 +404,20 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 9, 20);
         BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 14, 20);
     }
+
+    @Test
+    public void testMatch() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/match.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testMatchNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/match-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 28);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 12, 28);
+    }
 }

@@ -36,9 +36,7 @@ public class ConflictTest {
     @Test
     public void testRecursion() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/recursion.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
-        BAssertUtil.validateWarning(result, 0, "taint checking for 'f1' partially done based on return annotations",
-                1, 1);
+        Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
     @Test
@@ -55,9 +53,7 @@ public class ConflictTest {
     @Test
     public void testCyclicCall() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/conflicts/cyclic-call.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
-        BAssertUtil.validateWarning(result, 0, "taint checking for 'f1' partially done based on return annotations",
-                1, 1);
+        Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
     @Test

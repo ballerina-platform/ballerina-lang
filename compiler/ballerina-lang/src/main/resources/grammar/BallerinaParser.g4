@@ -225,6 +225,11 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
+    |   LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
+    ;
+
+fieldDefinitionList
+    :   objectFieldDefinition*
     ;
 
 // Temporary production rule name
@@ -321,6 +326,7 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
+    |   doneStatement
     ;
 
 variableDefinitionStatement
@@ -341,10 +347,10 @@ recordKey
     ;
 
 tableLiteral
-    :   TYPE_TABLE tableInitlization
+    :   TYPE_TABLE tableInitialization
     ;
 
-tableInitlization
+tableInitialization
     :   recordLiteral
     ;
 
@@ -826,6 +832,10 @@ aggregationQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+    ;
+    
+doneStatement
+    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

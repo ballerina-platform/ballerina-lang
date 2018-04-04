@@ -116,7 +116,6 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
-    public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";
 
     public static final String COOKIE_HEADER = "Cookie";
@@ -138,13 +137,12 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     public static final String HTTP_CLIENT = "HttpClient";
-    public static final String B_CONNECTOR = "BConnector";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
-    public static final String HTTP_SERVICE = "HTTP_SERVICE";
+    public static final String POOLED_BYTE_BUFFER_FACTORY = "POOLED_BYTE_BUFFER_FACTORY";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
@@ -283,6 +281,7 @@ public class HttpConstants {
     public static final String PROTOCOL_VERSION = "protocolName";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
+    public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
     public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
     public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "validateCert";
