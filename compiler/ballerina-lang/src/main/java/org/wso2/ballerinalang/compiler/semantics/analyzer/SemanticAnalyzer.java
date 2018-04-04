@@ -666,6 +666,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void checkReadonlyAssignment(BLangExpression varRef) {
+        if (varRef.type == symTable.errType) {
+            return;
+        }
+
+        BLangVariableReference varRefExpr = (BLangVariableReference) varRef;
+        if (varRefExpr.symbol != null) {
+            if (env.enclPkg.symbol.pkgID != varRefExpr.symbol.pkgID && varRefExpr.lhsVar
+                    && (varRefExpr.symbol.flags & Flags.READONLY) == Flags.READONLY) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_READONLY, varRefExpr);
+            }
+        }
+    }
+
     public void visit(BLangExpressionStmt exprStmtNode) {
         // Creates a new environment here.
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
@@ -1661,6 +1675,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
             return symTable.errType;
         }
+
+        //Check whether this is an readonly field.
+        checkReadonlyAssignment(varRefExpr);
 
         checkConstantAssignment(varRefExpr);
         return varRefExpr.type;
