@@ -1633,7 +1633,6 @@ public class ProgramFileReader {
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.NEWTABLE:
-                case InstructionCodes.FTVALUELOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

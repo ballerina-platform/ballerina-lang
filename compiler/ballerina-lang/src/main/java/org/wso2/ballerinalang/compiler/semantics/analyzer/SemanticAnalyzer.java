@@ -327,12 +327,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol typeDefSymbol = typeDefinition.symbol;
         SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(typeDefinition, typeDefSymbol.scope, env);
 
-
-        typeDefinition.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
-            annotationAttachment.accept(this);
-        });
         typeDefinition.docAttachments.forEach(doc -> analyzeDef(doc, typeDefEnv));
 
     }

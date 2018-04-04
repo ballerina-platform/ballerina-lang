@@ -411,13 +411,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.symbol = typeDefSymbol;
 
         HashSet<BType> memberTypes = new HashSet<>();
-        HashSet<BType> valueSpaceTypes = new HashSet<>();
         HashSet<BLangExpression> resultSet = new HashSet<>();
 
         for (BLangExpression literal : typeDefinition.valueSpace) {
             BType literalType = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
             ((BLangLiteral) literal).type = literalType;
-            valueSpaceTypes.add(literalType);
             resultSet.add(literal);
         }
 
@@ -426,8 +424,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             memberTypes.add(definedType);
         }
 
-        typeDefinition.symbol.type = new BFiniteType((BTypeSymbol) typeDefSymbol, memberTypes,
-                valueSpaceTypes, resultSet);
+        typeDefinition.symbol.type = new BFiniteType((BTypeSymbol) typeDefSymbol, memberTypes, resultSet);
         defineSymbol(typeDefinition.pos, typeDefSymbol);
     }
 

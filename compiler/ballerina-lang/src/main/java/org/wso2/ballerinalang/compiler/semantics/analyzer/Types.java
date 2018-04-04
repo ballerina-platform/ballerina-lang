@@ -266,22 +266,12 @@ public class Types {
     public boolean isFiniteTypeAssignable(BType source, BType target) {
         BFiniteType finiteType = (BFiniteType) target;
 
-        //TODO Current we allow only value types.
-        if (!isValueType(source)) {
-            return false;
-        }
-
         boolean foundMemberType = finiteType.memberTypes
                 .stream()
                 .map(memberType -> isAssignable(source, memberType))
                 .anyMatch(foundType -> foundType);
 
-        boolean foundValueSpaceType = finiteType.valueSpaceTypes
-                .stream()
-                .map(memberType -> isAssignable(source, memberType))
-                .anyMatch(foundType -> foundType);
-
-        return (foundMemberType || foundValueSpaceType);
+        return foundMemberType;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -492,12 +482,6 @@ public class Types {
         BSymbol symbol = symResolver.resolveImplicitConversionOp(actualType, expType);
         if (expType.tag == TypeTags.UNION && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitConversionOp(actualType, symTable.anyType);
-        }
-
-        //TODO Fix properly Added as implicit conversion.
-        if (expType.tag == TypeTags.FINITE && isValueType(actualType)) {
-            setImplicitCastExpr(expr, actualType, symTable.anyType);
-            symbol = createConversionOperatorSymbol(symTable.anyType, expType, true, InstructionCodes.FTVALUELOAD);
         }
 
         if (symbol == symTable.notFoundSymbol) {
@@ -1129,7 +1113,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE) {
+        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
             return false;
         }
 

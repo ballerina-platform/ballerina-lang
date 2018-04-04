@@ -186,7 +186,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NULL2S] = "null2s";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
         mnemonics[InstructionCodes.IS_ASSIGNABLE] = "is_assignable";
-        mnemonics[InstructionCodes.FTVALUELOAD] = "ft_type_load";
 
         mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";

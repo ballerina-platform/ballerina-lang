@@ -1207,8 +1207,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 opcode == InstructionCodes.ANY2C ||
                 opcode == InstructionCodes.ANY2E ||
                 opcode == InstructionCodes.ANY2M ||
-                opcode == InstructionCodes.CHECKCAST ||
-                opcode == InstructionCodes.FTVALUELOAD) {
+                opcode == InstructionCodes.CHECKCAST) {
             Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
             emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
         } else {

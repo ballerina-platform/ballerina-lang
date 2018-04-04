@@ -2,7 +2,8 @@ type State "on"|"off"
 
 function finiteAssignmentStateType() returns State {
     State p = "on";
-    if (p == "on") {
+    State comparator = "on";
+    if (p == comparator) {
        p = "off";
     }
     return p;
@@ -12,7 +13,8 @@ type NumberSet 1|2|3|4|5
 
 function finiteAssignmentNumberSetType() returns NumberSet {
     NumberSet n = 1;
-    if (n == 1) {
+    NumberSet comparator = 1;
+    if (n == comparator) {
        n = 5;
     }
     return n;
@@ -21,24 +23,18 @@ function finiteAssignmentNumberSetType() returns NumberSet {
 type StringOrInt int|string
 
 function finiteAssignmentStringOrIntSetType() returns StringOrInt {
-    StringOrInt si = getInt();
-    if (si == getInt()) {
+    StringOrInt si = 1;
+    StringOrInt comparator = 1;
+    if (si == comparator) {
        si = "This is a string";
     }
     return si;
 }
 
-function getInt() returns int {
-    return 1;
-}
-
-function getString() returns string {
-    return "This is a string";
-}
-
 function finiteAssignmentStringOrIntSetTypeCaseTwo() returns StringOrInt {
-    StringOrInt si = getString();
-    if (si == getString()) {
+    StringOrInt si = "This is a string";
+    StringOrInt comparator = "This is a string";
+    if (si == comparator) {
        si = 111;
     }
     return si;
@@ -47,8 +43,9 @@ function finiteAssignmentStringOrIntSetTypeCaseTwo() returns StringOrInt {
 type Int int
 
 function finiteAssignmentIntSetType() returns Int {
-    Int si = getInt();
-    if (si == getInt()) {
+    Int si = 1;
+    Int comparator = 1;
+    if (si == comparator) {
        si = 222;
     }
     return si;
@@ -58,7 +55,8 @@ function finiteAssignmentIntArrayType() returns Int {
     Int[] si = [];
     si[0] = 10001;
     si[1] = 2345;
-    if (si[1] == 2345){
+    Int comparator = 2345;
+    if (si[1] == comparator){
         si[1] = 9989;
     }
     return si[1];

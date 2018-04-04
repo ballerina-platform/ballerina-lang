@@ -192,7 +192,6 @@ public interface InstructionCodes {
     int S2XML = 158;
     int XML2S = 159;
     int ANY2SCONV = 175;
-    int FTVALUELOAD = 209;
 
     // Type cast
     int I2ANY = 160;

@@ -35,17 +35,14 @@ import java.util.StringJoiner;
 public class BFiniteType extends BType implements FiniteType {
 
     public Set<BType> memberTypes;
-    public Set<BType> valueSpaceTypes;
     public Set<BLangExpression> valueSpace;
 
     public BFiniteType(BTypeSymbol tsymbol,
                        Set<BType> memberTypes,
-                       Set<BType> valueSpaceTypes,
                        Set<BLangExpression> valueSpace) {
         super(TypeTags.FINITE, tsymbol);
         this.memberTypes = memberTypes;
         this.valueSpace = valueSpace;
-        this.valueSpaceTypes = valueSpaceTypes;
     }
 
     @Override

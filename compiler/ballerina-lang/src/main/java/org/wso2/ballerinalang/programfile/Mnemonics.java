@@ -181,7 +181,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
-        mnemonics[InstructionCodes.FTVALUELOAD] = "ft_type_load";
 
         mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";
