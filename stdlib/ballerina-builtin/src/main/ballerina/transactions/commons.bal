@@ -156,10 +156,7 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
 
 function createNewTransaction (string coordinationType, int transactionBlockId) returns TwoPhaseCommitTransaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
-        TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(),
-                                                 transactionBlockId:transactionBlockId,
-                                                 createdTime:time:currentTime().time,
-                                                 coordinationType:coordinationType};
+        TwoPhaseCommitTransaction twopcTxn = new (transactionBlockId, coordinationType = coordinationType);
         return twopcTxn;
     } else {
         error e = {message:"Unknown coordination type: " + coordinationType};
@@ -225,10 +222,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
             txn.participants[participantId] = participant;
 
             //Set initiator protocols
-            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
-                                                     transactionBlockId:transactionBlockId,
-                                                     createdTime:time:currentTime().time,
-                                                     coordinationType:TWO_PHASE_COMMIT};
+            TwoPhaseCommitTransaction twopcTxn = new (transactionId = transactionId, transactionBlockId);
             Protocol initiatorProto = {name:"durable", transactionBlockId:transactionBlockId};
             twopcTxn.coordinatorProtocols = [initiatorProto];
 
