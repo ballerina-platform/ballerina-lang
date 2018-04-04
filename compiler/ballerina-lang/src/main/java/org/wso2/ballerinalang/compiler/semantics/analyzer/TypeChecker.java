@@ -272,9 +272,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
         int expTypeTag = expType.tag;
         if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.ANY) {
-            // var a = {}
-            // Change the expected type to map
+            // Change the expected type to map,
             expType = symTable.mapType;
+        }
+        if ((recordLiteral.keyValuePairs.isEmpty() && expTypeTag == TypeTags.MAP)
+                || (expTypeTag == TypeTags.STRUCT && ((BStructSymbol) expType.tsymbol).isObject)) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, expType);
+            expType = symTable.errType;
+            return;
         }
 
         List<BType> matchedTypeList = getRecordCompatibleType(expType);

@@ -554,16 +554,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
         }
         if (varDefNode.var.expr != null && types.isAnyType(varDefNode.var.type)) {
-            // following cases are invalid.
-            // any a = [ x, y, ... ];
-            // any a = { x : y };
-            // any a = new ;
-            final NodeKind kind = varDefNode.var.expr.getKind();
-            final BLangExpression expr = varDefNode.var.expr;
-            if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
-                    || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
-            }
+            validateVariableDefinition(varDefNode.var.expr);
         }
     }
 
@@ -1474,6 +1465,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varRefExpr.type = this.symTable.errType;
             return;
         }
+        validateVariableDefinition(rhsExpr);
 
         boolean newVarDeclaration = false;
         BType expType;
@@ -1625,6 +1617,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             binaryExpressionNode.type = symTable.errType;
         }
         return binaryExpressionNode;
+    }
+
+    private void validateVariableDefinition(BLangExpression expr) {
+        // following cases are invalid.
+        // any/var a = [ x, y, ... ];
+        // any/var a = { x : y };
+        // any/var a = new ;
+        final NodeKind kind = expr.getKind();
+        if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
+                || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+        }
     }
 
     private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
