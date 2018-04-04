@@ -41,6 +41,7 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -67,6 +68,7 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -97,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -125,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -142,6 +146,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -251,6 +256,8 @@ public class BLangPackageBuilder {
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
     private Stack<StructNode> structStack = new Stack<>();
+
+    private Stack<RecordNode> recordStack = new Stack<>();
 
     private Stack<ObjectNode> objectStack = new Stack<>();
 
@@ -413,6 +420,63 @@ public class BLangPackageBuilder {
         tupleTypeNode.pos = pos;
         tupleTypeNode.addWS(ws);
         this.typeNodeStack.push(tupleTypeNode);
+    }
+
+    void startRecordDef() {
+        RecordNode recordNode = TreeBuilder.createRecordNode();
+        attachAnnotations(recordNode);
+        attachDocumentations(recordNode);
+        attachDeprecatedNode(recordNode);
+        this.recordStack.add(recordNode);
+        startVarList();
+    }
+
+    private void endRecordDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicRecord) {
+        BLangRecord recordNode = populateRecordNode(pos, ws, createIdentifier(identifier), false);
+        recordNode.setName(this.createIdentifier(identifier));
+        if (publicRecord) {
+            recordNode.flagSet.add(Flag.PUBLIC);
+        }
+
+        this.compUnit.addTopLevelNode(recordNode);
+    }
+
+    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws) {
+        // Generate a name for the anonymous record
+        String genName = anonymousModelHelper.getNextAnonymousRecordKey(pos.src.pkgID);
+        IdentifierNode anonRecordGenName = createIdentifier(genName);
+
+        // Create an anonymous record and add it to the list of records in the current package.
+        BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
+        this.compUnit.addTopLevelNode(recordNode);
+
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
+
+    }
+
+    private BLangRecord populateRecordNode(DiagnosticPos pos, Set<Whitespace> ws,
+                                           IdentifierNode name, boolean isAnonymous) {
+        BLangRecord recordNode = (BLangRecord) this.recordStack.pop();
+        recordNode.pos = pos;
+        recordNode.addWS(ws);
+        recordNode.name = (BLangIdentifier) name;
+        recordNode.isAnonymous = isAnonymous;
+        this.varListStack.pop().forEach(variableNode -> {
+            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
+            recordNode.addField(variableNode);
+        });
+        return recordNode;
+    }
+
+    void addFieldToRecord(DiagnosticPos pos, Set<Whitespace> ws,
+                          String identifier, boolean exprAvailable, int annotCount) {
+
+        Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
+        BLangRecord recordNode = (BLangRecord) this.recordStack.peek();
+        recordNode.addWS(wsForSemiColon);
+        BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
+
+        field.flagSet.add(Flag.PUBLIC);
     }
 
     public void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
@@ -904,6 +968,14 @@ public class BLangPackageBuilder {
         addExpressionNode(recordTypeLiteralNode);
     }
 
+    public void addTableLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
+        final BLangTableLiteral tableLiteral = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
+        tableLiteral.addWS(ws);
+        tableLiteral.pos = pos;
+        tableLiteral.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
+        addExpressionNode(tableLiteral);
+    }
+
     public void startMapStructLiteral() {
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         recordLiteralNodes.push(literalNode);
@@ -1096,6 +1168,14 @@ public class BLangPackageBuilder {
             ternaryExpr = root;
         }
         addExpressionNode(ternaryExpr);
+    }
+
+    public void createCheckedExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangCheckedExpr checkedExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
+        checkedExpr.pos = pos;
+        checkedExpr.addWS(ws);
+        checkedExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(checkedExpr);
     }
 
     public void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1371,24 +1451,28 @@ public class BLangPackageBuilder {
             TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
                     objectNode.name);
 
-            //Create and add receiver to attached functions
-            BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-            receiver.pos = pos;
-
-            IdentifierNode name = createIdentifier(Names.SELF.getValue());
-            receiver.setName(name);
-            receiver.addWS(ws);
-
-            receiver.docTag = DocTag.RECEIVER;
-            receiver.setTypeNode(objectType);
-
             //Cache receiver to add to init function in symbolEnter
-            objectNode.receiver = receiver;
+            objectNode.receiver = createVariableNode(pos, ws, objectType);
 
-            objectNode.functions.forEach(f -> f.setReceiver(receiver));
+            objectNode.functions.forEach(f -> f.setReceiver(createVariableNode(pos, ws, objectType)));
 
             this.compUnit.addTopLevelNode(objectNode);
+        } else if (!this.recordStack.isEmpty()) {
+            endRecordDef(pos, ws, identifier, publicStruct);
         }
+    }
+
+    private BLangVariable createVariableNode(DiagnosticPos pos, Set<Whitespace> ws, TypeNode objectType) {
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = pos;
+
+        IdentifierNode name = createIdentifier(Names.SELF.getValue());
+        receiver.setName(name);
+        receiver.addWS(ws);
+
+        receiver.docTag = DocTag.RECEIVER;
+        receiver.setTypeNode(objectType);
+        return receiver;
     }
 
 
@@ -1474,6 +1558,53 @@ public class BLangPackageBuilder {
         }
 
         this.objectStack.peek().addFunction(function);
+    }
+
+    void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
+                                   boolean bodyExists, String objectName) {
+        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        endEndpointDeclarationScope();
+        function.pos = pos;
+        function.addWS(ws);
+
+        if (publicFunc) {
+            function.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (nativeFunc) {
+            function.flagSet.add(Flag.NATIVE);
+        }
+
+        if (!bodyExists) {
+            function.body = null;
+        }
+
+        // Create an user defined type with object type
+        TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
+                (BLangIdentifier) createIdentifier(objectName));
+
+        //Create and add receiver to attached functions
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = pos;
+
+        IdentifierNode name = createIdentifier(Names.SELF.getValue());
+        receiver.setName(name);
+        receiver.addWS(ws);
+
+        receiver.docTag = DocTag.RECEIVER;
+        receiver.setTypeNode(objectType);
+
+        receiver.docTag = DocTag.RECEIVER;
+        function.receiver = receiver;
+        function.flagSet.add(Flag.ATTACHED);
+
+        function.attachedOuterFunction = true;
+
+        if (!function.deprecatedAttachments.isEmpty()) {
+            function.flagSet.add(Flag.DEPRECATED);
+        }
+
+        this.compUnit.addTopLevelNode(function);
     }
 
     BLangVariable addObjectParameter(DiagnosticPos pos, Set<Whitespace> ws, boolean isField,
@@ -2122,6 +2253,11 @@ public class BLangPackageBuilder {
         serviceNode.addWS(ws);
         blockNodeStack.pop().getStatements()
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
+    }
+
+    public void addAnonymousEndpointBind() {
+        BLangService serviceNode = (BLangService) serviceNodeStack.peek();
+        serviceNode.addAnonymousEndpointBind((RecordLiteralNode) exprNodeStack.pop());
     }
 
     public void addServiceEndpointAttachments(int size, Set<Whitespace> ws) {

@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -186,6 +187,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define struct nodes.
         pkgNode.enums.forEach(enumNode -> defineNode(enumNode, pkgEnv));
 
+        // Define record nodes.
+        pkgNode.records.forEach(typeNode -> defineNode(typeNode, pkgEnv));
+
         // Define struct nodes.
         pkgNode.structs.forEach(struct -> defineNode(struct, pkgEnv));
 
@@ -203,6 +207,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
+
+        // Define struct field nodes.
+        defineRecordFields(pkgNode.records, pkgEnv);
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
@@ -382,6 +389,16 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRecord record) {
+        BSymbol structSymbol = Symbols.createRecordSymbol(Flags.asMask(record.flagSet),
+                names.fromIdNode(record.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        record.symbol = structSymbol;
+        // Create record type
+        record.symbol.type = new BStructType((BTypeSymbol) record.symbol);
+        defineSymbol(record.pos, structSymbol);
+    }
+
+    @Override
     public void visit(BLangEnum enumNode) {
         BTypeSymbol enumSymbol = Symbols.createEnumSymbol(Flags.asMask(enumNode.flagSet),
                 names.fromIdNode(enumNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
@@ -435,13 +452,84 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
+        if (funcNode.attachedOuterFunction) {
+            SymbolEnv objectEnv = SymbolEnv.createObjectEnv(null, funcNode.receiver.type.
+                    tsymbol.scope, env);
+            BSymbol funcSymbol = symResolver.lookupSymbol(objectEnv, getFuncSymbolName(funcNode), SymTag.FUNCTION);
+            if (funcSymbol == symTable.notFoundSymbol) {
+                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
+                        funcNode.receiver.type.tsymbol.name);
+                // This is only to keep the flow running so that at the end there will be proper semantic errors
+                funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                        getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
+                funcNode.symbol.scope = new Scope(funcNode.symbol);
+            } else {
+                funcNode.symbol = (BInvokableSymbol) funcSymbol;
+                if (funcNode.symbol.bodyExist) {
+                    dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+                }
+            }
+            //TODO check function parameters and return types
+            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, objectEnv);
+
+            invokableEnv.scope = funcNode.symbol.scope;
+            defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
+
+            if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
+                dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
+                return;
+            }
+
+            env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
+
+            funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
+            return;
+        }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
+        }
+    }
+
+    private void defineObjectAttachedInvokableSymbolParams(BLangInvokableNode invokableNode, SymbolEnv invokableEnv) {
+        // visit required params of the function
+        invokableNode.requiredParams.forEach(varNode -> {
+            visitObjectAttachedFunctionParam(varNode, invokableEnv);
+        });
+
+        invokableNode.defaultableParams.forEach(varDefNode -> {
+            visitObjectAttachedFunctionParam(varDefNode.var, invokableEnv);
+        });
+
+        if (invokableNode.returnTypeNode != null) {
+            invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
+        }
+
+        if (invokableNode.restParam != null) {
+            visitObjectAttachedFunctionParam(invokableNode.restParam, invokableEnv);
+        }
+    }
+
+    void visitObjectAttachedFunctionParam(BLangVariable variable, SymbolEnv invokableEnv) {
+        // assign the type to var type node
+        if (variable.type == null) {
+            variable.type = symResolver.resolveTypeNode(variable.typeNode, env);
+        }
+
+        visitObjectAttachedFunctionParamSymbol(variable, invokableEnv);
+    }
+
+    void visitObjectAttachedFunctionParamSymbol(BLangVariable variable, SymbolEnv invokableEnv) {
+        BSymbol varSymbol = symResolver.lookupSymbol(invokableEnv, names.fromIdNode(variable.name),
+                SymTag.VARIABLE);
+        if (varSymbol == symTable.notFoundSymbol) {
+            defineNode(variable, invokableEnv);
+        } else {
+            variable.symbol = (BVarSymbol) varSymbol;
         }
     }
 
@@ -519,6 +607,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             varNode.type = fieldVar.type;
             varName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
+
+            // This is to identify variable when passing parameters TODO any alternative?
+            varSymbol.field = true;
+            varSymbol.originalName = names.fromIdNode(varNode.name);
 
             env.enclObject.initFunction.initFunctionStmts.put(fieldVar,
                     (BLangStatement) createAssignmentStmt(varNode, varSymbol, fieldVar));
@@ -675,6 +767,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // TODO
                 pkgNode.annotations.add((BLangAnnotation) node);
                 break;
+            case RECORD:
+                pkgNode.records.add((BLangRecord) node);
+                break;
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
                 break;
@@ -685,6 +780,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.globalEndpoints.add((BLangEndpoint) node);
                 break;
         }
+    }
+
+    private void defineRecordFields(List<BLangRecord> recordNodes, SymbolEnv pkgEnv) {
+        recordNodes.forEach(record -> {
+            // Create record type
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(record, record.symbol.scope, pkgEnv);
+            BStructType structType = (BStructType) record.symbol.type;
+            structType.fields = record.fields.stream()
+                    .peek(field -> defineNode(field, structEnv))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
+                    .collect(Collectors.toList());
+        });
+
+        // define init function
+        recordNodes.forEach(record -> {
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(record, record.symbol.scope, pkgEnv);
+            defineRecordInitFunction(record, structEnv);
+        });
     }
 
     private void defineStructFields(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
@@ -925,13 +1038,27 @@ public class SymbolEnter extends BLangNodeVisitor {
             struct.initFunction = createInitFunction(struct.pos, struct.name.value, Names.INIT_FUNCTION_SUFFIX);
         }
 
-        struct.initFunction.receiver = createReceiver(struct);
+        struct.initFunction.receiver = createReceiver(struct.pos, struct.name);
         struct.initFunction.attachedFunction = true;
         struct.initFunction.flagSet.add(Flag.ATTACHED);
 
         // Adding struct level variables to the init function is done at desugar phase
 
         defineNode(struct.initFunction, conEnv);
+    }
+
+    private void defineRecordInitFunction(BLangRecord record, SymbolEnv conEnv) {
+        if (record.initFunction == null) {
+            record.initFunction = createInitFunction(record.pos, record.name.value, Names.INIT_FUNCTION_SUFFIX);
+        }
+
+        record.initFunction.receiver = createReceiver(record.pos, record.name);
+        record.initFunction.attachedFunction = true;
+        record.initFunction.flagSet.add(Flag.ATTACHED);
+
+        // Adding record level variables to the init function is done at desugar phase
+
+        defineNode(record.initFunction, conEnv);
     }
 
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
@@ -958,6 +1085,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 validateFunctionsAttachedToStructs(funcNode, funcSymbol, invokableEnv);
             } else if (typeSymbol.tag == SymTag.OBJECT) {
                 validateFunctionsAttachedToObject(funcNode, funcSymbol, invokableEnv);
+            } else if (typeSymbol.tag == SymTag.RECORD) {
+                validateFunctionsAttachedToStructs(funcNode, funcSymbol, invokableEnv);
             }
         }
 
@@ -1068,16 +1197,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangVariable createReceiver(BLangStruct struct) {
+    private BLangVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
         BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-        receiver.pos = struct.pos;
-        IdentifierNode name = createIdentifier(Names.SELF.getValue());
-        receiver.setName(name);
+        receiver.pos = pos;
+        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
+        receiver.setName(identifier);
         receiver.docTag = DocTag.RECEIVER;
 
         BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         structTypeNode.pkgAlias = new BLangIdentifier();
-        structTypeNode.typeName = struct.name;
+        structTypeNode.typeName = name;
         receiver.setTypeNode(structTypeNode);
         return receiver;
     }

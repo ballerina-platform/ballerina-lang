@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.references;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -80,11 +80,11 @@ import java.util.List;
  */
 public class ReferencesTreeVisitor extends LSNodeVisitor {
     private boolean terminateVisitor = false;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private List<Location> locations;
 
 
-    public ReferencesTreeVisitor(TextDocumentServiceContext context) {
+    public ReferencesTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.locations = context.get(NodeContextKeys.REFERENCE_NODES_KEY);
     }

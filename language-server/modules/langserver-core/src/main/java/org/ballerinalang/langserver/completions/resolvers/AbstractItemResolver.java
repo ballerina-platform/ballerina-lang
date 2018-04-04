@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -46,7 +46,7 @@ import java.util.List;
  */
 public abstract class AbstractItemResolver {
     
-    public abstract ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext);
+    public abstract ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext);
 
     /**
      * Populate the completion item list by considering the.
@@ -213,7 +213,7 @@ public abstract class AbstractItemResolver {
      * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
-    protected boolean isInvocationOrFieldAccess(TextDocumentServiceContext documentServiceContext) {
+    protected boolean isInvocationOrFieldAccess(LSServiceOperationContext documentServiceContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
@@ -255,7 +255,7 @@ public abstract class AbstractItemResolver {
      * @param documentServiceContext - Completion operation context
      * @return {@link Boolean}
      */
-    boolean isAnnotationContext(TextDocumentServiceContext documentServiceContext) {
+    boolean isAnnotationContext(LSServiceOperationContext documentServiceContext) {
         return findPreviousToken(documentServiceContext, "@", 3) >= 0;
     }
 
@@ -289,7 +289,7 @@ public abstract class AbstractItemResolver {
         }
     }
 
-    int findPreviousToken(TextDocumentServiceContext documentServiceContext, String needle, int maxSteps) {
+    int findPreviousToken(LSServiceOperationContext documentServiceContext, String needle, int maxSteps) {
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         if (tokenStream == null) {
             return -1;

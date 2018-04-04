@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.definition;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -60,10 +60,10 @@ import java.util.stream.Collectors;
 public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     private boolean terminateVisitor = false;
-    private TextDocumentServiceContext context;
+    private LSServiceOperationContext context;
     private String fileName;
 
-    public DefinitionTreeVisitor(TextDocumentServiceContext context) {
+    public DefinitionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
         this.context.put(NodeContextKeys.NODE_KEY, null);

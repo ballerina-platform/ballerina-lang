@@ -1,10 +1,10 @@
 package ballerina.net.websub.hub;
 
 import ballerina/collections;
-import ballerina/data.sql;
+import ballerina/sql;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.websub;
 import ballerina/security.crypto;
 import ballerina/time;
@@ -140,7 +140,7 @@ function validateSubscriptionChangeRequest(map params) returns (boolean|string) 
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, map params) {
     endpoint http:ClientEndpoint callbackEp {
-        targets:[{ uri:callback, secureSocket: secureSocket }]
+        targets:[{url:callback, secureSocket: secureSocket }]
     };
 
     string mode = <string> params[websub:HUB_MODE];
@@ -313,7 +313,7 @@ function addSubscriptionsOnStartup() {
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
     endpoint http:ClientEndpoint callbackEp {
-        targets:[{ uri:callback, secureSocket: secureSocket }]
+        targets:[{url:callback, secureSocket: secureSocket }]
     };
 
     http:Request request = {};

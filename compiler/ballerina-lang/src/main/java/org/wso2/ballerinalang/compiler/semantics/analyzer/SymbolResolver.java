@@ -66,8 +66,8 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -307,7 +307,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            Set<BType> memberTypes = new HashSet<BType>(2) {{
+            Set<BType> memberTypes = new LinkedHashSet<BType>(2) {{
                 add(resultType);
                 add(symTable.nilType);
             }};
@@ -476,7 +476,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                         memBType.tag == TypeTags.UNION ?
                                 ((BUnionType) memBType).memberTypes.stream() :
                                 Stream.of(memBType))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         resultType = new BUnionType(null, memberTypes,
                 memberTypes.contains(symTable.nilType));
     }

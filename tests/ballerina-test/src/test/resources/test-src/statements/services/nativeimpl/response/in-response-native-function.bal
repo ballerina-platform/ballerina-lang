@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
+import ballerina/http;
 import ballerina/mime;
 
 function testGetContentLength (http:Response res) returns (string) {
@@ -70,7 +70,7 @@ function testSetXmlPayload (xml value) returns (http:Response) {
     return res;
 }
 
-endpoint mock:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListeningServiceEndpoint mockEP {
     port:9090
 };
 

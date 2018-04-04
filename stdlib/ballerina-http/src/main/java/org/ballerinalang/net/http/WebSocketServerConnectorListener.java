@@ -21,7 +21,6 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -32,9 +31,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.tracer.TraceConstants;
-import org.ballerinalang.util.tracer.TraceManagerWrapper;
-import org.ballerinalang.util.tracer.Tracer;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -49,13 +47,13 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ENDPOINT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -95,9 +93,6 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         serviceEndpoint.setRefField(4, bUpgradeHeaders);
         Resource onUpgradeResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_UPGRADE);
         if (onUpgradeResource != null) {
-            Semaphore semaphore = new Semaphore(0);
-            AtomicBoolean isResourceExeSuccessful = new AtomicBoolean(false);
-
             BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
                     WebSocketUtil.getProgramFile(wsService.getResources()[0]), PROTOCOL_PACKAGE_HTTP,
                     HttpConstants.REQUEST);
@@ -122,37 +117,40 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             bValues[1] = inRequest;
             WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
-            Tracer tracer = TraceManagerWrapper.newTracer(null, false);
-            upgradeHeaders.entrySet().stream()
-                    .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
-                    .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+            ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
+                                                                            onUpgradeResource.getServiceName(),
+                                                                            onUpgradeResource.getName(), null);
+            Map<String, String> httpHeaders = new HashMap<>();
+            upgradeHeaders.entrySet().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
                 public void notifySuccess() {
-                    isResourceExeSuccessful.set(true);
-                    semaphore.release();
+                    if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
+                        WebSocketUtil.handleHandshake(wsService, null, serverConnector, null, null);
+                    } else {
+                        Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                        if (onOpenResource != null) {
+                            List<ParamDetail> paramDetails =
+                                    onOpenResource.getParamDetails();
+                            BValue[] bValues = new BValue[paramDetails.size()];
+                            bValues[0] = serviceEndpoint;
+                            //TODO handle BallerinaConnectorException
+                            Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null,
+                                            bValues);
+                        }
+                    }
                 }
 
                 @Override
                 public void notifyFailure(BStruct error) {
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-                    semaphore.release();
                 }
-            }, null, tracer, bValues);
-
-            try {
-                semaphore.acquire();
-                if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled() &&
-                        !webSocketInitMessage.isHandshakeStarted()) {
-                    WebSocketUtil.handleHandshake(wsService, null, serverConnector);
-                }
-            } catch (InterruptedException e) {
-                throw new BallerinaConnectorException("Connection interrupted during handshake");
-            }
+            }, null, ctx, bValues);
 
         } else {
-            WebSocketUtil.handleHandshake(wsService, null, serverConnector);
+            WebSocketUtil.handleHandshake(wsService, null, serverConnector, null, null);
         }
     }
 

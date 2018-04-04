@@ -277,7 +277,7 @@ public class TaintedStatusPropagationTest {
                 .compile("test-src/taintchecking/propagation/iterable-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 58);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 53);
     }
 
     @Test

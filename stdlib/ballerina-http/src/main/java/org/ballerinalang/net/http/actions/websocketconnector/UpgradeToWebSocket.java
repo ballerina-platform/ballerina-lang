@@ -18,7 +18,8 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -36,19 +37,19 @@ import java.util.Set;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "upgradeToWebSocket",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "headers", type = TypeKind.MAP)
         },
         isPublic = true
 )
-public class UpgradeToWebSocket extends BlockingNativeCallableUnit {
+public class UpgradeToWebSocket implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         BStruct serverConnector = (BStruct) context.getRefArgument(0);
         WebSocketService webSocketService = (WebSocketService) serverConnector.getNativeData(
                 WebSocketConstants.WEBSOCKET_SERVICE);
@@ -59,8 +60,11 @@ public class UpgradeToWebSocket extends BlockingNativeCallableUnit {
             httpHeaders.add(key, headers.get(key));
         }
 
-        WebSocketUtil.handleHandshake(webSocketService, httpHeaders, serverConnector);
+        WebSocketUtil.handleHandshake(webSocketService, httpHeaders, serverConnector, context, callback);
+    }
 
-        context.setReturnValues();
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

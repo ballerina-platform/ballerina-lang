@@ -438,7 +438,7 @@ public class Generator {
      * @param returnTypeIndex The index of the return type.
      * @return description of the return parameter.
      */
-    private static String returnParamAnnotation(BLangNode node, int returnTypeIndex) {
+    public static String returnParamAnnotation(BLangNode node, int returnTypeIndex) {
         int currentReturnAnnotationIndex = 0;
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
             BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();

@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -84,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -98,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -318,6 +321,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         objectNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         analyzeNode(objectNode.initFunction, objectEnv);
         objectNode.functions.forEach(f -> analyzeNode(f, objectEnv));
+    }
+
+    public void visit(BLangRecord recordNode) {
+        BSymbol objectSymbol = recordNode.symbol;
+        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
+        recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        analyzeNode(recordNode.initFunction, objectEnv);
     }
 
     public void visit(BLangEnum enumNode) {
@@ -691,6 +701,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangTableLiteral tableLiteral) {
+        /* ignore */
+    }
+
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.exprs.forEach(expr -> expr.accept(this));
     }
@@ -1002,6 +1016,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
         /* ignore */
     }
 

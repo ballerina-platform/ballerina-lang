@@ -1,5 +1,5 @@
-import ballerina/net.http;
-import ballerina/net.http.response;
+import ballerina/http;
+import ballerina/http.response;
 
     service<    http    >   helloWorld   {
 

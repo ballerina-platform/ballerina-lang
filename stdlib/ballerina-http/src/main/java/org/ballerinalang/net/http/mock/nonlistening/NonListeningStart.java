@@ -30,10 +30,10 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http.mock",
+        orgName = "ballerina", packageName = "http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
-                structPackage = "ballerina.net.http.mock"),
+                structPackage = "ballerina.http"),
         isPublic = true
 )
 public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoint.Start {

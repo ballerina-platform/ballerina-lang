@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -40,7 +40,7 @@ import java.util.Arrays;
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Here we specifically need to check whether the statement is function invocation,
@@ -71,7 +71,7 @@ public class StatementContextResolver extends AbstractItemResolver {
             // We need to remove the functions having a receiver symbol and the bTypes of the following
             // ballerina.coordinator, ballerina.runtime, and anonStructs
             ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("ballerina.runtime",
-                    "ballerina.transactions.coordinator"));
+                    "ballerina.transactions"));
             completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).removeIf(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 String symbolName = bSymbol.getName().getValue();

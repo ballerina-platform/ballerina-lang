@@ -1,11 +1,11 @@
 import ballerina/io;
 import ballerina/runtime;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 int count;
 
-endpoint http:ClientEndpoint clientEndpoint { targets: [{ uri: "https://postman-echo.com" }] };
+endpoint http:ClientEndpoint clientEndpoint { targets:[{url: "https://postman-echo.com" }] };
 
 function main(string[] args) {
   // call the function "sum" asynchronously

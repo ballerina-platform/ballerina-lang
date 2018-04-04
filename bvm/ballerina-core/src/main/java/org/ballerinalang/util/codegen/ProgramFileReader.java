@@ -89,6 +89,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
+import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
@@ -206,7 +207,10 @@ public class ProgramFileReader {
             case CP_ENTRY_PACKAGE:
                 cpIndex = dataInStream.readInt();
                 utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
-                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue());
+                int versionCPIndex = dataInStream.readInt();
+                UTF8CPEntry utf8VersionCPEntry = (UTF8CPEntry) constantPool.getCPEntry(versionCPIndex);
+                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue(), versionCPIndex,
+                        utf8VersionCPEntry.getValue());
 
             case CP_ENTRY_FUNCTION_REF:
                 pkgCPIndex = dataInStream.readInt();
@@ -336,6 +340,12 @@ public class ProgramFileReader {
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
         packageInfo.nameCPIndex = pkgNameCPIndex;
         packageInfo.pkgPath = pkgNameCPEntry.getValue();
+
+        int pkgVersionCPIndex = dataInStream.readInt();
+        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
+        packageInfo.versionCPIndex = pkgVersionCPIndex;
+        packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
+
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
@@ -426,6 +436,7 @@ public class ProgramFileReader {
             }
 
             String defaultInit = structName + INIT_FUNCTION_SUFFIX;
+            String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
 
             // Read attached function info entries
             int attachedFuncCount = dataInStream.readShort();
@@ -444,10 +455,17 @@ public class ProgramFileReader {
                         typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
                 structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
 
+                // TODO remove when removing struct
                 // Setting the initializer function info, if any.
                 if (structName.equals(attachedFuncName)) {
                     structInfo.initializer = functionInfo;
                 }
+                // Setting the object initializer
+                if (objectInit.equals(attachedFuncName)) {
+                    structInfo.initializer = functionInfo;
+                }
+
+                // TODO remove when removing struct
                 // Setting the default initializer function info
                 if (defaultInit.equals(attachedFuncName)) {
                     structInfo.defaultsValuesInitFunc = functionInfo;
@@ -1428,7 +1446,6 @@ public class ProgramFileReader {
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
@@ -1565,6 +1582,7 @@ public class ProgramFileReader {
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

@@ -75,7 +75,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 
 /**
- * Test cases for ballerina.net.http request success native functions.
+ * Test cases for ballerina/http request success native functions.
  */
 public class RequestNativeFunctionSuccessTest {
 

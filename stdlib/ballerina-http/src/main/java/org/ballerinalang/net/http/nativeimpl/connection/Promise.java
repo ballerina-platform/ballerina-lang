@@ -35,15 +35,15 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code Promise} is the native function to respond back to the client with a PUSH_PROMISE frame.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "promise",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {@Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.net.http"),
+                                 structPackage = "ballerina.http"),
         isPublic = true
 )
 public class Promise extends ConnectionAction {
