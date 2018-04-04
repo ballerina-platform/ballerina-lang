@@ -176,11 +176,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-trace</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1001,7 +996,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-trace</module>
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
@@ -1052,7 +1046,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-trace</module>
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
@@ -1095,7 +1088,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-trace</module>
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
@@ -1224,10 +1216,6 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude sources-->
-                                <sourceDirectories>
-                                    <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                                    <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-                                </sourceDirectories>
                                 <excludes>${maven.checkstyleplugin.excludes}</excludes>
                             </configuration>
                             <goals>

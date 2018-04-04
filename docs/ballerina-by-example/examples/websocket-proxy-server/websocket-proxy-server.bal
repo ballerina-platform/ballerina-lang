@@ -23,21 +23,21 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
         wsEndpoint.attributes[ASSOCIATED_CONNECTION] = ep;
     }
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
+    onText (endpoint ep, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        var val = clientEp -> pushText(frame.text);
+        var val = clientEp -> pushText(text);
         handleError(val);
     }
 
-    onBinaryMessage (endpoint ep, http:BinaryFrame frame) {
+    onBinary (endpoint ep, blob data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        var val = clientEp -> pushBinary(frame.data);
+        var val = clientEp -> pushBinary(data);
         handleError(val);
     }
 
-    onClose (endpoint ep, http:CloseFrame frame) {
+    onClose (endpoint ep, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        var val = clientEp -> closeConnection(frame.statusCode, frame.reason);
+        var val = clientEp -> close(statusCode, reason);
         handleError(val);
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
@@ -47,21 +47,21 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 @http:WebSocketServiceConfig {}
 service<http:WebSocketClientService> ClientService {
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
+    onText (endpoint ep, string text) {
         endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        var val = parentEp -> pushText(frame.text);
+        var val = parentEp -> pushText(text);
         handleError(val);
     }
 
-    onBinaryMessage (endpoint ep, http:BinaryFrame frame) {
+    onBinary (endpoint ep, blob data) {
         endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        var val = parentEp -> pushBinary(frame.data);
+        var val = parentEp -> pushBinary(data);
         handleError(val);
     }
 
-    onClose (endpoint ep, http:CloseFrame frame) {
+    onClose (endpoint ep, int statusCode, string reason) {
         endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        var val = parentEp -> closeConnection(frame.statusCode, frame.reason);
+        var val = parentEp -> close(statusCode, reason);
         handleError(val);
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
@@ -92,7 +92,7 @@ function getAssociatedServerEndpoint (http:WebSocketClient ep) returns (http:Web
     }
 }
 
-function handleError(http:WebSocketConnectorError|null val){
+function handleError (http:WebSocketConnectorError|null val) {
     match val {
         http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
         any|null err => {//ignore x
