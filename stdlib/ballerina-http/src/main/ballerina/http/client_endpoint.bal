@@ -189,11 +189,13 @@ public native function createHttpClient(string uri, ClientEndpointConfiguration 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
 @Field {value:"interval: Retry interval in milliseconds"}
-@Field {value:"backOffFactor: multiplier of the retry interval to exponentailly increase retry interval"}
+@Field {value:"backOffFactor: Multiplier of the retry interval to exponentailly increase retry interval"}
+@Field {value:"maxWaitInterval: Maximum time of the retry interval in milliseconds"}
 public struct Retry {
     int count;
     int interval;
-    int backOffFactor;
+    float backOffFactor;
+    int maxWaitInterval;
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
@@ -202,8 +204,9 @@ public struct Retry {
 @Field {value: "protocols: SSL/TLS protocol related options"}
 @Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-@Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
+@Field {value:"hostNameVerification: Enable/disable host name verification"}
+@Field {value:"sessionCreation: Enable/disable new ssl session creation"}
+@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public struct SecureSocket {
     TrustStore|null trustStore;
     KeyStore|null keyStore;
@@ -212,6 +215,7 @@ public struct SecureSocket {
     string ciphers;
     boolean hostNameVerification;
     boolean sessionCreation;
+    boolean ocspStapling;
 }
 
 @Description {value:"Initializes the SecureSocket struct with default values."}

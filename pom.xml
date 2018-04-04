@@ -216,6 +216,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>strip-bouncycastle</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-core</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -850,6 +855,11 @@
                 <version>${okio.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-tcnative-boringssl-static</artifactId>
+                <version>${netty-tcnative-boringssl-static.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-micrometer-extension</artifactId>
                 <version>${ballerina.version}</version>
@@ -995,6 +1005,7 @@
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1045,6 +1056,7 @@
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1087,6 +1099,7 @@
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1211,10 +1224,6 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude sources-->
-                                <sourceDirectories>
-                                    <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                                    <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
-                                </sourceDirectories>
                                 <excludes>${maven.checkstyleplugin.excludes}</excludes>
                             </configuration>
                             <goals>
@@ -1465,7 +1474,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.120</transport.http.version>
+        <transport.http.version>6.0.121</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1519,6 +1528,7 @@
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
         <broker.version>0.1.20</broker.version>
+        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>

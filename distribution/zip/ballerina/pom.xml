@@ -70,6 +70,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>strip-bouncycastle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>toml-parser</artifactId>
         </dependency>
         <dependency>
@@ -249,7 +253,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging,ballerina-trace
+                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging,ballerina-trace,strip-bouncycastle
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

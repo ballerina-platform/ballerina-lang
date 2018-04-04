@@ -38,7 +38,27 @@ function init() {
     isNonExistingServiceStarted = test:startServices("servicemocktestX");
 }
 
-@test:Config{before: "init"}
+function verify() {
+    // verifies whether the service got stopped correctly
+    endpoint http:ClientEndpoint httpEndpoint {
+        targets:[{
+                     url:url2
+                 }]
+    };
+
+    http:Request req = {};
+    // Send a GET request to the specified endpoint - this should return connection refused
+    var response = httpEndpoint -> get("/events", req);
+    match response {
+        http:Response resp =>  test:assertFail(msg = "Service stop has failed for: "+url2);
+        http:HttpConnectorError err => {
+            test:assertEquals(err.message, "Connection refused: /0.0.0.0:9090");
+        }
+    }
+
+}
+
+@test:Config{before: "init", after: "verify"}
 function testService () {
     endpoint http:ClientEndpoint httpEndpoint {
         targets:[{

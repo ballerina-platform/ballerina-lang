@@ -48,7 +48,6 @@
     </test>
     <test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcClientTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcServiceTestCase"/>
         </classes>
     </test>

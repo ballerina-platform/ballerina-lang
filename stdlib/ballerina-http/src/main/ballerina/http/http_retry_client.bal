@@ -3,6 +3,7 @@ package ballerina.http;
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/mime;
+import ballerina/math;
 
 documentation {
     Represents an HTTP Retry client to be used with the HTTP client to provide retrying over HTTP requests.
@@ -203,9 +204,13 @@ function performRetryAction (string path, Request request, HttpOperation request
     int currentRetryCount = 0;
     int retryCount = retryClient.retry.count;
     int interval = retryClient.retry.interval;
-    int backOffFactor = retryClient.retry.backOffFactor;
-    if (backOffFactor == 0) {
+    float backOffFactor = retryClient.retry.backOffFactor;
+    int maxWaitInterval = retryClient.retry.maxWaitInterval;
+    if (backOffFactor <= 0) {
         backOffFactor = 1;
+    }
+    if (maxWaitInterval == 0) {
+        maxWaitInterval = 60000;
     }
     HttpClient httpClient = retryClient.httpClient;
     Response response = {};
@@ -233,10 +238,16 @@ function performRetryAction (string path, Request request, HttpOperation request
             }
         }
         if (currentRetryCount != 0) {
-           interval = interval * backOffFactor;
+           interval = getWaitTime(backOffFactor, maxWaitInterval, interval);
         }
         runtime:sleepCurrentWorker(interval);
         currentRetryCount = currentRetryCount + 1;
     }
     return httpConnectorError;
+}
+
+function getWaitTime(float backOffFactor, int maxWaitTime, int interval) returns (int) {
+    int waitTime = math:round(interval * backOffFactor);
+    waitTime = waitTime > maxWaitTime ? maxWaitTime : waitTime;
+    return waitTime;
 }
