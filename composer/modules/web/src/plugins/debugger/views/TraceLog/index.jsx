@@ -120,31 +120,25 @@ class LogsConsole extends React.Component {
                         <div >
                             {/* allowResize={details ? true : false} */}
                             <SplitPane
-                                split="vertical"
-                                size={details ? '25%' : '100%'}
+                                split='vertical'
+                                size={details ? 450 : '100%'}
                                 allowResize={details ? true : false}
                             >
                                 <div>
                                     <Grid style={{ margin: 0 }}>
                                         <Grid.Row className='table-heading'>
-                                            <Grid.Column width={details ? 16 : 4}>
+                                            <Grid.Column className='summary'>
                                                 &nbsp;
                                             </Grid.Column>
-                                            {!details && [
-                                                <Grid.Column width={3}>
-                                                    Time
-                                                </Grid.Column>,
-                                                <Grid.Column width={3}>
-                                                    Method
-                                                </Grid.Column>,
-                                                <Grid.Column width={3}>
-                                                    Path
-                                                </Grid.Column>,
-                                                <Grid.Column width={3}>
-                                                    Stream
-                                                </Grid.Column>,
-                                            ]}
-
+                                            <Grid.Column className='activity'>
+                                                    Activity Id
+                                            </Grid.Column>
+                                            <Grid.Column className='time'>
+                                                Time
+                                            </Grid.Column>
+                                            <Grid.Column className='path'>
+                                                Path
+                                            </Grid.Column>
                                         </Grid.Row>
                                     </Grid>
                                     <Grid
@@ -154,11 +148,12 @@ class LogsConsole extends React.Component {
                                         {this.state.filteredMessages.map((message) => {
                                             const timeString = moment(parseInt(message.message.record.millis)).format('HH:mm:ss.SSS');
                                             return (
-                                                <Grid.Row className={(details && details.id === message.id) ? 'active' : ''}>
+                                                <Grid.Row
+                                                    className={(details && details.id === message.id) ? 'active clickable' : 'clickable'}
+                                                    onClick={() => this.toggleDetails(message)}
+                                                >
                                                     <Grid.Column
-                                                        width={details ? 16 : 4}
-                                                        onClick={() => this.toggleDetails(message)}
-                                                        className='wrap-text clickable'
+                                                        className='wrap-text summary'
                                                     >
                                                         <Icon
                                                             name={this.getLoggerIcon(message.message.record.logger)}
@@ -166,29 +161,18 @@ class LogsConsole extends React.Component {
                                                         <Icon
                                                             name={this.getDirectionIcon(message.message.meta.direction)}
                                                         />
-                                                        &nbsp;
+                                                    </Grid.Column>
+                                                    <Grid.Column className='wrap-text activity'>
                                                         {message.message.meta.id}
-                                                        &nbsp;
+                                                    </Grid.Column>
+                                                    <Grid.Column className='wrap-text time'>
+                                                        {timeString}
+                                                    </Grid.Column>
+                                                    <Grid.Column className='wrap-text path'>
                                                         {message.message.meta.httpMethod}
                                                         &nbsp;
                                                         {message.message.meta.path}
-                                                        &nbsp;
                                                     </Grid.Column>
-                                                    {!details && [
-                                                        <Grid.Column width={3} className='wrap-text'>
-                                                            {timeString}
-                                                        </Grid.Column>,
-                                                        <Grid.Column width={3} className='wrap-text'>
-                                                            {message.message.meta.httpMethod}
-                                                        </Grid.Column>,
-                                                        <Grid.Column width={3} className='wrap-text'>
-                                                            {message.message.meta.path}
-                                                        </Grid.Column>,
-                                                        <Grid.Column width={3} className='wrap-text'>
-                                                            {message.message.record.logger}
-                                                        </Grid.Column>,
-                                                    ]}
-
                                                 </Grid.Row>
                                             );
                                         })}

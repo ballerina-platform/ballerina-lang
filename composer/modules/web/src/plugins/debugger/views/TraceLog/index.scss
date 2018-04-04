@@ -19,9 +19,6 @@
     .row {
         padding: 3px;
         border-bottom: 1px #5a5a5a solid;
-        .clickable{
-            cursor: pointer;
-        }
     }
     .table-heading.row {
         width: 100%;
@@ -78,6 +75,21 @@
             background-color: inherit;
             border: none;
         }
+    }
+    .clickable{
+        cursor: pointer;
+    }
+    .summary {
+        width: 70px;
+    }
+    .activity {
+        width: 110px;
+    }
+    .time {
+        width: 110px;
+    }
+    .path {
+        width: calc( 100% - 290px );
     }
 
 }

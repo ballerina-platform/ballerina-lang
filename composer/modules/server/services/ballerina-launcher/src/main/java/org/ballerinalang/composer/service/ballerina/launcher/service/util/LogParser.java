@@ -62,7 +62,14 @@ public class LogParser {
             while ((line = logReader.readLine()) != null) {
                 JsonElement jelement = new JsonParser().parse(line);
                 JsonObject jobject = jelement.getAsJsonObject();
-                jobject.addProperty("meta", parseLogLine(line));
+                String rawRecord;
+                try {
+                    rawRecord = jobject.get("record").getAsJsonObject().get("message").getAsString();
+                } catch (Exception e) {
+                    rawRecord = jelement.getAsString();
+                }
+                jobject.addProperty("meta", parseLogLine(rawRecord));
+
                 launchManagerInstance.pushLogToClient(jobject.toString());
             }
         } catch (Exception e) {
