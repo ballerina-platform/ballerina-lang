@@ -33,7 +33,7 @@ public native function <WebSocketConnector wsConnector> pong (blob data);
 @Description {value:"Close the connection"}
 @Param {value:"statusCode: Status code for closing the connection"}
 @Param {value:"reason: Reason for closing the connection"}
-public native function <WebSocketConnector wsConnector> closeConnection (int statusCode, string reason) returns (WebSocketConnectorError|null);
+public native function <WebSocketConnector wsConnector> close (int statusCode, string reason) returns (WebSocketConnectorError|null);
 
 @Description {value:"Sends a upgrade request with custom headers"}
 @Param {value:"headers: a map of custom headers for handshake."}

@@ -83,7 +83,7 @@ public class WebSocketDispatcher {
     public static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo,
                                            WebSocketTextMessage textMessage) {
         WebSocketService wsService = connectionInfo.getService();
-        Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT_MESSAGE);
+        Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT);
         if (onTextMessageResource == null) {
             return;
         }
@@ -103,7 +103,7 @@ public class WebSocketDispatcher {
                                              WebSocketBinaryMessage binaryMessage) {
         WebSocketService wsService = connectionInfo.getService();
         Resource onBinaryMessageResource = wsService.getResourceByName(
-                WebSocketConstants.RESOURCE_NAME_ON_BINARY_MESSAGE);
+                WebSocketConstants.RESOURCE_NAME_ON_BINARY);
         if (onBinaryMessageResource == null) {
             return;
         }

@@ -38,14 +38,14 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     }
 
     @Description {value:"This resource is triggered when a new text frame is received from a client."}
-    onTextMessage (endpoint conn, string text, boolean moreFragments) {
-        io:println("\ntext message: " + text + " & more fragments: " + moreFragments);
+    onText (endpoint conn, string text, boolean more) {
+        io:println("\ntext message: " + text + " & more fragments: " + more);
 
         if (text == "ping") {
             io:println("Pinging...");
             conn -> ping(pingData);
         } else if (text == "closeMe") {
-            var val = conn -> closeConnection(1001, "You asked me to close the connection");
+            var val = conn -> close(1001, "You asked me to close the connection");
             handleError(val);
         } else {
             var val = conn -> pushText("You said: " + text);
@@ -54,7 +54,7 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     }
 
     @Description {value:"This resource is triggered when a new binary frame is received from a client."}
-    onBinaryMessage (endpoint conn, blob b) {
+    onBinary (endpoint conn, blob b) {
         io:println("\nNew binary message received");
         io:println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
         var val = conn -> pushBinary(b);
@@ -76,7 +76,7 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         io:println("\nReached idle timeout");
         io:println("Closing connection " + conn.id);
-        var val = conn -> closeConnection(1001, "Connection timeout");
+        var val = conn -> close(1001, "Connection timeout");
         handleError(val);
     }
 
