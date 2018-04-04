@@ -326,6 +326,7 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
+    |   doneStatement
     ;
 
 variableDefinitionStatement
@@ -346,10 +347,10 @@ recordKey
     ;
 
 tableLiteral
-    :   TYPE_TABLE tableInitlization
+    :   TYPE_TABLE tableInitialization
     ;
 
-tableInitlization
+tableInitialization
     :   recordLiteral
     ;
 
@@ -831,6 +832,10 @@ aggregationQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+    ;
+    
+doneStatement
+    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

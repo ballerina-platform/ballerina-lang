@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -25,31 +25,29 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
 
 /**
- * This function adds tags to a span.
+ * This function adds baggage items to a span.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "addTag",
+        functionName = "setBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         args = {
-                @Argument(name = "tagKey", type = TypeKind.STRING),
-                @Argument(name = "tagValue", type = TypeKind.STRING)
+                @Argument(name = "baggageKey", type = TypeKind.STRING),
+                @Argument(name = "baggageValue", type = TypeKind.STRING)
         },
-        returnType = @ReturnType(type = TypeKind.VOID),
         isPublic = true
 )
-public class AddTag extends BlockingNativeCallableUnit {
+public class SetBaggageItem extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
         String spanId = span.getStringField(0);
-        String tagKey = context.getStringArgument(0);
-        String tagValue = context.getStringArgument(1);
-        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue);
+        String baggageKey = context.getStringArgument(0);
+        String baggageValue = context.getStringArgument(1);
+        OpenTracerBallerinaWrapper.getInstance().setBaggageItem(spanId, baggageKey, baggageValue);
     }
 }

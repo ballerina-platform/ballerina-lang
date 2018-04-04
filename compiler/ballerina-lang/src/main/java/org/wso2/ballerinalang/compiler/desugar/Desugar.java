@@ -133,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -673,6 +674,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangAbort abortNode) {
         result = abortNode;
+    }
+    
+    @Override
+    public void visit(BLangDone doneNode) {
+        result = doneNode;
     }
 
     @Override
@@ -1503,7 +1509,8 @@ public class Desugar extends BLangNodeVisitor {
         // Create the pattern to match the success case
         BLangMatchStmtPatternClause patternSuccessCase = getSafeAssignSuccessPattern(checkedExprVar.pos,
                 checkedExprVar.symbol.type, true, checkedExprVar.symbol, null);
-        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner);
+        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(checkedExpr.pos,
+                this.env.scope.owner, checkedExpr.equivalentErrorTypeList);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos,
@@ -1905,6 +1912,55 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.namedArgs = args;
     }
 
+    private BLangMatchStmtPatternClause getSafeAssignErrorPattern(DiagnosticPos pos,
+                                                                  BSymbol invokableSymbol,
+                                                                  List<BType> equivalentErrorTypes) {
+        // From here onwards we assume that this function has only one return type
+        // Owner of the variable symbol must be an invokable symbol
+        BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
+        Set<BType> returnTypeSet = enclosingFuncReturnType.tag == TypeTags.UNION ?
+                ((BUnionType) enclosingFuncReturnType).memberTypes :
+                new HashSet<BType>() {{
+                    add(enclosingFuncReturnType);
+                }};
+
+        // For each error type, there has to be at least one equivalent return type in the enclosing function
+        boolean returnOnError = equivalentErrorTypes.stream()
+                .allMatch(errorType -> returnTypeSet.stream()
+                        .anyMatch(retType -> types.isAssignable(errorType, retType)));
+
+        // Create the pattern to match the error type
+        //      1) Create the pattern variable
+        String patternFailureCaseVarName = GEN_VAR_PREFIX.value + "t_failure";
+        BLangVariable patternFailureCaseVar = ASTBuilderUtil.createVariable(pos,
+                patternFailureCaseVarName, symTable.errStructType, null, new BVarSymbol(0,
+                        names.fromString(patternFailureCaseVarName),
+                        this.env.scope.owner.pkgID, symTable.errStructType, this.env.scope.owner));
+
+        //      2) Create the pattern block
+        BLangVariableReference patternFailureCaseVarRef = ASTBuilderUtil.createVariableRef(pos,
+                patternFailureCaseVar.symbol);
+
+        BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        patternBlockFailureCase.pos = pos;
+        if (returnOnError) {
+            //return e;
+            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+            returnStmt.pos = pos;
+            returnStmt.expr = patternFailureCaseVarRef;
+            patternBlockFailureCase.stmts.add(returnStmt);
+        } else {
+            // throw e
+            BLangThrow throwStmt = (BLangThrow) TreeBuilder.createThrowNode();
+            throwStmt.pos = pos;
+            throwStmt.expr = patternFailureCaseVarRef;
+            patternBlockFailureCase.stmts.add(throwStmt);
+        }
+
+        return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);
+    }
+
+    // TODO Remove this method when refactoring the =? operator
     private BLangMatchStmtPatternClause getSafeAssignErrorPattern(DiagnosticPos pos, BSymbol invokableSymbol) {
         // From here onwards we assume that this function has only one return type
         // Owner of the variable symbol must be an invokable symbol

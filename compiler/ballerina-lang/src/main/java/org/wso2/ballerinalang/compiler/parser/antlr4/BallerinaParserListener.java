@@ -724,15 +724,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTableLiteral(BallerinaParser.TableLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableInitlization}.
+	 * Enter a parse tree produced by {@link BallerinaParser#tableInitialization}.
 	 * @param ctx the parse tree
 	 */
-	void enterTableInitlization(BallerinaParser.TableInitlizationContext ctx);
+	void enterTableInitialization(BallerinaParser.TableInitializationContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableInitlization}.
+	 * Exit a parse tree produced by {@link BallerinaParser#tableInitialization}.
 	 * @param ctx the parse tree
 	 */
-	void exitTableInitlization(BallerinaParser.TableInitlizationContext ctx);
+	void exitTableInitialization(BallerinaParser.TableInitializationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#arrayLiteral}.
 	 * @param ctx the parse tree
@@ -2155,6 +2155,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#doneStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoneStatement(BallerinaParser.DoneStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#doneStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoneStatement(BallerinaParser.DoneStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#streamingQueryStatement}.
 	 * @param ctx the parse tree

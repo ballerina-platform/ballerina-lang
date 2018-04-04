@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.observe.trace;
+package org.ballerinalang.nativeimpl.observe;
 
 import io.opentracing.SpanContext;
 import org.ballerinalang.bre.Context;
