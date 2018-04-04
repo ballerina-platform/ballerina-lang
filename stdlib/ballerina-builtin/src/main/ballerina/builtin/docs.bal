@@ -31,4 +31,4 @@ deprecated {}
 public annotation<function> Return docData;
 
 deprecated {}
-public annotation<annotation, enum, struct> Field docData;
+public annotation<annotation, type> Field docData;

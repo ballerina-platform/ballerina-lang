@@ -99,8 +99,8 @@ privateStructBody
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE_TYPE Identifier typeName
-    |   (PUBLIC)? TYPE_TYPE Identifier finiteType
+    :   (PUBLIC)? TYPE Identifier typeName
+    |   (PUBLIC)? TYPE Identifier finiteType
     ;
 
 objectBody
@@ -171,7 +171,8 @@ attachmentPoint
      : SERVICE
      | RESOURCE
      | FUNCTION
-     | STRUCT
+     | OBJECT
+     | TYPE
      | ENDPOINT
      | PARAMETER
      | ANNOTATION

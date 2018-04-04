@@ -28,7 +28,7 @@ public class BallerinaParser extends Parser {
 		MINUTE=57, HOUR=58, DAY=59, MONTH=60, YEAR=61, FOREVER=62, TYPE_INT=63, 
 		TYPE_FLOAT=64, TYPE_BOOL=65, TYPE_STRING=66, TYPE_BLOB=67, TYPE_MAP=68, 
 		TYPE_JSON=69, TYPE_XML=70, TYPE_TABLE=71, TYPE_STREAM=72, TYPE_ANY=73, 
-		TYPE_DESC=74, TYPE_TYPE=75, TYPE_FUTURE=76, VAR=77, NEW=78, IF=79, MATCH=80, 
+		TYPE_DESC=74, TYPE=75, TYPE_FUTURE=76, VAR=77, NEW=78, IF=79, MATCH=80, 
 		ELSE=81, FOREACH=82, WHILE=83, NEXT=84, BREAK=85, FORK=86, JOIN=87, SOME=88, 
 		ALL=89, TIMEOUT=90, TRY=91, CATCH=92, FINALLY=93, THROW=94, RETURN=95, 
 		TRANSACTION=96, ABORT=97, FAIL=98, ONRETRY=99, RETRIES=100, ONABORT=101, 
@@ -222,7 +222,7 @@ public class BallerinaParser extends Parser {
 		"LEFT", "FULL", "UNIDIRECTIONAL", "REDUCE", "SECOND", "MINUTE", "HOUR", 
 		"DAY", "MONTH", "YEAR", "FOREVER", "TYPE_INT", "TYPE_FLOAT", "TYPE_BOOL", 
 		"TYPE_STRING", "TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", 
-		"TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE_TYPE", "TYPE_FUTURE", "VAR", 
+		"TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", "VAR", 
 		"NEW", "IF", "MATCH", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", 
 		"JOIN", "SOME", "ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", 
 		"RETURN", "TRANSACTION", "ABORT", "FAIL", "ONRETRY", "RETRIES", "ONABORT", 
@@ -405,7 +405,7 @@ public class BallerinaParser extends Parser {
 			setState(425);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << NATIVE) | (1L << SERVICE) | (1L << FUNCTION) | (1L << STRUCT) | (1L << OBJECT) | (1L << ANNOTATION) | (1L << ENDPOINT) | (1L << TYPE_INT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (TYPE_FLOAT - 64)) | (1L << (TYPE_BOOL - 64)) | (1L << (TYPE_STRING - 64)) | (1L << (TYPE_BLOB - 64)) | (1L << (TYPE_MAP - 64)) | (1L << (TYPE_JSON - 64)) | (1L << (TYPE_XML - 64)) | (1L << (TYPE_TABLE - 64)) | (1L << (TYPE_STREAM - 64)) | (1L << (TYPE_ANY - 64)) | (1L << (TYPE_DESC - 64)) | (1L << (TYPE_TYPE - 64)) | (1L << (TYPE_FUTURE - 64)) | (1L << (LEFT_BRACE - 64)) | (1L << (LEFT_PARENTHESIS - 64)))) != 0) || ((((_la - 144)) & ~0x3f) == 0 && ((1L << (_la - 144)) & ((1L << (AT - 144)) | (1L << (NullLiteral - 144)) | (1L << (Identifier - 144)) | (1L << (DocumentationTemplateStart - 144)) | (1L << (DeprecatedTemplateStart - 144)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << NATIVE) | (1L << SERVICE) | (1L << FUNCTION) | (1L << STRUCT) | (1L << OBJECT) | (1L << ANNOTATION) | (1L << ENDPOINT) | (1L << TYPE_INT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (TYPE_FLOAT - 64)) | (1L << (TYPE_BOOL - 64)) | (1L << (TYPE_STRING - 64)) | (1L << (TYPE_BLOB - 64)) | (1L << (TYPE_MAP - 64)) | (1L << (TYPE_JSON - 64)) | (1L << (TYPE_XML - 64)) | (1L << (TYPE_TABLE - 64)) | (1L << (TYPE_STREAM - 64)) | (1L << (TYPE_ANY - 64)) | (1L << (TYPE_DESC - 64)) | (1L << (TYPE - 64)) | (1L << (TYPE_FUTURE - 64)) | (1L << (LEFT_BRACE - 64)) | (1L << (LEFT_PARENTHESIS - 64)))) != 0) || ((((_la - 144)) & ~0x3f) == 0 && ((1L << (_la - 144)) & ((1L << (AT - 144)) | (1L << (NullLiteral - 144)) | (1L << (Identifier - 144)) | (1L << (DocumentationTemplateStart - 144)) | (1L << (DeprecatedTemplateStart - 144)))) != 0)) {
 				{
 				{
 				setState(413);
@@ -1909,7 +1909,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class TypeDefinitionContext extends ParserRuleContext {
-		public TerminalNode TYPE_TYPE() { return getToken(BallerinaParser.TYPE_TYPE, 0); }
+		public TerminalNode TYPE() { return getToken(BallerinaParser.TYPE, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
@@ -1953,7 +1953,7 @@ public class BallerinaParser extends Parser {
 				}
 
 				setState(660);
-				match(TYPE_TYPE);
+				match(TYPE);
 				setState(661);
 				match(Identifier);
 				setState(662);
@@ -1973,7 +1973,7 @@ public class BallerinaParser extends Parser {
 				}
 
 				setState(666);
-				match(TYPE_TYPE);
+				match(TYPE);
 				setState(667);
 				match(Identifier);
 				setState(668);
@@ -3136,7 +3136,8 @@ public class BallerinaParser extends Parser {
 		public TerminalNode SERVICE() { return getToken(BallerinaParser.SERVICE, 0); }
 		public TerminalNode RESOURCE() { return getToken(BallerinaParser.RESOURCE, 0); }
 		public TerminalNode FUNCTION() { return getToken(BallerinaParser.FUNCTION, 0); }
-		public TerminalNode STRUCT() { return getToken(BallerinaParser.STRUCT, 0); }
+		public TerminalNode OBJECT() { return getToken(BallerinaParser.OBJECT, 0); }
+		public TerminalNode TYPE() { return getToken(BallerinaParser.TYPE, 0); }
 		public TerminalNode ENDPOINT() { return getToken(BallerinaParser.ENDPOINT, 0); }
 		public TerminalNode PARAMETER() { return getToken(BallerinaParser.PARAMETER, 0); }
 		public TerminalNode ANNOTATION() { return getToken(BallerinaParser.ANNOTATION, 0); }
@@ -3163,7 +3164,7 @@ public class BallerinaParser extends Parser {
 			{
 			setState(850);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << RESOURCE) | (1L << FUNCTION) | (1L << STRUCT) | (1L << ANNOTATION) | (1L << PARAMETER) | (1L << ENDPOINT))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SERVICE) | (1L << RESOURCE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << ANNOTATION) | (1L << PARAMETER) | (1L << ENDPOINT))) != 0) || _la==TYPE) ) {
 			_errHandler.recoverInline(this);
 			} else {
 				consume();
@@ -15984,8 +15985,8 @@ public class BallerinaParser extends Parser {
 		"\u0156\u0158\u015a\u015c\u015e\u0160\u0162\u0164\u0166\u0168\u016a\u016c"+
 		"\u016e\u0170\u0172\u0174\u0176\u0178\u017a\u017c\u017e\u0180\u0182\u0184"+
 		"\u0186\u0188\u018a\u018c\u018e\u0190\2\25\4\2ttxx\4\2\u0080\u0080\u009c"+
-		"\u009c\5\2\t\f\16\17\22\22\3\2AE\3\2\u0098\u009b\3\2\u009d\u009e\4\2{"+
-		"{}}\4\2||~~\4\2\u0083\u0083\u00a7\u00a7\6\2ijnn\u0081\u0082\u0087\u0087"+
+		"\u009c\6\2\t\13\r\17\22\22MM\3\2AE\3\2\u0098\u009b\3\2\u009d\u009e\4\2"+
+		"{{}}\4\2||~~\4\2\u0083\u0083\u00a7\u00a7\6\2ijnn\u0081\u0082\u0087\u0087"+
 		"\4\2\u0083\u0084\u0086\u0086\3\2\u0081\u0082\3\2\u008a\u008d\3\2\u0088"+
 		"\u0089\3\2\u009f\u00a2\4\2FFTT\4\2/\60[[\3\2\u008e\u008f\3\2:?\u0a33\2"+
 		"\u0193\3\2\2\2\4\u01b0\3\2\2\2\6\u01b4\3\2\2\2\b\u01bf\3\2\2\2\n\u01c2"+
