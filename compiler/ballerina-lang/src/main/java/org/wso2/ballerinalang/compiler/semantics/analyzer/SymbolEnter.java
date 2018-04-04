@@ -619,6 +619,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 varNode.type, varName, env);
         varSymbol.docTag = varNode.docTag;
         varNode.symbol = varSymbol;
+
+        //Check annotations attached to the variable
         if (varNode.annAttachments.size() > 0) {
             if (hasAnnotation(varNode.annAttachments, ANNOTATION_READONLY)) {
                 varSymbol.isReadonly = true;

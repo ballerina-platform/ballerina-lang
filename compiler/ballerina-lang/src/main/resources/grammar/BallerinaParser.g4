@@ -173,7 +173,7 @@ enumerator
     ;
 
 globalVariableDefinition
-    :   annotationAttachment* (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
 attachmentPoint

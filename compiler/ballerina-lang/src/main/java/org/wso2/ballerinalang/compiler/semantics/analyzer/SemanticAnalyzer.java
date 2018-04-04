@@ -589,13 +589,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check each LHS expression.
         BType expType = getTypeOfVarReferenceInAssignment(assignNode.varRef);
-        if (((BLangVariableReference) assignNode.varRef).symbol != null) {
-            if (((BLangVariableReference) assignNode.varRef).lhsVar
-                    && ((BLangVariableReference) assignNode.varRef).symbol.isReadonly) {
-                dlog.error(assignNode.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_READONLY, assignNode.varRef);
-                return;
-            }
-        }
         if (!assignNode.safeAssignment) {
             typeChecker.checkExpr(assignNode.expr, this.env, expType);
             return;
@@ -1644,6 +1637,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ((BLangFieldBasedAccess) varRefExpr).expr.type.tag == TypeTags.ENUM) {
             dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
             return symTable.errType;
+        }
+
+        //Check whether this is an readonly field.
+        if (varRefExpr.symbol != null) {
+            if (env.enclPkg.symbol.pkgID != varRefExpr.symbol.pkgID && varRefExpr.lhsVar
+                    && varRefExpr.symbol.isReadonly) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_READONLY, varRefExpr);
+                return symTable.errType;
+            }
         }
 
         checkConstantAssignment(varRefExpr);

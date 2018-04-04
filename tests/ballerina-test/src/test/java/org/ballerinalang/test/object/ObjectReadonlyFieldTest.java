@@ -19,7 +19,12 @@ package org.ballerinalang.test.object;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -35,10 +40,41 @@ public class ObjectReadonlyFieldTest {
         compileResult = BCompileUtil.compile("test-src/object/object-readonly-field.bal");
     }
 
-    @Test(description = "Test struct with readonly field which is in a different package")
-    public void testStructWithReadonlyFieldDifferentPackage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-readonly-field.bal");
-        BAssertUtil.validateError(compileResult, 0,
-                "cannot assign a value to readonly 'age'", 5, 9);
+    @Test(description = "Test object with readonly field which is in a different package")
+    public void testReadOnlyAccessInDifferentPackage() {
+        CompileResult compileResultNegative = BCompileUtil
+                .compile("test-src/object/object-readonly-field-negative.bal");
+        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to readonly 'p.age'", 8, 5);
+        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to readonly 'bar:globalInt'", 14, 5);
+    }
+
+    @Test(description = "Test object with readonly field which is in a same package")
+    public void testReadOnlyObjFieldAccessInSamePackage() {
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadOnlyObjFieldAccessInSamePackage");
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 44);
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "john");
+    }
+
+    @Test(description = "Test object with readonly global variable which is in a same package")
+    public void testReadOnlyGlobalVarAccessInSamePackage() {
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadOnlyGlobalVarAccessInSamePackage");
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
+
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
     }
 }
