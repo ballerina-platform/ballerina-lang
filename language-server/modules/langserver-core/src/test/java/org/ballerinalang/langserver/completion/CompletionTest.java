@@ -72,7 +72,6 @@ public abstract class CompletionTest {
 
     protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) {
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-
         String balPath = SAMPLES_COPY_DIR + File.separator + configJsonObject.get("source").getAsString();
         Position position = new Position();
         String content = FileUtils.fileContent(balPath);
@@ -86,7 +85,6 @@ public abstract class CompletionTest {
 
     protected List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
         JsonArray expectedItems = configJsonObject.get("items").getAsJsonArray();
-
         return CompletionTestUtil.getExpectedItemList(expectedItems);
     }
 

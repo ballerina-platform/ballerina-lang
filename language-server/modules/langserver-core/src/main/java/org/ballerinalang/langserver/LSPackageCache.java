@@ -92,7 +92,6 @@ public class LSPackageCache {
     }
 
     static class ExtendedPackageCache extends PackageCache {
-
         private ExtendedPackageCache(CompilerContext context) {
             super(context);
             this.packageMap = new ConcurrentHashMap<>();
