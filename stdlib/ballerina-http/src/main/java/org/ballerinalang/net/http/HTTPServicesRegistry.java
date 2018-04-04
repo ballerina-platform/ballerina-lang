@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -54,9 +55,9 @@ public class HTTPServicesRegistry {
     }
 
     /**
-     * Get ServiceInfo isntance for given interface and base path.
+     * Get ServiceInfo instance for given interface and base path.
      *
-     * @param basepath basepath of the service.
+     * @param basepath basePath of the service.
      * @return the {@link HttpService} instance if exist else null
      */
     public HttpService getServiceInfo(String basepath) {
@@ -87,25 +88,27 @@ public class HTTPServicesRegistry {
             }
         }
 
-        HttpService httpService = HttpService.buildHttpService(service);
+        List<HttpService> httpServices = HttpService.buildHttpService(service);
 
-        //TODO check with new method
+        for (HttpService httpService : httpServices) {
+            //TODO check with new method
 //        HttpUtil.populateKeepAliveAndCompressionStatus(service, annotation);
 
-        // TODO: Add websocket services to the service registry when service creation get available.
-        servicesInfoMap.put(httpService.getBasePath(), httpService);
-        logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
+            // TODO: Add websocket services to the service registry when service creation get available.
+            servicesInfoMap.put(httpService.getBasePath(), httpService);
+            logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
 
-        //basePath will get cached after registering service
-        sortedServiceURIs.add(httpService.getBasePath());
-        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+            //basePath will get cached after registering service
+            sortedServiceURIs.add(httpService.getBasePath());
+            sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        // If WebSocket upgrade path is available, then register the name of the WebSocket service.
-        Struct websocketConfig = httpService.getWebSocketUpgradeConfig();
-        if (websocketConfig != null) {
-            registerWebSocketUpgradePath(
-                    WebSocketUtil.getProgramFile(httpService.getBallerinaService().getResources()[0]),
-                    websocketConfig, httpService.getBasePath());
+            // If WebSocket upgrade path is available, then register the name of the WebSocket service.
+            Struct websocketConfig = httpService.getWebSocketUpgradeConfig();
+            if (websocketConfig != null) {
+                registerWebSocketUpgradePath(
+                        WebSocketUtil.getProgramFile(httpService.getBallerinaService().getResources()[0]),
+                        websocketConfig, httpService.getBasePath());
+            }
         }
 
     }

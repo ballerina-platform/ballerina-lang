@@ -108,6 +108,9 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
+    public static final String ANN_CONFIG_ATTR_PATTERN = "pattern";
+    public static final String ANN_CONFIG_ATTR_ALLOW_NO_VERSION = "allowNoVersion";
+    public static final String ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION = "matchMajorVersion";
     public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";;
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
@@ -145,6 +148,10 @@ public class HttpConstants {
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
     public static final String HTTP_SERVICE = "HTTP_SERVICE";
+    public static final String VERSION = "{version}";
+    public static final String DEFAULT_VERSION = "v.{major}.{minor}";
+    public static final String MAJOR_VERSION = "{major}";
+    public static final String MINOR_VERSION = "{minor}";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";

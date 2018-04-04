@@ -61,6 +61,16 @@ public function <CorsConfig config> CorsConfig() {
     config.maxAge = -1;
 }
 
+@Description {value:"Configurations for service versioning"}
+@Field {value:"pattern: Expecting version pattern in the request url"}
+@Field {value:"allowNoVersion: Allow to dispatch requests which does not hold version path segment in url"}
+@Field {value:"matchMajorVersion: Allow to dispatch requests which specify only the major version in url"}
+public struct Versioning {
+    string pattern = "v{major}.{minor}";
+    boolean allowNoVersion;
+    boolean matchMajorVersion;
+}
+
 public struct WebSocketUpgradeConfig {
     string upgradePath;
     typedesc upgradeService;

@@ -54,6 +54,7 @@ public class HttpService {
     protected static final String BASE_PATH_FIELD = "basePath";
     private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
+    private static final String VERSIONING_FIELD = "versioning";
     private static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
 
     private Service balService;
@@ -62,6 +63,7 @@ public class HttpService {
     private String basePath;
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
+    private Struct versioningConfig;
     private Struct webSocketUpgradeConfig;
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
@@ -159,20 +161,35 @@ public class HttpService {
         this.webSocketUpgradeConfig = webSocketUpgradeConfig;
     }
 
-    public static HttpService buildHttpService(Service service) {
+    public static List<HttpService> buildHttpService(Service service) {
+        List<HttpService> serviceList = new ArrayList<>();
+        List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
         Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
 
         if (serviceConfigAnnotation == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
-            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
+//            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
+            basePathList.add(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
         } else {
             Struct serviceConfig = serviceConfigAnnotation.getValue();
-            httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
+
             httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
             httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
+
+            String basePath = serviceConfig.getStringField(BASE_PATH_FIELD);
+            if (basePath.contains(HttpConstants.VERSION)) {
+                prepareBasePathList(serviceConfig.getStructField(VERSIONING_FIELD),
+                                    serviceConfig.getStringField(BASE_PATH_FIELD), basePathList,
+                                    httpService.getBallerinaService().getPackageVersion());
+            } else {
+                basePathList.add(basePath);
+            }
+//            httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
+
+
         }
 
         List<HttpResource> resources = new ArrayList<>();
@@ -186,10 +203,55 @@ public class HttpService {
             }
             resources.add(httpResource);
         }
-        httpService.setResources(resources);
         httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
+        httpService.setResources(resources);
 
-        return httpService;
+        for(String basePath : basePathList) {
+            httpService.setBasePath(basePath);
+            serviceList.add(httpService);
+        }
+        return serviceList;
+    }
+
+    private static void prepareBasePathList(Struct versioningConfig, String basePath, List<String> basePathList,
+                                            String packageVersion) {
+        String basePathCopy = basePath;
+        String patternAnnotValue = HttpConstants.DEFAULT_VERSION;
+        Boolean allowNoVersionAnnotValue = false;
+        Boolean matchMajorVersionAnnotValue = false;
+        if (versioningConfig != null) {
+            //test this with/without field
+            patternAnnotValue = versioningConfig.getStringField(HttpConstants.ANN_CONFIG_ATTR_PATTERN);
+            allowNoVersionAnnotValue = versioningConfig.getBooleanField(HttpConstants.ANN_CONFIG_ATTR_ALLOW_NO_VERSION);
+            matchMajorVersionAnnotValue = versioningConfig.getBooleanField(
+                    HttpConstants.ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION);
+        }
+        basePathList.add(replaceServiceVersion(basePathCopy, packageVersion, patternAnnotValue));
+
+        if (allowNoVersionAnnotValue) {
+            String versionLessBasePath = basePath;
+            basePathList.add(versionLessBasePath.replace(HttpConstants.VERSION, "").replace("//", "/"));
+        }
+        if (matchMajorVersionAnnotValue) {
+            patternAnnotValue.replace("." + HttpConstants.MINOR_VERSION, "");
+            basePathList.add(replaceServiceVersion(basePath, packageVersion, patternAnnotValue));
+        }
+    }
+
+    private static String replaceServiceVersion(String basePath, String version, String pattern) {
+        pattern = pattern.toLowerCase();
+        String[] versionElements = version.split(".");
+        String majorVersion = versionElements[0] != null ? versionElements[0] : "";
+        String minorVersion = versionElements[1] != null ? versionElements[1] : "";
+
+        if (pattern.contains(HttpConstants.MAJOR_VERSION) || pattern.contains(HttpConstants.MINOR_VERSION)) {
+            String patternReplaced = pattern.replace(HttpConstants.MAJOR_VERSION, majorVersion);
+            String result = patternReplaced.replace(HttpConstants.MINOR_VERSION, minorVersion);
+
+            return basePath.replace(HttpConstants.VERSION, result);
+        }
+        throw new BallerinaConnectorException("Invalid versioning pattern: expect \"" + HttpConstants.MAJOR_VERSION +
+                                              "," + HttpConstants.MINOR_VERSION + "\" elements");
     }
 
     private static Annotation getHttpServiceConfigAnnotation(Service service) {
