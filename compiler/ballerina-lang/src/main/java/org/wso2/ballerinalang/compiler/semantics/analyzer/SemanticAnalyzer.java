@@ -682,9 +682,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (!Names.IGNORE.equals(varName) && simpleVarRef.symbol.flags == Flags.CONST
+        if (!Names.IGNORE.equals(varName) && (simpleVarRef.symbol.flags & Flags.CONST) == Flags.CONST
                 && env.enclInvokable != env.enclPkg.initFunction) {
-            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_CONSTANT, varRef);
+            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+        }
+    }
+
+    private void checkReadonlyAssignment(BLangExpression varRef) {
+        if (varRef.type == symTable.errType) {
+            return;
+        }
+
+        BLangVariableReference varRefExpr = (BLangVariableReference) varRef;
+        if (varRefExpr.symbol != null) {
+            if (env.enclPkg.symbol.pkgID != varRefExpr.symbol.pkgID && varRefExpr.lhsVar
+                    && (varRefExpr.symbol.flags & Flags.READONLY) == Flags.READONLY) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_READONLY, varRefExpr);
+            }
         }
     }
 
@@ -1683,6 +1697,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
             return symTable.errType;
         }
+
+        //Check whether this is an readonly field.
+        checkReadonlyAssignment(varRefExpr);
 
         checkConstantAssignment(varRefExpr);
         return varRefExpr.type;
