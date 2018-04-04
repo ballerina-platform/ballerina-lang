@@ -121,8 +121,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private static final String ANNOTATION_READONLY = "readonly";
-
     private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
     private final Names names;
@@ -635,8 +633,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         //Check annotations attached to the variable
         if (varNode.annAttachments.size() > 0) {
-            if (hasAnnotation(varNode.annAttachments, ANNOTATION_READONLY)) {
+            if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_FINAL.getValue())) {
                 varNode.flagSet.add(Flag.READONLY);
+            }
+            if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_READONLY.getValue())) {
+                varNode.flagSet.add(Flag.CONST);
             }
         }
 

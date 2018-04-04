@@ -336,6 +336,16 @@ public class Desugar extends BLangNodeVisitor {
         Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
 
+        //write closure vars
+        funcNode.closureVarList.stream()
+                .filter(var -> !funcNode.requiredParams.contains(var))
+                .forEach(var -> {
+                    BVarSymbol closureVarSymbol = var.symbol;
+                    closureVarSymbol.closure = true;
+                    funcNode.symbol.params.add(0, closureVarSymbol);
+                    ((BInvokableType) funcNode.symbol.type).paramTypes.add(0, closureVarSymbol.type);
+                });
+
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
 

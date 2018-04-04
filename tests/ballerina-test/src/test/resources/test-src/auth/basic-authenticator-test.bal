@@ -2,6 +2,7 @@ import ballerina/auth.basic;
 import ballerina/auth.userstore;
 import ballerina/caching;
 import ballerina/auth.utils;
+import ballerina/runtime;
 
 function testBasicAuthenticatorCreationWithoutCache () returns (basic:BasicAuthenticator, userstore:UserStore,
                                                                caching:Cache|null) {
@@ -30,10 +31,22 @@ function testAuthenticationWithWrongPassword () returns (boolean) {
     return authenticator.authenticate("isuru", "pqr");
 }
 
+function testUsernameInAuthContextWithAuthenticationFailure () returns (string) {
+    userstore:FilebasedUserstore fileBasedUserstore = {};
+    basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, {});
+    _ = authenticator.authenticate("isuru", "pqr");
+    return runtime:getInvocationContext().authenticationContext.username;
+}
+
 function testAuthenticationSuccess () returns (boolean) {
     userstore:FilebasedUserstore fileBasedUserstore = {};
     basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, {});
     return authenticator.authenticate("isuru", "xxx");
 }
 
-
+function testUsernameInAuthContextWithAuthenticationSuccess () returns (string) {
+    userstore:FilebasedUserstore fileBasedUserstore = {};
+    basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, {});
+    _ = authenticator.authenticate("isuru", "xxx");
+    return runtime:getInvocationContext().authenticationContext.username;
+}
