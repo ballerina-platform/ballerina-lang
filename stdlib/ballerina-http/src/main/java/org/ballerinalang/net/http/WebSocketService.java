@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class WebSocketService implements Service {
     private final int idleTimeoutInSeconds;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
+    private Resource upgradeResource;
 
     public WebSocketService(Service service) {
         this.service = service;
@@ -56,6 +58,21 @@ public class WebSocketService implements Service {
             negotiableSubProtocols = null;
             idleTimeoutInSeconds = 0;
         }
+        basePath = findFullWebSocketUpgradePath(this);
+        upgradeResource = null;
+    }
+
+    public WebSocketService(String httpBasePath, Resource upgradeResource, Service service) {
+        this(service);
+        Annotation resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(upgradeResource);
+        if (resourceConfigAnnotation == null) {
+            throw new BallerinaException("Cannot find a resource config for resource " + upgradeResource.getName());
+        }
+        Struct webSocketConfig =
+                resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
+        String upgradePath = webSocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
+        this.basePath = httpBasePath.concat(upgradePath);
+        this.upgradeResource = upgradeResource;
     }
 
     @Override
@@ -96,6 +113,10 @@ public class WebSocketService implements Service {
         return negotiableSubProtocols;
     }
 
+    public Resource getUpgradeResource() {
+        return upgradeResource;
+    }
+
     public int getIdleTimeoutInSeconds() {
         return idleTimeoutInSeconds;
     }
@@ -129,7 +150,24 @@ public class WebSocketService implements Service {
         return basePath;
     }
 
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
+    /**
+     * Find the Full path for WebSocket upgrade.
+     *
+     * @param service {@link WebSocketService} which the full path should be found.
+     * @return the full path of the WebSocket upgrade.
+     */
+    private String findFullWebSocketUpgradePath(WebSocketService service) {
+        // Find Base path for WebSocket
+        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service,
+                                                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        String basePath = null;
+        if (configAnnotation != null) {
+            Struct annStruct = configAnnotation.getValue();
+            String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
+            if (annotationValue != null && !annotationValue.trim().isEmpty()) {
+                basePath = WebSocketUtil.refactorUri(annotationValue);
+            }
+        }
+        return basePath;
     }
 }

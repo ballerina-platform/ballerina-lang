@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -119,6 +120,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
+
+    private static final String ANNOTATION_READONLY = "readonly";
 
     private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
@@ -629,6 +632,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             // e.g. function foo() (int);
             return;
         }
+
+        //Check annotations attached to the variable
+        if (varNode.annAttachments.size() > 0) {
+            if (hasAnnotation(varNode.annAttachments, ANNOTATION_READONLY)) {
+                varNode.flagSet.add(Flag.READONLY);
+            }
+        }
+
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
                 varNode.type, varName, env);
         varSymbol.docTag = varNode.docTag;
@@ -697,6 +708,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             pSymbol.scope = new Scope(pSymbol);
         }
         return pSymbol;
+    }
+
+    private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
+        return annotationAttachmentList.stream()
+                .filter(annotation -> annotation.annotationName.value.equals(expectedAnnotation)).count() > 0;
     }
 
     /**

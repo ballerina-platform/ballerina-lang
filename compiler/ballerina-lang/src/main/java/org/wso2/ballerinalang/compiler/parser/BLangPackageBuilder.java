@@ -1371,6 +1371,7 @@ public class BLangPackageBuilder {
                                   boolean publicVar,
                                   boolean safeAssignment) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+        attachAnnotations(var);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }

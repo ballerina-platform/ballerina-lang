@@ -14,25 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.runtime;
+package ballerina.builtin;
 
-@Description { value:"Represents the InvocationContext"}
-public struct InvocationContext {
-    string invocationId;
-    AuthenticationContext authenticationContext;
-}
-
-@Description { value:"Represents the AuthenticationContext, populated with authenticated user information"}
-public struct AuthenticationContext {
-    string userId;
-    string username;
-    string[] groups;
-    map claims;
-    string[] scopes;
-    string authType;
-    string authToken;
-}
-
-@Description {value:"Creates a InvocationContext instance"}
-@Return {value:"InvocationContext instance"}
-public native function getInvocationContext () returns (InvocationContext);
+public annotation readonly;
