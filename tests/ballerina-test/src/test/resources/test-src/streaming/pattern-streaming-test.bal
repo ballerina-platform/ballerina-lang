@@ -32,8 +32,7 @@ struct RegulatorInfo {
 
 struct TempDiffInfo {
     int roomNo;
-    float temp1;
-    float temp2;
+    float tempDifference;
 }
 
 TempDiffInfo [] tempDiffInfoArray = [];
@@ -56,7 +55,7 @@ function testPatternQueryEveryWithFollowedBy () {
 
 function printTempDifference (TempDiffInfo tempDiff) {
     io:println("printTemoDifference function invoked for Room:" + tempDiff.roomNo +" and temp difference :" +
-               tempDiff.temp1 + ",,," + tempDiff.temp2);
+               + tempDiff.tempDifference);
     addToGlobalTempDiffArray(tempDiff);
 }
 
