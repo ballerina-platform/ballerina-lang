@@ -37,7 +37,7 @@ import javax.websocket.Session;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "closeConnection",
+        functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina.http"),
         args = {
@@ -46,7 +46,7 @@ import javax.websocket.Session;
                 @Argument(name = "reason", type = TypeKind.STRING)
         }
 )
-public class CloseConnection extends BlockingNativeCallableUnit {
+public class Close extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

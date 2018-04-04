@@ -169,6 +169,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -2090,6 +2091,13 @@ public class BLangPackageBuilder {
         abortNode.pos = pos;
         abortNode.addWS(ws);
         addStmtToCurrentBlock(abortNode);
+    }
+    
+    public void addDoneStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangDone doneNode = (BLangDone) TreeBuilder.createDoneNode();
+        doneNode.pos = pos;
+        doneNode.addWS(ws);
+        addStmtToCurrentBlock(doneNode);
     }
 
     public void addFailStatement(DiagnosticPos pos, Set<Whitespace> ws) {
