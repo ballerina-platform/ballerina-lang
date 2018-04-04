@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -74,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -118,6 +120,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
+
+    private static final String ANNOTATION_READONLY = "readonly";
+    private static final String ANNOTATION_FINAL = "final";
 
     private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
@@ -186,6 +191,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define struct nodes.
         pkgNode.enums.forEach(enumNode -> defineNode(enumNode, pkgEnv));
 
+        // Define record nodes.
+        pkgNode.records.forEach(typeNode -> defineNode(typeNode, pkgEnv));
+
         // Define struct nodes.
         pkgNode.structs.forEach(struct -> defineNode(struct, pkgEnv));
 
@@ -203,6 +211,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
+
+        // Define struct field nodes.
+        defineRecordFields(pkgNode.records, pkgEnv);
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
@@ -379,6 +390,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create struct type
         objectNode.symbol.type = new BStructType((BTypeSymbol) objectNode.symbol);
         defineSymbol(objectNode.pos, objectSymbol);
+    }
+
+    @Override
+    public void visit(BLangRecord record) {
+        BSymbol structSymbol = Symbols.createRecordSymbol(Flags.asMask(record.flagSet),
+                names.fromIdNode(record.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        record.symbol = structSymbol;
+        // Create record type
+        record.symbol.type = new BStructType((BTypeSymbol) record.symbol);
+        defineSymbol(record.pos, structSymbol);
     }
 
     @Override
@@ -612,6 +633,17 @@ public class SymbolEnter extends BLangNodeVisitor {
             // e.g. function foo() (int);
             return;
         }
+
+        //Check annotations attached to the variable
+        if (varNode.annAttachments.size() > 0) {
+            if (hasAnnotation(varNode.annAttachments, ANNOTATION_READONLY)) {
+                varNode.flagSet.add(Flag.READONLY);
+            }
+            if (hasAnnotation(varNode.annAttachments, ANNOTATION_FINAL)) {
+                varNode.flagSet.add(Flag.CONST);
+            }
+        }
+
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
                 varNode.type, varName, env);
         varSymbol.docTag = varNode.docTag;
@@ -682,6 +714,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         return pSymbol;
     }
 
+    private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
+        return annotationAttachmentList.stream()
+                .filter(annotation -> annotation.annotationName.value.equals(expectedAnnotation)).count() > 0;
+    }
+
     /**
      * Visit each compilation unit (.bal file) and add each top-level node
      * in the compilation unit to the package node.
@@ -750,6 +787,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // TODO
                 pkgNode.annotations.add((BLangAnnotation) node);
                 break;
+            case RECORD:
+                pkgNode.records.add((BLangRecord) node);
+                break;
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
                 break;
@@ -760,6 +800,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.globalEndpoints.add((BLangEndpoint) node);
                 break;
         }
+    }
+
+    private void defineRecordFields(List<BLangRecord> recordNodes, SymbolEnv pkgEnv) {
+        recordNodes.forEach(record -> {
+            // Create record type
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(record, record.symbol.scope, pkgEnv);
+            BStructType structType = (BStructType) record.symbol.type;
+            structType.fields = record.fields.stream()
+                    .peek(field -> defineNode(field, structEnv))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
+                    .collect(Collectors.toList());
+        });
+
+        // define init function
+        recordNodes.forEach(record -> {
+            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(record, record.symbol.scope, pkgEnv);
+            defineRecordInitFunction(record, structEnv);
+        });
     }
 
     private void defineStructFields(List<BLangStruct> structNodes, SymbolEnv pkgEnv) {
@@ -981,7 +1039,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         initFunction.attachedFunction = true;
 
         //Set cached receiver to the init function
-        initFunction.receiver = object.receiver;
+        initFunction.receiver = createReceiver(object.pos, object.name);
+        object.functions.forEach(f -> f.setReceiver(createReceiver(object.pos, object.name)));
 
         initFunction.flagSet.add(Flag.ATTACHED);
 
@@ -1000,13 +1059,27 @@ public class SymbolEnter extends BLangNodeVisitor {
             struct.initFunction = createInitFunction(struct.pos, struct.name.value, Names.INIT_FUNCTION_SUFFIX);
         }
 
-        struct.initFunction.receiver = createReceiver(struct);
+        struct.initFunction.receiver = createReceiver(struct.pos, struct.name);
         struct.initFunction.attachedFunction = true;
         struct.initFunction.flagSet.add(Flag.ATTACHED);
 
         // Adding struct level variables to the init function is done at desugar phase
 
         defineNode(struct.initFunction, conEnv);
+    }
+
+    private void defineRecordInitFunction(BLangRecord record, SymbolEnv conEnv) {
+        if (record.initFunction == null) {
+            record.initFunction = createInitFunction(record.pos, record.name.value, Names.INIT_FUNCTION_SUFFIX);
+        }
+
+        record.initFunction.receiver = createReceiver(record.pos, record.name);
+        record.initFunction.attachedFunction = true;
+        record.initFunction.flagSet.add(Flag.ATTACHED);
+
+        // Adding record level variables to the init function is done at desugar phase
+
+        defineNode(record.initFunction, conEnv);
     }
 
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
@@ -1033,6 +1106,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 validateFunctionsAttachedToStructs(funcNode, funcSymbol, invokableEnv);
             } else if (typeSymbol.tag == SymTag.OBJECT) {
                 validateFunctionsAttachedToObject(funcNode, funcSymbol, invokableEnv);
+            } else if (typeSymbol.tag == SymTag.RECORD) {
+                validateFunctionsAttachedToStructs(funcNode, funcSymbol, invokableEnv);
             }
         }
 
@@ -1143,16 +1218,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private BLangVariable createReceiver(BLangStruct struct) {
+    private BLangVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
         BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-        receiver.pos = struct.pos;
-        IdentifierNode name = createIdentifier(Names.SELF.getValue());
-        receiver.setName(name);
+        receiver.pos = pos;
+        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
+        receiver.setName(identifier);
         receiver.docTag = DocTag.RECEIVER;
 
         BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         structTypeNode.pkgAlias = new BLangIdentifier();
-        structTypeNode.typeName = struct.name;
+        structTypeNode.typeName = name;
         receiver.setTypeNode(structTypeNode);
         return receiver;
     }

@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-observe</artifactId>
+            <artifactId>ballerina-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.uber.jaeger</groupId>
@@ -153,6 +153,26 @@
                                 <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
                             </resourceBundles>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- For ballerina annotation processing -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>${mvn.processor.plugin.version}</version>
+                <configuration>
+                    <processors>
+                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
+                    </processors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
                     </execution>
                 </executions>
             </plugin>

@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -99,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -122,6 +124,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -321,6 +324,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         objectNode.functions.forEach(f -> analyzeNode(f, objectEnv));
     }
 
+    public void visit(BLangRecord recordNode) {
+        BSymbol objectSymbol = recordNode.symbol;
+        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
+        recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        analyzeNode(recordNode.initFunction, objectEnv);
+    }
+
     public void visit(BLangEnum enumNode) {
         enumNode.symbol.tainted = false;
     }
@@ -485,6 +495,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAbort abortNode) {
+        /* ignore */
+    }
+    
+    public void visit(BLangDone abortNode) {
         /* ignore */
     }
 
@@ -689,6 +703,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangPatternStreamingInput patternStreamingInput) {
+        /* ignore */
+    }
+
+    public void visit(BLangTableLiteral tableLiteral) {
         /* ignore */
     }
 
@@ -1003,12 +1021,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        /* ignore */
+        bLangMatchExpression.expr.accept(this);
     }
 
     @Override
-    public void visit(BLangCheckedExpr checkedExpr) {
-        /* ignore */
+    public void visit(BLangCheckedExpr match) {
+        match.expr.accept(this);
     }
 
     // Private
@@ -1558,9 +1576,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
                 if (retParamIsAnnotated) {
                     attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
-                    this.dlog.warning(blockedNode.invokableNode.pos,
-                            DiagnosticCode.PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS,
-                            blockedNode.invokableNode.name.value);
                     return true;
                 }
             }

@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/http;
 import ballerina/mime;
 
 function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {

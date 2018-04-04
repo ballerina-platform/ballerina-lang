@@ -25,7 +25,7 @@ package ballerina.http;
 @Field {value:"basePath: Service base path"}
 @Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
-@Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
+@Field {value:"versioning: The versioning configurations for the service"}
 public struct HttpServiceConfig {
     ServiceEndpoint[] endpoints;
     HttpServiceLifeTime lifetime;
@@ -33,7 +33,6 @@ public struct HttpServiceConfig {
     Compression compression;
     CorsConfig cors;
     Versioning versioning;
-    WebSocketUpgradeConfig|null webSocketUpgrade;
 }
 
 public function <HttpServiceConfig config> HttpServiceConfig() {
@@ -71,12 +70,6 @@ public struct Versioning {
     boolean allowNoVersion;
     boolean matchMajorVersion;
 }
-
-public struct WebSocketUpgradeConfig {
-    string upgradePath;
-    typedesc upgradeService;
-}
-
 
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value: "endpoints: An array of endpoints the service would be attached to"}
@@ -119,6 +112,7 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 @Field {value:"consumes: The media types which are accepted by resource"}
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
+@Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpResourceConfig {
     string[] methods;
     string path;
@@ -127,6 +121,12 @@ public struct HttpResourceConfig {
     string[] produces;
     CorsConfig cors;
     boolean transactionInfectable;
+    WebSocketUpgradeConfig|null webSocketUpgrade;
+}
+
+public struct WebSocketUpgradeConfig {
+    string upgradePath;
+    typedesc upgradeService;
 }
 
 public function <HttpResourceConfig config> HttpResourceConfig() {

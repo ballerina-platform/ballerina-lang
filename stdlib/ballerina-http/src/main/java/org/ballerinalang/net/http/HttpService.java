@@ -55,15 +55,15 @@ public class HttpService implements Cloneable {
     private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
     private static final String VERSIONING_FIELD = "versioning";
-    private static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
+    protected static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
 
     private Service balService;
     private List<HttpResource> resources;
+    private List<Resource> upgradeToWebSocketResources;
     private List<String> allAllowedMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
-    private Struct webSocketUpgradeConfig;
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
 
@@ -149,19 +149,20 @@ public class HttpService implements Cloneable {
         }
     }
 
+    public List<Resource> getUpgradeToWebSocketResources() {
+        return upgradeToWebSocketResources;
+    }
+
+    public void setUpgradeToWebSocketResources(
+            List<Resource> upgradeToWebSocketResources) {
+        this.upgradeToWebSocketResources = upgradeToWebSocketResources;
+    }
+
     public URITemplate<HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
             uriTemplate = new URITemplate<>(new Literal<>(new HttpResourceDataElement(), "/"));
         }
         return uriTemplate;
-    }
-
-    public Struct getWebSocketUpgradeConfig() {
-        return webSocketUpgradeConfig;
-    }
-
-    public void setWebSocketUpgradeConfig(Struct webSocketUpgradeConfig) {
-        this.webSocketUpgradeConfig = webSocketUpgradeConfig;
     }
 
     public static List<HttpService> buildHttpService(Service service) {
@@ -180,7 +181,6 @@ public class HttpService implements Cloneable {
 
             httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
-            httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
 
             String basePath = serviceConfig.getStringField(BASE_PATH_FIELD);
             if (basePath.contains(HttpConstants.VERSION)) {
@@ -192,18 +192,27 @@ public class HttpService implements Cloneable {
             }
         }
 
-        List<HttpResource> resources = new ArrayList<>();
+        List<HttpResource> httpResources = new ArrayList<>();
+        List<Resource> upgradeToWebSocketResources = new ArrayList<>();
         for (Resource resource : httpService.getBallerinaService().getResources()) {
-            HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
-            try {
-                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
-                                                   new HttpResourceElementFactory());
-            } catch (URITemplateException | UnsupportedEncodingException e) {
-                throw new BallerinaConnectorException(e.getMessage());
+            Annotation resourceConfigAnnotation =
+                    HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
+            if (resourceConfigAnnotation != null
+                    && resourceConfigAnnotation.getValue().getStructField(WEBSOCKET_UPGRADE_FIELD) != null) {
+                upgradeToWebSocketResources.add(resource);
+            } else {
+                HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
+                try {
+                    httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
+                                                       new HttpResourceElementFactory());
+                } catch (URITemplateException | UnsupportedEncodingException e) {
+                    throw new BallerinaConnectorException(e.getMessage());
+                }
+                httpResources.add(httpResource);
             }
-            resources.add(httpResource);
         }
-        httpService.setResources(resources);
+        httpService.setResources(httpResources);
+        httpService.setUpgradeToWebSocketResources(upgradeToWebSocketResources);
         httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
 
         if (basePathList.size() == 1) {

@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -78,6 +79,7 @@ import org.ballerinalang.model.tree.expressions.RestArgsNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.StatementExpressionNode;
 import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
+import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
@@ -99,6 +101,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
+import org.ballerinalang.model.tree.statements.DoneNode;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
 import org.ballerinalang.model.tree.statements.FailNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
@@ -146,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -193,6 +197,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -215,6 +220,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -333,6 +339,10 @@ public class TreeBuilder {
         return new BLangRecordLiteral.BLangRecordKeyValue();
     }
 
+    public static TableLiteralNode createTableLiteralNode() {
+        return new BLangTableLiteral();
+    }
+
     public static VariableDefinitionNode createVariableDefinitionNode() {
         return new BLangVariableDef();
     }
@@ -367,6 +377,10 @@ public class TreeBuilder {
 
     public static FunctionTypeNode createFunctionTypeNode() {
         return new BLangFunctionTypeNode();
+    }
+
+    public static RecordNode createRecordNode() {
+        return new BLangRecord();
     }
 
     public static SimpleVariableReferenceNode createSimpleVariableReferenceNode() {
@@ -471,6 +485,10 @@ public class TreeBuilder {
 
     public static AbortNode createAbortNode() {
         return new BLangAbort();
+    }
+    
+    public static DoneNode createDoneNode() {
+        return new BLangDone();
     }
 
     public static FailNode createFailNode() {

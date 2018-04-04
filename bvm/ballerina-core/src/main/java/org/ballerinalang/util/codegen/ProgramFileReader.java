@@ -210,7 +210,7 @@ public class ProgramFileReader {
                 int versionCPIndex = dataInStream.readInt();
                 UTF8CPEntry utf8VersionCPEntry = (UTF8CPEntry) constantPool.getCPEntry(versionCPIndex);
                 return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue(), versionCPIndex,
-                                             utf8VersionCPEntry.getValue());
+                        utf8VersionCPEntry.getValue());
 
             case CP_ENTRY_FUNCTION_REF:
                 pkgCPIndex = dataInStream.readInt();
@@ -1388,6 +1388,20 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
 
+                case InstructionCodes.FPLOAD: {
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    int[] operands = new int[3 + (k * 2)];
+                    operands[0] = i;
+                    operands[1] = j;
+                    operands[2] = k;
+                    for (int x = 0; x < (k * 2); x++) {
+                        operands[x + 3] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+                    break;
+                }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
@@ -1417,7 +1431,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
-                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:
@@ -1446,7 +1459,6 @@ public class ProgramFileReader {
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
@@ -1583,6 +1595,7 @@ public class ProgramFileReader {
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

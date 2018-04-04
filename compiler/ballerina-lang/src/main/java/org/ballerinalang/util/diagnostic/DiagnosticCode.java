@@ -73,10 +73,12 @@ public enum DiagnosticCode {
     INVALID_RETRY_COUNT("invalid.retry.count"),
 
     // Service, endpoint related errors codes
-    SERVICE_STRUCT_TYPE_REQUIRED("service.struct.type.required"),
-    SERVICE_INVALID_STRUCT_TYPE("service.invalid.struct.type"),
+    SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
+    SERVICE_INVALID_OBJECT_TYPE("service.invalid.object.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
-    ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
+    SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS("service.service.type.required.anonymous"),
+    ENDPOINT_OBJECT_TYPE_REQUIRED("endpoint.object.type.required"),
+    ENDPOINT_OBJECT_NEW_HAS_PARAM("endpoint.object.new.has.param"),
     ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
@@ -141,7 +143,8 @@ public enum DiagnosticCode {
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
-    CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.to.constant"),
+    CANNOT_ASSIGN_VALUE_READONLY("cannot.assign.value.to.readonly.field"),
+    CANNOT_ASSIGN_VALUE_FINAL("cannot.assign.value.to.final.field"),
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
@@ -150,6 +153,10 @@ public enum DiagnosticCode {
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
+    INVALID_ANY_VAR_DEF("invalid.any.var.def"),
+    INVALID_RECORD_LITERAL("invalid.record.literal"),
+    INVALID_ARRAY_LITERAL("invalid.array.literal"),
+    INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -208,7 +215,6 @@ public enum DiagnosticCode {
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
-    PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS("partial.taint.checking.done.with.return.annotations"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
     ;
 

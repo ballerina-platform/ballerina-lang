@@ -50,7 +50,7 @@ public class Ping extends BlockingNativeCallableUnit {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
             byte[] binaryData = context.getBlobArgument(0);
-            session.getBasicRemote().sendPing(ByteBuffer.wrap(binaryData));
+            session.getAsyncRemote().sendPing(ByteBuffer.wrap(binaryData));
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }

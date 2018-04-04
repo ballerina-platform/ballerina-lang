@@ -28,6 +28,7 @@ import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.runtime.message.MessageDataSource;
@@ -36,6 +37,7 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -93,7 +95,7 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
     }
 
     /**
-     * Serlaize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
+     * Serialize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
      * if it exist as a byte channel.
      *
      * @param responseMessage          Response message that needs to be sent out.
@@ -151,9 +153,16 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private OutputStream getOutputStream(HTTPCarbonMessage responseMessage, HttpResponseFuture
+    private OutputStream getOutputStream(HTTPCarbonMessage outboundResponse, HttpResponseFuture
             outboundResponseStatusFuture) {
-        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(responseMessage);
+        final HttpMessageDataStreamer outboundMsgDataStreamer;
+        final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
+                outboundResponse.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
+        if (pooledDataStreamerFactory != null) {
+            outboundMsgDataStreamer = pooledDataStreamerFactory.createHttpDataStreamer(outboundResponse);
+        } else {
+            outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundResponse);
+        }
         HttpConnectorListener outboundResStatusConnectorListener =
                 new HttpResponseConnectorListener(outboundMsgDataStreamer);
         outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);

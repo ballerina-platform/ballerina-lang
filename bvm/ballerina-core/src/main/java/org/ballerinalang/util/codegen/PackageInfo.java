@@ -88,8 +88,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return pkgVersion;
     }
 
-    // CP
-
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {
             return constantPoolEntries.indexOf(cpEntry);
