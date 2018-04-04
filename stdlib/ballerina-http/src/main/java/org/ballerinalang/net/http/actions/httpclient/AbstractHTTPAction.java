@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http.actions.httpclient;
 
 import io.netty.handler.codec.EncoderException;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
