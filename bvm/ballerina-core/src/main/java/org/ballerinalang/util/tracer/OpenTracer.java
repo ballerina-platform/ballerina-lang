@@ -23,7 +23,8 @@ import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 import java.util.Properties;
 
 /**
- * This is the interface that OpenTracerManager will be using to obtain the {@link Tracer} implementation.
+ * This represents the Java SPI interface that OpenTracerManager will be using
+ * to obtain the {@link Tracer} implementation.
  */
 public interface OpenTracer {
 
@@ -38,4 +39,11 @@ public interface OpenTracer {
      */
     Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
             throws InvalidConfigurationException;
+
+    /**
+     * Returns the name of the tracer. This will be used when loading the tracer by name.
+     *
+     * @return tracer name.
+     */
+    String getName();
 }

@@ -190,7 +190,7 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Function') {
-            if (node.returnTypeNode.typeKind !== 'nil') {
+            if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
                 node.hasReturns = true;
             }
         }
