@@ -30,7 +30,7 @@ type DummyEndpoint object {
     }
 }
 
-public struct DummyEndpointConfig {
+public type DummyEndpointConfig {
     string conf1;
     boolean conf2;
     int conf3;

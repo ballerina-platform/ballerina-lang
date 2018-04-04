@@ -129,12 +129,12 @@ ForkJoin
    ;
 
 Function
-   : <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   | <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <body.source> <workers>* }
-   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
+   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
+   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
    ;
 
 FunctionType

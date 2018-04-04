@@ -94,8 +94,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
-        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
-        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         // invoke the request path filters
         invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource));
@@ -132,7 +130,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
+    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
@@ -150,6 +148,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;
         }
+        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
+        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
+        properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
+                httpCarbonMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
         return properties;
     }
 

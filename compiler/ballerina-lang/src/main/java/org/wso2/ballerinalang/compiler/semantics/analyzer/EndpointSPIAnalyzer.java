@@ -178,7 +178,8 @@ public class EndpointSPIAnalyzer {
         // validate init function.
         final BStructSymbol.BAttachedFunction init = ep.attachedFunctionMap.get(EP_SPI_INIT);
         if (init.type.getParameterTypes().size() != 1 || init.type.retType != symTable.nilType
-                || init.type.getParameterTypes().get(0).tag != TypeTags.STRUCT) {
+                || init.type.getParameterTypes().get(0).tag != TypeTags.STRUCT
+                || ((BStructSymbol) init.type.getParameterTypes().get(0).tsymbol).isObject) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_INIT);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
             return;
