@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
 
 /**
  * This function which implements the finishSpan method for tracing.

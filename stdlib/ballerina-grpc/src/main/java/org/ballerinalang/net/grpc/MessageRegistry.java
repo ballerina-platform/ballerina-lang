@@ -45,7 +45,7 @@ public class MessageRegistry {
         messageDescriptors.put(messageName, messageDescriptor);
     }
 
-    public Descriptors.Descriptor getMessageDecriptor(String messageName) {
+    public Descriptors.Descriptor getMessageDescriptor(String messageName) {
         return messageDescriptors.get(messageName);
     }
 

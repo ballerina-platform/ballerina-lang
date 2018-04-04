@@ -24,7 +24,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.GRPC_SERVER;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_BUILDER;
 
 /**
- * Actract class of gRPC service endpoint native functions.
+ * Abstract class of gRPC service endpoint native functions.
  *
  * @since 1.0.0
  */

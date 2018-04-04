@@ -94,6 +94,8 @@ public class PackageInfoWriter {
                 case CP_ENTRY_PACKAGE:
                     nameCPIndex = ((PackageRefCPEntry) cpEntry).nameCPIndex;
                     dataOutStream.writeInt(nameCPIndex);
+                    int versionCPIndex = ((PackageRefCPEntry) cpEntry).versionCPIndex;
+                    dataOutStream.writeInt(versionCPIndex);
                     break;
                 case CP_ENTRY_FUNCTION_REF:
                     FunctionRefCPEntry funcRefEntry = (FunctionRefCPEntry) cpEntry;

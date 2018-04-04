@@ -24,6 +24,7 @@ public enum SymbolKind {
     PACKAGE,
     STRUCT,
     OBJECT,
+    RECORD,
     ENUM,
     CONNECTOR,
     ACTION,

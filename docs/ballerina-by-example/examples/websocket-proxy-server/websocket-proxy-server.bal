@@ -12,13 +12,13 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 
     string remoteUrl = "wss://echo.websocket.org";
 
-    @Description {value:"Create a client connection to remote server from ballerina when new client connects to this service endpoint."}
+    @Description {value:"Create a client connection to a remote server from Ballerina when a new client connects to this service endpoint."}
     onUpgrade (endpoint ep, http:Request req) {
         endpoint http:WebSocketClient wsEndpoint {
             url:remoteUrl,
             callbackService:typeof ClientService
         };
-        ep -> upgradeToWebSocket({"custom":"header"});
+        ep = ep -> upgradeToWebSocket({"custom":"header"});
         ep.attributes[ASSOCIATED_CONNECTION] = wsEndpoint;
         wsEndpoint.attributes[ASSOCIATED_CONNECTION] = ep;
     }

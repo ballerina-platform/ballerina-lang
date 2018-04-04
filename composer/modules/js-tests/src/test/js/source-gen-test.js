@@ -93,8 +93,15 @@ function ballerinaASTDeserializer(filePath, pretty, content) {
     let cached = promisers[filePath];
     if (!cached) {
         const fileContent = content || readFile(filePath);
+        const fileName = path.basename(filePath).split('.');
+        const file = {
+            content: fileContent,
+            path: path.dirname(filePath),
+            name: fileName[0],
+            extension: fileName[1],
+        }
         cached = new Promise((resolve, reject) => {
-            parseContent(fileContent)
+            parseFile(file)
                 .then((parsedJson) => {
                     if (!parsedJson.model) {
                         console.log(parsedJson);

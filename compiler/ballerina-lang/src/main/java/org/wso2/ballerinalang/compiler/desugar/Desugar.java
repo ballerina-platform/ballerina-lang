@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -99,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -255,6 +256,11 @@ public class Desugar extends BLangNodeVisitor {
         //Rewriting Object to struct
         pkgNode.objects.forEach(o -> pkgNode.structs.add(rewriteObjectToStruct(o, env)));
 
+        //Rewriting Record to struct
+        pkgNode.records.forEach(o -> pkgNode.structs.add(rewriteRecordToStruct(o, env)));
+
+        pkgNode.records.forEach(record -> pkgNode.functions.add(record.initFunction));
+
         pkgNode.structs = rewrite(pkgNode.structs, env);
         // Adding struct init functions to package level.
         pkgNode.structs.forEach(struct -> {
@@ -375,6 +381,20 @@ public class Desugar extends BLangNodeVisitor {
         bLangStruct.deprecatedAttachments = rewrite(objectNode.deprecatedAttachments, env);
         bLangStruct.isAnonymous = objectNode.isAnonymous;
         bLangStruct.symbol = objectNode.symbol;
+
+        return bLangStruct;
+    }
+
+    private BLangStruct rewriteRecordToStruct(BLangRecord recordNode, SymbolEnv env) {
+        BLangStruct bLangStruct = (BLangStruct) TreeBuilder.createStructNode();
+        bLangStruct.name = recordNode.name;
+        bLangStruct.fields = recordNode.fields;
+        bLangStruct.initFunction = recordNode.initFunction;
+        bLangStruct.annAttachments = recordNode.annAttachments;
+        bLangStruct.docAttachments = rewrite(recordNode.docAttachments, env);
+        bLangStruct.deprecatedAttachments = rewrite(recordNode.deprecatedAttachments, env);
+        bLangStruct.isAnonymous = recordNode.isAnonymous;
+        bLangStruct.symbol = recordNode.symbol;
 
         return bLangStruct;
     }
@@ -894,8 +914,6 @@ public class Desugar extends BLangNodeVisitor {
             expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
             expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
-        } else if (recordLiteral.type.tag == TypeTags.TABLE) {
-            expr = new BLangTableLiteral(recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
             expr = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
         } else {
@@ -907,6 +925,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        tableLiteral.configurationExpr = rewriteExpr(tableLiteral.configurationExpr);
         result = tableLiteral;
     }
 
@@ -2136,8 +2155,6 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
-            case TypeTags.TABLE:
-                return new BLangTableLiteral(type);
             case TypeTags.STREAM:
                 return new BLangStreamLiteral(type, null);
             case TypeTags.MAP:
