@@ -291,6 +291,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         }
+        //set function param flag to final
+        funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
@@ -682,9 +684,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (!Names.IGNORE.equals(varName) && (simpleVarRef.symbol.flags & Flags.CONST) == Flags.CONST
-                && env.enclInvokable != env.enclPkg.initFunction) {
-            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+        if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
+            if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+            } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
+            }
         }
     }
 
@@ -1562,7 +1567,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
         } else if (retryKind == NodeKind.SIMPLE_VARIABLE_REF) {
-            if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.CONST) {
+            if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.FINAL) {
                 if (((BLangSimpleVarRef) retryCountExpr).symbol.type.tag == TypeTags.INT) {
                     error = false;
                 }
