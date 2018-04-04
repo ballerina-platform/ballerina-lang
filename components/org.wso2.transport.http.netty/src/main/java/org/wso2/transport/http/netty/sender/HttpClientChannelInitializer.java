@@ -130,6 +130,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             SSLConfig sslConfig = senderConfiguration.getSSLConfig();
             if (sslConfig != null) {
                 configureSslForHttp2(socketChannel, clientPipeline, sslConfig);
+            } else if (senderConfiguration.isForceHttp2()) {
+                configureH2Pipeline(clientPipeline);
             } else {
                 configureH2cPipeline(clientPipeline, sourceCodec, targetHandler);
             }
