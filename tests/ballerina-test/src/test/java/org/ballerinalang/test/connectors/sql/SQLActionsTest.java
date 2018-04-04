@@ -545,7 +545,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest",
-          description = "Test deleting data to mirrored table")
+          description = "Test deleting data from mirrored table")
     public void testDeleteFromMirrorTable() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTable");
         Assert.assertNotNull(returns);

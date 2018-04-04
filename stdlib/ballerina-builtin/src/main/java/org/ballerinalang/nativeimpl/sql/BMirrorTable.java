@@ -33,8 +33,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Represent a reflection of a database table. Through a Mirrored table it is possible to add/remove data to/from a
+ * Represents a reflection of a database table. Through a Mirrored table it is possible to add/remove data to/from a
  * database.
+ *
+ * @since 0.970.0
  */
 public class BMirrorTable extends BTable {
     private SQLDatasource datasource;
@@ -62,21 +64,18 @@ public class BMirrorTable extends BTable {
         }
     }
 
-    public void removeData(BStruct data, Context context) {
-        Connection conn = null;
-        boolean isInTransaction = context.isInTransaction();
+    public void removeData(BStruct data, Connection conn) throws SQLException {
+        PreparedStatement stmt = null;
         try {
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, data);
-            PreparedStatement stmt = conn.prepareStatement(sqlStmt);
+            stmt = conn.prepareStatement(sqlStmt);
             TableUtils.prepareAndExecuteStatement(stmt, data);
-        } catch (SQLException e) {
-            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
-        } finally {
-            SQLDatasourceUtils.cleanupConnection(null, null, conn, isInTransaction);
+        }  finally {
+            if (stmt != null) {
+                stmt.close();
+            }
         }
     }
-
 
     @Override
     public void next() {
@@ -122,6 +121,10 @@ public class BMirrorTable extends BTable {
        return "";
     }
 
+    public SQLDatasource getDatasource() {
+        return datasource;
+    }
+
     private void resetIterator() {
         if (iterator != null) {
             iterator.close(false);
@@ -143,7 +146,7 @@ public class BMirrorTable extends BTable {
             ((SQLDataIterator) iterator).setColumnDefs(SQLDatasourceUtils.getColumnDefinitions(rs));
         } catch (SQLException e) {
             SQLDatasourceUtils.cleanupConnection(rs, preparedStmt, conn, false);
-            throw new BallerinaException("error in creating iterator for table : " + e.getMessage());
+            throw new BallerinaException("error in populating iterator for table : " + e.getMessage());
         }
     }
 }

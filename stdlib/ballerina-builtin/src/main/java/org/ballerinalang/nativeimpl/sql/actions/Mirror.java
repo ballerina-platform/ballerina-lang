@@ -31,9 +31,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * {@code Select} mirrors a SQL database table to a ballerina table.
+ * {@code Mirror} mirrors a SQL database table to a ballerina table.
  *
- * @since 0.8.0
+ * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
@@ -45,7 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.data.sql")
+                            structPackage = "ballerina.sql")
         }
 )
 public class Mirror extends AbstractSQLAction {

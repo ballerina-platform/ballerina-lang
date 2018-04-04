@@ -38,34 +38,7 @@ public native function <table dt> add (any data) returns (TableOperationError | 
 @Description {value:"Remove data from the table."}
 @Param {value:"dt: The table object"}
 @Param {value:"func: The function pointer for delete crieteria"}
-public function <table dt> remove (function (any) returns (boolean) func) returns (int|TableOperationError)
-{
-    int deletedCount = 0;
-    int i = 0;
-    error[] errors = [];
-    while (dt.hasNext()) {
-        any data = dt.getNext();
-        boolean satisfied = func(data);
-        if (satisfied) {
-           var result = dt.delete(data);
-           match result {
-             error e => i++;
-             null => deletedCount = deletedCount + 1;       
-          }              
-       }            
-    }
-    if (i > 0) {
-        TableOperationError toe = {message: "Remove operation failed", cause: errors};
-        return toe;
-    } else {
-        return deletedCount;
-    }
-}
-
-@Description {value:"Utility function to delete data from table."}
-@Param {value:"dt: The table object"}
-@Param {value:"data: A struct with data"}
-native function <table dt> delete (any data) returns (TableOperationError | null);
+public native function <table dt> remove (function (any) returns (boolean) func) returns (int|TableOperationError);
 
 @Description {value:"Execute the given sql query to fetch the records and return as a new in memory table"}
 @Param {value:"sqlQuery: The query to execute"}
