@@ -208,7 +208,7 @@ public class BTestRunner {
             List<String> failedOrSkippedTests = new ArrayList<>();
             suite.getTests().forEach(test -> {
                 AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
-                if (!shouldSkip.get() || !shouldSkipTest.get()) {
+                if (!shouldSkip.get() && !shouldSkipTest.get()) {
                     // run the beforeEach tests
                     suite.getBeforeEachFunctions().forEach(beforeEachTest -> {
                         String errorMsg;
@@ -331,13 +331,8 @@ public class BTestRunner {
         });
     }
 
-    private boolean isTestDependsOnFailedFunctions(List<String> failedTests, List<String> dependantTests) {
-        for (String func : failedTests) {
-                if (dependantTests.contains(func)) {
-                    return true;
-                }
-        }
-        return false;
+    private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {
+        return failedOrSkippedTests.stream().parallel().anyMatch(dependentTests::contains);
     }
 
     /**
