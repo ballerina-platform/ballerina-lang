@@ -70,12 +70,6 @@ function createPayload (Payload payload) returns (string|error) {
     return urlEncode(util:base64Encode(payloadJson.toString()));
 }
 
-//function urlEncode (string data) returns (string) {
-//    string encodedString = data.replaceAll("\\+", "-");
-//    encodedString = encodedString.replaceAll("/", "_");
-//    return encodedString;
-//}
-
 function urlEncode ((string  | blob  | io:ByteChannel | util:Base64Error) data) returns (string) {
     match data {
         string returnString => {
