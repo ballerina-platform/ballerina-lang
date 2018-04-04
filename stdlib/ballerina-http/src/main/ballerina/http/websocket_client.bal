@@ -73,5 +73,5 @@ public function <WebSocketClient h> getClient() returns (WebSocketConnector){
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
 public function <WebSocketClient h> stop (){
-    _ = h.getClient().closeConnection(1001, "The connection has been stopped");
+    _ = h.getClient().close(1001, "The connection has been stopped");
 }

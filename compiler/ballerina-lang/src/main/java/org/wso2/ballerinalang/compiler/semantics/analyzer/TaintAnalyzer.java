@@ -125,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -499,6 +500,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAbort abortNode) {
+        /* ignore */
+    }
+    
+    public void visit(BLangDone abortNode) {
         /* ignore */
     }
 
@@ -1021,12 +1026,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        /* ignore */
+        bLangMatchExpression.expr.accept(this);
     }
 
     @Override
-    public void visit(BLangCheckedExpr checkedExpr) {
-        /* ignore */
+    public void visit(BLangCheckedExpr match) {
+        match.expr.accept(this);
     }
 
     // Private
@@ -1576,9 +1581,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
                 if (retParamIsAnnotated) {
                     attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
-                    this.dlog.warning(blockedNode.invokableNode.pos,
-                            DiagnosticCode.PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS,
-                            blockedNode.invokableNode.name.value);
                     return true;
                 }
             }
