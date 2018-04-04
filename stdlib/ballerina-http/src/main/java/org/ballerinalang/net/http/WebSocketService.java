@@ -19,12 +19,10 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.util.List;
@@ -100,36 +98,6 @@ public class WebSocketService implements Service {
 
     public int getIdleTimeoutInSeconds() {
         return idleTimeoutInSeconds;
-    }
-
-    public BStruct createTextFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_TEXT_FRAME);
-    }
-
-    public BStruct createBinaryFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_BINARY_FRAME);
-    }
-
-    public BStruct createCloseFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_CLOSE_FRAME);
-    }
-
-    public BStruct createPingFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_PING_FRAME);
-    }
-
-    public BStruct createPongFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_PONG_FRAME);
     }
 
     private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
