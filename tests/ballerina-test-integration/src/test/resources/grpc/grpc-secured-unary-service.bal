@@ -25,7 +25,9 @@ endpoint grpc:Service ep {
             certPassword:"ballerina"
         }
 };
+
 @grpc:serviceConfig {generateClientConnector:false}
+
 service<grpc:Endpoint> helloWorld bind ep {
     hello (endpoint client, string name) {
         io:println("name: " + name);
