@@ -41,6 +41,7 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
@@ -98,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -254,6 +256,8 @@ public class BLangPackageBuilder {
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
     private Stack<StructNode> structStack = new Stack<>();
+
+    private Stack<RecordNode> recordStack = new Stack<>();
 
     private Stack<ObjectNode> objectStack = new Stack<>();
 
@@ -416,6 +420,63 @@ public class BLangPackageBuilder {
         tupleTypeNode.pos = pos;
         tupleTypeNode.addWS(ws);
         this.typeNodeStack.push(tupleTypeNode);
+    }
+
+    void startRecordDef() {
+        RecordNode recordNode = TreeBuilder.createRecordNode();
+        attachAnnotations(recordNode);
+        attachDocumentations(recordNode);
+        attachDeprecatedNode(recordNode);
+        this.recordStack.add(recordNode);
+        startVarList();
+    }
+
+    private void endRecordDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicRecord) {
+        BLangRecord recordNode = populateRecordNode(pos, ws, createIdentifier(identifier), false);
+        recordNode.setName(this.createIdentifier(identifier));
+        if (publicRecord) {
+            recordNode.flagSet.add(Flag.PUBLIC);
+        }
+
+        this.compUnit.addTopLevelNode(recordNode);
+    }
+
+    void addAnonRecordType(DiagnosticPos pos, Set<Whitespace> ws) {
+        // Generate a name for the anonymous record
+        String genName = anonymousModelHelper.getNextAnonymousRecordKey(pos.src.pkgID);
+        IdentifierNode anonRecordGenName = createIdentifier(genName);
+
+        // Create an anonymous record and add it to the list of records in the current package.
+        BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
+        this.compUnit.addTopLevelNode(recordNode);
+
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
+
+    }
+
+    private BLangRecord populateRecordNode(DiagnosticPos pos, Set<Whitespace> ws,
+                                           IdentifierNode name, boolean isAnonymous) {
+        BLangRecord recordNode = (BLangRecord) this.recordStack.pop();
+        recordNode.pos = pos;
+        recordNode.addWS(ws);
+        recordNode.name = (BLangIdentifier) name;
+        recordNode.isAnonymous = isAnonymous;
+        this.varListStack.pop().forEach(variableNode -> {
+            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
+            recordNode.addField(variableNode);
+        });
+        return recordNode;
+    }
+
+    void addFieldToRecord(DiagnosticPos pos, Set<Whitespace> ws,
+                          String identifier, boolean exprAvailable, int annotCount) {
+
+        Set<Whitespace> wsForSemiColon = removeNthFromLast(ws, 0);
+        BLangRecord recordNode = (BLangRecord) this.recordStack.peek();
+        recordNode.addWS(wsForSemiColon);
+        BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
+
+        field.flagSet.add(Flag.PUBLIC);
     }
 
     public void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
@@ -1395,6 +1456,8 @@ public class BLangPackageBuilder {
             objectNode.functions.forEach(f -> f.setReceiver(createVariableNode(pos, ws, objectType)));
 
             this.compUnit.addTopLevelNode(objectNode);
+        } else if (!this.recordStack.isEmpty()) {
+            endRecordDef(pos, ws, identifier, publicStruct);
         }
     }
 
