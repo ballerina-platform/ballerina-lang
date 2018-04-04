@@ -43,7 +43,7 @@ documentation {
 }
 caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
 
-const boolean scheduleInit = scheduleTimer(1000, 60000);
+@final boolean scheduleInit = scheduleTimer(1000, 60000);
 
 function scheduleTimer (int delay, int interval) returns boolean {
     function () returns (error|null) onTriggerFunction = cleanupTransactions;

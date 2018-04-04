@@ -20,15 +20,15 @@ import ballerina/io;
 import ballerina/time;
 
 @Description { value:"The Read access mode"}
-public const string R = "R";
+@final public string R = "R";
 @Description { value:"The Write access mode"}
-public const string W = "W";
+@final public string W = "W";
 @Description { value:"The Read Write access mode"}
-public const string RW = "RW";
+@final public string RW = "RW";
 @Description { value:"The Append access mode"}
-public const string A = "A";
+@final public string A = "A";
 @Description { value:"The Read Append access mode"}
-public const string RA = "RA";
+@final public string RA = "RA";
 
 @Description { value: "Represents a file in the file system and can perform various file operations on this."}
 @Field { value : "path: The path of the file"}

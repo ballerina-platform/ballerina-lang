@@ -21,26 +21,26 @@ import ballerina/caching;
 import ballerina/util;
 
 @Description {value:"Configuration entry to check if a cache is enabled"}
-const string CACHE_ENABLED = "enabled";
+@final string CACHE_ENABLED = "enabled";
 @Description {value:"Configuration entry for cache expiry time"}
-const string CACHE_EXPIRY_TIME = "expiryTime";
+@final string CACHE_EXPIRY_TIME = "expiryTime";
 @Description {value:"Configuration entry for cache capacity"}
-const string CACHE_CAPACITY = "capacity";
+@final string CACHE_CAPACITY = "capacity";
 @Description {value:"Configuration entry for eviction factor"}
-const string CACHE_EVICTION_FACTOR = "evictionFactor";
+@final string CACHE_EVICTION_FACTOR = "evictionFactor";
 @Description {value:"Authentication header name"}
-const string AUTH_HEADER = "Authorization";
+@final string AUTH_HEADER = "Authorization";
 @Description {value:"Basic authentication scheme"}
-const string AUTH_SCHEME = "Basic";
+@final string AUTH_SCHEME = "Basic";
 
 @Description {value:"Default value for enabling cache"}
-const boolean CACHE_ENABLED_DEFAULT_VALUE = true;
+@final boolean CACHE_ENABLED_DEFAULT_VALUE = true;
 @Description {value:"Default value for cache expiry"}
-const int CACHE_EXPIRY_DEFAULT_VALUE = 300000;
+@final int CACHE_EXPIRY_DEFAULT_VALUE = 300000;
 @Description {value:"Default value for cache capacity"}
-const int CACHE_CAPACITY_DEFAULT_VALUE = 100;
+@final int CACHE_CAPACITY_DEFAULT_VALUE = 100;
 @Description {value:"Default value for cache eviction factor"}
-const float CACHE_EVICTION_FACTOR_DEFAULT_VALUE = 0.25;
+@final float CACHE_EVICTION_FACTOR_DEFAULT_VALUE = 0.25;
 
 @Description {value:"Creates a cache to store authentication results against basic auth headers"}
 @Return {value:"cache: authentication cache instance"}

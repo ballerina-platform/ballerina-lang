@@ -23,7 +23,7 @@ import ballerina/security.crypto;
 import ballerina/log;
 
 @Description {value:"Authentication cache name"}
-const string AUTH_CACHE = "basic_auth_cache";
+@final string AUTH_CACHE = "basic_auth_cache";
 
 userstore:FilebasedUserstore fileBasedUserstore = {};
 userstore:UserStore userstore =? <userstore:UserStore>fileBasedUserstore;
