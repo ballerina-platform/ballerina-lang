@@ -326,6 +326,7 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
+    |   doneStatement
     ;
 
 variableDefinitionStatement
@@ -831,6 +832,10 @@ aggregationQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+    ;
+    
+doneStatement
+    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement
