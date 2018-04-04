@@ -632,17 +632,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             // e.g. function foo() (int);
             return;
         }
-        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
-                varNode.type, varName, env);
-        varSymbol.docTag = varNode.docTag;
-        varNode.symbol = varSymbol;
 
         //Check annotations attached to the variable
         if (varNode.annAttachments.size() > 0) {
             if (hasAnnotation(varNode.annAttachments, ANNOTATION_READONLY)) {
-                varSymbol.isReadonly = true;
+                varNode.flagSet.add(Flag.READONLY);
             }
         }
+
+        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
+                varNode.type, varName, env);
+        varSymbol.docTag = varNode.docTag;
+        varNode.symbol = varSymbol;
     }
 
     @Override
