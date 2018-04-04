@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -551,6 +552,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // eg: struct types.
         if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
+        }
+        if (varDefNode.var.expr != null && types.isAnyType(varDefNode.var.type)) {
+            // following cases are invalid.
+            // any a = [ x, y, ... ];
+            // any a = { x : y };
+            // any a = new ;
+            final NodeKind kind = varDefNode.var.expr.getKind();
+            final BLangExpression expr = varDefNode.var.expr;
+            if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
+                    || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
+                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+            }
         }
     }
 
