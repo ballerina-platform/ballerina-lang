@@ -27,40 +27,37 @@ struct Teacher {
     string name;
     int age;
     string status;
-    string batch;
-    string school;
 }
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream = {};
-stream<Teacher> teacherStream1 = {};
+stream<Employee> employeeStream3 = {};
+stream<Teacher> teacherStream6 = {};
 
-function testFilterQuery() {
+function testPassthroughQuery() {
+
     forever {
-        from teacherStream1
-        where age > 30
-        select name, age, status
+        from teacherStream6
+        select *
         => (Employee[] emp) {
-            employeeStream.publish(emp);
+            employeeStream3.publish(emp);
         }
     }
 }
 
+function startPassthroughQuery() returns (Employee[]) {
 
-function startFilterQuery() returns (Employee[]) {
+    testPassthroughQuery();
 
-    testFilterQuery();
+    Teacher t1 = {name:"Raja", age:25, status:"single"};
+    Teacher t2 = {name:"Shareek", age:33, status:"single"};
+    Teacher t3 = {name:"Nimal", age:45, status:"married"};
 
-    Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
-    Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
-    Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
+    employeeStream3.subscribe(printEmployeeNumber);
 
-    employeeStream.subscribe(printEmployeeNumber);
-
-    teacherStream1.publish(t1);
-    teacherStream1.publish(t2);
-    teacherStream1.publish(t3);
+    teacherStream6.publish(t1);
+    teacherStream6.publish(t2);
+    teacherStream6.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 

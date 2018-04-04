@@ -206,6 +206,10 @@ public enum DiagnosticCode {
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
 
+    // Streaming related codes
+    UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
+    UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
+
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),

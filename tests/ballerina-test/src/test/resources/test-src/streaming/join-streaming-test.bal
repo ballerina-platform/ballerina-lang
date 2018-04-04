@@ -41,20 +41,20 @@ stream<Stock> stockStream = {};
 stream<Twitter> twitterStream = {};
 stream<StockWithPrice> stockWithPriceStream = {};
 
-function testJoinQuery () {
+function testJoinQuery() {
 
-    forever{
+    forever {
         from stockStream window time(1000)
         join twitterStream window time(1000)
         on stockStream.symbol == twitterStream.company
         select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
-        => (StockWithPrice [] emp) {
-                stockWithPriceStream.publish(emp);
+        => (StockWithPrice[] emp) {
+            stockWithPriceStream.publish(emp);
         }
     }
 }
 
-function startJoinQuery( ) returns (StockWithPrice []) {
+function startJoinQuery() returns (StockWithPrice[]) {
 
     testJoinQuery();
 
@@ -75,12 +75,12 @@ function startJoinQuery( ) returns (StockWithPrice []) {
     return globalEventsArray;
 }
 
-function printCompanyStockPrice (StockWithPrice s) {
-    io:println("printCompanyStock function invoked for company:" + s.symbol +" and price:"+s.price);
+function printCompanyStockPrice(StockWithPrice s) {
+    io:println("printCompanyStock function invoked for company:" + s.symbol + " and price:" + s.price);
     addToGlobalEventsArray(s);
 }
 
-function addToGlobalEventsArray (StockWithPrice s) {
+function addToGlobalEventsArray(StockWithPrice s) {
     globalEventsArray[index] = s;
     index = index + 1;
 }

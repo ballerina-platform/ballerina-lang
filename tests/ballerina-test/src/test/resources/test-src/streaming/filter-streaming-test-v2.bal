@@ -35,18 +35,18 @@ Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 stream<Employee> employeeStream = {};
 
-function testFilterQuery (stream<Teacher> teacherStream6) {
-    forever{
+function testFilterQuery(stream<Teacher> teacherStream6) {
+    forever {
         from teacherStream6
         where age > 30
         select name, age, status
-        => (Employee [] emp) {
-                employeeStream.publish(emp);
+        => (Employee[] emp) {
+            employeeStream.publish(emp);
         }
     }
 }
 
-function startFilterQuery( ) returns (Employee []) {
+function startFilterQuery() returns (Employee[]) {
 
     stream<Teacher> teacherStream6 = {};
     testFilterQuery(teacherStream6);
@@ -65,12 +65,12 @@ function startFilterQuery( ) returns (Employee []) {
     return globalEmployeeArray;
 }
 
-function printEmployeeNumber (Employee e) {
+function printEmployeeNumber(Employee e) {
     io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray (Employee e) {
+function addToGlobalEmployeeArray(Employee e) {
     globalEmployeeArray[employeeIndex] = e;
     employeeIndex = employeeIndex + 1;
 }

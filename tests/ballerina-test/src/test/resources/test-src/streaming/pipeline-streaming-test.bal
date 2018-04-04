@@ -36,28 +36,28 @@ stream<StatusCount> filteredStatusCountStream1 = {};
 stream<Teacher> preProcessedStatusCountStream = {};
 stream<Teacher> teacherStream3 = {};
 
-function testPipelineQuery () {
+function testPipelineQuery() {
 
-    forever{
+    forever {
         from teacherStream3 where age > 18
         select *
-        => (Teacher [] emp) {
+        => (Teacher[] emp) {
             preProcessedStatusCountStream.publish(emp);
         }
     }
 
-    forever{
+    forever {
         from preProcessedStatusCountStream window lengthBatch(3)
-        select status, count( status) as totalCount
+        select status, count(status) as totalCount
         group by status
         having totalCount > 1
-        => (StatusCount [] emp) {
-                filteredStatusCountStream1.publish(emp);
+        => (StatusCount[] emp) {
+            filteredStatusCountStream1.publish(emp);
         }
     }
 }
 
-function startPipelineQuery () returns (StatusCount []) {
+function startPipelineQuery() returns (StatusCount[]) {
 
     testPipelineQuery();
 
@@ -76,12 +76,12 @@ function startPipelineQuery () returns (StatusCount []) {
     return globalStatusCountArray;
 }
 
-function printStatusCount (StatusCount s) {
-    io:println("printStatusCount function invoked for status:" + s.status +" and total count :"+s.totalCount);
+function printStatusCount(StatusCount s) {
+    io:println("printStatusCount function invoked for status:" + s.status + " and total count :" + s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 
-function addToGlobalStatusCountArray (StatusCount s) {
+function addToGlobalStatusCountArray(StatusCount s) {
     globalStatusCountArray[index] = s;
     index = index + 1;
 }
