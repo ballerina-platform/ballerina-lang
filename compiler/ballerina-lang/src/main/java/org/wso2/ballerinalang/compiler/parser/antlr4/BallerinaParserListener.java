@@ -338,26 +338,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#enumDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#enumDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#enumerator}.
-	 * @param ctx the parse tree
-	 */
-	void enterEnumerator(BallerinaParser.EnumeratorContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#enumerator}.
-	 * @param ctx the parse tree
-	 */
-	void exitEnumerator(BallerinaParser.EnumeratorContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
 	 */
@@ -377,16 +357,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#constantDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#constantDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#workerDeclaration}.
 	 * @param ctx the parse tree
