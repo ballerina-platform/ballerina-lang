@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
@@ -25,6 +26,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -172,7 +174,12 @@ public class BTable implements BRefType<Object>, BCollection {
         return iterator.generateNext();
     }
 
-    public void addData(BStruct data) {
+    public void performAddOperation(BStruct data, Context context) {
+        this.addData(data, context);
+        context.setReturnValues();
+    }
+
+    public void addData(BStruct data, Context context) {
         if (!this.isInMemoryTable) {
             throw new BallerinaException("data cannot be added to a table returned from a database");
         }
@@ -182,6 +189,25 @@ public class BTable implements BRefType<Object>, BCollection {
         }
         tableProvider.insertData(tableName, data);
         resetIterator();
+    }
+
+    public void addData(BStruct data) {
+        addData(data, null);
+    }
+
+    public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
+        int deletedCount = 0;
+        while (this.hasNext(false)) {
+            BStruct data = this.getNext();
+            BValue[] args = { data };
+            BValue[] returns = BLangFunctions
+                    .invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
+            if (((BBoolean) returns[0]).booleanValue()) {
+                ++deletedCount;
+                this.removeData(data);
+            }
+        }
+        context.setReturnValues(new BInteger(deletedCount));
     }
 
     public void removeData(BStruct data) {

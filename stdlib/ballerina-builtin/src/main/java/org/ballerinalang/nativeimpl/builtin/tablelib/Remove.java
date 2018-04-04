@@ -21,22 +21,10 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.sql.BMirrorTable;
-import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.TableUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * {@code Remove} is the function to remove data from a table.
@@ -55,69 +43,6 @@ public class Remove extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BTable table = (BTable) context.getRefArgument(0);
         BFunctionPointer lambDaFunction = (BFunctionPointer) context.getRefArgument(1);
-        if (table instanceof BMirrorTable) {
-            removeDataFromMirroredTable((BMirrorTable) table, context, lambDaFunction);
-        } else {
-            removeDataFromInMemoryTable(table, context, lambDaFunction);
-        }
-    }
-
-    private void removeDataFromInMemoryTable(BTable table, Context context, BFunctionPointer lambdaFunction) {
-        int deletedCount = 0;
-        while (table.hasNext(false)) {
-            BStruct data = table.getNext();
-            BValue[] args = { data };
-            BValue[] returns = BLangFunctions
-                    .invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
-            if (((BBoolean) returns[0]).booleanValue()) {
-                ++deletedCount;
-                table.removeData(data);
-            }
-        }
-        context.setReturnValues(new BInteger(deletedCount));
-    }
-
-    private void removeDataFromMirroredTable(BMirrorTable table, Context context, BFunctionPointer lambdaFunction) {
-        int deletedCount = 0;
-        Connection connection = null;
-        boolean isInTransaction = context.isInTransaction();
-        try {
-            connection = SQLDatasourceUtils
-                    .getDatabaseConnection(context, table.getDatasource(), isInTransaction);
-            if (!isInTransaction) {
-                connection.setAutoCommit(false);
-            }
-            while (table.hasNext(false)) {
-                BStruct data = table.getNext();
-                BValue[] args = { data };
-                BValue[] returns = BLangFunctions
-                        .invokeCallable(lambdaFunction.value().getFunctionInfo(),
-                                args);
-                if (((BBoolean) returns[0]).booleanValue()) {
-                    ++deletedCount;
-                    table.removeData(data, connection);
-                }
-            }
-            if (!isInTransaction) {
-                connection.commit();
-            }
-            context.setReturnValues(new BInteger(deletedCount));
-        } catch (SQLException e) {
-            context.setReturnValues(TableUtils.createTableOperationError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-            if (!isInTransaction) {
-                releaseConnection(connection);
-            }
-        }
-    }
-
-    private void releaseConnection(Connection connection) {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException("Error occurred while releasing the connection");
-        }
+        table.performRemoveOperation(context, lambDaFunction);
     }
 }

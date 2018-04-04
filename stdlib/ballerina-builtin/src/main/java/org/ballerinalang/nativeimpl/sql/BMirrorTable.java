@@ -21,11 +21,16 @@ package org.ballerinalang.nativeimpl.sql;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.TableConstants;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,6 +54,16 @@ public class BMirrorTable extends BTable {
         this.tableName = tableName;
     }
 
+    public void performAddOperation(BStruct data, Context context) {
+        try {
+            this.addData(data, context);
+            context.setReturnValues();
+        } catch (Throwable e) {
+            context.setReturnValues(TableUtils.createTableOperationError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+        }
+    }
+
     public void addData(BStruct data, Context context) {
         Connection conn = null;
         boolean isInTransaction = context.isInTransaction();
@@ -61,6 +76,38 @@ public class BMirrorTable extends BTable {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
             SQLDatasourceUtils.cleanupConnection(null, null, conn, isInTransaction);
+        }
+    }
+
+    public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
+        int deletedCount = 0;
+        Connection connection = null;
+        boolean isInTransaction = context.isInTransaction();
+        try {
+            connection = SQLDatasourceUtils
+                    .getDatabaseConnection(context, this.getDatasource(), isInTransaction);
+            if (!isInTransaction) {
+                connection.setAutoCommit(false);
+            }
+            while (this.hasNext(false)) {
+                BStruct data = this.getNext();
+                BValue[] args = { data };
+                BValue[] returns = BLangFunctions
+                        .invokeCallable(lambdaFunction.value().getFunctionInfo(),
+                                args);
+                if (((BBoolean) returns[0]).booleanValue()) {
+                    ++deletedCount;
+                    this.removeData(data, connection);
+                }
+            }
+            if (!isInTransaction) {
+                connection.commit();
+            }
+            context.setReturnValues(new BInteger(deletedCount));
+        } catch (SQLException e) {
+            context.setReturnValues(TableUtils.createTableOperationError(context, e));
+            SQLDatasourceUtils.handleErrorOnTransaction(context);
+            SQLDatasourceUtils.cleanupConnection(null, null, connection, isInTransaction);
         }
     }
 
