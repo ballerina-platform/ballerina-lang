@@ -104,3 +104,7 @@ p:first-child {
 p:last-child {
   margin-bottom : 0em;
 }
+
+body{
+  font-weight: 300;
+}
