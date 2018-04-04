@@ -87,7 +87,8 @@ public class DefinitionTest {
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
+    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions",
+            enabled = false)
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,

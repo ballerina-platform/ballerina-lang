@@ -76,13 +76,13 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                 }
             }
         }
-        json j =? <json>prepareRes;
+        json j = check <json>prepareRes;
         res.setJsonPayload(j);
         var resResult = conn -> respond(res);
         match resResult {
             http:HttpConnectorError err => log:printErrorCause("Sending response for prepare request for transaction " +
                                                                transactionId + " failed", err);
-            null => return;
+            null => {}
         }
     }
 
@@ -144,13 +144,13 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             }
             removeParticipatedTransaction(participatedTxnId);
         }
-        json j =? <json>notifyRes;
+        json j = check <json>notifyRes;
         res.setJsonPayload(j);
         var connErr = conn -> respond(res);
         match connErr {
             error err => log:printErrorCause("Sending response for notify request for transaction " + transactionId +
                                              " failed", err);
-            null => return;
+            null => {}
         }
     }
 }

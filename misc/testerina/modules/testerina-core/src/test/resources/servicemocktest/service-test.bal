@@ -10,7 +10,7 @@ endpoint http:ServiceEndpoint eventEP {
 };
 
 string url1 = "http://0.0.0.0:9092/events";
-string url2 = "http://0.0.0.0:9090/portal";
+string url2 = "http://0.0.0.0:9093/portal";
 boolean isEventServiceStarted;
 boolean isPortalServiceStarted;
 boolean isNonExistingServiceStarted;
@@ -52,7 +52,6 @@ function testService () {
 
     http:Request req = {};
     // Send a GET request to the specified endpoint
-    io:println("GET request:");
     var response = httpEndpoint -> get("/events", req);
     match response {
                http:Response resp => {

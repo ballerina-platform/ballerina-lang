@@ -64,6 +64,6 @@ function <InitiatorClient client> register (string transactionId,
         error err = {message:"Registration for transaction: " + transactionId + " failed"};
         return err;
     }
-    json resPayload =? res.getJsonPayload();
+    json resPayload = check res.getJsonPayload();
     return jsonToRegResponse(resPayload);
 }
