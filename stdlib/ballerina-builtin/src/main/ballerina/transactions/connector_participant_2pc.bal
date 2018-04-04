@@ -53,7 +53,7 @@ public function <Participant2pcClient client> prepare (string transactionId) ret
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     http:Request req = {};
     PrepareRequest prepareReq = {transactionId:transactionId};
-    json j =? <json>prepareReq;
+    json j = check <json>prepareReq;
     req.setJsonPayload(j);
     http:Response res =? httpClient -> post("/prepare", req);
     int statusCode = res.statusCode;
@@ -61,7 +61,7 @@ public function <Participant2pcClient client> prepare (string transactionId) ret
         error err = {message:"Transaction-Unknown"};
         return err;
     } else if (statusCode == http:OK_200) {
-        json payload =? res.getJsonPayload();
+        json payload = check res.getJsonPayload();
         PrepareResponse prepareRes = <PrepareResponse>payload; //TODO: Change this this to use the safe assignment operator
         return prepareRes.message;
     } else {
@@ -75,10 +75,10 @@ public function <Participant2pcClient client> notify (string transactionId, stri
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     http:Request req = {};
     NotifyRequest notifyReq = {transactionId:transactionId, message:message};
-    json j =? <json>notifyReq;
+    json j = check <json>notifyReq;
     req.setJsonPayload(j);
     http:Response res =? httpClient -> post("/notify", req);
-    json payload =? res.getJsonPayload();
+    json payload = check res.getJsonPayload();
     NotifyResponse notifyRes = <NotifyResponse>payload;  //TODO: Change this this to use the safe assignment operator
     string msg = notifyRes.message;
     int statusCode = res.statusCode;
