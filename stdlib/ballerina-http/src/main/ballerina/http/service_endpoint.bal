@@ -40,23 +40,23 @@ public type ServiceEndpoint object {
     }
     public function init(ServiceEndpointConfiguration config);
 
-    @Description { value:"Gets called when the endpoint is being initialize during package init time"}
-    @Return { value:"Error occured during initialization" }
+    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
+    @Return {value:"Error occured during initialization"}
     public native function initEndpoint() returns (error);
 
-    @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
-    @Param { value:"ep: The endpoint to which the service should be registered to" }
-    @Param { value:"serviceType: The type of the service to be registered" }
+    @Description {value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
+    @Param {value:"ep: The endpoint to which the service should be registered to"}
+    @Param {value:"serviceType: The type of the service to be registered"}
     public native function register(typedesc serviceType);
 
-    @Description { value:"Starts the registered service"}
+    @Description {value:"Starts the registered service"}
     public native function start();
 
-    @Description { value:"Returns the connector that client code uses"}
-    @Return { value:"The connector that client code uses" }
+    @Description {value:"Returns the connector that client code uses"}
+    @Return {value:"The connector that client code uses"}
     public native function getClient() returns (Connection);
 
-    @Description { value:"Stops the registered service"}
+    @Description {value:"Stops the registered service"}
     public native function stop();
 }
 
@@ -100,7 +100,7 @@ public type RequestLimits object {
 
 @Description {value:"Initializes the RequestLimits struct with default values."}
 @Param {value:"config: The RequestLimits struct to be initialized"}
-public function RequestLimits::RequestLimits() {
+public function RequestLimits::RequestLimits () {
     self.maxUriLength = -1;
     self.maxHeaderSize = -1;
     self.maxEntityBodySize = -1;
@@ -138,11 +138,11 @@ public type ServiceEndpointConfiguration object {
     }
 }
 
-@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
-@Field {value: "trustStore: TrustStore related options"}
-@Field {value: "keyStore: KeyStore related options"}
-@Field {value: "protocols: SSL/TLS protocol related options"}
-@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
+@Description {value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service"}
+@Field {value:"trustStore: TrustStore related options"}
+@Field {value:"keyStore: KeyStore related options"}
+@Field {value:"protocols: SSL/TLS protocol related options"}
+@Field {value:"validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
 @Field {value:"sessionCreation: Enable/disable new ssl session creation"}
@@ -165,11 +165,11 @@ public type ServiceSecureSocket object {
 
 public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 
-@Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-@Return { value:"Error occured during initialization" }
-public function ServiceEndpoint::init(ServiceEndpointConfiguration config) {
+            @Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
+                           @Param { value:"epName: The endpoint name" }
+                                    @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+                                             @Return { value:"Error occured during initialization" }
+public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
     self.config = config;
     var err = self.initEndpoint();
     if (err != null) {
@@ -177,7 +177,7 @@ public function ServiceEndpoint::init(ServiceEndpointConfiguration config) {
     }
     // if filters are defined, call init on them
     if (config.filters != null) {
-        foreach filter in config.filters  {
+        foreach filter in config.filters {
             filter.init();
         }
     }
@@ -188,6 +188,11 @@ public function ServiceEndpoint::init(ServiceEndpointConfiguration config) {
 //////////////////////////////////
 public type WebSocketEndpoint object {
     public {
+        //ToDo: Make private: note private comes after public
+        WebSocketConnector conn;
+        ServiceEndpointConfiguration config;
+        ServiceEndpoint httpEndpoint;
+        //public attributes
         map attributes;
         string id;
         string negotiatedSubProtocol;
@@ -195,54 +200,39 @@ public type WebSocketEndpoint object {
         boolean isOpen;
         map<string> upgradeHeaders;
     }
-    private {
-        WebSocketConnector conn;
-        ServiceEndpointConfiguration config;
-        ServiceEndpoint httpEndpoint;
-    }
     new () {
         httpEndpoint = {};
+        attributes = {};
     }
-    public function init(ServiceEndpointConfiguration config);
-    public function register(typedesc serviceType);
-    public function start();
-    public function getClient() returns (WebSocketConnector);
-    public function stop();
-}
+    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
+    @Param {value:"epName: The endpoint name"}
+    @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
+    @Return {value:"Error occured during initialization"}
+    public function init(ServiceEndpointConfiguration config) {
+        httpEndpoint.init(config);
 
-@Description { value:"Gets called when the endpoint is being initialize during package init time"}
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-@Return { value:"Error occured during initialization" }
-public function WebSocketEndpoint::init(ServiceEndpointConfiguration config) {
-    self.attributes = {};
-    self.httpEndpoint = {};
-    self.httpEndpoint.init(config);
-}
-
-@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The outbound response message" }
-@Return { value:"Error occured during registration" }
-public function WebSocketEndpoint::register(typedesc serviceType) {
-    self.httpEndpoint.register(serviceType);
-}
-
-@Description { value:"Starts the registered service"}
-@Return { value:"Error occured during registration" }
-public function WebSocketEndpoint::start() {
-    self.httpEndpoint.start();
-}
-
-@Description { value:"Returns the connector that client code uses"}
-@Return { value:"The connector that client code uses" }
-@Return { value:"Error occured during registration" }
-public function WebSocketEndpoint::getClient() returns (WebSocketConnector) {
-    return self.conn;
-}
-
-@Description { value:"Stops the registered service"}
-@Return { value:"Error occured during registration" }
-public function WebSocketEndpoint::stop() {
-    self.httpEndpoint.stop();
+    }
+    @Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
+    @Param {value:"conn: The server connector connection"}
+    @Param {value:"res: The outbound response message"}
+    @Return {value:"Error occured during registration"}
+    public function register(typedesc serviceType) {
+        httpEndpoint.register(serviceType);
+    }
+    @Description {value:"Starts the registered service"}
+    @Return {value:"Error occured during registration"}
+    public function start() {
+        httpEndpoint.start();
+    }
+    @Description {value:"Returns the connector that client code uses"}
+    @Return {value:"The connector that client code uses"}
+    @Return {value:"Error occured during registration"}
+    public function getClient() returns (WebSocketConnector) {
+        return conn;
+    }
+    @Description {value:"Stops the registered service"}
+    @Return {value:"Error occured during registration"}
+    public function stop() {
+        httpEndpoint.stop();
+    }
 }
