@@ -43,9 +43,11 @@ public type Filter object {
 @Field {value:"filterResponse: Name of the resource"}
 public type FilterContext object {
     // TODO should have a map of properties
-    typedesc serviceType;
-    string serviceName;
-    string resourceName;
+    public {
+        typedesc serviceType;
+        string serviceName;
+        string resourceName;
+    }
 };
 
 @Description {value:"Represents a filter result. This should be populated and returned by each request and response
