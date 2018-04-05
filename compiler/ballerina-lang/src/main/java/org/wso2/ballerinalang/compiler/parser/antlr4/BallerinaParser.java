@@ -7555,8 +7555,8 @@ public class BallerinaParser extends Parser {
 		}
 	}
 	public static class InvokeWorkerContext extends TriggerWorkerContext {
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public TerminalNode RARROW() { return getToken(BallerinaParser.RARROW, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
@@ -7572,8 +7572,8 @@ public class BallerinaParser extends Parser {
 		}
 	}
 	public static class InvokeForkContext extends TriggerWorkerContext {
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public TerminalNode RARROW() { return getToken(BallerinaParser.RARROW, 0); }
 		public TerminalNode FORK() { return getToken(BallerinaParser.FORK, 0); }
@@ -7601,7 +7601,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(1437);
-				expressionList();
+				expression(0);
 				setState(1438);
 				match(RARROW);
 				setState(1439);
@@ -7615,7 +7615,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(1442);
-				expressionList();
+				expression(0);
 				setState(1443);
 				match(RARROW);
 				setState(1444);
@@ -7638,8 +7638,8 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class WorkerReplyContext extends ParserRuleContext {
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public TerminalNode LARROW() { return getToken(BallerinaParser.LARROW, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
@@ -7665,7 +7665,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1449);
-			expressionList();
+			expression(0);
 			setState(1450);
 			match(LARROW);
 			setState(1451);
@@ -16054,11 +16054,11 @@ public class BallerinaParser extends Parser {
 		"\5\u00eav\2\u0597\u0596\3\2\2\2\u0597\u0598\3\2\2\2\u0598\u0599\3\2\2"+
 		"\2\u0599\u059a\7s\2\2\u059a\u00b3\3\2\2\2\u059b\u059e\5\u00b6\\\2\u059c"+
 		"\u059e\5\u00b8]\2\u059d\u059b\3\2\2\2\u059d\u059c\3\2\2\2\u059e\u00b5"+
-		"\3\2\2\2\u059f\u05a0\5\u00ccg\2\u05a0\u05a1\7\u008f\2\2\u05a1\u05a2\7"+
-		"\u00a5\2\2\u05a2\u05a3\7s\2\2\u05a3\u05aa\3\2\2\2\u05a4\u05a5\5\u00cc"+
-		"g\2\u05a5\u05a6\7\u008f\2\2\u05a6\u05a7\7W\2\2\u05a7\u05a8\7s\2\2\u05a8"+
+		"\3\2\2\2\u059f\u05a0\5\u00eav\2\u05a0\u05a1\7\u008f\2\2\u05a1\u05a2\7"+
+		"\u00a5\2\2\u05a2\u05a3\7s\2\2\u05a3\u05aa\3\2\2\2\u05a4\u05a5\5\u00ea"+
+		"v\2\u05a5\u05a6\7\u008f\2\2\u05a6\u05a7\7W\2\2\u05a7\u05a8\7s\2\2\u05a8"+
 		"\u05aa\3\2\2\2\u05a9\u059f\3\2\2\2\u05a9\u05a4\3\2\2\2\u05aa\u00b7\3\2"+
-		"\2\2\u05ab\u05ac\5\u00ccg\2\u05ac\u05ad\7\u0090\2\2\u05ad\u05ae\7\u00a5"+
+		"\2\2\u05ab\u05ac\5\u00eav\2\u05ac\u05ad\7\u0090\2\2\u05ad\u05ae\7\u00a5"+
 		"\2\2\u05ae\u05af\7s\2\2\u05af\u00b9\3\2\2\2\u05b0\u05b1\b^\1\2\u05b1\u05b8"+
 		"\5\u00f2z\2\u05b2\u05b4\7n\2\2\u05b3\u05b2\3\2\2\2\u05b3\u05b4\3\2\2\2"+
 		"\u05b4\u05b5\3\2\2\2\u05b5\u05b8\5\u00c2b\2\u05b6\u05b8\5\u00ecw\2\u05b7"+

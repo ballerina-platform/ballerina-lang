@@ -1350,13 +1350,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.exprs = rewriteExprs(workerSendNode.exprs);
+        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
         result = workerSendNode;
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.exprs = rewriteExprs(workerReceiveNode.exprs);
+        workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
         result = workerReceiveNode;
     }
 
