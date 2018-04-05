@@ -48,7 +48,7 @@ public type Listener object {
 
     @Description {value:"Stops the registered service"}
     public native function stop ();
-}
+};
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
 @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
@@ -67,6 +67,6 @@ public function Listener::init (ListenerEndpointConfiguration config) {
 public type ListenerEndpointConfiguration {
     @readonly string path,
     @readonly boolean recursive,
-}
+};
 
-public type Connection {}
+public type Connection {};

@@ -22,7 +22,7 @@ package ballerina.file;
 public type FileEvent {
     string name,
     string operation,
-}
+};
 
 @Description {value:"Represents an error which will occur while DirectoryListener operations"}
 @Field {value:"message:  An error message explaining about the error"}
@@ -30,4 +30,4 @@ public type FileEvent {
 public type FSError {
     string message,
     error[] cause,
-}
+};
