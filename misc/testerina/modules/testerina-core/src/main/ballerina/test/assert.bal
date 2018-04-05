@@ -13,7 +13,7 @@ type AssertError {
     string message;
     error[] cause;
     string category;
-}
+};
 
 @Description{value:"Creates an AssertError with custom message and category"}
 @Param{value:"errorMessage: Custom message for the ballerina error"}

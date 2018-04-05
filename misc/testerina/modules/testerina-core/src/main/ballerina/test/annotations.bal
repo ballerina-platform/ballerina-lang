@@ -14,7 +14,7 @@ public type TestConfig {
     string before;
     string after;
     string[] dependsOn;
-}
+};
 
 @Description { value:"Configuration of the function to be mocked."}
 @Field {value:"packageName: Name of the package that the function to be mocked resides in"}
@@ -22,7 +22,7 @@ public type TestConfig {
 public type MockConfig {
     string packageName = ".";
     string functionName;
-}
+};
 
 public annotation <function> Config TestConfig;
 
