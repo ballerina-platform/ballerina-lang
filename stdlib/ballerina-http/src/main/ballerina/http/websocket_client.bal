@@ -54,16 +54,10 @@ public type WebSocketClient object {
 @Field {value:"parentConnectionID: Connection ID of the parent connection to which it should be bound to when connecting"}
 @Field {value:"customHeaders: Custom headers which should be sent to the server"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)."}
-public type WebSocketClientEndpointConfig object {
-    public {
-        string url;
-        typedesc callbackService;
-        string[] subProtocols;
-        map<string> customHeaders;
-        int idleTimeoutInSeconds;
-    }
-    new(){
-        config.idleTimeoutInSeconds = -1;
-    }
-
+type WebSocketClientEndpointConfig {
+        string url,
+        typedesc callbackService,
+        string[] subProtocols,
+        map<string> customHeaders,
+        int idleTimeoutInSeconds: -1
 }
