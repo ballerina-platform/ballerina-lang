@@ -212,11 +212,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
-        // Define struct field nodes.
-        defineRecordFields(pkgNode.records, pkgEnv);
-
         // Define type definitions.
         pkgNode.typeDefinitions.forEach(typeDefinition -> defineNode(typeDefinition, pkgEnv));
+
+        // Define struct field nodes.
+        defineRecordFields(pkgNode.records, pkgEnv);
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
