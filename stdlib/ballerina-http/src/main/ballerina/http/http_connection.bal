@@ -60,7 +60,7 @@ public type Connection object {
     public native function cancelUpgradeToWebSocket(int status, string reason);
 
     public function respondContinue() returns (HttpConnectorError | ());
-    
+
     public function redirect(Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | ());
 }
 

@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -31,13 +31,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  *
  * @since 0.94
  */
-public class BLangFieldBasedAccess extends BLangVariableReference implements FieldBasedAccessNode {
+public class BLangFieldBasedAccess extends BLangAccessExpression implements FieldBasedAccessNode {
 
     public BLangIdentifier field;
 
-    public BLangVariableReference expr;
-
-    public FieldType fieldType;
+    public FieldKind fieldKind;
 
     @Override
     public BLangVariableReference getExpression() {

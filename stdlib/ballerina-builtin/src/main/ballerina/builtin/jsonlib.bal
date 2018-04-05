@@ -35,7 +35,6 @@ public native function <json j> getKeys() returns (string[]);
 @Param { value:"j: A JSON object" }
 @Param { value:"options: jsonOptions struct for JSON to XML conversion properties" }
 @Return { value:"The XML representation of the JSON" }
-public native function <json j> toXML (struct {
-                                           string attributePrefix = "@";
+public native function <json j> toXML ({ string attributePrefix = "@";
                                            string arrayEntryTag = "item";
                                        } options) returns (xml| error);

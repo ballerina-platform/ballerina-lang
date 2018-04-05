@@ -17,7 +17,7 @@
 package ballerina.http;
 
 @Description {value:"Stands for the round robin algorithm for load balancing."}
-public const string ROUND_ROBIN = "round-robin";
+@final public string ROUND_ROBIN = "round-robin";
 
 @Description {value:"Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient."}
 @Field {value:"serviceUri: This is there just so that the struct is equivalent to HttpClient. This has no bearing on the functionality."}

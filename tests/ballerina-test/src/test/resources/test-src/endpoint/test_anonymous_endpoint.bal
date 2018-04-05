@@ -26,7 +26,7 @@ type DummyEndpoint object {
 
     public function getClient () returns (DummyClient) {
         exFlow = exFlow + "getClient:DummyEndpoint;";
-        return {};
+        return new;
     }
 }
 
