@@ -34,10 +34,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -73,10 +76,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
@@ -198,6 +203,16 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRecord record) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        // No implementation
+    }
+
+    @Override
     public void visit(BLangEnum enumNode) {
         // No implementation
     }
@@ -232,8 +247,8 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    @Deprecated
     @Override
+    @Deprecated
     public void visit(BLangAnnotAttribute annotationAttribute) {
         // No implementation
     }
@@ -308,7 +323,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         // No implementation
     }
-    
+
     @Override
     public void visit(BLangDone doneNode) {
         // No implementation
@@ -489,10 +504,21 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
+    @Override
+    public void visit(BLangForever foreverStatement) {
+        // No implementation
+    }
+
+
     // Expressions
 
     @Override
     public void visit(BLangLiteral literalExpr) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangTableLiteral tableLiteral) {
         // No implementation
     }
 
@@ -672,7 +698,17 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangForever foreverStatement) {
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
         // No implementation
     }
 
@@ -776,11 +812,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
         // No implementation
     }
@@ -827,6 +858,11 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangStatementExpression bLangStatementExpression) {
         // No implementation
     }
 }
