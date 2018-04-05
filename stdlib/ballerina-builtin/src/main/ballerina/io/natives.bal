@@ -16,13 +16,6 @@
 
 package ballerina.io;
 
-@Description { value:"Default record format"}
-public const string DEFAULT_FORMAT = "DEFAULT";
-@Description { value:"RFC4180 record format"}
-public const string RFC4180_FORMAT = "RFC4180";
-@Description { value:"TDF record format"}
-public const string TDF_FORMAT = "TDF";
-
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public type ByteChannel object {
     @Description {value:"Function to read bytes"}
@@ -97,7 +90,9 @@ public type DelimitedRecordChannel object {
     public native function closeDelimitedRecordChannel () returns (IOError);
 }
 
-@Description {value:"Represents an error which will occur while performing I/O operations"}
+documentation {
+    Represents an error which will occur while performing I/O operations
+}
 public type IOError object{
     public {
         string message;
@@ -105,12 +100,15 @@ public type IOError object{
     }
 }
 
-@Description {value:"Represents a client socket connection. This can be used to communicate with a remote machine"}
-@Field {value:"channel: Connection stream that bridge the client and the server"}
-@Field {value:"port: Remote server port"}
-@Field {value:"localPort: Client side port that open for the communication"}
-@Field {value:"address: Remote server domain/IP"}
-@Field {value:"localAddress: Client domain/IP"}
+documentation {
+    Represents a client socket connection. This can be used to communicate with a remote machine
+
+    P{{channel}} - Connection stream that bridge the client and the server.
+    P{{port}} - Remote server port.
+    P{{localPort}} - Client side port that open for the communication.
+    P{{address}} - Remote server domain/IP.
+    P{{localAddress}} - Client domain/IP.
+}
 public type Socket object {
     public {
         ByteChannel channel;
@@ -124,16 +122,19 @@ public type Socket object {
     public native function closeSocket () returns (IOError);
 }
 
-@Description {value:"SocketProperties structs represents the properties which are used to configure TCP connection"}
-@Field {value:"localPort: Client side port that open for the communication"}
-@Field {value:"keyStoreFile: File path to keystore file"}
-@Field {value:"keyStorePassword: The keystore password"}
-@Field {value:"trustStoreFile: File path to truststore file"}
-@Field {value:"trustStorePassword: The truststore password"}
-@Field {value:"certPassword: The certificate password"}
-@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
-@Field {value:"ciphers: List of ciphers to be used"}
-@Field {value:"sslProtocol: The SSL protocol version"}
+documentation {
+    SocketProperties structs represents the properties which are used to configure TCP connection.
+
+    P{{localPort}} - Client side port that open for the communication.
+    P{{keyStoreFile}} - File path to keystore file.
+    P{{keyStorePassword}} - The keystore password.
+    P{{trustStoreFile}} - The truststore password.
+    P{{certPassword}} - The certificate password.
+    P{{sslEnabledProtocols}} - SSL/TLS protocols to be enabled.
+    P{{ciphers}} - List of ciphers to be used.
+    P{{sslProtocol}} - The SSL protocol version.
+}
+
 public type SocketProperties object {
     public {
         int localPort;

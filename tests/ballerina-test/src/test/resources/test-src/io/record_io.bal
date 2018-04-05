@@ -1,6 +1,6 @@
 import ballerina/io;
 
-struct Employee {
+type Employee {
     string id;
     string name;
     float salary;
