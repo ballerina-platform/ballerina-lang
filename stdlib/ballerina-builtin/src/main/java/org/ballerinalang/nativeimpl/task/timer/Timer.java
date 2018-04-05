@@ -69,7 +69,7 @@ public class Timer {
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         this.isDaemon = isDaemon;
         TaskRegistry.getInstance().addTimer(this);
-        if (isDaemon) {
+        if (!isDaemon) {
             BLangScheduler.workerCountUp();
         }
     }
@@ -93,7 +93,7 @@ public class Timer {
     }
 
     public void stop() throws TaskException {
-        if (isDaemon) {
+        if (!isDaemon) {
             BLangScheduler.workerCountDown();
         }
         executorService.shutdown();

@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -28,22 +29,20 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
  * Native function ballerina.task:scheduleTimer.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "task",
-        functionName = "scheduleTimer",
+        functionName = "scheduleDaemonAppointment",
         args = {@Argument(name = "onTrigger", type = TypeKind.ANY),
                 @Argument(name = "onError", type = TypeKind.ANY),
                 @Argument(name = "schedule", type = TypeKind.STRUCT)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class BalScheduleTimer extends BlockingNativeCallableUnit {
+public class BalScheduleDaemonTimer extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         FunctionRefCPEntry onTriggerFunctionRefCPEntry;
@@ -52,7 +51,9 @@ public class BalScheduleTimer extends BlockingNativeCallableUnit {
                 ctx.getLocalWorkerData().refRegs[0] instanceof BFunctionPointer) {
             onTriggerFunctionRefCPEntry = ((BFunctionPointer) ctx.getRefArgument(0)).value();
         } else {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
+            ctx.setReturnValues(new BString(""),
+                    BLangVMErrors.createError(ctx, 0, "The onTrigger function is not provided"));
+            return;
         }
         if (ctx.getLocalWorkerData().refRegs[1] != null &&
                 ctx.getLocalWorkerData().refRegs[1] instanceof BFunctionPointer) {
@@ -63,11 +64,11 @@ public class BalScheduleTimer extends BlockingNativeCallableUnit {
         long interval = scheduler.getIntField(1);
 
         try {
-            Timer timer = new Timer(this, ctx, delay, interval, false, onTriggerFunctionRefCPEntry,
+            Timer timer = new Timer(this, ctx, delay, interval, true, onTriggerFunctionRefCPEntry,
                     onErrorFunctionRefCPEntry);
             ctx.setReturnValues(new BString(timer.getId()));
         } catch (SchedulingException e) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
+            ctx.setReturnValues(BLangVMErrors.createError(ctx, 0, e.getMessage()));
         }
     }
 }
