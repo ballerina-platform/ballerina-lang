@@ -22,7 +22,7 @@ public type Connection object {
     public native function start ();
 
     public function getClient () returns (ConnectionConnector) {
-        return self.connector;
+        return connector;
     }
 
     public native function stop ();
