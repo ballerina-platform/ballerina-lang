@@ -15,58 +15,82 @@
 // under the License.
 package ballerina.grpc;
 
-@Description {value:"gRPC Service Stub for outbound gRPC requests"}
+documentation {
+    gRPC Service Stub for outbound gRPC requests
+}
 public type ServiceStub object {
     public {
         Client client;
     }
 
-    @Description {value:"init native function for initialize the Stub."}
-    @Param {value: "Service Stub type. possible values: blocking, nonblocking"}
-    @Param {value: "Proto descriptor key. Key of proto descriptor"}
-    @Param {value: "Proto descriptor map. descriptor map with all dependent descriptors"}
+    documentation {
+        Init native function for initialize the Stub.
+
+        P{{clientEndpoint}} - client endpoint struct.
+        P{{stubType}} - Service Stub type. possible values: blocking, nonblocking.
+        P{{descriptorKey}} - Proto descriptor key. Key of proto descriptor.
+        P{{descriptorMap}} - Proto descriptor map. descriptor map with all dependent descriptors.
+    }
     public native function initStub (any clientEndpoint, string stubType, string descriptorKey, map descriptorMap);
 
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
+    documentation {
+        Blocking execute function implementation of the gRPC client stub.
+
+        P{{methodID}} - remote procedure call id.
+        P{{payload}} - Any type of request payload.
+    }
     public native function blockingExecute (string methodID, any payload) returns (any | ConnectorError);
 
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
+    documentation {
+        Non Blocking execute function implementation of the gRPC client stub.
+
+        P{{methodID}} - remote procedure call id.
+        P{{payload}} - Any type of request payload.
+        P{{listenerService}} - call back listener service.
+    }
     public native function nonBlockingExecute (string methodID, any payload, typedesc listenerService) returns
     (ConnectorError);
 
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
+    documentation {
+        Blocking execute function implementation of the gRPC client stub.
+
+        P{{methodID}} - remote procedure call id.
+        P{{listenerService}} - call back listener service.
+    }
     public native function streamingExecute (string methodID, typedesc listenerService) returns (Client |
             ConnectorError);
 }
 
 
-@Description {value:"Represents the gRPC client connector connection"}
-@Field {value:"host: The server host name"}
-@Field {value:"port: The server port"}
+documentation {
+    Represents the gRPC client connector connection.
+
+    F{{host}} - The server host name.
+    F{{port}} - The server port.
+}
 public type ClientConnection object {
     public {
         int port;
         string host;
     }
 
-        @Description {value:"Sends request message to the server"}
-    @Param {value:"res: The inbound request message"}
-    @Return {value:"Error occured when sending the request"}
+    documentation {
+        Sends request message to the server.
+
+        P{{res}} - The inbound request message.
+    }
     public native function send (any res) returns (ConnectorError);
 
-    @Description {value:"Informs the server, caller finished sending messages."}
-    @Return {value:"Error occured when sending the complete request"}
+    documentation {
+        Informs the server, caller finished sending messages.
+    }
     public native function complete () returns (ConnectorError);
 
-    @Description {value:"Sends error response to the server"}
-    @Param {value:"clientError: The error message message"}
-    @Return {value:"Error occured when sending the error message"}
+    documentation {
+        Sends error response to the server.
+
+        P{{clientError}} - error message.
+    }
     public native function errorResponse (ClientError clientError) returns (ConnectorError);
 }
 
