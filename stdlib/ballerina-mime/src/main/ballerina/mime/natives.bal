@@ -4,60 +4,58 @@ import ballerina/file;
 import ballerina/io;
 
 @Description {value:"Represent 'application/x-www-form-urlencoded' media type value"}
-public @final string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+@final public string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
 @Description {value:"Represent 'application/json' media type value"}
-public @final string APPLICATION_JSON = "application/json";
+@final public string APPLICATION_JSON = "application/json";
 
 @Description {value:"Represent 'application/octet-stream' media type value"}
-public @final string APPLICATION_OCTET_STREAM = "application/octet-stream";
+@final public string APPLICATION_OCTET_STREAM = "application/octet-stream";
 
 @Description {value:"Represent 'application/svg+xml' media type value"}
-public @final string APPLICATION_SVG_XML = "application/svg+xml";
+@final public string APPLICATION_SVG_XML = "application/svg+xml";
 
 @Description {value:"Represent 'application/xhtml+xml' media type value"}
-public @final string APPLICATION_XHTML_XML = "application/xhtml+xml";
+@final public string APPLICATION_XHTML_XML = "application/xhtml+xml";
 
 @Description {value:"Represent 'application/xml' media type value"}
-public @final string APPLICATION_XML = "application/xml";
+@final public string APPLICATION_XML = "application/xml";
 
 @Description {value:"Represent 'multipart/form-data' media type value"}
-public @final string MULTIPART_FORM_DATA = "multipart/form-data";
+@final public string MULTIPART_FORM_DATA = "multipart/form-data";
 
 @Description {value:"Represent 'multipart/mixed' media type value"}
-public @final string MULTIPART_MIXED = "multipart/mixed";
+@final public string MULTIPART_MIXED = "multipart/mixed";
 
 @Description {value:"Represent 'text/html' media type value"}
-public @final string TEXT_HTML = "text/html";
+@final public string TEXT_HTML = "text/html";
 
 @Description {value:"Represent 'text/plain' media type value"}
-public @final string TEXT_PLAIN = "text/plain";
+@final public string TEXT_PLAIN = "text/plain";
 
 @Description {value:"Represent 'text/xml' media type value"}
-public @final string TEXT_XML = "text/xml";
+@final public string TEXT_XML = "text/xml";
 
 @Description {value:"Key name for 'boundary' parameter in MediaType. This is needed for composite type media types"}
-public @final string BOUNDARY = "boundary";
+@final public string BOUNDARY = "boundary";
 
-@Description {value:"Key name for 'start' parameter in MediaType. This determines which part in the multipart message
-contains the payload"}
-public @final string START = "start";
+@Description {value:"Key name for 'start' parameter in MediaType. This determines which part in the multipart message contains the payload"}
+@final public string START = "start";
 
-@Description {value:"Key name for 'type' parameter in MediaType. This indicates the MIME media type of the 'root'
-body part"}
-public @final string TYPE = "type";
+@Description {value:"Key name for 'type' parameter in MediaType. This indicates the MIME media type of the 'root' body part"}
+@final public string TYPE = "type";
 
 @Description {value:"Key name for 'charset' parameter in MediaType. Indicate the character set of the body text"}
-public @final string CHARSET = "charset";
+@final public string CHARSET = "charset";
 
 @Description {value:"Default charset to be used with MIME encoding and decoding"}
-public @final string DEFAULT_CHARSET = "UTF-8";
+@final public string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 @final string READ_PERMISSION = "r";
 
 @Description {value:"Represent 'content-type' header name"}
-public @final string CONTENT_TYPE = "content-type";
+@final public string CONTENT_TYPE = "content-type";
 
 @Description {value:"Represent values in Content-Disposition header"}
 @Field {value:"fileName: Default filename for storing the bodypart, if the receiving agent wishes to store it in an external file"}
@@ -237,7 +235,6 @@ public type Entity object {
 
     @Description {value:"Check the header existence"}
     public native function hasHeader (string headerName) returns boolean;
-
 }
 
 public function Entity::setFileAsEntityBody (file:File fileHandler) {
@@ -265,7 +262,7 @@ public type MimeBase64Encoder object {
 
 @Description {value:"Represent MIME specific base64 decoder. This follows RFC 2045 for decoding operation."}
 public type MimeBase64Decoder object {
-           
+
     @Description {value:"Decode byte array using MIME Base64 encoding scheme."}
     @Param {value:"content: the byte array to decode"}
     @Return {value:"Return resulting decoded bytes"}
