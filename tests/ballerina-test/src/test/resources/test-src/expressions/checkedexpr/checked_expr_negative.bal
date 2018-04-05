@@ -17,13 +17,13 @@ function testCheckedExprSemanticErrors2() {
     string line = check readLineError();
 }
 
-public struct myerror {
+public type myerror {
     string message;
     error[] cause;
     int code;
 }
 
-public struct customError {
+public type customError {
     string message;
     error[] cause;
     int code;
