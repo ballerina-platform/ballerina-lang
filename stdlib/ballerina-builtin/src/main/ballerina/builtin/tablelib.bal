@@ -81,4 +81,4 @@ type TableConfig {
     string[] primaryKey;
     string[] index;
     any[] data;
-}
+};
