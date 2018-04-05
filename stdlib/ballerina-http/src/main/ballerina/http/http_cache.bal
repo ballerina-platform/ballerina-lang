@@ -71,16 +71,16 @@ type HttpCache object {
         }
     }
 
-    function getAll (string key) returns (Response[]|null) {
+    function getAll (string key) returns Response[]|() {
         try {
             match <Response[]>cache.get(key) {
                 Response[] cacheEntry => return cacheEntry;
-                error err => return null;
+                error err => return ();
             }
         } catch (error e) {
-            return null;
+            return ();
         }
-        return null;
+        return ();
     }
 
     function getAllByETag (string key, string etag) returns Response[] {

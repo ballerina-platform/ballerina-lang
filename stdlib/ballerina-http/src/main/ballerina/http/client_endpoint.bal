@@ -62,7 +62,7 @@ public type Algorithm "NONE" | "LOAD_BALANCE" | "FAIL_OVER";
 @Field {value:"secureSocket: SSL/TLS related options"}
 public type TargetService {
     string url,
-    SecureSocket? secureSocket
+    SecureSocket? secureSocket,
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
@@ -111,7 +111,7 @@ public type Retry {
     int count,
     int interval,
     float backOffFactor,
-    int maxWaitInterval
+    int maxWaitInterval,
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
@@ -131,7 +131,7 @@ public type SecureSocket {
     string ciphers,
     boolean hostNameVerification = true,
     boolean sessionCreation = true,
-    boolean ocspStapling
+    boolean ocspStapling,
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
@@ -139,7 +139,7 @@ public type SecureSocket {
 @Field {value:"maxCount: Maximun number of redirects to follow"}
 public type FollowRedirects {
     boolean enabled = false,
-    int maxCount = 5
+    int maxCount = 5,
 }
 
 @Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
@@ -151,7 +151,7 @@ public type Proxy {
     string host,
     int port,
     string userName,
-    string password
+    string password,
 }
 
 @Description { value:"This struct represents the options to be used for connection throttling" }
@@ -159,7 +159,7 @@ public type Proxy {
 @Field {value:"waitTime: Maximum waiting time for a request to grab an idle connection from the client connector"}
 public type ConnectionThrottling {
     int maxActiveConnections = -1,
-    int waitTime = 60000
+    int waitTime = 60000,
 }
 
 public function ClientEndpoint::init(ClientEndpointConfiguration config) {
@@ -203,7 +203,7 @@ public function ClientEndpoint::init(ClientEndpointConfiguration config) {
                         }
                         httpClientRequired = false;
                     }
-                    int | null => {
+                    () => {
                         httpClientRequired = true;
                     }
                 }
@@ -213,7 +213,7 @@ public function ClientEndpoint::init(ClientEndpointConfiguration config) {
                         Retry retry => {
                             self.httpClient = createRetryClient(url, config);
                         }
-                        int | null => {
+                        () => {
                             if (config.cacheConfig.enabled) {
                                 self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
                             } else{
@@ -241,7 +241,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                 Retry retry => {
                     cbHttpClient = createRetryClient(uri, configuration);
                 }
-                int | null => {
+                () => {
                     if (configuration.cacheConfig.enabled) {
                         cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
                     } else{
@@ -278,7 +278,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
             HttpClient httpClient =  cbClient;
             return httpClient;
         }
-        int | null => {
+        () => {
             //remove following once we can ignore
             if (configuration.cacheConfig.enabled) {
                 return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
@@ -335,7 +335,7 @@ function createRetryClient (string uri, ClientEndpointConfiguration configuratio
             HttpClient httpClient =  retryClient;
             return httpClient;
         }
-        int | null => {
+        () => {
             //remove following once we can ignore
             if (configuration.cacheConfig.enabled) {
                 return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
