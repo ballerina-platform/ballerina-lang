@@ -5,7 +5,7 @@ public type Consumer object {
         ConsumerTemplate ct = new ();
         return ct;
     }
-}
+};
 
 public type ConsumerTemplate object {
     public {
@@ -23,12 +23,12 @@ public type ConsumerTemplate object {
 
     public function getClient() returns (ConsumerConnector);
 
-}
+};
 
 public type ConsumerConnector object {
-}
+};
 
 public type ConsumerEndpointConfiguration {
     Session session;
     string identifier;
-}
+};
