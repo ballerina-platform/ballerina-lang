@@ -1,11 +1,11 @@
 
-public struct person01 {
+public type person01 {
     int age;
     string name;
     string address;
 }
 
-public struct employee01 {
+public type employee01 {
     int age;
     string name;
     string zipcode = "95134";
@@ -18,13 +18,13 @@ function testEqOfStructsInSamePackage01() returns (string) {
     return p.name;
 }
 
-public struct person02 {
+public type person02 {
     int age;
     string name;
     string address;
 }
 
-public struct employee02 {
+public type employee02 {
     int age;
     string name;
     int address;
@@ -37,13 +37,13 @@ function testEqOfStructsInSamePackage02() returns (string) {
     return p.name;
 }
 
-public struct person03 {
+public type person03 {
     int age;
     string name;
     string address;
 }
 
-public struct employee03 {
+public type employee03 {
     int age;
     string name;
 }
@@ -55,13 +55,13 @@ function testEqOfStructsInSamePackage03() returns (string) {
     return p.name;
 }
 
-public struct person04 {
+public type person04 {
     int age;
     string name;
     string address;
 }
 
-public struct employee04 {
+public type employee04 {
     int age;
     string name;
     string address;
@@ -70,7 +70,7 @@ public struct employee04 {
         string ss;
 }
 
-// Private fields in RHS struct name mismatch
+// Private fields in RHS type name mismatch
 function testEqOfStructsInSamePackage04() returns (string) {
     employee04 e = {age:14, name:"rat"};
     person04 p = <person04> e;
@@ -78,7 +78,7 @@ function testEqOfStructsInSamePackage04() returns (string) {
 }
 
 
-public struct person05 {
+public type person05 {
     int age;
     string name;
     private:
@@ -86,7 +86,7 @@ public struct person05 {
         string id;
 }
 
-public struct employee05 {
+public type employee05 {
     int age;
     string name;
     string address;
@@ -94,21 +94,21 @@ public struct employee05 {
     string ssn;
 }
 
-// Private fields in LHS struct name mismatch
+// Private fields in LHS type name mismatch
 function testEqOfStructsInSamePackage05() returns (string) {
     employee05 e = {age:14, name:"rat"};
     person05 p = <person05> e;
     return p.name;
 }
 
-struct person06 {
+type person06 {
     int age;
     string name;
     int address;
     string id;
 }
 
-struct employee06 {
+type employee06 {
     int age;
     string name;
     string address;
@@ -116,7 +116,7 @@ struct employee06 {
     string ssn;
 }
 
-// Private structs type mismatch
+// Private types type mismatch
 function testEqOfStructsInSamePackage06() returns (string) {
     employee06 e = {age:14, name:"rat"};
     person06 p = <person06> e;
@@ -124,7 +124,7 @@ function testEqOfStructsInSamePackage06() returns (string) {
 }
 
 
-public struct person07 {
+public type person07 {
     int age;
     string name;
     string address;
@@ -144,7 +144,7 @@ public function <person07 p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public struct employee07 {
+public type employee07 {
     int age;
     string name;
     string address;
@@ -160,7 +160,7 @@ public function <employee07 e> getAge() returns (int) {
     return e.age;
 }
 
-// Public structs attached function count mismatch
+// Public types attached function count mismatch
 function testEqOfStructsInSamePackage07() returns (string) {
     employee07 e = {age:14, name:"rat"};
     person07 p = <person07> e;
@@ -168,7 +168,7 @@ function testEqOfStructsInSamePackage07() returns (string) {
 }
 
 
-public struct person08 {
+public type person08 {
     int age;
     string name;
     string address;
@@ -188,7 +188,7 @@ public function <person08 p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public struct employee08 {
+public type employee08 {
     int age;
     string name;
     string address;
@@ -208,7 +208,7 @@ public function <employee08 e> getSSN() returns (string) {
     return e.ssn;
 }
 
-// Public structs attached function visibility mismatch
+// Public types attached function visibility mismatch
 function testEqOfStructsInSamePackage08() returns (string) {
     employee08 e = {age:14, name:"rat"};
     person08 p = <person08> e;
@@ -216,7 +216,7 @@ function testEqOfStructsInSamePackage08() returns (string) {
 }
 
 
-public struct person09 {
+public type person09 {
     int age;
     string name;
     string address;
@@ -236,7 +236,7 @@ public function <person09 p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public struct employee09 {
+public type employee09 {
     int age;
     string name;
     string address;
@@ -256,7 +256,7 @@ public function <employee09 e> getSSN() returns (string) {
     return e.ssn;
 }
 
-// Public structs attached function signature mismatch
+// Public types attached function signature mismatch
 function testEqOfStructsInSamePackage09() returns (string) {
     employee09 e = {age:14, name:"rat"};
     person09 p = <person09> e;
