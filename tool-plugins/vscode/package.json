@@ -36,7 +36,7 @@
             {
                 "language": "ballerina",
                 "scopeName": "source.ballerina",
-                "path": "./ballerina-grammar/syntaxes/ballerina.tmLanguage"
+                "path": "./syntaxes/ballerina.tmLanguage"
             }
         ],
         "configuration": {
