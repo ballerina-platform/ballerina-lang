@@ -34,7 +34,7 @@ public type ByteChannel object {
 
     @Description {value:"Function to close a byte channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public native function close () returns (IOError);
+    public native function close () returns (IOError | ());
 }
 
 @Description {value:"Ballerina CharacterChannel represents a channel which will allow to read/write characters"}
@@ -54,7 +54,7 @@ public type CharacterChannel object {
 
     @Description {value:"Function to close a character channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public native function closeCharacterChannel () returns (IOError);
+    public native function closeCharacterChannel () returns (IOError | ());
 
     @Description {value:"Function to convert a character channel to a JSON"}
     @Param {value:"channel: The source CharacterChannel that going to convert to JSON"}
@@ -87,7 +87,7 @@ public type DelimitedRecordChannel object {
 
     @Description {value:"Function to close the text record channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public native function closeDelimitedRecordChannel () returns (IOError);
+    public native function closeDelimitedRecordChannel () returns (IOError | ());
 }
 
 documentation {
