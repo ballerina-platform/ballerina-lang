@@ -5,17 +5,17 @@ service<DummyService> helloWorld {
 }
 
 type Config {
-}
+};
 
 type DummyEndpoint object {
 
     function init (Config conf)  {
     }
-}
+};
 type DummyService object{
 
     function getEndpoint() returns (DummyEndpoint) {
         DummyEndpoint ep = new;
         return ep;
     }
-}
+};

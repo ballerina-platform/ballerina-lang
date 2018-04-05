@@ -18,7 +18,7 @@ function concatTwoInts (int i, int j) {
 
 type Week {
     string[] days;
-}
+};
 
 function testNestedForeach () returns (string) {
     Week w = {days:["mon", "tue", "wed", "thu", "fri"]};
@@ -64,7 +64,7 @@ int gx = 0;
 
 type data {
     int sx;
-}
+};
 
 function testIntRangeComplex() returns (string){
     data d = {sx : 10};
