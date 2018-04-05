@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     int id;
     int age;
     float salary;

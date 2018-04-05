@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     int id;
     int age = -1;
     float salary;
@@ -6,21 +6,21 @@ struct Person {
     boolean married;
 }
 
-struct Order {
+type Order {
     int personId;
     int orderId;
     string items;
     float amount;
 }
 
-struct OrderDetails {
+type OrderDetails {
     int orderId;
     string personName;
     string items;
     float amount;
 }
 
-struct Student {
+type Student {
     string name;
     int index;
     int age = -1;
