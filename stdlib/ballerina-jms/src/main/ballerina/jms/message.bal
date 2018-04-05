@@ -1,8 +1,9 @@
 package ballerina.jms;
 
-public struct Message {
+public type Message object {
+    @Description { value:"Gets text content of the JMS message"}
+    @Return { value:"string: Text Message Content" }
+    public native function getTextMessageContent () returns (string);
 }
 
-@Description { value:"Gets text content of the JMS message"}
-@Return { value:"string: Text Message Content" }
-public native function <Message msg> getTextMessageContent () returns (string);
+
