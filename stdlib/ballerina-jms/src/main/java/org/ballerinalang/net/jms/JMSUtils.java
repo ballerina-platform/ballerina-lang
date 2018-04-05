@@ -25,10 +25,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.utils.StringUtils;
-import org.wso2.transport.jms.contract.JMSClientConnector;
-import org.wso2.transport.jms.exception.JMSConnectorException;
-import org.wso2.transport.jms.utils.JMSConstants;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +33,6 @@ import java.util.Objects;
 import java.util.Properties;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
@@ -146,13 +141,17 @@ public class JMSUtils {
         }
     }
 
+    public static boolean isNullOrEmptyAfterTrim(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
     public static void preProcessIfWso2MB(Map<String, String> configParams) {
         if (Constants.MB_ICF_ALIAS.equalsIgnoreCase(configParams.get(Constants.ALIAS_INITIAL_CONTEXT_FACTORY))) {
 
             configParams.put(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, Constants.MB_ICF_NAME);
             String connectionFactoryName = configParams.get(Constants.ALIAS_CONNECTION_FACTORY_NAME);
             if (configParams.get(Constants.ALIAS_PROVIDER_URL) != null) {
-                if (!StringUtils.isNullOrEmptyAfterTrim(connectionFactoryName)) {
+                if (!isNullOrEmptyAfterTrim(connectionFactoryName)) {
                     configParams.put(Constants.MB_CF_NAME_PREFIX + connectionFactoryName,
                                      configParams.get(Constants.ALIAS_PROVIDER_URL));
                     configParams.remove(Constants.ALIAS_PROVIDER_URL);
@@ -188,52 +187,9 @@ public class JMSUtils {
         }
     }
 
-    /**
-     * Convert Client Connector Property Map into String key-value pair map.
-     *
-     * @param endpointConfig Client Connector configuration map
-     * @return String key-value pair map
-     */
-    public static Map<String, String> preProcessEndpointConfig(Struct endpointConfig) {
-        Map<String, String> configParams = new HashMap<>();
-
-        String initialContextFactory = endpointConfig.getStringField("initialContextFactory");
-        String providerUrl = endpointConfig.getStringField("providerUrl");
-        String connectionFactoryName = endpointConfig.getStringField("connectionFactoryName");
-        String destinationType = endpointConfig.getStringField("destinationType");
-        boolean clientCaching = endpointConfig.getBooleanField("clientCaching");
-        String connectionUsername = endpointConfig.getStringField("connectionUsername");
-        String connectionPassword = endpointConfig.getStringField("connectionPassword");
-        String configFilePath = endpointConfig.getStringField("configFilePath");
-        int connectionCount = (int) endpointConfig.getIntField("connectionCount");
-        int sessionCount = (int) endpointConfig.getIntField("sessionCount");
-
-        // Add to the map
-        configParams.put(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, initialContextFactory);
-        configParams.put(Constants.ALIAS_CONNECTION_FACTORY_NAME, connectionFactoryName);
-        configParams.put(Constants.ALIAS_DESTINATION_TYPE, destinationType);
-        configParams.put(JMSConstants.PARAM_JMS_CACHING, String.valueOf(clientCaching));
-        if (isBlank(providerUrl)) {
-            configParams.put(Constants.ALIAS_PROVIDER_URL, providerUrl);
-        }
-        if (isBlank(configFilePath)) {
-            configParams.put(Constants.CONFIG_FILE_PATH, configFilePath);
-        }
-        if (isBlank(connectionUsername)) {
-            configParams.put(JMSConstants.CONNECTION_USERNAME, connectionUsername);
-            configParams.put(JMSConstants.CONNECTION_PASSWORD, connectionPassword);
-        }
-        configParams.put(JMSConstants.PARAM_MAX_CONNECTIONS, String.valueOf(connectionCount));
-        configParams.put(JMSConstants.PARAM_MAX_SESSIONS_ON_CONNECTION, String.valueOf(sessionCount));
-
-        preProcessMapField(configParams, endpointConfig.getMapField("properties"));
-
-        return configParams;
-    }
-
-    private static boolean isBlank(String string) {
-        return Objects.nonNull(string) && !string.isEmpty();
-    }
+//    private static boolean isBlank(String string) {
+//        return Objects.nonNull(string) && !string.isEmpty();
+//    }
 
     /**
      * Process the provided properties in the {@link Map} and convert it to jms connector friendly Map.
@@ -308,28 +264,5 @@ public class JMSUtils {
                     + ".JMS Service should only have one resource");
         }
         return resources[0];
-    }
-
-    /**
-     * Create the ReplyTo destination and set it to the {@link Message}.
-     *
-     * @param messageStruct      respective Ballerina Message Struct.
-     * @param jmsClientConnector client connector use to create the destination.
-     */
-    public static void updateReplyToDestination(BStruct messageStruct, JMSClientConnector jmsClientConnector) {
-        BallerinaJMSMessage ballerinaJMSMessage = (BallerinaJMSMessage) messageStruct
-                .getNativeData(Constants.JMS_API_MESSAGE);
-        if (ballerinaJMSMessage.getReplyDestinationName() == null) {
-            return;
-        }
-
-        try {
-            Destination destination = jmsClientConnector
-                    .createDestination(ballerinaJMSMessage.getReplyDestinationName());
-            ballerinaJMSMessage.getJmsMessage().setJMSReplyTo(destination);
-        } catch (JMSConnectorException | JMSException e) {
-            throw new BallerinaException("error setting ReplyTo destination to the jms message");
-        }
-
     }
 }

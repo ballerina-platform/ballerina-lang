@@ -221,6 +221,11 @@
                 <include>io.ballerina.messaging:broker-common:jar</include>
                 <include>io.ballerina.messaging:broker-core:jar</include>
 
+                <!-- JMS connector dependencies -->
+                <include>javax.jms:javax.jms-api:jar</include>
+                <include>org.wso2.andes.wso2:andes-client:jar</include>
+                <include>org.wso2.securevault:org.wso2.securevault:jar</include>
+
             </includes>
         </dependencySet>
 

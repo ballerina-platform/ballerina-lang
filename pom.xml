@@ -921,6 +921,16 @@
                 <artifactId>javax.jms-api</artifactId>
                 <version>${javax.jms.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.andes.wso2</groupId>
+                <artifactId>andes-client</artifactId>
+                <version>${andes.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.securevault</groupId>
+                <artifactId>org.wso2.securevault</artifactId>
+                <version>${wso2.securevault.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1609,6 +1619,8 @@
         <!-- JMS Connector -->
         <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
+        <andes.client.version>3.2.49</andes.client.version>
+        <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
     </properties>
 
 </project>

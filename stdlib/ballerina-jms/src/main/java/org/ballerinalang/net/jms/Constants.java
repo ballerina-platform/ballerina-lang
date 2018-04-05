@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.jms;
 
-import org.wso2.transport.jms.utils.JMSConstants;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -114,16 +112,24 @@ public class Constants {
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
     private static Map<String, String> mappingParameters;
 
+    public static final String PARAM_CONNECTION_FACTORY_JNDI_NAME = "transport.jms.ConnectionFactoryJNDIName";
+    public static final String PARAM_CONNECTION_FACTORY_TYPE = "transport.jms.ConnectionFactoryType";
+    public static final String PARAM_DESTINATION_NAME = "transport.jms.Destination";
+    public static final String PARAM_ACK_MODE = "transport.jms.SessionAcknowledgement";
+    public static final String PARAM_DURABLE_SUB_ID = "transport.jms.DurableSubscriberName";
+    public static final String PARAM_CLIENT_ID = "transport.jms.DurableSubscriberClientId";
+    public static final String PARAM_PROVIDER_URL = "java.naming.provider.url";
+
     static {
         mappingParameters = new HashMap<>();
         mappingParameters.put(ALIAS_INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY);
-        mappingParameters.put(ALIAS_CONNECTION_FACTORY_NAME, JMSConstants.PARAM_CONNECTION_FACTORY_JNDI_NAME);
-        mappingParameters.put(ALIAS_DESTINATION_TYPE, JMSConstants.PARAM_CONNECTION_FACTORY_TYPE);
-        mappingParameters.put(ALIAS_PROVIDER_URL, JMSConstants.PARAM_PROVIDER_URL);
-        mappingParameters.put(ALIAS_DESTINATION, JMSConstants.PARAM_DESTINATION_NAME);
-        mappingParameters.put(ALIAS_ACK_MODE, JMSConstants.PARAM_ACK_MODE);
-        mappingParameters.put(ALIAS_CLIENT_ID, JMSConstants.PARAM_CLIENT_ID);
-        mappingParameters.put(ALIAS_DURABLE_SUBSCRIBER_ID, JMSConstants.PARAM_DURABLE_SUB_ID);
+        mappingParameters.put(ALIAS_CONNECTION_FACTORY_NAME, PARAM_CONNECTION_FACTORY_JNDI_NAME);
+        mappingParameters.put(ALIAS_DESTINATION_TYPE, PARAM_CONNECTION_FACTORY_TYPE);
+        mappingParameters.put(ALIAS_PROVIDER_URL, PARAM_PROVIDER_URL);
+        mappingParameters.put(ALIAS_DESTINATION, PARAM_DESTINATION_NAME);
+        mappingParameters.put(ALIAS_ACK_MODE, PARAM_ACK_MODE);
+        mappingParameters.put(ALIAS_CLIENT_ID, PARAM_CLIENT_ID);
+        mappingParameters.put(ALIAS_DURABLE_SUBSCRIBER_ID, PARAM_DURABLE_SUB_ID);
     }
 
     public static final Map<String, String> MAPPING_PARAMETERS = Collections.unmodifiableMap(mappingParameters);

@@ -47,10 +47,6 @@
             <artifactId>ballerina-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.transport.jms</groupId>
-            <artifactId>transport-jms</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
         </dependency>
