@@ -204,7 +204,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -804,8 +804,7 @@ public class BLangPackageBuilder {
                                         Set<Whitespace> ws,
                                         String identifier,
                                         boolean exprAvailable,
-                                        boolean endpoint,
-                                        boolean safeAssignment) {
+                                        boolean endpoint) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         // TODO : Remove endpoint logic from here.
@@ -822,7 +821,6 @@ public class BLangPackageBuilder {
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        var.safeAssignment = safeAssignment;
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
@@ -1077,13 +1075,14 @@ public class BLangPackageBuilder {
     }
 
     public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName,
-                                           FieldType fieldType) {
+                                           FieldKind fieldType, boolean safeNavigate) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = (BLangIdentifier) createIdentifier(fieldName);
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
-        fieldBasedAccess.fieldType = fieldType;
+        fieldBasedAccess.fieldKind = fieldType;
+        fieldBasedAccess.safeNavigate = safeNavigate;
         addExpressionNode(fieldBasedAccess);
     }
 
@@ -1373,15 +1372,13 @@ public class BLangPackageBuilder {
                                   Set<Whitespace> ws,
                                   String identifier,
                                   boolean exprAvailable,
-                                  boolean publicVar,
-                                  boolean safeAssignment) {
+                                  boolean publicVar) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
         var.docTag = DocTag.VARIABLE;
-        var.safeAssignment = safeAssignment;
 
         this.compUnit.addTopLevelNode(var);
     }
@@ -1928,8 +1925,7 @@ public class BLangPackageBuilder {
         tempAnnotAttachments.forEach(annot -> annotatableNode.addAnnotationAttachment(annot));
     }
 
-    public void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                       boolean isVarDeclaration, boolean safeAssignment) {
+    public void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isVarDeclaration) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         ExpressionNode lExprNode = exprNodeStack.pop();
         BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
@@ -1937,7 +1933,6 @@ public class BLangPackageBuilder {
         assignmentNode.setDeclaredWithVar(isVarDeclaration);
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
-        assignmentNode.safeAssignment = safeAssignment;
         assignmentNode.varRef = ((BLangVariableReference) lExprNode);
         addStmtToCurrentBlock(assignmentNode);
     }

@@ -2,7 +2,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/http;
 
-const string constPath = getConstPath();
+@final string constPath = getConstPath();
 
 struct Person {
     string name;

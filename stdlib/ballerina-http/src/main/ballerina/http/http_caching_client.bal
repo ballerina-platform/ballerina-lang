@@ -21,13 +21,13 @@ import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 
-const string WARNING_AGENT = getWarningAgent();
+@final string WARNING_AGENT = getWarningAgent();
 
-const string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
-const string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
+@final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
+@final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
 
-const string WEAK_VALIDATOR_TAG = "W/";
-const int STALE = 0;
+@final string WEAK_VALIDATOR_TAG = "W/";
+@final int STALE = 0;
 
 @Description {value:"Used for configuring the caching behaviour. Setting the policy field in the CacheConfig struct allows the user to control the caching behaviour."}
 @Field {value:"CACHE_CONTROL_AND_VALIDATORS: This a more restricted mode of RFC 7234. This restricts caching to instances where the Cache-Control header and either the ETag or Last-Modified header are present."}

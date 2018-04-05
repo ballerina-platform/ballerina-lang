@@ -49,6 +49,11 @@ public class FinalAccessTest {
         BAssertUtil
                 .validateError(compileResultNegative, 2, "cannot assign a value to final 'bar:globalBarString'", 12, 5);
         BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to final 'a'", 24, 5);
+        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 'a'", 30, 5);
+        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'f'", 35, 5);
+        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 's'", 36, 5);
+        BAssertUtil.validateError(compileResultNegative, 7, "cannot assign a value to function argument 'b'", 37, 5);
+        BAssertUtil.validateError(compileResultNegative, 8, "cannot assign a value to function argument 'j'", 38, 5);
     }
 
     @Test(description = "Test final global variable")
@@ -93,7 +98,7 @@ public class FinalAccessTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFinalFieldAsParameter");
 
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
     @Test(description = "Test final paramter")

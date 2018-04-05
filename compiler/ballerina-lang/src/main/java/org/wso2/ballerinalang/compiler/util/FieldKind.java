@@ -26,7 +26,7 @@ package org.wso2.ballerinalang.compiler.util;
  * </ul>
  * @since 0.970.0
  */
-public enum FieldType {
+public enum FieldKind {
     SINGLE, 
     ALL;
 }

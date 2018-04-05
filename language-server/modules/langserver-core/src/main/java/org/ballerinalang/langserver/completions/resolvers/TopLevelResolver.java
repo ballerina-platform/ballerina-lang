@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
@@ -52,8 +51,6 @@ public class TopLevelResolver extends AbstractItemResolver {
             addTopLevelItems(completionItems);
         }
         if (errorContextResolver instanceof PackageNameContextResolver) {
-            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-        } else if (errorContextResolver instanceof ParserRuleConstantDefinitionContextResolver) {
             completionItems.addAll(errorContextResolver.resolveItems(completionContext));
         } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
             addTopLevelItems(completionItems);

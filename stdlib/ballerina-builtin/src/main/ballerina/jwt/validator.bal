@@ -100,7 +100,11 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
 function parseHeader (json jwtHeaderJson) returns (Header) {
     Header jwtHeader = {};
     map customClaims = {};
-    foreach key in jwtHeaderJson.getKeys() {
+    
+    string [] keys;
+    keys = jwtHeaderJson.getKeys() but { null => keys };
+    
+    foreach key in keys {
         //TODO get alg from a constant
         if (key == "alg") {
             jwtHeader.alg = jwtHeaderJson[key].toString();
@@ -125,7 +129,9 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
 function parsePayload (json jwtPayloadJson) returns (Payload) {
     Payload jwtPayload = {};
     map customClaims = {};
-    foreach key in jwtPayloadJson.getKeys() {
+    string [] keys;
+    keys = jwtPayloadJson.getKeys() but { null => keys };
+    foreach key in keys {
         if (key == ISS) {
             jwtPayload.iss = jwtPayloadJson[key].toString();
         } else if (key == SUB) {

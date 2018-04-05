@@ -17,15 +17,15 @@
 package ballerina.http;
 
 @Description {value:"Authentication header name"}
-const string AUTH_HEADER = "Authorization";
+@final string AUTH_HEADER = "Authorization";
 @Description {value:"Basic authentication scheme"}
-const string AUTH_SCHEME_BASIC = "Basic";
+@final string AUTH_SCHEME_BASIC = "Basic";
 @Description {value:"Bearer authentication scheme"}
-const string AUTH_SCHEME_BEARER = "Bearer";
+@final string AUTH_SCHEME_BEARER = "Bearer";
 @Description {value:"Auth annotation package"}
-const string AUTH_ANN_PACKAGE = "ballerina.auth";
+@final string AUTH_ANN_PACKAGE = "ballerina.auth";
 @Description {value:"Auth annotation name"}
-const string AUTH_ANN_NAME = "Config";
+@final string AUTH_ANN_NAME = "Config";
 
 @Description {value:"Extracts the basic authentication header value from the request"}
 @Param {value:"req: Request instance"}
