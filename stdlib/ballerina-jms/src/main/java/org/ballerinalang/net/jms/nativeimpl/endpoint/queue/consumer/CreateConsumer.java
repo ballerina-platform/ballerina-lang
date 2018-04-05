@@ -47,13 +47,9 @@ import javax.jms.Session;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "createConsumer",
-        receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "QueueConsumer",
-                             structPackage = "ballerina.jms"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueConsumer", structPackage = "ballerina.jms"),
         args = {
-                @Argument(name = "connector",
-                          type = TypeKind.STRUCT,
-                          structType = "SessionConnector")
+                @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session")
         },
         isPublic = true
 )
