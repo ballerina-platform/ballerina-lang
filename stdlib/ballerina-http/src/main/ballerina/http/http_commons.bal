@@ -1,17 +1,21 @@
 package ballerina.http;
 
-public type Chunking "AUTO" | "ALWAYS" | "NEVER";
+public type AUTO "AUTO"
+public type ALWAYS "ALWAYS"
+public type NEVER "NEVER"
 
-public type Compression "AUTO" | "ALWAYS" | "NEVER";
+public type Chunking AUTO | ALWAYS | NEVER
 
-public type TransferEncoding "CHUNKING";
+public type Compression AUTO | ALWAYS | NEVER
+
+public type TransferEncoding "CHUNKING"
 
 @Description { value:"TrustStore record represents trust store related options to be used for HTTP client/service invocation"}
 @Field {value:"filePath: File path to trust store file"}
 @Field {value:"password: Trust store password"}
 public type TrustStore {
     string filePath,
-    string password
+    string password,
 }
 
 @Description { value:"KeyStore record represents key store related options to be used for HTTP client/service invocation"}
@@ -19,7 +23,7 @@ public type TrustStore {
 @Field {value:"password: Key store password"}
 public type KeyStore {
     string filePath,
-    string password
+    string password,
 }
 
 @Description { value:"Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation"}
@@ -27,7 +31,7 @@ public type KeyStore {
 @Field {value:"enabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
 public type Protocols {
     string protocolName,
-    string versions
+    string versions,
 }
 
 @Description { value:"ValidateCert record represents options related to check whether a certificate is revoked or not"}
@@ -37,7 +41,7 @@ public type Protocols {
 public type ValidateCert {
     boolean enable,
     int cacheSize,
-    int cacheValidityPeriod
+    int cacheValidityPeriod,
 }
 
 @Description { value:"OcspStapling record represents options related to check whether a certificate is revoked or not"}
@@ -47,15 +51,15 @@ public type ValidateCert {
 public type ServiceOcspStapling {
     boolean enable,
     int cacheSize,
-    int cacheValidityPeriod
+    int cacheValidityPeriod,
 }
 
 @Description {value:"Represent all http payload related errors"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The error which caused the entity error"}
-public type PayloadError object {
-    string message;
-    error[] cause;
+public type PayloadError {
+    string message,
+    error[] cause,
 }
 
 //////////////////////////////
