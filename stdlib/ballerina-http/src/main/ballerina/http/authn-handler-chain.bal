@@ -24,10 +24,9 @@ public type AuthnHandlerChain object {
         map authnHandlers;
     }
     new () {
-        authnHandlers = new;
     }
     public function handle (Request req) returns (boolean);
-}
+};
 
 @Description {value:"Creates a Authentication handler chain"}
 @Return {value:"AuthnHandlerChain: AuthnHandlerChain instance"}

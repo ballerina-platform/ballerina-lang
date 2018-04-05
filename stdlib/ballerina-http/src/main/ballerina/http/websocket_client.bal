@@ -47,7 +47,7 @@ public type WebSocketClient object {
     public function stop () {
         _ = h.getClient().close(1001, "The connection has been stopped");
     }
-}
+};
 
 @Description {value:"Configuration struct for WebSocket client connection"}
 @Field {value:"subProtocols: Negotiable sub protocols for the client"}
@@ -60,4 +60,4 @@ public type WebSocketClientEndpointConfig {
     string[] subProtocols,
     map<string> customHeaders,
     int idleTimeoutInSeconds = -1,
-}
+};
