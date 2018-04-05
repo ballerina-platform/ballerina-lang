@@ -1238,8 +1238,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (!variableList.equals(structFieldNameList)) {
             dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
-                            getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT,
-                    "output stream attributes", structType);
+                    getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT, structType);
         }
     }
 

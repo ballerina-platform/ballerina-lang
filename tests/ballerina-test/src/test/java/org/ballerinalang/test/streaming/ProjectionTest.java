@@ -64,7 +64,7 @@ public class ProjectionTest {
     public void testProjectionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0,
-                "incompatible types: 'output stream attributes' cannot be constrained with 'Employee'",
+                "Incompatible stream action argument type 'Employee' defined",
                 44, 9);
         BAssertUtil.validateError(resultNegative, 1,
                 "undefined stream attribute 'address' found in select clause",
