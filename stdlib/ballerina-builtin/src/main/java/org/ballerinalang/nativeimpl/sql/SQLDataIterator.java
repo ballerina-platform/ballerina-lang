@@ -34,12 +34,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -60,8 +57,9 @@ public class SQLDataIterator extends TableIterator {
     private StructInfo zoneStructInfo;
 
     public SQLDataIterator(Calendar utcCalendar, BStructType structType, StructInfo timeStructInfo,
-            StructInfo zoneStructInfo, TableResourceManager rm) throws SQLException {
-        super(structType, rm);
+            StructInfo zoneStructInfo, TableResourceManager rm, ResultSet rs, List<ColumnDefinition> columnDefs)
+            throws SQLException {
+        super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
@@ -74,11 +72,6 @@ public class SQLDataIterator extends TableIterator {
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
-    }
-
-    private void populateTableResourceManager(Connection conn, Statement stmt) {
-        resourceManager.setConnection(conn);
-        resourceManager.setStatement(stmt);
     }
 
     @Override
@@ -255,24 +248,6 @@ public class SQLDataIterator extends TableIterator {
                             .getMessage());
         }
         return bStruct;
-    }
-
-    public void setResetAttributesForReIteration(ResultSet rs, Connection conn, PreparedStatement preparedStmt) {
-        this.rs = rs;
-        populateTableResourceManager(conn, preparedStmt);
-        setColumnDefs(rs);
-    }
-
-    public ResultSet getResultSet() {
-        return this.rs;
-    }
-
-    private void setColumnDefs(ResultSet rs) {
-        try {
-            this.columnDefs = SQLDatasourceUtils.getColumnDefinitions(rs);
-        } catch (SQLException e) {
-            throw new BallerinaException("error while obtaining column definitions : " + e.getMessage());
-        }
     }
 
     private BStruct createTimeStruct(long millis) {

@@ -43,7 +43,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private boolean nextPrefetched;
     private TableProvider tableProvider;
     private String tableName;
-    private BStructType constraintType;
+    protected BStructType constraintType;
     private boolean isInMemoryTable;
 
     public BTable() {
@@ -66,8 +66,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.isInMemoryTable = false;
     }
 
-    public BTable(DataIterator dataIterator, String tableName, BStructType constraintType) {
-        this.iterator = dataIterator;
+    public BTable(String tableName, BStructType constraintType) {
         this.nextPrefetched = false;
         this.hasNextVal = false;
         this.tableProvider = null;
@@ -137,20 +136,23 @@ public class BTable implements BRefType<Object>, BCollection {
 
 
     public boolean hasNext(boolean isInTransaction) {
-        if (isIteratorPopulationConditionMet()) {
-            populateIterator();
+        if (isIteratorGenerationConditionMet()) {
+            generateIterator();
         }
         return deriveHasNextVal(isInTransaction);
     }
 
     public void next() {
+        if (isIteratorGenerationConditionMet()) {
+            generateIterator();
+        }
         moveIteratorCursorToNextRow();
     }
 
     public void close(boolean isInTransaction) {
         if (iterator != null) {
             iterator.close(isInTransaction);
-            if (this.isInMemoryTable) {
+            if (iteratorResetRequired()) {
                 resetIterator();
             }
         }
@@ -199,7 +201,7 @@ public class BTable implements BRefType<Object>, BCollection {
         context.setReturnValues(new BInteger(deletedCount));
     }
 
-    public void removeData(BStruct data) {
+    private void removeData(BStruct data) {
         if (!this.isInMemoryTable) {
             throw new BallerinaException("data cannot be deleted from a table returned from a database");
         }
@@ -253,12 +255,12 @@ public class BTable implements BRefType<Object>, BCollection {
         return new BTable.BTableIterator(this);
     }
 
-    protected void populateIterator() {
+    protected void generateIterator() {
         this.iterator = tableProvider.createIterator(tableName, this.constraintType);
         resetIterationHelperAttributes();
     }
 
-    protected boolean isIteratorPopulationConditionMet() {
+    protected boolean isIteratorGenerationConditionMet() {
         return this.isInMemoryTable && this.iterator == null;
     }
 
@@ -301,6 +303,10 @@ public class BTable implements BRefType<Object>, BCollection {
             this.iterator = null;
         }
         resetIterationHelperAttributes();
+    }
+
+    protected boolean iteratorResetRequired() {
+        return isInMemoryTable;
     }
 
     private boolean deriveHasNextVal(boolean isInTransaction) {

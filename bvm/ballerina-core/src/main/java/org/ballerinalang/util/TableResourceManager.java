@@ -37,22 +37,10 @@ public class TableResourceManager {
     private Statement statement;
     private Set<ResultSet> resultSets;
 
-    public TableResourceManager() {
-        this.resultSets = new HashSet<>(0);
-    }
-
     public TableResourceManager(Connection conn, Statement stmt) {
         this.connection = conn;
         this.statement = stmt;
         this.resultSets = new HashSet<>(0);
-    }
-
-    public void setConnection(Connection conn) {
-        this.connection = conn;
-    }
-
-    public void setStatement(Statement stmt) {
-        this.statement = stmt;
     }
 
     /**

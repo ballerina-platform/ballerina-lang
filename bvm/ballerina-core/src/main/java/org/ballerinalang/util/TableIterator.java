@@ -61,12 +61,6 @@ public class TableIterator implements DataIterator {
         this.columnDefs = columnDefs;
     }
 
-    public TableIterator(BStructType type, TableResourceManager rm) {
-        this.type = type;
-        this.resourceManager = rm;
-        generateColumnDefinitions();
-    }
-
     public TableIterator(TableResourceManager rm, ResultSet rs, BStructType type) {
         this.resourceManager = rm;
         this.rs = rs;
