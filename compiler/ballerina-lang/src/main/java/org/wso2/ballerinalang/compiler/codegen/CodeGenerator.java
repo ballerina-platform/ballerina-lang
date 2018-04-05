@@ -1029,30 +1029,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
-        RegIndex exprRegIndex = calcAndGetExprRegIndex(elvisExpr);
-
-        this.genNode(elvisExpr.lhsExpr, this.env);
-
-        Operand conditionVar = getRegIndex(TypeTags.BOOLEAN);
-        emit(InstructionCodes.RNE_NULL, elvisExpr.lhsExpr.regIndex, conditionVar);
-
-        Operand ifFalseJumpAddr = getOperand(-1);
-        this.emit(InstructionCodes.BR_FALSE, conditionVar, ifFalseJumpAddr);
-
-        int opcode = getRefToValueTypeCastOpcode(elvisExpr.type.tag);
-        if (opcode == InstructionCodes.NOP) {
-            emit(InstructionCodes.RMOVE, elvisExpr.lhsExpr.regIndex, exprRegIndex);
-        } else {
-            emit(opcode, elvisExpr.lhsExpr.regIndex, exprRegIndex);
-        }
-
-        Operand endJumpAddr = getOperand(-1);
-        this.emit(InstructionCodes.GOTO, endJumpAddr);
-        ifFalseJumpAddr.value = nextIP();
-
-        elvisExpr.rhsExpr.regIndex = createLHSRegIndex(exprRegIndex);
-        this.genNode(elvisExpr.rhsExpr, this.env);
-        endJumpAddr.value = nextIP();
     }
 
     @Override
