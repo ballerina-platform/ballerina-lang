@@ -75,8 +75,17 @@ public type Connection object {
 @Field { value:"NOT_MODIFIED_304: Represents status code 304 - Not Modified."}
 @Field { value:"USE_PROXY_305: Represents status code 305 - Use Proxy."}
 @Field { value:"TEMPORARY_REDIRECT_307: Represents status code 307 - Temporary Redirect."}
-public type RedirectCode "MULTIPLE_CHOICES_300"|"MOVED_PERMANENTLY_301"|"FOUND_302"|"SEE_OTHER_303"|"NOT_MODIFIED_304"
-    |"USE_PROXY_305"|"TEMPORARY_REDIRECT_307";
+
+public type MULTIPLE_CHOICES_300 "MULTIPLE_CHOICES_300";
+public type MOVED_PERMANENTLY_301 "MOVED_PERMANENTLY_301";
+public type FOUND_302 "FOUND_302";
+public type SEE_OTHER_303 "SEE_OTHER_303";
+public type NOT_MODIFIED_304 "NOT_MODIFIED_304";
+public type USE_PROXY_305 "USE_PROXY_305";
+public type TEMPORARY_REDIRECT_307 "TEMPORARY_REDIRECT_307";
+
+public type RedirectCode MULTIPLE_CHOICES_300|MOVED_PERMANENTLY_301|FOUND_302|SEE_OTHER_303|NOT_MODIFIED_304
+    |USE_PROXY_305|TEMPORARY_REDIRECT_307;
 
 @Description { value:"Sends a 100-continue response to the client."}
 @Param { value:"conn: The server connector connection" }
@@ -96,22 +105,15 @@ public function Connection::respondContinue () returns (HttpConnectorError | ())
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 @Return { value:"Returns null if any error does not exist." }
 public function Connection::redirect (Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | ()) {
-    if (code == RedirectCode.MULTIPLE_CHOICES_300) {
-        response.statusCode = 300;
-    } else if (code == RedirectCode.MOVED_PERMANENTLY_301) {
-        response.statusCode = 301;
-    } else if (code == RedirectCode.FOUND_302) {
-        response.statusCode = 302;
-    } else if (code == RedirectCode.SEE_OTHER_303) {
-        response.statusCode = 303;
-    } else if (code == RedirectCode.NOT_MODIFIED_304) {
-        response.statusCode = 304;
-    } else if (code == RedirectCode.USE_PROXY_305) {
-        response.statusCode = 305;
-    } else if (code == RedirectCode.TEMPORARY_REDIRECT_307) {
-        response.statusCode = 307;
+    match code {
+        MULTIPLE_CHOICES_300 => response.statusCode = 300;
+        MOVED_PERMANENTLY_301 => response.statusCode = 301;
+        FOUND_302 => response.statusCode = 302;
+        SEE_OTHER_303 => response.statusCode = 303;
+        NOT_MODIFIED_304 => response.statusCode = 304;
+        USE_PROXY_305 => response.statusCode = 305;
+        TEMPORARY_REDIRECT_307 => response.statusCode = 307;
     }
-
     string locationsStr = "";
     foreach location in locations {
         locationsStr = locationsStr + location + ",";
@@ -119,5 +121,5 @@ public function Connection::redirect (Response response, RedirectCode code, stri
     locationsStr = locationsStr.subString(0, (lengthof locationsStr) - 1);
 
     response.setHeader(LOCATION, locationsStr);
-    return conn.respond(response);
+    return self.respond(response);
 }

@@ -66,11 +66,9 @@ documentation {
     F{{host}}  - The remote server host.
     F{{port}} - The remote server port.
 }
-public type Remote object {
-    public {
-        @readonly string host;
-        @readonly int port;
-    }
+public type Remote {
+    @readonly string host;
+    @readonly int port;
 }
 
 documentation {
@@ -79,11 +77,9 @@ documentation {
     F{{host}}  - The local server host.
     F{{port}} - The local server port.
 }
-public type Local object {
-    public {
-        @readonly string host;
-        @readonly int port;
-    }
+public type Local {
+    @readonly string host;
+    @readonly int port;
 }
 
 @Description {value:"Request validation limits configuration for HTTP service endpoint"}
@@ -91,11 +87,9 @@ public type Local object {
 @Field {value:"maxHeaderSize: Maximum size allowed in the headers"}
 @Field {value:"maxEntityBodySize: Maximum size allowed in the entity body"}
 public type RequestLimits object {
-    public {
-        @readonly int maxUriLength;
-        @readonly int maxHeaderSize;
-        @readonly int maxEntityBodySize;
-    }
+    @readonly int maxUriLength;
+    @readonly int maxHeaderSize;
+    @readonly int maxEntityBodySize;
 }
 
 @Description {value:"Initializes the RequestLimits struct with default values."}
