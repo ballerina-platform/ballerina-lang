@@ -31,9 +31,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -44,45 +43,35 @@ import javax.jms.Session;
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "jms",
                    functionName = "createTextMessage",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "Session",
+                   receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
                                         structPackage = "ballerina.jms"),
-                   args = {
-                           @Argument(name = "content",
-                                     type = TypeKind.STRING)
-                   },
+                   args = { @Argument(name = "content", type = TypeKind.STRING) },
                    returnType = {
-                           @ReturnType(type = TypeKind.STRUCT,
-                                       structPackage = "ballerina.jms",
-                                       structType = "Message")
+                           @ReturnType(type = TypeKind.STRUCT, structPackage = "ballerina.jms", structType = "Message")
                    },
                    isPublic = true)
 public class CreateTextMessage extends AbstractBlockinAction {
-    private static final Logger log = LoggerFactory.getLogger(CreateTextMessage.class);
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        Struct sessionEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct sessionConnector = sessionEndpoint.getStructField(Constants.SESSION_FIELD_CONNECTOR);
+        Struct sessionBObject = BallerinaAdapter.getReceiverStruct(context);
 
-        Object sessionNativeData = sessionConnector.getNativeData(Constants.JMS_SESSION);
-        if (!(sessionNativeData instanceof Session)) {
-            throw new BallerinaException("JMS Session is not properly established.", context);
-        }
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject, Constants.JMS_SESSION, Session.class,
+                                                           context);
 
         String content = context.getStringArgument(0);
 
         Message jmsMessage;
 
         try {
-            jmsMessage = ((Session) sessionNativeData).createTextMessage(content);
+            jmsMessage = session.createTextMessage(content);
         } catch (JMSException e) {
             throw new BallerinaException("Failed to create message. " + e.getMessage(), e, context);
         }
 
-        BStruct bStruct = BLangConnectorSPIUtil
-                .createBStruct(context, Constants.BALLERINA_PACKAGE_JMS, Constants.JMS_MESSAGE_STRUCT_NAME);
+        BStruct bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
+                                                              Constants.JMS_MESSAGE_STRUCT_NAME);
 
         bStruct.addNativeData(Constants.JMS_MESSAGE_OBJECT, jmsMessage);
 
