@@ -39,7 +39,7 @@ public type AuthzFilter object {
     public function init ();
 
     public function terminate ();
-}
+};
 
 @Description {value:"Initializes the AuthzFilter"}
 public function AuthzFilter::init () {

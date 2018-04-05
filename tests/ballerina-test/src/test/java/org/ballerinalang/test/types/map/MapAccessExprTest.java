@@ -94,7 +94,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
                 "invalid operation: type 'any' does not support field access");
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[1].getMessage(),
-                "incompatible types: expected 'string', found 'other'");
+                "incompatible types: expected 'string', found 'other?'");
     }
 
     @Test(description = "Test array access expression as the index of a map")

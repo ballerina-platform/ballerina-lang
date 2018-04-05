@@ -30,26 +30,25 @@ public type BasicAuthenticator object {
         userstore:UserStore userStore;
         caching:Cache? authCache;
     }
-    new (userstore:UserStore aUserStore, caching:Cache? anAuthCache) {
-        userStore = aUserStore;
-        authCache = anAuthCache;
+
+    new (userStore, authCache) {
     }
-}
+
+    public function authenticate(string username, string password) returns (boolean);
+
+    function authenticateFromCache(string basicAuthCacheKey) returns (boolean|());
+
+    function cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo);
+};
 
 @Description {value:"Represents an authentication decision about a user"}
 @Field {value:"username: user name"}
 @Field {value:"isAuthenticated: authentication decision, true if authenticated, else false"}
 public type AuthenticationInfo {
-    public {
-        string username;
-        boolean isAuthenticated;
-        string[] groups;
-    }
-    new (string aUsername, boolean authenticated) {
-        username = aUsername;
-        isAuthenticated = authenticated;
-    }
-}
+   string username,
+   boolean isAuthenticated,
+   string[] groups,
+};
 
 @Description {value:"Creates a Basic Authenticator"}
 @Param {value:"userStore: implementation of the credentials store - ldap, jdbc, file based userstore, etc."}
