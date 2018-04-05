@@ -1,5 +1,5 @@
 package ballerina.http;
 
 @Description { value:"Represents a handle for aynchronous http invocation"}
-public type HttpHandle {
+public type HttpHandle object {
 }
