@@ -33,7 +33,7 @@ public type AuthzChecker object {
     public function authorize (string username, string resourceName, string method, string[] scopes) returns (boolean);
     function authorizeFromCache(string authzCacheKey) returns (boolean|());
     function cacheAuthzResult (string authzCacheKey, boolean isAuthorized);
-}
+};
 
 @Description {value:"Creates a Basic Authenticator"}
 @Param {value:"permissionstore: PermissionStore instance"}

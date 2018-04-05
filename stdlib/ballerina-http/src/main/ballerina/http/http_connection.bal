@@ -62,7 +62,7 @@ public type Connection object {
     public function respondContinue() returns (HttpConnectorError | ());
 
     public function redirect(Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | ());
-}
+};
 
 /////////////////////////////////
 /// Ballerina Implementations ///
