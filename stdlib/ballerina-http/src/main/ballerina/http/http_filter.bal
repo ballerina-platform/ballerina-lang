@@ -25,14 +25,16 @@ public type Filter object {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
     }
-    public function init ();
-    public function terminate ();
 
     new (function (Request, FilterContext) returns (FilterResult) requestFilter,
-        function (Response, FilterContext) returns (FilterResult) responseFilter) {
+            function (Response, FilterContext) returns (FilterResult) responseFilter) {
         filterRequest = requestFilter;
         filterResponse = responseFilter;
     }
+
+    public function init ();
+    public function terminate ();
+
 };
 
 @Description {value:"Representation of filter Context."}
@@ -41,9 +43,11 @@ public type Filter object {
 @Field {value:"filterResponse: Name of the resource"}
 public type FilterContext object {
     // TODO should have a map of properties
-    typedesc serviceType;
-    string serviceName;
-    string resourceName;
+    public {
+        typedesc serviceType;
+        string serviceName;
+        string resourceName;
+    }
 };
 
 @Description {value:"Represents a filter result. This should be populated and returned by each request and response

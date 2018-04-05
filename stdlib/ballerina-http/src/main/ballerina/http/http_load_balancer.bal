@@ -150,7 +150,7 @@ public type LoadBalanceConnectorError {
     error[] cause,
     int statusCode,
     HttpConnectorError[] httpConnectorError,
-}
+};
 
 
 @Description {value:"The POST action implementation of the LoadBalancer Connector."}

@@ -4,7 +4,7 @@ type Employee {
     string id;
     string name;
     float salary;
-}
+};
 
 io:DelimitedRecordChannel txtChannel;
 

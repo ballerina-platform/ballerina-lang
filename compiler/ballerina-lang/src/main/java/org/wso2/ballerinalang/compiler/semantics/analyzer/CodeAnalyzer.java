@@ -25,7 +25,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -141,8 +140,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.ANON_STRUCT;
 
 /**
  * This represents the code analyzing pass of semantic analysis.
@@ -989,10 +986,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BSymbol symbol = node.type.tsymbol;
-        //skip anonymous struct definitions
-        if (symbol instanceof BStructSymbol && symbol.getName().getValue().startsWith(ANON_STRUCT)) {
-            return;
-        }
 
         if (!(env.enclPkg.symbol.pkgID == symbol.pkgID || (Symbols.isPublic(symbol)))) {
             dlog.error(node.pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);

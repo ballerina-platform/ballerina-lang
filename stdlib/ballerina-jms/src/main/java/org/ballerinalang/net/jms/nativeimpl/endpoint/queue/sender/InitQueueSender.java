@@ -50,9 +50,9 @@ import javax.jms.Session;
                              structType = "QueueSender",
                              structPackage = "ballerina.jms"),
         args = {
-                @Argument(name = "sessionConnector",
+                @Argument(name = "session",
                           type = TypeKind.STRUCT,
-                          structType = "SessionConnector")
+                          structType = "Session")
         },
         isPublic = true
 )
@@ -64,8 +64,8 @@ public class InitQueueSender implements NativeCallableUnit {
         Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
         String queueName = queueSenderConfig.getStringField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
 
-        BStruct sessionConnector = (BStruct) context.getRefArgument(1);
-        Session session = BallerinaAdapter.getNativeObject(sessionConnector,
+        BStruct sessionBObject = (BStruct) context.getRefArgument(1);
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject,
                                                            Constants.JMS_SESSION,
                                                            Session.class,
                                                            context);
