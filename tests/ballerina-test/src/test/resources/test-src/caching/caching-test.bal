@@ -15,11 +15,8 @@ function testPut (string name, int timeOut, int capacity, float evictionFactor, 
 function testGet (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int, string) {
     caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
     cache.put(key, value);
-    var returnValue = <string>cache.get(key);
-    match returnValue {
-        string s => return (cache.size(), s);
-        error => return (-1, "");
-    }
+    string returnValue = <string>cache.get(key);
+    return (cache.size(), returnValue);
 }
 
 function testRemove (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int) {
