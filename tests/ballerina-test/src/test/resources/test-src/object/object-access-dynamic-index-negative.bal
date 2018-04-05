@@ -8,7 +8,7 @@ type Person object {
     new (name, adrs, age) {
 
     }
-}
+};
 
 type ObjectField object {
     public {
@@ -17,7 +17,7 @@ type ObjectField object {
     new (key) {
 
     }
-}
+};
 
 function testExpressionAsStructIndex () returns (string) {
     ObjectField nameField = new ("name");

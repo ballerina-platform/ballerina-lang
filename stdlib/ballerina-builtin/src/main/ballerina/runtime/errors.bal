@@ -19,19 +19,19 @@ package ballerina.runtime;
 public type NullReferenceException {
     string message;
     error[] cause;
-}
+};
 
 public type IllegalStateException {
     string message;
     error[] cause;
-}
+};
 
 public type CallStackElement {
     string callableName;
     string packageName;
     string fileName;
     int lineNumber;
-}
+};
 
 public native function getCallStack () returns (CallStackElement[]);
 
@@ -40,4 +40,4 @@ public native function getErrorCallStackFrame (error e) returns (CallStackElemen
 public type CallFailedException {
     string message;
     error[] cause;
-}
+};

@@ -20,35 +20,29 @@ package org.ballerinalang.packerina.cmd;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * This class represents the "ballerina build" command.
+ * This class represents the "ballerina list" command.
  *
- * @since 0.90
+ * @since 0.970
  */
-@Parameters(commandNames = "build", commandDescription = "compile Ballerina program")
-public class BuildCommand implements BLauncherCmd {
+@Parameters(commandNames = "list", commandDescription = "lists dependencies of packages")
+public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
 
     private JCommander parentCmdParser;
-
-    @Parameter(names = {"-c"}, description = "build a compiled package")
-    private boolean buildCompiledPkg;
-
-    @Parameter(names = {"-o"}, description = "write output to the given file")
-    private String outputFileName;
-
-    @Parameter(names = {"--offline"})
-    private boolean offline;
 
     @Parameter(arity = 1)
     private List<String> argList;
@@ -61,13 +55,13 @@ public class BuildCommand implements BLauncherCmd {
 
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "list");
             outStream.println(commandUsageInfo);
             return;
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageException("no ballerina program given");
+            throw LauncherUtils.createUsageException("no package given");
         }
 
         if (argList.size() > 1) {
@@ -76,37 +70,29 @@ public class BuildCommand implements BLauncherCmd {
 
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        Path packagePath = Paths.get(argList.get(0));
 
-        Path targetPath = null;
-        if (outputFileName != null && !outputFileName.isEmpty()) {
-            targetPath = Paths.get(outputFileName);
+        if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
+            Path packagePath = Paths.get(argList.get(0));
+            BuilderUtils.compileAndWrite(sourceRootPath, packagePath, null, false, false, true, true);
+        } else {
+            throw new BLangCompilerException("Current directory is not a project");
         }
-
-        BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath, buildCompiledPkg, offline,
-                                     false, false);
         Runtime.getRuntime().exit(0);
     }
 
     @Override
     public String getName() {
-        return "build";
+        return "list";
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Compiles Ballerina sources and writes the output to a file. \n");
-        out.append("\n");
-        out.append("By default, output filename is the last part of packagename \n");
-        out.append("or the filename (minus the extension) with the extension \".balx\". \n");
-        out.append("\n");
-        out.append("If the output file is specified with the -o flag, the output \n");
-        out.append("will be written to that file. \n");
+        out.append("lists dependencies of packages \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build <balfile | packagename> [-o output] \n");
+        out.append("  ballerina list <balfile | packagename> \n");
     }
 
     @Override

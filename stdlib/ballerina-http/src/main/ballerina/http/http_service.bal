@@ -5,4 +5,4 @@ public type Service object {
         ServiceEndpoint ep;
         return ep;
     }
-}
+};

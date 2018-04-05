@@ -29,10 +29,10 @@ public type HttpServiceConfig {
     ServiceEndpoint[] endpoints,
     HttpServiceLifeTime lifetime,
     string basePath,
-    Compression compression: Compression.AUTO,
+    Compression compression = "AUTO",
     CorsConfig cors,
-    Versioning versioning
-}
+    Versioning versioning,
+};
 
 @Description {value:"Configurations for CORS support"}
 @Field {value:"allowHeaders: The array of allowed headers by the service"}
@@ -41,50 +41,52 @@ public type HttpServiceConfig {
 @Field {value:"exposeHeaders: The whitelisted headers which clients are allowed to access"}
 @Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
 @Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
-type CorsConfig {
+public type CorsConfig {
     string[] allowHeaders,
     string[] allowMethods,
     string[] allowOrigins,
     string[] exposeHeaders,
     boolean allowCredentials,
-    int maxAge: -1
-}
+    int maxAge= -1,
+};
 
 
 @Description {value:"Configurations for service versioning"}
 @Field {value:"pattern: Expecting version pattern in the request url"}
 @Field {value:"allowNoVersion: Allow to dispatch requests which does not hold version path segment in url"}
 @Field {value:"matchMajorVersion: Allow to dispatch requests which specify only the major version in url"}
-type Versioning {
+public type Versioning {
     string pattern = "v{major}.{minor}",
     boolean allowNoVersion = false,
-    boolean matchMajorVersion = false
-}
+    boolean matchMajorVersion = false,
+};
 
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value:"endpoints: An array of endpoints the service would be attached to"}
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
-type WSServiceConfig {
+public type WSServiceConfig {
     ServiceEndpoint[] endpoints,
     WebSocketEndpoint[] webSocketEndpoints,
     string basePath,
     string[] subProtocols,
-    int idleTimeoutInSeconds
-}
+    int idleTimeoutInSeconds,
+};
 
-@Description {value:"This specifies the possible ways in which a service can be used when serving requests."}
-@Field {value:"REQUEST: Create a new instance of the service to process each request"}
-@Field {value:"CONNECTION: Create a new instance of the service for each connection"}
-@Field {value:"SESSION: Create a new instance of the service for each session"}
-@Field {value:"SINGLETON: Create a single instance of the service and use it to process all requests coming to an endpoint"}
-public enum HttpServiceLifeTime {
-    REQUEST,
-    CONNECTION,
-    SESSION,
-    SINGLETON
-}
+//@Description {value:"This specifies the possible ways in which a service can be used when serving requests."}
+//@Field {value:"REQUEST: Create a new instance of the service to process each request"}
+//@Field {value:"CONNECTION: Create a new instance of the service for each connection"}
+//@Field {value:"SESSION: Create a new instance of the service for each session"}
+//@Field {value:"SINGLETON: Create a single instance of the service and use it to process all requests coming to an endpoint"}
+//public enum HttpServiceLifeTime {
+//    REQUEST,
+//    CONNECTION,
+//    SESSION,
+//    SINGLETON
+//}
+
+public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 @Description {value:"Configurations annotation for an HTTP service"}
 public annotation <service> ServiceConfig HttpServiceConfig;
@@ -103,21 +105,21 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
-type HttpResourceConfig {
+public type HttpResourceConfig {
         string[] methods,
         string path,
         string body,
         string[] consumes,
         string[] produces,
         CorsConfig cors,
-        boolean transactionInfectable: true,
-        WebSocketUpgradeConfig|null webSocketUpgrade
-}
+        boolean transactionInfectable = true,
+        WebSocketUpgradeConfig? webSocketUpgrade,
+};
 
-type WebSocketUpgradeConfig {
+public type WebSocketUpgradeConfig {
         string upgradePath,
-        typedesc upgradeService
-}
+        typedesc upgradeService,
+};
 
 @Description {value:"Configurations annotation for an HTTP resource"}
 public annotation <resource> ResourceConfig HttpResourceConfig;

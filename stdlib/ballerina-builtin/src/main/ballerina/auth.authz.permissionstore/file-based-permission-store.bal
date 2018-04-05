@@ -110,7 +110,7 @@ function getGroupsArray (string groupString) returns (string[]) {
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
 @Return {value:"string[]: array of groups, for the user denoted by the username"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) returns (string[]) {
+public function FileBasedPermissionStore::readGroupsOfUser (string username) returns (string[]) {
     string userId = getPermissionStoreConfigValue(username, "userid");
     string[] groupsArr = [];
     if (userId == EMPTY_STRING) {

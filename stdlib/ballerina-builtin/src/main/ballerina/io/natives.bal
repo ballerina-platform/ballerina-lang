@@ -34,8 +34,8 @@ public type ByteChannel object {
 
     @Description {value:"Function to close a byte channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public native function close () returns (IOError);
-}
+    public native function close () returns (IOError | ());
+};
 
 @Description {value:"Ballerina CharacterChannel represents a channel which will allow to read/write characters"}
 public type CharacterChannel object {
@@ -54,7 +54,7 @@ public type CharacterChannel object {
 
     @Description {value:"Function to close a character channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public native function closeCharacterChannel () returns (IOError);
+    public native function closeCharacterChannel () returns (IOError | ());
 
     @Description {value:"Function to convert a character channel to a JSON"}
     @Param {value:"channel: The source CharacterChannel that going to convert to JSON"}
@@ -67,7 +67,7 @@ public type CharacterChannel object {
     @Return {value:"Returns A XML"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
     public native function readXml () returns (xml|IOError);
-}
+};
 
 @Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}
 public type DelimitedRecordChannel object {
@@ -87,18 +87,18 @@ public type DelimitedRecordChannel object {
 
     @Description {value:"Function to close the text record channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
-    public native function closeDelimitedRecordChannel () returns (IOError);
-}
+    public native function closeDelimitedRecordChannel () returns (IOError | ());
+};
 
 documentation {
     Represents an error which will occur while performing I/O operations
 }
-public type IOError object{
+public type IOError object {
     public {
         string message;
         error[] cause;
     }
-}
+};
 
 documentation {
     Represetns a TCP socket.
@@ -114,13 +114,12 @@ public type Socket object {
     @Description {value:"Close the socket connection with the remote server"}
     @Return {value:"Returns an IOError if socket could not be closed"}
     public native function closeSocket () returns (IOError);
-}
+};
 
 documentation {
     SocketProperties structs represents the properties which are used to configure TCP connection.
 }
-public type SocketProperties object{
-    public {
+public type SocketProperties {
         int localPort;
         string keyStoreFile;
         string keyStorePassword;
@@ -130,8 +129,7 @@ public type SocketProperties object{
         string sslEnabledProtocols;
         string ciphers;
         string sslProtocol;
-    }
-}
+};
 
 @Description {value:"Opens a byte channel from a specified file location"}
 @Param {value:"path: path to the file location"}

@@ -250,7 +250,7 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
     var uA = <userA>uFoo;
 
     // This is a unsafe cast
-    var uB =? <userB>uA;
+    var uB = check <userB>uA;
     return uB.name;
 }
 
@@ -302,7 +302,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA =? <userPA>uFoo;
+    var uA = <userPA>uFoo;
 
     // This is a unsafe cast
     var uB = <userPB>uA;
@@ -316,7 +316,7 @@ function testRuntimeEqPublicStructs () returns (string) {
     req:userPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA =? <userPA>uFoo;
+    var uA = <userPA>uFoo;
 
     // This is a unsafe cast
     var uB  = <userPB>uA;
@@ -408,8 +408,8 @@ type AnyStruct {
 }
 
 function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
-    var j =? <json>aa;
-    return "anyStruct" + j.toString();
+    var j = check <json>aa;
+    return "anyStruct" + (j.toString() but { () => ""});
 }
 
 function <AnyStruct a> call () returns (AnotherAnyStruct) {
@@ -421,8 +421,8 @@ type SomeStruct {
 }
 
 function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
-    var j =? <json>aa;
-    return "someStruct" + j.toString();
+    var j = check <json>aa;
+    return "someStruct" + (j.toString() but { () => ""});
 }
 
 function <SomeStruct b> call () returns (SomeOtherStruct) {

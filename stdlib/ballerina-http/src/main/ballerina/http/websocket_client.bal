@@ -47,17 +47,17 @@ public type WebSocketClient object {
     public function stop () {
         _ = h.getClient().close(1001, "The connection has been stopped");
     }
-}
+};
 
 @Description {value:"Configuration struct for WebSocket client connection"}
 @Field {value:"subProtocols: Negotiable sub protocols for the client"}
 @Field {value:"parentConnectionID: Connection ID of the parent connection to which it should be bound to when connecting"}
 @Field {value:"customHeaders: Custom headers which should be sent to the server"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)."}
-type WebSocketClientEndpointConfig {
+public type WebSocketClientEndpointConfig {
     string url,
     typedesc callbackService,
     string[] subProtocols,
     map<string> customHeaders,
     int idleTimeoutInSeconds = -1,
-}
+};

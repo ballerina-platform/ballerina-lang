@@ -41,7 +41,7 @@ public type HttpBasicAuthnHandler object {
 
     public function canHandle (Request req) returns (boolean);
     public function handle (Request req) returns (boolean);
-}
+};
 
 @Description {value:"Intercepts a request for authentication"}
 @Param {value:"req: Request object"}
