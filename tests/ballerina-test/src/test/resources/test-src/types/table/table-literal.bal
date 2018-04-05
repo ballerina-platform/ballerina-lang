@@ -59,7 +59,7 @@ function testEmptyTableCreate () returns (int, int) {
 
 function checkTableCount(string tablePrefix) returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.H2_MEM,
+        database: sql:DB_H2_MEM,
         host: "",
         port: 0,
         name: "TABLEDB",

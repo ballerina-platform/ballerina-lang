@@ -43,7 +43,7 @@ type ResultDates {
 
 function testInsertTableData () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -61,7 +61,7 @@ function testInsertTableData () returns (int) {
 
 function testCreateTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -79,7 +79,7 @@ function testCreateTable () returns (int) {
 
 function testUpdateTableData () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -97,7 +97,7 @@ function testUpdateTableData () returns (int) {
 
 function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -129,7 +129,7 @@ function testGeneratedKeyOnInsert () returns (string) {
 
 function testGeneratedKeyWithColumn () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -164,7 +164,7 @@ function testGeneratedKeyWithColumn () returns (string) {
 
 function testSelectData () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -188,7 +188,7 @@ function testSelectData () returns (string) {
 
 function testSelectIntFloatData () returns (int, int, float, float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -217,7 +217,7 @@ function testSelectIntFloatData () returns (int, int, float, float) {
 
 function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
                      host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -241,7 +241,7 @@ function testCallProcedure () returns (string) {
 
 function testCallProcedureWithResultSet () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -264,7 +264,7 @@ function testCallProcedureWithResultSet () returns (string) {
 
 function testCallProcedureWithMultipleResultSets () returns (string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -294,7 +294,7 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
 
 function testQueryParameters () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -303,7 +303,7 @@ function testQueryParameters () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:1};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:1};
     sql:Parameter[] parameters = [para1];
     var dtRet =  testDB -> select("SELECT  FirstName from Customers where registrationID = ?", parameters,
         typeof ResultCustomers);
@@ -321,7 +321,7 @@ function testQueryParameters () returns (string) {
 
 function testInsertTableDataWithParameters () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -330,11 +330,11 @@ function testInsertTableDataWithParameters () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Anne", direction:sql:Direction.IN};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"James", direction:sql:Direction.IN};
-    sql:Parameter para3 = {sqlType:sql:Type.INTEGER, value:3, direction:sql:Direction.IN};
-    sql:Parameter para4 = {sqlType:sql:Type.DOUBLE, value:5000.75, direction:sql:Direction.IN};
-    sql:Parameter para5 = {sqlType:sql:Type.VARCHAR, value:"UK", direction:sql:Direction.IN};
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Anne", direction:sql:Direction.IN};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"James", direction:sql:Direction.IN};
+    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:3, direction:sql:Direction.IN};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:5000.75, direction:sql:Direction.IN};
+    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"UK", direction:sql:Direction.IN};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
     var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -347,7 +347,7 @@ function testInsertTableDataWithParameters () returns (int) {
 
 function testArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -359,10 +359,10 @@ function testArrayofQueryParameters () returns (string) {
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
     float[] doubleArray = [233.4, 433.4];
-    sql:Parameter para0 = {sqlType:sql:Type.VARCHAR, value:"Johhhn"};
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:intDataArray};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:stringDataArray};
-    sql:Parameter para3 = {sqlType:sql:Type.DOUBLE, value:doubleArray};
+    sql:Parameter para0 = {sqlType:sql:TYPE_VARCHAR, value:"Johhhn"};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:intDataArray};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:stringDataArray};
+    sql:Parameter para3 = {sqlType:sql:TYPE_DOUBLE, value:doubleArray};
     sql:Parameter[] parameters = [para0, para1, para2, para3];
 
     var dtRet = testDB -> select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
@@ -381,7 +381,7 @@ function testArrayofQueryParameters () returns (string) {
 
 function testBoolArrayofQueryParameters () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -405,9 +405,9 @@ function testBoolArrayofQueryParameters () returns (int) {
     }
     blob[] blobDataArray = [blobData];
 
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:1};
-    sql:Parameter para1 = {sqlType:sql:Type.BOOLEAN, value:boolDataArray};
-    sql:Parameter para2 = {sqlType:sql:Type.BLOB, value:blobDataArray};
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:1};
+    sql:Parameter para1 = {sqlType:sql:TYPE_BOOLEAN, value:boolDataArray};
+    sql:Parameter para2 = {sqlType:sql:TYPE_BLOB, value:blobDataArray};
     sql:Parameter[] parameters = [para0, para1, para2];
 
     var dtRet = testDB -> select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
@@ -425,7 +425,7 @@ function testBoolArrayofQueryParameters () returns (int) {
 
 function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -440,13 +440,13 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     float[] doubleArray = [1503383034226.23, 1503383034224.43, 1503383034225.123];
     boolean[] boolArray = [true, false, true];
     string[] stringArray = ["Hello", "Ballerina"];
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:2};
-    sql:Parameter para2 = {sqlType:sql:Type.ARRAY, value:intArray};
-    sql:Parameter para3 = {sqlType:sql:Type.ARRAY, value:longArray};
-    sql:Parameter para4 = {sqlType:sql:Type.ARRAY, value:floatArray};
-    sql:Parameter para5 = {sqlType:sql:Type.ARRAY, value:doubleArray};
-    sql:Parameter para6 = {sqlType:sql:Type.ARRAY, value:boolArray};
-    sql:Parameter para7 = {sqlType:sql:Type.ARRAY, value:stringArray};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:2};
+    sql:Parameter para2 = {sqlType:sql:TYPE_ARRAY, value:intArray};
+    sql:Parameter para3 = {sqlType:sql:TYPE_ARRAY, value:longArray};
+    sql:Parameter para4 = {sqlType:sql:TYPE_ARRAY, value:floatArray};
+    sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, value:doubleArray};
+    sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, value:boolArray};
+    sql:Parameter para7 = {sqlType:sql:TYPE_ARRAY, value:stringArray};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
 
     int insertCount;
@@ -480,7 +480,7 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
 
 function testOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -489,21 +489,21 @@ function testOutParameters () returns (any, any, any, any, any, any, any, any, a
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"1"};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, direction:sql:Direction.OUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, direction:sql:Direction.OUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, direction:sql:Direction.OUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, direction:sql:Direction.OUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, direction:sql:Direction.OUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, direction:sql:Direction.OUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, direction:sql:Direction.OUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, direction:sql:Direction.OUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, direction:sql:Direction.OUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, direction:sql:Direction.OUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, direction:sql:Direction.OUT};
+    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"1"};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.OUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:Direction.OUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:Direction.OUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:Direction.OUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:Direction.OUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:Direction.OUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:Direction.OUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:Direction.OUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:Direction.OUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:Direction.OUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:Direction.OUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:Direction.OUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:Direction.OUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:Direction.OUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
     paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -519,7 +519,7 @@ function testOutParameters () returns (any, any, any, any, any, any, any, any, a
 
 function testNullOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
                  host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -528,21 +528,21 @@ function testNullOutParameters () returns (any, any, any, any, any, any, any, an
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"2"};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, direction:sql:Direction.OUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, direction:sql:Direction.OUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, direction:sql:Direction.OUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, direction:sql:Direction.OUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, direction:sql:Direction.OUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, direction:sql:Direction.OUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, direction:sql:Direction.OUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, direction:sql:Direction.OUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, direction:sql:Direction.OUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, direction:sql:Direction.OUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, direction:sql:Direction.OUT};
+    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"2"};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.OUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:Direction.OUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:Direction.OUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:Direction.OUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:Direction.OUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:Direction.OUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:Direction.OUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:Direction.OUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:Direction.OUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:Direction.OUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:Direction.OUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:Direction.OUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:Direction.OUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:Direction.OUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -555,7 +555,7 @@ function testNullOutParameters () returns (any, any, any, any, any, any, any, an
 
 function testINParameters () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -564,21 +564,21 @@ function testINParameters () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:3};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, value:1};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, value:"9223372036854774807"};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, value:123.34};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, value:2139095039};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, value:true};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, value:"Hello"};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, value:1234.567};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, value:1234.567};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, value:1234.567};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, value:1};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, value:5555};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, value:"very long text"};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, value:"YmxvYiBkYXRh"};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu"};
+    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:3};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, value:1};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, value:"9223372036854774807"};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, value:123.34};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, value:2139095039};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, value:true};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, value:"Hello"};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, value:1234.567};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, value:1234.567};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, value:1234.567};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, value:1};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, value:5555};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, value:"very long text"};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, value:"YmxvYiBkYXRh"};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu"};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -592,7 +592,7 @@ function testINParameters () returns (int) {
 
 function testNullINParameterValues () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -601,21 +601,21 @@ function testNullINParameterValues () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:4};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY};
+    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:4};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -629,7 +629,7 @@ function testNullINParameterValues () returns (int) {
 
 ////function testNullINParameters () returns (int) {
 ////    endpoint sql:Client testDB {
-////        database: sql:DB.HSQLDB_FILE,
+////        database: sql:DB_HSQLDB_FILE,
 ////        host: "./target/tempdb/",
 ////        port: 0,
 ////        name: "TEST_SQL_CONNECTOR",
@@ -637,7 +637,7 @@ function testNullINParameterValues () returns (int) {
 ////        password: "",
 ////        options: {maximumPoolSize:1}
 ////    };
-////    (sql:Parameter) paraID = {sqlType:sql:Type.INTEGER, value:10};
+////    (sql:Parameter) paraID = {sqlType:sql:TYPE_INTEGER, value:10};
 ////
 ////    (sql:Parameter | null)[] parameters = [paraID, null, null, null, null, null, null, null,
 ////                                  null, null, null, null, null, null, null];
@@ -650,7 +650,7 @@ function testNullINParameterValues () returns (int) {
 //
 function testINOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -659,21 +659,21 @@ function testINOutParameters () returns (any, any, any, any, any, any, any, any,
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:5};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, value:10, direction:sql:Direction.INOUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, value:"9223372036854774807", direction:sql:Direction.INOUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, value:123.34, direction:sql:Direction.INOUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, value:2139095039, direction:sql:Direction.INOUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, value:true, direction:sql:Direction.INOUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, value:"Hello", direction:sql:Direction.INOUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, value:1, direction:sql:Direction.INOUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, value:5555, direction:sql:Direction.INOUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, value:"very long text", direction:sql:Direction.INOUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, value:"YmxvYiBkYXRh", direction:sql:Direction.INOUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:sql:Direction.INOUT};
+    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:5};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, value:10, direction:sql:Direction.INOUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, value:"9223372036854774807", direction:sql:Direction.INOUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, value:123.34, direction:sql:Direction.INOUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, value:2139095039, direction:sql:Direction.INOUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, value:true, direction:sql:Direction.INOUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, value:"Hello", direction:sql:Direction.INOUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, value:1234.567, direction:sql:Direction.INOUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, value:1234.567, direction:sql:Direction.INOUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, value:1234.567, direction:sql:Direction.INOUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, value:1, direction:sql:Direction.INOUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, value:5555, direction:sql:Direction.INOUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, value:"very long text", direction:sql:Direction.INOUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, value:"YmxvYiBkYXRh", direction:sql:Direction.INOUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:sql:Direction.INOUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -686,7 +686,7 @@ function testINOutParameters () returns (any, any, any, any, any, any, any, any,
 
 function testNullINOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -695,21 +695,21 @@ function testNullINOutParameters () returns (any, any, any, any, any, any, any, 
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"6"};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.INOUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, direction:sql:Direction.INOUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, direction:sql:Direction.INOUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, direction:sql:Direction.INOUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, direction:sql:Direction.INOUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, direction:sql:Direction.INOUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, direction:sql:Direction.INOUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, direction:sql:Direction.INOUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, direction:sql:Direction.INOUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, direction:sql:Direction.INOUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, direction:sql:Direction.INOUT};
+    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"6"};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.INOUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:Direction.INOUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:Direction.INOUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:Direction.INOUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:Direction.INOUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:Direction.INOUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:Direction.INOUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:Direction.INOUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:Direction.INOUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:Direction.INOUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:Direction.INOUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:Direction.INOUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:Direction.INOUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:Direction.INOUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -722,7 +722,7 @@ function testNullINOutParameters () returns (any, any, any, any, any, any, any, 
 
 function testEmptySQLType () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -742,7 +742,7 @@ function testEmptySQLType () returns (int) {
 
 function testArrayOutParameters () returns (any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -752,12 +752,12 @@ function testArrayOutParameters () returns (any, any, any, any, any, any) {
     };
 
     string firstName;
-    sql:Parameter para1 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para2 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para3 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para4 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para5 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para6 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
+    sql:Parameter para1 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
+    sql:Parameter para2 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
+    sql:Parameter para3 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
+    sql:Parameter para4 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
+    sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
     _ = testDB -> call("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters, null);
     _ = testDB -> close();
@@ -766,7 +766,7 @@ function testArrayOutParameters () returns (any, any, any, any, any, any) {
 
 function testArrayInOutParameters () returns (any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -775,14 +775,14 @@ function testArrayInOutParameters () returns (any, any, any, any, any, any, any)
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:3};
-    sql:Parameter para2 = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter para3 = {sqlType:sql:Type.ARRAY, value:"10,20,30", direction:sql:Direction.INOUT};
-    sql:Parameter para4 = {sqlType:sql:Type.ARRAY, value:"10000000, 20000000, 30000000", direction:sql:Direction.INOUT};
-    sql:Parameter para5 = {sqlType:sql:Type.ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
-    sql:Parameter para6 = {sqlType:sql:Type.ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
-    sql:Parameter para7 = {sqlType:sql:Type.ARRAY, value:"FALSE, FALSE, TRUE", direction:sql:Direction.INOUT};
-    sql:Parameter para8 = {sqlType:sql:Type.ARRAY, value:"Hello,Ballerina,Lang", direction:sql:Direction.INOUT};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:3};
+    sql:Parameter para2 = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.OUT};
+    sql:Parameter para3 = {sqlType:sql:TYPE_ARRAY, value:"10,20,30", direction:sql:Direction.INOUT};
+    sql:Parameter para4 = {sqlType:sql:TYPE_ARRAY, value:"10000000, 20000000, 30000000", direction:sql:Direction.INOUT};
+    sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
+    sql:Parameter para7 = {sqlType:sql:TYPE_ARRAY, value:"FALSE, FALSE, TRUE", direction:sql:Direction.INOUT};
+    sql:Parameter para8 = {sqlType:sql:TYPE_ARRAY, value:"Hello,Ballerina,Lang", direction:sql:Direction.INOUT};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
     _ = testDB -> call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters, null);
@@ -792,7 +792,7 @@ function testArrayInOutParameters () returns (any, any, any, any, any, any, any)
 
 function testBatchUpdate () returns (int[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -802,19 +802,19 @@ function testBatchUpdate () returns (int[]) {
     };
 
     //Batch 1
-    sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    sql:Parameter para3 = {sqlType:sql:Type.INTEGER, value:20};
-    sql:Parameter para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    sql:Parameter para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
     sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
     sql:Parameter[][] parameters = [parameters1, parameters2];
 
@@ -829,7 +829,7 @@ function testBatchUpdate () returns (int[]) {
 
 function testBatchUpdateWithFailure () returns (int[], int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -839,39 +839,39 @@ function testBatchUpdateWithFailure () returns (int[], int) {
     };
 
     //Batch 1
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:111};
-    sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    sql:Parameter para3 = {sqlType:sql:Type.INTEGER, value:20};
-    sql:Parameter para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    sql:Parameter para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:111};
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
     sql:Parameter[] parameters1 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 2
-    para0 = {sqlType:sql:Type.INTEGER, value:222};
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para0 = {sqlType:sql:TYPE_INTEGER, value:222};
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
     sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 3
-    para0 = {sqlType:sql:Type.INTEGER, value:222};
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para0 = {sqlType:sql:TYPE_INTEGER, value:222};
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
     sql:Parameter[] parameters3 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 4
-    para0 = {sqlType:sql:Type.INTEGER, value:333};
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para0 = {sqlType:sql:TYPE_INTEGER, value:333};
+    para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+    para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+    para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+    para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
     sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
 
     sql:Parameter[][] parameters = [parameters1, parameters2, parameters3, parameters4];
@@ -897,7 +897,7 @@ function testBatchUpdateWithFailure () returns (int[], int) {
 
 function testBatchUpdateWithNullParam () returns (int[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -917,7 +917,7 @@ function testBatchUpdateWithNullParam () returns (int[]) {
 
 function testDateTimeInParameters () returns (int[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -928,11 +928,11 @@ function testDateTimeInParameters () returns (int[]) {
 
     string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
     int[] returnValues = [];
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:100};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:"2017-01-30-08:01"};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:"13:27:01.999999+08:33"};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:"2017-01-30T13:27:01.999-08:00"};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:"2017-01-30T13:27:01.999999Z"};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:100};
+    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:"2017-01-30-08:01"};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:"13:27:01.999999+08:33"};
+    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:"2017-01-30T13:27:01.999-08:00"};
+    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:"2017-01-30T13:27:01.999999Z"};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
     var insertCount1Ret = testDB -> update(stmt, parameters);
@@ -940,11 +940,11 @@ function testDateTimeInParameters () returns (int[]) {
 
     returnValues[0] = insertCount1;
 
-    para1 = {sqlType:sql:Type.INTEGER, value:200};
-    para2 = {sqlType:sql:Type.DATE, value:"-2017-01-30Z"};
-    para3 = {sqlType:sql:Type.TIME, value:"13:27:01+08:33"};
-    para4 = {sqlType:sql:Type.TIMESTAMP, value:"2017-01-30T13:27:01.999"};
-    para5 = {sqlType:sql:Type.DATETIME, value:"-2017-01-30T13:27:01.999999-08:30"};
+    para1 = {sqlType:sql:TYPE_INTEGER, value:200};
+    para2 = {sqlType:sql:TYPE_DATE, value:"-2017-01-30Z"};
+    para3 = {sqlType:sql:TYPE_TIME, value:"13:27:01+08:33"};
+    para4 = {sqlType:sql:TYPE_TIMESTAMP, value:"2017-01-30T13:27:01.999"};
+    para5 = {sqlType:sql:TYPE_DATETIME, value:"-2017-01-30T13:27:01.999999-08:30"};
     parameters = [para1, para2, para3, para4, para5];
 
     var insertCount2Ret = testDB -> update(stmt, parameters);
@@ -953,11 +953,11 @@ function testDateTimeInParameters () returns (int[]) {
     returnValues[1] = insertCount2;
 
     time:Time timeNow = time:currentTime();
-    para1 = {sqlType:sql:Type.INTEGER, value:300};
-    para2 = {sqlType:sql:Type.DATE, value:timeNow};
-    para3 = {sqlType:sql:Type.TIME, value:timeNow};
-    para4 = {sqlType:sql:Type.TIMESTAMP, value:timeNow};
-    para5 = {sqlType:sql:Type.DATETIME, value:timeNow};
+    para1 = {sqlType:sql:TYPE_INTEGER, value:300};
+    para2 = {sqlType:sql:TYPE_DATE, value:timeNow};
+    para3 = {sqlType:sql:TYPE_TIME, value:timeNow};
+    para4 = {sqlType:sql:TYPE_TIMESTAMP, value:timeNow};
+    para5 = {sqlType:sql:TYPE_DATETIME, value:timeNow};
     parameters = [para1, para2, para3, para4, para5];
 
     var insertCount3Ret = testDB -> update(stmt, parameters);
@@ -971,7 +971,7 @@ function testDateTimeInParameters () returns (int[]) {
 
 function testDateTimeNullInValues () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -980,11 +980,11 @@ function testDateTimeNullInValues () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:33};
-    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:null};
-    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:null};
-    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:null};
-    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:null};
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:33};
+    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:null};
+    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:null};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:null};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:null};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     _ = testDB -> update("Insert into DateTimeTypes
@@ -1006,7 +1006,7 @@ function testDateTimeNullInValues () returns (string) {
 
 function testDateTimeNullOutValues () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -1015,16 +1015,16 @@ function testDateTimeNullOutValues () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:123};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:null};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:null};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:null};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:123};
+    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:null};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:null};
+    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:null};
+    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:null};
 
-    sql:Parameter para6 = {sqlType:sql:Type.DATE, direction:sql:Direction.OUT};
-    sql:Parameter para7 = {sqlType:sql:Type.TIME, direction:sql:Direction.OUT};
-    sql:Parameter para8 = {sqlType:sql:Type.TIMESTAMP, direction:sql:Direction.OUT};
-    sql:Parameter para9 = {sqlType:sql:Type.DATETIME, direction:sql:Direction.OUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_DATE, direction:sql:Direction.OUT};
+    sql:Parameter para7 = {sqlType:sql:TYPE_TIME, direction:sql:Direction.OUT};
+    sql:Parameter para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:Direction.OUT};
+    sql:Parameter para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:Direction.OUT};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
@@ -1046,7 +1046,7 @@ function testDateTimeNullOutValues () returns (int) {
 
 function testDateTimeNullInOutValues () returns (any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -1055,11 +1055,11 @@ function testDateTimeNullInOutValues () returns (any, any, any, any) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:124};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:124};
+    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:null, direction:sql:Direction.INOUT};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
@@ -1070,7 +1070,7 @@ function testDateTimeNullInOutValues () returns (any, any, any, any) {
 
 function testDateTimeOutParams (int time, int date, int timestamp) returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -1079,16 +1079,16 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:10};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:date};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:time};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:timestamp};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:timestamp};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:10};
+    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:date};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:time};
+    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:timestamp};
+    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:timestamp};
 
-    sql:Parameter para6 = {sqlType:sql:Type.DATE, direction:sql:Direction.OUT};
-    sql:Parameter para7 = {sqlType:sql:Type.TIME, direction:sql:Direction.OUT};
-    sql:Parameter para8 = {sqlType:sql:Type.TIMESTAMP, direction:sql:Direction.OUT};
-    sql:Parameter para9 = {sqlType:sql:Type.DATETIME, direction:sql:Direction.OUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_DATE, direction:sql:Direction.OUT};
+    sql:Parameter para7 = {sqlType:sql:TYPE_TIME, direction:sql:Direction.OUT};
+    sql:Parameter para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:Direction.OUT};
+    sql:Parameter para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:Direction.OUT};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
@@ -1109,7 +1109,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
 
 function testStructOutParameters () returns (any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -1118,7 +1118,7 @@ function testStructOutParameters () returns (any) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.STRUCT, direction:sql:Direction.OUT};
+    sql:Parameter para1 = {sqlType:sql:TYPE_STRUCT, direction:sql:Direction.OUT};
     sql:Parameter[] parameters = [para1];
     _ = testDB -> call("{call TestStructOut(?)}", parameters, null);
     _ = testDB -> close();
@@ -1127,7 +1127,7 @@ function testStructOutParameters () returns (any) {
 
 function testComplexTypeRetrieval () returns (string, string, string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -1167,7 +1167,7 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
 
 function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",

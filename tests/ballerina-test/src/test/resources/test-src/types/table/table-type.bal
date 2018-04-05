@@ -114,7 +114,7 @@ type TestTypeData {
 
 function testToJson () returns (json | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -138,7 +138,7 @@ function testToJson () returns (json | ()) {
 
 function testToXml () returns (xml | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -160,7 +160,7 @@ function testToXml () returns (xml | ()) {
 
 function testToXmlMultipleConsume () returns (xml | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -183,7 +183,7 @@ function testToXmlMultipleConsume () returns (xml | ()) {
 
 function testToXmlWithAdd () returns (xml | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -211,7 +211,7 @@ function testToXmlWithAdd () returns (xml | ()) {
 
 function testToJsonMultipleConsume () returns (json | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -235,7 +235,7 @@ function testToJsonMultipleConsume () returns (json | ()) {
 
 function toXmlComplex () returns (xml | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -258,7 +258,7 @@ function toXmlComplex () returns (xml | ()) {
 
 function testToXmlComplexWithStructDef () returns (xml | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -282,7 +282,7 @@ function testToXmlComplexWithStructDef () returns (xml | ()) {
 
 function testToJsonComplex () returns (json | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -306,7 +306,7 @@ function testToJsonComplex () returns (json | ()) {
 
 function testToJsonComplexWithStructDef () returns (json | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -329,7 +329,7 @@ function testToJsonComplexWithStructDef () returns (json | ()) {
 
 function testJsonWithNull () returns (json | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -351,7 +351,7 @@ function testJsonWithNull () returns (json | ()) {
 
 function testXmlWithNull () returns (xml | ()) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -373,7 +373,7 @@ function testXmlWithNull () returns (xml | ()) {
 
 function testToXmlWithinTransaction () returns (string, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -399,7 +399,7 @@ function testToXmlWithinTransaction () returns (string, int) {
 
 function testToJsonWithinTransaction () returns (string, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -425,7 +425,7 @@ function testToJsonWithinTransaction () returns (string, int) {
 
 function testGetPrimitiveTypes () returns (int, int, float, float , boolean, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -457,7 +457,7 @@ function testGetPrimitiveTypes () returns (int, int, float, float , boolean, str
 
 function testGetComplexTypes () returns (string, string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -485,7 +485,7 @@ function testGetComplexTypes () returns (string, string, string) {
 
 function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -516,7 +516,7 @@ function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
 
 function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -530,12 +530,12 @@ function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:4};
-    sql:Parameter paraInt = {sqlType:sql:Type.ARRAY, value:dataint};
-    sql:Parameter paraLong = {sqlType:sql:Type.ARRAY, value:dataint};
-    sql:Parameter paraFloat = {sqlType:sql:Type.ARRAY, value:datafloat};
-    sql:Parameter paraString = {sqlType:sql:Type.ARRAY, value:datastring};
-    sql:Parameter paraBool = {sqlType:sql:Type.ARRAY, value:databoolean};
+    sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:4};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_ARRAY, value:dataint};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_ARRAY, value:dataint};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_ARRAY, value:datafloat};
+    sql:Parameter paraString = {sqlType:sql:TYPE_ARRAY, value:datastring};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_ARRAY, value:databoolean};
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraString, paraBool];
 
 
@@ -568,7 +568,7 @@ function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
 
 function testDateTime (int datein, int timein, int timestampin) returns (string, string, string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -581,11 +581,11 @@ function testDateTime (int datein, int timein, int timestampin) returns (string,
     string timestamp;
     string datetime;
 
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:1};
-    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:datein};
-    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timein};
-    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:timestampin};
-    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:timestampin};
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:1};
+    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:datein};
+    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timein};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampin};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:timestampin};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     int count = check testDB -> update("Insert into DateTimeTypes
@@ -605,7 +605,7 @@ function testDateTime (int datein, int timein, int timestampin) returns (string,
 
 function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int, int ) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -633,11 +633,11 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
     timestampInserted = timestampStruct.time;
     datetimeInserted = datetimeStruct.time;
 
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:31};
-    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:dateStruct};
-    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timeStruct};
-    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:timestampStruct};
-    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:datetimeStruct};
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:31};
+    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:dateStruct};
+    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timeStruct};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampStruct};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:datetimeStruct};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     int count = check testDB -> update("Insert into DateTimeTypes
@@ -647,10 +647,10 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
                 from DateTimeTypes where row_id = 31", null, typeof ResultDatesStruct);
     while (dt.hasNext()) {
         var rs = check <ResultDatesStruct>dt.getNext();
-        dateRetrieved = rs.DATE_TYPE.time;
-        timeRetrieved = rs.TIME_TYPE.time;
-        timestampRetrieved = rs.TIMESTAMP_TYPE.time;
-        datetimeRetrieved = rs.DATETIME_TYPE.time;
+        dateRetrieved = rs.DATE_TYPE_time;
+        timeRetrieved = rs.TIME_TYPE_time;
+        timestampRetrieved = rs.TIMESTAMP_TYPE_time;
+        datetimeRetrieved = rs.DATETIME_TYPE_time;
     }
      _ = testDB -> close();
     return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
@@ -659,7 +659,7 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
 
 function testDateTimeInt (int datein, int timein, int timestampin) returns (int, int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -668,11 +668,11 @@ function testDateTimeInt (int datein, int timein, int timestampin) returns (int,
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:32};
-    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:datein};
-    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timein};
-    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:timestampin};
-    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:timestampin};
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:32};
+    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:datein};
+    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timein};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampin};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:timestampin};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     int  date;
@@ -699,7 +699,7 @@ function testDateTimeInt (int datein, int timein, int timestampin) returns (int,
 
 function testBlobData () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -723,7 +723,7 @@ function testBlobData () returns (string) {
 
 function testColumnAlias () returns (int, int, float, float, boolean, string, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -761,7 +761,7 @@ function testColumnAlias () returns (int, int, float, float, boolean, string, in
 
 function testBlobInsert () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -777,8 +777,8 @@ function testBlobInsert () returns (int) {
         var rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:10};
-    sql:Parameter para1 = {sqlType:sql:Type.BLOB, value:blobData};
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:10};
+    sql:Parameter para1 = {sqlType:sql:TYPE_BLOB, value:blobData};
     params = [para0, para1];
     int insertCount  = check testDB -> update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", params);
     _ = testDB -> close();
@@ -788,7 +788,7 @@ function testBlobInsert () returns (int) {
 
 function testTableAutoClose () returns (int, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -819,7 +819,7 @@ function testTableAutoClose () returns (int, string) {
 
 function testTableManualClose () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -853,7 +853,7 @@ function testTableManualClose () returns (int) {
 
 function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -875,7 +875,7 @@ function testCloseConnectionPool () returns (int) {
 
 function testTablePrintAndPrintln() {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -893,7 +893,7 @@ function testTablePrintAndPrintln() {
 
 function testMutltipleRows () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -921,7 +921,7 @@ function testMutltipleRows () returns (int, int) {
 
 function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1017,7 +1017,7 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
 
 function testHasNextWithoutConsume () returns (boolean, boolean, boolean) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1047,7 +1047,7 @@ function testHasNextWithoutConsume () returns (boolean, boolean, boolean) {
 
 function testGetFloatTypes () returns (float, float, float, float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1076,7 +1076,7 @@ function testGetFloatTypes () returns (float, float, float, float) {
 
 function testSignedIntMaxMinValues () returns (int, int, int, string, string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1096,29 +1096,29 @@ function testSignedIntMaxMinValues () returns (int, int, int, string, string, st
     string str;
 
     //Insert signed max
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:1};
-    sql:Parameter para2 = {sqlType:sql:Type.TINYINT, value:127};
-    sql:Parameter para3 = {sqlType:sql:Type.SMALLINT, value:32767};
-    sql:Parameter para4 = {sqlType:sql:Type.INTEGER, value:2147483647};
-    sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:9223372036854775807};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:1};
+    sql:Parameter para2 = {sqlType:sql:TYPE_TINYINT, value:127};
+    sql:Parameter para3 = {sqlType:sql:TYPE_SMALLINT, value:32767};
+    sql:Parameter para4 = {sqlType:sql:TYPE_INTEGER, value:2147483647};
+    sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:9223372036854775807};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
     maxInsert = check testDB -> update(insertSQL, parameters);
 
     //Insert signed min
-    para1 = {sqlType:sql:Type.INTEGER, value:2};
-    para2 = {sqlType:sql:Type.TINYINT, value:-128};
-    para3 = {sqlType:sql:Type.SMALLINT, value:-32768};
-    para4 = {sqlType:sql:Type.INTEGER, value:-2147483648};
-    para5 = {sqlType:sql:Type.BIGINT, value:-9223372036854775808};
+    para1 = {sqlType:sql:TYPE_INTEGER, value:2};
+    para2 = {sqlType:sql:TYPE_TINYINT, value:-128};
+    para3 = {sqlType:sql:TYPE_SMALLINT, value:-32768};
+    para4 = {sqlType:sql:TYPE_INTEGER, value:-2147483648};
+    para5 = {sqlType:sql:TYPE_BIGINT, value:-9223372036854775808};
     parameters = [para1, para2, para3, para4, para5];
     minInsert =  check testDB -> update(insertSQL, parameters);
 
     //Insert null
-    para1 = {sqlType:sql:Type.INTEGER, value:3};
-    para2 = {sqlType:sql:Type.TINYINT, value:null};
-    para3 = {sqlType:sql:Type.SMALLINT, value:null};
-    para4 = {sqlType:sql:Type.INTEGER, value:null};
-    para5 = {sqlType:sql:Type.BIGINT, value:null};
+    para1 = {sqlType:sql:TYPE_INTEGER, value:3};
+    para2 = {sqlType:sql:TYPE_TINYINT, value:null};
+    para3 = {sqlType:sql:TYPE_SMALLINT, value:null};
+    para4 = {sqlType:sql:TYPE_INTEGER, value:null};
+    para5 = {sqlType:sql:TYPE_BIGINT, value:null};
     parameters = [para1, para2, para3, para4, para5];
     nullInsert = check testDB -> update(insertSQL, parameters);
 
@@ -1143,7 +1143,7 @@ function testSignedIntMaxMinValues () returns (int, int, int, string, string, st
 
 function testComplexTypeInsertAndRetrieval () returns (int, int, string, string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1164,18 +1164,18 @@ function testComplexTypeInsertAndRetrieval () returns (int, int, string, string,
     string str;
 
     //Insert data
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:100};
-    sql:Parameter para2 = {sqlType:sql:Type.BLOB, value:content};
-    sql:Parameter para3 = {sqlType:sql:Type.CLOB, value:text};
-    sql:Parameter para4 = {sqlType:sql:Type.BINARY, value:content};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:100};
+    sql:Parameter para2 = {sqlType:sql:TYPE_BLOB, value:content};
+    sql:Parameter para3 = {sqlType:sql:TYPE_CLOB, value:text};
+    sql:Parameter para4 = {sqlType:sql:TYPE_BINARY, value:content};
     sql:Parameter[] parameters = [para1, para2, para3, para4];
     retDataInsert = check testDB -> update(insertSQL, parameters);
 
     //Insert null values
-    para1 = {sqlType:sql:Type.INTEGER, value:200};
-    para2 = {sqlType:sql:Type.BLOB, value:null};
-    para3 = {sqlType:sql:Type.CLOB, value:null};
-    para4 = {sqlType:sql:Type.BINARY, value:null};
+    para1 = {sqlType:sql:TYPE_INTEGER, value:200};
+    para2 = {sqlType:sql:TYPE_BLOB, value:null};
+    para3 = {sqlType:sql:TYPE_CLOB, value:null};
+    para4 = {sqlType:sql:TYPE_BINARY, value:null};
     parameters = [para1, para2, para3, para4];
     retNullInsert = check testDB -> update(insertSQL, parameters);
 
@@ -1191,7 +1191,7 @@ function testComplexTypeInsertAndRetrieval () returns (int, int, string, string,
     str = "";
     while (dt.hasNext()) {
         var result = check <ResultComplexTypes>dt.getNext();
-        str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
+        str = str + result.ROW_ID + "|" + result.BLOB_TYPE_toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
     }
     _ = testDB -> close();
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str);
@@ -1199,7 +1199,7 @@ function testComplexTypeInsertAndRetrieval () returns (int, int, string, string,
 
 function testJsonXMLConversionwithDuplicateColumnNames () returns (string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1225,7 +1225,7 @@ function testJsonXMLConversionwithDuplicateColumnNames () returns (string, strin
 
 function testStructFieldNotMatchingColumnName () returns (int, int, int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1260,7 +1260,7 @@ function testStructFieldNotMatchingColumnName () returns (int, int, int, int, in
 
 function testGetPrimitiveTypesWithForEach () returns (int, int, float, float, boolean, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1293,7 +1293,7 @@ function testGetPrimitiveTypesWithForEach () returns (int, int, float, float, bo
 
 function testMutltipleRowsWithForEach () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1322,7 +1322,7 @@ function testMutltipleRowsWithForEach () returns (int, int) {
 
 function testTableAddInvalid () {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
@@ -1342,7 +1342,7 @@ function testTableAddInvalid () {
 
 function testTableRemoveInvalid () {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE_DB",
