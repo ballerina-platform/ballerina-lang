@@ -98,8 +98,7 @@ public class JMSUtils {
 
         try {
             InitialContext initialContext = new InitialContext(properties);
-            ConnectionFactory connectionFactory =
-                    (ConnectionFactory) initialContext.lookup(factoryName);
+            ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(factoryName);
             return connectionFactory.createConnection();
         } catch (NamingException e) {
             LOGGER.info("Error occurred while creating connection", e);
@@ -197,8 +196,7 @@ public class JMSUtils {
      * @param configParams Map instance that is getting filled.
      * @param properties   {@link Map} of properties.
      */
-    private static void preProcessMapField(Map<String, String> configParams,
-                                           Map<String, Value> properties) {
+    private static void preProcessMapField(Map<String, String> configParams, Map<String, Value> properties) {
 
         if (Objects.isNull(properties)) {
             return;
