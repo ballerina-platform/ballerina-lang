@@ -27,7 +27,7 @@ function createDirectoryAndList(string pathValue) returns (string []){
 
     dirPath = file:getPath(parent);
     io:println(dirPath.getPathValue());
-    var pathArray =? file:list(dirPath);
+    var pathArray =check file:list(dirPath);
     string [] pathValues = [];
     int pathIterations = 0;
 
@@ -45,7 +45,7 @@ function testCreateFile(string pathValue) returns (string){
    var result = file:createFile(filePath);
 
    string [] pathValues = [];
-   var pathArray =? file:list(dirPath);
+   var pathArray =check file:list(dirPath);
    int pathIterations = 0;
 
    foreach path in pathArray{
@@ -58,11 +58,11 @@ function testCreateFile(string pathValue) returns (string){
 
 function testWriteFile(string pathValue,string accessMode,blob content) returns (blob|io:IOError){
    file:Path filePath = file:getPath(pathValue);
-   io:ByteChannel channel =? file:newByteChannel(filePath,accessMode);
+   io:ByteChannel channel =check file:newByteChannel(filePath,accessMode);
    var result = channel.write(content,0);
    var closeResult = channel.close();
    //Open the file again for reading
-   channel =? file:newByteChannel(filePath,"r");
+   channel =check file:newByteChannel(filePath,"r");
    var readResult = channel.read(100);
    closeResult = channel.close();
    match readResult {

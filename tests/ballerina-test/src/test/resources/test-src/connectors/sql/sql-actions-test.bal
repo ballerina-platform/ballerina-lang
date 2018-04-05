@@ -52,8 +52,9 @@ function testInsertTableData () returns (int) {
         options: {maximumPoolSize:1}
      };
 
-    int insertCount = check testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
+    int insertCount = check insertCountRet;
     _ = testDB -> close();
     return insertCount;
 }

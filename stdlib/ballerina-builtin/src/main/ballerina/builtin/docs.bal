@@ -22,7 +22,7 @@ public annotation Description docData;
 deprecated {}
 type docData {
     string value;
-}
+};
 
 deprecated {}
 public annotation<resource, function> Param docData;

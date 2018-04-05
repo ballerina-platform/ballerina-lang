@@ -23,7 +23,7 @@ package ballerina.sql;
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
-public type ClientEndpoint object {
+public type Client object {
     public {
         string epName;
         ClientEndpointConfiguration config;
@@ -117,6 +117,6 @@ public type ClientEndpointConfiguration {
 
 public native function createSQLClient(ClientEndpointConfiguration config) returns SQLClient;
 
-public function ClientEndpoint::init(ClientEndpointConfiguration config) {
+public function Client::init(ClientEndpointConfiguration config) {
     self.sqlClient = createSQLClient(config);
 }

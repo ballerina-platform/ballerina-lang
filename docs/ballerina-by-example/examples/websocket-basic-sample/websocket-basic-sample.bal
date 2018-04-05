@@ -89,10 +89,10 @@ function printHeaders (map<string> headers) {
     }
 }
 
-function handleError (http:WebSocketConnectorError|null val) {
+function handleError (http:WebSocketConnectorError|() val) {
     match val {
         http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
-        any|null err => {//ignore x
+        () err => {//ignore x
             var x = err;
         }
     }

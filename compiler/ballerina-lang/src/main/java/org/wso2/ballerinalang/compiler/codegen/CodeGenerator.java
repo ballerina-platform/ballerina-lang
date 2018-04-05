@@ -2419,24 +2419,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex.value);
 
-        int nArgExprs = workerSendStmt.exprs.size();
-        RegIndex[] argRegs = new RegIndex[nArgExprs];
-        BType[] bTypes = new BType[nArgExprs];
-        for (int i = 0; i < nArgExprs; i++) {
-            BLangExpression argExpr = workerSendStmt.exprs.get(i);
-            genNode(argExpr, this.env);
-            argRegs[i] = argExpr.regIndex;
-            bTypes[i] = argExpr.type;
-        }
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
+        genNode(workerSendStmt.expr, this.env);
+        RegIndex argReg = workerSendStmt.expr.regIndex;
+        BType bType = workerSendStmt.expr.type;
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(this.currentPkgInfo.addCPEntry(sigCPEntry));
 
-        // WRKSEND wrkrInvRefCPIndex typesCPIndex nRegIndexes, regIndexes[nRegIndexes]
-        Operand[] wrkSendArgRegs = new Operand[nArgExprs + 3];
+        // WRKSEND wrkrInvRefCPIndex typesCPIndex regIndex
+        Operand[] wrkSendArgRegs = new Operand[3];
         wrkSendArgRegs[0] = wrkrInvRefCPIndex;
         wrkSendArgRegs[1] = sigCPIndex;
-        wrkSendArgRegs[2] = getOperand(nArgExprs);
-        System.arraycopy(argRegs, 0, wrkSendArgRegs, 3, argRegs.length);
+        wrkSendArgRegs[2] = argReg;
         this.emit(InstructionCodes.WRKSEND, wrkSendArgRegs);
     }
 
@@ -2449,46 +2442,35 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand wrkrRplyRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry));
         workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex.value);
 
-        List<BLangExpression> lhsExprs = workerReceiveStmt.exprs;
-        int nLHSExprs = lhsExprs.size();
-        RegIndex[] regIndexes = new RegIndex[nLHSExprs];
-        BType[] bTypes = new BType[nLHSExprs];
-        for (int i = 0; i < nLHSExprs; i++) {
-            BLangExpression lExpr = lhsExprs.get(i);
-            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
-                lExpr.regIndex = ((BLangLocalVarRef) lExpr).symbol.varIndex;
-                regIndexes[i] = lExpr.regIndex;
-            } else {
-                lExpr.regIndex = getRegIndex(lExpr.type.tag);
-                lExpr.regIndex.isLHSIndex = true;
-                regIndexes[i] = lExpr.regIndex;
-            }
-
-            bTypes[i] = lExpr.type;
+        BLangExpression lExpr = workerReceiveStmt.expr;
+        RegIndex regIndex;
+        BType bType;
+        if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
+            lExpr.regIndex = ((BLangLocalVarRef) lExpr).symbol.varIndex;
+            regIndex = lExpr.regIndex;
+        } else {
+            lExpr.regIndex = getRegIndex(lExpr.type.tag);
+            lExpr.regIndex.isLHSIndex = true;
+            regIndex = lExpr.regIndex;
         }
+        bType = lExpr.type;
 
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
 
-        // WRKRECEIVE wrkrRplyRefCPIndex typesCPIndex nRegIndexes, regIndexes[nRegIndexes]
-        Operand[] wrkReceiveArgRegs = new Operand[nLHSExprs + 3];
+        // WRKRECEIVE wrkrRplyRefCPIndex typesCPIndex regIndex
+        Operand[] wrkReceiveArgRegs = new Operand[3];
         wrkReceiveArgRegs[0] = wrkrRplyRefCPIndex;
         wrkReceiveArgRegs[1] = sigCPIndex;
-        wrkReceiveArgRegs[2] = getOperand(nLHSExprs);
-        System.arraycopy(regIndexes, 0, wrkReceiveArgRegs, 3, regIndexes.length);
+        wrkReceiveArgRegs[2] = regIndex;
         emit(InstructionCodes.WRKRECEIVE, wrkReceiveArgRegs);
 
-        for (BLangExpression lExpr : lhsExprs) {
-            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                    lExpr instanceof BLangLocalVarRef) {
-                continue;
-            }
-
+        if (!(lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                lExpr instanceof BLangLocalVarRef)) {
             this.varAssignment = true;
             this.genNode(lExpr, this.env);
             this.varAssignment = false;
         }
-
     }
 
     public void visit(BLangConnector connectorNode) {
