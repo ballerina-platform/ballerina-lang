@@ -3,11 +3,11 @@ type Person {
     string lname;
     map adrs;
     int age = 999;
-}
+};
 
 type StructField {
     string key;
-}
+};
 
 function testExpressionAsStructIndex () returns (string) {
     StructField nameField = {key:"name"};
