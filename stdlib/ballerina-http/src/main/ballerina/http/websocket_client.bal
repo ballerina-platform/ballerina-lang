@@ -55,9 +55,9 @@ public type WebSocketClient object {
 @Field {value:"customHeaders: Custom headers which should be sent to the server"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)."}
 type WebSocketClientEndpointConfig {
-        string url,
-        typedesc callbackService,
-        string[] subProtocols,
-        map<string> customHeaders,
-        int idleTimeoutInSeconds: -1
+    string url,
+    typedesc callbackService,
+    string[] subProtocols,
+    map<string> customHeaders,
+    int idleTimeoutInSeconds = -1,
 }

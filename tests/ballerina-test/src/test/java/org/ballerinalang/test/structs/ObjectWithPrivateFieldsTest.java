@@ -29,13 +29,13 @@ import org.testng.annotations.Test;
 /**
  * Test cases for user defined struct types with private fields in ballerina.
  */
-public class StructWithPrivateFieldsTest {
+public class ObjectWithPrivateFieldsTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/struct-private-fields.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/object-private-fields.bal");
     }
 
     @Test(description = "Test private struct field access")
