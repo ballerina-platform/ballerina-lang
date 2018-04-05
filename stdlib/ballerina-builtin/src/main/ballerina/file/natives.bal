@@ -17,23 +17,13 @@
 package ballerina.file;
 
 import ballerina/io;
-import ballerina/time;
-
-@Description { value:"The Read access mode"}
-@final public string R = "R";
-@Description { value:"The Write access mode"}
-@final public string W = "W";
-@Description { value:"The Read Write access mode"}
-@final public string RW = "RW";
-@Description { value:"The Append access mode"}
-public const string A = "A";
 
 @Description { value: "Represents an I/O error which could occur when processing a file."}
-@Field { value : "message: The error message"}
-@Field { value : "cause: The error which caused the I/O error"}
-public struct IOError {
-    string message;
-    error[] cause;
+public type IOError object {
+    public {
+        string message;
+        error[] cause;
+    }
 }
 
 @Description { value: "Derives a file path from the given location"}
