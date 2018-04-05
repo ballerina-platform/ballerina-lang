@@ -33,13 +33,14 @@ public native function <WebSocketConnector wsConnector> pong (blob data);
 @Description {value:"Close the connection"}
 @Param {value:"statusCode: Status code for closing the connection"}
 @Param {value:"reason: Reason for closing the connection"}
-public native function <WebSocketConnector wsConnector> closeConnection (int statusCode, string reason) returns (WebSocketConnectorError|null);
+public native function <WebSocketConnector wsConnector> close (int statusCode, string reason) returns (WebSocketConnectorError|null);
 
-@Description {value:"Sends a upgrade request with custom headers"}
-@Param {value:"headers: a map of custom headers for handshake."}
-public native function <WebSocketConnector conn> upgradeToWebSocket (map headers) returns WebSocketEndpoint;
 
-@Description {value:"Cancels the handshake"}
-@Param {value:"statusCode: Status code for closing the connection"}
-@Param {value:"reason: Reason for closing the connection"}
-public native function <WebSocketConnector conn> cancelUpgradeToWebSocket (int status, string reason);
+@Description {value:"WebSocketConnectorError struct represents an error occured during WebSocket message transfers"}
+@Field {value:"message:  An error message explaining about the error"}
+@Field {value:"cause: The error(s) that caused HttpConnectorError to get thrown"}
+@Field {value:"code: An error code that differenciates different errors"}
+public struct WebSocketConnectorError {
+    string message;
+    error[] cause;
+}

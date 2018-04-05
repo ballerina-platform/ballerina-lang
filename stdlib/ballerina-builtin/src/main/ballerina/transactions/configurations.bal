@@ -18,15 +18,15 @@ package ballerina.transactions;
 
 import ballerina/config;
 
-const string basePath = "/balcoordinator";
-const string initiatorCoordinatorBasePath = basePath + "/initiator";
-const string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
-const string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
-const string registrationPath = "/register";
-const string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
+@final string basePath = "/balcoordinator";
+@final string initiatorCoordinatorBasePath = basePath + "/initiator";
+@final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
+@final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
+@final string registrationPath = "/register";
+@final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-const string coordinatorHost = getCoordinatorHost();
-const int coordinatorPort = getCoordinatorPort();
+@final string coordinatorHost = getCoordinatorHost();
+@final int coordinatorPort = getCoordinatorPort();
 
 function getCoordinatorHost () returns string {
     string host;
@@ -55,6 +55,5 @@ function getCoordinatorPort () returns int {
 }
 
 endpoint http:ServiceEndpoint coordinatorServerEP {
-    host:coordinatorHost,
     port:coordinatorPort
 };

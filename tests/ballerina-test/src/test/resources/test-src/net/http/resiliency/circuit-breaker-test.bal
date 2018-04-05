@@ -17,11 +17,11 @@
 import ballerina/http;
 import ballerina/runtime;
 
-const string TEST_SCENARIO_HEADER = "test-scenario";
+@final string TEST_SCENARIO_HEADER = "test-scenario";
 
-const string SCENARIO_TYPICAL = "typical-scenario";
-const string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
-const string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
+@final string SCENARIO_TYPICAL = "typical-scenario";
+@final string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
+@final string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
 
 function testTypicalScenario () returns (http:Response[] , http:HttpConnectorError[]) {
 

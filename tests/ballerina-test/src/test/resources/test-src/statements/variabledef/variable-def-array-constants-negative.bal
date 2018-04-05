@@ -1,2 +1,2 @@
-const int[] a = 5;
+@final int[] a = 5;
 

@@ -58,8 +58,8 @@ function testMultiReturnValid () returns (int, string, int) {
     return (5, "john", 6);
 }
 
-const int i = 10;
-const string aa = "sam";
+@final int i = 10;
+@final string aa = "sam";
 
 function testConstAssignment () {
     i = 20;

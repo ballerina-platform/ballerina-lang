@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -51,8 +53,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -61,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -101,7 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -215,6 +220,33 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+        if (this.expType.tag == TypeTags.FINITE) {
+            BFiniteType expType = (BFiniteType) this.expType;
+            boolean foundMember = expType.valueSpace
+                    .stream()
+                    .map(memberLiteral -> {
+                        if (((BLangLiteral) memberLiteral).value == null) {
+                            return literalExpr.value == null;
+                        } else {
+                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                        }
+                    })
+                    .anyMatch(found -> found);
+
+            boolean foundMemberType = expType.memberTypes
+                    .stream()
+                    .map(memberType -> types.isAssignable(literalType, memberType))
+                    .anyMatch(foundType -> foundType);
+
+            if (foundMember || foundMemberType) {
+                types.setImplicitCastExpr(literalExpr, literalType, symTable.anyType);
+                resultType = literalType;
+            } else {
+                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                resultType = symTable.errType;
+            }
+            return;
+        }
         resultType = types.checkType(literalExpr, literalType, expType);
     }
 
@@ -228,6 +260,12 @@ public class TypeChecker extends BLangNodeVisitor {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.errType;
+
+        if (expType.tag == TypeTags.ANY) {
+            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+            resultType = symTable.errType;
+            return;
+        }
 
         int expTypeTag = expType.tag;
         if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
@@ -268,10 +306,17 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         BType actualType = symTable.errType;
         int expTypeTag = expType.tag;
+        BType originalExpType = expType;
         if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.ANY) {
-            // var a = {}
-            // Change the expected type to map
+            // Change the expected type to map,
             expType = symTable.mapType;
+        }
+        if (expTypeTag == TypeTags.ANY
+                || (expTypeTag == TypeTags.MAP && recordLiteral.keyValuePairs.isEmpty())
+                || (expTypeTag == TypeTags.STRUCT && ((BStructSymbol) originalExpType.tsymbol).isObject)) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
+            resultType = symTable.errType;
+            return;
         }
 
         List<BType> matchedTypeList = getRecordCompatibleType(expType);
@@ -340,6 +385,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
+                if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA) &&
+                        env.enclEnv.enclEnv != null) {
+                    BLangVariable closureVar = symResolver.findClosureVar(env.enclEnv, symbol);
+                    if (closureVar != symTable.notFoundVariable) {
+                        ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+                    }
+                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
@@ -351,144 +403,39 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         // First analyze the variable reference expression.
-        BType actualType = symTable.errType;
+        fieldAccessExpr.expr.lhsVar = fieldAccessExpr.lhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
-        if (fieldAccessExpr.fieldType == FieldType.ALL && varRefType.tag != TypeTags.XML) {
+        if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
+        varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-        switch (varRefType.tag) {
-            case TypeTags.STRUCT:
-                actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
-                break;
-            case TypeTags.MAP:
-                actualType = ((BMapType) varRefType).getConstraint();
-                break;
-            case TypeTags.JSON:
-                BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.STRUCT) {
-                    BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
 
-                    // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.STRUCT) {
-                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
-                        break;
-                    }
-                }
-                actualType = symTable.jsonType;
-                break;
-            case TypeTags.ENUM:
-                // Enumerator access expressions only allow enum type name as the first part e.g state.INSTALLED,
-                BEnumType enumType = (BEnumType) varRefType;
-                if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                        !((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value.equals(
-                                enumType.tsymbol.name.value)) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ENUM_EXPR, enumType.tsymbol.name.value);
-                    break;
-                }
-
-                BSymbol symbol = symResolver.lookupMemberSymbol(fieldAccessExpr.pos,
-                        enumType.tsymbol.scope, this.env, fieldName, SymTag.VARIABLE);
-                if (symbol == symTable.notFoundSymbol) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, fieldName.value);
-                    break;
-                }
-                fieldAccessExpr.symbol = (BVarSymbol) symbol;
-                actualType = fieldAccessExpr.expr.type;
-
-                break;
-            case TypeTags.XML:
-                if (fieldAccessExpr.lhsVar) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
-                    break;
-                }
-                actualType = symTable.xmlType;
-                break;
-            case TypeTags.ERROR:
-                // Do nothing
-                break;
-            default:
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS,
-                        varRefType);
-        }
+        // Get the effective types of the expression. If there are errors/nill propagating from parent
+        // expressions, then the effective type will include those as well.
+        BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+        actualType = getAccessExprFinalType(fieldAccessExpr, actualType);
 
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
-        BType actualType = symTable.errType;
         // First analyze the variable reference expression.
+        indexBasedAccessExpr.expr.lhsVar = indexBasedAccessExpr.lhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
-        BType indexExprType;
         BType varRefType = indexBasedAccessExpr.expr.type;
-        BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
-        switch (varRefType.tag) {
-            case TypeTags.STRUCT:
-                indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
-                if (indexExprType.tag == TypeTags.STRING) {
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
-                }
-                break;
-            case TypeTags.MAP:
-                indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
-                if (indexExprType.tag == TypeTags.STRING) {
-                    actualType = ((BMapType) varRefType).getConstraint();
-                }
-                break;
-            case TypeTags.JSON:
-                BType constraintType = ((BJSONType) varRefType).constraint;
-                if (constraintType.tag == TypeTags.STRUCT) {
-                    indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
-                    if (indexExprType.tag != TypeTags.STRING) {
-                        break;
-                    }
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    BType fieldType =
-                            checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+        varRefType = getSafeType(varRefType, indexBasedAccessExpr.safeNavigate, indexBasedAccessExpr.pos);
 
-                    // If the type of the field is struct, treat it as constraint JSON type.
-                    if (fieldType.tag == TypeTags.STRUCT) {
-                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
-                        break;
-                    }
-                } else {
-                    indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
-                    if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
-                                indexExprType);
-                        break;
-                    }
-                }
-                actualType = symTable.jsonType;
-                break;
-            case TypeTags.ARRAY:
-                indexExprType = checkExpr(indexExpr, this.env, symTable.intType);
-                if (indexExprType.tag == TypeTags.INT) {
-                    actualType = ((BArrayType) varRefType).getElementType();
-                }
-                break;
-            case TypeTags.XML:
-                if (indexBasedAccessExpr.lhsVar) {
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
-                    break;
-                }
-
-                checkExpr(indexExpr, this.env);
-                actualType = symTable.xmlType;
-                break;
-            case TypeTags.ERROR:
-                // Do nothing
-                break;
-            default:
-                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
-                        indexBasedAccessExpr.expr.type);
-        }
+        // Get the effective types of the expression. If there are errors/nill propagating from parent
+        // expressions, then the effective type will include those as well.
+        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
+        actualType = getAccessExprFinalType(indexBasedAccessExpr, actualType);
 
         this.resultType = this.types.checkType(indexBasedAccessExpr, actualType, this.expType);
+        indexBasedAccessExpr.childType = this.resultType;
     }
 
     public void visit(BLangInvocation iExpr) {
@@ -528,7 +475,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.CONNECTOR:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
                 resultType = symTable.errType;
-                return;
+                break;
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.INT:
@@ -568,9 +515,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.errType;
                 break;
         }
+
+        iExpr.childType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
     }
 
     public void visit(BLangTypeInit cIExpr) {
+        if ((expType.tag == TypeTags.ANY && cIExpr.userDefinedType == null)
+                || (expType.tag == TypeTags.STRUCT && !((BStructSymbol) expType.tsymbol).isObject)) {
+            dlog.error(cIExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
+            resultType = symTable.errType;
+            return;
+        }
         BType actualType;
         if (cIExpr.userDefinedType != null) {
             actualType = symResolver.resolveTypeNode(cIExpr.userDefinedType, env);
@@ -719,6 +674,11 @@ public class TypeChecker extends BLangNodeVisitor {
             if (exprType != symTable.errType) {
                 unaryExpr.opSymbol = Symbols.createTypeofOperatorSymbol(exprType, types, symTable, names);
                 actualType = unaryExpr.opSymbol.type.getReturnType();
+            }
+        } else if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
+            exprType = checkExpr(unaryExpr.expr, env);
+            if (exprType != symTable.errType) {
+                actualType = exprType;
             }
         } else {
             exprType = checkExpr(unaryExpr.expr, env);
@@ -1212,6 +1172,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
+        if (iExpr.expr != null) {
+            actualType = getAccessExprFinalType(iExpr, actualType);
+        }
+
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 
@@ -1692,5 +1656,192 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!samePkg && Symbols.isPrivate(bStructSymbol.initializerFunc.symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER);
         }
+    }
+
+    private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {
+        // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
+        accessExpr.childType = actualType;
+
+        BUnionType unionType = new BUnionType(null, new HashSet<>(), false);
+        if (actualType.tag == TypeTags.UNION) {
+            unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
+        } else {
+            unionType.memberTypes.add(actualType);
+        }
+
+        BType parentType = accessExpr.expr.type;
+        if (parentType.isNullable() && actualType.tag != TypeTags.JSON) {
+            unionType.setNullable(true);
+        }
+
+        if (accessExpr.safeNavigate && (parentType.tag == TypeTags.ERROR || (parentType.tag == TypeTags.UNION &&
+                ((BUnionType) parentType).memberTypes.contains(symTable.errStructType)))) {
+            unionType.memberTypes.add(symTable.errStructType);
+        }
+
+        if (!unionType.isNullable() && unionType.memberTypes.size() == 1) {
+            return unionType.memberTypes.toArray(new BType[0])[0];
+        }
+
+        return unionType;
+    }
+
+    private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+        BType actualType = symTable.errType;
+        switch (varRefType.tag) {
+            case TypeTags.STRUCT:
+                actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
+                break;
+            case TypeTags.MAP:
+                actualType = ((BMapType) varRefType).getConstraint();
+                break;
+            case TypeTags.JSON:
+                BType constraintType = ((BJSONType) varRefType).constraint;
+                if (constraintType.tag == TypeTags.STRUCT) {
+                    BType fieldType = checkStructFieldAccess(fieldAccessExpr, fieldName, constraintType);
+
+                    // If the type of the field is struct, treat it as constraint JSON type.
+                    if (fieldType.tag == TypeTags.STRUCT) {
+                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
+                        break;
+                    }
+                }
+                actualType = symTable.jsonType;
+                break;
+            case TypeTags.ENUM:
+                // Enumerator access expressions only allow enum type name as the first part e.g state.INSTALLED,
+                BEnumType enumType = (BEnumType) varRefType;
+                if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                        !((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value.equals(
+                                enumType.tsymbol.name.value)) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ENUM_EXPR, enumType.tsymbol.name.value);
+                    break;
+                }
+
+                BSymbol symbol = symResolver.lookupMemberSymbol(fieldAccessExpr.pos,
+                        enumType.tsymbol.scope, this.env, fieldName, SymTag.VARIABLE);
+                if (symbol == symTable.notFoundSymbol) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, fieldName.value);
+                    break;
+                }
+                fieldAccessExpr.symbol = (BVarSymbol) symbol;
+                actualType = fieldAccessExpr.expr.type;
+
+                break;
+            case TypeTags.XML:
+                if (fieldAccessExpr.lhsVar) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+                    break;
+                }
+                actualType = symTable.xmlType;
+                break;
+            case TypeTags.ERROR:
+                // Do nothing
+                break;
+            default:
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS,
+                        varRefType);
+        }
+
+        return actualType;
+    }
+
+    private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType) {
+        BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
+        BType actualType = symTable.errType;
+        BType indexExprType;
+        switch (varRefType.tag) {
+            case TypeTags.STRUCT:
+                indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
+                if (indexExprType.tag == TypeTags.STRING) {
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
+                }
+                break;
+            case TypeTags.MAP:
+                indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
+                if (indexExprType.tag == TypeTags.STRING) {
+                    actualType = ((BMapType) varRefType).getConstraint();
+                }
+                break;
+            case TypeTags.JSON:
+                BType constraintType = ((BJSONType) varRefType).constraint;
+                if (constraintType.tag == TypeTags.STRUCT) {
+                    indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
+                    if (indexExprType.tag != TypeTags.STRING) {
+                        break;
+                    }
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    BType fieldType =
+                            checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), constraintType);
+
+                    // If the type of the field is struct, treat it as constraint JSON type.
+                    if (fieldType.tag == TypeTags.STRUCT) {
+                        actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
+                        break;
+                    }
+                } else {
+                    indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
+                    if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
+                        dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
+                                indexExprType);
+                        break;
+                    }
+                }
+                actualType = symTable.jsonType;
+                break;
+            case TypeTags.ARRAY:
+                indexExprType = checkExpr(indexExpr, this.env, symTable.intType);
+                if (indexExprType.tag == TypeTags.INT) {
+                    actualType = ((BArrayType) varRefType).getElementType();
+                }
+                break;
+            case TypeTags.XML:
+                if (indexBasedAccessExpr.lhsVar) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+                    break;
+                }
+
+                checkExpr(indexExpr, this.env);
+                actualType = symTable.xmlType;
+                break;
+            case TypeTags.ERROR:
+                // Do nothing
+                break;
+            default:
+                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                        indexBasedAccessExpr.expr.type);
+        }
+
+        return actualType;
+    }
+
+    private BType getSafeType(BType type, boolean safeNavigate, DiagnosticPos pos) {
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        // Extract the types without the error and null, and revisit access expression
+        Set<BType> varRefMemberTypes = ((BUnionType) type).memberTypes;
+        List<BType> lhsTypes;
+
+        if (safeNavigate) {
+            if (!varRefMemberTypes.contains(symTable.errStructType)) {
+                dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+            }
+            lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
+                return memberType != symTable.errStructType && memberType != symTable.nilType;
+            }).collect(Collectors.toList());
+        } else {
+            lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
+                return memberType != symTable.nilType;
+            }).collect(Collectors.toList());
+        }
+
+        if (lhsTypes.size() == 1) {
+            type = lhsTypes.get(0);
+        }
+
+        return type;
     }
 }

@@ -1,5 +1,5 @@
 
-const int intValue = getInt();
+@final int intValue = getInt();
 
 @Args{value : intValue}
 function foo () {

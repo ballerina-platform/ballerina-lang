@@ -1,6 +1,6 @@
 package constants;
 
-const Person p = 10;
+@final Person p = 10;
 
 function main (string[] i) {
     return;

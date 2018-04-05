@@ -81,8 +81,8 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|err
 }
 
 function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
-    string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
+    string jwtHeader = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[0])));
+    string jwtPayload = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[1])));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
@@ -100,7 +100,11 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
 function parseHeader (json jwtHeaderJson) returns (Header) {
     Header jwtHeader = {};
     map customClaims = {};
-    foreach key in jwtHeaderJson.getKeys() {
+    
+    string [] keys;
+    keys = jwtHeaderJson.getKeys() but { null => keys };
+    
+    foreach key in keys {
         //TODO get alg from a constant
         if (key == "alg") {
             jwtHeader.alg = jwtHeaderJson[key].toString();
@@ -125,7 +129,9 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
 function parsePayload (json jwtPayloadJson) returns (Payload) {
     Payload jwtPayload = {};
     map customClaims = {};
-    foreach key in jwtPayloadJson.getKeys() {
+    string [] keys;
+    keys = jwtPayloadJson.getKeys() but { null => keys };
+    foreach key in keys {
         if (key == ISS) {
             jwtPayload.iss = jwtPayloadJson[key].toString();
         } else if (key == SUB) {
@@ -238,4 +244,13 @@ function urlDecode (string encodedString) returns (string) {
     string decodedString = encodedString.replaceAll("-", "+");
     decodedString = decodedString.replaceAll("_", "/");
     return decodedString;
+}
+
+function getDecodedValue ((string  | blob  | io:ByteChannel | util:Base64DecodeError) decodedData) returns (string) {
+    match decodedData {
+        string returnString => return returnString;
+        blob returnBlob => return "error";
+        io:ByteChannel returnChannel => return "error";
+        util:Base64DecodeError returnError => return "error";
+    }
 }

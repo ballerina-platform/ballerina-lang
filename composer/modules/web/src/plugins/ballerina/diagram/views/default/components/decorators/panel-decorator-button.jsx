@@ -54,6 +54,7 @@ class PanelDecoratorButton extends React.Component {
                 className='control'
                 fontFamily='font-ballerina'
                 fontSize={iconSize}
+                className='control-icons'
                 onClick={this.props.onClick}
             >{this.props.icon}</text>
         </g>);

@@ -409,6 +409,8 @@ class SizingUtil {
                 // add the endpoint width to panel body width.
                 endpointWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                 endpoint.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                endpoint.viewState.endpointIdentifier =
+                    this.getTextWidth(endpoint.getName().value, 0, endpointWidth).text;
             });
         }
 
@@ -1620,9 +1622,7 @@ class SizingUtil {
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
             viewState.alias = 'ClientResponderNode';
             if (TreeUtil.isReturn(node)) {
-                const paramText = node.expressions.map((exp) => {
-                    return exp.getSource(true);
-                }).join(', ');
+                const paramText = node.expression.getSource(true);
                 const displayText = this.getTextWidth(paramText, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;

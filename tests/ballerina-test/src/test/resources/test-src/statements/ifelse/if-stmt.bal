@@ -88,7 +88,7 @@ function nestedIfElseScope(int number1, int number2) returns (int) {
     return i;
 }
 
-const int a = 6;
+@final int a = 6;
 
 function testConditionScope(int b) returns (int) {
     int output = 0;

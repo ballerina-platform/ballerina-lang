@@ -18,6 +18,7 @@ package ballerina.jwt;
 
 import ballerina/util;
 import ballerina/jwt.signature;
+import ballerina/io;
 
 @Description {value:"Represents JWT issuer configurations"}
 public struct JWTIssuerConfig {
@@ -69,10 +70,17 @@ function createPayload (Payload payload) returns (string|error) {
     return urlEncode(util:base64Encode(payloadJson.toString()));
 }
 
-function urlEncode (string data) returns (string) {
-    string encodedString = data.replaceAll("\\+", "-");
-    encodedString = encodedString.replaceAll("/", "_");
-    return encodedString;
+function urlEncode ((string  | blob  | io:ByteChannel | util:Base64EncodeError) data) returns (string) {
+    match data {
+        string returnString => {
+            string encodedString = returnString.replaceAll("\\+", "-");
+            encodedString = encodedString.replaceAll("/", "_");
+            return encodedString;
+        }
+        blob returnBlob => return "error";
+        io:ByteChannel returnChannel => return "error";
+        util:Base64EncodeError returnError => return "error";
+    }
 }
 
 function addMapToJson (json inJson, map mapToConvert) returns (json) {

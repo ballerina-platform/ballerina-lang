@@ -34,11 +34,11 @@ type DummyEndpoint object {
 
     public function getClient () returns (DummyClient) {
         exFlow = exFlow + "getClient:DummyEndpoint;";
-        return {};
+        return new;
     }
 }
 
-public struct DummyEndpointConfig {
+public type DummyEndpointConfig {
     string conf1;
     boolean conf2;
     int conf3;
@@ -83,7 +83,7 @@ function test2Caller (DummyEndpoint epVal) {
 function test3 () returns (string) {
     endpoint DummyEndpoint ep;
     exFlow = exFlow + "<test3>";
-    ep = {};
+    ep = new;
     ep.init({});
     ep.start();
     ep -> invoke1("t", 1);

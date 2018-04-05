@@ -1,5 +1,5 @@
 
-const float ^"const IL" = 88.90;
+@final float ^"const IL" = 88.90;
 
 string ^"global var" = "this is a IL with global var";
 

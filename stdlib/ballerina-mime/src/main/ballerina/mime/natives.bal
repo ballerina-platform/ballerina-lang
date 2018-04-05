@@ -50,6 +50,22 @@ public struct EntityError {
     error[] cause;
 }
 
+@Description {value:"Represent errors related to mime base64 encoder"}
+@Field {value:"message: The error message"}
+@Field {value:"cause: The cause of the error"}
+public struct Base64EncodeError {
+    string message;
+    error[] cause;
+}
+
+@Description {value:"Represent errors related to mime base64 decoder"}
+@Field {value:"message: The error message"}
+@Field {value:"cause: The cause of the error"}
+public struct Base64DecodeError {
+    string message;
+    error[] cause;
+}
+
 @Description {value:"Set the entity body with a given file handler"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"fileHandler: Represent a file"}
@@ -119,6 +135,12 @@ public native function <Entity entity> getByteChannel () returns io:ByteChannel 
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
 public native function <Entity entity> getBodyParts () returns Entity[] | EntityError;
 
+@Description {value:"Given an entity, get the body parts as a byte channel."}
+@Param {value:"entity: Represent a MIME entity"}
+@Return {value:"Return body parts as a byte channel "}
+@Return {value:"EntityError will get thrown in case of errors"}
+public native function <Entity entity> getBodyPartsAsChannel () returns io:ByteChannel;
+
 @Description {value:"Set body parts to entity"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
@@ -158,53 +180,23 @@ public function <MediaType mediaType> toStringWithParameters () returns (string)
     return contentType;
 }
 
-@Description {value:"Represent MIME specific base64 encoder. This follows RFC 2045 for encoding operation."}
-public struct MimeBase64Encoder {
-}
+@Description {value:"Encode a given input with MIME specific Base64 encoding scheme."}
+@Param {value:"contentToBeEncoded: Content that needs to be encoded can be of type string, blob or io:ByteChannel"}
+@Param {value:"charset: Charset to be used. This is used only with the string input"}
+@Return {value:"If the given input is of type string return value will be an encoded string"}
+@Return {value:"If the given input is of type blob return value will be an encoded blob"}
+@Return {value:"If the given input is of type io:ByteChannel return value will be an encoded io:ByteChannel"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
+public native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64EncodeError);
 
-@Description {value:"Represent MIME specific base64 decoder. This follows RFC 2045 for decoding operation."}
-public struct MimeBase64Decoder {
-}
-
-@Description {value:"Represent quoated-printable encoder."}
-public struct QuotedPrintableEncoder {
-}
-
-@Description {value:"Represent quoated-printable decoder."}
-public struct QuotedPrintableDecoder {
-}
-
-@Description {value:"Encode byte array using MIME Base64 encoding scheme."}
-@Param {value:"encoder: Represent MIME specific base64 encoder"}
-@Param {value:"content: the byte array to encode"}
-@Return {value:"Return resulting encoded bytes"}
-public native function <MimeBase64Encoder encoder> encode (blob content) returns (blob);
-
-@Description {value:"Encode a given string using MIME Base64 encoding scheme. First the given string will be
-converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
- Then that byte array will be encoded using MIME Base64 encoding scheme and a new string will be constructed with the
-  given charset."}
-@Param {value:"encoder: Represent MIME specific base64 encoder"}
-@Param {value:"content: string to encode"}
-@Param {value:"charset: charset used in the given string and the resulting string"}
-@Return {value:"Return resulting encoded string"}
-public native function <MimeBase64Encoder encoder> encodeString (string content, string charset) returns (string);
-
-@Description {value:"Decode byte array using MIME Base64 encoding scheme."}
-@Param {value:"encoder: Represent MIME specific base64 decoder"}
-@Param {value:"content: the byte array to decode"}
-@Return {value:"Return resulting decoded bytes"}
-public native function <MimeBase64Decoder decoder> decode (blob content) returns (blob);
-
-@Description {value:"Decode a given string using MIME Base64 decoding scheme. First the given string will be
-converted to a byte array with the given charset encoding. If the charset given is null default 'UTF-8' will be used.
- Then that byte array will be decoded using MIME Base64 decoding scheme and a new string will be constructed with the
-  given charset."}
-@Param {value:"encoder: Represent MIME specific base64 decoder"}
-@Param {value:"content: string to decode"}
-@Param {value:"charset: charset used in the given string and the resulting string"}
-@Return {value:"Return resulting decoded string"}
-public native function <MimeBase64Decoder decoder> decodeString (string content, string charset) returns (string);
+@Description {value:"Decode a given input with MIME specific Base64 encoding scheme."}
+@Param {value:"contentToBeDecoded: Content that needs to be decoded can be of type string, blob or io:ByteChannel"}
+@Param {value:"charset: Charset to be used. This is used only with the string input"}
+@Return {value:"If the given input is of type string return value will be a decoded string"}
+@Return {value:"If the given input is of type blob return value will be a decoded blob"}
+@Return {value:"If the given input is of type io:ByteChannel return value will be a decoded io:ByteChannel"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
+public native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64DecodeError);
 
 @Description {value:"Get the encoding value from a given MediaType."}
 @Param {value:"contentType: A MediaType struct"}
@@ -214,60 +206,60 @@ function getEncoding (MediaType contentType) returns (string) {
 }
 
 @Description {value:"Represent 'application/x-www-form-urlencoded' media type value"}
-public const string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+@final public string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
 @Description {value:"Represent 'application/json' media type value"}
-public const string APPLICATION_JSON = "application/json";
+@final public string APPLICATION_JSON = "application/json";
 
 @Description {value:"Represent 'application/octet-stream' media type value"}
-public const string APPLICATION_OCTET_STREAM = "application/octet-stream";
+@final public string APPLICATION_OCTET_STREAM = "application/octet-stream";
 
 @Description {value:"Represent 'application/svg+xml' media type value"}
-public const string APPLICATION_SVG_XML = "application/svg+xml";
+@final public string APPLICATION_SVG_XML = "application/svg+xml";
 
 @Description {value:"Represent 'application/xhtml+xml' media type value"}
-public const string APPLICATION_XHTML_XML = "application/xhtml+xml";
+@final public string APPLICATION_XHTML_XML = "application/xhtml+xml";
 
 @Description {value:"Represent 'application/xml' media type value"}
-public const string APPLICATION_XML = "application/xml";
+@final public string APPLICATION_XML = "application/xml";
 
 @Description {value:"Represent 'multipart/form-data' media type value"}
-public const string MULTIPART_FORM_DATA = "multipart/form-data";
+@final public string MULTIPART_FORM_DATA = "multipart/form-data";
 
 @Description {value:"Represent 'multipart/mixed' media type value"}
-public const string MULTIPART_MIXED = "multipart/mixed";
+@final public string MULTIPART_MIXED = "multipart/mixed";
 
 @Description {value:"Represent 'text/html' media type value"}
-public const string TEXT_HTML = "text/html";
+@final public string TEXT_HTML = "text/html";
 
 @Description {value:"Represent 'text/plain' media type value"}
-public const string TEXT_PLAIN = "text/plain";
+@final public string TEXT_PLAIN = "text/plain";
 
 @Description {value:"Represent 'text/xml' media type value"}
-public const string TEXT_XML = "text/xml";
+@final public string TEXT_XML = "text/xml";
 
 @Description {value:"Key name for 'boundary' parameter in MediaType. This is needed for composite type media types"}
-public const string BOUNDARY = "boundary";
+@final public string BOUNDARY = "boundary";
 
 @Description {value:"Key name for 'start' parameter in MediaType. This determines which part in the multipart message
 contains the payload"}
-public const string START = "start";
+@final public string START = "start";
 
 @Description {value:"Key name for 'type' parameter in MediaType. This indicates the MIME media type of the 'root'
 body part"}
-public const string TYPE = "type";
+@final public string TYPE = "type";
 
 @Description {value:"Key name for 'charset' parameter in MediaType. Indicate the character set of the body text"}
-public const string CHARSET = "charset";
+@final public string CHARSET = "charset";
 
 @Description {value:"Default charset to be used with MIME encoding and decoding"}
-public const string DEFAULT_CHARSET = "UTF-8";
+@final public string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
-const string READ_PERMISSION = "r";
+@final string READ_PERMISSION = "r";
 
 @Description {value:"Represent 'content-type' header name"}
-public const string CONTENT_TYPE = "content-type";
+@final public string CONTENT_TYPE = "content-type";
 
 @Description {value:"Get the header value associated with the given header name"}
 @Param {value:"entity: Represent the MIME entity"}
@@ -285,7 +277,7 @@ public native function <Entity entity> getHeaders (string headerName) returns st
 @Description {value:"Get all the headers as a map. Please note that manipulating the returned map has no effect to the original copy of headers"}
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return a copy of all headers as a map."}
-public native function <Entity entity> getCopyOfAllHeaders () returns map;
+public native function <Entity entity> getCopyOfAllHeaders () returns map; //return "getHeaderNames()"
 
 @Description {value:"Add the given header value against the given header"}
 @Param {value:"entity: Represent a MIME entity"}
