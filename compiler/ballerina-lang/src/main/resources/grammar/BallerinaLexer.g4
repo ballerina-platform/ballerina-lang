@@ -22,7 +22,6 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STRUCT      : 'struct' ;
 OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;

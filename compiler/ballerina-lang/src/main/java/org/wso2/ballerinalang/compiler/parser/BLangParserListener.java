@@ -399,43 +399,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startStructDef();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean publicStruct = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.endStructDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), publicStruct);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterStructBody(BallerinaParser.StructBodyContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startVarList();
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
@@ -531,7 +494,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) {
+    public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -844,25 +807,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addUserDefineType(getWS(ctx));
-    }
-
-    @Override
-    public void enterAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startStructDef();
-    }
-
-
-    @Override
-    public void exitAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAnonStructType(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2039,26 +1983,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.endFuncTypeParamList(getWS(ctx));
         } else {
             this.pkgBuilder.endCallableParamList(getWS(ctx));
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        DiagnosticPos currentPos = getCurrentPos(ctx);
-        Set<Whitespace> ws = getWS(ctx);
-        String name = ctx.Identifier().getText();
-        boolean exprAvailable = ctx.expression() != null;
-        if (ctx.parent instanceof BallerinaParser.StructBodyContext) {
-            this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, false);
-        } else if (ctx.parent instanceof BallerinaParser.PrivateStructBodyContext) {
-            this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, true);
         }
     }
 
