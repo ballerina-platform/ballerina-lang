@@ -62,7 +62,7 @@ function isCacheEnabled (string cacheName) returns (boolean) {
     // by default we enable the cache
     match config:getAsString(cacheName + "." + CACHE_ENABLED) {
         string value => return value == "true" ? true : false;
-        int|null => return CACHE_ENABLED_DEFAULT_VALUE;
+        () => return CACHE_ENABLED_DEFAULT_VALUE;
     }
 }
 
@@ -87,7 +87,7 @@ function getExpiryTime (string cacheName) returns (int) {
                 error typeConversionErr => return CACHE_EXPIRY_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
+        () => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -102,7 +102,7 @@ function getCapacity (string cacheName) returns (int) {
                 error typeConversionErr => return CACHE_CAPACITY_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
+        () => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -117,7 +117,7 @@ function getEvictionFactor (string cacheName) returns (float) {
                 error typeConversionErr => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
+        () => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
     }
 }
 
