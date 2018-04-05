@@ -194,16 +194,9 @@ public type SecureSocket {
     Protocols? protocols,
     ValidateCert? validateCert,
     string ciphers,
-    boolean hostNameVerification,
-    boolean sessionCreation,
+    boolean hostNameVerification = true,
+    boolean sessionCreation = true,
     boolean ocspStapling
-}
-
-@Description {value:"Initializes the SecureSocket struct with default values."}
-@Param {value:"config: The SecureSocket struct to be initialized"}
-public function <SecureSocket config> SecureSocket() {
-    config.hostNameVerification = true,
-    config.sessionCreation = true
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
