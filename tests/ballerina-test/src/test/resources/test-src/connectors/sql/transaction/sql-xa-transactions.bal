@@ -1,7 +1,7 @@
 import ballerina/sql;
 
 type ResultCount {
-    int COUNTVAL;
+    int COUNTVAL,
 }
 
 function testXAransactonSuccess () returns (int, int) {

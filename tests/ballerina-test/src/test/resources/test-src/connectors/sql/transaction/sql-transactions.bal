@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/runtime;
 
 type ResultCount {
-    int COUNTVAL;
+    int COUNTVAL,
 }
 
 function testLocalTransacton () returns (int, int) {

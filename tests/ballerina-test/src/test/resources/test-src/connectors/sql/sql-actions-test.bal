@@ -3,42 +3,42 @@ import ballerina/time;
 import ballerina/io;
 
 type ResultCustomers {
-    string FIRSTNAME;
+    string FIRSTNAME,
 }
 
 type ResultIntType {
-    int INT_TYPE;
+    int INT_TYPE,
 }
 
 type ResultBlob {
-    blob BLOB_TYPE;
+    blob BLOB_TYPE,
 }
 
 type ResultDataType {
-    int INT_TYPE;
-    int LONG_TYPE;
-    float FLOAT_TYPE;
-    float DOUBLE_TYPE;
+    int INT_TYPE,
+    int LONG_TYPE,
+    float FLOAT_TYPE,
+    float DOUBLE_TYPE,
 }
 
 type ResultCount {
-    int COUNTVAL;
+    int COUNTVAL,
 }
 
 type ResultArrayType {
-    map INT_ARRAY;
-    map LONG_ARRAY;
-    map DOUBLE_ARRAY;
-    map BOOLEAN_ARRAY;
-    map STRING_ARRAY;
-    map FLOAT_ARRAY;
+    map INT_ARRAY,
+    map LONG_ARRAY,
+    map DOUBLE_ARRAY,
+    map BOOLEAN_ARRAY,
+    map STRING_ARRAY,
+    map FLOAT_ARRAY,
 }
 
 type ResultDates {
-    string DATE_TYPE;
-    string TIME_TYPE;
-    string TIMESTAMP_TYPE;
-    string DATETIME_TYPE;
+    string DATE_TYPE,
+    string TIME_TYPE,
+    string TIMESTAMP_TYPE,
+    string DATETIME_TYPE,
 }
 
 function testInsertTableData () returns (int) {
