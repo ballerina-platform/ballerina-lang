@@ -50,10 +50,18 @@ public struct EntityError {
     error[] cause;
 }
 
-@Description {value:"Represent errors related to mime base64 encoder and decoder"}
+@Description {value:"Represent errors related to mime base64 encoder"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The cause of the error"}
-public struct Base64Error {
+public struct Base64EncodeError {
+    string message;
+    error[] cause;
+}
+
+@Description {value:"Represent errors related to mime base64 decoder"}
+@Field {value:"message: The error message"}
+@Field {value:"cause: The cause of the error"}
+public struct Base64DecodeError {
     string message;
     error[] cause;
 }
@@ -179,7 +187,7 @@ public function <MediaType mediaType> toStringWithParameters () returns (string)
 @Return {value:"If the given input is of type blob return value will be an encoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be an encoded io:ByteChannel"}
 @Return {value:"Base64Error will get return, in case of errors"}
-public native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64Error);
+public native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64EncodeError);
 
 @Description {value:"Decode a given input with MIME specific Base64 encoding scheme."}
 @Param {value:"contentToBeDecoded: Content that needs to be decoded can be of type string, blob or io:ByteChannel"}
@@ -188,7 +196,7 @@ public native function base64Encode ((string | blob | io:ByteChannel) contentToB
 @Return {value:"If the given input is of type blob return value will be a decoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be a decoded io:ByteChannel"}
 @Return {value:"Base64Error will get return, in case of errors"}
-public native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64Error);
+public native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64DecodeError);
 
 @Description {value:"Get the encoding value from a given MediaType."}
 @Param {value:"contentType: A MediaType struct"}

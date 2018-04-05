@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.zone.ZoneRulesException;
 import java.util.Base64;
@@ -58,7 +59,8 @@ public class Utils {
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final String PROTOCOL_PACKAGE_UTIL = "ballerina.util";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
-    public static final String BASE64_ERROR = "Base64Error";
+    public static final String BASE64_ENCODE_ERROR = "Base64EncodeError";
+    public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
     private static final String STRUCT_TYPE = "ByteChannel";
 
     public static BStruct createTimeZone(StructInfo timezoneStructInfo, String zoneIdValue) {
@@ -102,14 +104,14 @@ public class Utils {
         return BLangVMErrors.createError(context, -1, msg);
     }
 
-    private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific) {
+    private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific, boolean isEncoder) {
         PackageInfo filePkg;
         if (isMimeSpecific) {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_MIME);
         } else {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_UTIL);
         }
-        StructInfo entityErrInfo = filePkg.getStructInfo(BASE64_ERROR);
+        StructInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 
@@ -206,9 +208,9 @@ public class Utils {
             } else {
                 encodedValue = Base64.getEncoder().encode(stringToBeEncoded.getBytes(charset));
             }
-            context.setReturnValues(new BString(new String(encodedValue, charset)));
+            context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific));
+            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific, true));
         }
     }
 
@@ -225,13 +227,15 @@ public class Utils {
         try {
             byte[] decodedValue;
             if (isMimeSpecific) {
-                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.stringValue().getBytes(charset));
+                decodedValue = Base64.getMimeDecoder().decode(stringToBeDecoded.stringValue()
+                        .getBytes(StandardCharsets.ISO_8859_1));
             } else {
-                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.stringValue().getBytes(charset));
+                decodedValue = Base64.getDecoder().decode(stringToBeDecoded.stringValue()
+                        .getBytes(StandardCharsets.ISO_8859_1));
             }
             context.setReturnValues(new BString(new String(decodedValue, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific));
+            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific, false));
         }
     }
 
@@ -262,7 +266,7 @@ public class Utils {
                     new Base64Wrapper(decodedByteChannel));
             context.setReturnValues(byteChannelStruct);
         } catch (IOException e) {
-            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific));
+            context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific, true));
         }
     }
 
@@ -294,7 +298,8 @@ public class Utils {
                         new Base64Wrapper(decodedByteChannel));
                 context.setReturnValues(byteChannelStruct);
             } catch (IOException e) {
-                context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific));
+                context.setReturnValues(Utils.createBase64Error(context, e.getMessage(), isMimeSpecific,
+                        false));
             }
         }
     }

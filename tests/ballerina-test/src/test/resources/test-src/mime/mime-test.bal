@@ -16,27 +16,27 @@ function testToStringWithParametersOnMediaType (mime:MediaType mediaType) return
     return mediaType.toStringWithParameters();
 }
 
-function testMimeBase64EncodeString (string contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64Error) {
+function testMimeBase64EncodeString (string contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64EncodeError) {
     return mime:base64Encode(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeString (string contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64Error) {
+function testMimeBase64DecodeString (string contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64DecodeError) {
     return mime:base64Decode(contentToBeDecoded);
 }
 
-function testMimeBase64EncodeBlob (blob contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64Error) {
+function testMimeBase64EncodeBlob (blob contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64EncodeError) {
     return mime:base64Encode(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeBlob (blob contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64Error) {
+function testMimeBase64DecodeBlob (blob contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64DecodeError) {
     return mime:base64Decode(contentToBeDecoded);
 }
 
-function testMimeBase64EncodeByteChannel (io:ByteChannel contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64Error) {
+function testMimeBase64EncodeByteChannel (io:ByteChannel contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64EncodeError) {
     return mime:base64Encode(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeByteChannel (io:ByteChannel contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64Error) {
+function testMimeBase64DecodeByteChannel (io:ByteChannel contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64DecodeError) {
     return mime:base64Decode(contentToBeDecoded);
 }
 
