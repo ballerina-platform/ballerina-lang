@@ -35,7 +35,7 @@ public type JWTAuthenticator object {
     public function authenticate (string jwtToken) returns (boolean|error);
     function JWTAuthenticator::authenticateFromCache (string jwtToken)
                                                 returns (boolean, boolean)|(boolean, boolean, jwt:Payload);
-}
+};
 
 @final string AUTHENTICATOR_JWT = "authenticator_jwt";
 @final string ISSUER = "issuer";
@@ -48,9 +48,9 @@ public type JWTAuthenticator object {
 @final string AUTH_TYPE_JWT = "jwt";
 
 public type CachedJWTAuthContext {
-    jwt:Payload jwtPayload;
+    jwt:Payload jwtPayload,
     int expiryTime;
-}
+};
 
 @Description {value:"Creates a JWT Authenticator instance"}
 @Return {value:"JWTAuthenticator instance"}
