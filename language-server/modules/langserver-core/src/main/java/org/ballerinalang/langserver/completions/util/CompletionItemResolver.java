@@ -39,7 +39,6 @@ import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRu
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAttachmentPointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleCallableUnitBodyContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConditionalClauseContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleExpressionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleMatchStatementContextResolver;
@@ -119,8 +118,6 @@ public enum CompletionItemResolver {
             new ParserRuleWorkerReplyContext()),
     PARSER_RULE_TYPE_NAME_CONTEXT(BallerinaParser.TypeNameContext.class,
             new ParserRuleTypeNameContextResolver()),
-    PARSER_RULE_CONST_DEF_CONTEXT(BallerinaParser.ConstantDefinitionContext.class,
-            new ParserRuleConstantDefinitionContextResolver()),
     PARSER_RULE_GLOBAL_VAR_DEF_CONTEXT(BallerinaParser.GlobalVariableDefinitionContext.class,
             new ParserRuleGlobalVariableDefinitionContextResolver()),
     PARSER_RULE_ATTACHMENT_POINT_CONTEXT(BallerinaParser.AttachmentPointContext.class,
