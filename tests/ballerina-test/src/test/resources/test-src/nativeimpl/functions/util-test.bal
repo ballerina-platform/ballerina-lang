@@ -2,14 +2,14 @@ import ballerina/util;
 import ballerina/security.crypto;
 import ballerina/io;
 
-function testEncodeDecode (string content) returns (string  | blob  | io:ByteChannel  | util:Base64DecodeError) {
-    util:Base64Error errorStruct = {};
+function testEncodeDecode (string content) returns (string  | blob  | io:ByteChannel  | util:Base64EncodeError) {
+    util:Base64EncodeError errorStruct = {};
     errorStruct.message = "Error";
     match util:base64Encode(content) {
         string returnString => return util:base64Decode(returnString);
         blob returnBlob => return errorStruct;
         io:ByteChannel returnChannel => return errorStruct;
-        util:Base64DecodeError returnError => return returnError;
+        util:Base64EncodeError returnError => return returnError;
     }
 }
 

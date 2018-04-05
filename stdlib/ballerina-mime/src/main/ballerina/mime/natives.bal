@@ -186,7 +186,7 @@ public function <MediaType mediaType> toStringWithParameters () returns (string)
 @Return {value:"If the given input is of type string return value will be an encoded string"}
 @Return {value:"If the given input is of type blob return value will be an encoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be an encoded io:ByteChannel"}
-@Return {value:"Base64Error will get return, in case of errors"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
 public native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64EncodeError);
 
 @Description {value:"Decode a given input with MIME specific Base64 encoding scheme."}
@@ -195,7 +195,7 @@ public native function base64Encode ((string | blob | io:ByteChannel) contentToB
 @Return {value:"If the given input is of type string return value will be a decoded string"}
 @Return {value:"If the given input is of type blob return value will be a decoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be a decoded io:ByteChannel"}
-@Return {value:"Base64Error will get return, in case of errors"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
 public native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64DecodeError);
 
 @Description {value:"Get the encoding value from a given MediaType."}

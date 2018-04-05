@@ -70,7 +70,7 @@ function createPayload (Payload payload) returns (string|error) {
     return urlEncode(util:base64Encode(payloadJson.toString()));
 }
 
-function urlEncode ((string  | blob  | io:ByteChannel | util:Base64Error) data) returns (string) {
+function urlEncode ((string  | blob  | io:ByteChannel | util:Base64EncodeError) data) returns (string) {
     match data {
         string returnString => {
             string encodedString = returnString.replaceAll("\\+", "-");
@@ -79,7 +79,7 @@ function urlEncode ((string  | blob  | io:ByteChannel | util:Base64Error) data) 
         }
         blob returnBlob => return "error";
         io:ByteChannel returnChannel => return "error";
-        util:Base64Error returnError => return "error";
+        util:Base64EncodeError returnError => return "error";
     }
 }
 

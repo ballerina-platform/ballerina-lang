@@ -240,11 +240,11 @@ function urlDecode (string encodedString) returns (string) {
     return decodedString;
 }
 
-function getDecodedValue ((string  | blob  | io:ByteChannel | util:Base64Error) decodedData) returns (string) {
+function getDecodedValue ((string  | blob  | io:ByteChannel | util:Base64DecodeError) decodedData) returns (string) {
     match decodedData {
         string returnString => return returnString;
         blob returnBlob => return "error";
         io:ByteChannel returnChannel => return "error";
-        util:Base64Error returnError => return "error";
+        util:Base64DecodeError returnError => return "error";
     }
 }
