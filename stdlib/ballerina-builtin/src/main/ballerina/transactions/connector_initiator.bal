@@ -18,7 +18,7 @@ package ballerina.transactions;
 
 import ballerina/http;
 
-struct InitiatorClientConfig {
+type InitiatorClientConfig {
     string registerAtURL;
     int endpointTimeout;
     struct {
@@ -27,43 +27,51 @@ struct InitiatorClientConfig {
     } retryConfig;
 }
 
-struct InitiatorClientEP {
-    http:ClientEndpoint httpClient;
-}
-
-function <InitiatorClientEP ep> init (InitiatorClientConfig conf) {
-    endpoint http:ClientEndpoint httpEP {targets:[{url:conf.registerAtURL}],
-        endpointTimeout:conf.endpointTimeout,
-        retry:{count:conf.retryConfig.count,
-                  interval:conf.retryConfig.interval}};
-    ep.httpClient = httpEP;
-}
-
-function <InitiatorClientEP ep> getClient () returns InitiatorClient {
-    return {clientEP:ep};
-}
-
-struct InitiatorClient {
-    InitiatorClientEP clientEP;
-}
-
-function <InitiatorClient client> register (string transactionId,
-                                            int transactionBlockId,
-                                            Protocol[] participantProtocols) returns RegistrationResponse|error {
-    endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
-    string participantId = getParticipantId(transactionBlockId);
-    RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
-    regReq.participantProtocols = participantProtocols;
-
-    json reqPayload = regRequestToJson(regReq);
-    http:Request req = {};
-    req.setJsonPayload(reqPayload);
-    http:Response res =? httpClient -> post("", req);
-    int statusCode = res.statusCode;
-    if (statusCode != http:OK_200) {
-        error err = {message:"Registration for transaction: " + transactionId + " failed"};
-        return err;
+type InitiatorClientEP object {
+    private {
+        http:ClientEndpoint httpClient;
     }
-    json resPayload = check res.getJsonPayload();
-    return jsonToRegResponse(resPayload);
+
+    function init (InitiatorClientConfig conf) {
+        endpoint http:ClientEndpoint httpEP {targets:[{url:conf.registerAtURL}],
+                                            endpointTimeout:conf.endpointTimeout,
+                                            retry:{count:conf.retryConfig.count,
+                                                      interval:conf.retryConfig.interval}};
+        self.httpClient = httpEP;
+    }
+
+    function getClient () returns InitiatorClient {
+        InitiatorClient client = new;
+        client.clientEP = self;
+        return client;
+    }
+}
+
+type InitiatorClient object {
+    private {
+        InitiatorClientEP clientEP;
+    }
+
+    new() {}
+
+
+    function register(string transactionId, int transactionBlockId,
+                        Protocol[] participantProtocols) returns RegistrationResponse|error {
+        endpoint http:ClientEndpoint httpClient = self.clientEP.httpClient;
+        string participantId = getParticipantId(transactionBlockId);
+        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
+        regReq.participantProtocols = participantProtocols;
+
+        json reqPayload = regRequestToJson(regReq);
+        http:Request req = {};
+        req.setJsonPayload(reqPayload);
+        http:Response res = httpClient -> post("", req) but {error};
+        int statusCode = res.statusCode;
+        if (statusCode != http:OK_200) {
+            error err = {message:"Registration for transaction: " + transactionId + " failed"};
+            return err;
+        }
+        json resPayload = check res.getJsonPayload();
+        return jsonToRegResponse(resPayload);
+    }
 }
