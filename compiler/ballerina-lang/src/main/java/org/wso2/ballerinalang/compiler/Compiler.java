@@ -43,7 +43,7 @@ public class Compiler {
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final boolean listPkg;
-    private final boolean write;
+    private final boolean dryRun;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -63,7 +63,7 @@ public class Compiler {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.listPkg = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.LIST_PKG));
-        this.write = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.WRITE));
+        this.dryRun = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.DRY_RUN));
     }
 
     public BLangPackage compile(String sourcePackage) {
@@ -98,7 +98,7 @@ public class Compiler {
                                                                    .map(this.compilerDriver::compilePackage)
                                                                    .filter(bLangPackage -> this.dlog.errorCount == 0);
 
-        if (write) {
+        if (dryRun) {
             packages.forEach(this.binaryFileWriter::writeExecutableBinary);
         }
 

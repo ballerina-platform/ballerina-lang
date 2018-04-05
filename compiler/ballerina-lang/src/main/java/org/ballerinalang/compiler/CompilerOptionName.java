@@ -38,7 +38,7 @@ public enum CompilerOptionName {
 
     LIST_PKG("listPkg"),
 
-    WRITE("write"),
+    DRY_RUN("dryRun"),
 
     TARGET_BINARY_PATH("targetBinaryPath");
 
