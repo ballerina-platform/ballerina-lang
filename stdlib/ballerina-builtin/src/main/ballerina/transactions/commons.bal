@@ -46,12 +46,12 @@ caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache
 @final boolean scheduleInit = scheduleTimer(1000, 60000);
 
 function scheduleTimer (int delay, int interval) returns boolean {
-    function () returns (error|null) onTriggerFunction = cleanupTransactions;
-    _ = task:scheduleTimer(onTriggerFunction, null, {delay:delay, interval:interval});
+    (function() returns error?) onTriggerFunction = cleanupTransactions;
+    _ = task:scheduleTimer(onTriggerFunction, (), {delay:delay, interval:interval});
     return true;
 }
 
-function cleanupTransactions () returns error|null {
+function cleanupTransactions() returns error? {
     worker w1 {
         foreach _, twopcTxn in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId, twopcTxn.transactionBlockId);
@@ -102,7 +102,7 @@ function cleanupTransactions () returns error|null {
                 removeInitiatedTransaction(twopcTxn.transactionId);
             }
         }
-        return null;
+        return ();
     }
 }
 
@@ -147,12 +147,12 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     RequestError err = {errorMessage:msg};
     json resPayload = check <json>err;
     res.setJsonPayload(resPayload);
-    var respondResult = ep -> respond(res);
-    match respondResult {
+    var resResult = ep -> respond(res);
+    match resResult {
         http:HttpConnectorError respondErr => {
             log:printErrorCause("Could not send Bad Request error response to caller", respondErr);
         }
-        null => return;
+        () => return;
     }
 }
 
