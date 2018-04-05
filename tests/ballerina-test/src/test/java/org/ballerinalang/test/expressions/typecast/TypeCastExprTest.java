@@ -609,7 +609,7 @@ public class TypeCastExprTest {
     public void testCastingWithTooManyReturns() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/cast-too-many-returns-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "invalid token '=?'", 15, 15);
+        BAssertUtil.validateError(res, 0, "invalid token '='", 15, 15);
     }
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
