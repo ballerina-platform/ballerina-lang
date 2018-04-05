@@ -1632,6 +1632,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBuiltInReferenceTypeTypeExpression(BallerinaParser.BuiltInReferenceTypeTypeExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code elvisExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterElvisExpression(BallerinaParser.ElvisExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code elvisExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitElvisExpression(BallerinaParser.ElvisExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code tableQueryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
