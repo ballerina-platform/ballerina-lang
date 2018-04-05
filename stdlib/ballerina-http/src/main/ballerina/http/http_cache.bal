@@ -26,7 +26,7 @@ type HttpCache object {
     }
 
     function isAllowedToCache (Response response) returns boolean {
-        if (policy == CachingPolicy.CACHE_CONTROL_AND_VALIDATORS) {
+        if (policy == CACHE_CONTROL_AND_VALIDATORS) {
             return response.hasHeader(CACHE_CONTROL) && (response.hasHeader(ETAG) || response.hasHeader(LAST_MODIFIED));
         }
 
