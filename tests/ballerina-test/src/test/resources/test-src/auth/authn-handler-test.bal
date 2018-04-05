@@ -53,6 +53,7 @@ function testExtractBasicAuthHeaderValue () returns (string|()) {
     // create dummy request
     http:Request inRequest = createRequest();
     mime:Entity requestEntity = new;
+    string basicAutheaderValue = "Basic aXN1cnU6eHh4";
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return http:extractBasicAuthHeaderValue(inRequest);

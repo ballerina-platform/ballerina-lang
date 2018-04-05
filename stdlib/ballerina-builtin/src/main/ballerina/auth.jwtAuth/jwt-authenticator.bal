@@ -115,7 +115,7 @@ returns (boolean, boolean)|(boolean, boolean, jwt:Payload) {
     boolean isAuthenticated;
     CachedJWTAuthContext cachedAuthContext = {};
     try {
-        match check <CachedJWTAuthContext> self.authCache.get(jwtToken) {
+        match <CachedJWTAuthContext> self.authCache.get(jwtToken) {
             CachedJWTAuthContext cache => {
                 cachedAuthContext = cache;
                 isCacheHit = true;

@@ -142,13 +142,13 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.exp = check (<int>value);
+            jwtPayload.exp = <int>value;
         } else if (key == NBF) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.nbf = check (<int>value);
+            jwtPayload.nbf = <int>value;
         } else if (key == IAT) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.iat = check (<int>value);
+            jwtPayload.iat = <int>value;
         }
         else {
             if (lengthof jwtPayloadJson[key] > 0) {
