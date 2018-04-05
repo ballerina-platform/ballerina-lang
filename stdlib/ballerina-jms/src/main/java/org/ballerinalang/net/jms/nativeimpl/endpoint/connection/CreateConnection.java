@@ -21,29 +21,48 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
 
 /**
- * Get the ID of the connection.
+ * Connection init function for JMS connection endpoint.
  *
  * @since 0.970
  */
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jms",
-        functionName = "register",
+        functionName = "createConnection",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection", structPackage = "ballerina.jms"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
+        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ConnectionConfiguration")
+        },
         isPublic = true
 )
-public class Register implements NativeCallableUnit {
+public class CreateConnection implements NativeCallableUnit {
+
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+        Struct connectionBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct connectionConfig = connectionBObject.getStructField(Constants.CONNECTION_CONFIG);
 
+        Connection connection = JMSUtils.createConnection(connectionConfig);
+        try {
+            connection.start();
+        } catch (JMSException e) {
+            throw new BallerinaException("Error occurred while starting connection", e);
+        }
+        connectionBObject.addNativeData(Constants.JMS_CONNECTION, connection);
     }
 
     @Override
