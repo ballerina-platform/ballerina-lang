@@ -29,6 +29,15 @@ import ballerina/io;
 @final string WEAK_VALIDATOR_TAG = "W/";
 @final int STALE = 0;
 
+@final string FORWARD = "FORWARD";
+@final string GET = "GET";
+@final string POST = "POST";
+@final string DELETE = "DELETE";
+@final string OPTIONS = "OPTIONS";
+@final string PUT = "PUT";
+@final string PATCH = "PATCH";
+@final string HEAD = "HEAD";
+
 @Description {value:"Used for configuring the caching behaviour. Setting the policy field in the CacheConfig struct allows the user to control the caching behaviour."}
 @Field {value:"CACHE_CONTROL_AND_VALIDATORS: This a more restricted mode of RFC 7234. This restricts caching to instances where the Cache-Control header and either the ETag or Last-Modified header are present."}
 @Field {value:"RFC_7234: Caching behaviour is as specified by the RFC 7234 specification."}
@@ -478,8 +487,8 @@ function getFreshnessLifetime (Response cachedResponse, boolean isSharedCache) r
 
                 if (lengthof dateHeader == 1) {
                     // TODO: See if time parsing errors need to be handled
-                    int freshnessLifetime = (time:parseTo(expiresHeader[0], time:TimeFormat.RFC_1123).time
-                                             - time:parseTo(dateHeader[0], time:TimeFormat.RFC_1123).time) / 1000;
+                    int freshnessLifetime = (time:parseTo(expiresHeader[0], time:TIME_RFC_1123).time
+                                             - time:parseTo(dateHeader[0], time:TIME_RFC_1123).time) / 1000;
                     return freshnessLifetime;
                 }
             }
@@ -660,13 +669,13 @@ function getDateValue (Response inboundResponse) returns int {
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, currentT.formatTo(time:TimeFormat.RFC_1123));
+        inboundResponse.setHeader(DATE, currentT.formatTo(time:Time_RFC_1123));
         return currentT.time;
     }
 
     string dateHeader = inboundResponse.getHeader(DATE);
     // TODO: May need to handle invalid date headers
-    time:Time dateHeaderTime = time:parseTo(dateHeader, time:TimeFormat.RFC_1123);
+    time:Time dateHeaderTime = time:parseTo(dateHeader, time:TIME_RFC_1123);
     return dateHeaderTime.time;
 }
 
