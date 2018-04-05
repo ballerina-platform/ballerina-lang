@@ -490,7 +490,7 @@ variableReference
     ;
 
 field
-    : DOT (Identifier | MUL)
+    : (DOT | NOT) (Identifier | MUL)
     ;
 
 index
