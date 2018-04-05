@@ -18,12 +18,10 @@
 package org.ballerinalang.util.metrics;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Utility methods to get a list of {@link Tag Tags}.
+ * Utility methods to add tags to an existing list of {@link Tag Tags}.
  */
 public class Tags {
 
@@ -31,59 +29,54 @@ public class Tags {
     }
 
     /**
-     * Get tags from key/value pairs
+     * Populate tags from key/value pairs
      *
+     * @param tags      An existing list of {@link Tag Tags}.
      * @param keyValues Must be an even number of arguments representing key/value pairs of tags.
-     * @return A list of {@link Tag Tags}.
      */
-    public static List<Tag> tags(String... keyValues) {
+    public static void tags(ArrayList<Tag> tags, String... keyValues) {
         if (keyValues == null || keyValues.length == 0) {
-            return Collections.emptyList();
+            return;
         }
         if (keyValues.length % 2 == 1) {
             throw new IllegalArgumentException("size must be even, it is a set of key=value pairs");
         }
-        List<Tag> tags = new ArrayList<>(keyValues.length / 2);
+        tags.ensureCapacity(keyValues.length / 2);
         for (int i = 0; i < keyValues.length; i += 2) {
             tags.add(Tag.of(keyValues[i], keyValues[i + 1]));
         }
-        return tags;
     }
 
     /**
-     * Get tags from another collection of tags
+     * Populate tags from another collection of tags
      *
-     * @param tags A collection of {@link Tag Tags}
-     * @return A list of {@link Tag Tags}.
+     * @param existingTags An existing list of {@link Tag Tags}.
+     * @param tags         A collection of {@link Tag Tags}
      */
-    public static List<Tag> tags(Iterable<Tag> tags) {
-        List<Tag> newTags = new ArrayList<>();
-        tags.forEach(newTags::add);
-        return newTags;
+    public static void tags(ArrayList<Tag> existingTags, Iterable<Tag> tags) {
+        tags.forEach(existingTags::add);
     }
 
     /**
-     * Get tags from a key/value pair
+     * Populate tags from a key/value pair
      *
+     * @param tags  An existing list of {@link Tag Tags}.
      * @param key   The tag key.
      * @param value The tag value.
-     * @return A list of {@link Tag Tags}.
      */
-    public static List<Tag> tag(String key, String value) {
-        List<Tag> tags = new ArrayList<>();
+    public static void tag(ArrayList<Tag> tags, String key, String value) {
+        tags.ensureCapacity(1);
         tags.add(Tag.of(key, value));
-        return tags;
     }
 
     /**
-     * Get tags from a map of key/value pairs
+     * Populate tags from a map of key/value pairs
      *
-     * @param tags A map of key value pairs to be used as tags
-     * @return A list of {@link Tag Tags}.
+     * @param tags    An existing list of {@link Tag Tags}.
+     * @param tagsMap A map of key value pairs to be used as tags
      */
-    public static List<Tag> tags(Map<String, String> tags) {
-        List<Tag> newTags = new ArrayList<>();
-        tags.forEach((key, value) -> newTags.add(Tag.of(key, value)));
-        return newTags;
+    public static void tags(ArrayList<Tag> tags, Map<String, String> tagsMap) {
+        tags.ensureCapacity(tagsMap.size());
+        tagsMap.forEach((key, value) -> tags.add(Tag.of(key, value)));
     }
 }
