@@ -33,7 +33,7 @@ public type Filter object {
         filterRequest = requestFilter;
         filterResponse = responseFilter;
     }
-}
+};
 
 @Description {value:"Representation of filter Context."}
 @Field {value:"serviceType: Type of the service"}
@@ -44,7 +44,7 @@ public type FilterContext object {
     typedesc serviceType;
     string serviceName;
     string resourceName;
-}
+};
 
 @Description {value:"Represents a filter result. This should be populated and returned by each request and response
 filter function"}
@@ -55,7 +55,7 @@ public type FilterResult {
     boolean canProceed;
     int statusCode;
     string message;
-}
+};
 
 @Description {value:"Initializes the filter"}
 public function Filter::init () {
