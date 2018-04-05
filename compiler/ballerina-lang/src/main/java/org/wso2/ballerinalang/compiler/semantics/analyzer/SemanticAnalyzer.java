@@ -500,6 +500,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 symbolEnter.defineNode(varNode, env);
             }
         }
+
+        varNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TYPE);
+            annotationAttachment.accept(this);
+        });
+
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
