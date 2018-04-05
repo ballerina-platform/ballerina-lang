@@ -25,17 +25,12 @@ package ballerina.http;
 @Field {value:"basePath: Service base path"}
 @Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
-public type HttpServiceConfig object {
-    public {
-        ServiceEndpoint[] endpoints;
-        HttpServiceLifeTime lifetime;
-        string basePath;
-        Compression compression;
-        CorsConfig cors;
-    }
-    new () {
-        compression = Compression.AUTO;
-    }
+type HttpServiceConfig {
+    ServiceEndpoint[] endpoints,
+    HttpServiceLifeTime lifetime,
+    string basePath,
+    Compression compression: Compression.AUTO,
+    CorsConfig cors
 }
 
 @Description {value:"Configurations for CORS support"}
@@ -45,18 +40,13 @@ public type HttpServiceConfig object {
 @Field {value:"exposeHeaders: The whitelisted headers which clients are allowed to access"}
 @Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
 @Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
-public type CorsConfig object {
-    public {
-        string[] allowHeaders;
-        string[] allowMethods;
-        string[] allowOrigins;
-        string[] exposeHeaders;
-        boolean allowCredentials;
-        int maxAge;
-    }
-    new () {
-        maxAge = -1;
-    }
+type CorsConfig {
+    string[] allowHeaders,
+    string[] allowMethods,
+    string[] allowOrigins,
+    string[] exposeHeaders,
+    boolean allowCredentials,
+    int maxAge: -1
 }
 
 
@@ -66,17 +56,13 @@ public type CorsConfig object {
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
-public type WSServiceConfig object {
-    public {
-        ServiceEndpoint[] endpoints;
-        WebSocketEndpoint[] webSocketEndpoints;
-        string basePath;
-        string[] subProtocols;
-        int idleTimeoutInSeconds;
-    }
-    new () {
+type WSServiceConfig {
+    ServiceEndpoint[] endpoints,
+    WebSocketEndpoint[] webSocketEndpoints,
+    string basePath,
+    string[] subProtocols,
+    int idleTimeoutInSeconds
 
-    }
 }
 
 @Description {value:"This specifies the possible ways in which a service can be used when serving requests."}
@@ -108,27 +94,20 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
-public type HttpResourceConfig object {
-    public {
-        string[] methods;
-        string path;
-        string body;
-        string[] consumes;
-        string[] produces;
-        CorsConfig cors;
-        boolean transactionInfectable;
-        WebSocketUpgradeConfig|null webSocketUpgrade;
-    }
-    new () {
-        transactionInfectable = true;
-    }
+type HttpResourceConfig {
+        string[] methods,
+        string path,
+        string body,
+        string[] consumes,
+        string[] produces,
+        CorsConfig cors,
+        boolean transactionInfectable: true,
+        WebSocketUpgradeConfig|null webSocketUpgrade
 }
 
-public type WebSocketUpgradeConfig object {
-    public {
-        string upgradePath;
-        typedesc upgradeService;
-    }
+type WebSocketUpgradeConfig {
+        string upgradePath,
+        typedesc upgradeService
 }
 
 @Description {value:"Configurations annotation for an HTTP resource"}
