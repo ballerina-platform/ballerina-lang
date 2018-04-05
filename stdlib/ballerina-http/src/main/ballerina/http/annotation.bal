@@ -25,16 +25,17 @@ package ballerina.http;
 @Field {value:"basePath: Service base path"}
 @Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
-public struct HttpServiceConfig {
-    ServiceEndpoint[] endpoints;
-    HttpServiceLifeTime lifetime;
-    string basePath;
-    Compression compression;
-    CorsConfig cors;
-}
-
-public function <HttpServiceConfig config> HttpServiceConfig () {
-    config.compression = Compression.AUTO;
+public type HttpServiceConfig object {
+    public {
+        ServiceEndpoint[] endpoints;
+        HttpServiceLifeTime lifetime;
+        string basePath;
+        Compression compression;
+        CorsConfig cors;
+    }
+    new () {
+        compression = Compression.AUTO;
+    }
 }
 
 @Description {value:"Configurations for CORS support"}
@@ -44,20 +45,20 @@ public function <HttpServiceConfig config> HttpServiceConfig () {
 @Field {value:"exposeHeaders: The whitelisted headers which clients are allowed to access"}
 @Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
 @Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
-public struct CorsConfig {
-    string[] allowHeaders;
-    string[] allowMethods;
-    string[] allowOrigins;
-    string[] exposeHeaders;
-    boolean allowCredentials;
-    int maxAge = -1;
+public type CorsConfig object {
+    public {
+        string[] allowHeaders;
+        string[] allowMethods;
+        string[] allowOrigins;
+        string[] exposeHeaders;
+        boolean allowCredentials;
+        int maxAge;
+    }
+    new () {
+        maxAge = -1;
+    }
 }
 
-@Description {value:"Initializes the CorsConfig struct with default values."}
-@Param {value:"config: The CorsConfig struct to be initialized"}
-public function <CorsConfig config> CorsConfig () {
-    config.maxAge = -1;
-}
 
 
 @Description {value:"Configuration for a WebSocket service."}
@@ -107,15 +108,20 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
-public struct HttpResourceConfig {
-    string[] methods;
-    string path;
-    string body;
-    string[] consumes;
-    string[] produces;
-    CorsConfig cors;
-    boolean transactionInfectable;
-    WebSocketUpgradeConfig|null webSocketUpgrade;
+public type HttpResourceConfig object {
+    public {
+        string[] methods;
+        string path;
+        string body;
+        string[] consumes;
+        string[] produces;
+        CorsConfig cors;
+        boolean transactionInfectable;
+        WebSocketUpgradeConfig|null webSocketUpgrade;
+    }
+    new () {
+        transactionInfectable = true;
+    }
 }
 
 public type WebSocketUpgradeConfig object {
@@ -123,10 +129,6 @@ public type WebSocketUpgradeConfig object {
         string upgradePath;
         typedesc upgradeService;
     }
-}
-
-public function <HttpResourceConfig config> HttpResourceConfig () {
-    config.transactionInfectable = true;
 }
 
 @Description {value:"Configurations annotation for an HTTP resource"}
