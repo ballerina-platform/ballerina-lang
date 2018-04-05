@@ -2,7 +2,7 @@ function testSimpleWorker (string msg) returns string {
     return testSimpleWorkerVM(msg);
 }
 
-struct TStruct {
+type TStruct {
     string msg;
 }
 
