@@ -3,7 +3,7 @@ import ballerina/sql;
 type Employee {
     int id;
     string name;
-}
+};
 
 public function main (string[] args) {
     testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);

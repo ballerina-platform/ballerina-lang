@@ -9,7 +9,7 @@ type Person {
     string lname;
     map adrs;
     int age = 999;
-    Person|null child;
+    Person? child;
 }
 
 function testStructLiteral1 () returns (Department) {

@@ -149,7 +149,7 @@ public type Request object {
     public function setByteChannel (io:ByteChannel payload);
 
     function parseCacheControlHeader();
-}
+};
 
 /////////////////////////////////
 /// Ballerina Implementations ///

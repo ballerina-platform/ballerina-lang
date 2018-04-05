@@ -39,7 +39,7 @@ public type AuthzFilter object {
     public function init ();
 
     public function terminate ();
-}
+};
 
 @Description {value:"Initializes the AuthzFilter"}
 public function AuthzFilter::init () {
@@ -123,7 +123,7 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string[
     }
     match authAnn {
         internal:annotationData annData1 => {
-            var authConfig =? <auth:AuthConfig> annData1.value;
+            var authConfig = check <auth:AuthConfig> annData1.value;
             return authConfig.scopes;
         }
         () => {

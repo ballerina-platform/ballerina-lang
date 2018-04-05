@@ -1,7 +1,7 @@
 import ballerina/io;
 
-@Description {value:"Defining Person struct."}
-struct Person {
+@Description {value:"Defining Person type."}
+type Person {
     string name;
     int age;
     string city;

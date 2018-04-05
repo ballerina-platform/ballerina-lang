@@ -25,7 +25,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -141,9 +140,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.ANON_STRUCT;
 
 /**
  * This represents the code analyzing pass of semantic analysis.
@@ -773,7 +769,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
-        analyzeExprs(workerSendNode.exprs);
+        analyzeExpr(workerSendNode.expr);
     }
 
     @Override
@@ -782,7 +778,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
-        analyzeExprs(workerReceiveNode.exprs);
+        analyzeExpr(workerReceiveNode.expr);
     }
 
     public void visit(BLangLiteral literalExpr) {
@@ -990,10 +986,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BSymbol symbol = node.type.tsymbol;
-        //skip anonymous struct definitions
-        if (symbol instanceof BStructSymbol && symbol.getName().getValue().startsWith(ANON_STRUCT)) {
-            return;
-        }
 
         if (!(env.enclPkg.symbol.pkgID == symbol.pkgID || (Symbols.isPublic(symbol)))) {
             dlog.error(node.pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
@@ -1073,13 +1065,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
-        List<BType> typeList = receive.exprs.stream().map(e -> e.type).collect(Collectors.toList());
-        if (send.exprs.size() != typeList.size()) {
-            this.dlog.error(send.pos, DiagnosticCode.WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH);
-        }
-        for (int i = 0; i < typeList.size(); i++) {
-            this.typeChecker.checkExpr(send.exprs.get(i), send.env, typeList.get(i));
-        }
+        this.typeChecker.checkExpr(send.expr, send.env, receive.expr.type);
     }
 
     private boolean checkNextBreakValidityInTransaction() {
@@ -1348,11 +1334,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         public void visit(BLangWorkerSend workerSendNode) {
-            workerSendNode.exprs.forEach(expr -> expr.accept(this));
+            workerSendNode.expr.accept(this);
         }
 
         public void visit(BLangWorkerReceive workerReceiveNode) {
-            workerReceiveNode.exprs.forEach(expr -> expr.accept(this));
+            workerReceiveNode.expr.accept(this);
         }
 
         public void visit(BLangLambdaFunction bLangLambdaFunction) {

@@ -21,7 +21,6 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -30,6 +29,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -43,32 +44,35 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = "ballerina",
+        packageName = "jms",
         functionName = "createConsumer",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueConsumer", structPackage = "ballerina.jms"),
-        args = {@Argument(name = "connector", type = TypeKind.STRUCT, structType = "SessionConnector")
+        args = {
+                @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session")
         },
         isPublic = true
 )
 public class CreateConsumer implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct consumerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        BStruct sessionConnector = (BStruct) context.getRefArgument(1);
-        Object sessionData = sessionConnector.getNativeData(Constants.JMS_SESSION);
-        Struct consumerConfig = consumerEndpoint.getStructField(Constants.CONSUMER_CONFIG);
-        String queueName = consumerConfig.getStringField(Constants.QUEUE_NAME);
+        Struct queueConsumerBObject = BallerinaAdapter.getReceiverStruct(context);
 
-        if (sessionData instanceof Session) {
-            Session session = (Session) sessionData;
-            try {
-                Queue queue = session.createQueue(queueName);
-                MessageConsumer consumer = session.createConsumer(queue);
-                Struct consumerConnector = consumerEndpoint.getStructField(Constants.CONSUMER_CONNECTOR);
-                consumerConnector.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
-            } catch (JMSException e) {
-                // ignore
-            }
+        BStruct sessionBObject = (BStruct) context.getRefArgument(1);
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject,
+                                                           Constants.JMS_SESSION,
+                                                           Session.class,
+                                                           context);
+        Struct queueConsumerConfigBRecord = queueConsumerBObject.getStructField(Constants.CONSUMER_CONFIG);
+        String queueName = queueConsumerConfigBRecord.getStringField(Constants.QUEUE_NAME);
+
+        try {
+            Queue queue = session.createQueue(queueName);
+            MessageConsumer consumer = session.createConsumer(queue);
+            Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_CONNECTOR);
+            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
+        } catch (JMSException e) {
+            throw new BallerinaException("Error while creating Qeueu consumer", e, context);
         }
     }
 

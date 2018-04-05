@@ -26,16 +26,14 @@ import ballerina/log;
 public type AuthzChecker object {
     public {
         permissionstore:PermissionStore permissionstore;
-        caching:Cache authzCache;
+        caching:Cache? authzCache;
     }
-    new (permissionstore:PermissionStore aPermissionstore, caching:Cache? anAuthzCache) {
-        permissionstore = aPermissionstore;
-        authzCache = anAuthzCache;
+    new (permissionstore, authzCache) {
     }
     public function authorize (string username, string resourceName, string method, string[] scopes) returns (boolean);
     function authorizeFromCache(string authzCacheKey) returns (boolean|());
     function cacheAuthzResult (string authzCacheKey, boolean isAuthorized);
-}
+};
 
 @Description {value:"Creates a Basic Authenticator"}
 @Param {value:"permissionstore: PermissionStore instance"}

@@ -71,16 +71,16 @@ type HttpCache object {
         }
     }
 
-    function getAll (string key) returns (Response[]|null) {
+    function getAll (string key) returns Response[]|() {
         try {
             match <Response[]>cache.get(key) {
                 Response[] cacheEntry => return cacheEntry;
-                error err => return null;
+                error err => return ();
             }
         } catch (error e) {
-            return null;
+            return ();
         }
-        return null;
+        return ();
     }
 
     function getAllByETag (string key, string etag) returns Response[] {
@@ -90,7 +90,7 @@ type HttpCache object {
 
         match getAll(key) {
             Response[] responses => cachedResponses = responses;
-            int| null => cachedResponses = [];
+            () => cachedResponses = [];
         }
 
         foreach cachedResp in cachedResponses {
@@ -110,7 +110,7 @@ type HttpCache object {
 
         match getAll(key) {
             Response[] responses => cachedResponses = responses;
-            int| null => cachedResponses = [];
+            () => cachedResponses = [];
         }
 
         foreach cachedResp in cachedResponses {
@@ -126,7 +126,7 @@ type HttpCache object {
     function remove (string key) {
         cache.remove(key);
     }
-}
+};
 
 function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCache {
     HttpCache httpCache;

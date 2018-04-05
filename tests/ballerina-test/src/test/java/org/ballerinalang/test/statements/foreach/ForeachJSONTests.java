@@ -110,7 +110,7 @@ public class ForeachJSONTests {
         String result = "bob 10 true [{\"subject\":\"maths\",\"marks\":75},{\"subject\":\"English\",\"marks\":85}] ";
         BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result + result + "smith ");
+        Assert.assertEquals(returns[0].stringValue(), result + "smith ");
     }
 
     @Test

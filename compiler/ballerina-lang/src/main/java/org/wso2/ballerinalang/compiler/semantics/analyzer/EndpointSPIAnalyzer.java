@@ -281,8 +281,9 @@ public class EndpointSPIAnalyzer {
 
         endpointVarSymbol.interactable = endPoint.interactable;
         endpointVarSymbol.getClientFunction = endPoint.getClientFunction;
-        endpointVarSymbol.clientSymbol = (BStructSymbol) endPoint.clientStruct.tsymbol;
-
+        if (endPoint.clientStruct != null && endPoint.clientStruct.tag == TypeTags.STRUCT) {
+            endpointVarSymbol.clientSymbol = (BStructSymbol) endPoint.clientStruct.tsymbol;
+        }
         endpointVarSymbol.startFunction = endPoint.startFunction;
         endpointVarSymbol.stopFunction = endPoint.stopFunction;
 

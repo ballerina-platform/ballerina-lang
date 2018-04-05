@@ -1097,7 +1097,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.env = this.env;
-        workerSendNode.exprs.forEach(e -> this.typeChecker.checkExpr(e, this.env));
+        this.typeChecker.checkExpr(workerSendNode.expr, this.env);
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
@@ -1111,7 +1111,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.exprs.forEach(e -> this.typeChecker.checkExpr(e, this.env));
+        this.typeChecker.checkExpr(workerReceiveNode.expr, this.env);
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
