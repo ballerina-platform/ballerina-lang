@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-//import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -259,7 +258,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
-        //TODO
+        /* ignore */
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -278,6 +277,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        if (funcNode.attachedOuterFunction) {
+            // Clear taint table of the interface deceleration when, declaration is found.
+            funcNode.symbol.taintTable = null;
+        }
         if (isEntryPoint(funcNode)) {
             visitEntryPoint(funcNode, funcEnv);
         } else {
@@ -831,7 +834,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInit) {
-        /* ignore */
+        boolean typeTaintedStatus = false;
+        for (BLangExpression expr : typeInit.argsExpr) {
+            expr.accept(this);
+            // TODO: Improve
+            // If one value ot type init is tainted, the complete type is tainted.
+            if (getObservedTaintedStatus()) {
+                typeTaintedStatus = getObservedTaintedStatus();
+            }
+            typeInit.objectInitInvocation.accept(this);
+        }
+        setTaintedStatusList(typeTaintedStatus);
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
