@@ -7,7 +7,7 @@ public type Session object {
     }
 
     new () {
-        session.connector = new ();
+        self.connector = new ();
     }
 
     public function init(SessionConfiguration config) {
