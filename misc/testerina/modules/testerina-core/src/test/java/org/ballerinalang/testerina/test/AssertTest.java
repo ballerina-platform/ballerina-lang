@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.testerina.test;
 
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -33,15 +34,11 @@ import org.testng.annotations.Test;
  */
 public class AssertTest {
 
-    org.ballerinalang.launcher.util.CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        try {
-            compileResult = BTestUtils.compile("src/test/resources/assert-test", "assert-test.bal");
-        } catch (Exception e) {
-            throw e;
-        }
+        compileResult = BTestUtils.compile("src/test/resources/assert-test", "assert-test.bal");
     }
 
     @Test

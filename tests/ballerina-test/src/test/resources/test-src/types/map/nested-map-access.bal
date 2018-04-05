@@ -1,4 +1,5 @@
 function testNestedMapAccess() returns (string) {
-    map info = {name:"Supun", address:{country:"SriLanka"}};
+    map address = {country:"SriLanka"};
+    map info = {name:"Supun", address:address};
     return info.address.country;
 }

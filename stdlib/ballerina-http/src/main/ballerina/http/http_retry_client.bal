@@ -159,7 +159,7 @@ public type RetryClient object {
         P{{promise}} - The Push Promise need to be rejected.
     }
     public function rejectPromise (PushPromise promise) returns (boolean);
-}
+};
 
 public function RetryClient::post (string path, Request request) returns (Response | HttpConnectorError) {
 	return performRetryAction(path, request, HttpOperation.POST, client);
@@ -198,13 +198,13 @@ public function RetryClient::options (string path, Request request) returns (Res
 }
 
 public function RetryClient::submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+	HttpConnectorError httpConnectorError;
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
 public function RetryClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+	HttpConnectorError httpConnectorError;
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
@@ -214,13 +214,13 @@ public function RetryClient::hasPromise (HttpHandle handle) returns (boolean) {
 }
 
 public function RetryClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+	HttpConnectorError httpConnectorError;
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
 public function RetryClient::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+	HttpConnectorError httpConnectorError;
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
@@ -252,14 +252,14 @@ function performRetryAction (string path, Request request, HttpOperation request
         maxWaitInterval = 60000;
     }
     HttpClient httpClient = retryClient.httpClient;
-    Response response = {};
+    Response response;
     HttpConnectorError httpConnectorError = {};
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.
     var binaryPayload = check inRequest.getBinaryPayload();
 
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity;
     var mimeEntity = inRequest.getEntity();
     match mimeEntity {
         mime:Entity entity => requestEntity = entity;

@@ -9,7 +9,7 @@ type ResultPrimitive {
     float DOUBLE_TYPE;
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
-}
+};
 
 type ResultSetTestAlias {
     int INT_TYPE;
@@ -19,13 +19,13 @@ type ResultSetTestAlias {
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
     int DT2INT_TYPE;
-}
+};
 
 type ResultObject {
     blob BLOB_TYPE;
     string CLOB_TYPE;
     blob BINARY_TYPE;
-}
+};
 
 type ResultMap {
     int[] INT_ARRAY;
@@ -33,54 +33,54 @@ type ResultMap {
     float[] FLOAT_ARRAY;
     boolean[] BOOLEAN_ARRAY;
     string[] STRING_ARRAY;
-}
+};
 
 type ResultBlob {
     blob BLOB_TYPE;
-}
+};
 
 type ResultDates {
     string DATE_TYPE;
     string TIME_TYPE;
     string TIMESTAMP_TYPE;
     string DATETIME_TYPE;
-}
+};
 
 type ResultDatesStruct {
     time:Time DATE_TYPE;
     time:Time TIME_TYPE;
     time:Time TIMESTAMP_TYPE;
     time:Time DATETIME_TYPE;
-}
+};
 
 type ResultDatesInt {
     int DATE_TYPE;
     int TIME_TYPE;
     int TIMESTAMP_TYPE;
     int DATETIME_TYPE;
-}
+};
 
 type ResultSetFloat {
     float FLOAT_TYPE;
     float DOUBLE_TYPE;
     float NUMERIC_TYPE;
     float DECIMAL_TYPE;
-}
+};
 
 type ResultPrimitiveInt {
     int INT_TYPE;
-}
+};
 
 type ResultCount {
     int COUNTVAL;
-}
+};
 
 type ResultTest {
     int t1Row;
     int t1Int;
     int t2Row;
     int t2Int;
-}
+};
 
 type ResultSignedInt {
     int ID;
@@ -88,14 +88,14 @@ type ResultSignedInt {
     int SMALLINTDATA;
     int INTDATA;
     int BIGINTDATA;
-}
+};
 
 type ResultComplexTypes {
     int ROW_ID;
     blob BLOB_TYPE;
     string CLOB_TYPE;
     blob BINARY_TYPE;
-}
+};
 
 type TestTypeData {
     int i;
@@ -110,7 +110,7 @@ type TestTypeData {
     float[] dA;
     boolean[] bA;
     string[] sA;
-}
+};
 
 function testToJson () returns (json | ()) {
     endpoint sql:Client testDB {

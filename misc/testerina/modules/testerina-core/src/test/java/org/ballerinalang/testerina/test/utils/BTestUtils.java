@@ -212,7 +212,7 @@ public class BTestUtils {
         if (compileResult.getErrorCount() > 0) {
             String msg = "";
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                msg += diagnostic.getMessage() + "\n";
+                msg += diagnostic + "\n";
             }
             throw new IllegalStateException("compilation contains errors.. " + msg);
         }

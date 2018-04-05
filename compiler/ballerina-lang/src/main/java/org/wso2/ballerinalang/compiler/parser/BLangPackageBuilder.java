@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -450,6 +451,7 @@ public class BLangPackageBuilder {
 
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
+        recordNode.addFlag(Flag.PUBLIC);
         this.compUnit.addTopLevelNode(recordNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
@@ -1115,6 +1117,15 @@ public class BLangPackageBuilder {
         addExpressionNode(binaryExpressionNode);
     }
 
+    public void createElvisExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangElvisExpr elvisExpr = (BLangElvisExpr) TreeBuilder.createElvisExpressionNode();
+        elvisExpr.pos = pos;
+        elvisExpr.addWS(ws);
+        elvisExpr.rhsExpr = (BLangExpression) exprNodeStack.pop();
+        elvisExpr.lhsExpr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(elvisExpr);
+    }
+
     public void createTypeCastExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTypeCastExpr typeCastNode = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
         typeCastNode.pos = pos;
@@ -1443,6 +1454,7 @@ public class BLangPackageBuilder {
 
         // Create an anonymous object and add it to the list of objects in the current package.
         BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
+        objectNode.addFlag(Flag.PUBLIC);
         this.compUnit.addTopLevelNode(objectNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
@@ -2235,8 +2247,7 @@ public class BLangPackageBuilder {
     public void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(this.createIdentifier(workerName));
-        exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
-        workerSendNode.addWS(commaWsStack.pop());
+        workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
@@ -2246,8 +2257,7 @@ public class BLangPackageBuilder {
     public void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
-        exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
-        workerReceiveNode.addWS(commaWsStack.pop());
+        workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
         workerReceiveNode.pos = pos;
         workerReceiveNode.addWS(ws);
         addStmtToCurrentBlock(workerReceiveNode);

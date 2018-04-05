@@ -148,7 +148,7 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Param {value:"payload: The byte channel representation of the message payload"}
     public function setByteChannel (io:ByteChannel payload);
-}
+};
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -265,34 +265,34 @@ public function Response::getMultiparts () returns mime:Entity[] | mime:EntityEr
 public function Response::setJsonPayload (json payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_JSON);
+    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_JSON);
     self.setEntity(entity);
 }
 
 public function Response::setXmlPayload (xml payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_XML);
+    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_XML);
     self.setEntity(entity);
 }
 
 public function Response::setStringPayload (string payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:TEXT_PLAIN);
+    entity.contentType = getMediaTypeFromResponse(self, mime:TEXT_PLAIN);
     self.setEntity(entity);
 }
 
 public function Response::setBinaryPayload (blob payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBlob(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_OCTET_STREAM);
+    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_OCTET_STREAM);
     self.setEntity(entity);
 }
 
 public function Response::setMultiparts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
-    mime:MediaType mediaType = getMediaTypeFromResponse(response, mime:MULTIPART_MIXED);
+    mime:MediaType mediaType = getMediaTypeFromResponse(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }

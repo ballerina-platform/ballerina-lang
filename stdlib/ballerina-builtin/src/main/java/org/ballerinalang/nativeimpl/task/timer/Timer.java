@@ -90,6 +90,4 @@ public class Timer {
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
     }
-
-
 }

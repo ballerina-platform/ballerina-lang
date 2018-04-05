@@ -1,6 +1,6 @@
 import ballerina/io;
 
-io:ByteChannel|null channel;
+io:ByteChannel channel;
 
 function initFileChannel (string filePath, string permission) {
     channel = io:openFile(filePath, permission);
@@ -8,53 +8,31 @@ function initFileChannel (string filePath, string permission) {
 
 function readBytes (int numberOfBytes) returns (blob|io:IOError) {
     blob empty;
-    match channel{
-        io:ByteChannel byteChannel =>{
-            var result = byteChannel.read(numberOfBytes);
-            match result {
-                (blob,int) content =>{
-                    var (bytes, numberOfBytes) = content;
-                    return bytes;
-                }
-                io:IOError err =>{
-                    return err;
-                }
-            }
+    var result = channel.read(numberOfBytes);
+    match result {
+        (blob,int) content =>{
+            var (bytes, numberOfBytes) = content;
+            return bytes;
         }
-        (any|null)=>{
-            return empty;
+        io:IOError err =>{
+            return err;
         }
     }
 }
 
 function writeBytes (blob content, int startOffset) returns (int|io:IOError) {
     int empty = -1;
-    match channel {
-        io:ByteChannel byteChannel =>{
-            var result = byteChannel.write(content, startOffset);
-            match result {
-                int numberOfBytesWritten =>{
-                    return numberOfBytesWritten;
-                }
-                io:IOError err =>{
-                    return err;
-                }
-            }
+    var result = channel.write(content, startOffset);
+    match result {
+        int numberOfBytesWritten =>{
+            return numberOfBytesWritten;
         }
-        (any|null) =>{
-            return empty;
+        io:IOError err =>{
+            return err;
         }
     }
 }
 
 function close () {
-    match channel {
-        io:ByteChannel byteChannel =>{
-            io:IOError err = byteChannel.close();
-        }
-        (any|null) =>{
-            io:println("Bytes stream cannot be closed");
-        }
-    }
-
+    var result = channel.close();
 }

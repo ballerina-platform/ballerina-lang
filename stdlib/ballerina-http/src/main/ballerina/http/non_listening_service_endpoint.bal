@@ -29,7 +29,7 @@ public type NonListeningServiceEndpoint object{
     public native function start ();
     public native function getClient() returns Connection;
     public native function stop ();
-}
+};
 
 public function NonListeningServiceEndpoint::init (ServiceEndpointConfiguration config) {
     self.config = config;

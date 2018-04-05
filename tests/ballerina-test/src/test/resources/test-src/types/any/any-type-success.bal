@@ -38,7 +38,7 @@ function tableReturnFunction () returns (table) {
 type Employee {
     int id;
     string name;
-}
+};
 
 
 function anyMethodParameter() returns (any) {
@@ -62,7 +62,7 @@ type Sample {
   int i;
   any val;
   string msg;
-}
+};
 
 
 function successfulIntCasting() returns (int) {

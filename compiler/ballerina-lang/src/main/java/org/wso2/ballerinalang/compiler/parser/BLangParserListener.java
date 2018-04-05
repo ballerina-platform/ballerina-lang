@@ -437,7 +437,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
             this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
         }
     }
@@ -762,7 +762,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
             this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx));
         }
     }
@@ -1678,7 +1678,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -2825,8 +2825,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null; 
+        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
         this.pkgBuilder.addMatchExprPattaern(getCurrentPos(ctx), getWS(ctx), identifier);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitElvisExpression(BallerinaParser.ElvisExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createElvisExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

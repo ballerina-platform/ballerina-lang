@@ -4,9 +4,9 @@ type Employee {
     string id;
     string name;
     float salary;
-}
+};
 
-io:DelimitedRecordChannel|null txtChannel;
+io:DelimitedRecordChannel txtChannel;
 
 function initDelimitedRecordChannel (string filePath, string permission, string encoding, string rs, string fs)
 returns (boolean|io:IOError){
@@ -111,61 +111,28 @@ function initTdfForWriting(string filePath) returns (boolean|io:IOError){
 }
 
 function nextRecord () returns (string[]|io:IOError) {
-    string[] empty = [];
-    match txtChannel {
-        io:DelimitedRecordChannel delimChannel =>{
-            var result = delimChannel.nextTextRecord();
-            match result {
-                string[] fields =>{
-                    return fields;
-                }
-                io:IOError err =>{
-                    return err;
-                }
-            }
+    var result = txtChannel.nextTextRecord();
+    match result {
+        string[] fields => {
+            return fields;
         }
-        (any|null) =>{
-            return empty;
+        io:IOError err => {
+            return err;
         }
-
     }
 }
 
 function writeRecord (string[] fields) {
-    match txtChannel {
-        io:DelimitedRecordChannel delimChannel =>{
-            var result = delimChannel.writeTextRecord(fields);
-        }
-        (any|null) =>{
-            io:println("Feilds cannot be written");
-        }
-    }
+    var result = txtChannel.writeTextRecord(fields);
 }
 
 function close () {
-    match txtChannel {
-        io:DelimitedRecordChannel delimChannel =>{
-            var err = delimChannel.closeDelimitedRecordChannel();
-        }
-        (any|null) =>{
-            io:println("Channel cannot be closed");
-        }
-    }
+    var err = txtChannel.closeDelimitedRecordChannel();
 }
 
 
 function hasNextRecord () returns (boolean) {
-    boolean hasNext;
-    match txtChannel {
-        io:DelimitedRecordChannel delimChannel =>{
-            hasNext = delimChannel.hasNextTextRecord();
-            return hasNext;
-        }
-        (any|null) =>{
-            io:println("Channel cannot be closed");
-            return hasNext;
-        }
-    }
+    return txtChannel.hasNextTextRecord();
 
 }
 

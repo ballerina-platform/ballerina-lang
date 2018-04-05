@@ -26,12 +26,12 @@ import ballerina/log;
 
 @Description {value:"Represents the permission store"}
 public type FileBasedPermissionStore object {
+    new () {}
     public function isAuthorized (string username, string[] scopes) returns (boolean);
     public function isAuthorizedByGroups (string[] groups, string[] scopes) returns (boolean);
     public function readGroupsOfScope (string scopeName) returns (string[]);
     public function readGroupsOfUser (string username) returns (string[]);
-    new () {}
-}
+};
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
 @Param {value:"username: user name"}
@@ -110,7 +110,7 @@ function getGroupsArray (string groupString) returns (string[]) {
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
 @Return {value:"string[]: array of groups, for the user denoted by the username"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) returns (string[]) {
+public function FileBasedPermissionStore::readGroupsOfUser (string username) returns (string[]) {
     string userId = getPermissionStoreConfigValue(username, "userid");
     string[] groupsArr = [];
     if (userId == EMPTY_STRING) {
