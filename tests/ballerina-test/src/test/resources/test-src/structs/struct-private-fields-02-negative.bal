@@ -10,7 +10,7 @@ public function testPrivateFieldAccess() {
 
 }
 
-public struct personFoo {
+public type personFoo {
     int age;
     string name;
     string ssn;

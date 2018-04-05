@@ -1,8 +1,9 @@
 function calculateExp1 (int x, int y) returns (int) {
     int z = 0;
-    while (x > y) {
-        y = y + 1;
-        if (y == 10) {
+    int yCopy = y;
+    while (x > yCopy) {
+        yCopy = yCopy + 1;
+        if (yCopy == 10) {
             next;
         }
         z = z + 1;
@@ -12,13 +13,14 @@ function calculateExp1 (int x, int y) returns (int) {
 
 function nestedNextStmt (int x, int y) returns (int) {
     int z = 0;
-    while (x >= y) {
-        y = y + 1;
+    int yCopy = y;
+    while (x >= yCopy) {
+        yCopy = yCopy + 1;
         int i = 0;
-        if (y == 10) {
+        if (yCopy == 10) {
             next;
         }
-        while (i < y) {
+        while (i < yCopy) {
             i = i + 1;
             if (i == 10) {
                 next;

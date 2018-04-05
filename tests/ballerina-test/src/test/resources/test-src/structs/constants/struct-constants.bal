@@ -6,7 +6,7 @@ function main (string[] i) {
     return;
 }
 
-struct Person {
+type Person {
     string name;
     map adrs;
     int age;

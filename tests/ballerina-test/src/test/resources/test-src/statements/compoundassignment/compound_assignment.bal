@@ -64,7 +64,7 @@ function testCompoundAssignmentDivisionArrayElement() returns (int){
      return x[0];
 }
 
-struct Company {
+type Company {
    int count;
    int count2;
 }
