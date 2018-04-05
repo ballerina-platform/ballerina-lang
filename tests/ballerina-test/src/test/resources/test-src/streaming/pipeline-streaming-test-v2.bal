@@ -17,12 +17,12 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct StatusCount {
+type StatusCount {
     string status;
     int totalCount;
 }
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
