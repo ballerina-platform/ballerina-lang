@@ -409,7 +409,7 @@ type AnyStruct {
 
 function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
     var j = check <json>aa;
-    return "anyStruct" + (j.toString() but { () => "abc"});
+    return "anyStruct" + (j.toString() but { () => ""});
 }
 
 function <AnyStruct a> call () returns (AnotherAnyStruct) {
@@ -422,7 +422,7 @@ type SomeStruct {
 
 function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
     var j = check <json>aa;
-    return "someStruct" + (j.toString() but { () => "abc"});
+    return "someStruct" + (j.toString() but { () => ""});
 }
 
 function <SomeStruct b> call () returns (SomeOtherStruct) {
