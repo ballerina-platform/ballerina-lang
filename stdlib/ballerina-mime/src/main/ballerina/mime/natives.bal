@@ -94,13 +94,13 @@ public type MediaType object {
 }
 
 public function MediaType::toString () returns (string) {
-    return mediaType.primaryType + "/" + mediaType.subType;
+    return self.primaryType + "/" + self.subType;
 }
 
 public function MediaType::toStringWithParameters () returns (string) {
-    string contentType = mediaType.toString() + "; ";
-    map<string> parameters = mediaType.parameters;
-    string[] arrKeys = mediaType.parameters.keys();
+    string contentType = self.toString() + "; ";
+    map<string> parameters = self.parameters;
+    string[] arrKeys = self.parameters.keys();
     int size = lengthof arrKeys;
     int index = 0;
     while (index < size) {
@@ -239,7 +239,7 @@ public type Entity object {
 
 public function Entity::setFileAsEntityBody (file:File fileHandler) {
     io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
-    entity.setByteChannel(byteChannel);
+    self.setByteChannel(byteChannel);
 }
 
 @Description {value:"Represent MIME specific base64 encoder. This follows RFC 2045 for encoding operation."}
