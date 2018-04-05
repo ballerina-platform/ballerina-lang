@@ -14,11 +14,13 @@ public type QueueSender object {
 
     public function init(QueueSenderEndpointConfiguration config) {
         self.config = config;
-        Session session = config.session;
-        self.initQueueSender(session);
+        match (config.session) {
+            Session s => self.initQueueSender(s);
+            () => {}
+        }
     }
 
-    public native function initQueueSender(SessionConnector connector);
+    public native function initQueueSender(Session session);
 
     public function register (typedesc serviceType) {
     }
@@ -35,7 +37,7 @@ public type QueueSender object {
 }
 
 public type QueueSenderEndpointConfiguration {
-    Session session;
+    Session? session;
     string queueName;
 }
 
