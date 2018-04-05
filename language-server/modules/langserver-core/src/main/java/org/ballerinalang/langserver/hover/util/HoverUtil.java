@@ -68,6 +68,11 @@ public class HoverUtil {
                         .filter(function -> function.name.getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
+
+                bLangFunction = bLangFunction == null ?
+                        getMatchingObjectFunctions(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY),
+                                bLangPackage.objects) : bLangFunction;
+
                 if (bLangFunction != null) {
                     if (bLangFunction.docAttachments.size() > 0) {
                         hover = getDocumentationContent(bLangFunction.docAttachments);
@@ -459,5 +464,26 @@ public class HoverUtil {
         hover.setContents(contents);
 
         return hover;
+    }
+
+    /**
+     * Get the matching function in the object for given name.
+     *
+     * @param name    name of the function
+     * @param objects objects to be searched
+     * @return {@link BLangFunction} matching function | null
+     */
+    private static BLangFunction getMatchingObjectFunctions(String name, List<BLangObject> objects) {
+        BLangFunction bLangFunction = null;
+        outOfLoop:
+        for (BLangObject bLangObject : objects) {
+            for (BLangFunction function : bLangObject.functions) {
+                if (function.name.getValue().equals(name)) {
+                    bLangFunction = function;
+                    break outOfLoop;
+                }
+            }
+        }
+        return bLangFunction;
     }
 }
