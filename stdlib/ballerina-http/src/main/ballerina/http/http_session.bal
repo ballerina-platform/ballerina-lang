@@ -1,7 +1,7 @@
 package ballerina.http;
 
 @Description { value:"Represents an HTTP Session"}
-public type Session {
+public type Session object {
 
 @Description { value:"Gets the named session attribute" }
 @Param { value:"attributeKey: HTTP session attribute key" }
