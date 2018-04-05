@@ -1,7 +1,8 @@
 type Student {
     string name;
     string address;
-}
+};
+
 public function main (string[] args) {
     // tainted Json - untainted field - field access.
     Student student = {name:"Ballerina", address:args[0]};
