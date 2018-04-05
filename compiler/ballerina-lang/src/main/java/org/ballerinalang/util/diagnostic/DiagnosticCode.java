@@ -209,6 +209,7 @@ public enum DiagnosticCode {
     // Streaming related codes
     UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
     UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
+    INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
