@@ -67,7 +67,7 @@ public type ContentDisposition object {
        string fileName;
        string disposition;
        string name;
-       map parameters;
+       map<string> parameters;
    }
 }
 
