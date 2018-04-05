@@ -137,7 +137,7 @@ public type LoadBalancer object {
     @Return { value:"Whether operation is successful" }
     public function rejectPromise (PushPromise promise) returns (boolean);
 
-}
+};
 
 @Description {value:"Represents an error occurred in an action of the Load Balance connector."}
 @Field {value:"message: An error message explaining about the error."}
