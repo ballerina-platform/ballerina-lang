@@ -1,9 +1,9 @@
-struct A {
+type A {
     string x;
     int y;
 }
 
-struct B {
+type B {
     string x;
 }
 
@@ -12,5 +12,5 @@ function testCastingWithTooManyReturns() {
     A a = {};
     int i;
     error err = {};
-    a, err, i =? <A> b;
+    a, err, i = check <A> b;
 }

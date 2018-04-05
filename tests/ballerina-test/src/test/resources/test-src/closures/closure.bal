@@ -1,5 +1,3 @@
-import ballerina/io;
-
 int globalA = 5;
 
 function basicTest() returns (function (int) returns (int)) {

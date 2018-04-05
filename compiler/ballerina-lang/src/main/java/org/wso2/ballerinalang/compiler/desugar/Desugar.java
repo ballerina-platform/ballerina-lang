@@ -171,8 +171,8 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1361,13 +1361,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.exprs = rewriteExprs(workerSendNode.exprs);
+        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
         result = workerSendNode;
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.exprs = rewriteExprs(workerReceiveNode.exprs);
+        workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
         result = workerReceiveNode;
     }
 
@@ -1969,7 +1969,7 @@ public class Desugar extends BLangNodeVisitor {
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
         Set<BType> returnTypeSet = enclosingFuncReturnType.tag == TypeTags.UNION ?
                 ((BUnionType) enclosingFuncReturnType).memberTypes :
-                new HashSet<BType>() {{
+                new LinkedHashSet<BType>() {{
                     add(enclosingFuncReturnType);
                 }};
 
@@ -2019,7 +2019,7 @@ public class Desugar extends BLangNodeVisitor {
             BType retType = ((BInvokableType) invokableSymbol.type).retType;
             Set<BType> returnTypeSet = retType.tag == TypeTags.UNION ?
                     ((BUnionType) retType).memberTypes :
-                    new HashSet<BType>() {{
+                    new LinkedHashSet<BType>() {{
                         add(retType);
                     }};
             returnErrorType = returnTypeSet
@@ -2524,7 +2524,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BUnionType unionType = (BUnionType) type;
         BUnionType errorLiftedType =
-                new BUnionType(null, new HashSet<>(unionType.memberTypes), unionType.isNullable());
+                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
 
         // Lift nil always. Lift error only if safe navigation is used.
         errorLiftedType.memberTypes.remove(symTable.nilType);

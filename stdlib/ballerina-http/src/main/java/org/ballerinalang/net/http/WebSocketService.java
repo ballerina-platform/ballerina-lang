@@ -168,10 +168,14 @@ public class WebSocketService implements Service {
         String basePath = null;
         if (configAnnotation != null) {
             Struct annStruct = configAnnotation.getValue();
-            String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
-            if (annotationValue != null && !annotationValue.trim().isEmpty()) {
-                basePath = WebSocketUtil.refactorUri(annotationValue);
+            String basePathVal = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
+            if (basePathVal != null && !basePathVal.trim().isEmpty()) {
+                basePath = WebSocketUtil.refactorUri(basePathVal);
             }
+        }
+
+        if (basePath == null) {
+            basePath = "/".concat(service.getName());
         }
         return basePath;
     }

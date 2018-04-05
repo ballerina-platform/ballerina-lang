@@ -437,7 +437,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
             this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
         }
     }
@@ -762,7 +762,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
+        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
             this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx));
         }
     }

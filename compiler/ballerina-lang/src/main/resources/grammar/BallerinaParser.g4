@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* documentationAttachment? deprecatedAttachment? definition)*
+        (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -86,8 +86,7 @@ callableUnitSignature
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE Identifier typeName
-    |   (PUBLIC)? TYPE Identifier finiteType
+    :   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
     ;
 
 objectBody
@@ -469,13 +468,13 @@ workerInteractionStatement
 
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
 triggerWorker
-    :   expressionList RARROW Identifier SEMICOLON #invokeWorker
-    |   expressionList RARROW FORK SEMICOLON     #invokeFork
+    :   expression RARROW Identifier SEMICOLON        #invokeWorker
+    |   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
-    :   expressionList LARROW Identifier SEMICOLON
+    :   expression LARROW Identifier SEMICOLON
     ;
 
 variableReference

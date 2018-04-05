@@ -124,6 +124,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -518,7 +519,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
 
-        iExpr.childType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
+        if (iExpr.symbol != null) {
+            iExpr.childType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
+        } else {
+            iExpr.childType = iExpr.type;
+        }
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -1707,7 +1712,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
         accessExpr.childType = actualType;
 
-        BUnionType unionType = new BUnionType(null, new HashSet<>(), false);
+        BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(), false);
         if (actualType.tag == TypeTags.UNION) {
             unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
         } else {
@@ -1716,6 +1721,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType parentType = accessExpr.expr.type;
         if (parentType.isNullable() && actualType.tag != TypeTags.JSON) {
+            unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         }
 

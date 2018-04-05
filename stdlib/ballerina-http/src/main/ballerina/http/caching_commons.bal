@@ -57,26 +57,63 @@ package ballerina.http;
 @Field {value:"maxAge: Represents the max-age directive"}
 @Field {value:"maxStale: Represents the max-stale directive"}
 @Field {value:"minFresh: Represents the min-fresh directive"}
-public struct RequestCacheControl {
-    boolean noCache;
-    boolean noStore;
-    boolean noTransform;
-    boolean onlyIfCached;
-    int maxAge;
-    int maxStale;
-    int minFresh;
-}
+public type RequestCacheControl object {
+    public {
+        boolean noCache = false;
+        boolean noStore = false;
+        boolean noTransform = true;
+        boolean onlyIfCached = false;
+        int maxAge = -1;
+        int maxStale = -1;
+        int minFresh = -1;
+    }
 
-@Description {value:"Initializes the fields of the RequestCacheControl struct to their default values."}
-@Param {value:"cacheControl: The struct to be initialized"}
-public function <RequestCacheControl cacheControl> RequestCacheControl () {
-    cacheControl.noCache = false;
-    cacheControl.noStore = false;
-    cacheControl.noTransform = true;
-    cacheControl.onlyIfCached = false;
-    cacheControl.maxAge = -1;
-    cacheControl.maxStale = -1;
-    cacheControl.minFresh = -1;
+    @Description {value:"Build the cache control directives string from the current request cache control configurations"}
+    @Param {value:"cacheControl: The request cache control"}
+    public function buildCacheControlDirectives () returns string {
+        string[] directives = [];
+        int i = 0;
+
+        if (noCache) {
+            directives[i] = NO_CACHE;
+            i = i + 1;
+        }
+
+        if (noStore) {
+            directives[i] = NO_STORE;
+            i = i + 1;
+        }
+
+        if (noTransform) {
+            directives[i] = NO_TRANSFORM;
+            i = i + 1;
+        }
+
+        if (onlyIfCached) {
+            directives[i] = ONLY_IF_CACHED;
+            i = i + 1;
+        }
+
+        if (maxAge >= 0) {
+            directives[i] = MAX_AGE + "=" + maxAge;
+            i = i + 1;
+        }
+
+        if (maxStale == MAX_STALE_ANY_AGE) {
+            directives[i] = MAX_STALE;
+            i = i + 1;
+        } else if (maxStale >= 0) {
+            directives[i] = MAX_STALE + "=" + maxStale;
+            i = i + 1;
+        }
+
+        if (minFresh >= 0) {
+            directives[i] = MIN_FRESH + "=" + minFresh;
+            i = i + 1;
+        }
+
+        return buildCommaSeparatedString(directives);
+    }
 }
 
 @Description {value:"Cache control directives configuration for responses"}
@@ -90,161 +127,101 @@ public function <RequestCacheControl cacheControl> RequestCacheControl () {
 @Field {value:"sMaxAge: Represents the s-maxage directive"}
 @Field {value:"noCacheFields: Optional fields for no-cache directive. If sending any of the listed fields in a response, they must validated with the origin server."}
 @Field {value:"privateFields: Optional fields for private directive. A cache can omit the fields specified and store the rest of the response."}
-public struct ResponseCacheControl {
-    boolean mustRevalidate;
-    boolean noCache;
-    boolean noStore;
-    boolean noTransform;
-    boolean isPrivate;
-    boolean proxyRevalidate;
-    int maxAge;
-    int sMaxAge;
-    string[] noCacheFields;
-    string[] privateFields;
+public type ResponseCacheControl object {
+    public {
+        boolean mustRevalidate = false;
+        boolean noCache = false;
+        boolean noStore = false;
+        boolean noTransform = true;
+        boolean isPrivate = false;
+        boolean proxyRevalidate = false;
+        int maxAge = -1;
+        int sMaxAge = -1;
+        string[] noCacheFields = [];
+        string[] privateFields = [];
+    }
+
+    @Description {value:"Build the cache control directives string from the current response cache control configurations"}
+    @Param {value:"cacheControl: The response cache control"}
+    public function buildCacheControlDirectives () returns string {
+        string[] directives = [];
+        int i = 0;
+
+        if (cacheControl.mustRevalidate) {
+            directives[i] = MUST_REVALIDATE;
+            i = i + 1;
+        }
+
+        if (cacheControl.noCache) {
+            directives[i] = NO_CACHE + appendFields(cacheControl.noCacheFields);
+            i = i + 1;
+        }
+
+        if (cacheControl.noStore) {
+            directives[i] = NO_STORE;
+            i = i + 1;
+        }
+
+        if (cacheControl.noTransform) {
+            directives[i] = NO_TRANSFORM;
+            i = i + 1;
+        }
+
+        if (cacheControl.isPrivate) {
+            directives[i] = PRIVATE + appendFields(cacheControl.privateFields);
+        } else {
+            directives[i] = PUBLIC;
+        }
+        i = i + 1;
+
+        if (cacheControl.proxyRevalidate) {
+            directives[i] = PROXY_REVALIDATE;
+            i = i + 1;
+        }
+
+        if (cacheControl.maxAge >= 0) {
+            directives[i] = MAX_AGE + "=" + cacheControl.maxAge;
+            i = i + 1;
+        }
+
+        if (cacheControl.sMaxAge >= 0) {
+            directives[i] = S_MAX_AGE + "=" + cacheControl.sMaxAge;
+            i = i + 1;
+        }
+
+        return buildCommaSeparatedString(directives);
+    }
 }
 
-@Description {value:"Initializes the fields of the ResponseCacheControl struct to their default values."}
-@Param {value:"cacheControl: The struct to be initialized"}
-public function <ResponseCacheControl cacheControl> ResponseCacheControl () {
-    cacheControl.mustRevalidate = false;
-    cacheControl.noCache = false;
-    cacheControl.noStore = false;
-    cacheControl.noTransform = true;
-    cacheControl.isPrivate = false;
-    cacheControl.proxyRevalidate = false;
-    cacheControl.maxAge = -1;
-    cacheControl.sMaxAge = -1;
-    cacheControl.noCacheFields = [];
-    cacheControl.privateFields = [];
-}
-
-@Description {value:"Build the cache control directives string from the current request cache control configurations"}
-@Param {value:"cacheControl: The request cache control"}
-public function <RequestCacheControl cacheControl> buildCacheControlDirectives () returns string {
-    string[] directives = [];
-    int i = 0;
-
-    if (cacheControl.noCache) {
-        directives[i] = NO_CACHE;
-        i = i + 1;
-    }
-
-    if (cacheControl.noStore) {
-        directives[i] = NO_STORE;
-        i = i + 1;
-    }
-
-    if (cacheControl.noTransform) {
-        directives[i] = NO_TRANSFORM;
-        i = i + 1;
-    }
-
-    if (cacheControl.onlyIfCached) {
-        directives[i] = ONLY_IF_CACHED;
-        i = i + 1;
-    }
-
-    if (cacheControl.maxAge >= 0) {
-        directives[i] = MAX_AGE + "=" + cacheControl.maxAge;
-        i = i + 1;
-    }
-
-    if (cacheControl.maxStale == MAX_STALE_ANY_AGE) {
-        directives[i] = MAX_STALE;
-        i = i + 1;
-    } else if (cacheControl.maxStale >= 0) {
-        directives[i] = MAX_STALE + "=" + cacheControl.maxStale;
-        i = i + 1;
-    }
-
-    if (cacheControl.minFresh >= 0) {
-        directives[i] = MIN_FRESH + "=" + cacheControl.minFresh;
-        i = i + 1;
-    }
-
-    return buildCommaSeparatedString(directives);
-}
-
-@Description {value:"Build the cache control directives string from the current response cache control configurations"}
-@Param {value:"cacheControl: The response cache control"}
-public function <ResponseCacheControl cacheControl> buildCacheControlDirectives () returns string {
-    string[] directives = [];
-    int i = 0;
-
-    if (cacheControl.mustRevalidate) {
-        directives[i] = MUST_REVALIDATE;
-        i = i + 1;
-    }
-
-    if (cacheControl.noCache) {
-        directives[i] = NO_CACHE + appendFields(cacheControl.noCacheFields);
-        i = i + 1;
-    }
-
-    if (cacheControl.noStore) {
-        directives[i] = NO_STORE;
-        i = i + 1;
-    }
-
-    if (cacheControl.noTransform) {
-        directives[i] = NO_TRANSFORM;
-        i = i + 1;
-    }
-
-    if (cacheControl.isPrivate) {
-        directives[i] = PRIVATE + appendFields(cacheControl.privateFields);
-    } else {
-        directives[i] = PUBLIC;
-    }
-    i = i + 1;
-
-    if (cacheControl.proxyRevalidate) {
-        directives[i] = PROXY_REVALIDATE;
-        i = i + 1;
-    }
-
-    if (cacheControl.maxAge >= 0) {
-        directives[i] = MAX_AGE + "=" + cacheControl.maxAge;
-        i = i + 1;
-    }
-
-    if (cacheControl.sMaxAge >= 0) {
-        directives[i] = S_MAX_AGE + "=" + cacheControl.sMaxAge;
-        i = i + 1;
-    }
-
-    return buildCommaSeparatedString(directives);
-}
-
-function <Request request> parseCacheControlHeader () {
-    request.cacheControl = {};
+function Request::parseCacheControlHeader () {
+    self.cacheControl = {};
 
     // If the request doesn't contain a cache-control header, resort to default cache control settings
-    if (!request.hasHeader(CACHE_CONTROL)) {
+    if (!self.hasHeader(CACHE_CONTROL)) {
         return;
     }
 
-    string cacheControl = request.getHeader(CACHE_CONTROL);
+    string cacheControl = self.getHeader(CACHE_CONTROL);
     string[] directives = cacheControl.split(",");
 
     foreach directive in directives {
         directive = directive.trim();
         if (directive == NO_CACHE) {
-            request.cacheControl.noCache = true;
+            self.cacheControl.noCache = true;
         } else if (directive == NO_STORE) {
-            request.cacheControl.noStore = true;
+            self.cacheControl.noStore = true;
         } else if (directive == NO_TRANSFORM) {
-            request.cacheControl.noTransform = true;
+            self.cacheControl.noTransform = true;
         } else if (directive == ONLY_IF_CACHED) {
-            request.cacheControl.onlyIfCached = true;
+            self.cacheControl.onlyIfCached = true;
         } else if (directive.hasPrefix(MAX_AGE)) {
-            request.cacheControl.maxAge = getExpirationDirectiveValue(directive);
+            self.cacheControl.maxAge = getExpirationDirectiveValue(directive);
         } else if (directive == MAX_STALE) {
-            request.cacheControl.maxStale = MAX_STALE_ANY_AGE;
+            self.cacheControl.maxStale = MAX_STALE_ANY_AGE;
         } else if (directive.hasPrefix(MAX_STALE)) {
-            request.cacheControl.maxStale = getExpirationDirectiveValue(directive);
+            self.cacheControl.maxStale = getExpirationDirectiveValue(directive);
         } else if (directive.hasPrefix(MIN_FRESH)) {
-            request.cacheControl.minFresh = getExpirationDirectiveValue(directive);
+            self.cacheControl.minFresh = getExpirationDirectiveValue(directive);
         }
         // non-standard directives are ignored
     }

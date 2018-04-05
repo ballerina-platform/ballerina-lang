@@ -17,11 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.program.BLangVMUtils;
 
@@ -125,9 +122,9 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
             return null;
         }
         this.setAsFulfilled();
-        BMap<String, BRefValueArray> mbMap = new BMap<>();
+        BMap<String, BRefType> mbMap = new BMap<>();
         channelNames.forEach((k, v) -> {
-            BRefValueArray workerRes = getWorkerResult(v);
+            BRefType workerRes = getWorkerResult(v);
             if (workerRes != null) {
                 mbMap.put(k, workerRes);
             }
@@ -139,9 +136,9 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     @SuppressWarnings("rawtypes")
     protected WorkerExecutionContext onHaltFinalized() {
-        BMap<String, BRefValueArray> mbMap = new BMap<>();
+        BMap<String, BRefType> mbMap = new BMap<>();
         channelNames.forEach((k, v) -> {
-            BRefValueArray workerRes = getWorkerResult(v);
+            BRefType workerRes = getWorkerResult(v);
             if (workerRes != null) {
                 mbMap.put(k, workerRes);
             }
@@ -152,24 +149,12 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     }
 
     @SuppressWarnings("rawtypes")
-    private BRefValueArray getWorkerResult(String channelName) {
+    private BRefType getWorkerResult(String channelName) {
         if (channelName == null) {
             return null;
         }
-        BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
         WorkerDataChannel dataChannel = getWorkerDataChannel(channelName);
-        BRefType[] results;
-        boolean dataNotAvailable = true;
-        while ((results = dataChannel.tryTakeData()) != null) {
-            dataNotAvailable = false;
-            for (int i = 0; i < results.length; i++) {
-                bRefValueArray.add(i, results[i]);
-            }
-        }
-        if (dataNotAvailable) {
-            return null;
-        }
-        return bRefValueArray;
+        return dataChannel.tryTakeData();
     }
 
     private void printError(String workerName, BStruct error) {
