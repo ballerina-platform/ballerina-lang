@@ -33,10 +33,11 @@ type Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream1 = {};
-stream<Teacher> teacherStream2 = {};
 
-function testOutputRateLimitQuery() {
+function startOutputRateLimitQuery() returns (Employee[]) {
+
+    stream<Employee> employeeStream1;
+    stream<Teacher> teacherStream2;
 
     forever {
         from teacherStream2
@@ -46,11 +47,6 @@ function testOutputRateLimitQuery() {
             employeeStream1.publish(emp);
         }
     }
-}
-
-function startOutputRateLimitQuery() returns (Employee[]) {
-
-    testOutputRateLimitQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};

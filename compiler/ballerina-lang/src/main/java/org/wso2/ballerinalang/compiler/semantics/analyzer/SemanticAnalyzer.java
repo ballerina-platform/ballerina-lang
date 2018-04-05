@@ -40,6 +40,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
@@ -1222,6 +1223,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BVarSymbol varSymbol : functionParameterList) {
             if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
                 foreverStatement.addFunctionVariable(varSymbol);
+            }
+        }
+
+        List<Scope.ScopeEntry> localVariableList = new ArrayList<>(this.env.scope.entries.values());
+        for (Scope.ScopeEntry scopeEntry : localVariableList) {
+            if ("stream".equals(((scopeEntry).symbol.type.tsymbol).name.value)) {
+                foreverStatement.addFunctionVariable((BVarSymbol) scopeEntry.symbol);
             }
         }
 

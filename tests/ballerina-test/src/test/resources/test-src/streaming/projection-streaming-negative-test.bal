@@ -17,13 +17,13 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string status;
 }
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
@@ -33,10 +33,11 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream2 = {};
-stream<Teacher> teacherStream4 = {};
 
-function testProjectionQuery() {
+function startProjectionQuery() returns (Employee[]) {
+
+    stream<Employee> employeeStream2;
+    stream<Teacher> teacherStream4;
 
     forever {
         from teacherStream4
@@ -45,11 +46,6 @@ function testProjectionQuery() {
             employeeStream2.publish(emp);
         }
     }
-}
-
-function startProjectionQuery() returns (Employee[]) {
-
-    testProjectionQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};

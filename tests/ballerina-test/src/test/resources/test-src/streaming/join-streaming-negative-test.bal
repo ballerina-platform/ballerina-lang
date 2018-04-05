@@ -17,19 +17,19 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct Stock {
+type Stock {
     string symbol;
     float price;
     int volume;
 }
 
-struct Twitter {
+type Twitter {
     string user;
     string tweet;
     string company;
 }
 
-struct StockWithPrice {
+type StockWithPrice {
     string symbol;
     string tweet;
     float price;
@@ -37,11 +37,12 @@ struct StockWithPrice {
 
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
-stream<Stock> stockStream = {};
-stream<Twitter> twitterStream = {};
-stream<StockWithPrice> stockWithPriceStream = {};
 
-function testJoinQuery() {
+function startJoinQuery() returns (StockWithPrice[]) {
+
+    stream<Stock> stockStream;
+    stream<Twitter> twitterStream;
+    stream<StockWithPrice> stockWithPriceStream;
 
     forever {
         from stockStream window time(1000) as s
@@ -52,11 +53,6 @@ function testJoinQuery() {
             stockWithPriceStream.publish(emp);
         }
     }
-}
-
-function startJoinQuery() returns (StockWithPrice[]) {
-
-    testJoinQuery();
 
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};

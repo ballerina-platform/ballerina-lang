@@ -17,13 +17,13 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string status;
 }
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
@@ -31,10 +31,11 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream3 = {};
-stream<Teacher> teacherStream6 = {};
 
-function testPassthroughQuery() {
+function startPassthroughQuery() returns (Employee[]) {
+
+    stream<Employee> employeeStream3;
+    stream<Teacher> teacherStream6;
 
     forever {
         from teacherStream6
@@ -43,11 +44,6 @@ function testPassthroughQuery() {
             employeeStream3.publish(emp);
         }
     }
-}
-
-function startPassthroughQuery() returns (Employee[]) {
-
-    testPassthroughQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single"};
     Teacher t2 = {name:"Shareek", age:33, status:"single"};

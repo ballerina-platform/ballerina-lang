@@ -17,13 +17,13 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string status;
 }
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
@@ -33,10 +33,12 @@ struct Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream = {};
-stream<Teacher> teacherStream1 = {};
 
-function testFilterQuery() {
+function startFilterQuery() returns (Employee[]) {
+
+    stream<Employee> employeeStream;
+    stream<Teacher> teacherStream1;
+
     forever {
         from teacherStream1
         where age > 30
@@ -45,12 +47,6 @@ function testFilterQuery() {
             employeeStream.publish(emp);
         }
     }
-}
-
-
-function startFilterQuery() returns (Employee[]) {
-
-    testFilterQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};

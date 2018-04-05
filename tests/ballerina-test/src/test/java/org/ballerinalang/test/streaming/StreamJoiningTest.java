@@ -56,10 +56,10 @@ public class StreamJoiningTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0,
                 "undefined stream name (or alias) 'stockStream' found in select clause",
-                50, 9);
+                51, 9);
         BAssertUtil.validateError(resultNegative, 1,
                 "undefined stream name (or alias) 'stockStream' found in select clause",
-                50, 9);
+                51, 9);
     }
 
 
