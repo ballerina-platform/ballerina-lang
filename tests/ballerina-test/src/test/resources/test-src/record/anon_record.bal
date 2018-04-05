@@ -41,7 +41,7 @@ type employee {
         string day = "01";
         string year = "1970";
     } dateOfBirth;
-}
+};
 
 function testAnonStructAsStructField() returns (string) {
 

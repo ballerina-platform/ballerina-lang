@@ -50,7 +50,7 @@ function testSafeAssignOpInAssignmentStatement3 () returns (boolean|error) {
 
 type FileOpenStatus {
     boolean status = false;
-}
+};
 
 function testSafeAssignOpInAssignmentStatement4 () returns (boolean|error) {
     boolean[] ba = [];
@@ -73,20 +73,20 @@ function testSafeAssignOpInAssignmentStatement6 () returns boolean {
 
 type person {
     string name;
-}
+};
 
 public type myerror {
     string message;
     error[] cause;
     int code;
-}
+};
 
 public type customError {
     string message;
     error[] cause;
     int code;
     string data;
-}
+};
 
 function getPerson() returns person | myerror {
    //myerror e = {message:"ddd"};
