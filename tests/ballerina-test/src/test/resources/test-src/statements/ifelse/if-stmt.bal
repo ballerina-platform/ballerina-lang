@@ -1,24 +1,23 @@
 function testIfStmt(int a, int b, int c) returns (int, int) {
 
-    int a1 = a;
-    int b1 = b;
     int x;
     x = 10;
 
-    if ( a1 == b1) {
+    int a1;
+    if ( a == b) {
         a1 = 100;
 
-    } else if (a1 == b1 + 1){
+    } else if (a == b + 1){
         a1 = 200;
 
-    } else  if (a1 == b1 + 2){
+    } else  if (a == b + 2){
         a1 = 300;
 
     }  else {
         a1 = 400;
     }
 
-    b1 = c;
+    int b1 = c;
 
     return (a1 + x, b1 + 1);
 }
