@@ -64,7 +64,7 @@ public class Call extends AbstractSQLAction {
             String query = context.getStringArgument(0);
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
             BStructType structType = getStructType(context);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
             ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                     getParentWorkerExecutionContext());

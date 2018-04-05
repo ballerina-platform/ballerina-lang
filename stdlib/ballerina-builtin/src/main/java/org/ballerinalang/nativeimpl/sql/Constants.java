@@ -179,7 +179,6 @@ public final class Constants {
     public static final String USER = "user";
     public static final String PASSWORD = "password";
 
-    public static final String CLIENT_CONNECTOR = "ClientConnector";
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
     public static final String SQL_CLIENT = "SQLClient";
 
