@@ -606,16 +606,16 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         setPreviousNode(workerSendNode);
-        if (!workerSendNode.exprs.isEmpty()) {
-            workerSendNode.exprs.forEach(this::acceptNode);
+        if (workerSendNode.expr != null) {
+            this.acceptNode(workerSendNode.expr);
         }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         setPreviousNode(workerReceiveNode);
-        if (!workerReceiveNode.exprs.isEmpty()) {
-            workerReceiveNode.exprs.forEach(this::acceptNode);
+        if (workerReceiveNode.expr != null) {
+            this.acceptNode(workerReceiveNode.expr);
         }
     }
 
