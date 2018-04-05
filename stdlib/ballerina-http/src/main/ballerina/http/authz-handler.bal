@@ -39,7 +39,8 @@ public type HttpAuthzHandler object {
     new () {
         name = "default";
     }
-    public function canHandle (Request req) returns (boolean)
+    public function canHandle (Request req) returns (boolean);
+
     public function handle (Request req, string[] scopes, string resourceName) returns (boolean);
 }
 

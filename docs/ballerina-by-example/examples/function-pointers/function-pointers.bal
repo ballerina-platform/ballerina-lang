@@ -1,7 +1,7 @@
 import ballerina/io;
 
 function test (int x, string s) returns (float) {
-    int y =? <int>s;
+    int y = check <int>s;
     float f = x * 1.0 * y;
     return f;
 }

@@ -127,7 +127,7 @@ public type RequestCacheControl object {
 @Field {value:"sMaxAge: Represents the s-maxage directive"}
 @Field {value:"noCacheFields: Optional fields for no-cache directive. If sending any of the listed fields in a response, they must validated with the origin server."}
 @Field {value:"privateFields: Optional fields for private directive. A cache can omit the fields specified and store the rest of the response."}
-public struct ResponseCacheControl {
+public type ResponseCacheControl object {
     public {
         boolean mustRevalidate = false;
         boolean noCache = false;

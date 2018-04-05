@@ -493,13 +493,13 @@ returnStatement
 
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
 triggerWorker
-    :   expressionList RARROW workerReference SEMICOLON #invokeWorker
-    |   expressionList RARROW FORK SEMICOLON     #invokeFork
+    :   expression RARROW workerReference SEMICOLON #invokeWorker
+    |   expression RARROW FORK SEMICOLON     #invokeFork
     ;
 
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
-    :   expressionList LARROW workerReference SEMICOLON
+    :   expression LARROW workerReference SEMICOLON
     ;
 
 variableReference

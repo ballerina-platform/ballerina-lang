@@ -203,16 +203,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecord record) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangTypeDefinition typeDefinition) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangEnum enumNode) {
         // No implementation
     }
@@ -247,8 +237,8 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    @Override
     @Deprecated
+    @Override
     public void visit(BLangAnnotAttribute annotationAttribute) {
         // No implementation
     }
@@ -323,7 +313,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         // No implementation
     }
-
+    
     @Override
     public void visit(BLangDone doneNode) {
         // No implementation
@@ -504,21 +494,10 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    @Override
-    public void visit(BLangForever foreverStatement) {
-        // No implementation
-    }
-
-
     // Expressions
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangTableLiteral tableLiteral) {
         // No implementation
     }
 
@@ -698,17 +677,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangCheckedExpr checkedExpr) {
+    public void visit(BLangForever foreverStatement) {
         // No implementation
     }
 
@@ -812,6 +781,11 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableLiteral tableLiteral) {
+        // No implementation
+    }
+
+    @Override
     public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
         // No implementation
     }
@@ -858,6 +832,31 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangRecord record) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
         // No implementation
     }
 
