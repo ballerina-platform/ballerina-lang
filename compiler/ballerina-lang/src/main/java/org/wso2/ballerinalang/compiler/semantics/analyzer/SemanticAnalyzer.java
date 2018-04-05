@@ -111,8 +111,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -192,15 +192,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
-    public static SemanticAnalyzer getInstance(CompilerContext context) {
-        SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
-        if (semAnalyzer == null) {
-            semAnalyzer = new SemanticAnalyzer(context);
-        }
-
-        return semAnalyzer;
-    }
-
     public SemanticAnalyzer(CompilerContext context) {
         context.put(SYMBOL_ANALYZER_KEY, this);
 
@@ -212,6 +203,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+    }
+
+    public static SemanticAnalyzer getInstance(CompilerContext context) {
+        SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
+        if (semAnalyzer == null) {
+            semAnalyzer = new SemanticAnalyzer(context);
+        }
+
+        return semAnalyzer;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
