@@ -26,7 +26,7 @@ function testReturnError() returns (string, string, string, string) {
     float quoteValue;
     // Special identifier "=?" will be used to ignore values.
 
-    quoteValue =? getQuote("FOO");
+    quoteValue =check getQuote("FOO");
     a = "FOO:" + quoteValue;
 
     // Ignore error.

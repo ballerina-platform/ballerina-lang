@@ -31,7 +31,7 @@ function testSafeAssignmentBasics4 () returns (boolean){
 function testSafeAssignOpInAssignmentStatement1 () returns (boolean) {
     boolean b = false;
     int a = 0;
-    b =? openFileSuccess("/home/sameera/foo.txt");
+    b = check openFileSuccess("/home/sameera/foo.txt");
     return b;
 }
 
@@ -48,7 +48,7 @@ function testSafeAssignOpInAssignmentStatement3 () returns (boolean|error) {
     return fos.status;
 }
 
-struct FileOpenStatus {
+type FileOpenStatus {
     boolean status = false;
 }
 
@@ -71,17 +71,17 @@ function testSafeAssignOpInAssignmentStatement6 () returns boolean {
     return statusFailure;
 }
 
-struct person {
+type person {
     string name;
 }
 
-public struct myerror {
+public type myerror {
     string message;
     error[] cause;
     int code;
 }
 
-public struct customError {
+public type customError {
     string message;
     error[] cause;
     int code;

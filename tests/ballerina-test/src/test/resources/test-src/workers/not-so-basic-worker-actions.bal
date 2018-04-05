@@ -1,7 +1,7 @@
 import ballerina/runtime;
 
 function forkJoinWithTimeoutTest1() returns map {
-    map m = {};
+    map m;
     fork {
 	   worker w1 {
 	     int a = 5;
@@ -21,7 +21,7 @@ function forkJoinWithTimeoutTest1() returns map {
 }
 
 function forkJoinWithTimeoutTest2() returns map {
-    map m = {};
+    map m;
     fork {
 	   worker w1 {
 	     int a = 5;
@@ -37,7 +37,7 @@ function forkJoinWithTimeoutTest2() returns map {
 }
 
 function complexForkJoinWorkerSendReceive() returns map {
-    map m = {};
+    map m;
     m["x"] = 10;
     fork {
 	   worker w1 {
@@ -57,7 +57,7 @@ function complexForkJoinWorkerSendReceive() returns map {
 }
 
 function chainedWorkerSendReceive() returns map {
-    map m = {};
+    map m;
     fork {
 	   worker w1 {
 	     int a = 3;
@@ -84,7 +84,7 @@ function chainedWorkerSendReceive() returns map {
 }
 
 function forkJoinWithSomeSelectedJoin1() returns int {
-    map m = {};
+    map m;
     m["x"] = 0;
     m["y"] = 0;
     fork {
@@ -109,13 +109,13 @@ function forkJoinWithSomeSelectedJoin1() returns int {
 	} join (some 1 w2, w3) (map results) {  }
 	int j;
 	int k;
-	j =? <int> m["x"];
-	k =? <int> m["y"];
+	j = check <int> m["x"];
+	k = check <int> m["y"];
 	return j * k;
 }
 
 function forkJoinWithSomeSelectedJoin2() returns map {
-    map m = {};
+    map m;
     m["x"] = 0;
     fork {
 	   worker w1 {
@@ -143,7 +143,7 @@ function forkJoinWithSomeSelectedJoin2() returns map {
 }
 
 function forkJoinWithSomeSelectedJoin3() returns map {
-    map m = {};
+    map m;
     m["x"] = 0;
     fork {
 	   worker w1 {
@@ -173,7 +173,7 @@ function forkJoinWithSomeSelectedJoin3() returns map {
 }
 
 function forkJoinWithSomeSelectedJoin4() returns int {
-    map m = {};
+    map m;
     m["x"] = 0;
     fork {
 	   worker w1 {
@@ -192,12 +192,12 @@ function forkJoinWithSomeSelectedJoin4() returns int {
 	     m["x"] = a * 2;
 	   }
 	} join (some 2 w1, w2, w3) (map results) {  }
-	int x =? <int> m["x"];
+	int x = check <int> m["x"];
 	return x;
 }
 
 function forkJoinWithSomeSelectedJoin5() returns int {
-    map m = {};
+    map m;
     m["x"] = 0;
     fork {
 	   worker w1 {
@@ -219,12 +219,12 @@ function forkJoinWithSomeSelectedJoin5() returns int {
 	   }
 	} join (some 2 w1, w2, w3) (map results) { } timeout (1) (map results) {  m["x"] = 555;  }
 	int x;
-	x =? <int> m["x"];
+	x = check <int> m["x"];
 	return x;
 }
 
 function forkJoinWithAllSelectedJoin1() returns map {
-    map m = {};
+    map m;
     m["x"] = 0;
     fork {
 	   worker w1 {
@@ -289,7 +289,7 @@ function forkJoinWithAllSelectedJoin2() returns int {
 }
 
 function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
-    map m = {};
+    map m;
     fork {
        worker w1 {
          int a = 5;
@@ -313,13 +313,13 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
 		match result{
 			any[] arr => {
 				anyArray = arr;
-                b =? <int> arr[0];
+                b = check <int> arr[0];
 			}
     		error err => e = err;
 		}
         int a;
-        anyArray =? <any[]> results["w2"];
-        a =? <int> anyArray[0];
+        anyArray = check <any[]> results["w2"];
+        a = check <int> anyArray[0];
         m["x"] = (a + 1) * b;
     } timeout (5) (map results) { 
         m["x"] = 15; 
@@ -330,7 +330,7 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
 function forkJoinInWorkers() returns int {
     worker wx {
 	    int x = 20;
-	    map m = {};
+	    map m;
 	    fork {
 		   worker w1 {
 		     m["a"] = 10;
@@ -341,8 +341,8 @@ function forkJoinInWorkers() returns int {
 	    } join (all) (map results) { 
 	       int a;
 	       int b;
-	       a =? <int> m["a"];
-	       b =? <int> m["b"];
+	       a = check <int> m["a"];
+	       b = check <int> m["b"];
 	       x = a + b;
 	    }
 	    return x;
@@ -351,7 +351,7 @@ function forkJoinInWorkers() returns int {
 
 function largeForkJoinCreationTest() returns int {
     int result = 0;
-    map m = {};
+    map m;
     int c = 1000;
     while (c > 0) {
 	    m["x"] = 10;
@@ -418,7 +418,7 @@ function largeForkJoinCreationTest() returns int {
 		     (a + b) -> w1;
 		   }
 	    } join (all) (map results) {
-	       var x =? <int> m["x"];
+	       var x = check <int> m["x"];
 	       result = x;
 	    }
 	    c = c - 1;
@@ -438,17 +438,17 @@ function forkJoinWithStruct () returns string {
             f -> fork;
         }
     } join (all) (map results) {
-        var resW1 =? <any[]> results["w1"];
-        var f =? <foo> resW1[0];
+        var resW1 = check <any[]> results["w1"];
+        var f = check <foo> resW1[0];
         result = "[join-block] sW1: " + f.y;
-        var resW2 =? <any[]> results["w2"];
-        var fW2 =? <float> resW2[0];
+        var resW2 = check <any[]> results["w2"];
+        var fW2 = check <float> resW2[0];
         result = result + "[join-block] fW2: " + fW2;
     }
     return result;
 }
 
-struct foo {
+type foo {
     int x;
     string y;
 }
@@ -477,11 +477,11 @@ function forkJoinWithSameWorkerContent () returns string {
             a -> fork;
         }
     } join (all) (map results) {
-        var resW1 =? <any[]> results["w1"];
-        var s1 =? <string[]> resW1[0];
+        var resW1 = check <any[]> results["w1"];
+        var s1 = check <string[]> resW1[0];
         result = "W1: " + s1[0];
-        var resW2 =? <any[]> results["w2"];
-        var s2 =? <string[]> resW2[0];
+        var resW2 = check <any[]> results["w2"];
+        var s2 = check <string[]> resW2[0];
         result = result + ", W2: " + s2[0];
     }
     return result;
