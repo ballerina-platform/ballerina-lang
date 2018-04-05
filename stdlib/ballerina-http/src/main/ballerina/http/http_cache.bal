@@ -90,7 +90,7 @@ type HttpCache object {
 
         match getAll(key) {
             Response[] responses => cachedResponses = responses;
-            int| null => cachedResponses = [];
+            () => cachedResponses = [];
         }
 
         foreach cachedResp in cachedResponses {
@@ -110,7 +110,7 @@ type HttpCache object {
 
         match getAll(key) {
             Response[] responses => cachedResponses = responses;
-            int| null => cachedResponses = [];
+            () => cachedResponses = [];
         }
 
         foreach cachedResp in cachedResponses {
