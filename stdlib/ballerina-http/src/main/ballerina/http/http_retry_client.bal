@@ -257,7 +257,7 @@ function performRetryAction (string path, Request request, HttpOperation request
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.
-    var binaryPayload = inRequest.getBinaryPayload();
+    var binaryPayload = check inRequest.getBinaryPayload();
 
     mime:Entity requestEntity = {};
     var mimeEntity = inRequest.getEntity();
