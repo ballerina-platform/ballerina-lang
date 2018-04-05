@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -514,17 +515,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        if (varDefNode.var.expr instanceof BLangRecordLiteral &&
-                ((BLangRecordLiteral) varDefNode.var.expr).type.tag == TypeTags.STREAM) {
-            ((BLangRecordLiteral) varDefNode.var.expr).name = varDefNode.var.name;
-        }
-
         varDefNode.var = rewrite(varDefNode.var, env);
         BLangVariable varNode = varDefNode.var;
 
         // Generate default init expression, if rhs expr is null
         if (varNode.expr == null) {
-            varNode.expr = getInitExpr(varNode.type);
+            if (varNode.type instanceof BStreamType) {
+                varNode.expr = new BLangStreamLiteral(varNode.type, varNode.name);
+            } else {
+                varNode.expr = getInitExpr(varNode.type);
+            }
         }
 
         if (!varNode.safeAssignment) {
@@ -573,10 +573,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (assignNode.expr.type.tag == TypeTags.STREAM && assignNode.varRef instanceof BLangSimpleVarRef) {
-                ((BLangRecordLiteral) assignNode.expr).name =
-                        ((BLangSimpleVarRef) assignNode.varRef).variableName;
-        }
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -2255,8 +2251,6 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
-            case TypeTags.STREAM:
-                return new BLangStreamLiteral(type, null);
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.STRUCT:
