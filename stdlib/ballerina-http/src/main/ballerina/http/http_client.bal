@@ -133,7 +133,7 @@ public type HttpClient object {
 public type HttpConnectorError {
     string message,
     error[] cause,
-    int statusCode
+    int statusCode,
 }
 
 @Description {value:"HttpTimeoutError record represents a timeout error occurred during service invocation."}
@@ -143,5 +143,5 @@ public type HttpConnectorError {
 public type HttpTimeoutError {
     string message,
     error[] cause,
-    int statusCode
+    int statusCode,
 }
