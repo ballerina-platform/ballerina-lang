@@ -25,7 +25,6 @@ public type AuthzHandlerChain object {
         map authzHandlers;
     }
     new () {
-        authzHandlers = new;
     }
 }
 

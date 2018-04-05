@@ -24,7 +24,6 @@ public type AuthnHandlerChain object {
         map authnHandlers;
     }
     new () {
-        authnHandlers = new;
     }
     public function handle (Request req) returns (boolean);
 }
