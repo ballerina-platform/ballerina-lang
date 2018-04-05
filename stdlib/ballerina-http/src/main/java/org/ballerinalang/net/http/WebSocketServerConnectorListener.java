@@ -66,7 +66,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     public WebSocketServerConnectorListener(WebSocketServicesRegistry servicesRegistry) {
         this.servicesRegistry = servicesRegistry;
-        this.connectionManager = WebSocketConnectionManager.getInstance();
+        this.connectionManager = new WebSocketConnectionManager();
     }
 
     @Override
@@ -87,6 +87,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     PROTOCOL_PACKAGE_HTTP, CONNECTION);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
+            httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER, connectionManager);
             // TODO: Need to set remote, local and the protocol after the changes in transport is completed.
             httpServiceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, httpConnection);
 
@@ -124,14 +125,16 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 @Override
                 public void notifySuccess() {
                     if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
-                        WebSocketUtil.handleHandshake(wsService, null, webSocketInitMessage, null, null);
+                        WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null,
+                                                      null);
                     } else {
                         Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                         if (onOpenResource != null) {
                             List<ParamDetail> paramDetails =
                                     onOpenResource.getParamDetails();
                             BValue[] bValues = new BValue[paramDetails.size()];
-                            bValues[0] = httpServiceEndpoint;
+                            bValues[0] = connectionManager
+                                    .getConnectionInfo(webSocketInitMessage.getSessionID()).getWebSocketEndpoint();
                             //TODO handle BallerinaConnectorException
                             Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null,
                                             bValues);
@@ -146,7 +149,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             }, null, ctx, bValues);
 
         } else {
-            WebSocketUtil.handleHandshake(wsService, null, webSocketInitMessage, null, null);
+            WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null, null);
         }
     }
 
@@ -171,7 +174,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketDispatcher.dispatchCloseMessage(
-                connectionManager.getConnectionInfo(webSocketCloseMessage.getSessionID()), webSocketCloseMessage);
+                connectionManager.removeConnectionInfo(webSocketCloseMessage.getSessionID()), webSocketCloseMessage);
     }
 
     @Override

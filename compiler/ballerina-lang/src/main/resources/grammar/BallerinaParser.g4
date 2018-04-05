@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* documentationAttachment? deprecatedAttachment? definition)*
+        (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -87,7 +87,7 @@ callableUnitSignature
 
 typeDefinition
     :   (PUBLIC)? TYPE Identifier typeName
-    |   (PUBLIC)? TYPE Identifier finiteType
+    |   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
     ;
 
 objectBody
