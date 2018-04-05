@@ -27,7 +27,7 @@ sql:ConnectionProperties properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDB
 
 function testConnectionPoolProperties1 () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "",
         port: 0,
         name: "",
@@ -62,7 +62,7 @@ function testConnectionPoolProperties2 () returns (string) {
 
 function testConnectionPoolProperties3 () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA"
@@ -79,7 +79,7 @@ function testConnectionPoolProperties3 () returns (string) {
 
 function testConnectorWithDefaultPropertiesForListedDB () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
@@ -98,7 +98,7 @@ function testConnectorWithDefaultPropertiesForListedDB () returns (string) {
 
 function testConnectorWithWorkers () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
@@ -138,7 +138,7 @@ function testConnectorWithDirectUrl () returns (string) {
 
 function testConnectorWithDataSourceClass () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.GENERIC,
+        database: sql:DB_GENERIC,
         username: "SA",
         options: properties3
     };
@@ -153,7 +153,7 @@ function testConnectorWithDataSourceClass () returns (string) {
 
 function testConnectorWithDataSourceClassAndProps () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
@@ -171,7 +171,7 @@ function testConnectorWithDataSourceClassAndProps () returns (string) {
 
 function testConnectorWithDataSourceClassWithoutURL () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
@@ -189,7 +189,7 @@ function testConnectorWithDataSourceClassWithoutURL () returns (string) {
 
 function testConnectorWithDataSourceClassURLPriority () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "INVALID_DB_NAME",
         username: "SA",

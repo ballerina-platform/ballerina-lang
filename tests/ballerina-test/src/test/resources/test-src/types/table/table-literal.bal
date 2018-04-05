@@ -59,7 +59,7 @@ function testEmptyTableCreate () returns (int, int) {
 
 function checkTableCount(string tablePrefix) returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.H2_MEM,
+        database: sql:DB_H2_MEM,
         host: "",
         port: 0,
         name: "TABLEDB",
@@ -501,11 +501,11 @@ function testTableAddAndAccess () returns (string, string) {
     dt.add(p2);
 
     var j1 = check <json>dt;
-    string s1 = j1.toString();
+    string s1 = j1.toString() but { () => "" };
 
     dt.add(p3);
     var j2 = check <json>dt;
-    string s2 = j2.toString();
+    string s2 = j2.toString() but { () => "" };
     return (s1, s2);
 }
 
