@@ -33,8 +33,8 @@ public type Filter object {
     }
 
     public function init ();
-
     public function terminate ();
+
 };
 
 @Description {value:"Representation of filter Context."}
@@ -56,9 +56,9 @@ filter function"}
 @Field {value:"statusCode: Status code which will be returned to the request sender if the canProceed is set to false"}
 @Field {value:"message: Message which will be returned to the request sender if the canProceed is set to false"}
 public type FilterResult {
-    boolean canProceed,
-    int statusCode,
-    string message,
+    boolean canProceed;
+    int statusCode;
+    string message;
 };
 
 @Description {value:"Initializes the filter"}
