@@ -1,11 +1,11 @@
-struct Person {
+type Person {
     string name = "default first name";
     string lname;
     map adrs;
     int age = 999;
 }
 
-struct StructField {
+type StructField {
     string key;
 }
 

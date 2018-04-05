@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     string name;
     int age;
     Person parent;
@@ -8,7 +8,7 @@ struct Person {
 }
 
 
-struct Student {
+type Student {
     string name;
     int age;
     map address;

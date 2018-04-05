@@ -53,7 +53,7 @@ function testMapVariableAccessInJSONInit () returns (json) {
     string val2;
     int intVal;
     val2 = <string> myMap["stirngVal"];
-    intVal =? <int> myMap["intVal"];
+    intVal = check <int> myMap["intVal"];
     msg = {"val1":val2, "val2":intVal};
     return msg;
 }

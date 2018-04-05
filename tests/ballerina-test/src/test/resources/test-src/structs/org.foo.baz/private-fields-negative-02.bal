@@ -1,11 +1,11 @@
 package org.foo.baz;
 
-public struct FooDepartment {
+public type FooDepartment {
     string dptName;
     FooPerson[] employees;
 }
 
-public struct FooPerson {
+public type FooPerson {
     string name = "default first name";
     string lname;
     map adrs;
@@ -14,18 +14,18 @@ public struct FooPerson {
     FooPerson parent;
 }
 
-struct FooFamily {
+type FooFamily {
     string spouse;
     int noOfChildren;
     string[] children;
 }
 
-public struct FooEmployee {
+public type FooEmployee {
     string fname;
     string lname;
     int age;
     private :
-        struct {
+        type {
             string city;
             string state;
             string zipcode;

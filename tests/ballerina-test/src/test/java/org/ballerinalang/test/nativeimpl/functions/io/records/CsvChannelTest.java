@@ -67,7 +67,7 @@ public class CsvChannelTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initDefaultCsv", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDefaultCsvForReading", args);
 
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -106,7 +106,7 @@ public class CsvChannelTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite)};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initDefaultCsv", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initDefaultCsvForWriting", args);
 
         args = new BValue[]{record};
         BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
@@ -123,7 +123,7 @@ public class CsvChannelTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initRfc", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initRfcForReading", args);
 
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -162,7 +162,7 @@ public class CsvChannelTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite)};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initRfc", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initRfcForWriting", args);
 
         args = new BValue[]{record};
         BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);
@@ -179,7 +179,7 @@ public class CsvChannelTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initTdf", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initTdfForReading", args);
 
         BValue[] returns = BRunUtil.invoke(recordsInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -218,7 +218,7 @@ public class CsvChannelTest {
 
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite)};
-        BRunUtil.invoke(recordsInputOutputProgramFile, "initTdf", args);
+        BRunUtil.invoke(recordsInputOutputProgramFile, "initTdfForWriting", args);
 
         args = new BValue[]{record};
         BRunUtil.invoke(recordsInputOutputProgramFile, "writeRecord", args);

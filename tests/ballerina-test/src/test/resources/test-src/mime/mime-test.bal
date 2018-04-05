@@ -3,7 +3,6 @@ import ballerina/log;
 import ballerina/file;
 import ballerina/io;
 import ballerina/http;
-import ballerina/http;
 
 function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
@@ -17,24 +16,28 @@ function testToStringWithParametersOnMediaType (mime:MediaType mediaType) return
     return mediaType.toStringWithParameters();
 }
 
-function testMimeBase64Encode (blob value) returns (blob) {
-    mime:MimeBase64Encoder encoder = {};
-    return encoder.encode(value);
+function testMimeBase64EncodeString (string contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64EncodeError) {
+    return mime:base64Encode(contentToBeEncoded);
 }
 
-function testMimeBase64EncodeString (string content, string charset) returns (string) {
-    mime:MimeBase64Encoder encoder = {};
-    return encoder.encodeString(content, charset);
+function testMimeBase64DecodeString (string contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64DecodeError) {
+    return mime:base64Decode(contentToBeDecoded);
 }
 
-function testMimeBase64Decode (blob value) returns (blob) {
-    mime:MimeBase64Decoder decoder = {};
-    return decoder.decode(value);
+function testMimeBase64EncodeBlob (blob contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64EncodeError) {
+    return mime:base64Encode(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeString (string content, string charset) returns (string) {
-    mime:MimeBase64Decoder decoder = {};
-    return decoder.decodeString(content, charset);
+function testMimeBase64DecodeBlob (blob contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64DecodeError) {
+    return mime:base64Decode(contentToBeDecoded);
+}
+
+function testMimeBase64EncodeByteChannel (io:ByteChannel contentToBeEncoded) returns (string  | blob  | io:ByteChannel  | mime:Base64EncodeError) {
+    return mime:base64Encode(contentToBeEncoded);
+}
+
+function testMimeBase64DecodeByteChannel (io:ByteChannel contentToBeDecoded) returns (string  | blob  | io:ByteChannel  | mime:Base64DecodeError) {
+    return mime:base64Decode(contentToBeDecoded);
 }
 
 function testSetAndGetJson (json jsonContent) returns json | mime:EntityError {
@@ -186,9 +189,10 @@ function testGetBlobMultipleTimes (blob blobContent) returns (string) {
     return contentAsString;
 }
 
-function testSetFileAsEntityBody (file:File fileHandler) returns blob | mime:EntityError {
+function testSetFileAsEntityBody (string fileLocation) returns blob | mime:EntityError {
     mime:Entity entity = {};
-    entity.setFileAsEntityBody(fileHandler);
+    file:Path path = file:getPath(fileLocation);
+    entity.setFileAsEntityBody(path);
     return entity.getBlob();
 }
 

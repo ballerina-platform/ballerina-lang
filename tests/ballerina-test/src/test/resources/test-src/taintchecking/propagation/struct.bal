@@ -1,4 +1,4 @@
-struct Student {
+type Student {
     string name;
     string address;
 }
