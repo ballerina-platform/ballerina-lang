@@ -10,13 +10,22 @@ public function main (string[] args) {
     // Add a new entry to the cache.
     cache.put("Name", "Ballerina");
     // Get the cached value.
-    var name, _ = (string)cache.get("Name");
+    string name;
+    if (cache.hasKey("Name")){
+        name = <string>cache.get("Name");
+    }
     io:println("Name: " + name);
+
     // Sends the current worker to sleep mode for 6 seconds; no execution takes place during this period.
     runtime:sleepCurrentWorker(6000);
     // Since the cache expiry time is 4 seconds, the cache cleanup task runs at the 5th
     // second and cleans the cache while this thread was sleeping. Now this value
     // is null.
-    name, _ = (string)cache.get("Name");
+
+    if (cache.hasKey("Name")){
+        name = <string>cache.get("Name");
+    } else {
+        name = "";
+    }
     io:println("Name: " + name);
 }

@@ -1,6 +1,6 @@
 package initializers;
 
-public struct employee{
+public type employee{
     int age = 20;
     string name;
     string address;
@@ -16,7 +16,7 @@ public function <employee p> getAge() {
 }
 
 // Struct with private initializer
-public struct student{
+public type student{
     int age = 20;
     string name;
     string address;

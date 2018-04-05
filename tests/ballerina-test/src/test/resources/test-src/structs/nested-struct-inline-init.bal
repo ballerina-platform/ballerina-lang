@@ -1,6 +1,6 @@
 string child = "Bob";
 
-struct Person {
+type Person {
     string name = "default first name";
     string fname;
     string lname;
@@ -10,7 +10,7 @@ struct Person {
     Family family = {spouse : "Jane"};
 }
 
-struct Family {
+type Family {
     string spouse;
     int noOfChildren;
     string[] children = ["Alex", child];

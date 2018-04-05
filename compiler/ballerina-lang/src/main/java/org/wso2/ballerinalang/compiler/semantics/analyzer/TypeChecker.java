@@ -1662,7 +1662,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
         accessExpr.childType = actualType;
 
-        BUnionType unionType = new BUnionType(null, new HashSet<>(), false);
+        BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(), false);
         if (actualType.tag == TypeTags.UNION) {
             unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
         } else {
@@ -1671,6 +1671,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType parentType = accessExpr.expr.type;
         if (parentType.isNullable() && actualType.tag != TypeTags.JSON) {
+            unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         }
 

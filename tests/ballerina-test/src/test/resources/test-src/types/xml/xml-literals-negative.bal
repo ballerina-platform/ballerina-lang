@@ -12,7 +12,7 @@ function xmlUndeclaredElementPrefix() returns (xml) {
 }
 
 function xmlTemplateWithNonXML() {
-    map m = {};
+    map m ;
     xml x = xml `<root xmlns="http://default/namespace">{{m}}</root>`;
 }
 
@@ -53,7 +53,7 @@ function foo() {
 }
 
 function getAttributesFromNonXml() {
-    map m = {};
+    map m ;
     string s = m@["foo"];
 }
 
