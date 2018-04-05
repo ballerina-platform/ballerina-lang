@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 
 package org.ballerinalang.test.types.map;
 
@@ -181,8 +181,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 36);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
     }
 
     @Test(description = "Test Map constrained with value type float positive.")
@@ -205,8 +205,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 3.6);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.3);
     }
 
     @Test(description = "Test Map constrained with value type boolean positive.")
@@ -229,7 +229,7 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
     }
 
@@ -253,8 +253,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "");
-        Assert.assertEquals(((BString) returns[1]).stringValue(), "");
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "hi");
+        Assert.assertEquals(((BString) returns[1]).stringValue(), "ballerina");
     }
 
     @Test(description = "Test cast map constrained with value type from map any positive.")
