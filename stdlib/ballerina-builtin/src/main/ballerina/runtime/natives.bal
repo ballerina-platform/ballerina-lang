@@ -44,7 +44,7 @@ public native function getFileEncoding () returns (string);
 
 @Description {value:"Executes a ballerina command and returns the input stream connected to the normal and error
 output of the subprocess"}
-@Param {value:"command: The command to be executed it should be one of run, docker, build, install, uninstall, pull,
+@Param {value:"command: The command to be executed. It should be one of run, docker, build, install, uninstall, pull,
 push, init, search, doc, grpc, swagger, test, version and encrypt"}
 @Param {value:"packageName: Name of the package"}
 @Return {value:"Data piped from the standard output and error output of the process"}
