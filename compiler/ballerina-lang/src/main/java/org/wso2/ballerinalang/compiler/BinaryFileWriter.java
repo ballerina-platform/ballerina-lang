@@ -19,15 +19,12 @@ package org.wso2.ballerinalang.compiler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
@@ -37,7 +34,6 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ServiceLoader;
@@ -60,10 +56,6 @@ public class BinaryFileWriter {
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
-    private SymbolTable symbolTable;
-    private final boolean listPackageDependencies;
-    private final boolean noWriteDisc;
-    private static PrintStream outStream = System.err;
 
     public static BinaryFileWriter getInstance(CompilerContext context) {
         BinaryFileWriter binaryFileWriter = context.get(BINARY_FILE_WRITER_KEY);
@@ -75,15 +67,8 @@ public class BinaryFileWriter {
 
     private BinaryFileWriter(CompilerContext context) {
         context.put(BINARY_FILE_WRITER_KEY, this);
-        symbolTable = SymbolTable.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
-        this.listPackageDependencies = Boolean.parseBoolean(CompilerOptions.getInstance(context)
-                                                                           .get(CompilerOptionName
-                                                                                        .LIST_PACKAGE_DEPENDENCIES));
-        this.noWriteDisc = Boolean.parseBoolean(CompilerOptions.getInstance(context)
-                                                               .get(CompilerOptionName
-                                                                            .NO_DISC_WRITE));
         if (this.sourceDirectory == null) {
             throw new IllegalArgumentException("source directory has not been initialized");
         }
@@ -94,23 +79,19 @@ public class BinaryFileWriter {
     }
 
     public void writeExecutableBinary(BLangPackage packageNode) {
-        Path path = this.sourceDirectory.getPath();
-        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
+        String fileName = getOutputFileName(packageNode, BLANG_EXEC_FILE_SUFFIX);
+        writeExecutableBinary(packageNode, fileName);
 
-        String prjPath = projectSourceRepo.getConverterInstance().toString();
-        if (!this.listPackageDependencies && !this.noWriteDisc) {
-            String fileName = getOutputFileName(packageNode, BLANG_EXEC_FILE_SUFFIX);
-            writeExecutableBinary(packageNode, fileName);
-            if (Files.isDirectory(path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
-                Patten packageIDPattern = projectSourceRepo.calculate(packageNode.packageID);
-                Stream<Path> pathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
-                pathStream = Stream.concat(pathStream, packageIDPattern.sibling(path("Ballerina.md")).convert
-                        (projectSourceRepo.getConverterInstance()));
-                ZipUtils.generateBalo(packageNode, prjPath, pathStream);
-            }
-        } else {
-            outStream.println(packageNode.packageID.bvmAlias() + ":" + packageNode.packageID.version + " " + prjPath);
-            outStream.println(DependencyTree.renderDependencyTree(packageNode, symbolTable, 0));
+        // Generate balo
+        Path path = this.sourceDirectory.getPath();
+        if (Files.isDirectory(path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
+            ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
+            Patten packageIDPattern = projectSourceRepo.calculate(packageNode.packageID);
+            Stream<Path> pathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
+            pathStream = Stream.concat(pathStream, packageIDPattern.sibling(path("Ballerina.md")).convert
+                    (projectSourceRepo.getConverterInstance()));
+            String prjPath = projectSourceRepo.getConverterInstance().toString();
+            ZipUtils.generateBalo(packageNode, prjPath, pathStream);
         }
     }
 

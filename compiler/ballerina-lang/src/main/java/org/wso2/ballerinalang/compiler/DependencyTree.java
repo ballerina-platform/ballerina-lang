@@ -4,7 +4,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +15,28 @@ import java.util.List;
  * Class to render the dependency tree.
  */
 public class DependencyTree {
+    private static final CompilerContext.Key<DependencyTree> DEPENDENCY_TREE_KEY =
+            new CompilerContext.Key<>();
+    private SymbolTable symbolTable;
+    private PrintStream outStream = System.out;
 
+    private DependencyTree(CompilerContext context) {
+        context.put(DEPENDENCY_TREE_KEY, this);
+        symbolTable = SymbolTable.getInstance(context);
+    }
+
+    public static DependencyTree getInstance(CompilerContext context) {
+        DependencyTree binaryFileWriter = context.get(DEPENDENCY_TREE_KEY);
+        if (binaryFileWriter == null) {
+            binaryFileWriter = new DependencyTree(context);
+        }
+        return binaryFileWriter;
+    }
+
+    public void listDependencyPackages(BLangPackage packageNode) {
+        outStream.println(packageNode.packageID.bvmAlias() + ":" + packageNode.packageID.version);
+        outStream.println(DependencyTree.renderDependencyTree(packageNode, symbolTable, 0));
+    }
     /**
      * Render dependency tree of package.
      *

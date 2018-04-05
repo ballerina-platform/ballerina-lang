@@ -42,8 +42,8 @@ public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
 
-    private boolean listPackageDependencies = true;
-    private boolean noDiscWrite = true;
+    private boolean listPkg = true;
+    private boolean write = false;
 
     private JCommander parentCmdParser;
 
@@ -77,7 +77,7 @@ public class ListCommand implements BLauncherCmd {
         if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
             Path packagePath = Paths.get(argList.get(0));
             BuilderUtils.compileAndWrite(sourceRootPath, packagePath, null, false, false,
-                                         listPackageDependencies, noDiscWrite);
+                                         listPkg, write);
         } else {
             throw new BLangCompilerException("Current directory is not a project");
         }

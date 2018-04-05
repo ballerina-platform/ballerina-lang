@@ -36,9 +36,9 @@ public enum CompilerOptionName {
 
     BUILD_COMPILED_PACKAGE("buildCompiledPackage"),
 
-    LIST_PACKAGE_DEPENDENCIES("listPackageDependencies"),
+    LIST_PKG("listPkg"),
 
-    NO_DISC_WRITE("noDiscWrite"),
+    WRITE("write"),
 
     TARGET_BINARY_PATH("targetBinaryPath");
 
