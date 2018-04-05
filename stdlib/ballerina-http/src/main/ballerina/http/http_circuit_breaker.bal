@@ -224,7 +224,7 @@ public type CircuitBreakerClient object {
     @Param { value:"promise: The Push Promise need to be rejected" }
     @Return { value:"Whether operation is successful" }
     public function rejectPromise (PushPromise promise) returns (boolean); 
-};
+}
 
 public function CircuitBreakerClient::post (string path, Request request) returns (Response | HttpConnectorError) {
    HttpClient httpClient = self.httpClient;

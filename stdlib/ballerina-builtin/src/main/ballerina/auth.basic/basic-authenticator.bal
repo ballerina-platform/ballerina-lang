@@ -30,11 +30,15 @@ public type BasicAuthenticator object {
         userstore:UserStore userStore;
         caching:Cache? authCache;
     }
-    public function (string username, string password) returns (boolean);
-    function authenticateFromCache(string basicAuthCacheKey) returns (boolean|());
-    function cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo)
+
     new (userStore, authCache) {
     }
+
+    public function authenticate(string username, string password) returns (boolean);
+
+    function authenticateFromCache(string basicAuthCacheKey) returns (boolean|());
+
+    function cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo);
 };
 
 @Description {value:"Represents an authentication decision about a user"}
@@ -43,7 +47,7 @@ public type BasicAuthenticator object {
 public type AuthenticationInfo {
    string username,
    boolean isAuthenticated,
-   string[] groups;
+   string[] groups,
 };
 
 @Description {value:"Creates a Basic Authenticator"}
