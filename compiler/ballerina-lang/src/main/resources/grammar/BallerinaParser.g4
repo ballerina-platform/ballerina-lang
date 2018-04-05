@@ -86,7 +86,8 @@ callableUnitSignature
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
+    :   (PUBLIC)? TYPE Identifier typeName
+    |   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
     ;
 
 objectBody
