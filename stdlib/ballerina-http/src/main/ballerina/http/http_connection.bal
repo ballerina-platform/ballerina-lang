@@ -17,9 +17,9 @@
 package ballerina.http;
 
 @Description {value:"Represent 'content-length' header name"}
-public const string CONTENT_LENGTH = "content-length";
+@final public string CONTENT_LENGTH = "content-length";
 
-const string HEADER_KEY_LOCATION = "Location";
+@final string HEADER_KEY_LOCATION = "Location";
 
 documentation {
     Represents HTTP connection which can be used to comminicate either with client or with other service.

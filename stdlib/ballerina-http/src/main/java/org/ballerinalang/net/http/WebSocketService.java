@@ -105,6 +105,11 @@ public class WebSocketService implements Service {
         return service.getServiceInfo();
     }
 
+    @Override
+    public String getPackageVersion() {
+        return null;
+    }
+
     public Resource getResourceByName(String resourceName) {
         return resourceMap.get(resourceName);
     }

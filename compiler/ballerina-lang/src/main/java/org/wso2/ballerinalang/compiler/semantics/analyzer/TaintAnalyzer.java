@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -255,6 +256,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangPackageDeclaration pkgDclNode) {
         /* ignore */
+    }
+
+    public void visit(BLangTypeDefinition typeDefinition) {
+        //TODO
     }
 
     public void visit(BLangImportPackage importPkgNode) {
