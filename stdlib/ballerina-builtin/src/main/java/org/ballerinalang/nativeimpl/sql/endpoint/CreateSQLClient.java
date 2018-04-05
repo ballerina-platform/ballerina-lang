@@ -49,7 +49,7 @@ public class CreateSQLClient extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
         //Extract parameters from the endpoint config
-        String database = clientEndpointConfig.getEnumField(Constants.EndpointConfig.DATABASE);
+        String database = clientEndpointConfig.getRefField(Constants.EndpointConfig.DATABASE).getStringValue();
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -63,6 +63,6 @@ public class CreateSQLClient extends BlockingNativeCallableUnit {
         BStruct sqlClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH,
                 Constants.SQL_CLIENT);
         sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
-        context.setReturnValues(datasource);
+        context.setReturnValues(sqlClient);
     }
 }
