@@ -263,14 +263,14 @@ function updateGenericMapWithNullValue (map m) returns (map) {
 
 type Person {
      string name,
-int age,
-string address;
-}
+    int age,
+    string address;
+};
 
 type Employee {
      string name,
-int age;
-}
+    int age;
+};
 
 function testStructConstrainedMapRuntimeCast () returns ((string, int)) {
     map<Person> testMap;
@@ -383,8 +383,8 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
 
 type Student {
      int index,
-int age;
-}
+    int age;
+};
 
 function testMapToStructConversion () returns ((int, int)) {
     map<int> testMap;
@@ -452,15 +452,15 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
 
 type PersonComplex {
      string name,
-int age,
-PersonComplex parent,
-json info,
-map<string> address,
-int[] marks,
-any a,
-float score,
-boolean alive;
-}
+    int age,
+    PersonComplex parent,
+    json info,
+    map<string> address,
+    int[] marks,
+    any a,
+    float score,
+    boolean alive;
+};
 
 function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
     json j = {name:"Child",
@@ -489,16 +489,16 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
 }
 
 type PersonComplexTwo {
-     string name,
-int age,
-PersonComplexTwo parent,
-json info,
-map<int> address,
-int[] marks,
-any a,
-float score,
-boolean alive;
-}
+    string name,
+    int age,
+    PersonComplexTwo parent,
+    json info,
+    map<int> address,
+    int[] marks,
+    any a,
+    float score,
+    boolean alive;
+};
 
 function testJsonToStructConversionStructWithConstrainedMapNegative () returns (PersonComplexTwo|error) {
     json j = {name:"Child",
@@ -584,34 +584,35 @@ function testMapConstrainedEquivalentMapInsert () returns (string, int) {
 }
 
 type Transaction {
-     string transactionId,
-string coordinationType,
-map<Participant> participants,
-Protocol[] coordinatorProtocols;
-}
+    string transactionId,
+    string coordinationType,
+    map<Participant> participants,
+    Protocol[] coordinatorProtocols;
+};
+
 type Participant {
-     string participantId,
-Protocol[] participantProtocols;
-}
+    string participantId,
+    Protocol[] participantProtocols;
+};
 
 
 
 type Protocol {
-     string name,
-string url,
-int transactionBlockId,
-(function (string transactionId,
-           int transactionBlockId,
-           string protocolAction) returns boolean)|() protocolFn;
-}
+    string name,
+    string url,
+    int transactionBlockId,
+    (function (string transactionId,
+               int transactionBlockId,
+               string protocolAction) returns boolean)|() protocolFn;
+};
 
 type TwoPhaseCommitTransaction {
-     string transactionId,
-string coordinationType,
-map<Participant> participants,
-Protocol[] coordinatorProtocols,
-boolean possibleMixedOutcome;
-}
+    string transactionId,
+    string coordinationType,
+    map<Participant> participants,
+    Protocol[] coordinatorProtocols,
+    boolean possibleMixedOutcome;
+};
 
 
 function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string) {

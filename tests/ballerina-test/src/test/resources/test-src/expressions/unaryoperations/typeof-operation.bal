@@ -226,13 +226,13 @@ function getType(any variable)returns (typedesc){
 type Person {
     string name,
     int age;
-}
+};
 
 type Animal {
     string name,
     int size,
     int age;
-}
+};
 
 function refTypeAccessTestMultiArrayNegativeCase() returns (int) {
     json[][][][][][][] jsonMulti = [];
@@ -451,11 +451,11 @@ function testTypeOfStructArray() returns (typedesc, typedesc, typedesc) {
 type Software {
     string name,
     string des;
-}
+};
 
 type Middleware {
     string name;
-}
+};
 
 function getTypePreserveWhenCast() returns (int){
     Software s = {name:"WSO2", des:"ESB"};

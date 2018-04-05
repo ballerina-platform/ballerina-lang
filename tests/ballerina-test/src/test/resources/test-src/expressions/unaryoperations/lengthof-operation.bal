@@ -122,7 +122,7 @@ function arrayLengthAccessTestStructFieldAccessCase (int x, int y) returns (int)
 type Person {
     string name;
     int[] days;
-}
+};
 
 function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
     json arr = [x,y,5,5,6,6];

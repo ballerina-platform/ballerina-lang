@@ -1,11 +1,11 @@
 type A {
     string x;
     int y;
-}
+};
 
 type B {
     string x;
-}
+};
 
 function testCastingWithTooManyReturns() {
     B b = {x: "x-valueof-b"};
