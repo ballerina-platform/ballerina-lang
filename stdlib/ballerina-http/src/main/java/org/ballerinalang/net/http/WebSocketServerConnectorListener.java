@@ -133,7 +133,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                             List<ParamDetail> paramDetails =
                                     onOpenResource.getParamDetails();
                             BValue[] bValues = new BValue[paramDetails.size()];
-                            bValues[0] = httpServiceEndpoint;
+                            bValues[0] = connectionManager
+                                    .getConnectionInfo(webSocketInitMessage.getSessionID()).getWebSocketEndpoint();
                             //TODO handle BallerinaConnectorException
                             Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null,
                                             bValues);
