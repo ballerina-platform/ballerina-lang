@@ -1,7 +1,7 @@
 import ballerina/sql;
 
-struct ResultCount {
-    int COUNTVAL;
+type ResultCount {
+    int COUNTVAL,
 }
 
 function testXAransactonSuccess () returns (int, int) {
@@ -34,16 +34,16 @@ function testXAransactonSuccess () returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 1 ",
+    table dt = check testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 1 ",
                                   null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 1", null, typeof ResultCount);
+    dt = check testDB2 -> select("Select COUNT(*) as countval from Salary where id = 1", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -86,16 +86,16 @@ function testXAransactonFailed1 () returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2", null,
+    table dt = check testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2", null,
                                   typeof ResultCount);
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
+    dt = check testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -135,18 +135,18 @@ function testXAransactonFailed2 () returns (int, int) {
 
     }
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2",
+    table dt = check testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2",
                                   null, typeof ResultCount);
     int count1;
     int count2;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
+    dt = check testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -193,19 +193,19 @@ function testXAransactonRetry () returns (int, int) {
     } catch (error e) {
     }
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 4",
+    table dt = check testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 4",
                                         null, typeof ResultCount);
     int count1;
     int count2;
 
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 4", null, typeof ResultCount);
+    dt = check testDB2 -> select("Select COUNT(*) as countval from Salary where id = 4", null, typeof ResultCount);
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();

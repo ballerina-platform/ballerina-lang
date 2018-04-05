@@ -34,7 +34,7 @@ function testSuccessScenario () returns (http:Response | http:HttpConnectorError
     http:Response clientResponse = {};
     http:HttpConnectorError err = {};
     http:Request request = {};
-    http:Failover foClient =? <http:Failover>backendClientEP.httpClient;
+    http:Failover foClient = check <http:Failover>backendClientEP.httpClient;
     MockClient mockClient1 = {serviceUri: "http://invalidEP"};
     MockClient mockClient2 = {serviceUri: "http://localhost:8080", config:{endpointTimeout:1000}};
     http:HttpClient[] httpClients = [mockClient1, mockClient2];
@@ -69,7 +69,7 @@ function testFailureScenario () returns (http:Response | http:HttpConnectorError
     http:Response clientResponse = {};
     http:HttpConnectorError err = {};
     http:Request request = {};
-    http:Failover foClient =? <http:Failover>backendClientEP.httpClient;
+    http:Failover foClient = check <http:Failover>backendClientEP.httpClient;
     MockClient mockClient1 = {serviceUri: "http://invalidEP"};
     MockClient mockClient2 = {serviceUri: "http://localhost:50000000", config:{endpointTimeout:1000}};
     http:HttpClient[] httpClients = [mockClient1, mockClient2];
@@ -90,13 +90,13 @@ function testFailureScenario () returns (http:Response | http:HttpConnectorError
     return err;
 }
 
-public struct MockClient {
+public type MockClient {
     string serviceUri;
     http:ClientEndpointConfiguration config;
 }
 
 public function <MockClient client> post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-    http:HttpConnectorError httpConnectorError = {};
+    http:HttpConnectorError httpConnectorError;
     httpConnectorError.message = "Unsupported fuction for MockClient";
     return httpConnectorError;
 }
