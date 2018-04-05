@@ -8,12 +8,12 @@ type Person {
     any a;
     float score;
     boolean alive;
-}
+};
 
 type Student {
     string name;
     int age;
-}
+};
 
 function testStructToStruct () returns (Student) {
     Person p = {name:"Supun",
@@ -40,7 +40,7 @@ function testComplexMapToJson () returns (json) {
 
 type Info {
     blob infoBlob;
-}
+};
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
     Info info = {};

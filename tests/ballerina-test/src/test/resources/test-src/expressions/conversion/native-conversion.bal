@@ -9,12 +9,12 @@ type Person {
     float score;
     boolean alive;
     Person[]|() children;
-}
+};
 
 type Student {
     string name;
     int age;
-}
+};
 
 function testStructToMap () returns (map) {
     Person p = {name:"Child",
@@ -162,7 +162,7 @@ type Employee {
     json info;
     map address;
     int[] marks;
-}
+};
 
 function testMapWithIncompatibleStructToStruct () returns (Employee) {
     int[] marks = [87, 94, 72];
@@ -277,7 +277,7 @@ function testJsonArrayToStruct () returns (Person) {
 
 type Info {
     map foo;
-}
+};
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
     blob b;
@@ -332,11 +332,11 @@ function testIncompatibleJsonToBoolean () returns (boolean) {
 type Address {
     string city;
     string country;
-}
+};
 
 type AnyArray {
     any[] a;
-}
+};
 
 function testJsonToAnyArray () returns (AnyArray) {
     json j = {a:[4, "Supun", 5.36, true, {lname:"Setunga"}, [4, 3, 7], null]};
@@ -346,7 +346,7 @@ function testJsonToAnyArray () returns (AnyArray) {
 
 type IntArray {
     int[] a;
-}
+};
 
 function testJsonToIntArray () returns (IntArray) {
     json j = {a:[4, 3, 9]};
@@ -357,7 +357,7 @@ function testJsonToIntArray () returns (IntArray) {
 
 type StringArray {
     string[] a;
-}
+};
 
 function testJsonToStringArray () returns (StringArray) {
     json j = {a:["a", "b", "c"]};
@@ -373,7 +373,7 @@ function testJsonIntArrayToStringArray () returns (StringArray) {
 
 type XmlArray {
     xml[] a;
-}
+};
 
 function testJsonToXmlArray () returns (XmlArray) {
     json j = {a:["a", "b", "c"]};
@@ -446,7 +446,7 @@ function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
 type PersonA {
     string name;
     int age;
-}
+};
 
 function JsonToStructWithErrors () returns (PersonA | error) {
     json j = {name:"supun"};
@@ -458,7 +458,7 @@ function JsonToStructWithErrors () returns (PersonA | error) {
 
 type PhoneBook {
     string[] names;
-}
+};
 
 function testStructWithStringArrayToJSON () returns (json) {
     PhoneBook phonebook = {names:["John", "Doe"]};
@@ -470,7 +470,7 @@ type person {
     string fname;
     string lname;
     int age;
-}
+};
 
 type movie {
     string title;
@@ -479,7 +479,7 @@ type movie {
     string[] genre;
     person[] writers;
     person[] actors;
-}
+};
 
 //function testStructToMapWithRefTypeArray () returns (map, int) {
 //    movie theRevenant = {title:"The Revenant",
@@ -505,7 +505,7 @@ type StructWithDefaults {
     boolean b = true;
     json j;
     blob blb;
-}
+};
 
 function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | error) {
     json j = {};
@@ -521,7 +521,7 @@ type StructWithoutDefaults {
     boolean b;
     json j;
     blob blb;
-}
+};
 
 function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults | error) {
     json j = {};
@@ -589,7 +589,7 @@ type ComplexArrayStruct{
     map[] e;
     PersonA[] f;
     json[] g;
-}
+};
 
 function structWithComplexArraysToJson() returns (json | error) {
     json g = {"foo":"bar"};

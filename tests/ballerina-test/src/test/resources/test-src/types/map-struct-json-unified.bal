@@ -7,7 +7,7 @@ type Person {
     json info;
     map address;
     int[] marks;
-}
+};
 
 function testMultiValuedStructInlineInit () returns (Person) {
     Person p1 = {name:"aaa", age:25,
