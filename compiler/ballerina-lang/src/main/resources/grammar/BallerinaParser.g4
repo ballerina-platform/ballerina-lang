@@ -610,6 +610,7 @@ expression
     |   awaitExpression                                                     # awaitExprExpression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
+    |   expression ELVIS expression                                         # elvisExpression
     ;
 
 awaitExpression
@@ -804,7 +805,7 @@ aggregationQuery
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
-    
+
 doneStatement
     :   DONE SEMICOLON
     ;

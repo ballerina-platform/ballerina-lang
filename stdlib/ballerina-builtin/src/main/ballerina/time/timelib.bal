@@ -23,11 +23,9 @@ public type TimeFormat "RFC_1123";
 @Description {value:"Ballerina Timezone struct represents the timezone information associated with a particular time."}
 @Field {value:"zoneId: Zone short ID or offset string."}
 @Field {value:"zoneOffset: The offset in seconds."}
-public type Timezone object {
-    public {
-        string zoneId;
-        int zoneOffset;
-    }
+public type Timezone {
+    string zoneId,
+    int zoneOffset,
 };
 
 @Description {value:"Ballerina Time struct represents a particular time with its associated timezone."}
