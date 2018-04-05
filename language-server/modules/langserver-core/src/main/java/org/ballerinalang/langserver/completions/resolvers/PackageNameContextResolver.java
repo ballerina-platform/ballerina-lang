@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -38,9 +37,8 @@ public class PackageNameContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        LSPackageCache lsPackageCache = completionContext.get(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY);
 
-        lsPackageCache.getPackageMap().entrySet().forEach(pkgEntry -> {
+        LSPackageCache.getInstance().getPackageMap().entrySet().forEach(pkgEntry -> {
             PackageID packageID = pkgEntry.getValue().packageID;
             String label = packageID.getOrgName().getValue() + "/" + packageID.getName().getValue();
             String insertText = label + ";";

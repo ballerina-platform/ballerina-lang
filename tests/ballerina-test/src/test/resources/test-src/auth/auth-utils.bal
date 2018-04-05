@@ -3,11 +3,11 @@ import ballerina/caching;
 import ballerina/http;
 import ballerina/mime;
 
-function testCreateDisabledBasicAuthCache () returns (caching:Cache|null) {
+function testCreateDisabledBasicAuthCache () returns (caching:Cache|()) {
     return utils:createCache("basic_auth_cache");
 }
 
-function testCreateAuthzCache () returns (caching:Cache|null) {
+function testCreateAuthzCache () returns (caching:Cache|()) {
     return utils:createCache("authz_cache");
 }
 
