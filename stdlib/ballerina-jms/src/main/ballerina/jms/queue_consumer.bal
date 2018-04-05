@@ -11,8 +11,8 @@ public type QueueConsumer object {
 
     public function init(QueueConsumerEndpointConfiguration config) {
         self.config = config;
-        SessionConnector sessionConnector = config.session.getClient();
-        createConsumer(sessionConnector);
+        Session session = config.session;
+        createConsumer(session);
         log:printInfo("Consumer created for queue " + config.queueName);
     }
 

@@ -14,8 +14,8 @@ public type QueueSender object {
 
     public function init(QueueSenderEndpointConfiguration config) {
         self.config = config;
-        SessionConnector sessionConnector = config.session.getClient();
-        self.initQueueSender(sessionConnector);
+        Session session = config.session;
+        self.initQueueSender(session);
     }
 
     public native function initQueueSender(SessionConnector connector);

@@ -6,30 +6,13 @@ public type Session object {
         SessionConfiguration config;
     }
 
-    new () {
-        self.connector = new ();
-    }
-
-    public function init(SessionConfiguration config) {
+    public new (SessionConfiguration config) {
         self.config = config;
-        ConnectionConnector connectionConnector = config.connection.getClient();
-        self.initEndpoint(connectionConnector);
+        Connection connection = config.connection;
+        self.initEndpoint(connection);
     }
 
-    public native function initEndpoint(ConnectionConnector connector);
-
-    public function register (typedesc serviceType) {
-    }
-
-    public function start () {
-    }
-
-    public function getClient () returns (SessionConnector) {
-        return self.connector;
-    }
-
-    public function stop () {
-    }
+    public native function initEndpoint(Connection);
 
     public native function createTextMessage (string content) returns (Message);
 }
