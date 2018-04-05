@@ -2,10 +2,8 @@ import ballerina/io;
 import ballerina/file;
 
 function main (string[] args) {
-    file:File target = {path:"/tmp/result.txt"};
-    target.open(args[0]);
-
-    io:ByteChannel bchannel = target.openChannel(args[0]);
+    file:Path target = file:getPath("/tmp/result.txt");
+    io:ByteChannel bchannel =? file:newByteChannel(target,args[0]);
     int intArg =? <int> args[0];
     
     var readOutput = bchannel.read(intArg);

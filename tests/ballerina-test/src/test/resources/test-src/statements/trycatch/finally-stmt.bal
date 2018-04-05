@@ -48,7 +48,7 @@ function test3() returns (string){
     return "Function end";
 }
 
-struct Test4Val {
+type Test4Val {
     string value;
 }
 

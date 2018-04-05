@@ -1,6 +1,7 @@
 // This is client implementation for server streaming scenario
 import ballerina/grpc;
 import ballerina/io;
+import ballerina/runtime;
 
 string[] responses = [];
 int total = 0;
@@ -24,10 +25,10 @@ function testServerStreaming (string name) returns (string[]) {
     }
 
     int wait = 0;
-    while(total < 2) {
+    while(total < 4) {
         runtime:sleepCurrentWorker(1000);
         io:println("msg count: " + total);
-        if (wait > 5) {
+        if (wait > 10) {
             break;
         }
         wait++;

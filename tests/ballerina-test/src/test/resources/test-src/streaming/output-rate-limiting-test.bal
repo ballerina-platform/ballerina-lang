@@ -17,13 +17,13 @@
 import ballerina/io;
 import ballerina/runtime;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string status;
 }
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;

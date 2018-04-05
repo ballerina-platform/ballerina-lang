@@ -24,8 +24,8 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
     mime:Entity filePart = {};
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
-    file:File fileHandler = {path:dirPath};
-    filePart.setFileAsEntityBody(fileHandler);
+    file:Path filePath = file:getPath(dirPath);
+    filePart.setFileAsEntityBody(filePath);
     mime:Entity[] bodyParts = [filePart];
 
     http:Request req = {};

@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* documentationAttachment? deprecatedAttachment? definition)*
+        (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -38,10 +38,7 @@ orgName
 definition
     :   serviceDefinition
     |   functionDefinition
-    |   structDefinition
     |   typeDefinition
-    |   enumDefinition
-    |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
@@ -88,20 +85,9 @@ callableUnitSignature
     :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
-structDefinition
-    :   (PUBLIC)? STRUCT Identifier structBody
-    ;
-
-structBody
-    :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
-    ;
-
-privateStructBody
-    :   PRIVATE COLON fieldDefinition*
-    ;
-
 typeDefinition
-    :   (PUBLIC)? TYPE_TYPE Identifier typeName
+    :   (PUBLIC)? TYPE Identifier typeName
+    |   (PUBLIC)? TYPE Identifier finiteType
     ;
 
 objectBody
@@ -109,11 +95,11 @@ objectBody
     ;
 
 publicObjectFields
-    :   PUBLIC LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    :   PUBLIC LEFT_BRACE fieldDefinition* RIGHT_BRACE
     ;
 
 privateObjectFields
-    :   PRIVATE LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    :   PRIVATE LEFT_BRACE fieldDefinition* RIGHT_BRACE
     ;
 
 objectInitializer
@@ -129,8 +115,8 @@ objectFunctions
     ;
 
 // TODO merge with fieldDefinition later
-objectFieldDefinition
-    :   typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+fieldDefinition
+    :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -164,33 +150,20 @@ annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
-enumDefinition
-    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumerator (COMMA enumerator)* RIGHT_BRACE
-    ;
-
-enumerator
-    : Identifier
-    ;
-
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
      : SERVICE
      | RESOURCE
      | FUNCTION
-     | STRUCT
-     | ENUM
+     | OBJECT
+     | TYPE
      | ENDPOINT
-     | CONST
      | PARAMETER
      | ANNOTATION
      ;
-
-constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
-    ;
 
 workerDeclaration
     :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
@@ -217,6 +190,15 @@ endpointInitlization
     |   ASSIGN variableReference
     ;
 
+finiteType
+    :  finiteTypeUnit (PIPE finiteTypeUnit)*
+    ;
+
+finiteTypeUnit
+    :   simpleLiteral
+    |   typeName
+    ;
+
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
@@ -229,13 +211,12 @@ typeName
     ;
 
 fieldDefinitionList
-    :   objectFieldDefinition*
+    :   fieldDefinition*
     ;
 
 // Temporary production rule name
 simpleTypeName
-    :   NullLiteral
-    |   TYPE_ANY
+    :   TYPE_ANY
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -253,15 +234,10 @@ builtInTypeName
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
-    |   anonStructTypeName
     ;
 
 userDefineTypeName
     :   nameReference
-    ;
-
-anonStructTypeName
-    : STRUCT structBody
     ;
 
 valueTypeName
@@ -326,10 +302,11 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
+    |   doneStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -363,7 +340,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReference (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 tupleDestructuringStatement
@@ -512,7 +489,7 @@ variableReference
     ;
 
 field
-    : DOT (Identifier | MUL)
+    : (DOT | NOT) (Identifier | MUL)
     ;
 
 index
@@ -692,10 +669,6 @@ formalParameterList
     |   restParameter
     ;
 
-fieldDefinition
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
-    ;
-
 simpleLiteral
     :   (SUB)? integerLiteral
     |   (SUB)? FloatingPointLiteral
@@ -831,6 +804,10 @@ aggregationQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+    ;
+    
+doneStatement
+    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

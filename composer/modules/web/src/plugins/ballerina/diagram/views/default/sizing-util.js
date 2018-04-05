@@ -409,6 +409,8 @@ class SizingUtil {
                 // add the endpoint width to panel body width.
                 endpointWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                 endpoint.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                endpoint.viewState.endpointIdentifier =
+                    this.getTextWidth(endpoint.getName().value, 0, endpointWidth).text;
             });
         }
 
@@ -1036,23 +1038,23 @@ class SizingUtil {
 
 
     /**
-     * Calculate dimention of XmlTextLiteral nodes.
+     * Calculate dimention of MatchExpression nodes.
      *
      * @param {object} node
      *
      */
-    sizeXmlTextLiteralNode(node) {
+    sizeMatchExpressionNode(node) {
         // Not implemented.
     }
 
 
     /**
-     * Calculate dimention of XmlCommentLiteral nodes.
+     * Calculate dimention of MatchExpressionPatternClause nodes.
      *
      * @param {object} node
      *
      */
-    sizeXmlCommentLiteralNode(node) {
+    sizeMatchExpressionPatternClauseNode(node) {
         // Not implemented.
     }
 
@@ -1322,6 +1324,44 @@ class SizingUtil {
             node.viewState.isLastPathLine = true;
         }
     }
+
+    /**
+     * Calculate dimention of Match nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeMatchNode(node) {
+        let height = this.config.statement.height;
+        let width = 0;
+
+        node.patternClauses.forEach((element) => {
+            height += element.viewState.bBox.h;
+            if (width < element.viewState.bBox.w) {
+                width = element.viewState.bBox.w;
+            }
+        });
+
+        node.viewState.components['left-margin'] = {
+            w: this.config.compoundStatement.gap.left,
+        };
+
+        node.viewState.bBox.h = height;
+        node.viewState.bBox.w = width;
+    }
+
+
+    /**
+     * Calculate dimention of MatchPatternClause nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeMatchPatternClauseNode(node) {
+        node.viewState.bBox.h = node.statement.viewState.bBox.h + this.config.statement.height;
+        node.viewState.bBox.w = node.statement.viewState.bBox.w;
+    }
+
 
     /**
      * Calculate dimention of Reply nodes.
@@ -1620,9 +1660,7 @@ class SizingUtil {
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
             viewState.alias = 'ClientResponderNode';
             if (TreeUtil.isReturn(node)) {
-                const paramText = node.expressions.map((exp) => {
-                    return exp.getSource(true);
-                }).join(', ');
+                const paramText = node.expression.getSource(true);
                 const displayText = this.getTextWidth(paramText, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;

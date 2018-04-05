@@ -36,6 +36,8 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
+import org.ballerinalang.nativeimpl.util.Base64Wrapper;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -50,6 +52,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -58,12 +61,11 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_FILE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
@@ -128,38 +130,81 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "application/test+xml; charset=utf-8");
     }
 
-    @Test(description = "Test 'testMimeBase64Encode' function in ballerina.mime package")
-    public void testMimeBase64Encode() {
-        BBlob blob = new BBlob("a".getBytes());
-        BValue[] args = {blob};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64Encode", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "YQ==");
-    }
-
-    @Test(description = "Test 'testMimeBase64EncodeString' function in ballerina.mime package")
+    @Test
     public void testMimeBase64EncodeString() {
-        BValue[] args = {new BString("Ballerina"), new BString("utf-8")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64EncodeString", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "QmFsbGVyaW5h");
+        String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
+        BValue[] args = new BValue[]{new BString("Hello Ballerina")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeString", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
-    @Test(description = "Test 'testMimeBase64Decode' function in ballerina.mime package")
-    public void testMimeBase64Decode() {
-        BBlob blob = new BBlob("YQ==".getBytes());
-        BValue[] args = {blob};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64Decode", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "a");
+    @Test
+    public void testMimeBase64EncodeBlob() {
+        String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
+        BValue[] args = new BValue[]{new BBlob("Hello Ballerina".getBytes())};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeBlob", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
-    @Test(description = "Test 'testMimeBase64DecodeString' function in ballerina.mime package")
-    public void testMimeBase64DecodeString() {
-        BValue[] args = {new BString("QmFsbGVyaW5h"), new BString("utf-8")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMimeBase64DecodeString", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    @Test
+    public void testMimeBase64EncodeByteChannel() throws IOException, URISyntaxException {
+        String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
+        BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+        InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
+        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
+        BValue[] args = new BValue[]{byteChannelStruct};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeByteChannel", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        BStruct decodedByteChannel = (BStruct) returnValues[0];
+        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
+                expectedValue);
+    }
+
+    @Test
+    public void testMimeBase64DecodeString() throws IOException, URISyntaxException {
+        String expectedValue = "Hello Ballerina";
+        BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeString", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+        Assert.assertFalse(returnValues[0] == null, "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testMimeBase64DecodeBlob() {
+        String expectedValue = "Hello Ballerina";
+        BValue[] args = new BValue[]{new BBlob("SGVsbG8gQmFsbGVyaW5h".getBytes())};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeBlob", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+    }
+
+    @Test
+    public void testMimeBase64DecodeByteChannel() throws IOException, URISyntaxException {
+        String expectedValue = "Hello Ballerina!";
+        BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+        byte[] encodedByteArray = Base64.getMimeEncoder().encode(expectedValue.getBytes());
+        InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
+        Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
+        BValue[] args = new BValue[]{byteChannelStruct};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeByteChannel", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
+                "Invalid return value");
+        BStruct decodedByteChannel = (BStruct) returnValues[0];
+        Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
+                expectedValue);
     }
 
     @Test(description = "Set json data to entity and get the content back from entity as json")
@@ -248,10 +293,10 @@ public class MimeUtilityFunctionTest {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
-            BStruct fileStruct = BCompileUtil
+      /*      BStruct fileStruct = BCompileUtil
                     .createAndGetStruct(compileResult.getProgFile(), PROTOCOL_PACKAGE_FILE, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());
-            BValue[] args = {fileStruct};
+            fileStruct.setStringField(0, file.getAbsolutePath());*/
+            BValue[] args = {new BString(file.getAbsolutePath())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",

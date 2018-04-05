@@ -17,13 +17,13 @@
 package ballerina.runtime;
 
 @Description { value:"Represents the InvocationContext"}
-public struct InvocationContext {
+public type InvocationContext {
     string invocationId;
     AuthenticationContext authenticationContext;
 }
 
 @Description { value:"Represents the AuthenticationContext, populated with authenticated user information"}
-public struct AuthenticationContext {
+public type AuthenticationContext {
     string userId;
     string username;
     string[] groups;

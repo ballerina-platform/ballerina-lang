@@ -30,7 +30,7 @@ function foo (int a, string b, boolean c) returns (string) {
     return a + b + c;
 }
 
-struct Person {
+type Person {
     string name;
     string location;
 }
