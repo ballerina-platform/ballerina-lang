@@ -1611,7 +1611,7 @@
         <libthrift.version>0.10.0</libthrift.version>
         <okhttp.version>3.9.1</okhttp.version>
         <okio.version>1.13.0</okio.version>
-        <micrometer.version>1.0.2</micrometer.version>
+        <micrometer.version>1.0.3</micrometer.version>
         <hdrhistogram.version>2.1.10</hdrhistogram.version>
         <latencyutils.version>2.0.3</latencyutils.version>
         <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
