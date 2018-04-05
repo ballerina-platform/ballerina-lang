@@ -119,8 +119,7 @@ public type Socket object {
 documentation {
     SocketProperties structs represents the properties which are used to configure TCP connection.
 }
-public type SocketProperties object{
-    public {
+public type SocketProperties {
         int localPort;
         string keyStoreFile;
         string keyStorePassword;
@@ -130,7 +129,6 @@ public type SocketProperties object{
         string sslEnabledProtocols;
         string ciphers;
         string sslProtocol;
-    }
 }
 
 @Description {value:"Opens a byte channel from a specified file location"}
