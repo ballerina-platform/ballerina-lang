@@ -1064,7 +1064,6 @@
                 <module>tests/ballerina-test-compiler-plugins</module>
                 <module>cli/ballerina-cli-utils</module>
 
-                <module>cli/ballerina-cli-utils</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
