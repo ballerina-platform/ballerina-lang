@@ -151,7 +151,7 @@ annotationDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -216,8 +216,7 @@ fieldDefinitionList
 
 // Temporary production rule name
 simpleTypeName
-    :   NullLiteral
-    |   TYPE_ANY
+    :   TYPE_ANY
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -307,7 +306,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -341,7 +340,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReference (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 tupleDestructuringStatement
