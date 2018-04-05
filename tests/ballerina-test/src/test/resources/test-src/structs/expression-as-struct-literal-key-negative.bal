@@ -1,4 +1,4 @@
-struct Department {
+type Department {
     string dptName;
     boolean y;
 }

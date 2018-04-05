@@ -35,7 +35,7 @@ function tableReturnFunction () returns (table) {
     return tb;
 }
 
-struct Employee {
+type Employee {
     int id;
     string name;
 }
@@ -58,7 +58,7 @@ function anyInStructTest() returns (any) {
   return sample.val;
 }
 
-struct Sample {
+type Sample {
   int i;
   any val;
   string msg;

@@ -29,8 +29,8 @@ import ballerina/io;
 @final string WEAK_VALIDATOR_TAG = "W/";
 @final int STALE = 0;
 
-@final public string CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
-@final public string RFC_7234 = "RFC_7234";
+public type CACHE_CONTROL_AND_VALIDATORS "CACHE_CONTROL_AND_VALIDATORS"
+public type RFC_7234 "RFC_7234"
 
 @Description {value:"Used for configuring the caching behaviour. Setting the policy field in the CacheConfig struct allows the user to control the caching behaviour."}
 @Field {value:"CACHE_CONTROL_AND_VALIDATORS: This a more restricted mode of RFC 7234. This restricts caching to instances where the Cache-Control header and either the ETag or Last-Modified header are present."}
