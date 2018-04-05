@@ -25,13 +25,13 @@ function main (string[] args) {
         //the returned values from the workers.
 
         // Get values received from worker 'w1'.
-        any[] resW1 =? <any[]>results["w1"];
-        int iW1 =? <int>resW1[0];
+        any[] resW1 = check <any[]>results["w1"];
+        int iW1 = check <int>resW1[0];
         string sW1 = <string>resW1[1];
         io:println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
         // Get values received from worker 'w2'.
-        any[] resW2 =? <any[]>results["w2"];
-        float fW2 =? <float>resW2[0];
+        any[] resW2 = check <any[]>results["w2"];
+        float fW2 = check <float>resW2[0];
         io:println("[join-block] fW2: " + fW2);
     }
 }

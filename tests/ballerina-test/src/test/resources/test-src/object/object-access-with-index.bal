@@ -112,7 +112,8 @@ function testDefaultVal () returns (string, string, int) {
 function testNestedFieldDefaultVal () returns (string, string, int) {
     Department dpt = new ([]);
     dpt["employees"] = [];
-    dpt["employees"][0] = {lname:"Smith"};
+    dpt["employees"][0]= new Person();
+    dpt["employees"][0]["lname"] = "Smith";
     return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
 }
 
