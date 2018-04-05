@@ -97,29 +97,20 @@ public function RequestLimits::RequestLimits() {
 @Field {value:"keepAlive: The keepAlive behaviour of the connection for a particular port"}
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
-@Field {value:"ssl: The SSL configurations for the service endpoint"}
+@Field {value:"secureSocket: The SSL configurations for the service endpoint"}
 @Field {value:"httpVersion: Highest HTTP version supported"}
 @Field {value:"requestLimits: Request validation limits configuration"}
 @Field {value:"filters: Filters to be applied to the request before dispatched to the actual resource"}
-public type ServiceEndpointConfiguration object {
-    public {
-        string host;
-        int port;
-        KeepAlive keepAlive;
-        TransferEncoding|null transferEncoding;
-        Chunking chunking;
-        ServiceSecureSocket|null secureSocket;
-        string httpVersion;
-        RequestLimits|null requestLimits;
-        Filter[] filters;
-    }
-    new () {
-        keepAlive = KeepAlive.AUTO;
-        chunking = Chunking.AUTO;
-        transferEncoding = TransferEncoding.CHUNKING;
-        httpVersion = "1.1";
-        port = 9090;
-    }
+public type ServiceEndpointConfiguration {
+    string host,
+    int port = 9090,
+    KeepAlive keepAlive = "AUTO",
+    TransferEncoding transferEncoding = "CHUNKING",
+    Chunking chunking = "AUTO",
+    ServiceSecureSocket? secureSocket,
+    string httpVersion = "1.1",
+    RequestLimits? requestLimits,
+    Filter[] filters
 }
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
@@ -131,20 +122,15 @@ public type ServiceEndpointConfiguration object {
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
 @Field {value:"sessionCreation: Enable/disable new ssl session creation"}
 @Field {value:"ocspStapling: Enable/disable ocsp stapling"}
-public type ServiceSecureSocket object {
-    public {
-        TrustStore|null trustStore;
-        KeyStore|null keyStore;
-        Protocols|null protocols;
-        ValidateCert|null validateCert;
-        string ciphers;
-        string sslVerifyClient;
-        boolean sessionCreation;
-        ServiceOcspStapling|null ocspStapling;
-    }
-    new () {
-        sessionCreation = true;
-    }
+public type ServiceSecureSocket {
+    TrustStore? trustStore,
+    KeyStore? keyStore,
+    Protocols? protocols,
+    ValidateCert? validateCert,
+    string ciphers,
+    string sslVerifyClient,
+    boolean sessionCreation = true,
+    ServiceOcspStapling? ocspStapling
 }
 
 public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
