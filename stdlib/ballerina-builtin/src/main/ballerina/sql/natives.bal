@@ -22,7 +22,7 @@ package ballerina.sql;
 @Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
 @Field {value:"structType: In case of OUT direction, if the sqlType is REFCURSOR, this represents the struct type to
 map a result row"}
-public struct Parameter {
+public type Parameter {
 	Type sqlType;
 	any value;
 	Direction direction;
@@ -51,7 +51,7 @@ public struct Parameter {
 @Field {value:"validationTimeout:  Maximum amount of time that a connection will be tested for aliveness"}
 @Field {value:"leakDetectionThreshold: Amount of time that a connection can be out of the pool before a message is logged indicating a possible connection leak"}
 @Field {value:"datasourceProperties: Data source specific properties which are used along with the dataSourceClassName"}
-public struct ConnectionProperties {
+public type ConnectionProperties {
 	string url = "";
 	string dataSourceClassName = "";
 	string connectionTestQuery = "";
@@ -100,37 +100,38 @@ public function <ConnectionProperties c> ConnectionProperties () {
 	c.datasourceProperties = {};
 }
 
+@Description {value:"MYSQL: MySQL DB with connection url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
+public type MYSQL "MYSQL";
+@Description {value:"SQLSERVER: SQL Server DB with connection url in the format of jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
+public type SQLSERVER "SQLSERVER";
+@Description {value:"ORACLE: Oracle DB with connection url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
+public type ORACLE "ORACLE";
+@Description {value:"SYBASE: Sybase DB with connection url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
+public type SYBASE "SYBASE";
+@Description {value:"POSTGRES: PostgreSQL DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
+public type POSTGRES "POSTGRES";
+@Description {value:"IBMDB2: IBMDB2 DB with connection url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
+public type IBMDB2 "IBMDB2";
+@Description {value:"HSQLDB_SERVER: HSQL Server with connection url in the format of jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
+public type HSQLDB_SERVER "HSQLDB_SERVER";
+@Description {value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
+public type HSQLDB_FILE "HSQLDB_FILE";
+@Description {value:"H2_SERVER: H2 Server DB with connection url in the format of jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
+public type H2_SERVER "H2_SERVER";
+@Description {value:"H2_FILE: H2 File DB with connection url in the format of jdbc:h2:file://[path]/[database]"}
+public type H2_FILE "H2_FILE";
+@Description {value:"H2_MEM: H2 in memory DB with connection url in the format of jdbc:h2:mem:[database]"}
+public type H2_MEM "H2_MEM";
+@Description {value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
+public type DERBY_SERVER "DERBY_SERVER";
+@Description {value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
+public type DERBY_FILE "DERBY_FILE";
+@Description {value:"GENERIC: Custom DB connection with given connection url"}
+public type GENERIC "GENERIC";
+
 @Description {value:"The Databases which has direct parameter support."}
-@Field {value:"MYSQL: MySQL DB with connection url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
-@Field {value:"SQLSERVER: SQL Server DB with connection url in the format of jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
-@Field {value:"ORACLE: Oracle DB with connection url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
-@Field {value:"SYBASE: Sybase DB with connection url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
-@Field {value:"POSTGRES: PostgreSQL DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
-@Field {value:"IBMDB2: IBMDB2 DB with connection url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
-@Field {value:"HSQLDB_SERVER: HSQL Server with connection url in the format of jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
-@Field {value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
-@Field {value:"H2_SERVER: H2 Server DB with connection url in the format of jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
-@Field {value:"H2_FILE: H2 File DB with connection url in the format of jdbc:h2:file://[path]/[database]"}
-@Field {value:"H2_MEM: H2 in memory DB with connection url in the format of jdbc:h2:mem:[database]"}
-@Field {value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
-@Field {value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
-@Field {value:"GENERIC: Custom DB connection with given connection url"}
-public enum DB {
-	MYSQL,
-	SQLSERVER,
-	ORACLE,
-	SYBASE,
-	POSTGRES,
-	IBMDB2,
-	HSQLDB_SERVER,
-	HSQLDB_FILE,
-	H2_SERVER,
-	H2_FILE,
-	H2_MEM,
-	DERBY_SERVER,
-	DERBY_FILE,
-	GENERIC
-}
+public type DB MYSQL|SQLSERVER|ORACLE|SYBASE|POSTGRES|IBMDB2|HSQLDB_SERVER|HSQLDB_FILE|H2_SERVER|H2_FILE|H2_MEM
+|DERBY_SERVER|DERBY_FILE|GENERIC;
 
 @Description {value:"The SQL Datatype of the parameter"}
 @Field {value:"VARCHAR: Small, variable-length character string"}
@@ -216,7 +217,7 @@ public enum Direction {
 @Field {value:"username: Username for the database connection"}
 @Field {value:"password: Password for the database connection"}
 @Field {value:"options: ConnectionProperties for the connection pool configuration"}
-public struct ClientConnector {
+public type ClientConnector object {
 	DB dbType;
 	string hostOrPath;
 	int port;
@@ -277,7 +278,7 @@ public native function <ClientConnector client> updateWithGeneratedKeys (@sensit
 @Description { value:"SQLConnectorError struct represents an error occured during the SQL client invocation" }
 @Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error(s) that caused SQLConnectorError to get thrown"}
-public struct SQLConnectorError {
+public type SQLConnectorError {
     string message;
     error[] cause;
 }
@@ -286,12 +287,12 @@ public struct SQLConnectorError {
 // SQL Client Endpoint
 ///////////////////////////////
 
-public struct Client {
+public type Client object {
 	string epName;
 	ClientEndpointConfiguration config;
 }
 
-public struct ClientEndpointConfiguration {
+public type ClientEndpointConfiguration object {
 	DB database;
 	string host = "";
 	int port = 0;
