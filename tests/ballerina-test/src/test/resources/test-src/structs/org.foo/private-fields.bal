@@ -1,6 +1,6 @@
 package org.foo;
 
-public struct userFoo {
+public type userFoo {
     int age;
     string name;
     string address;
@@ -15,14 +15,14 @@ public function <userFoo u> getAge() returns (int) {
     return u.age;
 }
 
-public struct user {
+public type user {
     int age;
     string name;
     string address;
     string zipcode = "23468";
 }
 
-public struct person {
+public type person {
     int age;
     string name;
     private:
@@ -30,7 +30,7 @@ public struct person {
         int id;
 }
 
-struct student {
+type student {
     int age;
     string name;
     private:

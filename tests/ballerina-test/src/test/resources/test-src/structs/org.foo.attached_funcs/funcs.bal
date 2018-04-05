@@ -1,7 +1,7 @@
 package org.foo.attached_funcs;
 
 
-public struct user {
+public type user {
     int age;
     string name;
     string address;
@@ -18,7 +18,7 @@ function <user u> getAge() returns (int) {
 
 
 
-public struct person {
+public type person {
     int age;
     string name;
     string address;
@@ -45,7 +45,7 @@ public function <person p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public struct employee {
+public type employee {
     int age;
     string name;
     string address;
