@@ -15,21 +15,48 @@
 // under the License.
 package ballerina.grpc;
 
-@Description {value:"Represents the gRPC client connector"}
-@Field {value:"epName: connector endpoint identifier"}
+@Description {value:"Represents the gRPC client endpoint"}
 @Field {value:"config: gRPC client endpoint configuration"}
-public struct Client {
-    ClientEndpointConfiguration config;
+public type Client object {
+    public {
+        ClientEndpointConfiguration config;
+    }
+
+    @Description { value:"Gets called when the endpoint is being initialize during package init time"}
+    @Param { value:"epName: The endpoint name" }
+    @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
+    @Return { value:"Error occured during initialization" }
+    public function init (ClientEndpointConfiguration config) {
+        self.config = config;
+        self.initEndpoint();
+    }
+
+    public native function initEndpoint();
+
+    @Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package
+    init time. not supported in client connector"}
+    @Param { value:"serviceType: The type of the service to be registered" }
+    public native function register (typedesc serviceType);
+
+    @Description { value:"Starts the registered service"}
+    public native function start ();
+
+    @Description { value:"Stops the registered service"}
+    public native function stop();
+
+    @Description { value:"Returns the client connection that servicestub code uses"}
+    @Return { value:"client connection that servicestub code uses" }
+    public native function getClient() returns (ClientConnection);
 }
 
 @Description {value:"Represents the gRPC client endpoint configuration"}
 @Field {value:"host: The server hostname"}
 @Field {value:"port: The server port"}
 @Field {value:"ssl: The SSL configurations for the client endpoint"}
-public struct ClientEndpointConfiguration {
-    string host;
-    int port;
-    SSL ssl;
+public type ClientEndpointConfiguration {
+        string host,
+        int port,
+        SSL ssl
 }
 
 @Description { value:"SSL struct represents SSL/TLS options to be used for client invocation" }
@@ -44,51 +71,22 @@ public struct ClientEndpointConfiguration {
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-public struct SSL {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
-    string sslVerifyClient;
-    string ciphers;
-    string certPassword;
-    string tlsStoreType;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    int cacheSize;
-    int cacheValidityPeriod;
-    boolean hostNameVerificationEnabled;
+public type SSL {
+        string trustStoreFile,
+        string trustStorePassword,
+        string keyStoreFile,
+        string keyStorePassword,
+        string sslEnabledProtocols,
+        string sslVerifyClient,
+        string ciphers,
+        string certPassword,
+        string tlsStoreType,
+        string sslProtocol,
+        boolean validateCertEnabled,
+        int cacheSize,
+        int cacheValidityPeriod,
+        boolean hostNameVerificationEnabled
 }
-
-@Description { value:"Gets called when the endpoint is being initialize during package init time"}
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-@Return { value:"Error occured during initialization" }
-public function <Client ep> init (ClientEndpointConfiguration config) {
-    ep.config = config;
-    ep.initEndpoint();
-}
-
-public native function<Client ep> initEndpoint();
-
-@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package
-init time. not supported in client connector"}
-@Param { value:"serviceType: The type of the service to be registered" }
-@Return { value:"Error occured during registration" }
-public native function <Client ep> register (typedesc serviceType);
-
-@Description { value:"Starts the registered service"}
-@Return { value:"Error occured during registration" }
-public native function <Client ep> start ();
-
-@Description { value:"Stops the registered service"}
-@Return { value:"Error occured during registration" }
-public native function <Client ep> stop();
-
-@Description { value:"Returns the client sub that servicestub code uses"}
-@Return { value:"client sub that servicestub code uses" }
-public native function <Client ep> getClient() returns (ClientConnection);
 
 public struct Listener {
 }
