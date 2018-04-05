@@ -20,9 +20,9 @@ import ballerina/log;
 import ballerina/time;
 import ballerina/io;
 
-@final CircuitState OPEN_STATE = "OPEN";
-@final CircuitState HALF_OPEN_STATE = "HALF_OPEN";
-@final CircuitState CLOSED_STATE = "CLOSED";
+type OPEN_STATE "OPEN"
+type HALF_OPEN_STATE "HALF_OPEN"
+type CLOSED_STATE "CLOSED"
 
 documentation {
     Represents Circuit Breaker circuit state.
