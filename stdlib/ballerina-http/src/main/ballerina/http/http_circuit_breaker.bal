@@ -20,18 +20,14 @@ import ballerina/log;
 import ballerina/time;
 import ballerina/io;
 
-@final CircuitState OPEN_STATE = "OPEN";
-@final CircuitState HALF_OPEN_STATE = "HALF_OPEN";
-@final CircuitState CLOSED_STATE = "CLOSED";
-
 documentation {
     Represents Circuit Breaker circuit state.
-
-    F{{OPEN}}  - circuit state OPEN.
-    F{{CLOSED}} - circuit state CLOSED.
-    F{{HALF_OPEN}} - circuit state HALF_OPEN.
 }
-public type CircuitState OPEN_STATE | HALF_OPEN_STATE | CLOSED_STATE
+public type CircuitState "OPEN" | "HALF_OPEN" | "CLOSED";
+
+@final public CircuitState CB_OPEN_STATE = "OPEN";
+@final public CircuitState CB_HALF_OPEN_STATE = "HALF_OPEN";
+@final public CircuitState CB_CLOSED_STATE = "CLOSED";
 
 documentation {
     Represents Circuit health of the Circuit Breaker.
@@ -51,7 +47,7 @@ public type CircuitHealth {
    time:Time lastErrorTime,
    Bucket[] totalBuckets,
    int lastUsedBucketId,
-}
+};
 
 documentation {
     Represents Circuit Breaker configuration.
@@ -66,7 +62,7 @@ public type CircuitBreakerConfig {
     float failureThreshold,
     int resetTimeout,
     int[] statusCodes,
-}
+};
 
 documentation {
     Represents Circuit Breaker rolling window configuration.
@@ -77,7 +73,7 @@ documentation {
 public type RollingWindow {
     int timeWindow,
     int bucketSize,
-}
+};
 
 documentation {
     Represents Circuit Breaker sub window (Bucket).
@@ -88,7 +84,7 @@ documentation {
 public type Bucket {
     int successCount,
     int failureCount,
-}
+};
 
 public type CircuitBreakerInferredConfig {
    float failureThreshold,
@@ -96,7 +92,7 @@ public type CircuitBreakerInferredConfig {
    boolean[] statusCodes,
    int noOfBuckets,
    RollingWindow rollingWindow,
-}
+};
 
 documentation {
     Represents an HTTP Circuit Breaker client to be used with the HTTP client connector to gracefully handle network errors.
@@ -126,7 +122,7 @@ public type CircuitBreakerClient object {
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
         self.httpClient = httpClient;
         self.circuitHealth = circuitHealth;
-        self.currentCircuitState = CLOSED_STATE;
+        self.currentCircuitState = CB_CLOSED_STATE;
     }
 
     @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
@@ -228,16 +224,16 @@ public type CircuitBreakerClient object {
     @Param { value:"promise: The Push Promise need to be rejected" }
     @Return { value:"Whether operation is successful" }
     public function rejectPromise (PushPromise promise) returns (boolean); 
-}
+};
 
 public function CircuitBreakerClient::post (string path, Request request) returns (Response | HttpConnectorError) {
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -259,10 +255,10 @@ public function CircuitBreakerClient::head (string path, Request request) return
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -284,10 +280,10 @@ public function CircuitBreakerClient::put (string path, Request request) returns
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -315,10 +311,10 @@ public function CircuitBreakerClient::execute (string httpVerb, string path, Req
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -345,10 +341,10 @@ public function CircuitBreakerClient::patch (string path, Request request) retur
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -375,10 +371,10 @@ public function CircuitBreakerClient::delete (string path, Request request) retu
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -405,10 +401,10 @@ public function CircuitBreakerClient::get (string path, Request request) returns
     HttpClient httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-    Response response = {};
-    HttpConnectorError httpConnectorError = {};
+    Response response;
+    HttpConnectorError httpConnectorError;
 
-    if (self.currentCircuitState == OPEN_STATE) {
+    if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
         return httpConnectorError;
@@ -435,10 +431,10 @@ public function CircuitBreakerClient::options (string path, Request request) ret
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -465,10 +461,10 @@ public function CircuitBreakerClient::forward (string path, Request request) ret
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = {};
-   HttpConnectorError httpConnectorError = {};
+   Response response;
+   HttpConnectorError httpConnectorError;
 
-   if (self.currentCircuitState == OPEN_STATE) {
+   if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
        return httpConnectorError;
@@ -493,7 +489,7 @@ public function CircuitBreakerClient::forward (string path, Request request) ret
 @Return { value:"The Handle for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {};
+   HttpConnectorError httpConnectorError;
    httpConnectorError.message = "Unsupported action for Circuit breaker";
    return httpConnectorError;
 }
@@ -503,7 +499,7 @@ public function CircuitBreakerClient::submit (string httpVerb, string path, Requ
 @Return { value:"The HTTP response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {};
+   HttpConnectorError httpConnectorError;
    httpConnectorError.message = "Unsupported action for Circuit breaker";
    return httpConnectorError;
 }
@@ -520,7 +516,7 @@ public function CircuitBreakerClient::hasPromise (HttpHandle handle) returns (bo
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {};
+   HttpConnectorError httpConnectorError;
    httpConnectorError.message = "Unsupported action for Circuit breaker";
    return httpConnectorError;
 }
@@ -530,7 +526,7 @@ public function CircuitBreakerClient::getNextPromise (HttpHandle handle) returns
 @Return { value:"HTTP The Push Response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {};
+   HttpConnectorError httpConnectorError;
    httpConnectorError.message = "Unsupported action for Circuit breaker";
    return httpConnectorError;
 }
@@ -556,14 +552,14 @@ public function updateCircuitState (CircuitHealth circuitHealth, CircuitState cu
                log:printInfo("CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.");
            }
 
-       } else if (currentState == "HALF_OPEN") {
+       } else if (currentState == CB_HALF_OPEN_STATE) {
            if (circuitHealth.errorCount > 0) {
                // If the trial run has failed, trip the circuit again
-               currentState = OPEN_STATE;
+               currentState = CB_OPEN_STATE;
                log:printInfo("CircuitBreaker trial run has failed. Circuit switched from HALF_OPEN to OPEN state.");
            } else {
                // If the trial run was successful reset the circuit
-               currentState = CLOSED_STATE;
+               currentState = CB_CLOSED_STATE;
                log:printInfo("CircuitBreaker trial run  was successful. Circuit switched from HALF_OPEN to CLOSE state.");
            }
        } else {

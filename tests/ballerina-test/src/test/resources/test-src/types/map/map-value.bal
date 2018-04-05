@@ -17,7 +17,7 @@ function testMapWithAnyValue() returns (int){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
     any value = 5;
     list1["item5"] = value;
-    int intVal =? <int> list1["item5"];
+    var intVal = check <int> list1["item5"];
     return intVal;
 }
 
@@ -30,8 +30,8 @@ function testMapWithAnyDifferentValue() returns (any){
 
 function testMapWithBinaryExpression() returns (int){
     map list1 = {"item1": 1, "item2": 2, "item3": 3, "item4": 4};
-    int intItem1=? <int> list1["item1"];
-    int intItem2=? <int> list1["item2"];
+    int intItem1= check <int> list1["item1"];
+    int intItem2= check <int> list1["item2"];
     int value = intItem1 + intItem2;
     return value;
 }
@@ -51,7 +51,7 @@ function testMapWithAnyFunctionInvocations() returns (string){
 
 function testMapOrder() returns (map)
 {
-  map m = {};
+  map m ;
   m["key1"] = "Element 1";
   m["key2"] = "Element 2";
   m["key3"] = "Element 3";
@@ -70,7 +70,7 @@ function testEchoAny(any value)returns (string){
 
 function testMapSynchronization() returns (int)
 {
-    map m = {};
+    map m;
 
     fork {
         worker w2 {

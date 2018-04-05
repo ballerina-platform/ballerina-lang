@@ -62,7 +62,7 @@ public type SimpleClientEndpoint object {
     }
     public function stop() {
     }
-}
+};
 
 documentation {
     The configurations possible with the SimpleClientEndpoint. This endpoint excludes the resiliency related configurations.
@@ -95,7 +95,7 @@ public type SimpleClientEndpointConfiguration {
     Proxy? proxy,
     ConnectionThrottling? connectionThrottling,
     CacheConfig cacheConfig = {},
-}
+};
 
 documentation {
     The initialization function for the SimpleClientEndpoint.

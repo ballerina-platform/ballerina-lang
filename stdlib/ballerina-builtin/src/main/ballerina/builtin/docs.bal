@@ -22,7 +22,7 @@ public annotation Description docData;
 deprecated {}
 type docData {
     string value;
-}
+};
 
 deprecated {}
 public annotation<resource, function> Param docData;
@@ -31,4 +31,4 @@ deprecated {}
 public annotation<function> Return docData;
 
 deprecated {}
-public annotation<annotation, type> Field docData;
+public annotation<annotation, type, object> Field docData;

@@ -69,7 +69,7 @@ public type ContentDisposition object {
        string name;
        map<string> parameters;
    }
-}
+};
 
 @Description {value:"Describes the nature of the data in the body of a MIME entity."}
 @Field {value:"primaryType: Declares the general type of data"}
@@ -91,7 +91,7 @@ public type MediaType object {
     @Description {value:"Convert the media type to a string suitable for use as the value of a corresponding HTTP header."}
     @Return {value:"Return the Content-Type with parameters as a string"}
     public function toStringWithParameters () returns (string);
-}
+};
 
 public function MediaType::toString () returns (string) {
     return self.primaryType + "/" + self.subType;
@@ -121,8 +121,8 @@ public function MediaType::toStringWithParameters () returns (string) {
 @Field {value:"cause: The error which caused the entity error"}
 public type EntityError  {
     string message,
-    error[] cause
-}
+    error[] cause,
+};
 
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
 level message and an entity(body part) inside of a multipart entity."}
@@ -194,16 +194,16 @@ public type Entity object {
     @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
     public native function getBodyParts () returns Entity[] | EntityError;
 
-@Description {value:"Given an entity, get the body parts as a byte channel."}
-@Param {value:"entity: Represent a MIME entity"}
-@Return {value:"Return body parts as a byte channel "}
-@Return {value:"EntityError will get thrown in case of errors"}
-public native function getBodyPartsAsChannel () returns io:ByteChannel;
+    @Description {value:"Given an entity, get the body parts as a byte channel."}
+    @Param {value:"entity: Represent a MIME entity"}
+    @Return {value:"Return body parts as a byte channel "}
+    @Return {value:"EntityError will get thrown in case of errors"}
+    public native function getBodyPartsAsChannel () returns io:ByteChannel;
 
-@Description {value:"Set body parts to entity"}
-@Param {value:"entity: Represent a MIME entity"}
-@Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
-public native function setBodyParts (Entity[] bodyParts);
+    @Description {value:"Set body parts to entity"}
+    @Param {value:"entity: Represent a MIME entity"}
+    @Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
+    public native function setBodyParts (Entity[] bodyParts);
 
     @Description {value:"Get the header value associated with the given header name"}
     @Param {value:"headerName: Represent header name"}
@@ -240,7 +240,7 @@ public native function setBodyParts (Entity[] bodyParts);
 
     @Description {value:"Check the header existence"}
     public native function hasHeader (string headerName) returns boolean;
-}
+};
 
 public function Entity::setFileAsEntityBody (file:File fileHandler) {
     io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
@@ -252,16 +252,16 @@ public function Entity::setFileAsEntityBody (file:File fileHandler) {
 @Field {value:"cause: The cause of the error"}
 public type Base64EncodeError {
     string message,
-    error[] cause
-}
+    error[] cause,
+};
 
 @Description {value:"Represent errors related to mime base64 decoder"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The cause of the error"}
 public type Base64DecodeError {
     string message,
-    error[] cause
-}
+    error[] cause,
+};
 
 @Description {value:"Encode a given input with MIME specific Base64 encoding scheme."}
 @Param {value:"contentToBeEncoded: Content that needs to be encoded can be of type string, blob or io:ByteChannel"}
