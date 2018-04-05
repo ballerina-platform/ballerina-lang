@@ -31,19 +31,27 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LSPackageCache {
 
-    private final ExtendedPackageCache packageCache;
+    private ExtendedPackageCache packageCache;
 
     private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
             "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
             "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
             "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
 
-    public LSPackageCache() {
+    private static final LSPackageCache INSTANCE = new LSPackageCache();
+
+    public static LSPackageCache getInstance() {
+        return INSTANCE;
+    }
+
+    private LSPackageCache() {
         CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
         packageCache = new ExtendedPackageCache(tempCompilerContext);
-        List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
-        builtInPackages.forEach(this::addPackage);
         this.loadPackagesMap(tempCompilerContext);
+        List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
+        builtInPackages.forEach(bLangPackage -> {
+            this.addPackage(bLangPackage.packageID, bLangPackage);
+        });
     }
 
     /**
@@ -58,9 +66,18 @@ public class LSPackageCache {
             return bLangPackage;
         } else {
             bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
-            addPackage(bLangPackage);
+            addPackage(bLangPackage.packageID, bLangPackage);
             return bLangPackage;
         }
+    }
+
+    /**
+     * removes package from the package map.
+     *
+     * @param packageID ballerina package id to be removed.
+     */
+    public void removePackage(PackageID packageID) {
+        this.packageCache.put(packageID, null);
     }
 
     /**
@@ -68,23 +85,30 @@ public class LSPackageCache {
      *
      * @param bLangPackage ballerina package to be added.
      */
-    void addPackage(BLangPackage bLangPackage) {
-        if (bLangPackage.getPackageDeclaration() == null) {
+    void addPackage(PackageID packageID, BLangPackage bLangPackage) {
+        if (bLangPackage != null && bLangPackage.getPackageDeclaration() == null) {
             //TODO check whether getPackageDeclaration() is needed
             this.packageCache.put(new PackageID(Names.DOT.value), bLangPackage);
         } else {
-            this.packageCache.put(bLangPackage.packageID, bLangPackage);
+            if (bLangPackage != null) {
+                bLangPackage.packageID = packageID;
+            }
+            this.packageCache.put(packageID, bLangPackage);
         }
     }
     
     private void loadPackagesMap(CompilerContext tempCompilerContext) {
-        for (String staticPkgName : staticPkgNames) {
+        for (String staticPkgName : LSPackageCache.staticPkgNames) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
                     new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
             
             LSPackageLoader.getPackageById(tempCompilerContext, packageID);
         }
+    }
+
+    public ExtendedPackageCache getPackageCache() {
+        return packageCache;
     }
 
     public Map<String, BLangPackage> getPackageMap() {

@@ -60,8 +60,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public class TextDocumentServiceUtil {
 
     private static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
-    private static volatile PackageCache globalPackageCache = null;
-    private static final Object LOCK = new Object();
 
     /**
      * Get the source root for the given package.
@@ -220,15 +218,9 @@ public class TextDocumentServiceUtil {
             context.put(SourceDirectory.class,
                     new LangServerFSProgramDirectory(sourceRoot.getSourceRootPath(), documentManager));
         }
-        if (globalPackageCache == null) {
-            synchronized (LOCK) {
-                if (globalPackageCache == null) {
-                    globalPackageCache = PackageCache.getInstance(context);
-                }
-            }
-        }
-        globalPackageCache.put(new PackageID(packageName), null);
-        PackageCache.setInstance(globalPackageCache, context);
+        LSPackageCache globalPackageCache = LSPackageCache.getInstance();
+        globalPackageCache.removePackage(new PackageID(packageName));
+        PackageCache.setInstance(globalPackageCache.getPackageCache(), context);
         return context;
     }
 
