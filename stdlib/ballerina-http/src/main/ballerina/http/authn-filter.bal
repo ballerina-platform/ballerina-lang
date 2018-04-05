@@ -30,14 +30,15 @@ public type AuthnFilter object {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
     }
-    public function init ();
-    public function terminate ();
 
     new (function (Request, FilterContext) returns (FilterResult) requestFilter,
         function (Response, FilterContext) returns (FilterResult) responseFilter) {
         filterRequest = requestFilter;
         filterResponse = responseFilter;
     }
+
+    public function init ();
+    public function terminate ();
 }
 
 @Description {value:"Initializes the AuthnFilter"}

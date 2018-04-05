@@ -1386,7 +1386,7 @@ public class BLangPackageBuilder {
     public void addConstVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                  boolean publicVar, boolean safeAssignment) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, true);
-        var.flagSet.add(Flag.CONST);
+        var.flagSet.add(Flag.FINAL);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }

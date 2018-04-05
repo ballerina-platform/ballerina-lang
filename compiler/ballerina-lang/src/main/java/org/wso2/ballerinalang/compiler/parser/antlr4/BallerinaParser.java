@@ -322,12 +322,6 @@ public class BallerinaParser extends Parser {
 		public DefinitionContext definition(int i) {
 			return getRuleContext(DefinitionContext.class,i);
 		}
-		public List<AnnotationAttachmentContext> annotationAttachment() {
-			return getRuleContexts(AnnotationAttachmentContext.class);
-		}
-		public AnnotationAttachmentContext annotationAttachment(int i) {
-			return getRuleContext(AnnotationAttachmentContext.class,i);
-		}
 		public List<DocumentationAttachmentContext> documentationAttachment() {
 			return getRuleContexts(DocumentationAttachmentContext.class);
 		}
@@ -339,6 +333,12 @@ public class BallerinaParser extends Parser {
 		}
 		public DeprecatedAttachmentContext deprecatedAttachment(int i) {
 			return getRuleContext(DeprecatedAttachmentContext.class,i);
+		}
+		public List<AnnotationAttachmentContext> annotationAttachment() {
+			return getRuleContexts(AnnotationAttachmentContext.class);
+		}
+		public AnnotationAttachmentContext annotationAttachment(int i) {
+			return getRuleContext(AnnotationAttachmentContext.class,i);
 		}
 		public CompilationUnitContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -404,40 +404,40 @@ public class BallerinaParser extends Parser {
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << NATIVE) | (1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << ANNOTATION) | (1L << ENDPOINT) | (1L << TYPE_INT) | (1L << TYPE_FLOAT))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (TYPE_BOOL - 64)) | (1L << (TYPE_STRING - 64)) | (1L << (TYPE_BLOB - 64)) | (1L << (TYPE_MAP - 64)) | (1L << (TYPE_JSON - 64)) | (1L << (TYPE_XML - 64)) | (1L << (TYPE_TABLE - 64)) | (1L << (TYPE_STREAM - 64)) | (1L << (TYPE_ANY - 64)) | (1L << (TYPE_DESC - 64)) | (1L << (TYPE - 64)) | (1L << (TYPE_FUTURE - 64)) | (1L << (LEFT_BRACE - 64)) | (1L << (LEFT_PARENTHESIS - 64)))) != 0) || ((((_la - 143)) & ~0x3f) == 0 && ((1L << (_la - 143)) & ((1L << (AT - 143)) | (1L << (Identifier - 143)) | (1L << (DocumentationTemplateStart - 143)) | (1L << (DeprecatedTemplateStart - 143)))) != 0)) {
 				{
 				{
-				setState(403);
-				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
-					if ( _alt==1 ) {
-						{
-						{
-						setState(400);
-						annotationAttachment();
-						}
-						} 
-					}
-					setState(405);
-					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
-				}
-				setState(407);
+				setState(401);
 				_la = _input.LA(1);
 				if (_la==DocumentationTemplateStart) {
 					{
-					setState(406);
+					setState(400);
 					documentationAttachment();
 					}
 				}
 
-				setState(410);
+				setState(404);
 				_la = _input.LA(1);
 				if (_la==DeprecatedTemplateStart) {
 					{
-					setState(409);
+					setState(403);
 					deprecatedAttachment();
 					}
 				}
 
+				setState(409);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1 ) {
+						{
+						{
+						setState(406);
+						annotationAttachment();
+						}
+						} 
+					}
+					setState(411);
+					_errHandler.sync(this);
+					_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+				}
 				setState(412);
 				definition();
 				}
@@ -15452,7 +15452,7 @@ public class BallerinaParser extends Parser {
 		"\t\u00bb\4\u00bc\t\u00bc\4\u00bd\t\u00bd\4\u00be\t\u00be\4\u00bf\t\u00bf"+
 		"\4\u00c0\t\u00c0\4\u00c1\t\u00c1\4\u00c2\t\u00c2\4\u00c3\t\u00c3\4\u00c4"+
 		"\t\u00c4\3\2\5\2\u018a\n\2\3\2\3\2\7\2\u018e\n\2\f\2\16\2\u0191\13\2\3"+
-		"\2\7\2\u0194\n\2\f\2\16\2\u0197\13\2\3\2\5\2\u019a\n\2\3\2\5\2\u019d\n"+
+		"\2\5\2\u0194\n\2\3\2\5\2\u0197\n\2\3\2\7\2\u019a\n\2\f\2\16\2\u019d\13"+
 		"\2\3\2\7\2\u01a0\n\2\f\2\16\2\u01a3\13\2\3\2\3\2\3\3\3\3\3\3\3\3\3\4\3"+
 		"\4\3\4\7\4\u01ae\n\4\f\4\16\4\u01b1\13\4\3\4\5\4\u01b4\n\4\3\5\3\5\3\5"+
 		"\3\6\3\6\3\6\3\6\5\6\u01bd\n\6\3\6\3\6\3\6\5\6\u01c2\n\6\3\6\3\6\3\7\3"+
@@ -15698,37 +15698,37 @@ public class BallerinaParser extends Parser {
 		"\3\2\u0189\u0188\3\2\2\2\u0189\u018a\3\2\2\2\u018a\u018f\3\2\2\2\u018b"+
 		"\u018e\5\n\6\2\u018c\u018e\5\u00e8u\2\u018d\u018b\3\2\2\2\u018d\u018c"+
 		"\3\2\2\2\u018e\u0191\3\2\2\2\u018f\u018d\3\2\2\2\u018f\u0190\3\2\2\2\u0190"+
-		"\u01a1\3\2\2\2\u0191\u018f\3\2\2\2\u0192\u0194\5h\65\2\u0193\u0192\3\2"+
-		"\2\2\u0194\u0197\3\2\2\2\u0195\u0193\3\2\2\2\u0195\u0196\3\2\2\2\u0196"+
-		"\u0199\3\2\2\2\u0197\u0195\3\2\2\2\u0198\u019a\5\u0178\u00bd\2\u0199\u0198"+
-		"\3\2\2\2\u0199\u019a\3\2\2\2\u019a\u019c\3\2\2\2\u019b\u019d\5\u016c\u00b7"+
-		"\2\u019c\u019b\3\2\2\2\u019c\u019d\3\2\2\2\u019d\u019e\3\2\2\2\u019e\u01a0"+
-		"\5\16\b\2\u019f\u0195\3\2\2\2\u01a0\u01a3\3\2\2\2\u01a1\u019f\3\2\2\2"+
-		"\u01a1\u01a2\3\2\2\2\u01a2\u01a4\3\2\2\2\u01a3\u01a1\3\2\2\2\u01a4\u01a5"+
-		"\7\2\2\3\u01a5\3\3\2\2\2\u01a6\u01a7\7\3\2\2\u01a7\u01a8\5\6\4\2\u01a8"+
-		"\u01a9\7s\2\2\u01a9\5\3\2\2\2\u01aa\u01af\7\u00a5\2\2\u01ab\u01ac\7v\2"+
-		"\2\u01ac\u01ae\7\u00a5\2\2\u01ad\u01ab\3\2\2\2\u01ae\u01b1\3\2\2\2\u01af"+
-		"\u01ad\3\2\2\2\u01af\u01b0\3\2\2\2\u01b0\u01b3\3\2\2\2\u01b1\u01af\3\2"+
-		"\2\2\u01b2\u01b4\5\b\5\2\u01b3\u01b2\3\2\2\2\u01b3\u01b4\3\2\2\2\u01b4"+
-		"\7\3\2\2\2\u01b5\u01b6\7\25\2\2\u01b6\u01b7\7\u00a5\2\2\u01b7\t\3\2\2"+
-		"\2\u01b8\u01bc\7\4\2\2\u01b9\u01ba\5\f\7\2\u01ba\u01bb\7\u0083\2\2\u01bb"+
-		"\u01bd\3\2\2\2\u01bc\u01b9\3\2\2\2\u01bc\u01bd\3\2\2\2\u01bd\u01be\3\2"+
-		"\2\2\u01be\u01c1\5\6\4\2\u01bf\u01c0\7\5\2\2\u01c0\u01c2\7\u00a5\2\2\u01c1"+
-		"\u01bf\3\2\2\2\u01c1\u01c2\3\2\2\2\u01c2\u01c3\3\2\2\2\u01c3\u01c4\7s"+
-		"\2\2\u01c4\13\3\2\2\2\u01c5\u01c6\7\u00a5\2\2\u01c6\r\3\2\2\2\u01c7\u01ce"+
-		"\5\20\t\2\u01c8\u01ce\5\34\17\2\u01c9\u01ce\5\"\22\2\u01ca\u01ce\5<\37"+
-		"\2\u01cb\u01ce\5> \2\u01cc\u01ce\5F$\2\u01cd\u01c7\3\2\2\2\u01cd\u01c8"+
-		"\3\2\2\2\u01cd\u01c9\3\2\2\2\u01cd\u01ca\3\2\2\2\u01cd\u01cb\3\2\2\2\u01cd"+
-		"\u01cc\3\2\2\2\u01ce\17\3\2\2\2\u01cf\u01d4\7\t\2\2\u01d0\u01d1\7\u008a"+
-		"\2\2\u01d1\u01d2\5\u00f2z\2\u01d2\u01d3\7\u0089\2\2\u01d3\u01d5\3\2\2"+
-		"\2\u01d4\u01d0\3\2\2\2\u01d4\u01d5\3\2\2\2\u01d5\u01d6\3\2\2\2\u01d6\u01d8"+
-		"\7\u00a5\2\2\u01d7\u01d9\5\22\n\2\u01d8\u01d7\3\2\2\2\u01d8\u01d9\3\2"+
-		"\2\2\u01d9\u01da\3\2\2\2\u01da\u01db\5\24\13\2\u01db\21\3\2\2\2\u01dc"+
-		"\u01dd\7\22\2\2\u01dd\u01e2\5\u00f2z\2\u01de\u01df\7w\2\2\u01df\u01e1"+
-		"\5\u00f2z\2\u01e0\u01de\3\2\2\2\u01e1\u01e4\3\2\2\2\u01e2\u01e0\3\2\2"+
-		"\2\u01e2\u01e3\3\2\2\2\u01e3\u01e8\3\2\2\2\u01e4\u01e2\3\2\2\2\u01e5\u01e6"+
-		"\7\22\2\2\u01e6\u01e8\5n8\2\u01e7\u01dc\3\2\2\2\u01e7\u01e5\3\2\2\2\u01e8"+
-		"\23\3\2\2\2\u01e9\u01ed\7x\2\2\u01ea\u01ec\5H%\2\u01eb\u01ea\3\2\2\2\u01ec"+
+		"\u01a1\3\2\2\2\u0191\u018f\3\2\2\2\u0192\u0194\5\u0178\u00bd\2\u0193\u0192"+
+		"\3\2\2\2\u0193\u0194\3\2\2\2\u0194\u0196\3\2\2\2\u0195\u0197\5\u016c\u00b7"+
+		"\2\u0196\u0195\3\2\2\2\u0196\u0197\3\2\2\2\u0197\u019b\3\2\2\2\u0198\u019a"+
+		"\5h\65\2\u0199\u0198\3\2\2\2\u019a\u019d\3\2\2\2\u019b\u0199\3\2\2\2\u019b"+
+		"\u019c\3\2\2\2\u019c\u019e\3\2\2\2\u019d\u019b\3\2\2\2\u019e\u01a0\5\16"+
+		"\b\2\u019f\u0193\3\2\2\2\u01a0\u01a3\3\2\2\2\u01a1\u019f\3\2\2\2\u01a1"+
+		"\u01a2\3\2\2\2\u01a2\u01a4\3\2\2\2\u01a3\u01a1\3\2\2\2\u01a4\u01a5\7\2"+
+		"\2\3\u01a5\3\3\2\2\2\u01a6\u01a7\7\3\2\2\u01a7\u01a8\5\6\4\2\u01a8\u01a9"+
+		"\7s\2\2\u01a9\5\3\2\2\2\u01aa\u01af\7\u00a5\2\2\u01ab\u01ac\7v\2\2\u01ac"+
+		"\u01ae\7\u00a5\2\2\u01ad\u01ab\3\2\2\2\u01ae\u01b1\3\2\2\2\u01af\u01ad"+
+		"\3\2\2\2\u01af\u01b0\3\2\2\2\u01b0\u01b3\3\2\2\2\u01b1\u01af\3\2\2\2\u01b2"+
+		"\u01b4\5\b\5\2\u01b3\u01b2\3\2\2\2\u01b3\u01b4\3\2\2\2\u01b4\7\3\2\2\2"+
+		"\u01b5\u01b6\7\25\2\2\u01b6\u01b7\7\u00a5\2\2\u01b7\t\3\2\2\2\u01b8\u01bc"+
+		"\7\4\2\2\u01b9\u01ba\5\f\7\2\u01ba\u01bb\7\u0083\2\2\u01bb\u01bd\3\2\2"+
+		"\2\u01bc\u01b9\3\2\2\2\u01bc\u01bd\3\2\2\2\u01bd\u01be\3\2\2\2\u01be\u01c1"+
+		"\5\6\4\2\u01bf\u01c0\7\5\2\2\u01c0\u01c2\7\u00a5\2\2\u01c1\u01bf\3\2\2"+
+		"\2\u01c1\u01c2\3\2\2\2\u01c2\u01c3\3\2\2\2\u01c3\u01c4\7s\2\2\u01c4\13"+
+		"\3\2\2\2\u01c5\u01c6\7\u00a5\2\2\u01c6\r\3\2\2\2\u01c7\u01ce\5\20\t\2"+
+		"\u01c8\u01ce\5\34\17\2\u01c9\u01ce\5\"\22\2\u01ca\u01ce\5<\37\2\u01cb"+
+		"\u01ce\5> \2\u01cc\u01ce\5F$\2\u01cd\u01c7\3\2\2\2\u01cd\u01c8\3\2\2\2"+
+		"\u01cd\u01c9\3\2\2\2\u01cd\u01ca\3\2\2\2\u01cd\u01cb\3\2\2\2\u01cd\u01cc"+
+		"\3\2\2\2\u01ce\17\3\2\2\2\u01cf\u01d4\7\t\2\2\u01d0\u01d1\7\u008a\2\2"+
+		"\u01d1\u01d2\5\u00f2z\2\u01d2\u01d3\7\u0089\2\2\u01d3\u01d5\3\2\2\2\u01d4"+
+		"\u01d0\3\2\2\2\u01d4\u01d5\3\2\2\2\u01d5\u01d6\3\2\2\2\u01d6\u01d8\7\u00a5"+
+		"\2\2\u01d7\u01d9\5\22\n\2\u01d8\u01d7\3\2\2\2\u01d8\u01d9\3\2\2\2\u01d9"+
+		"\u01da\3\2\2\2\u01da\u01db\5\24\13\2\u01db\21\3\2\2\2\u01dc\u01dd\7\22"+
+		"\2\2\u01dd\u01e2\5\u00f2z\2\u01de\u01df\7w\2\2\u01df\u01e1\5\u00f2z\2"+
+		"\u01e0\u01de\3\2\2\2\u01e1\u01e4\3\2\2\2\u01e2\u01e0\3\2\2\2\u01e2\u01e3"+
+		"\3\2\2\2\u01e3\u01e8\3\2\2\2\u01e4\u01e2\3\2\2\2\u01e5\u01e6\7\22\2\2"+
+		"\u01e6\u01e8\5n8\2\u01e7\u01dc\3\2\2\2\u01e7\u01e5\3\2\2\2\u01e8\23\3"+
+		"\2\2\2\u01e9\u01ed\7x\2\2\u01ea\u01ec\5H%\2\u01eb\u01ea\3\2\2\2\u01ec"+
 		"\u01ef\3\2\2\2\u01ed\u01eb\3\2\2\2\u01ed\u01ee\3\2\2\2\u01ee\u01f3\3\2"+
 		"\2\2\u01ef\u01ed\3\2\2\2\u01f0\u01f2\5l\67\2\u01f1\u01f0\3\2\2\2\u01f2"+
 		"\u01f5\3\2\2\2\u01f3\u01f1\3\2\2\2\u01f3\u01f4\3\2\2\2\u01f4\u01f9\3\2"+
@@ -16383,7 +16383,7 @@ public class BallerinaParser extends Parser {
 		"\u0937\u0938\3\2\2\2\u0938\u0939\3\2\2\2\u0939\u093a\7\u00d7\2\2\u093a"+
 		"\u0185\3\2\2\2\u093b\u093d\7\u00d3\2\2\u093c\u093e\7\u00d6\2\2\u093d\u093c"+
 		"\3\2\2\2\u093d\u093e\3\2\2\2\u093e\u093f\3\2\2\2\u093f\u0940\7\u00d5\2"+
-		"\2\u0940\u0187\3\2\2\2\u0126\u0189\u018d\u018f\u0195\u0199\u019c\u01a1"+
+		"\2\u0940\u0187\3\2\2\2\u0126\u0189\u018d\u018f\u0193\u0196\u019b\u01a1"+
 		"\u01af\u01b3\u01bc\u01c1\u01cd\u01d4\u01d8\u01e2\u01e7\u01ed\u01f3\u01f9"+
 		"\u0201\u0205\u0208\u020d\u0216\u0219\u021f\u0225\u022d\u0233\u0237\u023a"+
 		"\u023d\u0244\u0249\u024c\u024f\u0257\u025b\u0260\u0267\u026b\u026e\u0274"+
