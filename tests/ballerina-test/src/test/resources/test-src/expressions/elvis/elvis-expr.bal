@@ -55,7 +55,7 @@ function testElvisRefTypeNestedCaseTwo () returns (int|string) {
 public type Person {
     string name;
     int age;
-}
+};
 
 function testElvisStructTypePositive () returns (string, int) {
     Person|() xP = {name:"Jim", age:100};
