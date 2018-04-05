@@ -106,8 +106,8 @@ service InitiatorService bind coordinatorListener {
                 json resPayload = regResponseToJson(regRes);
                 http:Response res = {statusCode:http:OK_200};
                 res.setJsonPayload(resPayload);
-                var connErr = conn -> respond(res);
-                match connErr {
+                var resResult = conn -> respond(res);
+                match resResult {
                     error err => log:printErrorCause("Sending response for register request for transaction " + txnId +
                                                      " failed", err);
                     () => log:printInfo("Registered remote participant: " + participantId + " for transaction: " +
