@@ -19,7 +19,7 @@ package ballerina.http;
 ///////////////////////////
 /// Service Annotations ///
 ///////////////////////////
-@Description {value: "Configuration for an HTTP service"}
+@Description {value:"Configuration for an HTTP service"}
 @Field {value:"endpoints: An array of endpoints the service would be attached to"}
 @Field {value:"lifetime: The life time of the service"}
 @Field {value:"basePath: Service base path"}
@@ -33,7 +33,7 @@ public struct HttpServiceConfig {
     CorsConfig cors;
 }
 
-public function <HttpServiceConfig config> HttpServiceConfig() {
+public function <HttpServiceConfig config> HttpServiceConfig () {
     config.compression = Compression.AUTO;
 }
 
@@ -55,29 +55,34 @@ public struct CorsConfig {
 
 @Description {value:"Initializes the CorsConfig struct with default values."}
 @Param {value:"config: The CorsConfig struct to be initialized"}
-public function <CorsConfig config> CorsConfig() {
+public function <CorsConfig config> CorsConfig () {
     config.maxAge = -1;
 }
 
 
 @Description {value:"Configuration for a WebSocket service."}
-@Field {value: "endpoints: An array of endpoints the service would be attached to"}
+@Field {value:"endpoints: An array of endpoints the service would be attached to"}
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
-public struct WSServiceConfig {
-    ServiceEndpoint[] endpoints;
-    WebSocketEndpoint[] webSocketEndpoints;
-    string basePath;
-    string[] subProtocols;
-    int idleTimeoutInSeconds;
+public type WSServiceConfig object {
+    public {
+        ServiceEndpoint[] endpoints;
+        WebSocketEndpoint[] webSocketEndpoints;
+        string basePath;
+        string[] subProtocols;
+        int idleTimeoutInSeconds;
+    }
+    new () {
+
+    }
 }
 
-@Description {value: "This specifies the possible ways in which a service can be used when serving requests."}
-@Field {value: "REQUEST: Create a new instance of the service to process each request"}
-@Field {value: "CONNECTION: Create a new instance of the service for each connection"}
-@Field {value: "SESSION: Create a new instance of the service for each session"}
-@Field {value: "SINGLETON: Create a single instance of the service and use it to process all requests coming to an endpoint"}
+@Description {value:"This specifies the possible ways in which a service can be used when serving requests."}
+@Field {value:"REQUEST: Create a new instance of the service to process each request"}
+@Field {value:"CONNECTION: Create a new instance of the service for each connection"}
+@Field {value:"SESSION: Create a new instance of the service for each session"}
+@Field {value:"SINGLETON: Create a single instance of the service and use it to process all requests coming to an endpoint"}
 public enum HttpServiceLifeTime {
     REQUEST,
     CONNECTION,
@@ -113,12 +118,14 @@ public struct HttpResourceConfig {
     WebSocketUpgradeConfig|null webSocketUpgrade;
 }
 
-public struct WebSocketUpgradeConfig {
-    string upgradePath;
-    typedesc upgradeService;
+public type WebSocketUpgradeConfig object {
+    public {
+        string upgradePath;
+        typedesc upgradeService;
+    }
 }
 
-public function <HttpResourceConfig config> HttpResourceConfig() {
+public function <HttpResourceConfig config> HttpResourceConfig () {
     config.transactionInfectable = true;
 }
 
