@@ -21,7 +21,7 @@ import ballerina/jwt.signature;
 import ballerina/io;
 
 @Description {value:"Represents JWT issuer configurations"}
-public struct JWTIssuerConfig {
+public type JWTIssuerConfig {
     string certificateAlias;
     string keyPassword;
 }
@@ -84,22 +84,22 @@ function urlEncode ((string  | blob  | io:ByteChannel | util:Base64EncodeError) 
 }
 
 function addMapToJson (json inJson, map mapToConvert) returns (json) {
-    if (mapToConvert != null && lengthof mapToConvert != 0) {
+    if (lengthof mapToConvert != 0) {
         foreach key in mapToConvert.keys() {
             if (typeof mapToConvert[key] == typeof string[]) {
-                string[] value =? <string[]>mapToConvert[key];
+                string[] value = check (<string[]>mapToConvert[key]);
                 inJson[key] = convertStringArrayToJson(value);
             } else if (typeof mapToConvert[key] == typeof int[]) {
-                int[] value =? <int[]>mapToConvert[key];
+                int[] value = check (<int[]>mapToConvert[key]);
                 inJson[key] = convertIntArrayToJson(value);
             } else if (typeof mapToConvert[key] == typeof string) {
-                string value = <string>mapToConvert[key];
+                string value = check (<string>mapToConvert[key]);
                 inJson[key] = value;
             } else if (typeof mapToConvert[key] == typeof int) {
-                int value =? <int>mapToConvert[key];
+                int value = check (<int>mapToConvert[key]);
                 inJson[key] = value;
             } else if (typeof mapToConvert[key] == typeof boolean) {
-                boolean value =? <boolean>mapToConvert[key];
+                boolean value = check (<boolean>mapToConvert[key]);
                 inJson[key] = value;
             }
         }
