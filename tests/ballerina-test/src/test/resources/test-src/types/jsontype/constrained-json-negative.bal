@@ -1,14 +1,18 @@
-struct Person {
-    string name;
-    int age;
-    string address;
+type Person object {
+    public {
+        string name;
+        int age;
+        string address;
+    }
 }
 
-struct Student {
-    string name;
-    int age;
-    string address;
-    string class;
+type Student object {
+    public {
+        string name;
+        int age;
+        string address;
+        string class;
+    }
 }
 
 function testJsonInitializationWithStructConstraintInvalid() returns (json, json, json){
@@ -34,23 +38,29 @@ function testConstraintJSONIndexing() returns (json){
     return j["bus"];
 }
 
-struct Employee {
-    string first_name;
-    string last_name;
-    int age;
-    Address address;
+type Employee object {
+    public {
+        string first_name;
+        string last_name;
+        int age;
+        Address address;
+    }
 }
 
-struct Address {
-    string number;
-    string street;
-    string city;
-    PhoneNumber phoneNumber;
+type Address object {
+    public {
+        string number;
+        string street;
+        string city;
+        PhoneNumber phoneNumber;
+    }
 }
 
-struct PhoneNumber {
-    string areaCode;
-    string number;
+type PhoneNumber object {
+    public {
+        string areaCode;
+        string number;
+    }
 }
 
 function tesInvalidNestedStructFieldAccess() {

@@ -94,7 +94,7 @@ function testUnreachableBreak() returns (string){
     return "done";
 }
 
-public struct testError {
+public type testError {
     string message;
     error[] cause;
     string code;

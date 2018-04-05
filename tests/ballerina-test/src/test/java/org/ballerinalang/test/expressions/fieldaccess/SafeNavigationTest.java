@@ -45,13 +45,16 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string?', found 'error|string'",
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
         BAssertUtil.validateError(negativeResult, 1,
                 "invalid operation: type 'Info|error' does not support field access", 34, 25);
-        // BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string|error?', found
-        // 'error|other'", 34,
-        // 25);
+        BAssertUtil.validateError(negativeResult, 2,
+                "incompatible types: expected 'string|error?', found 'other|error'", 34, 25);
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found 'string?'", 40, 16);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string[]', found 'string[]?'", 41,
+                21);
     }
 
     @Test
