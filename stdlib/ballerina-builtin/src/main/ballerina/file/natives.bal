@@ -24,7 +24,7 @@ public type IOError object {
         string message;
         error[] cause;
     }
-}
+};
 
 @Description { value: "Derives a file path from the given location"}
 @Param {value:"Path which will hold reference to file location"}
@@ -39,7 +39,7 @@ public type Path object{
     @Description { value: "Retreives the absolut path from the provided location"}
     @Return {value:"Returns the absolute path string value"}
     public native function getPathValue() returns (string);
-}
+};
 
 @Description { value: "Check for existance of the file"}
 @Param {value: "path: Refernce to the file location"}
