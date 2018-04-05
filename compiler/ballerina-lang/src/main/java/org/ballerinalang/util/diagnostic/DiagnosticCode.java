@@ -199,6 +199,9 @@ public enum DiagnosticCode {
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
+    
+    // Safe navigation operator related errors
+    SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),

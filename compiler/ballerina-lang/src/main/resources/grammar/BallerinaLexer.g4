@@ -22,7 +22,6 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STRUCT      : 'struct' ;
 OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
@@ -185,10 +184,6 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
-
-// Safe assignment operator
-
-SAFE_ASSIGNMENT   : '=?' ;
 
 // Post Arithmetic operators.
 
