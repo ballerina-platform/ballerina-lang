@@ -5,52 +5,56 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Non-blocking client
-struct helloWorldStub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
+public type helloWorldStub object {
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
+    }
 
-function <helloWorldStub stub> initStub (grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
+    function initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
+        navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
+        self.serviceStub = navStub;
+    }
 
-function <helloWorldStub stub> LotsOfGreetings (typedesc listener) returns (grpc:Client|error) {
-    var res = stub.serviceStub.streamingExecute("helloWorld/LotsOfGreetings", listener);
-    match res {
-        grpc:ConnectorError err => {
-            error e = {message:err.message};
-            return e;
-        }
-        grpc:Client con => {
-            return con;
+    function LotsOfGreetings (typedesc listener) returns (grpc:Client|error) {
+        var res = self.serviceStub.streamingExecute("helloWorld/LotsOfGreetings", listener);
+        match res {
+            grpc:ConnectorError err => {
+                error e = {message:err.message};
+                return e;
+            }
+            grpc:Client con => {
+                return con;
+            }
         }
     }
 }
 
 // Non-blocking client endpoint
-public struct helloWorldClient {
-    grpc:Client client;
-    helloWorldStub stub;
+public type helloWorldClient object {
+    public {
+        grpc:Client client;
+        helloWorldStub stub;
+    }
+
+    public function init (grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
+        // initialize service stub.
+        helloWorldStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
+    }
+
+    public function getClient () returns (helloWorldStub) {
+        return self.stub;
+    }
 }
 
-public function <helloWorldClient ep> init (grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    helloWorldStub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
-}
-
-public function <helloWorldClient ep> getClient () returns (helloWorldStub) {
-    return ep.stub;
-}
-
-const string descriptorKey = "helloWorld.proto";
+@final string descriptorKey = "helloWorld.proto";
 map descriptorMap =
 {
     "helloWorld.proto":"0A1068656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0A68656C6C6F576F726C64124F0A0F4C6F74734F664772656574696E6773121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013000620670726F746F33",

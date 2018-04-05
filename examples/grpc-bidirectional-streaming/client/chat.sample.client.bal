@@ -25,11 +25,11 @@ function main (string[] args) {
             ep = con;
         }
     }
-    ChatMessage mes = {};
+    ChatMessage mes = new;
     mes.name = "Sam";
     mes.message = "Hi ";
     grpc:ConnectorError connErr = ep -> send(mes);
-    if (connErr != null) {
+    if (connErr != ()) {
         io:println("Error at LotsOfGreetings : " + connErr.message);
     }
     //this will hold forever since this is chat application
@@ -45,7 +45,7 @@ service<grpc:Listener> chatMessageListener {
     }
 
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
