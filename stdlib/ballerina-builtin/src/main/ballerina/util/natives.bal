@@ -21,25 +21,25 @@ import ballerina/io;
 @Field {value:"language: The language field for Locale"}
 @Field {value:"countryCode: The countryCode field for Locale"}
 public type Locale {
-    string language;
-    string countryCode;
-}
+    string language,
+    string countryCode,
+};
 
 @Description {value:"Represent errors related to base64 encoder"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The cause of the error"}
-public struct Base64EncodeError {
-    string message;
-    error[] cause;
-}
+public type Base64EncodeError {
+    string message,
+    error[] cause,
+};
 
 @Description {value:"Represent errors related to base64 decoder"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The cause of the error"}
-public struct Base64DecodeError {
-    string message;
-    error[] cause;
-}
+public type Base64DecodeError {
+    string message,
+    error[] cause,
+};
 
 @Description {value:"Returns a random UUID string"}
 @Return {value:"The random string"}
