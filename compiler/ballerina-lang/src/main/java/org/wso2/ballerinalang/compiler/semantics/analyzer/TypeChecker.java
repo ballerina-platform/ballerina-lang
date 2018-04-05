@@ -122,6 +122,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -516,7 +517,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
 
-        iExpr.childType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
+        if (iExpr.symbol != null) {
+            iExpr.childType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
+        } else {
+            iExpr.childType = iExpr.type;
+        }
     }
 
     public void visit(BLangTypeInit cIExpr) {
