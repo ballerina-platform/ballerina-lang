@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -1114,6 +1115,15 @@ public class BLangPackageBuilder {
         binaryExpressionNode.lhsExpr = (BLangExpression) exprNodeStack.pop();
         binaryExpressionNode.opKind = OperatorKind.valueFrom(operator);
         addExpressionNode(binaryExpressionNode);
+    }
+
+    public void createElvisExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangElvisExpr elvisExpr = (BLangElvisExpr) TreeBuilder.createElvisExpressionNode();
+        elvisExpr.pos = pos;
+        elvisExpr.addWS(ws);
+        elvisExpr.rhsExpr = (BLangExpression) exprNodeStack.pop();
+        elvisExpr.lhsExpr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(elvisExpr);
     }
 
     public void createTypeCastExpr(DiagnosticPos pos, Set<Whitespace> ws) {
