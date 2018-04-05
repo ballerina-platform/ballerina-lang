@@ -121,7 +121,7 @@ public native function <string mainString> toBlob (string encoding) returns (blo
 @Field { value : "regex:Pattern as a String"}
 public type Regex {
    string pattern;
-}
+};
 
 @Description { value:"Finds all the strings matching the regular expression"}
 @Param { value:"mainString: The original string argument" }
