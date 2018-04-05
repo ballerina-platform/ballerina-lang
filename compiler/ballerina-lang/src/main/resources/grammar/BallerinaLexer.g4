@@ -22,12 +22,9 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STRUCT      : 'struct' ;
 OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
-ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
-CONST       : 'const' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
@@ -91,7 +88,7 @@ TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
 TYPE_ANY        : 'any' ;
 TYPE_DESC       : 'typedesc' ;
-TYPE_TYPE       : 'type' ;
+TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;
@@ -188,10 +185,6 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
-
-// Safe assignment operator
-
-SAFE_ASSIGNMENT   : '=?' ;
 
 // Post Arithmetic operators.
 

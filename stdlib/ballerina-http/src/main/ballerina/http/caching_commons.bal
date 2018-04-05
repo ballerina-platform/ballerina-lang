@@ -18,36 +18,36 @@ package ballerina.http;
 
 // Cache-control directives
 @Description {value:"Forces the cache to validate a cached response with the origin server before serving."}
-public const string NO_CACHE = "no-cache";
+@final public string NO_CACHE = "no-cache";
 @Description {value:"Instructs the cache to not store a response in non-volatile storage."}
-public const string NO_STORE = "no-store";
+@final public string NO_STORE = "no-store";
 @Description {value:"Instructs intermediaries not to transform the payload."}
-public const string NO_TRANSFORM = "no-transform";
+@final public string NO_TRANSFORM = "no-transform";
 @Description {value:"When used in requests, it implies that clients are not willing to accept responses whose age is greater than max-age. When used in responses, the response is to be considered stale after the specified number of seconds."}
-public const string MAX_AGE = "max-age";
+@final public string MAX_AGE = "max-age";
 
 // Request only cache-control directives
 @Description {value:"Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more than the specified number of seconds."}
-public const string MAX_STALE = "max-stale";
+@final public string MAX_STALE = "max-stale";
 @Description {value:"Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh"}
-public const string MIN_FRESH = "min-fresh";
+@final public string MIN_FRESH = "min-fresh";
 @Description {value:"Indicates that the client is only willing to accept a cached response. A cached response is served subject to other constraints posed by the request."}
-public const string ONLY_IF_CACHED = "only-if-cached";
+@final public string ONLY_IF_CACHED = "only-if-cached";
 
 // Response only cache-control directives
 @Description {value:"Indicates that once the response has become stale, it should not be reused for subsequent requests without validating with the origin server."}
-public const string MUST_REVALIDATE = "must-revalidate";
+@final public string MUST_REVALIDATE = "must-revalidate";
 @Description {value:"Indicates that any cache may store the response."}
-public const string PUBLIC = "public";
+@final public string PUBLIC = "public";
 @Description {value:"Indicates that the response is intended for a single user and should not be stored by shared caches."}
-public const string PRIVATE = "private";
+@final public string PRIVATE = "private";
 @Description {value:"Has the same meaning as must-revalidate, except that this does not apply to private caches."}
-public const string PROXY_REVALIDATE = "proxy-revalidate";
+@final public string PROXY_REVALIDATE = "proxy-revalidate";
 @Description {value:"In shared caches, this overrides the max-age or Expires header field"}
-public const string S_MAX_AGE = "s-maxage";
+@final public string S_MAX_AGE = "s-maxage";
 
 @Description {value:"A constant for indicating that the max-stale directive does not specify a limit."}
-public const int MAX_STALE_ANY_AGE = 9223372036854775807;
+@final public int MAX_STALE_ANY_AGE = 9223372036854775807;
 
 @Description {value:"Cache control directives configuration for requests"}
 @Field {value:"noCache: Represents the no-cache directive"}

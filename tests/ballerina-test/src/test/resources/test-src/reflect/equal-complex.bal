@@ -141,16 +141,12 @@ public function testAnyType() returns (boolean) {
 
     any aUnmatch1 = 10;
     any aUnmatch2 = "Hello";
-    any aUnmatch3 = [4,5];
-    any aUnmatch4 = {num: 20, lane:"Palm Grove"};
-    any aUnmatch5 = false;
+    any aUnmatch3 = false;
 
     return reflect:equals(a1,a2) &&
            !reflect:equals(a1,aUnmatch1) &&
            !reflect:equals(a1,aUnmatch2) &&
            !reflect:equals(a1,aUnmatch3) &&
-           !reflect:equals(a1,aUnmatch4) &&
-           !reflect:equals(a1,aUnmatch5) &&
            !reflect:equals(a1,null) &&
            !reflect:equals(null,a1);
 }

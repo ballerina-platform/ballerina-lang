@@ -145,6 +145,7 @@ public enum DiagnosticCode {
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
     CANNOT_ASSIGN_VALUE_READONLY("cannot.assign.value.to.readonly.field"),
     CANNOT_ASSIGN_VALUE_FINAL("cannot.assign.value.to.final.field"),
+    CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT("cannot.assign.value.to.function.argument"),
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
@@ -153,6 +154,10 @@ public enum DiagnosticCode {
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
+    INVALID_ANY_VAR_DEF("invalid.any.var.def"),
+    INVALID_RECORD_LITERAL("invalid.record.literal"),
+    INVALID_ARRAY_LITERAL("invalid.array.literal"),
+    INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -194,6 +199,9 @@ public enum DiagnosticCode {
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
+    
+    // Safe navigation operator related errors
+    SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),

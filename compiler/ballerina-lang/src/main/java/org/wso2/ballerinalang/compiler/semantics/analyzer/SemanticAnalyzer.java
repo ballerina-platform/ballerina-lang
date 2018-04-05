@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -108,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -289,6 +291,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         }
+        //set function param flag to final
+        funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
@@ -334,15 +338,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, env);
         structNode.fields.forEach(field -> analyzeDef(field, structEnv));
 
-        structNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
-            annotationAttachment.accept(this);
-        });
-
         analyzeDef(structNode.initFunction, structEnv);
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
+
+    public void visit(BLangTypeDefinition typeDefinition) {
+        BSymbol typeDefSymbol = typeDefinition.symbol;
+        SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(typeDefinition, typeDefSymbol.scope, env);
+
+        typeDefinition.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TYPE);
+            annotationAttachment.accept(this);
+        });
+
+        typeDefinition.docAttachments.forEach(doc -> analyzeDef(doc, typeDefEnv));
+    }
+
 
     public void visit(BLangObject objectNode) {
         BSymbol objectSymbol = objectNode.symbol;
@@ -351,7 +363,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         objectNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.OBJECT);
             annotationAttachment.accept(this);
         });
         objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
@@ -374,7 +386,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         record.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TYPE);
             annotationAttachment.accept(this);
         });
 
@@ -387,11 +399,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol enumSymbol = enumNode.symbol;
         SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, env);
 
-        enumNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
-                    BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM);
-            annotationAttachment.accept(this);
-        });
         enumNode.docAttachments.forEach(doc -> analyzeDef(doc, enumEnv));
     }
 
@@ -497,11 +504,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         varNode.type = lhsType;
 
         // Here we validate annotation attachments for package level variables.
-        varNode.annAttachments.forEach(a -> {
-            a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST);
-            a.accept(this);
-        });
         // Here we validate document attachments for package level variables.
         varNode.docAttachments.forEach(doc -> {
             doc.accept(this);
@@ -682,9 +684,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (!Names.IGNORE.equals(varName) && (simpleVarRef.symbol.flags & Flags.CONST) == Flags.CONST
-                && env.enclInvokable != env.enclPkg.initFunction) {
-            dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+        if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
+            if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+            } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
+            }
         }
     }
 
@@ -770,11 +775,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConnector connectorNode) {
         BSymbol connectorSymbol = connectorNode.symbol;
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
-        connectorNode.annAttachments.forEach(a -> {
-            a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR);
-            this.analyzeDef(a, connectorEnv);
-        });
         connectorNode.docAttachments.forEach(doc -> analyzeDef(doc, connectorEnv));
 
         connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
@@ -789,11 +789,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol actionSymbol = actionNode.symbol;
 
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        actionNode.annAttachments.forEach(a -> {
-            a.attachmentPoint =
-                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION);
-            this.analyzeDef(a, actionEnv);
-        });
         actionNode.docAttachments.forEach(doc -> analyzeDef(doc, actionEnv));
 
         if (Symbols.isNative(actionSymbol)) {
@@ -1161,11 +1156,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransformer transformerNode) {
         SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
-        transformerNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachmentPoint = new BLangAnnotationAttachmentPoint(
-                    BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER);
-            this.analyzeDef(annotationAttachment, transformerEnv);
-        });
         transformerNode.docAttachments.forEach(doc -> analyzeDef(doc, transformerEnv));
 
         validateTransformerMappingType(transformerNode.source);
@@ -1461,6 +1451,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varRefExpr.type = this.symTable.errType;
             return;
         }
+        validateVariableDefinition(rhsExpr);
 
         boolean newVarDeclaration = false;
         BType expType;
@@ -1576,7 +1567,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
         } else if (retryKind == NodeKind.SIMPLE_VARIABLE_REF) {
-            if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.CONST) {
+            if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.FINAL) {
                 if (((BLangSimpleVarRef) retryCountExpr).symbol.type.tag == TypeTags.INT) {
                     error = false;
                 }
@@ -1612,6 +1603,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             binaryExpressionNode.type = symTable.errType;
         }
         return binaryExpressionNode;
+    }
+
+    private void validateVariableDefinition(BLangExpression expr) {
+        // following cases are invalid.
+        // var a = [ x, y, ... ];
+        // var a = { x : y };
+        // var a = new ;
+        final NodeKind kind = expr.getKind();
+        if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
+                || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+        }
     }
 
     private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {

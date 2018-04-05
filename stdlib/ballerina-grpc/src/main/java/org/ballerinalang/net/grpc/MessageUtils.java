@@ -326,9 +326,9 @@ public class MessageUtils {
                     structType.getPackagePath(), structType.getName());
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
-                if (structField.getFieldType() instanceof BRefType) {
-                    BType bType = structField.getFieldType();
-                    if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
+                if (structField.getFieldType() instanceof BStructType) {
+                    BStructType bStructType = (BStructType) structField.getFieldType();
+                    if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bStructType.getName())) {
                         Message message = (Message) request.getFields().get(structFieldName);
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message, programFile,
                                 structFieldName, structField.getFieldType()));
