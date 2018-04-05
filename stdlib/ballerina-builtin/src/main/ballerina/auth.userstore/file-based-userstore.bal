@@ -64,9 +64,8 @@ function getUserstoreConfigValue (string instanceId, string property) returns (s
         string value => {
             return value == () ? "" : value;
         }
-        () => return "";
+        () => { return ""; }
     }
-    return "";
 }
 
 @Description {value:"Construct an array of groups from the comma separed group string passed"}

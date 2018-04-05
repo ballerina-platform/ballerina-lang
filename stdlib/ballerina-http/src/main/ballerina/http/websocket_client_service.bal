@@ -5,4 +5,4 @@ public type WebSocketClientService object {
         WebSocketClient ep = {};
         return ep;
     }
-}
+};

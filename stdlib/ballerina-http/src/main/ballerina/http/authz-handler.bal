@@ -42,7 +42,7 @@ public type HttpAuthzHandler object {
     public function canHandle (Request req) returns (boolean);
 
     public function handle (Request req, string[] scopes, string resourceName) returns (boolean);
-}
+};
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
 @Param {value:"req: Request instance"}

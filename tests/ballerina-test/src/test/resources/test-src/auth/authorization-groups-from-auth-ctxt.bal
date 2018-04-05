@@ -4,8 +4,8 @@ import ballerina/auth.utils;
 import ballerina/runtime;
 
 function testAuthorizationSuccessWithGroupsFromAuthContext () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = check (<permissionstore:PermissionStore>fileBasedPermissionstore);
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope2"];
     runtime:getInvocationContext().authenticationContext.groups = ["lmn"];
@@ -13,8 +13,8 @@ function testAuthorizationSuccessWithGroupsFromAuthContext () returns (boolean) 
 }
 
 function testAuthorizationFailureWithGroupsFromAuthContext () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = check (<permissionstore:PermissionStore>fileBasedPermissionstore);
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope1"];
     runtime:getInvocationContext().authenticationContext.groups = ["abc"];

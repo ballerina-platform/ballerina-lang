@@ -159,7 +159,7 @@ public type RetryClient object {
         P{{promise}} - The Push Promise need to be rejected.
     }
     public function rejectPromise (PushPromise promise) returns (boolean);
-}
+};
 
 public function RetryClient::post (string path, Request request) returns (Response | HttpConnectorError) {
 	return performRetryAction(path, request, HttpOperation.POST, client);
