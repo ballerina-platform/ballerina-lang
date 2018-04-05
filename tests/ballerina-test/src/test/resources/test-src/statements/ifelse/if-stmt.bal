@@ -1,24 +1,26 @@
 function testIfStmt(int a, int b, int c) returns (int, int) {
 
+    int a1 = a;
+    int b1 = b;
     int x;
     x = 10;
 
-    if ( a == b) {
-        a = 100;
+    if ( a1 == b1) {
+        a1 = 100;
 
-    } else if (a == b + 1){
-        a = 200;
+    } else if (a1 == b1 + 1){
+        a1 = 200;
 
-    } else  if (a == b + 2){
-        a = 300;
+    } else  if (a1 == b1 + 2){
+        a1 = 300;
 
     }  else {
-        a = 400;
+        a1 = 400;
     }
 
-    b = c;
+    b1 = c;
 
-    return (a + x, b + 1);
+    return (a1 + x, b1 + 1);
 }
 
 function testAgeGroup(int age) returns (string) {
