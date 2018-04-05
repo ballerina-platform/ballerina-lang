@@ -119,11 +119,9 @@ public function MediaType::toStringWithParameters () returns (string) {
 @Description {value:"Represent all entity related errors"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The error which caused the entity error"}
-public type EntityError object {
-    public {
-        string message;
-        error[] cause;
-    }
+public type EntityError  {
+    string message,
+    error[] cause
 }
 
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
