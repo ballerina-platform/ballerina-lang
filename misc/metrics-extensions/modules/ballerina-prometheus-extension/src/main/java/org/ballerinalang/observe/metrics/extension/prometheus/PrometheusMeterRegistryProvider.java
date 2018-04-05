@@ -51,6 +51,10 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
     @Override
     public MeterRegistry get() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        if (!Boolean.valueOf(configRegistry.getConfigOrDefault(PROMETHEUS_ENABLED, String.valueOf(Boolean.FALSE)))) {
+            // Do not return if Prometheus is not enabled
+            return null;
+        }
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(new BallerinaPrometheusConfig());
         String portConfigValue = configRegistry.getConfigOrDefault(PROMETHEUS_PORT, String.valueOf(DEFAULT_PORT));
         int port;

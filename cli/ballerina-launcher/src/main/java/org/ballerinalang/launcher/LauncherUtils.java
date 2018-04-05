@@ -72,7 +72,8 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag) {
+                                  boolean offline, boolean observeFlag, Map<String, String> tracingParams,
+                                  Map<String, String> metricsParams) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -104,6 +105,12 @@ public class LauncherUtils {
                         .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
                 ConfigRegistry.getInstance()
                         .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, String.valueOf(Boolean.TRUE));
+                tracingParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_TRACING + "." + key, value));
+                metricsParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));
             }
 
         } catch (IOException e) {

@@ -225,8 +225,14 @@ public class Main {
         @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
         private String configFilePath;
 
-        @Parameter(names = "--observe", description = "enable observability")
+        @Parameter(names = "--observe", description = "enable observability with default configs")
         private boolean observeFlag;
+
+        @DynamicParameter(names = "-t", description = "override ballerina observability tracing parameters")
+        private Map<String, String> tracingParams = new HashMap<>();
+
+        @DynamicParameter(names = "-m", description = "override ballerina observability metrics parameters")
+        private Map<String, String> metricsParams = new HashMap<>();
 
         @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
@@ -261,7 +267,7 @@ public class Main {
                 }
 
                 LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams, configFilePath,
-                                         new String[0], offline, observeFlag);
+                                         new String[0], offline, observeFlag, tracingParams, metricsParams);
                 return;
             }
 
@@ -276,8 +282,7 @@ public class Main {
             }
 
             LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams,
-                                     configFilePath, programArgs, offline, observeFlag);
-
+                                     configFilePath, programArgs, offline, observeFlag, tracingParams, metricsParams);
         }
 
         @Override
