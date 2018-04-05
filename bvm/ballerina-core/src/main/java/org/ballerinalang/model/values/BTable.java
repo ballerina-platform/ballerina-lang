@@ -39,11 +39,11 @@ import java.util.StringJoiner;
 public class BTable implements BRefType<Object>, BCollection {
 
     protected DataIterator iterator;
-    protected boolean hasNextVal;
-    protected boolean nextPrefetched;
+    private boolean hasNextVal;
+    private boolean nextPrefetched;
     private TableProvider tableProvider;
     private String tableName;
-    protected BStructType constraintType;
+    private BStructType constraintType;
     private boolean isInMemoryTable;
 
     public BTable() {
@@ -137,25 +137,14 @@ public class BTable implements BRefType<Object>, BCollection {
 
 
     public boolean hasNext(boolean isInTransaction) {
-        if (this.isInMemoryTable && this.iterator == null) {
-            generateIterator();
+        if (isIteratorPopulationConditionMet()) {
+            populateIterator();
         }
-        if (!nextPrefetched) {
-            hasNextVal = iterator.next();
-            nextPrefetched = true;
-        }
-        if (!hasNextVal) {
-            close(isInTransaction);
-        }
-        return hasNextVal;
+        return deriveHasNextVal(isInTransaction);
     }
 
     public void next() {
-        if (!nextPrefetched) {
-            iterator.next();
-        } else {
-            nextPrefetched = false;
-        }
+        moveIteratorCursorToNextRow();
     }
 
     public void close(boolean isInTransaction) {
@@ -264,27 +253,24 @@ public class BTable implements BRefType<Object>, BCollection {
         return new BTable.BTableIterator(this);
     }
 
-    private void insertInitialData(BRefValueArray data) {
-        int count = (int) data.size();
-        for (int i = 0; i < count; i++) {
-            if (!(data.get(i) instanceof BStruct)) {
-                throw new BallerinaException("initial data should be in struct type");
-            }
-            addData((BStruct) data.get(i));
-        }
-    }
-
-    private void generateIterator() {
+    protected void populateIterator() {
         this.iterator = tableProvider.createIterator(tableName, this.constraintType);
-        this.nextPrefetched = false;
-        this.hasNextVal = false;
+        resetIterationHelperAttributes();
     }
 
-    private void resetIterator() {
-        if (iterator != null) {
-            iterator.close(false);
-            this.iterator = null;
+    protected boolean isIteratorPopulationConditionMet() {
+        return this.isInMemoryTable && this.iterator == null;
+    }
+
+    protected void moveIteratorCursorToNextRow() {
+        if (!nextPrefetched) {
+            iterator.next();
+        } else {
+            nextPrefetched = false;
         }
+    }
+
+    protected void resetIterationHelperAttributes() {
         this.nextPrefetched = false;
         this.hasNextVal = false;
     }
@@ -297,6 +283,35 @@ public class BTable implements BRefType<Object>, BCollection {
             }
             tableProvider.dropTable(this.tableName);
         }
+    }
+
+    private void insertInitialData(BRefValueArray data) {
+        int count = (int) data.size();
+        for (int i = 0; i < count; i++) {
+            if (!(data.get(i) instanceof BStruct)) {
+                throw new BallerinaException("initial data should be in struct type");
+            }
+            addData((BStruct) data.get(i));
+        }
+    }
+
+    protected void resetIterator() {
+        if (iterator != null) {
+            iterator.close(false);
+            this.iterator = null;
+        }
+        resetIterationHelperAttributes();
+    }
+
+    private boolean deriveHasNextVal(boolean isInTransaction) {
+        if (!nextPrefetched) {
+            hasNextVal = iterator.next();
+            nextPrefetched = true;
+        }
+        if (!hasNextVal) {
+            close(isInTransaction);
+        }
+        return hasNextVal;
     }
 
     /**

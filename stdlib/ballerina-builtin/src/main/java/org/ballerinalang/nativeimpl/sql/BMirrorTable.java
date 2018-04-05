@@ -85,7 +85,7 @@ public class BMirrorTable extends BTable {
         boolean isInTransaction = context.isInTransaction();
         try {
             connection = SQLDatasourceUtils
-                    .getDatabaseConnection(context, this.getDatasource(), isInTransaction);
+                    .getDatabaseConnection(context, this.datasource, isInTransaction);
             if (!isInTransaction) {
                 connection.setAutoCommit(false);
             }
@@ -111,7 +111,7 @@ public class BMirrorTable extends BTable {
         }
     }
 
-    public void removeData(BStruct data, Connection conn) throws SQLException {
+    private void removeData(BStruct data, Connection conn) throws SQLException {
         PreparedStatement stmt = null;
         try {
             String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, data);
@@ -126,34 +126,12 @@ public class BMirrorTable extends BTable {
 
     @Override
     public void next() {
-        if (((SQLDataIterator) iterator).getResultset() == null) {
-            populateIteratorAttributes(tableName);
-            this.nextPrefetched = false;
-            this.hasNextVal = false;
+        if (isIteratorPopulationConditionMet()) {
+            populateIterator();
         }
-        if (!nextPrefetched) {
-            iterator.next();
-        } else {
-            nextPrefetched = false;
-        }
+        moveIteratorCursorToNextRow();
     }
 
-    @Override
-    public boolean hasNext(boolean isInTransaction) {
-        if (((SQLDataIterator) iterator).getResultset() == null) {
-            populateIteratorAttributes(tableName);
-            this.nextPrefetched = false;
-            this.hasNextVal = false;
-        }
-        if (!nextPrefetched) {
-            hasNextVal = iterator.next();
-            nextPrefetched = true;
-        }
-        if (!hasNextVal) {
-            close(isInTransaction);
-        }
-        return hasNextVal;
-    }
 
     @Override
     public void close(boolean isInTransaction) {
@@ -168,19 +146,11 @@ public class BMirrorTable extends BTable {
        return "";
     }
 
-    public SQLDatasource getDatasource() {
-        return datasource;
+    protected boolean isIteratorPopulationConditionMet() {
+        return ((SQLDataIterator) iterator).getResultSet() == null;
     }
 
-    private void resetIterator() {
-        if (iterator != null) {
-            iterator.close(false);
-        }
-        this.nextPrefetched = false;
-        this.hasNextVal = false;
-    }
-
-    private void populateIteratorAttributes(String tableName) {
+    protected void populateIterator() {
         PreparedStatement preparedStmt = null;
         ResultSet rs = null;
         Connection conn = datasource.getSQLConnection();
@@ -188,12 +158,18 @@ public class BMirrorTable extends BTable {
             String query = TableConstants.SQL_SELECT + tableName;
             preparedStmt = conn.prepareStatement(query);
             rs = preparedStmt.executeQuery();
-            ((SQLDataIterator) iterator).populateTableResourceManager(conn, preparedStmt);
-            ((SQLDataIterator) iterator).setResultSet(rs);
-            ((SQLDataIterator) iterator).setColumnDefs(SQLDatasourceUtils.getColumnDefinitions(rs));
+            ((SQLDataIterator) iterator).setResetAttributesForReIteration(rs, conn, preparedStmt);
+            resetIterationHelperAttributes();
         } catch (SQLException e) {
             SQLDatasourceUtils.cleanupConnection(rs, preparedStmt, conn, false);
             throw new BallerinaException("error in populating iterator for table : " + e.getMessage());
         }
+    }
+
+    protected void resetIterator() {
+        if (iterator != null) {
+            iterator.close(false);
+        }
+        resetIterationHelperAttributes();
     }
 }

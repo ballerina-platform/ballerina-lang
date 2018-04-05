@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 /**
  * {@code Remove} is the function to remove data from a table.
  *
- * @since 0.963.0
+ * @since 0.970.0
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "builtin",
                    functionName = "table.remove",

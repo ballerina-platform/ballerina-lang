@@ -36,6 +36,7 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -75,17 +76,9 @@ public class SQLDataIterator extends TableIterator {
         this.zoneStructInfo = zoneStructInfo;
     }
 
-    public void populateTableResourceManager(Connection conn, Statement stmt) {
+    private void populateTableResourceManager(Connection conn, Statement stmt) {
         resourceManager.setConnection(conn);
         resourceManager.setStatement(stmt);
-    }
-
-    public void setResultSet(ResultSet rs) {
-        this.rs = rs;
-    }
-
-    public ResultSet getResultset() {
-        return rs;
     }
 
     @Override
@@ -264,8 +257,22 @@ public class SQLDataIterator extends TableIterator {
         return bStruct;
     }
 
-    public void setColumnDefs(List<ColumnDefinition> columnDefs) {
-        this.columnDefs = columnDefs;
+    public void setResetAttributesForReIteration(ResultSet rs, Connection conn, PreparedStatement preparedStmt) {
+        this.rs = rs;
+        populateTableResourceManager(conn, preparedStmt);
+        setColumnDefs(rs);
+    }
+
+    public ResultSet getResultSet() {
+        return this.rs;
+    }
+
+    private void setColumnDefs(ResultSet rs) {
+        try {
+            this.columnDefs = SQLDatasourceUtils.getColumnDefinitions(rs);
+        } catch (SQLException e) {
+            throw new BallerinaException("error while obtaining column definitions : " + e.getMessage());
+        }
     }
 
     private BStruct createTimeStruct(long millis) {

@@ -34,10 +34,10 @@ public class TableConstants {
     public static final String SQL_SELECT = "SELECT * FROM ";
     static final String SQL_CREATE = "CREATE TABLE ";
     static final String SQL_DROP = "DROP TABLE ";
-    public static final String SQL_INSERT_INTO = "INSERT INTO ";
-    public static final String SQL_DELETE_FROM = "DELETE FROM ";
-    public static final String SQL_WHERE = " WHERE ";
-    public static final String SQL_AND = " AND ";
+    static final String SQL_INSERT_INTO = "INSERT INTO ";
+    static final String SQL_DELETE_FROM = "DELETE FROM ";
+    static final String SQL_WHERE = " WHERE ";
+    static final String SQL_AND = " AND ";
     static final String SQL_AS = "AS ";
     static final String SQL_ON = " ON ";
     static final String PRIMARY_KEY = ",PRIMARY KEY (";
