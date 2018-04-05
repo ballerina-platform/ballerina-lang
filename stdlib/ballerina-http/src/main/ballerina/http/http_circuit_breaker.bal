@@ -31,7 +31,7 @@ documentation {
     F{{CLOSED}} - circuit state CLOSED.
     F{{HALF_OPEN}} - circuit state HALF_OPEN.
 }
-public type CircuitState OPEN_STATE | HALF_OPEN_STATE | CLOSED_STATE;
+public type CircuitState OPEN_STATE | HALF_OPEN_STATE | CLOSED_STATE
 
 documentation {
     Represents Circuit health of the Circuit Breaker.
@@ -50,7 +50,7 @@ public type CircuitHealth {
    int errorCount,
    time:Time lastErrorTime,
    Bucket[] totalBuckets,
-   int lastUsedBucketId
+   int lastUsedBucketId,
 }
 
 documentation {
@@ -65,7 +65,7 @@ public type CircuitBreakerConfig {
     RollingWindow rollingWindow,
     float failureThreshold,
     int resetTimeout,
-    int[] statusCodes
+    int[] statusCodes,
 }
 
 documentation {
@@ -76,7 +76,7 @@ documentation {
 }
 public type RollingWindow {
     int timeWindow,
-    int bucketSize
+    int bucketSize,
 }
 
 documentation {
@@ -87,7 +87,7 @@ documentation {
 }
 public type Bucket {
     int successCount,
-    int failureCount
+    int failureCount,
 }
 
 public type CircuitBreakerInferredConfig {
@@ -95,7 +95,7 @@ public type CircuitBreakerInferredConfig {
    int resetTimeout,
    boolean[] statusCodes,
    int noOfBuckets,
-   RollingWindow rollingWindow
+   RollingWindow rollingWindow,
 }
 
 documentation {

@@ -86,18 +86,10 @@ public type Local {
 @Field {value:"maxUriLength: Maximum length allowed in the URL"}
 @Field {value:"maxHeaderSize: Maximum size allowed in the headers"}
 @Field {value:"maxEntityBodySize: Maximum size allowed in the entity body"}
-public type RequestLimits object {
-    @readonly int maxUriLength;
-    @readonly int maxHeaderSize;
-    @readonly int maxEntityBodySize;
-}
-
-@Description {value:"Initializes the RequestLimits struct with default values."}
-@Param {value:"config: The RequestLimits struct to be initialized"}
-public function RequestLimits::RequestLimits () {
-    self.maxUriLength = -1;
-    self.maxHeaderSize = -1;
-    self.maxEntityBodySize = -1;
+public type RequestLimits {
+    int maxUriLength = -1;
+    int maxHeaderSize = -1;
+    int maxEntityBodySize = -1;
 }
 
 @Description {value:"Configuration for HTTP service endpoint"}
@@ -120,7 +112,7 @@ public type ServiceEndpointConfiguration {
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
-    Filter[] filters
+    Filter[] filters,
 }
 
 @Description {value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service"}
@@ -140,15 +132,15 @@ public type ServiceSecureSocket {
     string ciphers,
     string sslVerifyClient,
     boolean sessionCreation = true,
-    ServiceOcspStapling? ocspStapling
+    ServiceOcspStapling? ocspStapling,
 }
 
-public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
+public type KeepAlive "AUTO"|"ALWAYS"|"NEVER"
 
-            @Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
-                           @Param { value:"epName: The endpoint name" }
-                                    @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-                                             @Return { value:"Error occured during initialization" }
+@Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
+@Param { value:"epName: The endpoint name" }
+@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+@Return { value:"Error occured during initialization" }
 public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
     self.config = config;
     var err = self.initEndpoint();

@@ -29,10 +29,13 @@ import ballerina/io;
 @final string WEAK_VALIDATOR_TAG = "W/";
 @final int STALE = 0;
 
+@final public string CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
+@final public string RFC_7234 = "RFC_7234";
+
 @Description {value:"Used for configuring the caching behaviour. Setting the policy field in the CacheConfig struct allows the user to control the caching behaviour."}
 @Field {value:"CACHE_CONTROL_AND_VALIDATORS: This a more restricted mode of RFC 7234. This restricts caching to instances where the Cache-Control header and either the ETag or Last-Modified header are present."}
 @Field {value:"RFC_7234: Caching behaviour is as specified by the RFC 7234 specification."}
-public type CachingPolicy "CACHE_CONTROL_AND_VALIDATORS" | "RFC_7234";
+public type CachingPolicy CACHE_CONTROL_AND_VALIDATORS | RFC_7234;
 
 @Description {value:"CacheConfig record is used for providing the caching configurations necessary for the HTTP caching client."}
 @Field {value:"enabled: Specifies whether HTTP caching is enabled. Caching is enabled by default."}
@@ -47,19 +50,25 @@ public type CacheConfig {
     int expiryTimeMillis = 86400,
     int capacity = 8388608, // 8MB
     float evictionFactor = 0.2,
-    CachingPolicy policy = "CACHE_CONTROL_AND_VALIDATORS"
+    CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS
 }
 
 @Description {value:"An HTTP caching client implementation which takes an HttpClient and wraps it with a caching layer."}
 @Field {value:"httpClient: The underlying HTTP client which will be making the actual network calls"}
 @Field {value:"cacheConfig: Caching configurations for the HTTP cache"}
 public type HttpCachingClient object {
+
     public {
         string serviceUri;
         ClientEndpointConfiguration config;
         HttpClient httpClient;
         HttpCache cache;
         CacheConfig cacheConfig;
+    }
+
+    new(serviceUri, config, cacheConfig) {
+        self.httpClient = createHttpClient(serviceUri, config);
+        self.cache = createHttpCache("http-cache", cacheConfig);
     }
 
     @Description {value:"Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for POST requests invalidate the cached responses for the same resource."}
@@ -165,12 +174,7 @@ public type HttpCachingClient object {
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
 public function createHttpCachingClient(string url, ClientEndpointConfiguration config, CacheConfig cacheConfig) returns HttpClient {
-    HttpCachingClient httpCachingClient = {
-                                       serviceUri: url,
-                                       httpClient: createHttpClient(url, config),
-                                       cache: createHttpCache("http-cache", cacheConfig),
-                                       cacheConfig: cacheConfig
-                                   };
+    HttpCachingClient httpCachingClient = new (url, config, cacheConfig);
     log:printDebug("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
     return httpCachingClient;
 }
