@@ -25,7 +25,7 @@ import ballerina/io;
 @Field {value:"interval: Failover delay interval in millisecond."}
 public type FailoverConfig {
     int[] failoverCodes,
-    int interval
+    int interval,
 }
 
 @Description {value:"Represents an error occurred in an function of the Failover connector."}
@@ -38,14 +38,14 @@ public type FailoverConnectorError {
     string message,
     error[] cause,
     int statusCode,
-    HttpConnectorError[] httpConnectorError
+    HttpConnectorError[] httpConnectorError,
 }
 
 // Represents inferred failover configurations passed to Failover connector.
 public type FailoverInferredConfig {
     HttpClient[] failoverClientsArray,
     boolean[] failoverCodesIndex,
-    int failoverInterval
+    int failoverInterval,
 }
 
 @Description {value:"Failover client implementation to be used with the HTTP client connector to support failover."}

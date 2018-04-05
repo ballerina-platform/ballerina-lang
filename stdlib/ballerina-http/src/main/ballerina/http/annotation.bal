@@ -55,10 +55,10 @@ type CorsConfig {
 @Field {value:"pattern: Expecting version pattern in the request url"}
 @Field {value:"allowNoVersion: Allow to dispatch requests which does not hold version path segment in url"}
 @Field {value:"matchMajorVersion: Allow to dispatch requests which specify only the major version in url"}
-public struct Versioning {
-    string pattern = "v{major}.{minor}";
-    boolean allowNoVersion;
-    boolean matchMajorVersion;
+type Versioning {
+    string pattern = "v{major}.{minor}",
+    boolean allowNoVersion = false,
+    boolean matchMajorVersion = false
 }
 
 @Description {value:"Configuration for a WebSocket service."}
@@ -72,7 +72,6 @@ type WSServiceConfig {
     string basePath,
     string[] subProtocols,
     int idleTimeoutInSeconds
-
 }
 
 @Description {value:"This specifies the possible ways in which a service can be used when serving requests."}
