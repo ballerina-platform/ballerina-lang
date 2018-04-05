@@ -51,7 +51,7 @@ public type CacheConfig {
     int capacity = 8388608, // 8MB
     float evictionFactor = 0.2,
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS,
-}
+};
 
 @Description {value:"An HTTP caching client implementation which takes an HttpClient and wraps it with a caching layer."}
 @Field {value:"httpClient: The underlying HTTP client which will be making the actual network calls"}
@@ -170,7 +170,7 @@ public type HttpCachingClient object {
     @Param {value:"promise: The Push Promise need to be rejected"}
     @Return {value:"Whether operation is successful"}
     public function rejectPromise (PushPromise promise) returns boolean;
-}
+};
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
 public function createHttpCachingClient(string url, ClientEndpointConfiguration config, CacheConfig cacheConfig) returns HttpClient {

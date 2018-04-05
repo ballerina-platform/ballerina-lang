@@ -53,7 +53,7 @@ public type ClientEndpoint object {
     @Return { value:"Error occured during registration" }
     public function stop() {
     }
-}
+};
 
 public type Algorithm "NONE" | "LOAD_BALANCE" | "FAIL_OVER";
 
@@ -63,7 +63,7 @@ public type Algorithm "NONE" | "LOAD_BALANCE" | "FAIL_OVER";
 public type TargetService {
     string url,
     SecureSocket? secureSocket,
-}
+};
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
 @Field {value:"circuitBreaker: Circuit Breaker configuration"}
@@ -98,7 +98,7 @@ public type ClientEndpointConfiguration {
     string|FailoverConfig lbMode = ROUND_ROBIN,
     CacheConfig cacheConfig,
     string acceptEncoding = "auto",
-}
+};
 
 public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns HttpClient;
 
@@ -112,7 +112,7 @@ public type Retry {
     int interval,
     float backOffFactor,
     int maxWaitInterval,
-}
+};
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
 @Field {value: "trustStore: TrustStore related options"}
@@ -132,7 +132,7 @@ public type SecureSocket {
     boolean hostNameVerification = true,
     boolean sessionCreation = true,
     boolean ocspStapling,
-}
+};
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
 @Field {value:"enabled: Enable redirect"}
@@ -140,7 +140,7 @@ public type SecureSocket {
 public type FollowRedirects {
     boolean enabled = false,
     int maxCount = 5,
-}
+};
 
 @Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
 @Field {value:"proxyHost: host name of the proxy server"}
@@ -152,7 +152,7 @@ public type Proxy {
     int port,
     string userName,
     string password,
-}
+};
 
 @Description { value:"This struct represents the options to be used for connection throttling" }
 @Field {value:"maxActiveConnections: Number of maximum active connections for connection throttling. Default value -1, indicates the number of connections are not restricted"}
@@ -160,7 +160,7 @@ public type Proxy {
 public type ConnectionThrottling {
     int maxActiveConnections = -1,
     int waitTime = 60000,
-}
+};
 
 public function ClientEndpoint::init(ClientEndpointConfiguration config) {
     boolean httpClientRequired = false;

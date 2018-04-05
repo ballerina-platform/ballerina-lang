@@ -114,7 +114,7 @@ public type RequestCacheControl object {
 
         return buildCommaSeparatedString(directives);
     }
-}
+};
 
 @Description {value:"Cache control directives configuration for responses"}
 @Field {value:"mustRevalidate: Represents the must-revalidate directive"}
@@ -191,7 +191,7 @@ public type ResponseCacheControl object {
 
         return buildCommaSeparatedString(directives);
     }
-}
+};
 
 function Request::parseCacheControlHeader () {
     self.cacheControl = {};

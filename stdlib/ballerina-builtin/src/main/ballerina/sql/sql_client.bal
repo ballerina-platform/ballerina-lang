@@ -27,7 +27,7 @@ public type Parameter {
     any value,
     Direction direction,
     typedesc structType,
-}
+};
 
 @Description {value:"The Databases which has direct parameter support."}
 @Field {value:"MYSQL: MySQL DB with connection url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
@@ -141,8 +141,8 @@ public type SQLClient object {
     @Param {value:"parameters: Parameter array used with the SQL query"}
     @Return {value:"Result set(s) for the given query"}
     @Return {value:"The Error occured during SQL client invocation"}
-    public native function call (@sensitive string sqlQuery, (Parameter[] | null) parameters,
-        (typedesc | null) structType)
+    public native function call (@sensitive string sqlQuery, (Parameter[] | ()) parameters,
+        (typedesc | ()) structType)
         returns @tainted (table[] | SQLConnectorError);
 
     @Description {value:"The select action implementation for SQL connector to select data from tables."}
@@ -150,20 +150,20 @@ public type SQLClient object {
     @Param {value:"parameters: Parameter array used with the SQL query"}
     @Return {value:"Result set for the given query"}
     @Return {value:"The Error occured during SQL client invocation"}
-    public native function select (@sensitive string sqlQuery, (Parameter[] | null) parameters,
-        (typedesc | null) structType)
+    public native function select (@sensitive string sqlQuery, (Parameter[] | ()) parameters,
+        (typedesc | ()) structType)
         returns @tainted (table | SQLConnectorError);
 
     @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
     @Return {value:"The Error occured during SQL client invocation"}
-    public native function close() returns (SQLConnectorError | null);
+    public native function close() returns (SQLConnectorError | ());
 
     @Description {value:"The update action implementation for SQL connector to update data and schema of the database."}
     @Param {value:"sqlQuery: SQL query to execute"}
     @Param {value:"parameters: Parameter array used with the SQL query"}
     @Return {value:"Updated row count"}
     @Return {value:"The Error occured during SQL client invocation"}
-    public native function update (@sensitive string sqlQuery, (Parameter [] | null) parameters)
+    public native function update (@sensitive string sqlQuery, (Parameter [] | ()) parameters)
         returns (int | SQLConnectorError);
 
     @Description {value:"The batchUpdate action implementation for SQL connector to batch data insert."}
@@ -171,7 +171,7 @@ public type SQLClient object {
     @Param {value:"parameters: Parameter array used with the SQL query"}
     @Return {value:"Array of update counts"}
     @Return {value:"The Error occured during SQL client invocation"}
-    public native function batchUpdate (@sensitive string sqlQuery, (Parameter[][]|null) parameters)
+    public native function batchUpdate (@sensitive string sqlQuery, (Parameter[][]|()) parameters)
         returns (int[] | SQLConnectorError);
 
     @Description {value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto
@@ -183,9 +183,9 @@ public type SQLClient object {
     @Return {value:"Array of auto generated key values during the query execution"}
     @Return {value:"The Error occured during SQL client invocation"}
     public native function updateWithGeneratedKeys (@sensitive string sqlQuery,
-        (Parameter[] | null) parameters, (string[] | null) keyColumns)
+        (Parameter[] | ()) parameters, (string[] | ()) keyColumns)
         returns (int, string[]) | SQLConnectorError;
-}
+};
 
 @Description { value:"SQLConnectorError struct represents an error occured during the SQL client invocation" }
 @Field {value:"message:  An error message explaining about the error"}
@@ -193,4 +193,4 @@ public type SQLClient object {
 public type SQLConnectorError {
     string message,
     error[] cause,
-}
+};

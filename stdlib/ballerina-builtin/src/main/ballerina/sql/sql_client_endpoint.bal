@@ -49,7 +49,7 @@ public type Client object {
     @Return {value:"Error occured during registration"}
     public function stop() {
     }
-}
+};
 
 @Description {value:"ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
 @Field {value:"url: Platform independent DB access URL"}
@@ -95,7 +95,7 @@ public type ConnectionProperties {
     int validationTimeout = -1,
     int leakDetectionThreshold = -1,
     map datasourceProperties,
-}
+};
 
 @Description {value:"The Client endpoint configuration for SQL databases."}
 @Field {value:"database: SQL database type"}
@@ -113,7 +113,7 @@ public type ClientEndpointConfiguration {
     string username = "",
     string password = "",
     ConnectionProperties options,
-}
+};
 
 public native function createSQLClient(ClientEndpointConfiguration config) returns SQLClient;
 

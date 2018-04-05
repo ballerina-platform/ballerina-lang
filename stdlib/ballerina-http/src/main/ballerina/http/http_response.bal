@@ -148,7 +148,7 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Param {value:"payload: The byte channel representation of the message payload"}
     public function setByteChannel (io:ByteChannel payload);
-}
+};
 
 /////////////////////////////////
 /// Ballerina Implementations ///

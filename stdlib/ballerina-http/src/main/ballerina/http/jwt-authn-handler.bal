@@ -68,7 +68,7 @@ public type HttpJwtAuthnHandler object {
             }
         }
     }
-}
+};
 
 function extractJWTToken (Request req) returns (string) {
     string authHeader = req.getHeader(AUTH_HEADER);

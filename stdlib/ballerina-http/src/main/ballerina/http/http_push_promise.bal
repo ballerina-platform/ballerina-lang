@@ -35,5 +35,5 @@ public type PushPromise object {
 
     @Description {value:"Removes all transport headers from the Push Promise"}
     public native function removeAllHeaders ();
-}
+};
 
