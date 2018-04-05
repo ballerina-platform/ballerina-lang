@@ -38,7 +38,7 @@ public class WebSocketConnectionManager {
         wsConnectionsMap.put(connectionID, wsConnection);
     }
 
-    public WebSocketOpenConnectionInfo removeConnection(String connectionID) {
+    public WebSocketOpenConnectionInfo removeConnectionInfo(String connectionID) {
         return wsConnectionsMap.remove(connectionID);
     }
 }

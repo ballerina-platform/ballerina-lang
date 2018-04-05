@@ -173,7 +173,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketDispatcher.dispatchCloseMessage(
-                connectionManager.getConnectionInfo(webSocketCloseMessage.getSessionID()), webSocketCloseMessage);
+                connectionManager.removeConnectionInfo(webSocketCloseMessage.getSessionID()), webSocketCloseMessage);
     }
 
     @Override

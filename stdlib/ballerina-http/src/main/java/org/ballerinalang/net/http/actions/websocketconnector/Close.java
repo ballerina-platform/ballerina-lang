@@ -66,7 +66,7 @@ public class Close extends BlockingNativeCallableUnit {
                     (WebSocketConnectionManager) webSocketConnector
                             .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
             if (connectionManager != null) {
-                connectionManager.removeConnection(session.getId());
+                connectionManager.removeConnectionInfo(session.getId());
             }
         }
         context.setReturnValues();
