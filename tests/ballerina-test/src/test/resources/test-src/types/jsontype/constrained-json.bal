@@ -1,14 +1,18 @@
-struct Person {
-    string name;
-    int age;
-    string address;
+type Person object {
+    public {
+        string name;
+        int age;
+        string address;
+    }
 }
 
-struct Student {
-    string name;
-    int age;
-    string address;
-    string class;
+type Student object {
+    public {
+        string name;
+        int age;
+        string address;
+        string class;
+    }
 }
 
 function testJsonStructConstraint() returns (json, json, json, string|error, int|error, string|error) {
@@ -62,23 +66,29 @@ function getStudent() returns (json<Student>){
     return j;
 }
 
-struct Employee {
-    string first_name;
-    string last_name;
-    int age;
-    Address address;
+type Employee object {
+    public {
+        string first_name;
+        string last_name;
+        int age;
+        Address address;
+    }
 }
 
-struct Address {
-    string number;
-    string street;
-    string city;
-    PhoneNumber phoneNumber;
+type Address object {
+    public {
+        string number;
+        string street;
+        string city;
+        PhoneNumber phoneNumber;
+    }
 }
 
-struct PhoneNumber {
-    string areaCode;
-    string number;
+type PhoneNumber object {
+    public {
+        string areaCode;
+        string number;
+    }
 }
 
 function testContrainingWithNestedStructs() returns (json, json, json) {
@@ -99,7 +109,7 @@ function testJSONToConstraintJsonUnsafeCast() returns (json | error) {
 
 function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json) {
     json<Person> j;
-    j =? <json<Person>>getPersonEquivalentPlainJson();
+    j =check <json<Person>>getPersonEquivalentPlainJson();
     return (j.name, j.age, j.address);
 }
 
@@ -162,12 +172,12 @@ function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns (json<Student>
     return j3;
 }
 
-function testConstrainedJsonWithFunctions() returns (string){
+function testConstrainedJsonWithFunctions() returns (string | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.toString();
 }
 
-function testConstrainedJsonWithFunctionGetKeys() returns (string[]){
+function testConstrainedJsonWithFunctionGetKeys() returns (string[] | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.getKeys();
 }
