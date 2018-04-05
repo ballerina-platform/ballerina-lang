@@ -34,15 +34,15 @@ public type QueueSender object {
 
     public function stop () {
     }
-}
+};
 
 public type QueueSenderEndpointConfiguration {
     Session? session;
     string queueName;
-}
+};
 
 public type QueueSenderConnector object {
     public native function send (Message m);
-}
+};
 
 

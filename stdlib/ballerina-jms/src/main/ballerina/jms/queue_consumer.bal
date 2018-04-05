@@ -38,13 +38,13 @@ public type QueueConsumer object {
 
     public function stop () {
     }
-}
+};
 
 public type QueueConsumerEndpointConfiguration {
     Session? session;
     string queueName;
     string identifier;
-}
+};
 
 public type QueueConsumerConnector object {
-}
+};

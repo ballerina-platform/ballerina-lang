@@ -13,8 +13,8 @@ public type Session object {
     public native function initEndpoint(Connection connection);
 
     public native function createTextMessage (string content) returns (Message);
-}
+};
 
 public type SessionConfiguration {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-}
+};

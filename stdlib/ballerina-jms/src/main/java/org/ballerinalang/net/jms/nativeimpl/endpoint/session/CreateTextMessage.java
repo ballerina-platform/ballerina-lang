@@ -33,8 +33,6 @@ import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
