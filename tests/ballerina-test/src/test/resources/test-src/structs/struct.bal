@@ -1,18 +1,18 @@
-struct Department {
+type Department {
     string dptName;
     Person[] employees;
 }
 
-struct Person {
+type Person {
     string name = "default first name";
     string lname;
     map adrs;
     int age = 999;
     Family family;
-    Person|null parent;
+    Person|() parent;
 }
 
-struct Family {
+type Family {
     string spouse;
     int noOfChildren;
     string[] children;
@@ -95,7 +95,7 @@ function testNestedStructInit () returns (Person) {
     return p1;
 }
 
-struct NegativeValTest {
+type NegativeValTest {
     int negativeInt = -9;
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;

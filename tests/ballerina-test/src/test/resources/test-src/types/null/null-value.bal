@@ -32,7 +32,7 @@ function testStructNull () returns (Person|null, Person|null, int) {
     return (p1, p2, a);
 }
 
-struct Person {
+type Person {
     string name;
 }
 
