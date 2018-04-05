@@ -2,7 +2,7 @@ type TestObject object {
     function testFunction (string input) returns string {
         return input;
     }
-}
+};
 
 function secureFunction(@sensitive string secureIn, string insecureIn) {
 

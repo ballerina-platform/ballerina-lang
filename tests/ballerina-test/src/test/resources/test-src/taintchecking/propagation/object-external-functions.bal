@@ -1,6 +1,6 @@
 type TestObject object {
     function testFunction (string input) returns string;
-}
+};
 
 function TestObject::testFunction (string input) returns string {
     return input;

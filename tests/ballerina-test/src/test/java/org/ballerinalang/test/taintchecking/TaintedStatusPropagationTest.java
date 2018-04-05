@@ -76,16 +76,16 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testStruct() {
+    public void testRecord() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/struct.bal");
+                .compile("test-src/taintchecking/propagation/record.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
     @Test
-    public void testStructNegative() {
+    public void testRecordNegative() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/struct-negative.bal");
+                .compile("test-src/taintchecking/propagation/record-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 8);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 8, 20);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);

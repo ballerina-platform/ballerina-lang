@@ -4,7 +4,7 @@ type TestObject object {
     }
     new (testString) {}
     function testFunction (string input) returns string;
-}
+};
 
 function TestObject::testFunction (string input) returns string {
     return input;
