@@ -39,7 +39,7 @@ public type AuthnFilter object {
 
     public function init ();
     public function terminate ();
-}
+};
 
 @Description {value:"Initializes the AuthnFilter"}
 public function AuthnFilter::init () {

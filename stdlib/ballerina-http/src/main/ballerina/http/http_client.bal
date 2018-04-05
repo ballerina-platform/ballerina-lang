@@ -124,7 +124,7 @@ public type HttpClient object {
     @Param { value:"promise: The Push Promise need to be rejected" }
     @Return { value:"Whether operation is successful" }
     public native function rejectPromise(PushPromise promise) returns (boolean);
-}
+};
 
 @Description { value:"HttpConnectorError record represents an error occured during the HTTP client invocation" }
 @Field {value:"message:  An error message explaining the error"}
@@ -134,7 +134,7 @@ public type HttpConnectorError {
     string message,
     error[] cause,
     int statusCode,
-}
+};
 
 @Description {value:"HttpTimeoutError record represents a timeout error occurred during service invocation."}
 @Field {value:"message: An error message explaining the error"}
@@ -144,4 +144,4 @@ public type HttpTimeoutError {
     string message,
     error[] cause,
     int statusCode,
-}
+};

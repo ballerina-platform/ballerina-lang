@@ -21,7 +21,7 @@ import ballerina/time;
 import ballerina/util;
 
 @Description {value:"Represents JWT validator configurations"}
-public struct JWTValidatorConfig {
+public type JWTValidatorConfig {
     string issuer;
     string audience;
     string certificateAlias;
@@ -99,10 +99,10 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
 
 function parseHeader (json jwtHeaderJson) returns (Header) {
     Header jwtHeader = {};
-    map customClaims = {};
+    map customClaims;
     
     string [] keys;
-    keys = jwtHeaderJson.getKeys() but { null => keys };
+    keys = jwtHeaderJson.getKeys() but { () => keys };
     
     foreach key in keys {
         //TODO get alg from a constant
@@ -128,9 +128,9 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
 
 function parsePayload (json jwtPayloadJson) returns (Payload) {
     Payload jwtPayload = {};
-    map customClaims = {};
+    map customClaims;
     string [] keys;
-    keys = jwtPayloadJson.getKeys() but { null => keys };
+    keys = jwtPayloadJson.getKeys() but { () => keys };
     foreach key in keys {
         if (key == ISS) {
             jwtPayload.iss = jwtPayloadJson[key].toString();
@@ -142,13 +142,13 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
             jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.exp =? <int>value;
+            jwtPayload.exp = check (<int>value);
         } else if (key == NBF) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.nbf =? <int>value;
+            jwtPayload.nbf = check (<int>value);
         } else if (key == IAT) {
             var value = jwtPayloadJson[key].toString();
-            jwtPayload.iat =? <int>value;
+            jwtPayload.iat = check (<int>value);
         }
         else {
             if (lengthof jwtPayloadJson[key] > 0) {
@@ -252,5 +252,6 @@ function getDecodedValue ((string  | blob  | io:ByteChannel | util:Base64DecodeE
         blob returnBlob => return "error";
         io:ByteChannel returnChannel => return "error";
         util:Base64DecodeError returnError => return "error";
+        () => return "error";
     }
 }
