@@ -16,54 +16,71 @@
 
 package ballerina.http;
 
-// Please maintain alphabetical order when adding new header names
+
+@final // Please maintain alphabetical order when adding new header names
 documentation { HTTP header key 'age'. Gives the current age of a cached HTTP response. }
-@final public string AGE = "age";
+public string AGE = "age";
 
+@final 
 documentation { HTTP header key 'authorization' }
-@final public string AUTHORIZATION = "authorization";
+public string AUTHORIZATION = "authorization";
 
+@final 
 documentation { HTTP header key 'cache-control'. Specifies the cache control directives required for the function of HTTP caches. }
-@final public string CACHE_CONTROL = "cache-control";
+public string CACHE_CONTROL = "cache-control";
 
+@final 
 documentation { HTTP header key 'content-length'. Specifies the size of the response body in bytes. }
-@final public string CONTENT_LENGTH = "content-length";
+public string CONTENT_LENGTH = "content-length";
 
+@final 
 documentation { HTTP header key 'date'. The timestamp at the time the response was generated/received. }
-@final public string DATE = "date";
+public string DATE = "date";
 
+@final 
 documentation { HTTP header key 'etag'. A finger print for a resource which is used by HTTP caches to identify whether a resource representation has changed. }
-@final public string ETAG = "etag";
+public string ETAG = "etag";
 
+@final 
 documentation { HTTP header key 'expect'. Specifies expectations to be fulfilled by the server. }
-@final public string EXPECT = "expect";
+public string EXPECT = "expect";
 
+@final 
 documentation { HTTP header key 'expires'. Specifies the time at which the response becomes stale. }
-@final public string EXPIRES = "expires";
+public string EXPIRES = "expires";
 
+@final 
 documentation { HTTP header key 'if-match' }
-@final public string IF_MATCH = "if-match";
+public string IF_MATCH = "if-match";
 
+@final 
 documentation { HTTP header key 'if-modified-since'. Used when validating (with the origin server) whether a cached response is still valid. If the representation of the resource has modified since the timestamp in this field, a 304 response is returned. }
-@final public string IF_MODIFIED_SINCE = "if-modified-since";
+public string IF_MODIFIED_SINCE = "if-modified-since";
 
+@final 
 documentation { HTTP header key 'if-none-match'. Used when validating (with the origin server) whether a cached response is still valid. If the ETag provided in this field matches the representation of the requested resource, a 304 response is returned. }
-@final public string IF_NONE_MATCH = "if-none-match";
+public string IF_NONE_MATCH = "if-none-match";
 
+@final 
 documentation { HTTP header key 'if-range' }
-@final public string IF_RANGE = "if-range";
+public string IF_RANGE = "if-range";
 
+@final 
 documentation { HTTP header key 'if-unmodified-since' }
-@final public string IF_UNMODIFIED_SINCE = "if-unmodified-since";
+public string IF_UNMODIFIED_SINCE = "if-unmodified-since";
 
+@final 
 documentation { HTTP header key 'last-modified'. The time at which the resource was last modified. }
-@final public string LAST_MODIFIED = "last-modified";
+public string LAST_MODIFIED = "last-modified";
 
+@final 
 documentation { HTTP header key 'location'. Indicates the URL to redirect a request to. }
-@final public string LOCATION = "location";
+public string LOCATION = "location";
 
+@final 
 documentation { HTTP header key 'pragma'. Used in dealing with HTTP 1.0 caches which do not understand the 'cache-control' header. }
-@final public string PRAGMA = "pragma";
+public string PRAGMA = "pragma";
 
+@final 
 documentation { HTTP header key 'warning'. Specifies warnings generated when serving stale responses from HTTP caches. }
-@final public string WARNING = "warning";
+public string WARNING = "warning";
