@@ -86,7 +86,7 @@ public type WSServiceConfig {
 //    SINGLETON
 //}
 
-public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON"
+public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
 @Description {value:"Configurations annotation for an HTTP service"}
 public annotation <service> ServiceConfig HttpServiceConfig;

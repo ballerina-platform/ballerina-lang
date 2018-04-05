@@ -716,11 +716,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.exprs.forEach(expr -> expr.accept(this));
+        workerSendNode.expr.accept(this);
     }
 
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.exprs.forEach(expr -> expr.accept(this));
+        workerReceiveNode.expr.accept(this);
     }
 
     // Expressions
