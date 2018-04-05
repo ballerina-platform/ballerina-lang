@@ -35,72 +35,7 @@ public type ClientEndpoint object {
     @Param {value:"ep: The endpoint to be initialized"}
     @Param {value:"epName: The endpoint name"}
     @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
-    public function init(ClientEndpointConfiguration config) {
-        boolean httpClientRequired = false;
-        string url = config.targets[0].url;
-        match config.lbMode {
-            FailoverConfig failoverConfig => {
-                if (lengthof config.targets > 1) {
-                    self.config = config;
-                    self.httpClient = createFailOverClient(config, failoverConfig);
-                } else {
-                    if (url.hasSuffix("/")) {
-                        int lastIndex = url.length() - 1;
-                        url = url.subString(0, lastIndex);
-                    }
-                    self.config = config;
-
-                    if (config.cacheConfig.enabled) {
-                        self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
-                    } else{
-                        self.httpClient = createHttpClient(url, config);
-                    }
-                }
-            }
-
-            string lbAlgorithm => {
-                if (lengthof config.targets > 1) {
-                    self.httpClient = createLoadBalancerClient(config, lbAlgorithm);
-                } else {
-                    if (url.hasSuffix("/")) {
-                        int lastIndex = url.length() - 1;
-                        url = url.subString(0, lastIndex);
-                    }
-                    self.config = config;
-                    var cbConfig = config.circuitBreaker;
-                    match cbConfig {
-                        CircuitBreakerConfig cb => {
-                            if (url.hasSuffix("/")) {
-                                int lastIndex = url.length() - 1;
-                                url = url.subString(0, lastIndex);
-                            }
-                            httpClientRequired = false;
-                        }
-                        int | null => {
-                            httpClientRequired = true;
-                        }
-                    }   
-                    if (httpClientRequired) {
-                        var retryConfig = config.retry;
-                        match retryConfig {
-                            Retry retry => {
-                                self.httpClient = createRetryClient(url, config);
-                            }
-                            int | null => {
-                                if (config.cacheConfig.enabled) {
-                                    self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
-                                } else{
-                                    self.httpClient = createHttpClient(url, config);
-                                }
-                            }
-                        }
-                    } else {
-                        self.httpClient = createCircuitBreakerClient(url, config);
-                    }
-                }
-            }
-        }
-    }
+    public function init(ClientEndpointConfiguration config);
 
     public function register(typedesc serviceType) {
     }
@@ -225,6 +160,73 @@ public type Proxy {
 public type ConnectionThrottling {
     int maxActiveConnections = -1,
     int waitTime = 60000
+}
+
+public function ClientEndpoint::init(ClientEndpointConfiguration config) {
+    boolean httpClientRequired = false;
+    string url = config.targets[0].url;
+    match config.lbMode {
+        FailoverConfig failoverConfig => {
+            if (lengthof config.targets > 1) {
+                self.config = config;
+                self.httpClient = createFailOverClient(config, failoverConfig);
+            } else {
+                if (url.hasSuffix("/")) {
+                    int lastIndex = url.length() - 1;
+                    url = url.subString(0, lastIndex);
+                }
+                self.config = config;
+
+                if (config.cacheConfig.enabled) {
+                    self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
+                } else{
+                    self.httpClient = createHttpClient(url, config);
+                }
+            }
+        }
+
+        string lbAlgorithm => {
+            if (lengthof config.targets > 1) {
+                self.httpClient = createLoadBalancerClient(config, lbAlgorithm);
+            } else {
+                if (url.hasSuffix("/")) {
+                    int lastIndex = url.length() - 1;
+                    url = url.subString(0, lastIndex);
+                }
+                self.config = config;
+                var cbConfig = config.circuitBreaker;
+                match cbConfig {
+                    CircuitBreakerConfig cb => {
+                        if (url.hasSuffix("/")) {
+                            int lastIndex = url.length() - 1;
+                            url = url.subString(0, lastIndex);
+                        }
+                        httpClientRequired = false;
+                    }
+                    int | null => {
+                        httpClientRequired = true;
+                    }
+                }
+                if (httpClientRequired) {
+                    var retryConfig = config.retry;
+                    match retryConfig {
+                        Retry retry => {
+                            self.httpClient = createRetryClient(url, config);
+                        }
+                        int | null => {
+                            if (config.cacheConfig.enabled) {
+                                self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
+                            } else{
+                                self.httpClient = createHttpClient(url, config);
+                            }
+                        }
+                    }
+                } else {
+                    self.httpClient = createCircuitBreakerClient(url, config);
+                }
+            }
+        }
+    }
 }
 
 function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
