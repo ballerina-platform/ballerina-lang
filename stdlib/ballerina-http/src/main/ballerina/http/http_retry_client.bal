@@ -21,7 +21,7 @@ public type RetryClient object {
         HttpClient httpClient;
     }
 
-    new (string serviceUri, ClientEndpointConfiguration config, Retry retry, HttpClient httpClient) {
+    new (serviceUri, config, retry, httpClient) {
         self.serviceUri = serviceUri;
         self.config = config;
         self.retry = retry;

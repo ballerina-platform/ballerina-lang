@@ -34,7 +34,7 @@ public type LoadBalancer object {
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
    }
 
-   new (string serviceUri, ClientEndpointConfiguration config, HttpClient[] loadBalanceClientsArray, string algorithm, int nextIndex) {
+   new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex) {
        self.serviceUri = serviceUri;
        self.config = config;
        self.loadBalanceClientsArray = loadBalanceClientsArray;
@@ -151,10 +151,10 @@ public type LoadBalancer object {
 @Field {value:"statusCode: HTTP status code of the LoadBalanceConnectorError."}
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public type LoadBalanceConnectorError {
-    string message;
-    error[] cause;
-    int statusCode;
-    HttpConnectorError[] httpConnectorError;
+    string message,
+    error[] cause,
+    int statusCode,
+    HttpConnectorError[] httpConnectorError
 }
 
 

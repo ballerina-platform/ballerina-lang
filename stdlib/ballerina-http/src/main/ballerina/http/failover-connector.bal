@@ -59,7 +59,7 @@ public type Failover object {
         FailoverInferredConfig failoverInferredConfig;
     }
 
-    new (string serviceUri, ClientEndpointConfiguration config, FailoverInferredConfig failoverInferredConfig) {
+    new (serviceUri, config, failoverInferredConfig) {
        self.serviceUri = serviceUri;
        self.config = config;
        self.failoverInferredConfig = failoverInferredConfig;
