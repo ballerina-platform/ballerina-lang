@@ -21,39 +21,40 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
         }
         ]
     };
-    mime:Entity filePart = {};
+    mime:Entity filePart = new;
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
     file:Path filePath = file:getPath(dirPath);
     filePart.setFileAsEntityBody(filePath);
     mime:Entity[] bodyParts = [filePart];
 
-    http:Request req = {};
-    http:Response res = {};
+    http:Request req = new;
+    // http:Response res = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
     req.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
     
-    var httpResponse = httpEndpoint -> post("", req);
-    match httpResponse {
-     http:HttpConnectorError errRes => {
-         var errorResp = <error> errRes;
-         match errorResp {
-             error err =>  throw err;
-         }
-     }
-     http:Response response => res = response;
-    }
-    if (res.statusCode != 200) {
-        var jsonResponse = res.getJsonPayload();
-        match jsonResponse {
-            mime:EntityError errRes => {
-                var errorResp = <error> errRes;
-                match errorResp {
-                    error err =>  throw err;
-                }
-            }  
-            json jsonObj => io:println(jsonObj.msg.toString());            
-        }
+    http:Response httpResponse = check httpEndpoint -> post("", req);
+    // match httpResponse {
+    //  http:HttpConnectorError errRes => {
+    //      var errorResp = <error> errRes;
+    //      match errorResp {
+    //          error err =>  throw err;
+    //      }
+    //  }
+    //  http:Response response => res = response;
+    // }
+    if (httpResponse.statusCode != 200) {
+        json jsonResponse = check httpResponse.getJsonPayload();
+        io:println(jsonResponse.msg.toString());
+        // match jsonResponse {
+        //     mime:EntityError errRes => {
+        //         var errorResp = <error> errRes;
+        //         match errorResp {
+        //             error err =>  throw err;
+        //         }
+        //     }  
+        //     json jsonObj => io:println(jsonObj.msg.toString());            
+        // }
     } else {
         io:println(msg);
     }

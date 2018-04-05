@@ -21,33 +21,33 @@ function search (string url, string querySearched) {
         ]
     };
 
-    http:Request req = {};
-    http:Response res = {};
-    var httpResponse = httpEndpoint -> get(querySearched, req);
-    match httpResponse {
-     http:HttpConnectorError errRes => {
-         var errorResp = <error> errRes;
-         match errorResp {
-             error err =>  throw err;
-         }
-     }
-     http:Response response => res = response;
-    }
-    var jsonResponse = res.getJsonPayload();
-    json jsonObj;
-    match jsonResponse {
-            mime:EntityError errRes => {
-                var errorResp = <error> errRes;
-                match errorResp {
-                    error err =>  throw err;
-                }
-            }  
-            json j => jsonObj = j;            
-    }
-    if (res.statusCode != 200) {
-        io:println(jsonObj.msg.toString()); 
+    http:Request req = new;
+    // http:Response res = new;
+    http:Response httpResponse = check httpEndpoint -> get(querySearched, req);
+    // match httpResponse {
+    //  http:HttpConnectorError errRes => {
+    //      var errorResp = <error> errRes;
+    //      match errorResp {
+    //          error err =>  throw err;
+    //      }
+    //  }
+    //  http:Response response => res = response;
+    // }
+    json jsonResponse = check httpResponse.getJsonPayload();
+    // json jsonObj;
+    // match jsonResponse {
+    //         mime:EntityError errRes => {
+    //             var errorResp = <error> errRes;
+    //             match errorResp {
+    //                 error err =>  throw err;
+    //             }
+    //         }  
+    //         json j => jsonObj = j;            
+    // }
+    if (httpResponse.statusCode != 200) {
+        io:println(jsonResponse.msg.toString()); 
     } else {
-        json artifacts = jsonObj.artifacts;
+        json artifacts = jsonResponse.artifacts;
         int artifactsLength = lengthof artifacts;
         if (artifactsLength > 0) {
             io:println("Ballerina Central");
@@ -95,12 +95,12 @@ function printInCLI(string element, int charactersAllowed) {
 }
 
 function getDateCreated(json createdDate) returns string {
-    var timeConversion = <int>createdDate.time.toString();
-    int timeInMillis;
-    match timeConversion {
-        error errRes => throw errRes;
-        int time => timeInMillis = time;
-    }
+    int timeInMillis = check <int> createdDate.time.toString();
+    // int timeInMillis;
+    // match timeConversion {
+    //     error errRes => throw errRes;
+    //     int time => timeInMillis = time;
+    // }
 
     time:Time timeStruct = {time : timeInMillis, zone:{zoneId:"UTC",zoneOffset:0}};
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
