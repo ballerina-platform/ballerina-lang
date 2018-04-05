@@ -45,7 +45,7 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stream<StockWithPrice> stockWithPriceStream;
 
     forever {
-        from stockStream window time(1000)
+        from stockStream window time(1000) as s
         join twitterStream window time(1000)
         on stockStream.symbol == twitterStream.company
         select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price

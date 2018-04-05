@@ -26,7 +26,7 @@ service<http:Service> headerService bind headerServiceEP {
             http:Response clientResponse => {
                 _ = conn -> forward(clientResponse);
             }
-            any|null => { return;}
+            any|null => {}
         }
     }
 
@@ -51,9 +51,7 @@ service<http:Service> headerService bind headerServiceEP {
                 res.setJsonPayload(payload);
                 _ = conn -> respond(res);
             }
-            any|null => {
-                return;
-            }
+            any|null => {}
         }
     }
 }
