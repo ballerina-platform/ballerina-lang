@@ -27,7 +27,7 @@ public type AuthnHandlerChain object {
         authnHandlers = new;
     }
     public function handle (Request req) returns (boolean);
-}
+};
 
 @Description {value:"Creates a Authentication handler chain"}
 @Return {value:"AuthnHandlerChain: AuthnHandlerChain instance"}

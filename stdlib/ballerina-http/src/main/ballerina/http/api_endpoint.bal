@@ -38,7 +38,7 @@ public type ApiEndpoint object {
     public function getClient () returns (Connection);
 
     public function stop ();
-}
+};
 
 @Description {value:"Add authn and authz filters"}
 @Param {value:"config: ServiceEndpointConfiguration instance"}

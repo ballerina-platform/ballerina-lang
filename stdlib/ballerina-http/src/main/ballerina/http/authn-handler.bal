@@ -21,7 +21,7 @@ basic authentication should be struct-wise similar to HttpAuthnInterceptor"}
 public type HttpAuthnHandler object {
     public function canHandle (Request req) returns (boolean);
     public function handle (Request req) returns (boolean);
-}
+};
 
 @Description {value:"Intercepts a HTTP request for authentication"}
 @Param {value:"req: Request object"}
