@@ -13,7 +13,7 @@ json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75},
 function testJSONObject () returns (string) {
     output = "";
     foreach j in j1 {
-        concatString(j.toString());
+        concatString(j.toString() but {error => ""});
     }
     return output;
 }
@@ -21,7 +21,7 @@ function testJSONObject () returns (string) {
 function testJSONArray () returns (string) {
     output = "";
     foreach j in j1.subjects {
-        concatString(j.toString());
+        concatString(j.toString() but {error => ""});
     }
     return output;
 }
@@ -34,7 +34,7 @@ function testArrayOfJSON () returns string | error {
         error err1 => return err1;
     }
     foreach i, j in array {
-        concatIntString(i, j.toString());
+        concatIntString(i, j.toString() but {error => ""});
     }
     return output;
 }
@@ -71,12 +71,12 @@ function testJSONNull () returns (string) {
     return output;
 }
 
-struct Protocols {
+type Protocols {
     string data;
     Protocol[] plist;
 }
 
-struct Protocol {
+type Protocol {
     string name;
     string url;
 }
@@ -98,13 +98,17 @@ function testJSONToStructCast () returns string | error {
 function testAddWhileIteration () returns (string) {
     output = "";
     foreach j in j1 {
-        if (j.toString() == "bob") {
-            j1["lastname"] = "smith";
+        match j.toString() {
+            string str => {
+                if (str == "bob") {
+                    j1["lastname"] = "smith";
+                }
+                concatString(str);
+            }
         }
-        concatString(j.toString());
     }
     foreach j in j1 {
-        concatString(j.toString());
+        concatString(j.toString() but {error => ""});
     }
     return output;
 }
@@ -112,13 +116,18 @@ function testAddWhileIteration () returns (string) {
 function testDeleteWhileIteration () returns (string) {
     output = "";
     foreach j in j1 {
-        if (j.toString() == "bob") {
-            j1.remove("subjects");
+        match j.toString() {
+            string str => {
+                if (str == "bob") {
+                    any x = j1.remove("subjects");
+                }
+                concatString(str);
+            }
         }
-        concatString(j.toString());
     }
+
     foreach j in j1 {
-        concatString(j.toString());
+        concatString(j.toString() but {error => ""});
     }
     return output;
 }
