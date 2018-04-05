@@ -17,10 +17,10 @@
 package ballerina.util;
 import ballerina/io;
 
-@Description {value:"Locale struct represents specific geographical, political, or cultural region."}
+@Description {value:"Locale type represents specific geographical, political, or cultural region."}
 @Field {value:"language: The language field for Locale"}
 @Field {value:"countryCode: The countryCode field for Locale"}
-public struct Locale {
+public type Locale {
     string language;
     string countryCode;
 }
