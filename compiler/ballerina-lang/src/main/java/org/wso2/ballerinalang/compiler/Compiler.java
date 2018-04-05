@@ -98,7 +98,7 @@ public class Compiler {
                                                                    .map(this.compilerDriver::compilePackage)
                                                                    .filter(bLangPackage -> this.dlog.errorCount == 0);
 
-        if (dryRun) {
+        if (!dryRun) {
             packages.forEach(this.binaryFileWriter::writeExecutableBinary);
         }
 
