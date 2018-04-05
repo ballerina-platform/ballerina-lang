@@ -21,6 +21,7 @@ package org.ballerinalang.net.http.serviceendpoint;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
@@ -49,6 +50,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -66,6 +68,8 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
 
+    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+
     @Override
     public void execute(Context context) {
         try {
@@ -73,7 +77,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
             // Creating server connector
             Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
-            ListenerConfiguration listenerConfiguration = getListerConfig(serviceEndpointConfig);
+            ListenerConfiguration listenerConfiguration = getListenerConfig(serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);
@@ -125,7 +129,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         return ((BFunctionPointer) bRefOnRequestFunction).value();
     }
 
-    private ListenerConfiguration getListerConfig(Struct endpointConfig) {
+    private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
         long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
         String keepAlive = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
@@ -138,11 +142,17 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
         if (host == null || host.isEmpty()) {
-            listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
+            listenerConfiguration.setHost(
+                    configRegistry.getConfigOrDefault("ballerina.http.host", HttpConstants.HTTP_DEFAULT_HOST));
         } else {
             listenerConfiguration.setHost(host);
         }
+
+        if (port == HTTP_DEFAULT_PORT && configRegistry.contains("ballerina.http.port")) {
+            port = Long.parseLong(configRegistry.getConfiguration("ballerina.http.port"));
+        }
         listenerConfiguration.setPort(Math.toIntExact(port));
+
         listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
 
         // For the moment we don't have to pass it down to transport as we only support

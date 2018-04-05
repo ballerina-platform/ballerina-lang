@@ -20,14 +20,13 @@ import ballerina/log;
 
 @Description {value:"Representation of Authorization Handler chain"}
 @Field {value:"authzHandlers: map of authz handlers"}
-public type AuthzHandlerChain {
+public type AuthzHandlerChain object {
     public {
         map authzHandlers;
     }
     new () {
-        authzHandlers = new;
     }
-}
+};
 
 @Description {value:"Creates an Authz handler chain"}
 @Return {value:"AuthzHandlerChain: AuthzHandlerChain instance"}

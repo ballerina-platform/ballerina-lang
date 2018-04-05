@@ -1,7 +1,7 @@
-struct Student {
+type Student {
     string name;
     string address;
-}
+};
 
 public function main (string[] args) {
     // untainted Json - untainted field - field access

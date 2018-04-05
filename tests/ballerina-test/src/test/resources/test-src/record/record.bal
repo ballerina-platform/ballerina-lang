@@ -9,7 +9,7 @@ type Person {
     map adrs;
     int age = 999;
     Family family;
-    Person|null parent;
+    Person? parent;
 }
 
 type Family {

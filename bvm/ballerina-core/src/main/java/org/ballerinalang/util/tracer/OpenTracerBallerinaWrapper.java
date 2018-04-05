@@ -23,13 +23,15 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import org.ballerinalang.util.tracer.config.ConfigLoader;
-import org.ballerinalang.util.tracer.config.OpenTracingConfig;
+import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
 /**
  * This class wraps opentracing apis and exposes native functions to use within ballerina.
@@ -43,13 +45,12 @@ public class OpenTracerBallerinaWrapper {
     private final boolean enabled;
 
     public OpenTracerBallerinaWrapper() {
-        OpenTracingConfig openTracingConfig = ConfigLoader.load();
-        if (openTracingConfig != null) {
-            enabled = true;
-            tracerStore = new TracersStore(openTracingConfig);
+        this.enabled =
+                Boolean.parseBoolean(ConfigRegistry.getInstance().getConfiguration(CONFIG_TRACING_ENABLED));
+        if (enabled) {
+            Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
+            tracerStore = new TracersStore(configurations);
             spanStore = new SpanStore();
-        } else {
-            enabled = false;
         }
     }
 

@@ -43,7 +43,7 @@ public class Flags {
                 case NATIVE:
                     mask |= NATIVE;
                     break;
-                case CONST:
+                case FINAL:
                     mask |= FINAL;
                     break;
                 case ATTACHED:

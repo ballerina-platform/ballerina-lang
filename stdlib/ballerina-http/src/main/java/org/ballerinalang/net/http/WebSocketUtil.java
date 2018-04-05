@@ -104,6 +104,7 @@ public abstract class WebSocketUtil {
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.setRefField(0, webSocketConnector);
+                webSocketEndpoint.setRefField(3, new BMap()); // Set Attribute map
                 populateEndpoint(session, webSocketEndpoint);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
@@ -116,8 +117,7 @@ public abstract class WebSocketUtil {
                 } else {
                     Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                     if (onOpenResource != null) {
-                        List<ParamDetail> paramDetails =
-                                onOpenResource.getParamDetails();
+                        List<ParamDetail> paramDetails = onOpenResource.getParamDetails();
                         BValue[] bValues = new BValue[paramDetails.size()];
                         bValues[0] = webSocketEndpoint;
                         //TODO handle BallerinaConnectorException

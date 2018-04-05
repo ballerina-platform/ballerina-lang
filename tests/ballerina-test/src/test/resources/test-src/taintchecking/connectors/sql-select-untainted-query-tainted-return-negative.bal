@@ -1,9 +1,9 @@
 import ballerina/sql;
 
-struct Employee {
+type Employee {
     int id;
     string name;
-}
+};
 
 public function main (string[] args) {
     testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);

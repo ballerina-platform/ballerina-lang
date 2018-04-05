@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     string name;
     int age;
 }

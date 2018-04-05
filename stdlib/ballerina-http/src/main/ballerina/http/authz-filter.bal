@@ -29,15 +29,17 @@ public type AuthzFilter object {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
     }
-    public function init ();
-    public function terminate ()
 
     new (function (Request, FilterContext) returns (FilterResult) requestFilter,
         function (Response, FilterContext) returns (FilterResult) responseFilter) {
         filterRequest = requestFilter;
         filterResponse = responseFilter;
     }
-}
+
+    public function init ();
+
+    public function terminate ();
+};
 
 @Description {value:"Initializes the AuthzFilter"}
 public function AuthzFilter::init () {
@@ -121,7 +123,7 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string[
     }
     match authAnn {
         internal:annotationData annData1 => {
-            var authConfig =? <auth:AuthConfig> annData1.value;
+            var authConfig = check <auth:AuthConfig> annData1.value;
             return authConfig.scopes;
         }
         () => {
