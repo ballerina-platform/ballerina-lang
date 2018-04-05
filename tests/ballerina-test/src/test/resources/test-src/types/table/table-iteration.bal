@@ -40,7 +40,7 @@ string nameValue = "";
 
 function testForEachInTableWithStmt () returns (int, int, float, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -69,7 +69,7 @@ function testForEachInTableWithStmt () returns (int, int, float, string) {
 
 function testForEachInTable () returns (int, int, float, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -98,7 +98,7 @@ function testForEachInTable () returns (int, int, float, string) {
 
 function testCountInTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -116,7 +116,7 @@ function testCountInTable () returns (int) {
 
 function testFilterTable () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -137,7 +137,7 @@ function testFilterTable () returns (int, int, int) {
 
 function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -160,7 +160,7 @@ function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
 
 function testFilterTableWithCount () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -178,7 +178,7 @@ function testFilterTableWithCount () returns (int) {
 
 function testMapTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -196,7 +196,7 @@ function testMapTable () returns (string[]) {
 
 function testMapWithFilterTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -214,7 +214,7 @@ function testMapWithFilterTable () returns (string[]) {
 
 function testFilterWithMapTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -232,7 +232,7 @@ function testFilterWithMapTable () returns (string[]) {
 
 function testFilterWithMapAndCountTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -250,7 +250,7 @@ function testFilterWithMapAndCountTable () returns (int) {
 
 function testAverageWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -268,7 +268,7 @@ function testAverageWithTable () returns (float) {
 
 function testMinWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -286,7 +286,7 @@ function testMinWithTable () returns (float) {
 
 function testMaxWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -304,7 +304,7 @@ function testMaxWithTable () returns (float) {
 
 function testSumWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",
@@ -322,7 +322,7 @@ function testSumWithTable () returns (float) {
 
 function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_DATA_TABLE__ITR_DB",

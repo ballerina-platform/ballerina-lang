@@ -30,13 +30,9 @@ public type ApiEndpoint object {
     }
 
     public function init (ServiceEndpointConfiguration config);
-
     public function register (typedesc serviceType);
-
     public function start ();
-
     public function getClient () returns (Connection);
-
     public function stop ();
 };
 

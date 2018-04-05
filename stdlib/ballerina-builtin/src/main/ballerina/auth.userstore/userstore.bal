@@ -21,7 +21,7 @@ etc. should be struct-wise similar"}
 public type UserStore object {
     public function authenticate (string username, string password) returns (boolean);
     public function readGroupsOfUser (string username) returns (string[]);
-}
+};
 
 @Description {value:"Attempts to authenticate with username and password"}
 @Param {value:"username: user name"}
