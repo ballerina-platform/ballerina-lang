@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     string name;
     int age;
     Person parent;
@@ -10,7 +10,7 @@ struct Person {
     boolean alive;
 }
 
-struct Student {
+type Student {
     string name;
     int age;
 }
@@ -38,7 +38,7 @@ function testComplexMapToJson () returns (json) {
 }
 
 
-struct Info {
+type Info {
     blob infoBlob;
 }
 

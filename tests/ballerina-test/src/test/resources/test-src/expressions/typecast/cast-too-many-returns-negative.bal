@@ -1,9 +1,9 @@
-struct A {
+type A {
     string x;
     int y;
 }
 
-struct B {
+type B {
     string x;
 }
 

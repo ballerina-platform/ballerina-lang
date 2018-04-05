@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     string name;
     int age;
     Person | null parent;
@@ -11,7 +11,7 @@ struct Person {
     Person[]|null children;
 }
 
-struct Student {
+type Student {
     string name;
     int age;
 }
@@ -44,10 +44,11 @@ function testMapToStruct () returns (Person | error) {
                     };
 
     json info = {status:"single"};
+    map addr = {"city":"Colombo", "country":"SriLanka"};
     map m = {name:"Child",
                 age:25,
                 parent:parent,
-                address:{"city":"Colombo", "country":"SriLanka"},
+                address:addr,
                 info:info,
                 marks:marks,
                 a:"any value",
@@ -100,10 +101,12 @@ function testJsonToStruct () returns (Person | error) {
 
 function testIncompatibleMapToStruct () returns (Person) {
     int[] marks = [87, 94, 72];
+    map addr = {"city":"Colombo", "country":"SriLanka"};
+    map info = {status:"single"};
     map m = {name:"Child",
                 age:25,
-                address:{"city":"Colombo", "country":"SriLanka"},
-                info:{status:"single"},
+                address:addr,
+                info:info,
                 marks:marks
             };
     Person p =? <Person>m;
@@ -112,9 +115,10 @@ function testIncompatibleMapToStruct () returns (Person) {
 
 function testMapWithMissingFieldsToStruct () returns (Person) {
     int[] marks = [87, 94, 72];
+    map addr = {"city":"Colombo", "country":"SriLanka"};
     map m = {name:"Child",
                 age:25,
-                address:{"city":"Colombo", "country":"SriLanka"},
+                address:addr,
                 marks:marks
             };
     Person p =? <Person>m;
@@ -135,10 +139,11 @@ function testMapWithIncompatibleArrayToStruct () returns (Person) {
                         alive:false
                     };
     json info = {status:"single"};
+    map addr = {"city":"Colombo", "country":"SriLanka"};
     map m = {name:"Child",
                 age:25,
                 parent:parent,
-                address:{"city":"Colombo", "country":"SriLanka"},
+                address:addr,
                 info:info,
                 marks:marks,
                 a:"any value",
@@ -150,7 +155,7 @@ function testMapWithIncompatibleArrayToStruct () returns (Person) {
     return p;
 }
 
-struct Employee {
+type Employee {
     string name;
     int age;
     Person partner;
@@ -165,11 +170,13 @@ function testMapWithIncompatibleStructToStruct () returns (Employee) {
                     age:25
                 };
 
+    map addr = {"city":"Colombo", "country":"SriLanka"};
+    map info = {status:"single"};
     map m = {name:"Child",
                 age:25,
                 partner:s,
-                address:{"city":"Colombo", "country":"SriLanka"},
-                info:{status:"single"},
+                address:addr,
+                info:info,
                 marks:marks
             };
             
@@ -268,7 +275,7 @@ function testJsonArrayToStruct () returns (Person) {
     return p;
 }
 
-struct Info {
+type Info {
     map foo;
 }
 
@@ -322,12 +329,12 @@ function testIncompatibleJsonToBoolean () returns (boolean) {
     return value;
 }
 
-struct Address {
+type Address {
     string city;
     string country;
 }
 
-struct AnyArray {
+type AnyArray {
     any[] a;
 }
 
@@ -337,7 +344,7 @@ function testJsonToAnyArray () returns (AnyArray) {
     return value;
 }
 
-struct IntArray {
+type IntArray {
     int[] a;
 }
 
@@ -348,7 +355,7 @@ function testJsonToIntArray () returns (IntArray) {
 }
 
 
-struct StringArray {
+type StringArray {
     string[] a;
 }
 
@@ -364,7 +371,7 @@ function testJsonIntArrayToStringArray () returns (StringArray) {
     return a;
 }
 
-struct XmlArray {
+type XmlArray {
     xml[] a;
 }
 
@@ -436,7 +443,7 @@ function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
     return p;
 }
 
-struct PersonA {
+type PersonA {
     string name;
     int age;
 }
@@ -449,7 +456,7 @@ function JsonToStructWithErrors () returns (PersonA | error) {
     return pA;
 }
 
-struct PhoneBook {
+type PhoneBook {
     string[] names;
 }
 
@@ -459,13 +466,13 @@ function testStructWithStringArrayToJSON () returns (json) {
     return phonebookJson;
 }
 
-struct person {
+type person {
     string fname;
     string lname;
     int age;
 }
 
-struct movie {
+type movie {
     string title;
     int year;
     string released;
@@ -491,7 +498,7 @@ struct movie {
 //    return (m, writers[0].age);
 //}
 
-struct StructWithDefaults {
+type StructWithDefaults {
     string s = "string value";
     int a = 45;
     float f = 5.3;
@@ -507,7 +514,7 @@ function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | erro
     return testStruct;
 }
 
-struct StructWithoutDefaults {
+type StructWithoutDefaults {
     string s;
     int a;
     float f;
@@ -524,14 +531,14 @@ function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults 
 }
 
 function testEmptyMaptoStructWithDefaults () returns (StructWithDefaults) {
-    map m = {};
+    map m;
     var testStruct =? <StructWithDefaults>m;
 
     return testStruct;
 }
 
 function testEmptyMaptoStructWithoutDefaults () returns (StructWithoutDefaults) {
-    map m = {};
+    map m;
     var testStruct =? <StructWithoutDefaults>m;
 
     return testStruct;
@@ -574,7 +581,7 @@ function structWithComplexMapToJson() returns (json | error) {
     return js;
 }
 
-struct ComplexArrayStruct{
+type ComplexArrayStruct{
     int[] a;
     float[] b;
     boolean[] c;
@@ -585,7 +592,12 @@ struct ComplexArrayStruct{
 }
 
 function structWithComplexArraysToJson() returns (json | error) {
-    ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[{}, {}], f:[{}, {}], g:[{"foo":"bar"}]};
+    json g = {"foo":"bar"};
+    map m1;
+    map m2;
+    PersonA p1 = {name:""};
+    PersonA p2 = {name:""};
+    ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[m1, m2], f:[p1, p2], g:[g]};
     var js =? <json> t;
     return js;
 }

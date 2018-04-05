@@ -1,4 +1,4 @@
-public struct InvalidNameError {
+public type InvalidNameError {
     string message;
     error[] cause;
     string companyName;
