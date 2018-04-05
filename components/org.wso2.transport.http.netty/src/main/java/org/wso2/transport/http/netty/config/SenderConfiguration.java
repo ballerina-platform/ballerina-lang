@@ -116,6 +116,7 @@ public class SenderConfiguration {
 
     public SenderConfiguration(String id) {
         this.id = id;
+        this.poolConfiguration = new PoolConfiguration();
     }
 
     public void setSSLProtocol(String sslProtocol) {
