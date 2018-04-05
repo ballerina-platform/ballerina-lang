@@ -101,13 +101,7 @@ public type IOError object{
 }
 
 documentation {
-    Represents a client socket connection. This can be used to communicate with a remote machine
-
-    P{{channel}} - Connection stream that bridge the client and the server.
-    P{{port}} - Remote server port.
-    P{{localPort}} - Client side port that open for the communication.
-    P{{address}} - Remote server domain/IP.
-    P{{localAddress}} - Client domain/IP.
+    Represetns a TCP socket.
 }
 public type Socket object {
     public {
@@ -124,18 +118,8 @@ public type Socket object {
 
 documentation {
     SocketProperties structs represents the properties which are used to configure TCP connection.
-
-    P{{localPort}} - Client side port that open for the communication.
-    P{{keyStoreFile}} - File path to keystore file.
-    P{{keyStorePassword}} - The keystore password.
-    P{{trustStoreFile}} - The truststore password.
-    P{{certPassword}} - The certificate password.
-    P{{sslEnabledProtocols}} - SSL/TLS protocols to be enabled.
-    P{{ciphers}} - List of ciphers to be used.
-    P{{sslProtocol}} - The SSL protocol version.
 }
-
-public type SocketProperties object {
+public type SocketProperties object{
     public {
         int localPort;
         string keyStoreFile;
