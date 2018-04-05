@@ -3,8 +3,8 @@ import ballerina/file;
 
 function main (string[] args) {
     file:Path target = file:getPath("/tmp/result.txt");
-    io:ByteChannel bchannel =? file:newByteChannel(target,args[0]);
-    int intArg =? <int> args[0];
+    io:ByteChannel bchannel = check file:newByteChannel(target,args[0]);
+    int intArg = check <int> args[0];
     
     var readOutput = bchannel.read(intArg);
     match readOutput {

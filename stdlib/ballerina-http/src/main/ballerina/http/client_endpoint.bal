@@ -97,7 +97,7 @@ public type ClientEndpointConfiguration {
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
     CacheConfig cacheConfig,
-    string acceptEncoding = "auto"
+    string acceptEncoding = "auto",
 }
 
 public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns HttpClient;
