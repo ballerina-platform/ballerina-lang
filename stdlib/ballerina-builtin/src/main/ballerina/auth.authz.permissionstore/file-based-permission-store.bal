@@ -31,7 +31,7 @@ public type FileBasedPermissionStore object {
     public function readGroupsOfScope (string scopeName) returns (string[]);
     public function readGroupsOfUser (string username) returns (string[]);
     new () {}
-}
+};
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
 @Param {value:"username: user name"}

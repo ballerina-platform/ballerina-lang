@@ -33,8 +33,8 @@ public type Filter object {
     }
 
     public function init ();
-
     public function terminate ();
+
 };
 
 @Description {value:"Representation of filter Context."}
@@ -43,9 +43,11 @@ public type Filter object {
 @Field {value:"filterResponse: Name of the resource"}
 public type FilterContext object {
     // TODO should have a map of properties
-    typedesc serviceType;
-    string serviceName;
-    string resourceName;
+    public {
+        typedesc serviceType;
+        string serviceName;
+        string resourceName;
+    }
 };
 
 @Description {value:"Represents a filter result. This should be populated and returned by each request and response
@@ -54,9 +56,9 @@ filter function"}
 @Field {value:"statusCode: Status code which will be returned to the request sender if the canProceed is set to false"}
 @Field {value:"message: Message which will be returned to the request sender if the canProceed is set to false"}
 public type FilterResult {
-    boolean canProceed,
-    int statusCode,
-    string message,
+    boolean canProceed;
+    int statusCode;
+    string message;
 };
 
 @Description {value:"Initializes the filter"}

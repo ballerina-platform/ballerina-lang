@@ -93,7 +93,7 @@ public type DelimitedRecordChannel object {
 documentation {
     Represents an error which will occur while performing I/O operations
 }
-public type IOError object{
+public type IOError object {
     public {
         string message;
         error[] cause;

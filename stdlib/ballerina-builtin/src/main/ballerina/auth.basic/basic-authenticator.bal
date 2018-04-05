@@ -35,16 +35,16 @@ public type BasicAuthenticator object {
     function cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo)
     new (userStore, authCache) {
     }
-}
+};
 
 @Description {value:"Represents an authentication decision about a user"}
 @Field {value:"username: user name"}
 @Field {value:"isAuthenticated: authentication decision, true if authenticated, else false"}
 public type AuthenticationInfo {
-   string username;
-   boolean isAuthenticated;
+   string username,
+   boolean isAuthenticated,
    string[] groups;
-}
+};
 
 @Description {value:"Creates a Basic Authenticator"}
 @Param {value:"userStore: implementation of the credentials store - ldap, jdbc, file based userstore, etc."}
