@@ -43,7 +43,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "updateWithGeneratedKeys",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,

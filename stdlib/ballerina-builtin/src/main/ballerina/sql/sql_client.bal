@@ -44,20 +44,35 @@ public type Parameter {
 @Field {value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
 @Field {value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
 @Field {value:"GENERIC: Custom DB connection with given connection url"}
-public type DB "DB_MYSQL"|
-    "DB_SQLSERVER"|
-    "DB_ORACLE"|
-    "DB_SYBASE"|
-    "DB_POSTGRES"|
-    "DB_IBMDB2"|
-    "DB_HSQLDB_SERVER"|
-    "DB_HSQLDB_FILE"|
-    "DB_H2_SERVER"|
-    "DB_H2_FILE"|
-    "DB_H2_MEM"|
-    "DB_DERBY_SERVER"|
-    "DB_DERBY_FILE"|
-    "DB_GENERIC";
+public type DB "MYSQL"|
+    "SQLSERVER"|
+    "ORACLE"|
+    "SYBASE"|
+    "POSTGRES"|
+    "IBMDB2"|
+    "HSQLDB_SERVER"|
+    "HSQLDB_FILE"|
+    "H2_SERVER"|
+    "H2_FILE"|
+    "H2_MEM"|
+    "DERBY_SERVER"|
+    "DERBY_FILE"|
+    "GENERIC";
+
+@final public DB DB_MYSQL = "MYSQL";
+@final public DB DB_SQLSERVER = "SQLSERVER";
+@final public DB DB_ORACLE = "ORACLE";
+@final public DB DB_SYBASE = "SYBASE";
+@final public DB DB_POSTGRES = "POSTGRES";
+@final public DB DB_IBMDB2 = "IBMDB2";
+@final public DB DB_HSQLDB_SERVER = "HSQLDB_SERVER";
+@final public DB DB_HSQLDB_FILE = "HSQLDB_FILE";
+@final public DB DB_H2_SERVER = "H2_SERVER";
+@final public DB DB_H2_FILE = "H2_FILE";
+@final public DB DB_H2_MEM = "H2_MEM";
+@final public DB DB_DERBY_SERVER = "DERBY_SERVER";
+@final public DB DB_DERBY_FILE = "DERBY_FILE";
+@final public DB DB_GENERIC = "GENERIC";
 
 @Description {value:"The SQL Datatype of the parameter"}
 @Field {value:"VARCHAR: Small, variable-length character string"}
@@ -89,46 +104,81 @@ public type DB "DB_MYSQL"|
 @Field {value:"ARRAY: Composite data value that consists of zero or more elements of a specified data type"}
 @Field {value:"STRUCT: User defined structured type, consists of one or more attributes"}
 public type Type
-    "TYPE_VARCHAR"|
-    "TYPE_CHAR"|
-    "TYPE_LONGVARCHAR"|
-    "TYPE_NCHAR"|
-    "TYPE_LONGNVARCHAR"|
-    "TYPE_NVARCHAR"|
-    "TYPE_BIT"|
-    "TYPE_BOOLEAN"|
-    "TYPE_TINYINT"|
-    "TYPE_SMALLINT"|
-    "TYPE_INTEGER"|
-    "TYPE_BIGINT"|
-    "TYPE_NUMERIC"|
-    "TYPE_DECIMAL"|
-    "TYPE_REAL"|
-    "TYPE_FLOAT"|
-    "TYPE_DOUBLE"|
-    "TYPE_BINARY"|
-    "TYPE_BLOB"|
-    "TYPE_LONGVARBINARY"|
-    "TYPE_VARBINARY"|
-    "TYPE_CLOB"|
-    "TYPE_NCLOB"|
-    "TYPE_DATE"|
-    "TYPE_TIME"|
-    "TYPE_DATETIME"|
-    "TYPE_TIMESTAMP"|
-    "TYPE_ARRAY"|
-    "TYPE_STRUCT"|
-    "TYPE_REFCURSO";
+    "VARCHAR"|
+    "CHAR"|
+    "LONGVARCHAR"|
+    "NCHAR"|
+    "LONGNVARCHAR"|
+    "NVARCHAR"|
+    "BIT"|
+    "BOOLEAN"|
+    "TINYINT"|
+    "SMALLINT"|
+    "INTEGER"|
+    "BIGINT"|
+    "NUMERIC"|
+    "DECIMAL"|
+    "REAL"|
+    "FLOAT"|
+    "DOUBLE"|
+    "BINARY"|
+    "BLOB"|
+    "LONGVARBINARY"|
+    "VARBINARY"|
+    "CLOB"|
+    "NCLOB"|
+    "DATE"|
+    "TIME"|
+    "DATETIME"|
+    "TIMESTAMP"|
+    "ARRAY"|
+    "STRUCT"|
+    "REFCURSOR";
+
+@final public Type TYPE_VARCHAR= "VARCHAR";
+@final public Type TYPE_CHAR = "CHAR";
+@final public Type TYPE_LONGVARCHAR = "LONGVARCHAR";
+@final public Type TYPE_NCHAR = "NCHAR";
+@final public Type TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+@final public Type TYPE_NVARCHARR = "NVARCHAR";
+@final public Type TYPE_BIT = "BIT";
+@final public Type TYPE_BOOLEAN = "BOOLEAN";
+@final public Type TYPE_TINYINT = "TINYINT";
+@final public Type TYPE_SMALLINT = "SMALLINT";
+@final public Type TYPE_INTEGER = "INTEGER";
+@final public Type TYPE_BIGINT = "BIGINT";
+@final public Type TYPE_NUMERIC = "NUMERIC";
+@final public Type TYPE_DECIMAL = "DECIMAL";
+@final public Type TYPE_REAL = "REAL";
+@final public Type TYPE_FLOAT = "FLOAT";
+@final public Type TYPE_DOUBLE = "DOUBLE";
+@final public Type TYPE_BINARY = "BINARY";
+@final public Type TYPE_BLOB = "BLOB";
+@final public Type TYPE_LONGVARBINARY = "LONGVARBINARY";
+@final public Type TYPE_VARBINARY = "VARBINARY";
+@final public Type TYPE_CLOB = "CLOB";
+@final public Type TYPE_NCLOB = "NCLOB";
+@final public Type TYPE_DATE = "DATE";
+@final public Type TYPE_TIME = "TIME";
+@final public Type TYPE_DATETIME = "DATETIME";
+@final public Type TYPE_TIMESTAMP = "TIMESTAMP";
+@final public Type TYPE_ARRAY = "ARRAY";
+@final public Type TYPE_STRUCT = "STRUCT";
+@final public Type TYPE_REFCURSOR = "REFCURSOR";
+
 
 @Description {value:"The direction of the parameter"}
 @Field {value:"IN: IN parameters are used to send values to stored procedures"}
 @Field {value:"OUT: OUT parameters are used to get values from stored procedures"}
 @Field {value:"INOUT: INOUT parameters are used to send values and get values from stored procedures"}
 public type Direction
-    "DIRECTION_IN"|,
-    "DIRECTION_OUT"|,
-    "DIRECTION_INOUT";
+    "IN"|
+    "OUT"|
+    "INOUT";
 
+@final public Direction DIRECTION_IN = "IN";
+@final public Direction DIRECTION_OUT = "OUT";
+@final public Direction DIRECTION_INOUT = "INOUT";
 ///////////////////////////////
 // SQL Client Connector
 ///////////////////////////////

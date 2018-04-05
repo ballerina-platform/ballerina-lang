@@ -20,7 +20,7 @@ package ballerina.sql;
 // SQL Client Endpoint
 ///////////////////////////////
 
-@Description {value:"Represents an HTTP client endpoint"}
+@Description {value:"Represents an SQL client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
 public type Client object {
@@ -41,7 +41,7 @@ public type Client object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient() returns HttpClient {
+    public function getClient() returns SQLClient {
         return self.sqlClient;
     }
 

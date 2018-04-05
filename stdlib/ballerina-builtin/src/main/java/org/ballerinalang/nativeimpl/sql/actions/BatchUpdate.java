@@ -43,7 +43,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         orgName = "ballerina", packageName = "sql",
         functionName = "batchUpdate",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "ClientConnector",
+                             structType = Constants.SQL_CLIENT,
                              structPackage = "ballerina.sql"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),

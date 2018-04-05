@@ -173,7 +173,7 @@ function testSelectData () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    var dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null,
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null,
                              typeof ResultCustomers);
     table dt = check dtRet;
     string firstName;
@@ -250,7 +250,7 @@ function testCallProcedureWithResultSet () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    table[] dtsRet = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
     table[] dts = check dtsRet;
     string firstName;
 
@@ -273,7 +273,7 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
         options: {maximumPoolSize:1}
     };
 
-    table[] dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
     table[] dts = check dtsRet;
     string firstName1;
     string firstName2;
@@ -330,11 +330,11 @@ function testInsertTableDataWithParameters () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Anne", direction:sql:Direction.IN};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"James", direction:sql:Direction.IN};
-    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:3, direction:sql:Direction.IN};
-    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:5000.75, direction:sql:Direction.IN};
-    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"UK", direction:sql:Direction.IN};
+    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Anne", direction:sql:DIRECTION_IN};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"James", direction:sql:DIRECTION_IN};
+    sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:3, direction:sql:DIRECTION_IN};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:5000.75, direction:sql:DIRECTION_IN};
+    sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"UK", direction:sql:DIRECTION_IN};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
     var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -490,20 +490,20 @@ function testOutParameters () returns (any, any, any, any, any, any, any, any, a
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"1"};
-    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:Direction.OUT};
-    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:Direction.OUT};
-    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:Direction.OUT};
-    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:Direction.OUT};
-    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:Direction.OUT};
-    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:Direction.OUT};
-    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:Direction.OUT};
-    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:Direction.OUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:Direction.OUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:Direction.OUT};
-    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:Direction.OUT};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:DIRECTION_OUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
     paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -529,20 +529,20 @@ function testNullOutParameters () returns (any, any, any, any, any, any, any, an
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"2"};
-    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:Direction.OUT};
-    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:Direction.OUT};
-    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:Direction.OUT};
-    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:Direction.OUT};
-    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:Direction.OUT};
-    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:Direction.OUT};
-    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:Direction.OUT};
-    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:Direction.OUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:Direction.OUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:Direction.OUT};
-    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:Direction.OUT};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:DIRECTION_OUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:DIRECTION_OUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -585,7 +585,7 @@ function testINParameters () returns (int) {
     var insertCountRet = testDB -> update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
-    int insertcount = check insertCountRet;
+    int insertCount = check insertCountRet;
     _ = testDB -> close();
     return insertCount;
 }
@@ -660,20 +660,20 @@ function testINOutParameters () returns (any, any, any, any, any, any, any, any,
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:5};
-    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, value:10, direction:sql:Direction.INOUT};
-    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, value:"9223372036854774807", direction:sql:Direction.INOUT};
-    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, value:123.34, direction:sql:Direction.INOUT};
-    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, value:2139095039, direction:sql:Direction.INOUT};
-    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, value:true, direction:sql:Direction.INOUT};
-    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, value:"Hello", direction:sql:Direction.INOUT};
-    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, value:1, direction:sql:Direction.INOUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, value:5555, direction:sql:Direction.INOUT};
-    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, value:"very long text", direction:sql:Direction.INOUT};
-    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, value:"YmxvYiBkYXRh", direction:sql:Direction.INOUT};
-    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:sql:Direction.INOUT};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, value:10, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, value:"9223372036854774807", direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, value:123.34, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, value:2139095039, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, value:true, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, value:"Hello", direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, value:1234.567, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, value:1234.567, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, value:1234.567, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, value:1, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, value:5555, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, value:"very long text", direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, value:"YmxvYiBkYXRh", direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:sql:DIRECTION_INOUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -696,20 +696,20 @@ function testNullINOutParameters () returns (any, any, any, any, any, any, any, 
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"6"};
-    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.INOUT};
-    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:Direction.INOUT};
-    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:Direction.INOUT};
-    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:Direction.INOUT};
-    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:Direction.INOUT};
-    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:Direction.INOUT};
-    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:Direction.INOUT};
-    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:Direction.INOUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:Direction.INOUT};
-    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:Direction.INOUT};
-    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:Direction.INOUT};
+    sql:Parameter paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraReal = {sqlType:sql:TYPE_REAL, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:DIRECTION_INOUT};
+    sql:Parameter paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:DIRECTION_INOUT};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
@@ -752,12 +752,12 @@ function testArrayOutParameters () returns (any, any, any, any, any, any) {
     };
 
     string firstName;
-    sql:Parameter para1 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para2 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para3 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para4 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, direction:sql:Direction.OUT};
+    sql:Parameter para1 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:Parameter para2 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:Parameter para3 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:Parameter para4 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
     _ = testDB -> call("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters, null);
     _ = testDB -> close();
@@ -776,13 +776,13 @@ function testArrayInOutParameters () returns (any, any, any, any, any, any, any)
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:3};
-    sql:Parameter para2 = {sqlType:sql:TYPE_INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter para3 = {sqlType:sql:TYPE_ARRAY, value:"10,20,30", direction:sql:Direction.INOUT};
-    sql:Parameter para4 = {sqlType:sql:TYPE_ARRAY, value:"10000000, 20000000, 30000000", direction:sql:Direction.INOUT};
-    sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
-    sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
-    sql:Parameter para7 = {sqlType:sql:TYPE_ARRAY, value:"FALSE, FALSE, TRUE", direction:sql:Direction.INOUT};
-    sql:Parameter para8 = {sqlType:sql:TYPE_ARRAY, value:"Hello,Ballerina,Lang", direction:sql:Direction.INOUT};
+    sql:Parameter para2 = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
+    sql:Parameter para3 = {sqlType:sql:TYPE_ARRAY, value:"10,20,30", direction:sql:DIRECTION_INOUT};
+    sql:Parameter para4 = {sqlType:sql:TYPE_ARRAY, value:"10000000, 20000000, 30000000", direction:sql:DIRECTION_INOUT};
+    sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:DIRECTION_INOUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:DIRECTION_INOUT};
+    sql:Parameter para7 = {sqlType:sql:TYPE_ARRAY, value:"FALSE, FALSE, TRUE", direction:sql:DIRECTION_INOUT};
+    sql:Parameter para8 = {sqlType:sql:TYPE_ARRAY, value:"Hello,Ballerina,Lang", direction:sql:DIRECTION_INOUT};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
     _ = testDB -> call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters, null);
@@ -997,7 +997,7 @@ function testDateTimeNullInValues () returns (string) {
     string data;
 
     var j = check  <json>dt;
-    data = j.toString();
+    data = io:sprintf("%j", [j]);
 
     _ = testDB -> close();
     return data;
@@ -1021,10 +1021,10 @@ function testDateTimeNullOutValues () returns (int) {
     sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:null};
     sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:null};
 
-    sql:Parameter para6 = {sqlType:sql:TYPE_DATE, direction:sql:Direction.OUT};
-    sql:Parameter para7 = {sqlType:sql:TYPE_TIME, direction:sql:Direction.OUT};
-    sql:Parameter para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:Direction.OUT};
-    sql:Parameter para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:Direction.OUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_DATE, direction:sql:DIRECTION_OUT};
+    sql:Parameter para7 = {sqlType:sql:TYPE_TIME, direction:sql:DIRECTION_OUT};
+    sql:Parameter para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:DIRECTION_OUT};
+    sql:Parameter para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:DIRECTION_OUT};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
@@ -1056,10 +1056,10 @@ function testDateTimeNullInOutValues () returns (any, any, any, any) {
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:124};
-    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:null, direction:sql:DIRECTION_INOUT};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:null, direction:sql:DIRECTION_INOUT};
+    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:null, direction:sql:DIRECTION_INOUT};
+    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:null, direction:sql:DIRECTION_INOUT};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
@@ -1085,10 +1085,10 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
     sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:timestamp};
     sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:timestamp};
 
-    sql:Parameter para6 = {sqlType:sql:TYPE_DATE, direction:sql:Direction.OUT};
-    sql:Parameter para7 = {sqlType:sql:TYPE_TIME, direction:sql:Direction.OUT};
-    sql:Parameter para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:Direction.OUT};
-    sql:Parameter para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:Direction.OUT};
+    sql:Parameter para6 = {sqlType:sql:TYPE_DATE, direction:sql:DIRECTION_OUT};
+    sql:Parameter para7 = {sqlType:sql:TYPE_TIME, direction:sql:DIRECTION_OUT};
+    sql:Parameter para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:DIRECTION_OUT};
+    sql:Parameter para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:DIRECTION_OUT};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
@@ -1118,7 +1118,7 @@ function testStructOutParameters () returns (any) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_STRUCT, direction:sql:Direction.OUT};
+    sql:Parameter para1 = {sqlType:sql:TYPE_STRUCT, direction:sql:DIRECTION_OUT};
     sql:Parameter[] parameters = [para1];
     _ = testDB -> call("{call TestStructOut(?)}", parameters, null);
     _ = testDB -> close();
@@ -1154,12 +1154,12 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
     dtRet = testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
     dt = check dtRet;
     var j = check <json>dt;
-    s3 = j.toString();
+    s3 = io:sprintf("%j", [j]);
 
     dtRet = testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
     dt = check dtRet;
     j = check <json>dt;
-    s4 = j.toString();
+    s4 = io:sprintf("%j", [j]);
 
     _ = testDB -> close();
     return (s1, s2, s3, s4);

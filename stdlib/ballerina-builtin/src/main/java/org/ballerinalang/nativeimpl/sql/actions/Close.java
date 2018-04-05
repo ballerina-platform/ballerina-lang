@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
                             structPackage = "ballerina.sql")
