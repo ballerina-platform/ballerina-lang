@@ -126,7 +126,7 @@ type HttpCache object {
     function remove (string key) {
         cache.remove(key);
     }
-}
+};
 
 function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCache {
     HttpCache httpCache;

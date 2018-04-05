@@ -32,7 +32,7 @@ public type HttpServiceConfig {
     Compression compression = "AUTO",
     CorsConfig cors,
     Versioning versioning,
-}
+};
 
 @Description {value:"Configurations for CORS support"}
 @Field {value:"allowHeaders: The array of allowed headers by the service"}
@@ -48,7 +48,7 @@ public type CorsConfig {
     string[] exposeHeaders,
     boolean allowCredentials,
     int maxAge= -1,
-}
+};
 
 
 @Description {value:"Configurations for service versioning"}
@@ -59,7 +59,7 @@ public type Versioning {
     string pattern = "v{major}.{minor}",
     boolean allowNoVersion = false,
     boolean matchMajorVersion = false,
-}
+};
 
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value:"endpoints: An array of endpoints the service would be attached to"}
@@ -72,7 +72,7 @@ public type WSServiceConfig {
     string basePath,
     string[] subProtocols,
     int idleTimeoutInSeconds,
-}
+};
 
 //@Description {value:"This specifies the possible ways in which a service can be used when serving requests."}
 //@Field {value:"REQUEST: Create a new instance of the service to process each request"}
@@ -114,12 +114,12 @@ public type HttpResourceConfig {
         CorsConfig cors,
         boolean transactionInfectable = true,
         WebSocketUpgradeConfig? webSocketUpgrade,
-}
+};
 
 public type WebSocketUpgradeConfig {
         string upgradePath,
         typedesc upgradeService,
-}
+};
 
 @Description {value:"Configurations annotation for an HTTP resource"}
 public annotation <resource> ResourceConfig HttpResourceConfig;

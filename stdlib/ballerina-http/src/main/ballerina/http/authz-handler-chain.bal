@@ -26,7 +26,7 @@ public type AuthzHandlerChain object {
     }
     new () {
     }
-}
+};
 
 @Description {value:"Creates an Authz handler chain"}
 @Return {value:"AuthzHandlerChain: AuthzHandlerChain instance"}
