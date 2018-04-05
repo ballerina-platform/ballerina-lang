@@ -3,8 +3,8 @@ import ballerina/task;
 int count;
 
 function scheduleAppointment (string cronExpression) returns (string|error) {
-    function () returns (error|null) onTriggerFunction = onTrigger;
-    function (error e)|null onErrorFunction = cleanupError;
+    (function() returns error?) onTriggerFunction = onTrigger;
+    (function (error)) onErrorFunction = cleanupError;
     return task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression);
 }
 
@@ -12,19 +12,20 @@ function getCount () returns (int) {
     return count;
 }
 
-function onTrigger () returns (error|null) {
+function onTrigger () returns error? {
     count = count + 1;
-    return null;
+    return ();
 }
 
 function cleanupError (error e) {
 
 }
 
-function stopTask (string taskId) returns (error|null) {
-    error stopError = task:stopTask(taskId);
-    if (stopError == null) {
-        count = -1;
+function stopTask (string taskId) returns error? {
+    error? stopError = task:stopTask(taskId);
+    match stopError {
+        error => {}
+        () => count = -1;
     }
-    return null;
+    return stopError;
 }
