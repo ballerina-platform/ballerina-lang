@@ -171,7 +171,6 @@ public final class Constants {
     }
 
     public static final String CONNECTOR_NAME = "ClientConnector";
-    public static final String DATASOURCE_KEY = "datasource_key";
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
     public static final String STRUCT_TIME = "Time";
@@ -180,10 +179,8 @@ public final class Constants {
     public static final String USER = "user";
     public static final String PASSWORD = "password";
 
-    public static final String CLIENT_CONNECTOR = "ClientConnector";
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
-    public static final String CLIENT_ENDPOINT_CONFIG = "config";
-    public static final String B_CONNECTOR = "BConnector";
+    public static final String SQL_CLIENT = "SQLClient";
 
     public static final String SQL_CONNECTOR_ERROR = "SQLConnectorError";
     public static final String SQL_EXCEPTION_OCCURED = "SQL Exception Occurred";
