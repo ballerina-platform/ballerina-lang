@@ -3,8 +3,8 @@ import ballerina/task;
 int count;
 
 function scheduleTimer (int delay, int interval) returns (string|error) {
-    function () returns (error|null) onTriggerFunction = onTrigger;
-    return task:scheduleTimer(onTriggerFunction, null, {delay:delay, interval:interval});
+    function () returns (error?) onTriggerFunction = onTrigger;
+    return check task:scheduleTimer(onTriggerFunction, (()), {delay:delay, interval:interval});
 }
 
 function getCount () returns (int) {
@@ -19,7 +19,7 @@ function onTrigger () returns (error) {
 
 function stopTask (string taskId) returns (error) {
     error stopError = task:stopTask(taskId);
-    if (stopError == null) {
+    if (stopError == ()) {
         count = -1;
     }
     return stopError;
