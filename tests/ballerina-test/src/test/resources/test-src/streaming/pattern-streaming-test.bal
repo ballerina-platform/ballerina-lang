@@ -21,19 +21,19 @@ type RoomTempInfo {
     int deviceID;
     int roomNo;
     float temp;
-}
+};
 
 type RegulatorInfo {
     int deviceID;
     int roomNo;
     float tempSet;
     boolean isOn;
-}
+};
 
 type TempDiffInfo {
     int roomNo;
     float tempDifference;
-}
+};
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index = 0;
@@ -92,12 +92,12 @@ type RegulatorState {
     int roomNo;
     float tempSet;
     string userAction;
-}
+};
 
 type RoomKeyAction {
     int roomNo;
     string userAction;
-}
+};
 
 
 RoomKeyAction[] roomActions = [];

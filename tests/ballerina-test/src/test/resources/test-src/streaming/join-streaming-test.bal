@@ -21,19 +21,19 @@ type Stock {
     string symbol;
     float price;
     int volume;
-}
+};
 
 type Twitter {
     string user;
     string tweet;
     string company;
-}
+};
 
 type StockWithPrice {
     string symbol;
     string tweet;
     float price;
-}
+};
 
 StockWithPrice[] globalEventsArray = [];
 int index = 0;

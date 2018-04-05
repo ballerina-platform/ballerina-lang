@@ -20,7 +20,7 @@ import ballerina/io;
 type StatusCount {
     string status;
     int totalCount;
-}
+};
 
 type Teacher {
     string name;
@@ -28,7 +28,7 @@ type Teacher {
     string status;
     string batch;
     string school;
-}
+};
 
 StatusCount[] globalStatusCountArray = [];
 int index = 0;

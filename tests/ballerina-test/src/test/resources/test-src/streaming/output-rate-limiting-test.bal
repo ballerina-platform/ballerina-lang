@@ -21,7 +21,7 @@ type Employee {
     string name;
     int age;
     string status;
-}
+};
 
 type Teacher {
     string name;
@@ -29,7 +29,7 @@ type Teacher {
     string status;
     string batch;
     string school;
-}
+};
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
