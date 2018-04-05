@@ -18,12 +18,14 @@
 package org.ballerinalang.util.metrics;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.observability.ObservabilityConfig;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 
 /**
  * Listen to Launcher events and initialize Metrics.
@@ -33,7 +35,8 @@ public class MetricsLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        if (ObservabilityConfig.getInstance().isMetricsEnabled()) {
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        if (Boolean.valueOf(configRegistry.getConfigOrDefault(CONFIG_METRICS_ENABLED, String.valueOf(Boolean.FALSE)))) {
             ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
         }
     }
