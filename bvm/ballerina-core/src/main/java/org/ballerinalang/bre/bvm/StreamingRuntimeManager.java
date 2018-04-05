@@ -81,7 +81,7 @@ public class StreamingRuntimeManager {
         BStructType structType = (BStructType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
         if (!(parameters[parameters.length - 1] instanceof BArrayType)) {
             throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
-                    + " a struct array");
+                    + " an object array");
         }
 
         siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
