@@ -758,7 +758,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, true);
+        endFunctionDef(pos, null, false, false, true, false);
         //this is added for analysing closures
         if (!(blockNodeStack.empty())) {
             lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
@@ -1195,7 +1195,8 @@ public class BLangPackageBuilder {
                                Set<Whitespace> ws,
                                boolean publicFunc,
                                boolean nativeFunc,
-                               boolean bodyExists) {
+                               boolean bodyExists,
+                               boolean isReceiverAttached) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
@@ -1211,6 +1212,13 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        }
+
+        if (isReceiverAttached) {
+            BLangVariable receiver = (BLangVariable) this.varStack.pop();
+            receiver.docTag = DocTag.RECEIVER;
+            function.receiver = receiver;
+            function.flagSet.add(Flag.ATTACHED);
         }
 
         if (!function.deprecatedAttachments.isEmpty()) {

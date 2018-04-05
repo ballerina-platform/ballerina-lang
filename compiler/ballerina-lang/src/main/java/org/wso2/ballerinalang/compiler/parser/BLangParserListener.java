@@ -356,7 +356,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc, bodyExists);
+        // TODO remove when removing struct
+        boolean isReceiverAttached = ctx.parameter() != null;
+
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
+                bodyExists, isReceiverAttached);
     }
 
     @Override
