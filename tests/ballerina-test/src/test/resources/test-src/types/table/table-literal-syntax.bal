@@ -1,9 +1,9 @@
 type Person {
-    int id;
-    int age;
-    float salary;
-    string name;
-    boolean married;
+    int id,
+    int age,
+    float salary,
+    string name,
+    boolean married,
 }
 
 function testTableAddOnUnconstrainedTable() returns (int) {

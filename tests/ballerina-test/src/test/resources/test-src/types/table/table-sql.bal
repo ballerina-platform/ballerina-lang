@@ -1,29 +1,29 @@
 type Person {
-    int id;
-    int age = -1;
-    float salary;
-    string name;
-    boolean married;
+    int id,
+    int age = -1,
+    float salary,
+    string name,
+    boolean married,
 }
 
 type Order {
-    int personId;
-    int orderId;
-    string items;
-    float amount;
+    int personId,
+    int orderId,
+    string items,
+    float amount,
 }
 
 type OrderDetails {
-    int orderId;
-    string personName;
-    string items;
-    float amount;
+    int orderId,
+    string personName,
+    string items,
+    float amount,
 }
 
 type Student {
-    string name;
-    int index;
-    int age = -1;
+    string name,
+    int index,
+    int age = -1,
 }
 
 function testSimpleSelectAll () returns (int) {

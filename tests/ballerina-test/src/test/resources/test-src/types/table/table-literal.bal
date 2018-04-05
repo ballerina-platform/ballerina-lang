@@ -2,44 +2,44 @@ import ballerina/io;
 import ballerina/sql;
 
 type Person {
-    int id;
-    int age;
-    float salary;
-    string name;
-    boolean married;
+    int id,
+    int age,
+    float salary,
+    string name,
+    boolean married,
 }
 
 type Company {
-    int id;
-    string name;
+    int id,
+    string name,
 }
 
 type TypeTest {
-    int id;
-    json jsonData;
-    xml xmlData;
+    int id,
+    json jsonData,
+    xml xmlData,
 }
 
 type BlobTypeTest {
-    int id;
-    blob blobData;
+    int id,
+    blob blobData,
 }
 
 type AnyTypeTest {
-    int id;
-    any anyData;
+    int id,
+    any anyData,
 }
 
 type ArraTypeTest {
-    int id;
-    int[] intArrData;
-    float[] floatArrData;
-    string[] stringArrData;
-    boolean[] booleanArrData;
+    int id,
+    int[] intArrData,
+    float[] floatArrData,
+    string[] stringArrData,
+    boolean[] booleanArrData,
 }
 
 type ResultCount {
-    int COUNTVAL;
+    int COUNTVAL,
 }
 
 table<Person> dt1 = table{};

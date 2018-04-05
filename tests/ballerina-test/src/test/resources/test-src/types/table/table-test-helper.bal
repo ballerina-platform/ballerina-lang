@@ -1,7 +1,7 @@
 import ballerina/sql;
 
 type ResultCount {
-    int COUNTVAL;
+    int COUNTVAL,
 }
 
 function getTableCount (string tablePrefix) returns (int) {
