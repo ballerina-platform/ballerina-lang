@@ -4,8 +4,6 @@ import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 
-@final string HEADER_VAL_100_CONTINUE = "100-continue";
-
 @Description { value:"Represents an HTTP request message"}
 @Field {value:"path: Resource path of request URI"}
 @Field {value:"method: HTTP request method"}

@@ -19,6 +19,7 @@ package ballerina.auth.utils;
 import ballerina/config;
 import ballerina/caching;
 import ballerina/util;
+import ballerina/io;
 
 @Description {value:"Configuration entry to check if a cache is enabled"}
 @final string CACHE_ENABLED = "enabled";
@@ -62,7 +63,7 @@ function isCacheEnabled (string cacheName) returns (boolean) {
     // by default we enable the cache
     match config:getAsString(cacheName + "." + CACHE_ENABLED) {
         string value => return value == "true" ? true : false;
-        int|null => return CACHE_ENABLED_DEFAULT_VALUE;
+        () => return CACHE_ENABLED_DEFAULT_VALUE;
     }
 }
 
@@ -87,7 +88,7 @@ function getExpiryTime (string cacheName) returns (int) {
                 error typeConversionErr => return CACHE_EXPIRY_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
+        () => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -102,7 +103,7 @@ function getCapacity (string cacheName) returns (int) {
                 error typeConversionErr => return CACHE_CAPACITY_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
+        () => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -117,7 +118,7 @@ function getEvictionFactor (string cacheName) returns (float) {
                 error typeConversionErr => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
+        () => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
     }
 }
 
@@ -130,7 +131,14 @@ public function extractBasicAuthCredentials (string authHeader) returns (string,
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
-        decodedBasicAuthHeader = util:base64Decode(authHeader.subString(5, authHeader.length()).trim());
+        util:Base64DecodeError errorStruct = {};
+        errorStruct.message = "Error in decoder";
+        match util:base64Decode(authHeader.subString(5, authHeader.length()).trim()) {
+            string returnString => {decodedBasicAuthHeader = returnString;}
+            blob returnBlob => return <error>errorStruct;
+            io:ByteChannel returnChannel => return <error>errorStruct;
+            util:Base64DecodeError returnError => return <error>returnError;
+        }
     } catch (error err) {
         return err;
     }
