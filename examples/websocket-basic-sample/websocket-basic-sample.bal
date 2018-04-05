@@ -17,15 +17,6 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     string ping = "ping";
     blob pingData = ping.toBlob("UTF-8");
 
-    @Description {value:"This resource is responsible for handling user logic on handshake time. Note that the connection is not yet established while this code is running."}
-    onUpgrade (endpoint conn, http:Request req) {
-        io:println("\nNew client is going to connect");
-        io:println("Is connection secure: " + conn.isSecure);
-
-        io:println("pre upgrade headers -> ");
-        printHeaders(conn.upgradeHeaders);
-    }
-
     @Description {value:"This resource is triggered after a successful client connection."}
     onOpen (endpoint conn) {
         io:println("\nNew client connected");
