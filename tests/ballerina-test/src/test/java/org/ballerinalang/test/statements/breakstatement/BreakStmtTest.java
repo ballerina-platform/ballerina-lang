@@ -120,7 +120,7 @@ public class BreakStmtTest {
     @Test(description = "Check not reachable statements.")
     public void testNegative() {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 2);
-        BAssertUtil.validateError(negativeCompileResult, 0, "break cannot be used outside of a loop", 14, 5);
-        BAssertUtil.validateError(negativeCompileResult, 1, "unreachable code", 29, 13);
+        BAssertUtil.validateError(negativeCompileResult, 0, "break cannot be used outside of a loop", 15, 5);
+        BAssertUtil.validateError(negativeCompileResult, 1, "unreachable code", 31, 13);
     }
 }

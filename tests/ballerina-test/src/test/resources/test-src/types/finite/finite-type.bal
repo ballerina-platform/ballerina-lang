@@ -1,4 +1,4 @@
-type State "on"|"off"
+type State "on"|"off";
 
 function finiteAssignmentStateType() returns State {
     State p = "on";
@@ -9,7 +9,7 @@ function finiteAssignmentStateType() returns State {
     return p;
 }
 
-type NumberSet 1|2|3|4|5
+type NumberSet 1|2|3|4|5;
 
 function finiteAssignmentNumberSetType() returns NumberSet {
     NumberSet n = 1;
@@ -20,7 +20,7 @@ function finiteAssignmentNumberSetType() returns NumberSet {
     return n;
 }
 
-type StringOrInt int|string
+type StringOrInt int|string;
 
 function finiteAssignmentStringOrIntSetType() returns StringOrInt {
     StringOrInt si = 1;
@@ -40,7 +40,7 @@ function finiteAssignmentStringOrIntSetTypeCaseTwo() returns StringOrInt {
     return si;
 }
 
-type Int int
+type Int int;
 
 function finiteAssignmentIntSetType() returns Int {
     Int si = 1;
@@ -81,11 +81,11 @@ function finiteAssignmentStateSameTypeComparisonCaseTwo() returns State {
     return b;
 }
 
-type POrInt Person|int
+type POrInt Person|int;
 
-struct Person {
+type Person {
    string name;
-}
+};
 
 function finiteAssignmentRefValueType() returns POrInt {
     Person p = {name:"abc"};

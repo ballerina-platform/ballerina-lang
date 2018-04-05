@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     string name;
     int age;
     Person parent;
@@ -162,7 +162,7 @@ function testIncompatibleJsonToStructWithErrors() returns (Person | error) {
     return p;
 }
 
-struct PersonA {
+type PersonA {
     string name;
     int age;
 }
@@ -175,12 +175,12 @@ function testJsonToStructWithErrors() returns (PersonA | error) {
     return p;
 }
 
-struct A {
+type A {
     string x;
     int y;
 }
 
-struct B {
+type B {
     string x;
 }
 

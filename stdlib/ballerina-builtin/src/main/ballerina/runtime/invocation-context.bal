@@ -20,7 +20,7 @@ package ballerina.runtime;
 public type InvocationContext {
     string invocationId;
     AuthenticationContext authenticationContext;
-}
+};
 
 @Description { value:"Represents the AuthenticationContext, populated with authenticated user information"}
 public type AuthenticationContext {
@@ -31,7 +31,7 @@ public type AuthenticationContext {
     string[] scopes;
     string authType;
     string authToken;
-}
+};
 
 @Description {value:"Creates a InvocationContext instance"}
 @Return {value:"InvocationContext instance"}

@@ -1386,7 +1386,7 @@ public class BLangPackageBuilder {
     public void addConstVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                  boolean publicVar, boolean safeAssignment) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, true);
-        var.flagSet.add(Flag.CONST);
+        var.flagSet.add(Flag.FINAL);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
@@ -2235,8 +2235,7 @@ public class BLangPackageBuilder {
     public void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(this.createIdentifier(workerName));
-        exprNodeListStack.pop().forEach(expr -> workerSendNode.exprs.add((BLangExpression) expr));
-        workerSendNode.addWS(commaWsStack.pop());
+        workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
@@ -2246,8 +2245,7 @@ public class BLangPackageBuilder {
     public void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
-        exprNodeListStack.pop().forEach(expr -> workerReceiveNode.exprs.add((BLangExpression) expr));
-        workerReceiveNode.addWS(commaWsStack.pop());
+        workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
         workerReceiveNode.pos = pos;
         workerReceiveNode.addWS(ws);
         addStmtToCurrentBlock(workerReceiveNode);
